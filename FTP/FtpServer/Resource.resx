@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AuthOk_234" xml:space="preserve">
+    <value>234 AUTH Command OK. Initializing {0} connection.</value>
+  </data>
+  <data name="CurrentDirectory_257" xml:space="preserve">
+    <value>257 "{0}" is current directory.</value>
+  </data>
+  <data name="DataConnectionAccepted_150" xml:space="preserve">
+    <value>150 Connection accepted.</value>
+  </data>
+  <data name="DataConnectionCannotOpen_420" xml:space="preserve">
+    <value>420 Can't open data connection.</value>
+  </data>
+  <data name="DataConnectionError_426" xml:space="preserve">
+    <value>426 Data connection error.</value>
+  </data>
+  <data name="DataTransferComplete_226" xml:space="preserve">
+    <value>226 Transfer complete.</value>
+  </data>
+  <data name="FTP_Welcome" xml:space="preserve">
+    <value>220 Welcome GiantSoft FTP Server</value>
+  </data>
+  <data name="InputFileError_551" xml:space="preserve">
+    <value>551 {0}: Error on input file.</value>
+  </data>
+  <data name="NotFoundWithPath_550" xml:space="preserve">
+    <value>550 {0}: No such file or directory.</value>
+  </data>
+  <data name="NotFound_550" xml:space="preserve">
+    <value>550 No such file or directory.</value>
+  </data>
+  <data name="OuputFileError_551" xml:space="preserve">
+    <value>551 Error on output file.</value>
+  </data>
+  <data name="OutOfStorage_552" xml:space="preserve">
+    <value>552 Requested file action aborted. Exceeded storage allocation.</value>
+  </data>
+  <data name="PassiveEnter_227" xml:space="preserve">
+    <value>227 Entering Passive Mode ({0}).</value>
+  </data>
+  <data name="PermissionDenied_550" xml:space="preserve">
+    <value>550 Permission denied.</value>
+  </data>
+  <data name="PortInvalid_552" xml:space="preserve">
+    <value>552 Not a valid port number.</value>
+  </data>
+  <data name="PortOk_220" xml:space="preserve">
+    <value>220 Command PORT okay.</value>
+  </data>
+  <data name="RestartOk_350" xml:space="preserve">
+    <value>350 Restarting at {0}.</value>
+  </data>
+  <data name="SizeOk_213" xml:space="preserve">
+    <value>213 {0}</value>
+  </data>
+  <data name="AbortOk_226" xml:space="preserve">
+    <value>226 ABOR command successful.</value>
+  </data>
+  <data name="AcctOk_220" xml:space="preserve">
+    <value>202 Command ACCT not implemented, superfluous at this site.</value>
+  </data>
+  <data name="AlreadyLoggedIn_230" xml:space="preserve">
+    <value>230 Already logged-in.</value>
+  </data>
+  <data name="AuthenticationFailed_530" xml:space="preserve">
+    <value>530 Authentication failed.</value>
+  </data>
+  <data name="CannotRemoveSystemDirectory_550" xml:space="preserve">
+    <value>550 Can't remove directory {0}. It is a system directory.</value>
+  </data>
+  <data name="CannotRenameSystemDirectory_553" xml:space="preserve">
+    <value>553 Can't rename directory {0}. It is a system directory.</value>
+  </data>
+  <data name="ChangeDirectoryUp_250" xml:space="preserve">
+    <value>250 Directory changed to {0}.</value>
+  </data>
+  <data name="ChangeWorkDirOk_250" xml:space="preserve">
+    <value>250 Folder changed to "{0}".</value>
+  </data>
+  <data name="FeaturesOk_221" xml:space="preserve">
+    <value>211-Extensions supported:
+SIZE
+MLSD
+MLST
+NLST
+MDTM
+REST STREAM
+UTF8
+211 END</value>
+  </data>
+  <data name="FileOk_213" xml:space="preserve">
+    <value>213 {0}</value>
+  </data>
+  <data name="FileUnavailable_550" xml:space="preserve">
+    <value>550 {0}: File unavailable.</value>
+  </data>
+  <data name="GoodBye_221" xml:space="preserve">
+    <value>221 Goodbye.</value>
+  </data>
+  <data name="InvalidArguments_501" xml:space="preserve">
+    <value>501 Syntax error in parameters or arguments.</value>
+  </data>
+  <data name="LoggedIn_230" xml:space="preserve">
+    <value>230 User logged in, proceed.</value>
+  </data>
+  <data name="MakeDirFailed_550" xml:space="preserve">
+    <value>550 Can't create directory {0}.</value>
+  </data>
+  <data name="MakeDirOk_250" xml:space="preserve">
+    <value>250 "{0}" created.</value>
+  </data>
+  <data name="NoopOk_200" xml:space="preserve">
+    <value>200 Command NOOP okay.</value>
+  </data>
+  <data name="PBSZ_200" xml:space="preserve">
+    <value>200 Command PBSZ okay.</value>
+  </data>
+  <data name="ReachedLoginLimit_421" xml:space="preserve">
+    <value>421 Maximum login limit has been reached.</value>
+  </data>
+  <data name="RemoveDirectoryFailed_550" xml:space="preserve">
+    <value>550 Can't remove directory {0}.</value>
+  </data>
+  <data name="RemoveOk_250" xml:space="preserve">
+    <value>250 "{0}" removed.</value>
+  </data>
+  <data name="RenameForOk_350" xml:space="preserve">
+    <value>350 Requested file action pending further information.</value>
+  </data>
+  <data name="RenameToFailed_553" xml:space="preserve">
+    <value>553 Can't rename file.</value>
+  </data>
+  <data name="RenameToOk_250" xml:space="preserve">
+    <value>250 Requested file action okay, file renamed.</value>
+  </data>
+  <data name="RequirePasswor_331" xml:space="preserve">
+    <value>331 Password required for {0}.</value>
+  </data>
+  <data name="TypeOk_220" xml:space="preserve">
+    <value>200 Type set to {0}.</value>
+  </data>
+  <data name="DeleteFailed_450" xml:space="preserve">
+    <value>450 Can't delete file {0}.</value>
+  </data>
+  <data name="DeleteOk_250" xml:space="preserve">
+    <value>250 file deleted.</value>
+  </data>
+  <data name="DirectoryAlreadyExist_550" xml:space="preserve">
+    <value>550 {0}: The directory already exists.</value>
+  </data>
+  <data name="FileSystemError_450" xml:space="preserve">
+    <value>450 File system error.</value>
+  </data>
+  <data name="ProtDisabled_431" xml:space="preserve">
+    <value>431 Security is disabled.</value>
+  </data>
+  <data name="ProtectionLevelUnknow_504" xml:space="preserve">
+    <value>504 Server does not understand the specified protection level.</value>
+  </data>
+  <data name="ProtOk_200" xml:space="preserve">
+    <value>200 Command PROT okay.</value>
+  </data>
+  <data name="RenameDirectoryFailed_553" xml:space="preserve">
+    <value>553 Failed to rename this directory.</value>
+  </data>
+  <data name="NotImplement_502" xml:space="preserve">
+    <value>502 Command not implemented.</value>
+  </data>
+  <data name="UnknownError_450" xml:space="preserve">
+    <value>450 Unknown error.</value>
+  </data>
+</root>
