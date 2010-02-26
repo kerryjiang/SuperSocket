@@ -1,0 +1,161 @@
+﻿<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="3.5">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{E10F5B1A-7357-4024-AC75-FFD8AA12EDEF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>GiantSoft.FtpService</RootNamespace>
+    <AssemblyName>GiantSoft.FtpService</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>2.0</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\SocketService\bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.IdentityModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Command\ABOR.cs" />
+    <Compile Include="Command\ACCT.cs" />
+    <Compile Include="Command\APPE.cs" />
+    <Compile Include="Command\AUTH.cs" />
+    <Compile Include="Command\CDUP.cs" />
+    <Compile Include="Command\CWD.cs" />
+    <Compile Include="Command\DELE.cs" />
+    <Compile Include="Command\FEAT.cs" />
+    <Compile Include="Command\HELP.cs" />
+    <Compile Include="Command\LIST.cs" />
+    <Compile Include="Command\MDTM.cs" />
+    <Compile Include="Command\MKD.cs" />
+    <Compile Include="Command\MLSD.cs" />
+    <Compile Include="Command\MODE.cs" />
+    <Compile Include="Command\NLST.cs" />
+    <Compile Include="Command\NOOP.cs" />
+    <Compile Include="Command\PASS.cs" />
+    <Compile Include="Command\PASV.cs" />
+    <Compile Include="Command\PBSZ.cs" />
+    <Compile Include="Command\PORT.cs" />
+    <Compile Include="Command\PROT.cs" />
+    <Compile Include="Command\PWD.cs" />
+    <Compile Include="Command\QUIT.cs" />
+    <Compile Include="Command\REIN.cs" />
+    <Compile Include="Command\REST.cs" />
+    <Compile Include="Command\RETR.cs" />
+    <Compile Include="Command\RMD.cs" />
+    <Compile Include="Command\RNFR.cs" />
+    <Compile Include="Command\RNTO.cs" />
+    <Compile Include="Command\SITE.cs" />
+    <Compile Include="Command\SIZE.cs" />
+    <Compile Include="Command\STAT.cs" />
+    <Compile Include="Command\STOR.cs" />
+    <Compile Include="Command\STOU.cs" />
+    <Compile Include="Command\STRU.cs" />
+    <Compile Include="Command\SYST.cs" />
+    <Compile Include="Command\TYPE.cs" />
+    <Compile Include="Command\USER.cs" />
+    <Compile Include="DataConnection.cs" />
+    <Compile Include="FtpContext.cs" />
+    <Compile Include="FtpOnlineUsers.cs" />
+    <Compile Include="FtpServer.cs" />
+    <Compile Include="FtpServiceProviderBase.cs" />
+    <Compile Include="FtpSession.cs" />
+    <Compile Include="FtpUser.cs" />
+    <Compile Include="Management\FtpManager.cs" />
+    <Compile Include="Management\IServerManager.cs" />
+    <Compile Include="Management\IStatusReporter.cs" />
+    <Compile Include="Management\IUserManager.cs" />
+    <Compile Include="Membership\Anonymous.cs" />
+    <Compile Include="Membership\PasswordFormat.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Storage\ItemType.cs" />
+    <Compile Include="Storage\ListItem.cs" />
+    <Compile Include="Storage\OutOfStorageException.cs" />
+    <Compile Include="Storage\RenameResult.cs" />
+    <Compile Include="Storage\StoreOption.cs" />
+    <Compile Include="StoreException.cs" />
+    <Compile Include="SystemDirectoryException.cs" />
+    <Compile Include="TransferType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.csproj">
+      <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SocketServiceCore\SocketServiceCore.csproj">
+      <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
+      <Name>SocketServiceCore</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resource.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
