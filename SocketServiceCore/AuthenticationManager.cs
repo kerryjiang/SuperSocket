@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Security.Cryptography.X509Certificates;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Config;
 
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// X509Certificate Manager

@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class SIZE : ICommand<FtpSession>
 	{

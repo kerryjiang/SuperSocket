@@ -3,11 +3,11 @@
 //using System.Text;
 //using System.IO;
 //using System.Reflection;
-//using GiantSoft.Common;
-//using GiantSoft.SocketServiceCore.Config;
+//using SuperSocket.Common;
+//using SuperSocket.SocketServiceCore.Config;
 //using System.Net;
 
-//namespace GiantSoft.SocketServiceCore
+//namespace SuperSocket.SocketServiceCore
 //{
 //    /// <summary>
 //    /// The base class of all service provider factory

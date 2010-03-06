@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.Serialization;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// The base class of application user
 	/// </summary>
 	[DataContract]
-	public abstract class SocketUser : MarshalByRefObject
+	public abstract class SocketUser
 	{
 		private long m_UserID;
 

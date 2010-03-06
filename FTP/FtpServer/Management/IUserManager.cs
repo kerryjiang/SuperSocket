@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ServiceModel;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.SocketServiceCore;
 
-namespace GiantSoft.FtpService.Management
+namespace SuperSocket.FtpService.Management
 {
 	[ServiceContract]
 	public interface IUserManager

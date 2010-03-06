@@ -1,4 +1,4 @@
-namespace GiantSoft.SocketService
+namespace SuperSocket.SocketService
 {
 	partial class SocketServiceInstaller
 	{

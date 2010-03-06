@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using System.Text;
 
-namespace GiantSoft.Common.Hash
+namespace SuperSocket.Common.Hash
 {
 
 	public class MD5

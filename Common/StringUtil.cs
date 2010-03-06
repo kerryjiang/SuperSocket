@@ -5,7 +5,7 @@ using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.IO;
 
-namespace GiantSoft.Common
+namespace SuperSocket.Common
 {
 	public static class StringUtil
 	{

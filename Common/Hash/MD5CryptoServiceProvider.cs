@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-namespace GiantSoft.Common.Hash
+namespace SuperSocket.Common.Hash
 {
 	/// <summary>
 	/// MD5CryptoServiceProvider

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GiantSoft.Common.Hash
+namespace SuperSocket.Common.Hash
 {
 	public static class HashProviderManager
 	{

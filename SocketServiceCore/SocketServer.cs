@@ -6,14 +6,14 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Reflection;
 using System.Collections;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.Config;
 using System.IO;
 using System.ServiceModel.Description;
 
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// The core socket server which can run any SocketSession

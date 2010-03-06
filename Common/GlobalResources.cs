@@ -5,7 +5,7 @@ using System.Resources;
 using System.Globalization;
 using System.Reflection;
 
-namespace GiantSoft.Common
+namespace SuperSocket.Common
 {
 	public static class GlobalResources
 	{

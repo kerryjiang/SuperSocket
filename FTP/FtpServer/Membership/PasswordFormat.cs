@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GiantSoft.FtpService.Membership
+namespace SuperSocket.FtpService.Membership
 {
 	/// <summary>
 	/// Password format

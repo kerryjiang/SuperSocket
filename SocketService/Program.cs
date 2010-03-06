@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.ServiceProcess;
 using System.Text;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore;
-using GiantSoft.SocketServiceCore.Configuration;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Configuration;
 
-namespace GiantSoft.SocketService
+namespace SuperSocket.SocketService
 {
 	static class Program
 	{

@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class CDUP : ICommand<FtpSession>
 	{

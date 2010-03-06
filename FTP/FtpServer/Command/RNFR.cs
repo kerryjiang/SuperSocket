@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.FtpService.Storage;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.FtpService.Storage;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class RNFR : ICommand<FtpSession>
 	{

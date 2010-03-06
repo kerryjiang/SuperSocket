@@ -4,7 +4,7 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 
-namespace GiantSoft.Common
+namespace SuperSocket.Common
 {
     public static class AssemblyUtil
     {

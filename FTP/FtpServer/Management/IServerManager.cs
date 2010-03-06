@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.ServiceModel;
 
-namespace GiantSoft.FtpService.Management
+namespace SuperSocket.FtpService.Management
 {
 	[ServiceContract]
 	public interface IServerManager

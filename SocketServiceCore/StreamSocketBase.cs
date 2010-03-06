@@ -6,12 +6,12 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Net.Security;
 using System.Net;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore.Config;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Command;
 
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// The base class which provide the communication function with client

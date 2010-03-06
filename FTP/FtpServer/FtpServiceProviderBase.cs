@@ -1,17 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using GiantSoft.Common;
-using GiantSoft.FtpService.Storage;
-using GiantSoft.SocketServiceCore;
-using GiantSoft.Common.Hash;
-using System.Configuration;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.Common;
+using SuperSocket.Common.Hash;
+using SuperSocket.FtpService.Storage;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Config;
 
-namespace GiantSoft.FtpService
+namespace SuperSocket.FtpService
 {
 	public abstract class FtpServiceProviderBase : ProviderBase
 	{

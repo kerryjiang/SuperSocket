@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Configuration.Install;
 using System.ServiceProcess;
 
-namespace GiantSoft.SocketService
+namespace SuperSocket.SocketService
 {
 	[RunInstaller(true)]
 	public partial class SocketServiceInstaller : Installer

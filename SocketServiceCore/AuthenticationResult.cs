@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// Authentication result

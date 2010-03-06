@@ -5,7 +5,7 @@ using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
 
-namespace GiantSoft.Common
+namespace SuperSocket.Common
 {
     public static class XmlSerializerUtil
     {

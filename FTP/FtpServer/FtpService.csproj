@@ -7,8 +7,8 @@
     <ProjectGuid>{E10F5B1A-7357-4024-AC75-FFD8AA12EDEF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GiantSoft.FtpService</RootNamespace>
-    <AssemblyName>GiantSoft.FtpService</AssemblyName>
+    <RootNamespace>SuperSocket.FtpService</RootNamespace>
+    <AssemblyName>SuperSocket.FtpService</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -29,7 +29,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\SocketService\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

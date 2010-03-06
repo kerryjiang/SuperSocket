@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.Command;
 using System.Security.Authentication;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class PROT : ICommand<FtpSession>
 	{

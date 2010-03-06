@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Config;
 using System.Resources;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// The base class of the service provider

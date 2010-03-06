@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.IdentityModel.Selectors;
 using System.IdentityModel.Tokens;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Config;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	public class SocketManagerPasswordValidator : UserNamePasswordValidator
 	{

@@ -6,11 +6,11 @@ using System.Diagnostics;
 using System.ServiceProcess;
 using System.Text;
 using System.Configuration;
-using GiantSoft.SocketServiceCore.Configuration;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Configuration;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore;
 
-namespace GiantSoft.SocketService
+namespace SuperSocket.SocketService
 {
 	partial class MainService : ServiceBase
 	{

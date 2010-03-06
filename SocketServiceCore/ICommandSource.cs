@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.Command;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// Define the behavior of command source

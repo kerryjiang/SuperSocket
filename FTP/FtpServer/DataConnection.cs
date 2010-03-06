@@ -4,13 +4,13 @@ using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore;
-using GiantSoft.SocketServiceCore.Config;
-using GiantSoft.FtpService.Storage;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.FtpService.Storage;
 
 
-namespace GiantSoft.FtpService
+namespace SuperSocket.FtpService
 {
 	class DataConnection : StreamSocketBase
 	{

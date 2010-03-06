@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.Command;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	class CommandReceiveState
 	{

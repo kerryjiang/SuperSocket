@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Net.Sockets;
-using GiantSoft.Common;
-using GiantSoft.FtpService.Storage;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.Common;
+using SuperSocket.FtpService.Storage;
+using SuperSocket.SocketServiceCore.Command;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class STOR : ICommand<FtpSession>
 	{

@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Config;
 using System.Configuration;
 
-namespace GiantSoft.SocketServiceCore.Configuration
+namespace SuperSocket.SocketServiceCore.Configuration
 {
 	public class Server : ConfigurationElement, IServerConfig
 	{

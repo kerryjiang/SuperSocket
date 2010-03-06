@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ServiceModel;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.SocketServiceCore;
 
-namespace GiantSoft.FtpService.Management
+namespace SuperSocket.FtpService.Management
 {
 	[ServiceBehavior(InstanceContextMode = InstanceContextMode.Single, IncludeExceptionDetailInFaults = true)]
 	public class FtpManager : IServerManager, IStatusReporter, IUserManager

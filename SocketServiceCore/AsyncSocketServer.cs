@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net.Sockets;
-using GiantSoft.Common;
+using SuperSocket.Common;
 using System.Threading;
 using System.Collections;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	public abstract class AsyncSocketServer<T> : SocketServerBase<T>
 		where T : SocketSession, new()

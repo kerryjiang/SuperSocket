@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GiantSoft.SocketServiceCore.Command
+namespace SuperSocket.SocketServiceCore.Command
 {
 	public interface ICommand<T> where T : SocketSession
 	{

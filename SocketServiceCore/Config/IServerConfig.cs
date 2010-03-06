@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
 
-namespace GiantSoft.SocketServiceCore.Config
+namespace SuperSocket.SocketServiceCore.Config
 {
 	public interface IServerConfig
 	{

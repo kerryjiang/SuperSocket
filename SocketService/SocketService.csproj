@@ -7,8 +7,8 @@
     <ProjectGuid>{B9113694-7226-4152-938D-3172B11571A1}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GiantSoft.SocketService</RootNamespace>
-    <AssemblyName>GiantSoft.SocketService</AssemblyName>
+    <RootNamespace>SuperSocket.SocketService</RootNamespace>
+    <AssemblyName>SuperSocket.SocketService</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -66,11 +66,11 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Common\Common.csproj">
+    <ProjectReference Include="..\Common\Common.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Socket\SocketServiceCore\SocketServiceCore.csproj">
+    <ProjectReference Include="..\SocketServiceCore\SocketServiceCore.csproj">
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
       <Name>SocketServiceCore</Name>
     </ProjectReference>

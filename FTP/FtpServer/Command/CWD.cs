@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Command;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class CWD : ICommand<FtpSession>
 	{

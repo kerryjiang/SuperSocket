@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Config;
 using System.Configuration;
 using System.Reflection;
 using System.IO;
@@ -12,7 +12,7 @@ using System.ServiceModel.Description;
 using System.ServiceModel.Security;
 using System.Security.Cryptography.X509Certificates;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
     public static class SocketServerManager
     {

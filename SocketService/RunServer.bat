@@ -1,2 +1,2 @@
-GiantSoft.SocketService.exe -c
+SuperSocket.SocketService.exe -c
 pasue

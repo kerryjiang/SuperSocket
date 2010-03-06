@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.SocketServiceCore;
 using System.Security.Authentication;
-using GiantSoft.FtpService.Storage;
+using SuperSocket.FtpService.Storage;
 
-namespace GiantSoft.FtpService
+namespace SuperSocket.FtpService
 {
 	public class FtpContext : SocketContext
 	{

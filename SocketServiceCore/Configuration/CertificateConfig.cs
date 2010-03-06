@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Config;
 
-namespace GiantSoft.SocketServiceCore.Configuration
+namespace SuperSocket.SocketServiceCore.Configuration
 {
 	public class CertificateConfig : ConfigurationElement, ICertificateConfig
 	{		

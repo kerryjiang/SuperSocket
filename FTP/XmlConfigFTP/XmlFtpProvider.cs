@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using GiantSoft.FtpService;
-using GiantSoft.SocketServiceCore;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.FtpService;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Config;
 using System.Configuration;
-using GiantSoft.Common;
+using SuperSocket.Common;
 
-namespace GiantSoft.XmlConfigFTP
+namespace SuperSocket.XmlConfigFTP
 {
     public class XmlFtpProvider : FtpServiceProviderBase
     {

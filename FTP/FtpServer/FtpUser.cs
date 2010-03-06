@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.SocketServiceCore;
 
 
-namespace GiantSoft.FtpService
+namespace SuperSocket.FtpService
 {
 	[DataContract]
 	public class FtpUser : SocketUser

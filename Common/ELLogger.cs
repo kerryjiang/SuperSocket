@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Microsoft.Practices.EnterpriseLibrary.Logging;
 
-namespace GiantSoft.Common
+namespace SuperSocket.Common
 {
 	public class ELLogger : ILogger
 	{

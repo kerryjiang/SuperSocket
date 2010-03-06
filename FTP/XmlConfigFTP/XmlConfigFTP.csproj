@@ -8,8 +8,8 @@
     <ProjectGuid>{D3F550E7-E564-43FF-B8E8-182FE31AD5B0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GiantSoft.XmlConfigFTP</RootNamespace>
-    <AssemblyName>GiantSoft.XmlConfigFTP</AssemblyName>
+    <RootNamespace>SuperSocket.XmlConfigFTP</RootNamespace>
+    <AssemblyName>SuperSocket.XmlConfigFTP</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -25,7 +25,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\SocketService\bin\Release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>

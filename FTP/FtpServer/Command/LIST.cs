@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Command;
 using System.IO;
-using GiantSoft.FtpService.Storage;
+using SuperSocket.FtpService.Storage;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class LIST : ICommand<FtpSession>
 	{

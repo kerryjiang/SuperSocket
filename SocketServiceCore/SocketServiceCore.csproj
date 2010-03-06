@@ -7,8 +7,8 @@
     <ProjectGuid>{153FEF72-191C-43D9-BE71-2B351C7AC760}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GiantSoft.SocketServiceCore</RootNamespace>
-    <AssemblyName>GiantSoft.SocketServiceCore</AssemblyName>
+    <RootNamespace>SuperSocket.SocketServiceCore</RootNamespace>
+    <AssemblyName>SuperSocket.SocketServiceCore</AssemblyName>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <OldToolsVersion>2.0</OldToolsVersion>
@@ -89,7 +89,7 @@
     <Compile Include="StreamSocketBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Common\Common\Common.csproj">
+    <ProjectReference Include="..\Common\Common.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>Common</Name>
     </ProjectReference>

@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.FtpService.Membership;
-using GiantSoft.FtpService.Storage;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.FtpService.Membership;
+using SuperSocket.FtpService.Storage;
 using System.IO;
 
-namespace GiantSoft.FtpService
+namespace SuperSocket.FtpService
 {
 	public class FtpSession : SocketSession
 	{

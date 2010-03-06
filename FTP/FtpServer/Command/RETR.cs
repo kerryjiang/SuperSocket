@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Net.Sockets;
-using GiantSoft.Common;
-using GiantSoft.SocketServiceCore.Command;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Command;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class RETR : ICommand<FtpSession>
 	{

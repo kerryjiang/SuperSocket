@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net;
 using System.Net.Sockets;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.SocketServiceCore.Config;
-using GiantSoft.Common;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.Common;
 using System.Threading;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	/// <summary>
 	/// Socket Session, all application session should base on this class

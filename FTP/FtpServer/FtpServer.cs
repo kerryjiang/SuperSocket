@@ -2,16 +2,16 @@
 using System.Net;
 using System.ServiceModel;
 using System.ServiceModel.Description;
-using GiantSoft.Common;
-using GiantSoft.FtpService.Management;
-using GiantSoft.FtpService.Membership;
-using GiantSoft.FtpService.Storage;
-using GiantSoft.SocketServiceCore;
+using SuperSocket.Common;
+using SuperSocket.FtpService.Management;
+using SuperSocket.FtpService.Membership;
+using SuperSocket.FtpService.Storage;
+using SuperSocket.SocketServiceCore;
 using System.ServiceModel.Security;
 using System.ServiceModel.Channels;
 using System.IdentityModel.Claims;
 
-namespace GiantSoft.FtpService
+namespace SuperSocket.FtpService
 {
 	public class FtpServer : SocketServer<FtpSession>
 	{

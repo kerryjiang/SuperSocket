@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GiantSoft.FtpService.Storage
+namespace SuperSocket.FtpService.Storage
 {
 	public enum RenameResult
 	{

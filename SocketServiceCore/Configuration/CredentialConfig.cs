@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Config;
 using System.Configuration;
 
-namespace GiantSoft.SocketServiceCore.Configuration
+namespace SuperSocket.SocketServiceCore.Configuration
 {
 	public class CredentialConfig : ConfigurationElement, ICredentialConfig
 	{

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace GiantSoft.Common
+namespace SuperSocket.Common
 {
 	public class LogUtil
 	{

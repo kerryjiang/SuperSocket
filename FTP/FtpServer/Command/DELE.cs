@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.Common;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.Common;
 
-namespace GiantSoft.FtpService.Command
+namespace SuperSocket.FtpService.Command
 {
 	class DELE : ICommand<FtpSession>
 	{

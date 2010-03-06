@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Net;
 using System.Reflection;
-using GiantSoft.SocketServiceCore.Command;
-using GiantSoft.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.Config;
 using System.ServiceModel.Description;
-using GiantSoft.Common;
+using SuperSocket.Common;
 using System.IO;
 using System.Collections;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace GiantSoft.SocketServiceCore
+namespace SuperSocket.SocketServiceCore
 {
 	public abstract class SocketServerBase<T> : IRunable, ICommandSource<T> where T : SocketSession, new()
 	{
