@@ -136,7 +136,7 @@
     <value>226 Transfer complete.</value>
   </data>
   <data name="FTP_Welcome" xml:space="preserve">
-    <value>220 Welcome GiantSoft FTP Server</value>
+    <value>220 Welcome SuperSocket FTP Server</value>
   </data>
   <data name="InputFileError_551" xml:space="preserve">
     <value>551 {0}: Error on input file.</value>

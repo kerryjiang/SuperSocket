@@ -57,21 +57,6 @@
     <Compile Include="EventLogger.cs" />
     <Compile Include="FileHelper.cs" />
     <Compile Include="GlobalResourceManager.cs" />
-    <Compile Include="Hash\HashProviderManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hash\IHashProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hash\MD5.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hash\MD5CryptoServiceProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Hash\SmartHashProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ILogger.cs" />
     <Compile Include="LogUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

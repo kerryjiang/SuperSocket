@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.Common.Hash;
 using SuperSocket.FtpService.Storage;
 using SuperSocket.SocketServiceCore;
 using SuperSocket.SocketServiceCore.Config;
@@ -397,10 +396,10 @@ namespace SuperSocket.FtpService
 
 		public virtual bool StoreFile(FtpContext context, string filename, Stream stream)
 		{
-			return StoreFile(context, filename, stream, new StoreOption(), null);
+			return StoreFile(context, filename, stream, new StoreOption());
 		}
 
-		protected bool StoreFile(FtpContext context, string filename, Stream stream, StoreOption option, IHashProvider hashProvider)
+		protected bool StoreFile(FtpContext context, string filename, Stream stream, StoreOption option)
 		{
 			int bufLen = 1024 * 10;
 			byte[] buffer = new byte[bufLen];
@@ -450,9 +449,6 @@ namespace SuperSocket.FtpService
 					fs.Write(buffer, 0, read);
 					totalRead += read;
 					context.ChangeSpace(read);
-
-					if (hashProvider != null)
-						hashProvider.TransformBlock(buffer, 0, read);
 
 					if (speed > 0) // if speed <=0, then no speed limitation
 					{

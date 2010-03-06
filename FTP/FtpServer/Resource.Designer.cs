@@ -258,7 +258,7 @@ namespace SuperSocket.FtpService {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to 220 Welcome GiantSoft FTP Server.
+        ///   Looks up a localized string similar to 220 Welcome SuperSocket FTP Server.
         /// </summary>
         internal static string FTP_Welcome {
             get {
