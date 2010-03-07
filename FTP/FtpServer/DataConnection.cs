@@ -35,7 +35,7 @@ namespace SuperSocket.FtpService
 		public DataConnection(FtpSession session)
 		{
 			m_Address			= session.Config.Ip;
-			SecureProtocol		= session.Context.DataSecureProtocol;
+            SecureProtocol      = session.FtpContext.DataSecureProtocol;
 			m_Port				= GetPassivePort(session);
 			session.DataConn	= this;
 		}
@@ -43,7 +43,7 @@ namespace SuperSocket.FtpService
 		public DataConnection(FtpSession session, int port) //PORT
 		{
 			m_Address		= session.Config.Ip;
-			SecureProtocol	= session.Context.DataSecureProtocol;
+            SecureProtocol  = session.FtpContext.DataSecureProtocol;
 			if (TrySocketPort(port))
 			{
 				m_Port	= port;

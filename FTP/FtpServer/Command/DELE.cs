@@ -23,7 +23,7 @@ namespace SuperSocket.FtpService.Command
 				return;
 			}
 
-			if(session.FtpServiceProvider.DeleteFile(session.Context, filename))
+			if(session.FtpServiceProvider.DeleteFile(session.FtpContext, filename))
             {
 				session.SendResponse(Resource.DeleteOk_250);
             }			

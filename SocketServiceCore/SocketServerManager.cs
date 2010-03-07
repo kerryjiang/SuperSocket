@@ -18,7 +18,7 @@ namespace SuperSocket.SocketServiceCore
     {
         private static List<IRunable> m_ServerList = new List<IRunable>();
 
-        private static Dictionary<string, Type> m_ServiceDict = new Dictionary<string, Type>();
+        private static Dictionary<string, Type> m_ServiceDict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         private static IConfig m_Config;
 
@@ -45,7 +45,7 @@ namespace SuperSocket.SocketServiceCore
 				if (AssemblyUtil.TryGetType<IRunable>(service.BaseAssembly, out serviceType))
                 {
                     initResult = true;
-					m_ServiceDict[service.ServiceName.ToUpper()] = serviceType;
+					m_ServiceDict[service.ServiceName] = serviceType;
                 }
 
                 if (!initResult)
@@ -78,13 +78,12 @@ namespace SuperSocket.SocketServiceCore
 
                 bool startResult = false;
 
-				if (m_ServiceDict.TryGetValue(serverConfig.ServiceName.ToUpper(), out serviceType))
+				if (m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
                 {
-					IRunable server = Activator.CreateInstance(serviceType, new IPEndPoint(IPAddress.Parse(serverConfig.Ip), serverConfig.Port)) as IRunable;
-					server.ServerCredentials = credentials;
+					IRunable server = Activator.CreateInstance(serviceType) as IRunable;					
 					if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig))
                     {
-						
+                        server.ServerCredentials = credentials;
                         if (server.Start())
                         {
                             m_ServerList.Add(server);

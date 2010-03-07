@@ -101,10 +101,6 @@
     <Compile Include="FtpServiceProviderBase.cs" />
     <Compile Include="FtpSession.cs" />
     <Compile Include="FtpUser.cs" />
-    <Compile Include="Management\FtpManager.cs" />
-    <Compile Include="Management\IServerManager.cs" />
-    <Compile Include="Management\IStatusReporter.cs" />
-    <Compile Include="Management\IUserManager.cs" />
     <Compile Include="Membership\Anonymous.cs" />
     <Compile Include="Membership\PasswordFormat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

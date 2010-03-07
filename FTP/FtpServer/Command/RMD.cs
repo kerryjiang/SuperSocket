@@ -22,9 +22,9 @@ namespace SuperSocket.FtpService.Command
 				return;
 			}
 
-            if (session.FtpServiceProvider.RemoveFolder(session.Context, foldername))
+            if (session.FtpServiceProvider.RemoveFolder(session.FtpContext, foldername))
             {
-                session.SendResponse(Resource.RemoveOk_250, session.Context.CurrentPath + "/" + foldername);
+                session.SendResponse(Resource.RemoveOk_250, session.FtpContext.CurrentPath + "/" + foldername);
             }
             else
             {

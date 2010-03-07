@@ -24,9 +24,9 @@ namespace SuperSocket.FtpService.Command
 				return;
 			}
 
-            if (session.Context.RenameItemType == ItemType.File)
+            if (session.FtpContext.RenameItemType == ItemType.File)
             {
-				if (!session.FtpServiceProvider.RenameFile(session.Context, session.Context.RenameFor, newfileName))
+                if (!session.FtpServiceProvider.RenameFile(session.FtpContext, session.FtpContext.RenameFor, newfileName))
                 {
                     session.SendResponse(session.Context.Message);
                     return;
@@ -34,7 +34,7 @@ namespace SuperSocket.FtpService.Command
             }
             else
             {
-                if (!session.FtpServiceProvider.RenameFolder(session.Context, session.Context.RenameFor, newfileName))
+                if (!session.FtpServiceProvider.RenameFolder(session.FtpContext, session.FtpContext.RenameFor, newfileName))
                 {
                     session.SendResponse(session.Context.Message);
                     return;

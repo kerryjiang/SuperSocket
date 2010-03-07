@@ -21,6 +21,8 @@ namespace SuperSocket.SocketServiceCore.Config
 
         string Name { get; }
 
+        SocketMode Mode { get; }
+
 		bool EnableManagementService { get; }
 	}
 }

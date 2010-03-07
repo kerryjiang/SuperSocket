@@ -23,16 +23,16 @@ namespace SuperSocket.FtpService.Command
 			switch (typeCode)
 			{
 				case ('A'):
-					session.Context.TransferType = TransferType.A;
+					session.FtpContext.TransferType = TransferType.A;
 					break;
 				case ('E'):
-					session.Context.TransferType = TransferType.E;
+                    session.FtpContext.TransferType = TransferType.E;
 					break;
 				case ('I'):
-					session.Context.TransferType = TransferType.I;
+                    session.FtpContext.TransferType = TransferType.I;
 					break;
 				case ('L'):
-					session.Context.TransferType = TransferType.L;
+                    session.FtpContext.TransferType = TransferType.L;
 					break;
 				default:
 					session.SendParameterError();

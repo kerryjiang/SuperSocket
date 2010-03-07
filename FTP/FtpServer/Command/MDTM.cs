@@ -21,7 +21,7 @@ namespace SuperSocket.FtpService.Command
 				return;
 			}
 
-			DateTime mdfTime = session.FtpServiceProvider.GetModifyTime(session.Context, filename);
+			DateTime mdfTime = session.FtpServiceProvider.GetModifyTime(session.FtpContext, filename);
 
             if(session.Context.Status == SocketContextStatus.Error)
             {

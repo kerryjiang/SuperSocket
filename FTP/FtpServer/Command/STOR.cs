@@ -34,7 +34,7 @@ namespace SuperSocket.FtpService.Command
 				{
 					session.SendResponse(Resource.DataConnectionAccepted_150);
 
-                    if (session.FtpServiceProvider.StoreFile(session.Context, filename, stream))
+                    if (session.FtpServiceProvider.StoreFile(session.FtpContext, filename, stream))
                         session.SendResponse(Resource.DataTransferComplete_226);
                     else
                         session.SendResponse(session.Context.Message);

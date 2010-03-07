@@ -25,10 +25,10 @@ namespace SuperSocket.FtpService.Command
 
 			long folderID;
 
-            if (session.FtpServiceProvider.IsExistFolder(session.Context, path, out folderID))
+            if (session.FtpServiceProvider.IsExistFolder(session.FtpContext, path, out folderID))
             {
-                session.Context.CurrentPath = path;
-                session.Context.CurrentFolderID = folderID;
+                session.FtpContext.CurrentPath = path;
+                session.FtpContext.CurrentFolderID = folderID;
                 session.SendResponse(Resource.ChangeWorkDirOk_250, path);
             }
             else

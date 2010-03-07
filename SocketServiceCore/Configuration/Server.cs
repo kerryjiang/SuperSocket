@@ -32,6 +32,12 @@ namespace SuperSocket.SocketServiceCore.Configuration
 			get { return (int)this["port"]; }
 		}
 
+        [ConfigurationProperty("mode", IsRequired = false, DefaultValue = "Sync")]
+        public SocketMode Mode
+        {
+            get { return (SocketMode)this["mode"]; }
+        }
+
         [ConfigurationProperty("disabled", DefaultValue = "false")]
         public bool Disabled
         {

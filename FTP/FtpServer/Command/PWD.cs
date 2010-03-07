@@ -11,7 +11,7 @@ namespace SuperSocket.FtpService.Command
 
 		public void Execute(FtpSession session, CommandInfo commandData)
 		{
-			session.SendResponse(Resource.CurrentDirectory_257, session.Context.CurrentPath);
+			session.SendResponse(Resource.CurrentDirectory_257, session.FtpContext.CurrentPath);
 		}
 
 		#endregion

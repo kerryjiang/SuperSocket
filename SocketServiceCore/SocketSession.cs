@@ -13,27 +13,38 @@ namespace SuperSocket.SocketServiceCore
 	/// <summary>
 	/// Socket Session, all application session should base on this class
 	/// </summary>
-	public abstract class SocketSession : StreamSocketBase
+    public abstract class SocketSession<T> : StreamSocketBase, ISocketSession<T>
+        where T : IAppSession, new()
 	{
+        public IAppServer<T> AppServer { get; private set; }
+        public T AppSession { get; private set; }
+
 		public SocketSession()
 		{
 
 		}
 
-		/// <summary>
-		/// The session identity string
-		/// </summary>
-		private string m_SessionID = Guid.NewGuid().ToString();
+        public void Initialize(IAppServer<T> appServer, T appSession, TcpClient client)
+        {
+            AppServer = appServer;
+            AppSession = appSession;
+            Client = client;
+        }
 
-		/// <summary>
-		/// Gets or sets the session ID.
-		/// </summary>
-		/// <value>The session ID.</value>
-		public string SessionID
-		{
-			get { return m_SessionID; }
-			set { m_SessionID = value; }
-		}
+        /// <summary>
+        /// The session identity string
+        /// </summary>
+        private string m_SessionID = Guid.NewGuid().ToString();
+
+        /// <summary>
+        /// Gets or sets the session ID.
+        /// </summary>
+        /// <value>The session ID.</value>
+        public string SessionID
+        {
+            get { return m_SessionID; }
+            set { m_SessionID = value; }
+        }
 
 		private DateTime m_StartTime = DateTime.Now;
 
@@ -55,6 +66,7 @@ namespace SuperSocket.SocketServiceCore
 		public DateTime LastActiveTime
 		{
 			get { return m_LastActiveTime; }
+            protected set { m_LastActiveTime = value; }
 		}
 
 		private IServerConfig m_Config = null;
@@ -69,104 +81,38 @@ namespace SuperSocket.SocketServiceCore
 			set { m_Config = value; }
 		}
 
-
-		public abstract void SetServer(IRunable server);
-		
-
-		/// <summary>
-		/// Sets the command source.
-		/// </summary>
-		/// <value>The command source.</value>
-		public abstract object CommandSource { set; }
-
-
 		/// <summary>
 		/// Starts this session.
 		/// </summary>
-		public abstract void Start();
+        public void Start()
+        {
+            Start(AppSession.Context);
+        }
+
+        protected abstract void Start(SocketContext context);
 
 
 		/// <summary>
 		/// Executes the command.
 		/// </summary>
 		/// <param name="cmdInfo">The CMD info.</param>
-		protected abstract void ExecuteCommand(CommandInfo cmdInfo);
+        protected virtual void ExecuteCommand(CommandInfo cmdInfo)
+        {
+            ICommand<T> command = AppServer.GetCommandByName(cmdInfo.Name);
+
+            if (command != null)
+            {
+                command.Execute(AppSession, cmdInfo);
+            }
+        }
 
 		/// <summary>
 		/// Says the welcome information when a client connectted.
 		/// </summary>
-		protected abstract void SayWelcome();
-
-		private Thread m_CommandThread = null;
-
-		/// <summary>
-		/// Starts the the session with specified context.
-		/// </summary>
-		/// <param name="context">The context.</param>
-		public virtual void Start(SocketContext context)
-		{
-			m_CommandThread = Thread.CurrentThread;
-
-			//Client.Client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive, true);
-			Client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);			
-
-			InitStream(context);
-			
-			SayWelcome();
-
-			CommandInfo cmdInfo;
-
-			while (TryGetCommand(out cmdInfo))
-			{
-				m_LastActiveTime = DateTime.Now;
-                context.Status = SocketContextStatus.Healthy;
-
-                try
-                {
-                    ExecuteCommand(cmdInfo);
-                    context.PrevCommand = cmdInfo.Name;
-                    m_LastActiveTime = DateTime.Now;
-
-                    if (Client == null && !IsClosed)
-                    {
-                        //Has been closed
-                        OnClose();
-                        return;
-                    }	
-                }
-                catch (SocketException)
-                {
-                    Close();
-                    break;
-                }
-                catch (Exception e)
-                {
-                    LogUtil.LogError(e);
-					HandleExceptionalError(e);
-                }	
-			}
-
-            if (Client != null)
-            {
-                Close();
-            }
-            else if (!IsClosed)
-            {
-                OnClose();
-            }
-		}
-
-
-		public override void Close()
-		{
-			if (m_CommandThread != null)
-			{
-				m_CommandThread.Abort();
-				m_CommandThread = null;				
-			}
-
-			base.Close();
-		}
+        protected virtual void SayWelcome()
+        {
+            AppSession.SayWelcome();
+        }		
 
 		/// <summary>
 		/// Called when [close].
@@ -181,11 +127,19 @@ namespace SuperSocket.SocketServiceCore
             base.OnClose();
 		}
 
+        public override void Close()
+        {
+            base.Close();
+        }
+
 		/// <summary>
 		/// Occurs when [closed].
 		/// </summary>
 		public event EventHandler Closed;
 
-        protected abstract void HandleExceptionalError(Exception e);
+        protected virtual void HandleExceptionalError(Exception e)
+        {
+            AppSession.HandleExceptionalError(e);
+        }
     }
 }

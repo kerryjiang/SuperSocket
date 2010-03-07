@@ -19,18 +19,13 @@ namespace SuperSocket.SocketServiceCore
 	/// The core socket server which can run any SocketSession
 	/// </summary>
 	/// <typeparam name="T">The typeof the SocketSession</typeparam>
-	public abstract class SocketServer<T> : SocketServerBase<T>
-		where T : SocketSession, new()
+    public class SyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
+        where TSocketSession : ISocketSession<TAppSession>, new()
+        where TAppSession : IAppSession, new()
 	{	
 
-		public SocketServer()
-			: base()
-		{
-			
-		}
-
-		public SocketServer(IPEndPoint localEndPoint)
-            : base(localEndPoint)
+        public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
+            : base(appServer, localEndPoint)
 		{
 			
 		}
@@ -44,11 +39,11 @@ namespace SuperSocket.SocketServiceCore
 		/// </summary>
 		public override bool Start()
 		{
-			if (!base.Start())
-				return false;
-
 			try
-			{	
+			{
+                if (!base.Start())
+                    return false;
+
 				if (m_Listener == null)
 				{
 					m_ListenThread = new Thread(StartListen);
@@ -56,7 +51,7 @@ namespace SuperSocket.SocketServiceCore
 					m_ListenThread.Start();					
 				}
 
-				return true;
+                return true;
 			}
 			catch(Exception e)
 			{
@@ -82,15 +77,7 @@ namespace SuperSocket.SocketServiceCore
 			{
 				m_Listener.Stop();
 				m_Listener = null;
-			}
-			
-			IEnumerator enu = SessionDict.Values.GetEnumerator();
-				
-			while(enu.MoveNext())
-			{
-				SocketSession session = enu.Current as SocketSession;
-				session.Close();	
-			}			
+			}		
 		}
 
 		/// <summary>
@@ -120,7 +107,7 @@ namespace SuperSocket.SocketServiceCore
 					LogUtil.LogError(e);
 				}
 
-				T session = RegisterSession(client);
+                TSocketSession session = RegisterSession(client);
 								
 				Thread thUser	= new Thread(session.Start);
 				thUser.IsBackground = true;

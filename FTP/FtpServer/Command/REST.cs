@@ -12,12 +12,12 @@ namespace SuperSocket.FtpService.Command
 
 		public void Execute(FtpSession session, CommandInfo commandData)
 		{
-			if (!session.Context.Logged)
+			if (!session.FtpContext.Logged)
 				return;
 
 			long offset = StringUtil.ParseLong(commandData.Param);
 
-			session.Context.Offset = offset;
+			session.FtpContext.Offset = offset;
 
 			session.SendResponse(Resource.RestartOk_350, offset);
 		}

@@ -23,10 +23,10 @@ namespace SuperSocket.FtpService.Command
 					session.SecureProtocol = SslProtocols.Ssl3;
 					break;
 				case ("SSL2"):
-					session.SecureProtocol = SslProtocols.Ssl2;
+                    session.SecureProtocol = SslProtocols.Ssl2;
 					break;
 				case ("TLS"):
-					session.SecureProtocol = SslProtocols.Tls;
+                    session.SecureProtocol = SslProtocols.Tls;
 					break;
 				default:
 					session.SendParameterError();
@@ -35,7 +35,7 @@ namespace SuperSocket.FtpService.Command
 
 			session.SendResponse(Resource.AuthOk_234, ssl);
 			
-			session.InitStream(session.Context);
+			session.SocketSession.InitStream(session.Context);
 		}
 
 		#endregion

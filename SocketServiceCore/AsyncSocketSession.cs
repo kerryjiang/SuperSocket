@@ -38,12 +38,13 @@ namespace SuperSocket.SocketServiceCore
 		public SocketContext Context { get; set; }
 	}
 
-	public abstract class AsyncSocketSession : SocketSession
+    public class AsyncSocketSession<T> : SocketSession<T>
+        where T : IAppSession, new()
 	{
 		private CommandReceiveState m_ReceiveState = new CommandReceiveState();
 		private ResponseSendState m_SendState = new ResponseSendState();
 
-		public override void Start(SocketContext context)
+		protected override void Start(SocketContext context)
 		{
 			Client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);	
 			m_ReceiveState.Context = context;
@@ -59,7 +60,7 @@ namespace SuperSocket.SocketServiceCore
 			string thisReadContent = Encoding.ASCII.GetString(receiveState.CmdBuffer, 0, read);
 
 			//m_LastActiveTime = DateTime.Now;
-			if (thisReadContent.IndexOf("<EOF>") >= 0)
+			if (!string.IsNullOrEmpty(thisReadContent) && thisReadContent.EndsWith("\r\n"))
 			{
 				receiveState.CmdBuilder.AddRange(receiveState.CmdBuffer.Take(read));
 				string command = receiveState.ToString();

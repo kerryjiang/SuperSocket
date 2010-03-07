@@ -9,7 +9,7 @@ namespace SuperSocket.SocketServiceCore
 	/// Define the behavior of command source
 	/// </summary>
 	/// <typeparam name="T"></typeparam>
-	public interface ICommandSource<T> where T : SocketSession
+	public interface ICommandSource<T> where T : IAppSession
 	{
 		ICommand<T> GetCommandByName(string commandName);
 	}

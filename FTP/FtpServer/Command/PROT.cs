@@ -33,18 +33,18 @@ namespace SuperSocket.FtpService.Command
 			{
 				case ('C'):
 				case ('c'):
-					session.Context.DataSecureProtocol = SslProtocols.None;
+					session.FtpContext.DataSecureProtocol = SslProtocols.None;
 					break;
 				case ('P'):
 				case ('p'):
-					session.Context.DataSecureProtocol = session.SecureProtocol;
+					session.FtpContext.DataSecureProtocol = session.SecureProtocol;
 					break;
 				default:
 					session.SendResponse(Resource.ProtectionLevelUnknow_504);
 					return;
 			}
 
-			session.Context.ResetState();
+			session.FtpContext.ResetState();
 			session.SendResponse(Resource.ProtOk_200);
 		}
 

@@ -16,30 +16,47 @@ namespace SuperSocket.SocketService
 		/// </summary>
         static void Main(string[] args)
 		{
-            if (args != null && args.Length > 0)
+            RunAsConsole();
+
+            //if (args != null && args.Length > 0)
+            //{
+            //    if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
+            //    {
+            //        RunAsConsole();
+            //    }
+            //    else
+            //    {
+            //        Console.WriteLine(args[0]);
+            //    }
+            //}
+            //else
+            //{
+            //    Console.WriteLine("No arg");
+            //    RunAsService();
+            //}            
+		}
+
+        static void RunAsConsole()
+        {
+            LogUtil.Setup(new ELLogger());
+
+            SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
+            if (!SocketServerManager.Initialize(serverConfig))
+                return;
+
+            if (!SocketServerManager.Start(serverConfig))
+                SocketServerManager.Stop();
+
+            Console.WriteLine("The server has been started!");
+
+            while (Console.Read() != (int)'q')
             {
-                if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
-                {
-                    LogUtil.Setup(new ELLogger());
-
-                    SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
-                    if (!SocketServerManager.Initialize(serverConfig))
-                        return;
-
-                    if (!SocketServerManager.Start(serverConfig))
-                        SocketServerManager.Stop();
-
-                    Console.WriteLine("The server has been started!");
-
-                    while (Console.Read() != (int)'q')
-                    {
-                        continue;
-                    }
-
-                    return;
-                }
+                continue;
             }
+        }
 
+        static void RunAsService()
+        {
             ServiceBase[] ServicesToRun;
 
             // More than one user Service may run within the same process. To add
@@ -51,6 +68,6 @@ namespace SuperSocket.SocketService
             ServicesToRun = new ServiceBase[] { new MainService() };
 
             ServiceBase.Run(ServicesToRun);
-		}
+        }
 	}
 }

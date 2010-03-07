@@ -17,7 +17,7 @@ namespace SuperSocket.FtpService.Command
 			if (!session.Context.Logged)
 				return;
 
-            List<ListItem> list = session.FtpServiceProvider.GetList(session.Context);
+            List<ListItem> list = session.FtpServiceProvider.GetList(session.FtpContext);
 
             if (session.Context.Status == SocketContextStatus.Error)
             {
@@ -31,7 +31,7 @@ namespace SuperSocket.FtpService.Command
                
 				try
 				{
-					session.DataConn.SendResponse(session.Context, list);
+					session.DataConn.SendResponse(session.FtpContext, list);
 				}
 				catch (Exception)
 				{

@@ -39,7 +39,7 @@ namespace SuperSocket.FtpService.Command
 
 			if (result == AuthenticationResult.Success)
 			{
-				if (FtpOnlineUsers.Logon(session.Context, user))
+				if (FtpOnlineUsers.Logon(session.FtpContext, user))
 				{					
 					session.SendResponse(Resource.LoggedIn_230);
 					session.Context.Logged = true;

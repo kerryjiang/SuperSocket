@@ -11,7 +11,7 @@ namespace SuperSocket.FtpService.Command
 
 		public void Execute(FtpSession session, CommandInfo commandData)
 		{
-			session.Context.ResetState();
+			session.FtpContext.ResetState();
 			session.SendResponse(Resource.PBSZ_200);
 		}
 

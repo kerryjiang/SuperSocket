@@ -6,39 +6,41 @@ using System.Net.Sockets;
 using SuperSocket.Common;
 using System.Threading;
 using System.Collections;
+using System.Net;
 
 namespace SuperSocket.SocketServiceCore
 {
-	public abstract class AsyncSocketServer<T> : SocketServerBase<T>
-		where T : SocketSession, new()
+    public class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
+        where TAppSession : IAppSession, new()
+        where TSocketSession : ISocketSession<TAppSession>, new()     
 	{
+        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
+            : base(appServer, localEndPoint)
+		{
+			
+		}
+
 		public static ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
 
 		private TcpListener m_Listener = null;
 
+        private Thread m_ListenThread = null;
+
 		public override bool Start()
 		{
-			if (!base.Start())
-				return false;
-
 			try
 			{
-				m_Listener = new TcpListener(EndPoint);
-				m_Listener.Start();
-				m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                if (!base.Start())
+                    return false;
 
-				while (true)
-				{
-					m_TcpClientConnected.Reset();
+                if (m_Listener == null)
+                {
+                    m_ListenThread = new Thread(StartListen);
+                    m_ListenThread.IsBackground = true;
+                    m_ListenThread.Start();
+                }
 
-					m_Listener.BeginAcceptTcpClient(OnClientConnect, null);
-
-					m_TcpClientConnected.WaitOne();
-
-					break;
-				}
-
-				return true;
+                return true;				
 			}
 			catch (Exception e)
 			{
@@ -47,10 +49,25 @@ namespace SuperSocket.SocketServiceCore
 			}			
 		}
 
+        private void StartListen()
+        {
+            m_Listener = new TcpListener(EndPoint);
+            m_Listener.Start();
+            m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+            while (true)
+            {
+                m_TcpClientConnected.Reset();
+                m_Listener.BeginAcceptTcpClient(OnClientConnect, null);
+                m_TcpClientConnected.WaitOne();
+            }
+        }
+
 		public void OnClientConnect(IAsyncResult result)
 		{
 			TcpClient client = m_Listener.EndAcceptTcpClient(result);
-			T session = RegisterSession(client);
+            TSocketSession session = RegisterSession(client);
+            m_TcpClientConnected.Set();
 			session.Start();
 		}
 
@@ -58,18 +75,16 @@ namespace SuperSocket.SocketServiceCore
 		{
 			base.Stop();
 
+            if (m_ListenThread != null)
+            {
+                m_ListenThread.Abort();
+                m_ListenThread = null;
+            }
+
 			if (m_Listener != null)
 			{
 				m_Listener.Stop();
 				m_Listener = null;
-			}
-
-			IEnumerator enu = SessionDict.Values.GetEnumerator();
-
-			while (enu.MoveNext())
-			{
-				SocketSession session = enu.Current as SocketSession;
-				session.Close();
 			}
 		}
 	}

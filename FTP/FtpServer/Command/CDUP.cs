@@ -16,22 +16,22 @@ namespace SuperSocket.FtpService.Command
 			if (!session.Context.Logged)
 				return;
 
-			if (string.IsNullOrEmpty(session.Context.CurrentPath) || session.Context.CurrentPath == "/")
+			if (string.IsNullOrEmpty(session.FtpContext.CurrentPath) || session.FtpContext.CurrentPath == "/")
 			{
 				session.SendResponse(Resource.NotFound_550);
 				return;
 			}
 
-			string path = StringUtil.GetParentDirectory(session.Context.CurrentPath, '/');
+			string path = StringUtil.GetParentDirectory(session.FtpContext.CurrentPath, '/');
 
 			long folderID;
 
-			if (session.FtpServiceProvider.IsExistFolder(session.Context, path, out folderID))
+			if (session.FtpServiceProvider.IsExistFolder(session.FtpContext, path, out folderID))
 			{
-				session.Context.CurrentPath = path;
+				session.FtpContext.CurrentPath = path;
 
 				if (folderID > 0)
-					session.Context.CurrentFolderID = folderID;
+					session.FtpContext.CurrentFolderID = folderID;
 
 				session.SendResponse(string.Format(Resource.ChangeDirectoryUp_250, path));
 			}

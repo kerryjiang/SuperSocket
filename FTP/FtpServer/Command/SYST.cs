@@ -18,5 +18,5 @@ namespace SuperSocket.FtpService.Command
 		}
 
 		#endregion
-	}
+    }
 }

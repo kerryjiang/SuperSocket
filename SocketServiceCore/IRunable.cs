@@ -11,7 +11,7 @@ namespace SuperSocket.SocketServiceCore
 	/// </summary>
 	public interface IRunable
 	{
-		ServiceCredentials ServerCredentials { get; set; }
+        ServiceCredentials ServerCredentials { get; set; }
 		/// <summary>
 		/// Setups the specified config.
 		/// </summary>
@@ -33,4 +33,9 @@ namespace SuperSocket.SocketServiceCore
 		void Stop();
 
 	}
+
+    public interface IRunable<T> : IRunable where T : IAppSession
+    {
+
+    }
 }

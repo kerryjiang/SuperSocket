@@ -25,7 +25,7 @@ namespace SuperSocket.FtpService.Command
 				return;
 			}
 
-            long size = session.FtpServiceProvider.GetFileSize(session.Context, filename);
+            long size = session.FtpServiceProvider.GetFileSize(session.FtpContext, filename);
 
             if (session.Context.Status == SocketContextStatus.Error)
                 session.SendResponse(session.Context.Message);

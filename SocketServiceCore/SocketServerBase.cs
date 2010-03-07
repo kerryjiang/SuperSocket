@@ -15,123 +15,62 @@ using System.Threading;
 
 namespace SuperSocket.SocketServiceCore
 {
-	public abstract class SocketServerBase<T> : IRunable, ICommandSource<T> where T : SocketSession, new()
+    public interface ISocketServer
+    {
+        bool Start();
+        void Stop();
+    }
+
+    public abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer
+        where TAppSession : IAppSession, new()
+        where TSocketSession : ISocketSession<TAppSession>, new()        
 	{
 		protected object SyncRoot = new object();
 
-		private IPEndPoint m_EndPoint;
+		public IPEndPoint EndPoint { get; private set; }
 
-		public IPEndPoint EndPoint
+        public IAppServer<TAppSession> AppServer { get; private set; }
+
+        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
+        {
+            AppServer = appServer;
+            EndPoint = localEndPoint;
+        }
+
+        private Dictionary<string, TAppSession> m_SessionDict = new Dictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
+
+        protected Dictionary<string, TAppSession> SessionDict
+        {
+            get
+            {
+                return m_SessionDict;
+            }
+        }
+
+        public int SessionCount
+        {
+            get { return m_SessionDict.Count; }
+        }
+
+        public virtual bool Start()
+        {
+            SetupClearSessionTimer();
+            return true;
+        }
+
+        protected virtual TSocketSession RegisterSession(TcpClient client)
 		{
-			get { return m_EndPoint; }
-			set { m_EndPoint = value; }
-		}
-				
-		private Dictionary<string, T> m_SessionDict = new Dictionary<string, T>();
-
-		protected Dictionary<string, T> SessionDict
-		{
-			get
-			{
-				return m_SessionDict;
-			}
-		}
-
-		public int SessionCount
-		{
-			get{ return m_SessionDict.Count; }
-		}
-
-		private Dictionary<string, ICommand<T>> dictCommand = new Dictionary<string, ICommand<T>>();
-		
-		public SocketServerBase()
-		{
-			LoadCommands();
-		}
-
-		public SocketServerBase(IPEndPoint localEndPoint)
-		{
-			m_EndPoint = localEndPoint;
-			LoadCommands();
-		}
-
-		/// <summary>
-		/// Loads the command dictionary.
-		/// </summary>
-		private void LoadCommands()
-		{			
-			Type commandType	= typeof(ICommand<T>);
-			Assembly asm		= typeof(T).Assembly;
-			Type[] arrType		= asm.GetTypes();
-			
-			for (int i = 0; i < arrType.Length; i++)
-			{
-				//LogUtil.LogInfo(arrType[i].ToString() + "\r\n");
-				Type[] arrInterface = arrType[i].GetInterfaces();
-				
-				for(int j = 0; arrInterface!=null && j < arrInterface.Length; j++)
-				{
-					if (arrInterface[j] == commandType)
-					{
-						//LogUtil.LogInfo(arrInterface[j].ToString() + ":" + commandType.ToString());
-						dictCommand[arrType[i].Name.ToUpper()] = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
-					}
-				}				
-			}
-			//LogUtil.LogInfo("Load " + dictCommand.Count + " commands from " + arrType.Length + " types!");		
-		}
-
-		#region ICommandSource<T> Members
-
-		public ICommand<T> GetCommandByName(string commandName)
-		{
-			throw new NotImplementedException();
-		}
-
-		#endregion
-
-		private IServerConfig m_Config = null;
-
-		protected IServerConfig Config
-		{
-			get { return m_Config; }
-		}
-
-		private ServiceCredentials m_ServerCredentials;
-
-		public ServiceCredentials ServerCredentials
-		{
-			get { return m_ServerCredentials; }
-			set { m_ServerCredentials = value; }
-		}
-
-		public virtual bool Start()
-		{
-			if (m_Config.EnableManagementService)
-			{
-				if (!StartManagementService())
-				{
-					LogUtil.LogError("Failed to run manage service in " + this.GetType().ToString());
-					return false;
-				}
-			}
-
-			return true;
-		}
-
-		protected virtual T RegisterSession(TcpClient client)
-		{
-			T session = new T();
-			session.SetServer(this);
-			session.CommandSource = this;
-			session.Client = client;
-			session.Config = Config;
+            TSocketSession session = new TSocketSession();
+            TAppSession appSession = this.AppServer.CreateAppSession(session);
+            session.Initialize(this.AppServer, appSession, client);
 			session.Closed += new EventHandler(session_Closed);
+
 			lock (SyncRoot)
 			{
-				m_SessionDict[session.SessionID] = session;
+                m_SessionDict[appSession.SessionID] = appSession;
 			}
-			LogUtil.LogInfo("SocketSession " + session.SessionID + " was accepted!");
+
+            LogUtil.LogInfo("SocketSession " + appSession.SessionID + " was accepted!");
 			return session;
 		}
 
@@ -167,91 +106,15 @@ namespace SuperSocket.SocketServiceCore
 				m_ClearIdleSessionTimer.Dispose();
 				m_ClearIdleSessionTimer = null;
 			}
+
+            IEnumerator enu = SessionDict.Values.GetEnumerator();
+
+            while (enu.MoveNext())
+            {
+                IAppSession session = enu.Current as IAppSession;
+                session.Close();
+            }
 		}
-
-
-		private Dictionary<string, ProviderBase> m_ProviderDict = new Dictionary<string, ProviderBase>();
-
-		/// <summary>
-		/// Setups the specified factory.
-		/// </summary>
-		/// <param name="assembly">The assembly name.</param>
-		/// <param name="config">The config.</param>
-		/// <returns></returns>
-		public virtual bool Setup(string assembly, IServerConfig config)
-		{
-			m_Config = config;
-
-			if (string.IsNullOrEmpty(assembly))
-				return true;
-
-			string dir = FileHelper.GetParentFolder(this.GetType().Assembly.Location);
-
-			string assemblyFile = Path.Combine(dir, assembly + ".dll");
-
-			try
-			{
-				Type typeProvider = typeof(ProviderBase);
-
-				Assembly ass = Assembly.LoadFrom(assemblyFile);
-
-				Type[] arrType = ass.GetTypes();
-
-				for (int i = 0; arrType != null && i < arrType.Length; i++)
-				{
-					//Must be a seal class
-					if (arrType[i].IsSubclassOf(typeProvider))
-					{
-						ProviderBase provider = ass.CreateInstance(arrType[i].ToString()) as ProviderBase;
-						if (provider.Init(config))
-						{
-							m_ProviderDict[provider.Name.ToLower()] = provider;
-						}
-						else
-						{
-							LogUtil.LogError("Failed to initalize provider " + arrType[i].ToString() + "!");
-							return false;
-						}
-					}
-				}
-
-				if (!Ready)
-				{
-					LogUtil.LogError("Failed to load service provider from assembly:" + assemblyFile);
-					return false;
-				}
-
-				return true;
-			}
-			catch (Exception e)
-			{
-				LogUtil.LogError(e);
-				return false;
-			}
-		}
-
-		/// <summary>
-		/// Gets service provider by name.
-		/// </summary>
-		/// <param name="providerName">Name of the provider.</param>
-		/// <returns></returns>
-		protected ProviderBase GetProviderByName(string providerName)
-		{
-			ProviderBase provider = null;
-
-			if (m_ProviderDict.TryGetValue(providerName.ToLower(), out provider))
-			{
-				return provider;
-			}
-			else
-			{
-				return null;
-			}
-		}
-
-		protected abstract bool Ready { get; }
-
-		protected abstract bool StartManagementService();
 
 		protected void SetupClearSessionTimer()
 		{
@@ -270,21 +133,21 @@ namespace SuperSocket.SocketServiceCore
 
 		private void ClearIdleSession()
 		{
-			List<SocketSession> idleSessions = new List<SocketSession>();
+            List<IAppSession> idleSessions = new List<IAppSession>();
 
 			IEnumerator enu = SessionDict.Values.GetEnumerator();
 
 			while (enu.MoveNext())
 			{
-				SocketSession session = enu.Current as SocketSession;
+                IAppSession session = enu.Current as IAppSession;
 
-				if (DateTime.Now.Subtract(session.LastActiveTime).TotalMinutes > 5)
+                if (DateTime.Now.Subtract(session.SocketSession.LastActiveTime).TotalMinutes > 5)
 				{
 					idleSessions.Add(session);
 				}
 			}
 
-			foreach (SocketSession session in idleSessions)
+            foreach (IAppSession session in idleSessions)
 			{
 				session.Close();
 			}

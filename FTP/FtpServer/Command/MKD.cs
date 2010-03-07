@@ -23,9 +23,9 @@ namespace SuperSocket.FtpService.Command
 				return;
 			}
 
-			if(session.FtpServiceProvider.CreateFolder(session.Context, foldername))
+            if (session.FtpServiceProvider.CreateFolder(session.FtpContext, foldername))
             {
-				session.SendResponse(Resource.MakeDirOk_250, session.Context.CurrentPath + "/" + foldername);
+                session.SendResponse(Resource.MakeDirOk_250, session.FtpContext.CurrentPath + "/" + foldername);
 			}
 			else
 			{
