@@ -78,9 +78,9 @@ namespace SuperSocket.SocketServiceCore
 			set { m_SecureProtocol = value; }
 		}		
 
-		protected StreamReader m_Reader = null;
+		private StreamReader m_Reader = null;
 		
-		public StreamReader SocketReader
+		protected StreamReader SocketReader
 		{
 			get { return m_Reader; }
 		}
