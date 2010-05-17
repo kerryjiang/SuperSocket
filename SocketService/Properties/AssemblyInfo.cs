@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("kerry")]
 [assembly: AssemblyProduct("SocketService")]
-[assembly: AssemblyCopyright("Copyright © kerry 2007")]
+[assembly: AssemblyCopyright("Copyright © kerry 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

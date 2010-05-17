@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -33,16 +34,30 @@ namespace SuperSocket.SocketServiceCore
 		}
 	}
 
+    public class CommandExecutionState
+    {
+        public SocketContext Context { get; set; }
+        public EventHandler<CommandInfo> ExecuteCommandDelegate { get; set; }
+        public CommandInfo CurrentCommand { get; set; }
+    }
+
 	class ResponseSendState
 	{
 		public SocketContext Context { get; set; }
 	}
+
+    public delegate void EventHandler<T>(T param);
 
     public class AsyncSocketSession<T> : SocketSession<T>
         where T : IAppSession, new()
 	{
 		private CommandReceiveState m_ReceiveState = new CommandReceiveState();
 		private ResponseSendState m_SendState = new ResponseSendState();
+
+        public AsyncSocketSession()
+        {
+
+        }
 
 		protected override void Start(SocketContext context)
 		{
@@ -56,7 +71,26 @@ namespace SuperSocket.SocketServiceCore
 		private void OnEndReceive(IAsyncResult result)
 		{
 			CommandReceiveState receiveState = result.AsyncState as CommandReceiveState;
-			int read = this.GetStream(receiveState.Context).EndRead(result);
+            int read = 0;
+
+            SocketError socketError;
+
+            try
+            {
+                read = this.Client.Client.EndReceive(result, out socketError);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+                socketError = SocketError.Fault;
+            }
+
+            if (socketError != SocketError.Success)
+            {
+                Close();
+                return;
+            }
+
 			string thisReadContent = Encoding.ASCII.GetString(receiveState.CmdBuffer, 0, read);
 
 			//m_LastActiveTime = DateTime.Now;
@@ -76,23 +110,54 @@ namespace SuperSocket.SocketServiceCore
 
 				CommandInfo cmdInfo = new CommandInfo(command);
 
-				ExecuteCommand(cmdInfo);
-
-				receiveState.Context.PrevCommand = cmdInfo.Name;
+                var executeDelegate = new EventHandler<CommandInfo>(ExecuteCommand);
+                executeDelegate.BeginInvoke(cmdInfo, new AsyncCallback(OnEndExecuteCommand),
+                    new CommandExecutionState
+                    {
+                        Context = receiveState.Context,
+                        ExecuteCommandDelegate = executeDelegate,
+                        CurrentCommand = cmdInfo
+                    });
 			}
 			else
 			{
-				this.Client.Client.BeginReceive(m_ReceiveState.CmdBuffer, 0, m_ReceiveState.CmdBuffer.Length, System.Net.Sockets.SocketFlags.None, new AsyncCallback(OnEndReceive), m_ReceiveState);
+                this.Client.Client.BeginReceive(receiveState.CmdBuffer, 0, receiveState.CmdBuffer.Length, System.Net.Sockets.SocketFlags.Broadcast, new AsyncCallback(OnEndReceive), receiveState);
 			}
 		}
+
+        private void OnEndExecuteCommand(IAsyncResult result)
+        {
+            CommandExecutionState executionState = result.AsyncState as CommandExecutionState;
+
+            try
+            {
+                executionState.ExecuteCommandDelegate.EndInvoke(result);
+                executionState.Context.PrevCommand = executionState.CurrentCommand.Name;
+            }
+            catch (SocketException)
+            {
+                Close();
+                return;
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+                HandleExceptionalError(e);
+            }
+
+            this.Client.Client.BeginReceive(m_ReceiveState.CmdBuffer,
+                    0, m_ReceiveState.CmdBuffer.Length,
+                    System.Net.Sockets.SocketFlags.None,
+                    new AsyncCallback(OnEndReceive), m_ReceiveState);            
+        }
 
 		public override void SendResponse(SocketContext context, string message)
 		{
 			if (string.IsNullOrEmpty(message))
 				return;
 
-			if (!message.EndsWith("\r\n"))
-				message = message + "\r\n";
+			if (!message.EndsWith(Environment.NewLine))
+                message = message + Environment.NewLine;
 
 			byte[] data = context.Charset.GetBytes(message);
 
