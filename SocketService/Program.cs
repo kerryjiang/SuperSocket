@@ -16,6 +16,7 @@ namespace SuperSocket.SocketService
 		/// </summary>
         static void Main(string[] args)
 		{
+            Console.ReadLine();
             RunAsConsole();
 
             //if (args != null && args.Length > 0)

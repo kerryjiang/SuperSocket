@@ -31,11 +31,11 @@ namespace SuperSocket.FtpService.Command
 
 			AuthenticationResult result = AuthenticationResult.Success;
 
-
-			if (session.Context.IsAnonymous)
-				user = new Anonymous();
-			else
-				result = session.FtpServiceProvider.Authenticate(session.Context.UserName, password, out user);
+            //if (session.Context.IsAnonymous)
+            //    user = new Anonymous();
+            //else
+		    
+            result = session.FtpServiceProvider.Authenticate(session.Context.UserName, password, out user);
 
 			if (result == AuthenticationResult.Success)
 			{

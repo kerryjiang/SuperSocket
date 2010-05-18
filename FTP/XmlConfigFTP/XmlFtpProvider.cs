@@ -12,7 +12,7 @@ namespace SuperSocket.XmlConfigFTP
 {
     public class XmlFtpProvider : FtpServiceProviderBase
     {
-        private string m_ConfigFile;
+        private string m_UserSettingFile;
 
         private Dictionary<string, FtpUser> m_UserDict = new Dictionary<string, FtpUser>(StringComparer.OrdinalIgnoreCase);
         
@@ -21,24 +21,39 @@ namespace SuperSocket.XmlConfigFTP
             if (!base.Init(config))
                 return false;
 
-            NameValueConfigurationElement configFileElement = config.Parameters["configFile"];
+            NameValueConfigurationElement userSettingElement = config.Parameters["userSetting"];
 
-            if (configFileElement == null)
+            if (userSettingElement == null)
             {
-                LogUtil.LogError("Parameter 'configFile' is required!");
+                LogUtil.LogError("Parameter 'userSetting' is required!");
                 return false;
             }
 
-            m_ConfigFile = configFileElement.Value;
+            m_UserSettingFile = userSettingElement.Value;
 
             List<FtpUser> users;
 
-            if (!XmlSerializerUtil.TryDeserialize<List<FtpUser>>(m_ConfigFile, out users))
+            if (!XmlSerializerUtil.TryDeserialize<List<FtpUser>>(m_UserSettingFile, out users))
             {
-                LogUtil.LogError("Invalid configFile!");
+                LogUtil.LogError("Invalid userSetting file!");
 
                 users = new List<FtpUser>();
-                XmlSerializerUtil.Serialize(m_ConfigFile, users);
+                users.Add(new FtpUser
+                    {
+                        UserName = "anonymous",
+                        Password = "*",
+                        Root = @"D:\",
+                        MaxThread = 5
+                    });
+                users.Add(new FtpUser
+                {
+                    UserName = "kerry",
+                    Password = "123456",
+                    Root = @"D:\",
+                    MaxThread = 5
+                });
+
+                XmlSerializerUtil.Serialize(m_UserSettingFile, users);
 
                 return false;
             }
@@ -57,6 +72,9 @@ namespace SuperSocket.XmlConfigFTP
             {
                 if (!m_UserDict.TryGetValue(username, out user))
                     return AuthenticationResult.NotExist;
+
+                if ("*".Equals(user.Password))
+                    return AuthenticationResult.Success;
 
                 if (user.Password.Equals(user.Password, StringComparison.OrdinalIgnoreCase))
                     return AuthenticationResult.PasswordError;

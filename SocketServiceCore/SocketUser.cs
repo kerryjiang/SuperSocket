@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -23,6 +24,7 @@ namespace SuperSocket.SocketServiceCore
 		private string m_UserName;
 
 		[DataMember]
+        [XmlAttribute("UserName")]
 		public string UserName
 		{
 			get { return m_UserName; }
@@ -32,6 +34,7 @@ namespace SuperSocket.SocketServiceCore
 		private string m_Password;
 
 		[DataMember]
+        [XmlAttribute("Password")]
 		public string Password
 		{
 			get { return m_Password; }
@@ -68,6 +71,7 @@ namespace SuperSocket.SocketServiceCore
 		private bool m_Disabled;
 
 		[DataMember]
+        [XmlAttribute("Disabled")]
 		public bool Disabled
 		{
 			get { return m_Disabled; }

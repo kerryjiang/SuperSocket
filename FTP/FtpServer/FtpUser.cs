@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Text;
 using SuperSocket.SocketServiceCore;
+using System.Xml.Serialization;
 
 
 namespace SuperSocket.FtpService
@@ -33,6 +34,7 @@ namespace SuperSocket.FtpService
 		private int m_MaxThread;
 
 		[DataMember]
+        [XmlAttribute("MaxThread")]
 		public virtual int MaxThread
 		{
 			get { return m_MaxThread; }
@@ -60,6 +62,7 @@ namespace SuperSocket.FtpService
         private string m_Root;
 
 		[DataMember]
+        [XmlAttribute("Root")]
 		public string Root
         {
             get { return m_Root; }
