@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using SuperSocket.SocketServiceCore.Command;
-using SuperSocket.Common;
 using System.IO;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -70,6 +71,8 @@ namespace SuperSocket.SocketServiceCore
 
             if (string.IsNullOrEmpty(commandLine))
             {
+                //TODO: timeout detection should be code here
+                Thread.Sleep(100);
                 BeginReadCommandLine(state.Context);
                 return;
             }

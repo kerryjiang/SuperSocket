@@ -16,25 +16,26 @@ namespace SuperSocket.SocketService
 		/// </summary>
         static void Main(string[] args)
 		{
-            Console.ReadLine();
-            RunAsConsole();
+            if (args != null && args.Length > 0)
+            {
+                if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.WriteLine("Note: enter 'start' to start server, 'quit' to stop the server!");
 
-            //if (args != null && args.Length > 0)
-            //{
-            //    if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
-            //    {
-            //        RunAsConsole();
-            //    }
-            //    else
-            //    {
-            //        Console.WriteLine(args[0]);
-            //    }
-            //}
-            //else
-            //{
-            //    Console.WriteLine("No arg");
-            //    RunAsService();
-            //}            
+                    while (!"start".Equals(Console.ReadLine()))
+                         continue;
+
+                    RunAsConsole();
+                }
+                else
+                {
+                    Console.WriteLine(args[0]);
+                }
+            }
+            else
+            {
+                RunAsService();
+            }            
 		}
 
         static void RunAsConsole()
@@ -46,14 +47,18 @@ namespace SuperSocket.SocketService
                 return;
 
             if (!SocketServerManager.Start(serverConfig))
+            {
+                Console.WriteLine("Failed to start SuperSocket server!");
                 SocketServerManager.Stop();
+                return;
+            }
 
             Console.WriteLine("The server has been started!");
 
-            while (Console.Read() != (int)'q')
-            {
+            while (!"quit".Equals(Console.ReadLine()))
                 continue;
-            }
+
+            SocketServerManager.Stop();
         }
 
         static void RunAsService()
