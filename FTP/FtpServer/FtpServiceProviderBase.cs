@@ -179,7 +179,7 @@ namespace SuperSocket.FtpService
 
 		public virtual List<ListItem> GetList(FtpContext context)
 		{
-			string dir = CombinePath(context.User.Root, StringUtil.ReverseSlash(context.CurrentPath, '/'));
+            string dir = GetStoragePath(context, context.CurrentPath);
 
 			return GetList(context, dir);
 		}
@@ -240,7 +240,7 @@ namespace SuperSocket.FtpService
 
 		public virtual bool DeleteFile(FtpContext context, string filename)
 		{
-			string filepath = CombinePath(context.User.Root, StringUtil.ReverseSlash(context.CurrentPath, '/') + "\\" + filename);
+            string filepath = GetStoragePath(context, filename);
 
 			if (File.Exists(filepath))
 			{
@@ -276,7 +276,7 @@ namespace SuperSocket.FtpService
 
 		public virtual DateTime GetModifyTime(FtpContext context, string filename)
 		{
-			string filepath = CombinePath(context.User.Root, StringUtil.ReverseSlash(context.CurrentPath, '/') + "\\" + filename);
+            string filepath = GetStoragePath(context, filename);
 
 			if (File.Exists(filepath))
 			{
@@ -301,7 +301,7 @@ namespace SuperSocket.FtpService
 
 		public virtual long GetFileSize(FtpContext context, string filename)
 		{
-			string filepath = CombinePath(context.User.Root, StringUtil.ReverseSlash(context.CurrentPath, '/') + "\\" + filename);
+            string filepath = GetStoragePath(context, filename);
 
 			if (File.Exists(filepath))
 			{
@@ -326,8 +326,8 @@ namespace SuperSocket.FtpService
 
 		public virtual bool RenameFile(FtpContext context, string oldPath, string newPath)
 		{
-			oldPath = CombinePath(context.User.Root, oldPath);
-			newPath = CombinePath(context.User.Root, newPath);
+            oldPath = GetStoragePath(context, oldPath);
+            newPath = GetStoragePath(context, newPath);
 
 			try
 			{
@@ -344,8 +344,8 @@ namespace SuperSocket.FtpService
 
 		public virtual bool RenameFolder(FtpContext context, string oldPath, string newPath)
 		{
-			oldPath = CombinePath(context.User.Root, oldPath);
-			newPath = CombinePath(context.User.Root, newPath);
+            oldPath = GetStoragePath(context, oldPath);
+            newPath = GetStoragePath(context, newPath);
 
 			try
 			{
@@ -364,7 +364,7 @@ namespace SuperSocket.FtpService
 		{
 			folderID = (long)path.GetHashCode();
 
-			string dir = CombinePath(context.User.Root, StringUtil.ReverseSlash(path, '/'));
+            string dir = GetStoragePath(context, path);
 
 			try
 			{
@@ -380,7 +380,7 @@ namespace SuperSocket.FtpService
 
 		public virtual bool IsExistFile(FtpContext context, string filepath)
 		{
-			string path = CombinePath(context.User.Root, StringUtil.ReverseSlash(filepath, '/'));
+            string path = GetStoragePath(context, filepath);
 
 			try
 			{
@@ -412,9 +412,11 @@ namespace SuperSocket.FtpService
 
 			try
 			{
+                string filePath = GetStoragePath(context, filename);
+
 				if (context.Offset > 0 && option.AppendOriginalFile) //Append
 				{
-					FileInfo file = new FileInfo(filename);
+                    FileInfo file = new FileInfo(filePath);
 
 					if (context.Offset != file.Length)
 					{
@@ -423,18 +425,18 @@ namespace SuperSocket.FtpService
 						return false;
 					}
 
-					fs = new FileStream(filename, FileMode.Append, FileAccess.Write, FileShare.Write, bufLen);
+                    fs = new FileStream(filePath, FileMode.Append, FileAccess.Write, FileShare.Write, bufLen);
 				}
 				else
 				{
-					if (File.Exists(filename))
+                    if (File.Exists(filePath))
 					{
-						FileInfo file = new FileInfo(filename);
+                        FileInfo file = new FileInfo(filePath);
 						File.Delete(filename);
 						context.ChangeSpace(0 - file.Length);
 					}
 
-					fs = new FileStream(filename, FileMode.CreateNew, FileAccess.Write, FileShare.Write, bufLen);
+                    fs = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write, FileShare.Write, bufLen);
 				}
 
 
@@ -489,7 +491,7 @@ namespace SuperSocket.FtpService
 
 		public virtual bool CreateFolder(FtpContext context, string foldername)
 		{
-			string dir = CombinePath(context.User.Root, StringUtil.ReverseSlash(context.CurrentPath, '/') + "\\" + foldername);
+            string dir = GetStoragePath(context, foldername);
 
 			if (Directory.Exists(dir) || File.Exists(dir))
 			{
@@ -514,7 +516,7 @@ namespace SuperSocket.FtpService
 
 		public virtual bool RemoveFolder(FtpContext context, string foldername)
 		{
-			string dir = CombinePath(context.User.Root, StringUtil.ReverseSlash(context.CurrentPath, '/') + "\\" + foldername);
+            string dir = GetStoragePath(context, foldername);
 
 			if (Directory.Exists(dir))
 			{
@@ -547,7 +549,9 @@ namespace SuperSocket.FtpService
 
 			try
 			{
-				fs = new FileStream(filename, FileMode.Open, FileAccess.Read, FileShare.Read, bufLen);
+                string filePath = GetStoragePath(context, Path.Combine(context.CurrentPath, filename));
+
+                fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, bufLen);
 
 				if (context.Offset > 0)
 					fs.Seek(context.Offset, SeekOrigin.Begin);
@@ -601,6 +605,22 @@ namespace SuperSocket.FtpService
 		public abstract string GetTempDirectory(string sessionID);
 
 		public abstract void ClearTempDirectory(FtpContext context);
+
+        protected string GetStoragePath(FtpContext context, string virtualPath)
+        {
+            if (!virtualPath.StartsWith("/"))
+                virtualPath = Path.Combine(context.CurrentPath, virtualPath);
+
+            virtualPath = StringUtil.ReverseSlash(virtualPath, '/');
+            virtualPath = virtualPath.TrimStart('\\');
+
+            return GetStoragePathInternal(context, virtualPath);
+        }
+
+        protected virtual string GetStoragePathInternal(FtpContext context, string virtualPath)
+        {
+            return Path.Combine(context.User.Root, virtualPath);
+        }
 
 		protected string CombinePath(string root, string relativePath)
 		{

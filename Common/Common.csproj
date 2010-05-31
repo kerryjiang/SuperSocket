@@ -61,6 +61,7 @@
     <Compile Include="EventLogger.cs" />
     <Compile Include="FileHelper.cs" />
     <Compile Include="GlobalResourceManager.cs" />
+    <Compile Include="IAsyncRunner.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="LogUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

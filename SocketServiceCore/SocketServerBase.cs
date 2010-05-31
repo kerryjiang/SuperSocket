@@ -21,7 +21,7 @@ namespace SuperSocket.SocketServiceCore
         void Stop();
     }
 
-    public abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer
+    public abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IAsyncRunner
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>, new()        
 	{
@@ -107,13 +107,7 @@ namespace SuperSocket.SocketServiceCore
 				m_ClearIdleSessionTimer = null;
 			}
 
-            IEnumerator enu = SessionDict.Values.GetEnumerator();
-
-            while (enu.MoveNext())
-            {
-                IAppSession session = enu.Current as IAppSession;
-                session.Close();
-            }
+            SessionDict.Values.ToList().ForEach(s => s.Close());
 		}
 
 		protected void SetupClearSessionTimer()
@@ -133,57 +127,13 @@ namespace SuperSocket.SocketServiceCore
 
 		private void ClearIdleSession()
 		{
-            List<IAppSession> idleSessions = new List<IAppSession>();
-
-			IEnumerator enu = SessionDict.Values.GetEnumerator();
-
-			while (enu.MoveNext())
-			{
-                IAppSession session = enu.Current as IAppSession;
-
-                if (DateTime.Now.Subtract(session.SocketSession.LastActiveTime).TotalMinutes > 5)
-				{
-					idleSessions.Add(session);
-				}
-			}
-
-            foreach (IAppSession session in idleSessions)
-			{
-				session.Close();
-			}
-		}
-
-        protected void ExecuteAsync(string stepName, WaitCallback callback)
-        {
-            this.ExecuteAsync(stepName, callback, null);
-        }
-
-        protected void ExecuteAsync(string stepName, WaitCallback callback, ExceptionCallback exceptionCallback)
-        {
-            ThreadPool.QueueUserWorkItem(delegate
+            lock (SyncRoot)
             {
-                try
-                {
-                    callback(null);
-                }
-                catch (Exception e)
-                {
-                    LogUtil.LogError(stepName, e);
-                    if (exceptionCallback != null)
-                    {
-                        try
-                        {
-                            exceptionCallback();
-                        }
-                        catch (Exception exc)
-                        {
-                            LogUtil.LogError(stepName + " exception callback", exc);
-                        }
-                    }
-                }
-            });
-        }
-
-        protected delegate void ExceptionCallback();
+                SessionDict.Values.Where(s =>
+                    DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalMinutes > 5)
+                    .ToList().ForEach(s => s.Close());
+            }
+		}
+        
 	}
 }
