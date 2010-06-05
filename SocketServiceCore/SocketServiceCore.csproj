@@ -74,6 +74,7 @@
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
     <Compile Include="CreateUserResult.cs" />
+    <Compile Include="GlobalAssemblyInfo.cs" />
     <Compile Include="ICommandSource.cs" />
     <Compile Include="IRunable.cs" />
     <Compile Include="ISocketSession.cs" />

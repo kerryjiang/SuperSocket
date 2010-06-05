@@ -5,12 +5,12 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SocketServiceCore")]
+[assembly: AssemblyTitle("SuperSocket.SocketServiceCore")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("kerry")]
-[assembly: AssemblyProduct("SocketServiceCore")]
-[assembly: AssemblyCopyright("Copyright © kerry 2007")]
+[assembly: AssemblyCompany("kerry-jiang@hotmail.com")]
+[assembly: AssemblyProduct("SuperSocket.SocketServiceCore")]
+[assembly: AssemblyCopyright("Copyright © kerry 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -21,15 +21,3 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("a9e989e2-6cd5-461c-a171-0eacec4e9c0a")]
-
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-// You can specify all the values or you can default the Revision and Build Numbers 
-// by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
