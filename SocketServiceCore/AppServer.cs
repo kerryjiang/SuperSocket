@@ -40,7 +40,7 @@ namespace SuperSocket.SocketServiceCore
         {
             Type commandType = typeof(ICommand<T>);
             Assembly asm = typeof(T).Assembly;
-            Type[] arrType = asm.GetTypes();
+            Type[] arrType = asm.GetExportedTypes();
 
             for (int i = 0; i < arrType.Length; i++)
             {
