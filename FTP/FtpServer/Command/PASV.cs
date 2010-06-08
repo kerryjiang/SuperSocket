@@ -6,7 +6,7 @@ using System.Net;
 
 namespace SuperSocket.FtpService.Command
 {
-	class PASV : ICommand<FtpSession>
+	public class PASV : ICommand<FtpSession>
 	{
 		#region ICommand<FtpSession> Members
 

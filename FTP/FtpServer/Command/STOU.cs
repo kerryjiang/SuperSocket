@@ -5,7 +5,7 @@ using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.FtpService.Command
 {
-	class STOU : STOR
+	public class STOU : STOR
 	{
 		public override void Execute(FtpSession session, CommandInfo commandData)
 		{

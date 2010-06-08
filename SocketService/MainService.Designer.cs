@@ -1,3 +1,4 @@
+using System.Configuration;
 namespace SuperSocket.SocketService
 {
 	partial class MainService
@@ -29,7 +30,7 @@ namespace SuperSocket.SocketService
 		private void InitializeComponent()
 		{
 			components = new System.ComponentModel.Container();
-			this.ServiceName = "GiantSoft SocketService";
+			this.ServiceName = ConfigurationManager.AppSettings["ServiceName"];
 		}
 
 		#endregion

@@ -5,7 +5,7 @@ using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.FtpService.Command
 {
-	class STRU : ICommand<FtpSession>
+	public class STRU : ICommand<FtpSession>
 	{
 		#region ICommand<FtpSession> Members
 

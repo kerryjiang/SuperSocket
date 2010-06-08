@@ -6,7 +6,7 @@ using SuperSocket.FtpService.Storage;
 
 namespace SuperSocket.FtpService.Command
 {
-	class RNFR : ICommand<FtpSession>
+	public class RNFR : ICommand<FtpSession>
 	{
 		#region ICommand<FtpSession> Members
 

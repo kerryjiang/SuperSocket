@@ -8,7 +8,7 @@ using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.FtpService.Command
 {
-	class RETR : ICommand<FtpSession>
+	public class RETR : ICommand<FtpSession>
 	{
 		#region ICommand<FtpSession> Members
 

@@ -5,7 +5,7 @@ using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.FtpService.Command
 {
-	class APPE : STOR
+	public class APPE : STOR
 	{
 		
 	}

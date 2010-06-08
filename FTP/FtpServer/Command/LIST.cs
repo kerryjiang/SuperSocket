@@ -8,7 +8,7 @@ using SuperSocket.FtpService.Storage;
 
 namespace SuperSocket.FtpService.Command
 {
-	class LIST : ICommand<FtpSession>
+	public class LIST : ICommand<FtpSession>
 	{
 		#region ICommand<SocketSession> Members
 

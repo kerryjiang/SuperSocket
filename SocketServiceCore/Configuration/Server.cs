@@ -56,7 +56,7 @@ namespace SuperSocket.SocketServiceCore.Configuration
             get { return (NameValueConfigurationCollection)this["parameters"]; }
         }
 
-        [ConfigurationProperty("provider", IsRequired = true)]
+        [ConfigurationProperty("provider", IsRequired = false)]
         public string Provider
         {
             get { return (string)this["provider"]; }

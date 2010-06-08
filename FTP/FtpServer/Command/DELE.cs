@@ -6,7 +6,7 @@ using SuperSocket.Common;
 
 namespace SuperSocket.FtpService.Command
 {
-	class DELE : ICommand<FtpSession>
+	public class DELE : ICommand<FtpSession>
 	{
 		#region ICommand<FtpSession> Members
 

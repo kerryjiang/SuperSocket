@@ -32,7 +32,7 @@ namespace SuperSocket.SocketServiceCore
 
         public ServiceCredentials ServerCredentials { get; set; }
 
-        private Dictionary<string, ICommand<T>> dictCommand = new Dictionary<string, ICommand<T>>();
+        private Dictionary<string, ICommand<T>> dictCommand = new Dictionary<string, ICommand<T>>(StringComparer.OrdinalIgnoreCase);
         /// <summary>
         /// Loads the command dictionary.
         /// </summary>
@@ -52,7 +52,7 @@ namespace SuperSocket.SocketServiceCore
                     if (arrInterface[j] == commandType)
                     {
                         //LogUtil.LogInfo(arrInterface[j].ToString() + ":" + commandType.ToString());
-                        dictCommand[arrType[i].Name.ToUpper()] = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
+                        dictCommand[arrType[i].Name] = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
                     }
                 }
             }
@@ -73,9 +73,6 @@ namespace SuperSocket.SocketServiceCore
         {
             Config = config;
 
-            if (string.IsNullOrEmpty(assembly))
-                return true;
-
             if (!string.IsNullOrEmpty(config.Ip) && config.Port > 0)
             {
                 try
@@ -94,6 +91,9 @@ namespace SuperSocket.SocketServiceCore
                 LogUtil.LogError("Config ip/port is missing!");
                 return false;
             }
+
+            if (string.IsNullOrEmpty(assembly))
+                return true;
 
             string dir = FileHelper.GetParentFolder(this.GetType().Assembly.Location);
 

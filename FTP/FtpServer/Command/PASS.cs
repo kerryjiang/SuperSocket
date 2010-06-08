@@ -7,7 +7,7 @@ using SuperSocket.FtpService.Membership;
 
 namespace SuperSocket.FtpService.Command
 {
-	class PASS : ICommand<FtpSession>
+	public class PASS : ICommand<FtpSession>
 	{
 		#region ICommand<FtpSession> Members
 

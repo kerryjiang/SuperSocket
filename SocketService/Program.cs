@@ -19,7 +19,17 @@ namespace SuperSocket.SocketService
 		{
             if (args != null && args.Length > 0)
             {
-                if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
+                if (args[0].Equals("-i", StringComparison.OrdinalIgnoreCase))
+                {
+                    SelfInstaller.InstallMe();
+                    return;
+                }
+                else if (args[0].Equals("-u", StringComparison.OrdinalIgnoreCase))
+                {
+                    SelfInstaller.UninstallMe();
+                    return;
+                }
+                else if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
                 {
                     Console.WriteLine("Note: enter 'start' to start server, 'quit' to stop the server!");
 

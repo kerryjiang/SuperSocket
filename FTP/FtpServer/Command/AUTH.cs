@@ -6,7 +6,7 @@ using System.Security.Authentication;
 
 namespace SuperSocket.FtpService.Command
 {
-	class AUTH : ICommand<FtpSession>
+	public class AUTH : ICommand<FtpSession>
 	{
 		#region ICommand<FtpSession> Members
 
