@@ -73,11 +73,14 @@ namespace SuperSocket.SocketServiceCore
         {
             Config = config;
 
-            if (!string.IsNullOrEmpty(config.Ip) && config.Port > 0)
+            if (config.Port > 0)
             {
                 try
                 {
-                    m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);
+                    if(string.IsNullOrEmpty(config.Ip))
+                        m_LocalEndPoint = new IPEndPoint(IPAddress.Any, config.Port);
+                    else
+                        m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);
                 }
                 catch(Exception e)
                 {

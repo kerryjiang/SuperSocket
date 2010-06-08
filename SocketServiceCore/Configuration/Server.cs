@@ -20,7 +20,7 @@ namespace SuperSocket.SocketServiceCore.Configuration
 			get { return this["serviceName"] as string; }
 		}
 
-		[ConfigurationProperty("ip", IsRequired = true)]
+		[ConfigurationProperty("ip", IsRequired = false)]
 		public string Ip
 		{
 			get { return this["ip"] as string; }
