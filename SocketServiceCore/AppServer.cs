@@ -45,18 +45,15 @@ namespace SuperSocket.SocketServiceCore
             for (int i = 0; i < arrType.Length; i++)
             {
                 //LogUtil.LogInfo(arrType[i].ToString() + "\r\n");
-                Type[] arrInterface = arrType[i].GetInterfaces();
+                var commandInterface = arrType[i].GetInterfaces().SingleOrDefault(x => x == commandType);
 
-                for (int j = 0; arrInterface != null && j < arrInterface.Length; j++)
+                if (commandInterface != null)
                 {
-                    if (arrInterface[j] == commandType)
-                    {
-                        //LogUtil.LogInfo(arrInterface[j].ToString() + ":" + commandType.ToString());
-                        dictCommand[arrType[i].Name] = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
-                    }
+                    //LogUtil.LogInfo(arrInterface[j].ToString() + ":" + commandType.ToString());
+                    dictCommand[arrType[i].Name] = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
                 }
             }
-            //LogUtil.LogInfo("Load " + dictCommand.Count + " commands from " + arrType.Length + " types!");		
+            //LogUtil.LogInfo("Load " + dictCommand.Count + " commands from " + arrType.Length + " types!");
         }
 
         
