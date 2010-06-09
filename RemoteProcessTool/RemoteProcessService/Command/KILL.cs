@@ -39,14 +39,17 @@ namespace RemoteProcessService.Command
             }
             else
             {
-                Process[] processes = Process.GetProcessesByName(processKey);
-                processes.ToList().ForEach(p => p.Kill());
-                if (processes.Length <= 0)
+                List<Process> processes = Process.GetProcesses().Where(p =>
+                    p.ProcessName.Equals(processKey, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                processes.ForEach(p => p.Kill());
+
+                if (processes.Count <= 0)
                     session.SendResponse("The specific process does not exist!");
-                else if(processes.Length == 1)
+                else if (processes.Count == 1)
                     session.SendResponse("The specific process has been killed!");
                 else
-                    session.SendResponse(string.Format("The {0} specific process has been killed!", processes.Length));
+                    session.SendResponse(string.Format("The {0} specific process has been killed!", processes.Count));
             }
         }
 

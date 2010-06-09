@@ -4,6 +4,7 @@ using System.Text;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.IO;
+using System.Configuration;
 
 namespace SuperSocket.Common
 {
@@ -475,5 +476,20 @@ namespace SuperSocket.Common
 				return true;
 			}
 		}
+
+        public static string GetConfigElementValue(this NameValueConfigurationCollection collection, string key)
+        {
+            return GetConfigElementValue(collection, string.Empty);
+        }
+
+        public static string GetConfigElementValue(this NameValueConfigurationCollection collection, string key, string defaultValue)
+        {
+            var e = collection[key];
+
+            if (e == null)
+                return defaultValue;
+
+            return e.Value;
+        }
 	}
 }

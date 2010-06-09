@@ -39,5 +39,10 @@ namespace RemoteProcessService
         {
             get { return m_Context; }
         }
+
+        public RemoteProcessServer CurrentServer
+        {
+            get { return this.AppServer as RemoteProcessServer; }
+        }
     }
 }

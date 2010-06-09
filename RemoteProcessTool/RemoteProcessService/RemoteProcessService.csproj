@@ -32,6 +32,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -45,6 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Command\FROZ.cs" />
     <Compile Include="Command\KILL.cs" />
     <Compile Include="Command\LIST.cs" />
     <Compile Include="Command\QUIT.cs" />
@@ -53,6 +55,10 @@
     <Compile Include="RemoteProcessServer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.csproj">
+      <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SocketServiceCore\SocketServiceCore.csproj">
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
       <Name>SocketServiceCore</Name>
