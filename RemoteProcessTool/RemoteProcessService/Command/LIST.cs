@@ -27,7 +27,7 @@ namespace RemoteProcessService.Command
 
             foreach (var p in processes)
             {
-                sb.AppendLine(string.Format("{0}\t{1}\t{2}", p.ProcessName, p.Id, p.TotalProcessorTime));
+                sb.AppendLine(string.Format("{0}\t{1}", p.ProcessName, p.Id));
             }
 
             sb.AppendLine();
