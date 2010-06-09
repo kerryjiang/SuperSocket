@@ -74,14 +74,7 @@ namespace SuperSocket.SocketServiceCore
 
         public override void Close()
         {
-            if (m_CommandThread != null)
-            {
-                m_CommandThread.Abort();
-                m_CommandThread = null;
-            }
-
             base.Close();
         }
-
     }
 }

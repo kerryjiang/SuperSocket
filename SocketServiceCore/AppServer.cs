@@ -77,7 +77,7 @@ namespace SuperSocket.SocketServiceCore
             {
                 try
                 {
-                    if(string.IsNullOrEmpty(config.Ip))
+                    if(string.IsNullOrEmpty(config.Ip) || "Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
                         m_LocalEndPoint = new IPEndPoint(IPAddress.Any, config.Port);
                     else
                         m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);

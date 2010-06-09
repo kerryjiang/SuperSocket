@@ -13,13 +13,21 @@ namespace RemoteProcessService.Command
 
         public void Execute(RemotePrcessSession session, CommandInfo commandData)
         {
-            Process[] processes = Process.GetProcesses();
+            Process[] processes;
+
+            string firstParam = commandData.GetFirstParam();
+
+            if (string.IsNullOrEmpty(firstParam) || firstParam == "*")
+                processes = Process.GetProcesses();
+            else
+                processes = Process.GetProcesses().Where(p =>
+                    p.ProcessName.IndexOf(firstParam, StringComparison.OrdinalIgnoreCase) >= 0).ToArray();
 
             StringBuilder sb = new StringBuilder();
 
             foreach (var p in processes)
             {
-                sb.AppendLine(string.Format("{0}\t{1}", p.ProcessName, p.Id));
+                sb.AppendLine(string.Format("{0}\t{1}\t{2}", p.ProcessName, p.Id, p.TotalProcessorTime));
             }
 
             sb.AppendLine();
