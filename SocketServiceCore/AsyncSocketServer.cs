@@ -26,6 +26,8 @@ namespace SuperSocket.SocketServiceCore
 
         private Thread m_ListenThread = null;
 
+        private bool m_Stopped = false;
+
 		public override bool Start()
 		{
 			try
@@ -55,7 +57,7 @@ namespace SuperSocket.SocketServiceCore
             m_Listener.Start();
             m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-            while (true)
+            while (!m_Stopped)
             {
                 m_TcpClientConnected.Reset();
                 m_Listener.BeginAcceptTcpClient(OnClientConnect, null);
@@ -65,7 +67,22 @@ namespace SuperSocket.SocketServiceCore
 
 		public void OnClientConnect(IAsyncResult result)
 		{
-			TcpClient client = m_Listener.EndAcceptTcpClient(result);
+            TcpClient client = null;
+
+            try
+            {
+                client = m_Listener.EndAcceptTcpClient(result);
+            }
+            catch (ObjectDisposedException)//listener has been stopped
+            {
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError("Failed to accept new tcp client in async server!", e);
+                m_TcpClientConnected.Set();
+                return;
+            }
+
             TSocketSession session = RegisterSession(client);
             m_TcpClientConnected.Set();
 			session.Start();
@@ -75,11 +92,7 @@ namespace SuperSocket.SocketServiceCore
 		{
 			base.Stop();
 
-            if (m_ListenThread != null)
-            {
-                m_ListenThread.Abort();
-                m_ListenThread = null;
-            }
+            m_Stopped = true;
 
 			if (m_Listener != null)
 			{

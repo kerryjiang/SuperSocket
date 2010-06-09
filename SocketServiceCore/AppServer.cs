@@ -58,7 +58,7 @@ namespace SuperSocket.SocketServiceCore
 
         
 
-        private Dictionary<string, ProviderBase> m_ProviderDict = new Dictionary<string, ProviderBase>();
+        private Dictionary<string, ProviderBase> m_ProviderDict = new Dictionary<string, ProviderBase>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Setups the specified factory.
@@ -115,7 +115,7 @@ namespace SuperSocket.SocketServiceCore
                         ProviderBase provider = ass.CreateInstance(arrType[i].ToString()) as ProviderBase;
                         if (provider.Init(config))
                         {
-                            m_ProviderDict[provider.Name.ToLower()] = provider;
+                            m_ProviderDict[provider.Name] = provider;
                         }
                         else
                         {
@@ -177,7 +177,7 @@ namespace SuperSocket.SocketServiceCore
         {
             ProviderBase provider = null;
 
-            if (m_ProviderDict.TryGetValue(providerName.ToLower(), out provider))
+            if (m_ProviderDict.TryGetValue(providerName, out provider))
             {
                 return provider;
             }

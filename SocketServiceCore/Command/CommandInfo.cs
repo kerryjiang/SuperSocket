@@ -60,10 +60,15 @@ namespace SuperSocket.SocketServiceCore.Command
 		
 		public string GetFirstParam()
 		{
-			if(m_Parmaters==null || m_Parmaters.Length<=0)
-				return string.Empty;
-			
-			return m_Parmaters[0];
+            return GetParamemterByIndex(0);
 		}
+
+        public string GetParamemterByIndex(int index)
+        {
+            if (m_Parmaters == null || m_Parmaters.Length <= index)
+                return string.Empty;
+
+            return m_Parmaters[index];
+        }
 	}
 }
