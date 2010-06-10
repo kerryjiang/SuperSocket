@@ -6,14 +6,9 @@ using SuperSocket.SocketServiceCore;
 
 namespace RemoteProcessService
 {
-    public class RemotePrcessContext : SocketContext
-    {
-
-    }
-
     public class RemotePrcessSession : AppSession<RemotePrcessSession>
     {
-        private RemotePrcessContext m_Context;
+        private SocketContext m_Context;
 
         protected override void OnClosed()
         {
@@ -22,7 +17,7 @@ namespace RemoteProcessService
 
         protected override void OnInit()
         {
-            m_Context = new RemotePrcessContext();
+            m_Context = new SocketContext();
         }
 
         public override void SayWelcome()

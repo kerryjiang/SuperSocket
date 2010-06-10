@@ -7,7 +7,7 @@ namespace SuperSocket.SocketServiceCore
 	/// <summary>
 	/// The base class of socketContext
 	/// </summary>
-	public abstract class SocketContext
+	public class SocketContext
 	{
 		private Encoding m_Charset = Encoding.Default;
 
