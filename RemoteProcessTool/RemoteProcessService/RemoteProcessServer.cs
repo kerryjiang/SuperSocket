@@ -64,10 +64,14 @@ namespace RemoteProcessService
 
         public override bool Setup(string assembly, IServerConfig config)
         {
+            if (!base.Setup(assembly, config))
+                return false;
+
             int interval = Convert.ToInt32(config.Parameters.GetConfigElementValue("MonitorInterval", "1"));
             TimeSpan intervalTimeSpan = new TimeSpan(0, interval, 0);
             m_MonitorTimer = new Timer(new TimerCallback(OnMonitorTimerCallback), new object(), intervalTimeSpan, intervalTimeSpan);
-            return base.Setup(assembly, config);
+
+            return true;
         }
 
         private void OnMonitorTimerCallback(object state)
