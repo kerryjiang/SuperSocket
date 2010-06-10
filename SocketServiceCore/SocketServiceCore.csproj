@@ -80,7 +80,6 @@
     <Compile Include="ISocketSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderBase.cs" />
-    <Compile Include="ServiceProviderFactory.cs" />
     <Compile Include="SocketContext.cs" />
     <Compile Include="SocketContextStatus.cs" />
     <Compile Include="SocketManagerPasswordValidator.cs" />
