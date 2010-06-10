@@ -63,12 +63,20 @@ namespace SuperSocket.SocketServiceCore.Command
             return GetParamemterByIndex(0);
 		}
 
-        public string GetParamemterByIndex(int index)
+        private string GetParamemterByIndex(int index)
         {
             if (m_Parmaters == null || m_Parmaters.Length <= index)
                 return string.Empty;
 
             return m_Parmaters[index];
+        }
+
+        public string this[int index]
+        {
+            get
+            {
+                return GetParamemterByIndex(0);
+            }
         }
 	}
 }

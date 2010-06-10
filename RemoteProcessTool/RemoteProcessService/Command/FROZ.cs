@@ -22,7 +22,7 @@ namespace RemoteProcessService.Command
                 return;
             }
 
-            var param = commandData.GetParamemterByIndex(1);
+            var param = commandData[1];
 
             if ("list".Equals(firstParam, StringComparison.OrdinalIgnoreCase))
             {
