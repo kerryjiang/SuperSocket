@@ -69,7 +69,10 @@ namespace SuperSocket.SocketServiceCore
 
             Type serviceType = null;
 
-			ServiceCredentials credentials = GetServiceCredentials(config.CredentialConfig);
+			ServiceCredentials credentials = null;
+
+            if (config.CredentialConfig != null)
+                credentials = GetServiceCredentials(config.CredentialConfig);
 
             foreach (IServerConfig serverConfig in serverList)
             {
