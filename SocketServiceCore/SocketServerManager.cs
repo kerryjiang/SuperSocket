@@ -40,19 +40,14 @@ namespace SuperSocket.SocketServiceCore
                 if (service.Disabled)
                     continue;
 
-                bool initResult = false;
-
-				if (AssemblyUtil.TryGetType<IRunable>(service.BaseAssembly, out serviceType))
-                {
-                    initResult = true;
-					m_ServiceDict[service.ServiceName] = serviceType;
-                }
-
-                if (!initResult)
+				if (!AssemblyUtil.TryGetType(service.Type, out serviceType))
                 {
                     LogUtil.LogError("Failed to initialize " + service.ServiceName + "!");
                     return false;
+					
                 }
+
+                m_ServiceDict[service.ServiceName] = serviceType;
             }
 
             return true;

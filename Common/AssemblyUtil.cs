@@ -8,56 +8,38 @@ namespace SuperSocket.Common
 {
     public static class AssemblyUtil
     {
-        public static bool TryCreateInstance<T>(string assembly, out T result)
+        public static bool TryCreateInstance<T>(string type, out T result)
         {
-            string[] arrAssembly = assembly.Split(',');
-            string className = arrAssembly[0];
-            string assemblyPath = arrAssembly[1] + ".dll";
-
-            Assembly ass = Assembly.LoadFrom(assemblyPath);
-
-            if (ass != null)
-            {
-                object instance = ass.CreateInstance(className, true);
-
-                if (instance != null)
-                {
-                   result = (T)instance;
-                   return true;
-                }
-            }
-
+            Type instanceType = null;
             result = default(T);
-            return false;
+
+            if (!TryGetType(type, out instanceType))
+                return false;
+
+            try
+            {
+                object instance = Activator.CreateInstance(instanceType);
+                result = (T)instance;
+                return true;
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError("TryCreateInstance" , e);
+                return false;
+            }
         }
 
-        public static bool TryGetType<T>(string assembly, out Type result)
+        public static bool TryGetType(string type, out Type result)
         {
-            result = null;            
-
-            string[] arrAssembly    = assembly.Split(',');
-            string className        = arrAssembly[0].Trim();
-            string assemblyPath     = arrAssembly[1].Trim() + ".dll";
-
-            string currentPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            Assembly ass = Assembly.LoadFrom(Path.Combine(currentPath, assemblyPath));
-
-            if (ass != null)
+            try
             {
-                result = ass.GetType(className, false, true);
-
-                if (result != null)
-                    return true;
-                else
-                {
-                    LogUtil.LogError("Failed to load type " + className);
-                    return false;
-                }
+                result = Type.GetType(type);
+                return true;
             }
-            else
+            catch (Exception e)
             {
-                LogUtil.LogError("Failed to load assembly " + assemblyPath);
+                LogUtil.LogError(e);
+                result = null;
                 return false;
             }
         }

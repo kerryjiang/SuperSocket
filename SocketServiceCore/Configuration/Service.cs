@@ -16,10 +16,10 @@ namespace SuperSocket.SocketServiceCore.Configuration
 			get { return this["serviceName"] as string; }
 		}
 
-        [ConfigurationProperty("baseAssembly", IsRequired = true)]
-        public string BaseAssembly
+        [ConfigurationProperty("type", IsRequired = true)]
+        public string Type
         {
-            get { return this["baseAssembly"] as string; }
+            get { return this["type"] as string; }
         }
 
 

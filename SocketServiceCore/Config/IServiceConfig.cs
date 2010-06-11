@@ -7,9 +7,9 @@ namespace SuperSocket.SocketServiceCore.Config
 {
 	public interface IServiceConfig
 	{
-		string ServiceName { get; }		
+		string ServiceName { get; }
 
-        string BaseAssembly { get; }
+        string Type { get; }
 
         NameValueConfigurationCollection Providers { get; }
 
