@@ -22,7 +22,9 @@ namespace SuperSocket.SocketServiceCore
     public class SyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
         where TSocketSession : ISocketSession<TAppSession>, new()
         where TAppSession : IAppSession, new()
-	{	
+	{
+
+        private bool m_Stopped = false;
 
         public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
@@ -47,8 +49,7 @@ namespace SuperSocket.SocketServiceCore
 				if (m_Listener == null)
 				{
 					m_ListenThread = new Thread(StartListen);
-					m_ListenThread.IsBackground = true;
-					m_ListenThread.Start();					
+                    m_ListenThread.Start();					
 				}
 
                 return true;
@@ -67,11 +68,7 @@ namespace SuperSocket.SocketServiceCore
 		{
 			base.Stop();
 
-			if (m_ListenThread != null)
-			{
-				m_ListenThread.Abort();
-				m_ListenThread = null;
-			}
+            m_Stopped = true;
 
 			if (m_Listener != null)
 			{
@@ -89,23 +86,25 @@ namespace SuperSocket.SocketServiceCore
 			m_Listener.Start();
 			m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-			while (true)
+            while (!m_Stopped)
 			{
 				TcpClient client = null;
 
-				try
-				{
-					client = m_Listener.AcceptTcpClient();
-				}
-				catch (ThreadAbortException)
-				{
-					//Do nothing
-				}
-				catch (Exception e)
-				{
-					LogUtil.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port);
-					LogUtil.LogError(e);
-				}
+                try
+                {
+                    client = m_Listener.AcceptTcpClient();
+                }
+                catch (ObjectDisposedException)
+                {
+                    //Do nothing
+                    return;
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port);
+                    LogUtil.LogError(e);
+                    return;
+                }
 
                 TSocketSession session = RegisterSession(client);
 								

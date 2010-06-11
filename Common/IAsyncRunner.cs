@@ -8,6 +8,12 @@ namespace SuperSocket.Common
 {
     public delegate void ExceptionCallback();
 
+    public enum AsyncRunType
+    {
+        NewThread,
+        ThreadPool
+    }
+
     public interface IAsyncRunner
     {
 
@@ -15,35 +21,71 @@ namespace SuperSocket.Common
 
     public static class AsyncRunnerExtension
     {
-        public static void ExecuteAsync(this IAsyncRunner runner, string stepName, WaitCallback callback)
+        class ExecuteAsyncThreadStartParameter
         {
-            ExecuteAsync(runner, stepName, callback, null);
+            public string StepName { get; set; }
+            public WaitCallback RunCallback { get; set; }
+            public ExceptionCallback ExceptionCallback { get; set; }
         }
 
-        public static void ExecuteAsync(this IAsyncRunner runner, string stepName, WaitCallback callback, ExceptionCallback exceptionCallback)
+        public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, string stepName, WaitCallback callback)
         {
-            ThreadPool.QueueUserWorkItem(delegate
+            ExecuteAsync(runner, runType, stepName, callback, null);
+        }
+
+        public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, string stepName, WaitCallback callback, ExceptionCallback exceptionCallback)
+        {
+            if (runType == AsyncRunType.ThreadPool)
             {
-                try
+                ThreadPool.QueueUserWorkItem(delegate
                 {
-                    callback(null);
-                }
-                catch (Exception e)
-                {
-                    LogUtil.LogError(stepName, e);
-                    if (exceptionCallback != null)
+                    ExecuteAsyncInternal(stepName, callback, exceptionCallback);
+                });
+            }
+            else
+            {
+                Thread newThread = new Thread(new ParameterizedThreadStart(ExecuteAsyncStart));
+                newThread.Start(new ExecuteAsyncThreadStartParameter
                     {
-                        try
-                        {
-                            exceptionCallback();
-                        }
-                        catch (Exception exc)
-                        {
-                            LogUtil.LogError(stepName + " exception callback", exc);
-                        }
+                        StepName = stepName,
+                        RunCallback = callback,
+                        ExceptionCallback = exceptionCallback
+                    });
+
+            }
+        }
+
+        private static void ExecuteAsyncStart(object parameter)
+        {
+            ExecuteAsyncThreadStartParameter startParameter = parameter as ExecuteAsyncThreadStartParameter;
+
+            if (startParameter == null)
+                return;
+
+            ExecuteAsyncInternal(startParameter.StepName, startParameter.RunCallback, startParameter.ExceptionCallback);
+        }
+
+        private static void ExecuteAsyncInternal(string stepName, WaitCallback callback, ExceptionCallback exceptionCallback)
+        {
+            try
+            {
+                callback(null);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(stepName, e);
+                if (exceptionCallback != null)
+                {
+                    try
+                    {
+                        exceptionCallback();
+                    }
+                    catch (Exception exc)
+                    {
+                        LogUtil.LogError(stepName + " exception callback", exc);
                     }
                 }
-            });
+            }
         }
     }
 }

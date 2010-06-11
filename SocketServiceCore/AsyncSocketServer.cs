@@ -38,7 +38,6 @@ namespace SuperSocket.SocketServiceCore
                 if (m_Listener == null)
                 {
                     m_ListenThread = new Thread(StartListen);
-                    m_ListenThread.IsBackground = true;
                     m_ListenThread.Start();
                 }
 
@@ -75,6 +74,7 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (ObjectDisposedException)//listener has been stopped
             {
+                return;
             }
             catch (Exception e)
             {
