@@ -75,7 +75,7 @@ namespace SuperSocket.SocketServiceCore.Command
         {
             get
             {
-                return GetParamemterByIndex(0);
+                return GetParamemterByIndex(index);
             }
         }
 	}
