@@ -21,7 +21,7 @@ namespace SuperSocket.SocketService
 			serviceInstaller = new ServiceInstaller();
 
 			processInstaller.Account = ServiceAccount.LocalSystem;
-			serviceInstaller.StartType = ServiceStartMode.Manual;
+			serviceInstaller.StartType = ServiceStartMode.Automatic;
             serviceInstaller.ServiceName = ConfigurationManager.AppSettings["ServiceName"];
 
 			Installers.Add(serviceInstaller);
