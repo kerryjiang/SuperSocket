@@ -1,2 +1,2 @@
 SuperSocket.SocketService.exe -u
-pasue
+pause
