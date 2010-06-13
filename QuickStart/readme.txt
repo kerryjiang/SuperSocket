@@ -1,0 +1,1 @@
+Projects structures of EchoService and RemoteProcessTool are different. RemoteProcessTool's project reference SocketService project directly, so the SocketService's outputs will be generated in the output directory and you needn't copy the RemoteProcessTool's assembly to SocketService's bin directory.
