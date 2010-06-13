@@ -11,6 +11,12 @@ namespace SuperSocket.SocketServiceCore
 	/// </summary>
 	public interface IRunable
 	{
+        /// <summary>
+        /// Gets or sets the name.
+        /// </summary>
+        /// <value>The name.</value>
+        string Name { get; }
+
         ServiceCredentials ServerCredentials { get; set; }
 		/// <summary>
 		/// Setups the specified config.

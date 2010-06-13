@@ -112,6 +112,7 @@ namespace SuperSocket.SocketServiceCore
             foreach (IRunable server in m_ServerList)
             {
                 server.Stop();
+                LogUtil.LogInfo(server.Name + " has been stopped");
             }
         }
 

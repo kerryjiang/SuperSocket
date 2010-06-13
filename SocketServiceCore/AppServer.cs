@@ -9,6 +9,7 @@ using SuperSocket.Common;
 using System.IO;
 using SuperSocket.SocketServiceCore.Config;
 using System.ServiceModel.Description;
+using System.Threading;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -140,6 +141,11 @@ namespace SuperSocket.SocketServiceCore
             }
         }
 
+        public string Name
+        {
+            get { return Config.Name; }
+        }
+
         private ISocketServer m_SocketServer;
 
         public virtual bool Start()
@@ -157,6 +163,8 @@ namespace SuperSocket.SocketServiceCore
                     return false;
             }
 
+            SetupClearSessionTimer();
+
             return true;
         }
 
@@ -166,6 +174,11 @@ namespace SuperSocket.SocketServiceCore
             {
                 m_SocketServer.Stop();
             }
+
+            m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            m_ClearIdleSessionTimer.Dispose();
+
+            m_SessionDict.Values.ToList().ForEach(s => s.Close());
         }
 
         /// <summary>
@@ -185,16 +198,71 @@ namespace SuperSocket.SocketServiceCore
             {
                 return null;
             }
-        }        
+        }
+
+        public abstract bool IsReady { get; }
+
+        private Dictionary<string, T> m_SessionDict = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
+
+        private object m_SessionSyncRoot = new object();
 
         public T CreateAppSession(ISocketSession socketSession)
         {
             T appSession = new T();
             appSession.Initialize(this, socketSession);
+            socketSession.Closed += new EventHandler(socketSession_Closed);
+
+            lock (m_SessionSyncRoot)
+            {
+                m_SessionDict[appSession.SessionID] = appSession;
+            }
+
             return appSession;
         }
 
-        public abstract bool IsReady { get; }
+        void socketSession_Closed(object sender, EventArgs e)
+        {
+            //the sender is a sessionID
+            string sessionID = sender as string;
+
+            if (string.IsNullOrEmpty(sessionID))
+                return;
+
+            try
+            {
+                m_SessionDict.Remove(sessionID);
+                LogUtil.LogInfo("SocketSession " + sessionID + " was closed!");
+            }
+            catch (Exception exc)
+            {
+                LogUtil.LogError(exc);
+            }
+        }
+
+        private System.Threading.Timer m_ClearIdleSessionTimer = null;
+
+        private void SetupClearSessionTimer()
+        {
+            int interval  = 60 * 1000;
+            m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, m_SessionSyncRoot, interval, interval);
+        }
+
+        private void ClearIdleSession(object state)
+        {
+            if(Monitor.TryEnter(state))
+            {
+                try
+                {
+                    m_SessionDict.Values.Where(s =>
+                        DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalMinutes > 5)
+                        .ToList().ForEach(s => s.Close());
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError("Clear idle session error!", e);
+                }
+            }
+        }
 
         #region ICommandSource<T> Members
 

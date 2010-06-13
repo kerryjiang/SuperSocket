@@ -27,7 +27,7 @@ namespace SuperSocket.SocketServiceCore.Configuration
 			}
 		}
 
-		[ConfigurationProperty("certificate")]
+        [ConfigurationProperty("certificate", IsRequired = false)]
 		public CertificateConfig Certificate
 		{
 			get
@@ -36,7 +36,7 @@ namespace SuperSocket.SocketServiceCore.Configuration
 			}
 		}
 
-		[ConfigurationProperty("credential")]
+		[ConfigurationProperty("credential", IsRequired = false)]
 		public CredentialConfig Credential
 		{
 			get

@@ -59,7 +59,7 @@ namespace SuperSocket.SocketServiceCore
             while (!m_Stopped)
             {
                 m_TcpClientConnected.Reset();
-                m_Listener.BeginAcceptTcpClient(OnClientConnect, null);
+                m_Listener.BeginAcceptTcpClient(OnClientConnect, m_Listener);
                 m_TcpClientConnected.WaitOne();
             }
         }
@@ -70,10 +70,16 @@ namespace SuperSocket.SocketServiceCore
 
             try
             {
-                client = m_Listener.EndAcceptTcpClient(result);
+                TcpListener listener = result.AsyncState as TcpListener;
+
+                if (listener == null)
+                    return;
+
+                client = listener.EndAcceptTcpClient(result);
             }
             catch (ObjectDisposedException)//listener has been stopped
             {
+                m_TcpClientConnected.Set();
                 return;
             }
             catch (Exception e)
@@ -97,7 +103,7 @@ namespace SuperSocket.SocketServiceCore
 			if (m_Listener != null)
 			{
 				m_Listener.Stop();
-				m_Listener = null;
+                m_Listener = null;
 			}
 		}
 	}

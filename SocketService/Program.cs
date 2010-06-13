@@ -70,6 +70,7 @@ namespace SuperSocket.SocketService
                 continue;
 
             SocketServerManager.Stop();
+            Console.WriteLine("The server has been stopped!");
         }
 
         static void RunAsService()
