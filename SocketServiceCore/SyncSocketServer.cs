@@ -101,6 +101,15 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (Exception e)
                 {
+                    SocketException se = e as SocketException;
+                    if (se != null)
+                    {
+                        //A blocking operation was interrupted by a call to WSACancelBlockingCall
+                        //SocketListener has been stopped normally
+                        if (se.ErrorCode == 10004)
+                            return;
+                    }
+
                     LogUtil.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port);
                     LogUtil.LogError(e);
                     return;
