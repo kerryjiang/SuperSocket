@@ -61,5 +61,17 @@ namespace SuperSocket.SocketServiceCore.Configuration
         {
             get { return (string)this["provider"]; }
         }
+
+        [ConfigurationProperty("readTimeOut", IsRequired = false, DefaultValue = 0)]
+        public int ReadTimeOut
+        {
+            get { return (int)this["readTimeOut"]; }
+        }
+
+        [ConfigurationProperty("sendTimeOut", IsRequired = false, DefaultValue = 0)]
+        public int SendTimeOut
+        {
+            get { return (int)this["sendTimeOut"]; }
+        }
 	}
 }

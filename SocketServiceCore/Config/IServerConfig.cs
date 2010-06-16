@@ -24,5 +24,9 @@ namespace SuperSocket.SocketServiceCore.Config
         SocketMode Mode { get; }
 
 		bool EnableManagementService { get; }
+
+        int ReadTimeOut { get; }
+
+        int SendTimeOut { get; }
 	}
 }
