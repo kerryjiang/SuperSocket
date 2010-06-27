@@ -89,8 +89,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Commands\CommandReference.cs" />
-    <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

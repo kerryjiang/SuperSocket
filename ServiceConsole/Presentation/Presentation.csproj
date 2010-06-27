@@ -58,6 +58,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Commands\CommandReference.cs" />
+    <Compile Include="Commands\DelegateCommand.cs" />
     <Compile Include="Controls\OutlookBar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
