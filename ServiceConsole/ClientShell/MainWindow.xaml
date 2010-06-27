@@ -1,0 +1,34 @@
+﻿<Window x:Class="SuperSocket.ServiceConsole.ClientShell.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:SuperSocket.ServiceConsole.ClientShell.View"
+    xmlns:base="http://schemes.supersocket.com/clientbase"
+    Title="SuperSocket Console">
+    <Window.Resources>
+        <ResourceDictionary Source="Themes\Common.xaml"></ResourceDictionary>
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Border Style="{StaticResource HeadBorder}" Grid.Row="0" Grid.Column="0">
+            <Label Content="SuperSocket ServiceConsole" Style="{StaticResource ApplicationName}"              
+               VerticalAlignment="Center"
+               VerticalContentAlignment="Center"></Label>
+        </Border>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"></ColumnDefinition>
+                <ColumnDefinition Width="5"></ColumnDefinition>
+                <ColumnDefinition Width="*" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:MainTreeMenu Grid.Column="0" />
+            <GridSplitter Grid.Column="1" ShowsPreview="True"
+                          Width="5" HorizontalAlignment="Stretch" />
+            <TabControl Grid.Column="2">
+                
+            </TabControl>
+        </Grid>     
+    </Grid>
+</Window>
