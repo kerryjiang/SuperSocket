@@ -244,7 +244,7 @@ namespace SuperSocket.SocketServiceCore
         private void SetupClearSessionTimer()
         {
             int interval  = 60 * 1000;
-            m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, m_SessionSyncRoot, interval, interval);
+            m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
         }
 
         private void ClearIdleSession(object state)
@@ -253,9 +253,12 @@ namespace SuperSocket.SocketServiceCore
             {
                 try
                 {
-                    m_SessionDict.Values.Where(s =>
-                        DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalMinutes > 5)
-                        .ToList().ForEach(s => s.Close());
+                    lock (m_SessionSyncRoot)
+                    {
+                        m_SessionDict.Values.Where(s =>
+                            DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalMinutes > 5)
+                            .ToList().ForEach(s => s.Close());
+                    }
                 }
                 catch (Exception e)
                 {
