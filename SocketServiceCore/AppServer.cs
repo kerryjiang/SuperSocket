@@ -210,7 +210,7 @@ namespace SuperSocket.SocketServiceCore
         {
             T appSession = new T();
             appSession.Initialize(this, socketSession);
-            socketSession.Closed += new EventHandler(socketSession_Closed);
+            socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(socketSession_Closed);
 
             lock (m_SessionSyncRoot)
             {
@@ -220,17 +220,20 @@ namespace SuperSocket.SocketServiceCore
             return appSession;
         }
 
-        void socketSession_Closed(object sender, EventArgs e)
+        void socketSession_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             //the sender is a sessionID
-            string sessionID = sender as string;
+            string sessionID = e.SessionID;
 
             if (string.IsNullOrEmpty(sessionID))
                 return;
 
             try
             {
-                m_SessionDict.Remove(sessionID);
+                lock (m_SessionSyncRoot)
+                {
+                    m_SessionDict.Remove(sessionID);
+                }
                 LogUtil.LogInfo("SocketSession " + sessionID + " was closed!");
             }
             catch (Exception exc)

@@ -119,9 +119,10 @@ namespace SuperSocket.SocketServiceCore
 		/// </summary>
 		protected override void OnClose()
 		{
-			if (Closed != null)
+            var closedHandler = Closed;
+            if (closedHandler != null)
 			{
-				Closed.Invoke(m_SessionID, EventArgs.Empty);
+                closedHandler(null, new SocketSessionClosedEventArgs { SessionID = this.SessionID });
 			}
 
             base.OnClose();
@@ -135,11 +136,16 @@ namespace SuperSocket.SocketServiceCore
 		/// <summary>
 		/// Occurs when [closed].
 		/// </summary>
-		public event EventHandler Closed;
+        public event EventHandler<SocketSessionClosedEventArgs> Closed;
 
         protected virtual void HandleExceptionalError(Exception e)
         {
             AppSession.HandleExceptionalError(e);
         }
+    }
+
+    public class SocketSessionClosedEventArgs : EventArgs
+    {
+        public string SessionID { get; set; }
     }
 }

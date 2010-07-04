@@ -20,7 +20,7 @@ namespace SuperSocket.SocketServiceCore
         IPEndPoint LocalEndPoint { get; }
         SslProtocols SecureProtocol { get; set; }
         //IServerConfig Config { get;  set; }        
-        event EventHandler Closed;
+        event EventHandler<SocketSessionClosedEventArgs> Closed;
     }
 
     public interface ISocketSession<T> : ISocketSession
