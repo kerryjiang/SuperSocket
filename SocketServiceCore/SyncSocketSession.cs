@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SuperSocket.Common;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
+using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.SocketServiceCore

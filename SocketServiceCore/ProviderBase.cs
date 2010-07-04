@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Resources;
 using System.Text;
 using SuperSocket.SocketServiceCore.Config;
-using System.Resources;
 
 namespace SuperSocket.SocketServiceCore
 {

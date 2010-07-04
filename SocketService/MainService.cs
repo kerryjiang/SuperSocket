@@ -1,14 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.Text;
-using System.Configuration;
-using SuperSocket.SocketServiceCore.Configuration;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Configuration;
 
 namespace SuperSocket.SocketService
 {

@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Configuration.Install;
 using System.ServiceProcess;
-using System.Configuration;
 
 namespace SuperSocket.SocketService
 {
