@@ -28,5 +28,7 @@ namespace SuperSocket.SocketServiceCore.Config
         int ReadTimeOut { get; }
 
         int SendTimeOut { get; }
+
+        int MaxConnectionNumber { get; }
 	}
 }

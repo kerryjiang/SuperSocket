@@ -173,10 +173,17 @@ namespace SuperSocket.SocketServiceCore
 			{
                 try
                 {
-                    m_Client.Client.Shutdown(SocketShutdown.Both);
+                    m_Client.Client.Shutdown(SocketShutdown.Both);                                        
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError(e);
+                }
+
+                try
+                {
                     m_Client.Client.Close();
                     m_Client.Close();
-                    m_Client = null;
                 }
                 catch (Exception e)
                 {
@@ -184,6 +191,7 @@ namespace SuperSocket.SocketServiceCore
                 }
                 finally
                 {
+                    m_Client = null;
                     m_IsClosed = true;
                     OnClose();
                 }				

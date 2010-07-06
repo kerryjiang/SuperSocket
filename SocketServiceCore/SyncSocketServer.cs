@@ -36,6 +36,8 @@ namespace SuperSocket.SocketServiceCore
 
 		private Thread m_ListenThread = null;
 
+        private Semaphore m_MaxConnectionSemaphore;
+
 		/// <summary>
 		/// Starts the server
 		/// </summary>
@@ -86,12 +88,15 @@ namespace SuperSocket.SocketServiceCore
 			m_Listener.Start();
 			m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
+            m_MaxConnectionSemaphore = new Semaphore(AppServer.Config.MaxConnectionNumber, AppServer.Config.MaxConnectionNumber);
+
             while (!m_Stopped)
 			{
 				TcpClient client = null;
 
                 try
                 {
+                    m_MaxConnectionSemaphore.WaitOne();
                     client = m_Listener.AcceptTcpClient();
                 }
                 catch (ObjectDisposedException)
@@ -116,12 +121,18 @@ namespace SuperSocket.SocketServiceCore
                 }
 
                 TSocketSession session = RegisterSession(client);
+                session.Closed +=new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 								
 				Thread thUser	= new Thread(session.Start);
 				thUser.IsBackground = true;
 				thUser.Start();				
 			}
 		}
-		
+
+        void session_Closed(object sender, SocketSessionClosedEventArgs e)
+        {
+            m_MaxConnectionSemaphore.Release();
+        }
+	
 	}
 }

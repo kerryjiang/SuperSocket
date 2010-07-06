@@ -20,7 +20,9 @@ namespace SuperSocket.SocketServiceCore
 			
 		}
 
-		public static ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
+		private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
+
+        private Semaphore m_MaxConnectionSemaphore;
 
 		private TcpListener m_Listener = null;
 
@@ -56,11 +58,14 @@ namespace SuperSocket.SocketServiceCore
             m_Listener.Start();
             m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
+            m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
+
             while (!m_Stopped)
             {
                 m_TcpClientConnected.Reset();
                 m_Listener.BeginAcceptTcpClient(OnClientConnect, m_Listener);
                 m_TcpClientConnected.WaitOne();
+                m_MaxConnectionSemaphore.WaitOne();//two wait one here?
             }
         }
 
@@ -90,9 +95,15 @@ namespace SuperSocket.SocketServiceCore
             }
 
             TSocketSession session = RegisterSession(client);
+            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
             m_TcpClientConnected.Set();
 			session.Start();
 		}
+
+        void session_Closed(object sender, SocketSessionClosedEventArgs e)
+        {
+            m_MaxConnectionSemaphore.Release();
+        }
 
 		public override void Stop()
 		{
