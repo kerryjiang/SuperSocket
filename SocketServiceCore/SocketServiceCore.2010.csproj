@@ -72,6 +72,10 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="AsyncSocketServer.cs" />
     <Compile Include="AsyncSocketSession.cs" />
+    <Compile Include="AsyncSocket\AsyncUserToken.cs" />
+    <Compile Include="AsyncSocket\BufferManager.cs" />
+    <Compile Include="AsyncSocket\SocketAsyncEventArgPool.cs" />
+    <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs" />
     <Compile Include="AuthenticationManager.cs" />
     <Compile Include="AuthenticationResult.cs" />
     <Compile Include="Command\CommandInfo.cs" />
@@ -89,6 +93,7 @@
     <Compile Include="Config\IGetCerticateConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
+    <Compile Include="ConsoleHostInfo.cs" />
     <Compile Include="CreateUserResult.cs" />
     <Compile Include="GlobalAssemblyInfo.cs" />
     <Compile Include="ICommandSource.cs" />
