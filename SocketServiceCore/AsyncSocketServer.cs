@@ -10,32 +10,59 @@ using SuperSocket.Common;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
+    public class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>, IAsyncRunner
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>, new()     
 	{
         public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
 		{
-			
+            
 		}
 
-		private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
+        private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
+
+        private BufferManager m_BufferManager;
+
+        private SocketAsyncEventArgsPool m_ReadWritePool;
 
         private Semaphore m_MaxConnectionSemaphore;
 
-		private Socket m_ListenSocket = null;
+        private Socket m_ListenSocket = null;
 
         private Thread m_ListenThread = null;
 
         private bool m_Stopped = false;
 
-		public override bool Start()
+        public override bool Start()
 		{
 			try
 			{
                 if (!base.Start())
                     return false;
+
+                m_BufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber * 2,
+                    AppServer.Config.ReceiveBufferSize);
+                m_BufferManager.InitBuffer();
+
+                m_ReadWritePool = new SocketAsyncEventArgsPool(AppServer.Config.MaxConnectionNumber);
+
+                // preallocate pool of SocketAsyncEventArgs objects
+                SocketAsyncEventArgs readWriteEventArg;
+
+                for (int i = 0; i < AppServer.Config.MaxConnectionNumber; i++)
+                {
+                    //Pre-allocate a set of reusable SocketAsyncEventArgs
+                    readWriteEventArg = new SocketAsyncEventArgs();
+                    readWriteEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);
+                    readWriteEventArg.UserToken = new AsyncUserToken();
+
+                    // assign a byte buffer from the buffer pool to the SocketAsyncEventArg object
+                    m_BufferManager.SetBuffer(readWriteEventArg);
+
+                    // add SocketAsyncEventArg to the pool
+                    m_ReadWritePool.Push(readWriteEventArg);
+                }
 
                 if (m_ListenSocket == null)
                 {
@@ -50,7 +77,7 @@ namespace SuperSocket.SocketServiceCore
 				LogUtil.LogError(e);
 				return false;
 			}			
-		}
+		}        
 
         private void StartListen()
         {
@@ -62,13 +89,36 @@ namespace SuperSocket.SocketServiceCore
 
             m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
 
+            SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
+            acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
+
             while (!m_Stopped)
             {
                 m_TcpClientConnected.Reset();
-                m_ListenSocket.BeginAccept(OnClientConnect, m_ListenSocket);
+                acceptEventArg.AcceptSocket = null;
+                if (!m_ListenSocket.AcceptAsync(acceptEventArg))
+                    this.ExecuteAsync(AsyncRunType.ThreadPool, "AcceptNewClient", w => AceptNewClient(acceptEventArg));
                 m_TcpClientConnected.WaitOne();
                 m_MaxConnectionSemaphore.WaitOne();//two wait one here?
             }
+        }
+
+        void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            AceptNewClient(e);
+        }
+
+        void AceptNewClient(SocketAsyncEventArgs e)
+        {
+            //Get the socket for the accepted client connection and put it into the 
+            //ReadEventArg object user token
+            SocketAsyncEventArgs socketEventArgs = m_ReadWritePool.Pop();
+            ((AsyncUserToken)socketEventArgs.UserToken).Socket = e.AcceptSocket;
+
+            TSocketSession session = RegisterSession(e.AcceptSocket);
+            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+            m_TcpClientConnected.Set();
+            session.Start();
         }
 
 		public void OnClientConnect(IAsyncResult result)
@@ -105,6 +155,11 @@ namespace SuperSocket.SocketServiceCore
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             m_MaxConnectionSemaphore.Release();
+        }
+
+        void IO_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
 		public override void Stop()

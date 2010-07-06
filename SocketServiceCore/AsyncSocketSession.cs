@@ -123,5 +123,15 @@ namespace SuperSocket.SocketServiceCore
 
             BeginReadCommandLine(executionState.Context);
         }
+
+        public override void SendResponse(SocketContext context, string message)
+        {
+            base.SendResponse(context, message);
+        }
+
+        protected override bool TryGetCommand(out CommandInfo cmdInfo)
+        {
+            return base.TryGetCommand(out cmdInfo);
+        }
 	}
 }
