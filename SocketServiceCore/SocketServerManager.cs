@@ -79,9 +79,10 @@ namespace SuperSocket.SocketServiceCore
 				if (m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
                 {
 					IRunable server = Activator.CreateInstance(serviceType) as IRunable;					
-					if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig))
+					if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig, config.ConsoleBaseAddress))
                     {
                         server.ServerCredentials = credentials;
+                        
                         if (server.Start())
                         {
                             m_ServerList.Add(server);
@@ -101,6 +102,7 @@ namespace SuperSocket.SocketServiceCore
 				}
             }
 
+         
             return true;
         }
 

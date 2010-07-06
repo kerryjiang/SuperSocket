@@ -24,7 +24,7 @@ namespace SuperSocket.SocketServiceCore
 		/// <param name="assembly">The assembly.</param>
 		/// <param name="config">The config.</param>
 		/// <returns></returns>
-		bool Setup(string assembly, IServerConfig config);
+		bool Setup(string assembly, IServerConfig config, string consoleBaseAddress);
 
 		/// <summary>
 		/// Starts with the specified config.

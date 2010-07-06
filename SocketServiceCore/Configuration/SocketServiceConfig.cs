@@ -45,6 +45,15 @@ namespace SuperSocket.SocketServiceCore.Configuration
 			}
 		}
 
+        [ConfigurationProperty("consoleBaseAddress", IsRequired = false)]
+        public string ConsoleBaseAddress
+        {
+            get
+            {
+                return this["consoleBaseAddress"] as string;
+            }
+        }
+
 		#region IConfig Members
 
 		public List<IServerConfig> GetServerList()

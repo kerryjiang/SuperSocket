@@ -11,5 +11,7 @@ namespace SuperSocket.SocketServiceCore.Config
 		List<IServiceConfig> GetServiceList();
 
 		ICredentialConfig CredentialConfig { get; }
+
+        string ConsoleBaseAddress { get; }
 	}
 }

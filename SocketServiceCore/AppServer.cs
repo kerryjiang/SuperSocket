@@ -10,6 +10,8 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Config;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -25,6 +27,10 @@ namespace SuperSocket.SocketServiceCore
         private IPEndPoint m_LocalEndPoint;
 
         public IServerConfig Config { get; private set; }
+
+        protected abstract ConsoleHostInfo ConsoleHostInfo { get; }
+
+        private string m_ConsoleBaseAddress;
 
         public AppServer()
 		{
@@ -57,7 +63,19 @@ namespace SuperSocket.SocketServiceCore
             //LogUtil.LogInfo("Load " + dictCommand.Count + " commands from " + arrType.Length + " types!");
         }
 
-        
+        private ServiceHost CreateConsoleHost(ConsoleHostInfo consoleInfo)
+        {
+            Binding binding = new BasicHttpBinding();
+
+            var host = new ServiceHost(consoleInfo.ServiceInstance, new Uri(m_ConsoleBaseAddress + Name));
+
+            foreach (var contract in consoleInfo.ServiceContracts)
+            {
+                host.AddServiceEndpoint(contract, binding, contract.Name);
+            }
+
+            return host;
+        }        
 
         private Dictionary<string, ProviderBase> m_ProviderDict = new Dictionary<string, ProviderBase>(StringComparer.OrdinalIgnoreCase);
 
@@ -67,9 +85,10 @@ namespace SuperSocket.SocketServiceCore
         /// <param name="assembly">The assembly name.</param>
         /// <param name="config">The config.</param>
         /// <returns></returns>
-        public virtual bool Setup(string assembly, IServerConfig config)
+        public virtual bool Setup(string assembly, IServerConfig config, string consoleBaseAddress)
         {
             Config = config;
+            m_ConsoleBaseAddress = consoleBaseAddress;
 
             if (config.Port > 0)
             {
@@ -165,7 +184,38 @@ namespace SuperSocket.SocketServiceCore
 
             SetupClearSessionTimer();
 
+            if (!StartConsoleHost())
+            {
+                LogUtil.LogError("Failed to start console service host for " + Name);
+                Stop();
+                return false;
+            }
+
             return true;
+        }
+
+        private ServiceHost m_ConsoleHost;
+
+        private bool StartConsoleHost()
+        {
+            var consoleInfo = ConsoleHostInfo;
+
+            if (consoleInfo == null)
+                return true;
+
+            m_ConsoleHost = CreateConsoleHost(consoleInfo);
+
+            try
+            {
+                m_ConsoleHost.Open();
+                return true;
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+                m_ConsoleHost = null;
+                return false;
+            }
         }
 
         public virtual void Stop()
@@ -179,6 +229,22 @@ namespace SuperSocket.SocketServiceCore
             m_ClearIdleSessionTimer.Dispose();
 
             m_SessionDict.Values.ToList().ForEach(s => s.Close());
+
+            if (m_ConsoleHost != null)
+            {
+                try
+                {
+                    m_ConsoleHost.Close();
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError("Failed to close console service host for " + Name, e);
+                }
+                finally
+                {
+                    m_ConsoleHost = null;
+                }
+            }
         }
 
         /// <summary>

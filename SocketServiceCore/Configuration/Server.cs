@@ -84,6 +84,6 @@ namespace SuperSocket.SocketServiceCore.Configuration
         public int ReceiveBufferSize
         {
             get { return (int)this["receiveBufferSize"]; }
-        }
+        }        
 	}
 }
