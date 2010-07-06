@@ -30,5 +30,7 @@ namespace SuperSocket.SocketServiceCore.Config
         int SendTimeOut { get; }
 
         int MaxConnectionNumber { get; }
+
+        int ReceiveBufferSize { get; }
 	}
 }

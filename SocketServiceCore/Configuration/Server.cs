@@ -79,5 +79,11 @@ namespace SuperSocket.SocketServiceCore.Configuration
         {
             get { return (int)this["maxConnectionNumber"]; }
         }
+
+        [ConfigurationProperty("receiveBufferSize", IsRequired = false, DefaultValue = 2048)]
+        public int ReceiveBufferSize
+        {
+            get { return (int)this["receiveBufferSize"]; }
+        }
 	}
 }
