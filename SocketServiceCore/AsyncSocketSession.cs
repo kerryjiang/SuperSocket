@@ -7,131 +7,71 @@ using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.AsyncSocket;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public class CommandExecutionState
-    {
-        public SocketContext Context { get; set; }
-        public CommandDelegate<CommandInfo> ExecuteCommandDelegate { get; set; }
-        public CommandInfo CurrentCommand { get; set; }
-    }
-
-    class ReadLineState
-    {
-        public ReadLineDelegate Delegate { get; set; }
-        public StreamReader SocketReader { get; set; }
-        public SocketContext Context { get; set; }
-    }
-
-    public delegate void CommandDelegate<T>(T e);
-
-    public delegate string ReadLineDelegate();
-
-    public class AsyncSocketSession<T> : SocketSession<T>
+    public class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
         where T : IAppSession, new()
 	{
 		protected override void Start(SocketContext context)
 		{
-			Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);	
-			InitStream(context);
-			SayWelcome();
-
-            ReadLineDelegate readLineDelegate = new ReadLineDelegate(this.SocketReader.ReadLine);
-            readLineDelegate.BeginInvoke(new AsyncCallback(OnEndReadLine),
-                new ReadLineState
-                {
-                    Delegate = readLineDelegate,
-                    SocketReader = this.SocketReader,
-                    Context = context
-                });
+			Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            SocketAsyncProxy.SocketSession = this;
+			SayWelcome();            
+            //if (!Client.ReceiveAsync(SocketAsyncProxy.EventArgs))
+            //    ProcessReceive(SocketAsyncProxy.EventArgs);
 		}
-
-        private void OnEndReadLine(IAsyncResult result)
-        {
-            ReadLineState state = result.AsyncState as ReadLineState;
-
-            if (state == null)
-                return;
-
-            string commandLine = string.Empty;
-
-            try
-            {
-                commandLine = state.Delegate.EndInvoke(result);
-            }
-            catch (Exception)
-            {
-                Close();
-                return;
-            }
-
-            if (!string.IsNullOrEmpty(commandLine))
-                commandLine = commandLine.Trim();
-
-            if (string.IsNullOrEmpty(commandLine))
-            {
-                //TODO: timeout detection should be code here
-                Thread.Sleep(100);
-                BeginReadCommandLine(state.Context);
-                return;
-            }
-
-            CommandInfo cmdInfo = new CommandInfo(commandLine);
-
-            var executeDelegate = new CommandDelegate<CommandInfo>(ExecuteCommand);
-            executeDelegate.BeginInvoke(cmdInfo, new AsyncCallback(OnEndExecuteCommand),
-                new CommandExecutionState
-                {
-                    Context = state.Context,
-                    ExecuteCommandDelegate = executeDelegate,
-                    CurrentCommand = cmdInfo
-                });
-        }
-
-        private void BeginReadCommandLine(SocketContext context)
-        {
-            ReadLineDelegate readLineDelegate = new ReadLineDelegate(this.SocketReader.ReadLine);
-            readLineDelegate.BeginInvoke(new AsyncCallback(OnEndReadLine),
-                new ReadLineState
-                {
-                    Delegate = readLineDelegate,
-                    SocketReader = this.SocketReader,
-                    Context = context
-                });
-        }
-
-        private void OnEndExecuteCommand(IAsyncResult result)
-        {
-            CommandExecutionState executionState = result.AsyncState as CommandExecutionState;
-
-            try
-            {
-                executionState.ExecuteCommandDelegate.EndInvoke(result);
-                executionState.Context.PrevCommand = executionState.CurrentCommand.Name;
-            }
-            catch (SocketException)
-            {
-                Close();
-                return;
-            }
-            catch (Exception e)
-            {
-                LogUtil.LogError(e);
-                HandleExceptionalError(e);
-            }
-
-            BeginReadCommandLine(executionState.Context);
-        }
 
         public override void SendResponse(SocketContext context, string message)
         {
-            base.SendResponse(context, message);
+            byte[] data = context.Charset.GetBytes(message);
+            this.SocketAsyncProxy.EventArgs.SetBuffer(data, 0, data.Length);
+            if (!Client.SendAsync(this.SocketAsyncProxy.EventArgs))
+                ProcessSend(this.SocketAsyncProxy.EventArgs);
         }
 
-        protected override bool TryGetCommand(out CommandInfo cmdInfo)
+        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
+
+        public void ProcessReceive(SocketAsyncEventArgs e)
         {
-            return base.TryGetCommand(out cmdInfo);
+            // check if the remote host closed the connection
+            AsyncUserToken token = (AsyncUserToken)e.UserToken;
+            if (e.BytesTransferred > 0 && e.SocketError == SocketError.Success)
+            {
+                string commandLine = Encoding.ASCII.GetString(e.Buffer, e.Offset, e.BytesTransferred);
+                CommandInfo cmdInfo = new CommandInfo(commandLine);
+                ExecuteCommand(cmdInfo);
+            }
+            else
+            {
+                Close();
+            }
         }
-	}
+
+        public void ProcessSend(SocketAsyncEventArgs e)
+        {
+            if (e.SocketError == SocketError.Success)
+            {
+                // done echoing data back to the client
+                AsyncUserToken token = (AsyncUserToken)e.UserToken;
+                // read the next block of data send from the client
+                bool willRaiseEvent = token.Socket.ReceiveAsync(e);
+                if (!willRaiseEvent)
+                {
+                    ProcessReceive(e);
+                }
+            }
+            else
+            {
+                Close();
+            }
+        }
+
+        public override void Close()
+        {
+            SocketAsyncProxy.SocketSession = null;
+            base.Close();
+        }
+    }
 }

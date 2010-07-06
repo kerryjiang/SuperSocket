@@ -101,5 +101,7 @@ namespace SuperSocket.SocketServiceCore
             m_Message = string.Format(error, paramValues);
             m_Status = SocketContextStatus.Error;
         }
+
+        public object DataContext { get; set; }
 	}
 }

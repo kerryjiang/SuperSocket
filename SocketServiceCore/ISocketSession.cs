@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.AsyncSocket;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -27,5 +28,14 @@ namespace SuperSocket.SocketServiceCore
         where T : IAppSession, new()
     {
         void Initialize(IAppServer<T> appServer, T appSession, Socket client);
+    }
+
+    public interface IAsyncSocketSession
+    {
+        SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
+
+        void ProcessReceive(SocketAsyncEventArgs e);
+
+        void ProcessSend(SocketAsyncEventArgs e);
     }
 }

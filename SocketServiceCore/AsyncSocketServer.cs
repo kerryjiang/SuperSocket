@@ -7,12 +7,13 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.AsyncSocket;
 
 namespace SuperSocket.SocketServiceCore
 {
     public class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>, IAsyncRunner
         where TAppSession : IAppSession, new()
-        where TSocketSession : ISocketSession<TAppSession>, new()     
+        where TSocketSession : ISocketSession<TAppSession>, IAsyncSocketSession, new()     
 	{
         public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
@@ -54,14 +55,14 @@ namespace SuperSocket.SocketServiceCore
                 {
                     //Pre-allocate a set of reusable SocketAsyncEventArgs
                     readWriteEventArg = new SocketAsyncEventArgs();
-                    readWriteEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);
+                    //readWriteEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);
                     readWriteEventArg.UserToken = new AsyncUserToken();
 
                     // assign a byte buffer from the buffer pool to the SocketAsyncEventArg object
                     m_BufferManager.SetBuffer(readWriteEventArg);
 
                     // add SocketAsyncEventArg to the pool
-                    m_ReadWritePool.Push(readWriteEventArg);
+                    m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(readWriteEventArg));
                 }
 
                 if (m_ListenSocket == null)
@@ -112,10 +113,11 @@ namespace SuperSocket.SocketServiceCore
         {
             //Get the socket for the accepted client connection and put it into the 
             //ReadEventArg object user token
-            SocketAsyncEventArgs socketEventArgs = m_ReadWritePool.Pop();
-            ((AsyncUserToken)socketEventArgs.UserToken).Socket = e.AcceptSocket;
+            SocketAsyncEventArgsProxy socketEventArgsProxy = m_ReadWritePool.Pop();
+            socketEventArgsProxy.Socket = e.AcceptSocket;
 
             TSocketSession session = RegisterSession(e.AcceptSocket);
+            session.SocketAsyncProxy = socketEventArgsProxy;
             session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
             m_TcpClientConnected.Set();
             session.Start();
@@ -155,6 +157,10 @@ namespace SuperSocket.SocketServiceCore
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             m_MaxConnectionSemaphore.Release();
+            
+            IAsyncSocketSession socketSession = sender as IAsyncSocketSession;
+            if (socketSession != null)
+                this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
         }
 
         void IO_Completed(object sender, SocketAsyncEventArgs e)

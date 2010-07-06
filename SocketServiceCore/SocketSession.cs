@@ -122,7 +122,7 @@ namespace SuperSocket.SocketServiceCore
             var closedHandler = Closed;
             if (closedHandler != null)
 			{
-                closedHandler(null, new SocketSessionClosedEventArgs { SessionID = this.SessionID });
+                closedHandler(this, new SocketSessionClosedEventArgs { SessionID = this.SessionID });
 			}
 
             base.OnClose();
