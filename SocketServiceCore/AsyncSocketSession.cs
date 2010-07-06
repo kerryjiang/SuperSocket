@@ -33,7 +33,7 @@ namespace SuperSocket.SocketServiceCore
 	{
 		protected override void Start(SocketContext context)
 		{
-			Client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);	
+			Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);	
 			InitStream(context);
 			SayWelcome();
 

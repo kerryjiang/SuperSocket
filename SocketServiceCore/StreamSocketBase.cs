@@ -20,20 +20,20 @@ namespace SuperSocket.SocketServiceCore
 	{
 		protected Stream m_Stream = null;
 
-		private TcpClient m_Client = null;
+		private Socket m_Client = null;
 
 		/// <summary>
 		/// Gets or sets the client.
 		/// </summary>
 		/// <value>The client.</value>
-		public TcpClient Client
+        public Socket Client
 		{
 			get { return m_Client; }
 			set
 			{
 				m_Client = value;								
-				m_LocalEndPoint = (IPEndPoint)m_Client.Client.LocalEndPoint;
-				m_RemoteEndPoint = (IPEndPoint)m_Client.Client.RemoteEndPoint;
+				m_LocalEndPoint = (IPEndPoint)m_Client.LocalEndPoint;
+				m_RemoteEndPoint = (IPEndPoint)m_Client.RemoteEndPoint;
 			}
 		}
 
@@ -111,12 +111,12 @@ namespace SuperSocket.SocketServiceCore
 				case (SslProtocols.Tls):
 				case (SslProtocols.Ssl3):
 				case (SslProtocols.Ssl2):
-					SslStream sslStream = new SslStream(Client.GetStream(), false);
+					SslStream sslStream = new SslStream(new NetworkStream(Client), false);
 					sslStream.AuthenticateAsServer(AuthenticationManager.GetCertificate(), false, SslProtocols.Default, true);
 					m_Stream = sslStream as Stream;
 					break;
 				default:
-					m_Stream = Client.GetStream();
+                    m_Stream = new NetworkStream(Client);
 					break;
 			}
 			
@@ -169,11 +169,11 @@ namespace SuperSocket.SocketServiceCore
 		/// </summary>
 		public virtual void Close()
 		{
-			if (m_Client != null)
+            if (m_Client != null && !m_IsClosed)
 			{
                 try
                 {
-                    m_Client.Client.Shutdown(SocketShutdown.Both);                                        
+                    m_Client.Shutdown(SocketShutdown.Both);                                        
                 }
                 catch (Exception e)
                 {
@@ -182,7 +182,6 @@ namespace SuperSocket.SocketServiceCore
 
                 try
                 {
-                    m_Client.Client.Close();
                     m_Client.Close();
                 }
                 catch (Exception e)

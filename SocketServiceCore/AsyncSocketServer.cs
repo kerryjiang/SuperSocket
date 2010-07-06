@@ -24,7 +24,7 @@ namespace SuperSocket.SocketServiceCore
 
         private Semaphore m_MaxConnectionSemaphore;
 
-		private TcpListener m_Listener = null;
+		private Socket m_ListenSocket = null;
 
         private Thread m_ListenThread = null;
 
@@ -37,7 +37,7 @@ namespace SuperSocket.SocketServiceCore
                 if (!base.Start())
                     return false;
 
-                if (m_Listener == null)
+                if (m_ListenSocket == null)
                 {
                     m_ListenThread = new Thread(StartListen);
                     m_ListenThread.Start();
@@ -54,16 +54,18 @@ namespace SuperSocket.SocketServiceCore
 
         private void StartListen()
         {
-            m_Listener = new TcpListener(EndPoint);
-            m_Listener.Start();
-            m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            m_ListenSocket.Bind(this.EndPoint);
+            m_ListenSocket.Listen(100);
+
+            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
             m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
 
             while (!m_Stopped)
             {
                 m_TcpClientConnected.Reset();
-                m_Listener.BeginAcceptTcpClient(OnClientConnect, m_Listener);
+                m_ListenSocket.BeginAccept(OnClientConnect, m_ListenSocket);
                 m_TcpClientConnected.WaitOne();
                 m_MaxConnectionSemaphore.WaitOne();//two wait one here?
             }
@@ -71,16 +73,16 @@ namespace SuperSocket.SocketServiceCore
 
 		public void OnClientConnect(IAsyncResult result)
 		{
-            TcpClient client = null;
+            Socket clientSocket = null;
 
             try
             {
-                TcpListener listener = result.AsyncState as TcpListener;
+                Socket listener = result.AsyncState as Socket;
 
                 if (listener == null)
                     return;
 
-                client = listener.EndAcceptTcpClient(result);
+                clientSocket = listener.EndAccept(result);
             }
             catch (ObjectDisposedException)//listener has been stopped
             {
@@ -94,7 +96,7 @@ namespace SuperSocket.SocketServiceCore
                 return;
             }
 
-            TSocketSession session = RegisterSession(client);
+            TSocketSession session = RegisterSession(clientSocket);
             session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
             m_TcpClientConnected.Set();
 			session.Start();
@@ -107,15 +109,15 @@ namespace SuperSocket.SocketServiceCore
 
 		public override void Stop()
 		{
-			base.Stop();
+			base.Stop();            
+
+            if (m_ListenSocket != null)
+			{
+                m_ListenSocket.Close();
+                m_ListenSocket = null;
+			}
 
             m_Stopped = true;
-
-			if (m_Listener != null)
-			{
-				m_Listener.Stop();
-                m_Listener = null;
-			}
 		}
 	}
 }

@@ -24,7 +24,7 @@ namespace SuperSocket.SocketServiceCore
 
 		}
 
-        public void Initialize(IAppServer<T> appServer, T appSession, TcpClient client)
+        public void Initialize(IAppServer<T> appServer, T appSession, Socket client)
         {
             AppServer = appServer;
             AppSession = appSession;

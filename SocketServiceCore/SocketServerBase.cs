@@ -52,7 +52,7 @@ namespace SuperSocket.SocketServiceCore
             return true;
         }
 
-        protected virtual TSocketSession RegisterSession(TcpClient client)
+        protected virtual TSocketSession RegisterSession(Socket client)
 		{
             if (AppServer.Config.ReadTimeOut > 0)
                 client.ReceiveTimeout = AppServer.Config.ReadTimeOut;

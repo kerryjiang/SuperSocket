@@ -56,6 +56,9 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="AsyncSocketServer.cs" />
     <Compile Include="AsyncSocketSession.cs" />
+    <Compile Include="AsyncSocket\AsyncUserToken.cs" />
+    <Compile Include="AsyncSocket\BufferManager.cs" />
+    <Compile Include="AsyncSocket\SocketAsyncEventArgPool.cs" />
     <Compile Include="AuthenticationManager.cs" />
     <Compile Include="AuthenticationResult.cs" />
     <Compile Include="Command\CommandInfo.cs" />

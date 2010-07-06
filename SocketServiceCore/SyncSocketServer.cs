@@ -32,7 +32,7 @@ namespace SuperSocket.SocketServiceCore
 			
 		}
 
-		private TcpListener m_Listener = null;
+        private Socket m_ListenSocket = null;
 
 		private Thread m_ListenThread = null;
 
@@ -48,11 +48,11 @@ namespace SuperSocket.SocketServiceCore
                 if (!base.Start())
                     return false;
 
-				if (m_Listener == null)
-				{
-					m_ListenThread = new Thread(StartListen);
-                    m_ListenThread.Start();					
-				}
+                if (m_ListenSocket == null)
+                {
+                    m_ListenThread = new Thread(StartListen);
+                    m_ListenThread.Start();
+                }
 
                 return true;
 			}
@@ -70,13 +70,13 @@ namespace SuperSocket.SocketServiceCore
 		{
 			base.Stop();
 
-            m_Stopped = true;
+            if (m_ListenSocket != null)
+            {
+                m_ListenSocket.Close();
+                m_ListenSocket = null;
+            }
 
-			if (m_Listener != null)
-			{
-				m_Listener.Stop();
-				m_Listener = null;
-			}		
+            m_Stopped = true;		
 		}
 
 		/// <summary>
@@ -84,20 +84,22 @@ namespace SuperSocket.SocketServiceCore
 		/// </summary>
 		private void StartListen()
 		{
-			m_Listener = new TcpListener(EndPoint);
-			m_Listener.Start();
-			m_Listener.Server.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            m_ListenSocket.Bind(this.EndPoint);
+            m_ListenSocket.Listen(100);
+
+            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
             m_MaxConnectionSemaphore = new Semaphore(AppServer.Config.MaxConnectionNumber, AppServer.Config.MaxConnectionNumber);
 
             while (!m_Stopped)
 			{
-				TcpClient client = null;
+				Socket client = null;
 
                 try
                 {
                     m_MaxConnectionSemaphore.WaitOne();
-                    client = m_Listener.AcceptTcpClient();
+                    client = m_ListenSocket.Accept();
                 }
                 catch (ObjectDisposedException)
                 {

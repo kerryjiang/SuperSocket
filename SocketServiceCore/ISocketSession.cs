@@ -26,6 +26,6 @@ namespace SuperSocket.SocketServiceCore
     public interface ISocketSession<T> : ISocketSession
         where T : IAppSession, new()
     {
-        void Initialize(IAppServer<T> appServer, T appSession, TcpClient client);
+        void Initialize(IAppServer<T> appServer, T appSession, Socket client);
     }
 }

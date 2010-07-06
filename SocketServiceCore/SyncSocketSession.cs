@@ -23,7 +23,7 @@ namespace SuperSocket.SocketServiceCore
             m_CommandThread = Thread.CurrentThread;
 
             //Client.Client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.KeepAlive, true);
-            Client.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
             InitStream(context);
 
