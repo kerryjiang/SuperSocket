@@ -8,47 +8,76 @@ namespace SuperSocket.SocketServiceCore.AsyncSocket
 {
     public class SocketAsyncEventArgsProxy
     {
-        private SocketAsyncEventArgs m_EventArgs;
+        public SocketAsyncEventArgs ReceiveEventArgs { get; private set; }
 
-        public SocketAsyncEventArgs EventArgs
-        {
-            get { return m_EventArgs; }
-        }
-
-        public IAsyncSocketSession SocketSession { get; set; }
+        public SocketAsyncEventArgs SendEventArgs { get; private set; }
 
         private SocketAsyncEventArgsProxy()
         {
 
         }
 
-        public SocketAsyncEventArgsProxy(SocketAsyncEventArgs eventArgs)
+        public SocketAsyncEventArgsProxy(SocketAsyncEventArgs receiveEventArgs, SocketAsyncEventArgs sendEventArgs)
         {
-            m_EventArgs = eventArgs;
-            eventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+            ReceiveEventArgs = receiveEventArgs;
+            SendEventArgs = sendEventArgs;
+            ReceiveEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ReceiveEventArgs_Completed);
+            SendEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(SendEventArgs_Completed);
         }
 
-        void eventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        static void SendEventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
-            switch (e.LastOperation)
-            {
-                case SocketAsyncOperation.Receive:
-                    SocketSession.ProcessReceive(e);
-                    break;
-                case SocketAsyncOperation.Send:
-                    SocketSession.ProcessSend(e);
-                    break;
-                default:
-                    throw new ArgumentException("The last operation completed on the socket was not a receive or send");
-            }
+            if (e.LastOperation != SocketAsyncOperation.Send)
+                throw new ArgumentException("The last operation completed on the socket was not a send");
+
+            var token = e.UserToken as AsyncUserToken;
+            var socketSession = token.SocketSession;
+            socketSession.ProcessSend(e);
+        }
+
+        static void ReceiveEventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            if (e.LastOperation != SocketAsyncOperation.Receive)
+                throw new ArgumentException("The last operation completed on the socket was not a send");
+
+            var token = e.UserToken as AsyncUserToken;
+            var socketSession = token.SocketSession;
+            socketSession.ProcessReceive(e);
         }
 
         public Socket Socket
         {
             set
             {
-                ((AsyncUserToken)m_EventArgs.UserToken).Socket = value;
+                ((AsyncUserToken)ReceiveEventArgs.UserToken).Socket = value;
+                ((AsyncUserToken)SendEventArgs.UserToken).Socket = value;
             }
+        }
+
+        public void Initialize(Socket socket, IAsyncSocketSession socketSession, SocketContext socketContext)
+        {
+            var token = ReceiveEventArgs.UserToken as AsyncUserToken;
+            token.Socket = socket;
+            token.SocketSession = socketSession;
+            token.SocketContext = socketContext;
+
+            token = SendEventArgs.UserToken as AsyncUserToken;
+            token.Socket = socket;
+            token.SocketSession = socketSession;
+            token.SocketContext = socketContext;
+        }
+
+        public void Reset()
+        {
+            var token = ReceiveEventArgs.UserToken as AsyncUserToken;
+            token.Socket = null;
+            token.SocketSession = null;
+            token.SocketContext = null;
+
+            token = SendEventArgs.UserToken as AsyncUserToken;
+            token.Socket = null;
+            token.SocketSession = null;
+            token.SocketContext = null;
         }
     }
 }

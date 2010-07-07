@@ -33,5 +33,7 @@ namespace SuperSocket.SocketServiceCore
         public int Offset { get; set; }
 
         public SocketContext SocketContext { get; set; }
+
+        public IAsyncSocketSession SocketSession { get; set; }
     }
 }

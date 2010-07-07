@@ -23,7 +23,9 @@ namespace SuperSocket.SocketServiceCore
 
         private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
 
-        private BufferManager m_BufferManager;
+        private BufferManager m_ReceiveBufferManager;
+
+        private BufferManager m_SendBufferManager;
 
         private SocketAsyncEventArgsPool m_ReadWritePool;
 
@@ -42,27 +44,32 @@ namespace SuperSocket.SocketServiceCore
                 if (!base.Start())
                     return false;
 
-                m_BufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber * 2,
+                m_ReceiveBufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber,
                     AppServer.Config.ReceiveBufferSize);
-                m_BufferManager.InitBuffer();
+                m_ReceiveBufferManager.InitBuffer();
+
+                m_SendBufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber, AppServer.Config.ReceiveBufferSize);
+                m_SendBufferManager.InitBuffer();
 
                 m_ReadWritePool = new SocketAsyncEventArgsPool(AppServer.Config.MaxConnectionNumber);
 
                 // preallocate pool of SocketAsyncEventArgs objects
-                SocketAsyncEventArgs readWriteEventArg;
+                SocketAsyncEventArgs receiveEventArg;
+                SocketAsyncEventArgs sendEventArg;
 
                 for (int i = 0; i < AppServer.Config.MaxConnectionNumber; i++)
                 {
                     //Pre-allocate a set of reusable SocketAsyncEventArgs
-                    readWriteEventArg = new SocketAsyncEventArgs();
-                    //readWriteEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(IO_Completed);
-                    readWriteEventArg.UserToken = new AsyncUserToken();
+                    receiveEventArg = new SocketAsyncEventArgs();
+                    receiveEventArg.UserToken = new AsyncUserToken();
+                    m_ReceiveBufferManager.SetBuffer(receiveEventArg);
 
-                    // assign a byte buffer from the buffer pool to the SocketAsyncEventArg object
-                    m_BufferManager.SetBuffer(readWriteEventArg);
+                    sendEventArg = new SocketAsyncEventArgs();
+                    sendEventArg.UserToken = new AsyncUserToken();
+                    m_SendBufferManager.SetBuffer(sendEventArg);
 
                     // add SocketAsyncEventArg to the pool
-                    m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(readWriteEventArg));
+                    m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(receiveEventArg, sendEventArg));
                 }
 
                 if (m_ListenSocket == null)
@@ -161,11 +168,6 @@ namespace SuperSocket.SocketServiceCore
             IAsyncSocketSession socketSession = sender as IAsyncSocketSession;
             if (socketSession != null)
                 this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
-        }
-
-        void IO_Completed(object sender, SocketAsyncEventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
 		public override void Stop()
