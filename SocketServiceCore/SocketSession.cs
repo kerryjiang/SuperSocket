@@ -102,7 +102,9 @@ namespace SuperSocket.SocketServiceCore
 
             if (command != null)
             {
+                AppSession.Context.RequireRead = false;
                 command.Execute(AppSession, cmdInfo);
+                AppSession.Context.RequireRead = true;
             }
         }
 

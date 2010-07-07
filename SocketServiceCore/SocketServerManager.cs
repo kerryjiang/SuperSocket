@@ -64,10 +64,10 @@ namespace SuperSocket.SocketServiceCore
 
             Type serviceType = null;
 
-			ServiceCredentials credentials = null;
+            //ServiceCredentials credentials = null;
 
-            if (config.CredentialConfig != null)
-                credentials = GetServiceCredentials(config.CredentialConfig);
+            //if (config.CredentialConfig != null)
+            //    credentials = GetServiceCredentials(config.CredentialConfig);
 
             foreach (IServerConfig serverConfig in serverList)
             {
@@ -81,7 +81,7 @@ namespace SuperSocket.SocketServiceCore
 					IRunable server = Activator.CreateInstance(serviceType) as IRunable;					
 					if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig, config.ConsoleBaseAddress))
                     {
-                        server.ServerCredentials = credentials;
+                        //server.ServerCredentials = credentials;
                         
                         if (server.Start())
                         {

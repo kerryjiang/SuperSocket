@@ -31,11 +31,8 @@ namespace SuperSocket.SocketService
                 }
                 else if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
                 {
-                    Console.WriteLine("Note: enter 'start' to start server, 'quit' to stop the server!");
-
-                    while (!"start".Equals(Console.ReadLine()))
-                         continue;
-
+                    Console.WriteLine("Press any key to start server!");
+                    Console.ReadKey();
                     RunAsConsole();
                 }
                 else
@@ -64,12 +61,15 @@ namespace SuperSocket.SocketService
                 return;
             }
 
-            Console.WriteLine("The server has been started!");
+            Console.WriteLine();
+            Console.WriteLine("The server has been started! Press key 'q' to stop the server.");
 
-            while (!"quit".Equals(Console.ReadLine()))
+            while (Console.ReadKey().Key != ConsoleKey.Q)
                 continue;
 
             SocketServerManager.Stop();
+
+            Console.WriteLine();
             Console.WriteLine("The server has been stopped!");
         }
 

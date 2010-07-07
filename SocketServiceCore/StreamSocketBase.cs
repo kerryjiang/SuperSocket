@@ -214,9 +214,9 @@ namespace SuperSocket.SocketServiceCore
 		{
 			if(string.IsNullOrEmpty(message))
 				return;
-				
-			if(!message.EndsWith("\r\n"))
-				message = message + "\r\n";
+
+            if (!message.EndsWith(Environment.NewLine))
+                message = message + Environment.NewLine;
 				
 			byte[] data	= context.Charset.GetBytes(message);
 

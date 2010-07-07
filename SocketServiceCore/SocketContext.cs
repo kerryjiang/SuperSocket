@@ -9,6 +9,11 @@ namespace SuperSocket.SocketServiceCore
 	/// </summary>
 	public class SocketContext
 	{
+        public SocketContext()
+        {
+            RequireRead = true;
+        }
+
 		private Encoding m_Charset = Encoding.Default;
 
 		/// <summary>
@@ -103,5 +108,12 @@ namespace SuperSocket.SocketServiceCore
         }
 
         public object DataContext { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether require read data from socket.
+        /// Only usefull in async socket mode
+        /// </summary>
+        /// <value><c>true</c> if [require read]; otherwise, <c>false</c>.</value>
+        public bool RequireRead { get; set; }
 	}
 }
