@@ -28,7 +28,7 @@ namespace SuperSocket.SocketServiceCore
 
         public IServerConfig Config { get; private set; }
 
-        protected abstract ConsoleHostInfo ConsoleHostInfo { get; }
+        protected virtual ConsoleHostInfo ConsoleHostInfo { get { return null; } }
 
         private string m_ConsoleBaseAddress;
 
@@ -266,7 +266,10 @@ namespace SuperSocket.SocketServiceCore
             }
         }
 
-        public abstract bool IsReady { get; }
+        public virtual bool IsReady
+        {
+            get { return true; }
+        }
 
         private Dictionary<string, T> m_SessionDict = new Dictionary<string, T>(StringComparer.OrdinalIgnoreCase);
 

@@ -8,9 +8,6 @@ namespace EchoService
 {
     public class EchoServer : AppServer<EchoSession>
     {
-        public override bool IsReady
-        {
-            get { return true; }
-        }
+
     }
 }

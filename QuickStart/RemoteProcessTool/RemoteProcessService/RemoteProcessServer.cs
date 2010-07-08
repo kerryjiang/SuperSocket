@@ -62,9 +62,9 @@ namespace RemoteProcessService
 
         private Timer m_MonitorTimer;
 
-        public override bool Setup(string assembly, IServerConfig config)
+        public override bool Setup(string assembly, IServerConfig config, string consoleBaseAddress)
         {
-            if (!base.Setup(assembly, config))
+            if (!base.Setup(assembly, config, consoleBaseAddress))
                 return false;
 
             int interval = Convert.ToInt32(config.Parameters.GetConfigElementValue("MonitorInterval", "1"));
@@ -124,11 +124,6 @@ namespace RemoteProcessService
             m_MonitorTimer.Change(Timeout.Infinite, Timeout.Infinite);
             m_MonitorTimer.Dispose();
             base.Stop();
-        }
-
-        public override bool IsReady
-        {
-            get { return true; }
         }
     }
 }
