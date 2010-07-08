@@ -48,24 +48,16 @@ namespace SuperSocket.SocketServiceCore
             if (!message.EndsWith(Environment.NewLine))
                 message = message + Environment.NewLine;
 
-            AsyncUserToken token = this.SocketAsyncProxy.SocketEventArgs.UserToken as AsyncUserToken;
+            var eventArgs = this.SocketAsyncProxy.SocketEventArgs;
+
+            AsyncUserToken token = eventArgs.UserToken as AsyncUserToken;
             token.SendBuffer = context.Charset.GetBytes(message);
             token.Offset = 0;
-            if (this.SocketAsyncProxy.SocketEventArgs.Buffer.Length >= token.SendBuffer.Length)
-            {
-                Buffer.BlockCopy(token.SendBuffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, token.SendBuffer.Length);
-                this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, token.SendBuffer.Length);
-                token.SendBuffer = new byte[0];
-            }
-            else
-            {
-                Buffer.BlockCopy(token.SendBuffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
-                this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
-                token.Offset = token.Offset + this.SocketAsyncProxy.SocketEventArgs.Buffer.Length;
-            }
 
-            if (!Client.SendAsync(this.SocketAsyncProxy.SocketEventArgs))
-                ProcessSend(this.SocketAsyncProxy.SocketEventArgs);
+            PrepareSendBuffer(eventArgs, token);
+
+            if (!Client.SendAsync(eventArgs))
+                ProcessSend(eventArgs);
         }
 
         public SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
@@ -95,7 +87,16 @@ namespace SuperSocket.SocketServiceCore
                     m_SendReceiveResetEvent.Set();
 
                     commandLine = commandLine.Trim();
-                    ExecuteCommand(commandLine);
+
+                    try
+                    {
+                        ExecuteCommand(commandLine);
+                    }
+                    catch (Exception exc)
+                    {
+                        LogUtil.LogError(exc);
+                        HandleExceptionalError(exc);
+                    }
                     //read the next block of data send from the client
                     StartReceive();
                 }
@@ -129,23 +130,10 @@ namespace SuperSocket.SocketServiceCore
                 //continue send
                 if (token.SendBuffer.Length != token.Offset)
                 {
-                    int leftBytes = token.SendBuffer.Length - token.Offset;
+                    PrepareSendBuffer(e, token);
 
-                    if (this.SocketAsyncProxy.SocketEventArgs.Buffer.Length >= leftBytes)
-                    {
-                        Buffer.BlockCopy(token.SendBuffer, token.Offset, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, token.SendBuffer.Length);
-                        this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, token.SendBuffer.Length);
-                        token.SendBuffer = new byte[0];
-                    }
-                    else
-                    {
-                        Buffer.BlockCopy(token.SendBuffer, token.Offset, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
-                        this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
-                        token.Offset = token.Offset + this.SocketAsyncProxy.SocketEventArgs.Buffer.Length;
-                    }
-
-                    if (!Client.SendAsync(this.SocketAsyncProxy.SocketEventArgs))
-                        ProcessSend(this.SocketAsyncProxy.SocketEventArgs);
+                    if (!Client.SendAsync(e))
+                        ProcessSend(e);
 
                     return;
                 }
@@ -159,6 +147,24 @@ namespace SuperSocket.SocketServiceCore
             {
                 Close();
             }
+        }
+
+        private void PrepareSendBuffer(SocketAsyncEventArgs e, AsyncUserToken token)
+        {
+            int leftBytes = token.SendBuffer.Length - token.Offset;
+
+            if (e.Buffer.Length >= leftBytes)
+            {
+                Buffer.BlockCopy(token.SendBuffer, token.Offset, e.Buffer, 0, token.SendBuffer.Length);
+                e.SetBuffer(0, token.SendBuffer.Length);
+                token.SendBuffer = new byte[0];
+            }
+            else
+            {
+                Buffer.BlockCopy(token.SendBuffer, token.Offset, e.Buffer, 0, e.Buffer.Length);
+                e.SetBuffer(0, e.Buffer.Length);
+                token.Offset = token.Offset + e.Buffer.Length;
+            }            
         }
 
         public override void Close()
