@@ -6,25 +6,32 @@ namespace SuperSocket.SocketServiceCore.Command
 {
 	public class CommandInfo
 	{
-		public CommandInfo()
+		private CommandInfo()
 		{
 		}
-		
-		public CommandInfo(string cmdLine)
-		{
-			int pos = cmdLine.IndexOf(' ');
 
-			if (pos > 0)
-			{
-				m_Name	= cmdLine.Substring(0, pos);
-				m_Param	= cmdLine.Substring(pos + 1);
-				m_Parmaters = m_Param.Split(' ');
-			}
-			else
-			{
-				m_Name = cmdLine;
-			}
-		}
+        public CommandInfo(string name, string parameter)
+        {
+            this.m_Name = name;
+            this.m_Param = parameter;
+        }
+
+        public CommandInfo(string name, string parameter, string tag)
+            : this(name, parameter)
+        {
+            this.m_Tag = tag;
+        }
+
+        private bool m_ParametersInitialized = false;
+
+        public void InitializeParameters(string[] parameters)
+        {
+            if (m_ParametersInitialized)
+                throw new Exception("Parameter array has been initialized, you shouldn't initialize it again!");
+
+            m_Parmaters = parameters;
+            m_ParametersInitialized = true;
+        }
 		
 		private string m_Tag = string.Empty;
 
@@ -39,7 +46,6 @@ namespace SuperSocket.SocketServiceCore.Command
 		public string Name
 		{
 			get { return m_Name; }
-			set { m_Name = value; }
 		}
 
 		private string m_Param;
@@ -47,7 +53,6 @@ namespace SuperSocket.SocketServiceCore.Command
 		public string Param
 		{
 			get { return m_Param; }
-			set { m_Param = value; }
 		}
 
 		private string[] m_Parmaters;
@@ -55,7 +60,6 @@ namespace SuperSocket.SocketServiceCore.Command
 		public string[] Parameters
 		{
 			get { return m_Parmaters; }
-			set { m_Parmaters = value; }
 		}
 		
 		public string GetFirstParam()

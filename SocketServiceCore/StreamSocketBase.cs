@@ -134,11 +134,9 @@ namespace SuperSocket.SocketServiceCore
 		/// </summary>
 		/// <param name="cmdInfo">The CMD info.</param>
 		/// <returns></returns>
-		protected virtual bool TryGetCommand(out CommandInfo cmdInfo)
+        protected virtual bool TryGetCommand(out string command)
 		{
-			cmdInfo = null;
-
-			string command = string.Empty;
+			command = string.Empty;
 			
 			try
 			{			
@@ -159,9 +157,7 @@ namespace SuperSocket.SocketServiceCore
 			if (string.IsNullOrEmpty(command))
 				return false;
 
-			cmdInfo = new CommandInfo(command);
-
-			return true;
+            return true;
 		}
 
 		/// <summary>

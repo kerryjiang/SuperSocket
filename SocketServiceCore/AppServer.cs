@@ -19,6 +19,7 @@ namespace SuperSocket.SocketServiceCore
          where T : IAppSession, new()
     {
         IServerConfig Config { get; }
+        ICommandParser CommandParser { get; }
         T CreateAppSession(ISocketSession socketSession);
     }
 
@@ -29,6 +30,8 @@ namespace SuperSocket.SocketServiceCore
         public IServerConfig Config { get; private set; }
 
         protected virtual ConsoleHostInfo ConsoleHostInfo { get { return null; } }
+
+        public virtual ICommandParser CommandParser { get; protected set; }
 
         private string m_ConsoleBaseAddress;
 
@@ -150,14 +153,17 @@ namespace SuperSocket.SocketServiceCore
                     LogUtil.LogError("Failed to load service provider from assembly:" + assemblyFile);
                     return false;
                 }
-
-                return true;
             }
             catch (Exception e)
             {
                 LogUtil.LogError(e);
                 return false;
             }
+
+            if (CommandParser == null)
+                CommandParser = new BasicCommandParser();
+
+            return true;
         }
 
         public string Name

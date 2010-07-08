@@ -62,8 +62,15 @@
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs" />
     <Compile Include="AuthenticationManager.cs" />
     <Compile Include="AuthenticationResult.cs" />
+    <Compile Include="Command\BasicCommandParser.cs" />
+    <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandInfo.cs" />
+    <Compile Include="Command\FixedSplitCommandParameter.cs" />
     <Compile Include="Command\ICommand.cs" />
+    <Compile Include="Command\ICommandParameterParser.cs" />
+    <Compile Include="Command\ICommandParser.cs" />
+    <Compile Include="Command\SplitAllCommandParameterParser.cs" />
+    <Compile Include="Command\TagCommandParser.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\CredentialConfig.cs" />
     <Compile Include="Configuration\Server.cs" />

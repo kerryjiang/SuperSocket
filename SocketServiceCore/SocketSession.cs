@@ -96,15 +96,18 @@ namespace SuperSocket.SocketServiceCore
 		/// Executes the command.
 		/// </summary>
 		/// <param name="cmdInfo">The CMD info.</param>
-        protected virtual void ExecuteCommand(CommandInfo cmdInfo)
+        protected virtual void ExecuteCommand(string commandLine)
         {
+            CommandInfo cmdInfo = AppServer.CommandParser.ParseCommand(commandLine);
             ICommand<T> command = AppServer.GetCommandByName(cmdInfo.Name);
 
             if (command != null)
             {
                 AppSession.Context.RequireRead = false;
-                command.Execute(AppSession, cmdInfo);
+                command.ExecuteCommand(AppSession, cmdInfo);
                 AppSession.Context.RequireRead = true;
+                AppSession.Context.PrevCommand = cmdInfo.Name;
+                LastActiveTime = DateTime.Now;
             }
         }
 

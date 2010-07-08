@@ -12,19 +12,30 @@ namespace SuperSocket.SocketServiceCore
         public SocketContext()
         {
             RequireRead = true;
+            Charset = Encoding.Default;
         }
 
-		private Encoding m_Charset = Encoding.Default;
-
+        private Encoding m_Charset;
 		/// <summary>
 		/// Gets or sets the charset.
 		/// </summary>
 		/// <value>The charset.</value>
-		public Encoding Charset
-		{
-			get { return m_Charset; }
-			set { m_Charset = value; }
-		}
+        public Encoding Charset
+        {
+            get { return m_Charset; }
+            set
+            {
+                m_Charset = value;
+                m_NewLineData = m_Charset.GetBytes(Environment.NewLine);
+            }
+        }
+
+        private byte[] m_NewLineData;
+
+        internal byte[] NewLineData
+        {
+            get { return m_NewLineData; }
+        }
 
 		private string m_UserName;
 

@@ -6,6 +6,6 @@ namespace SuperSocket.SocketServiceCore.Command
 {
     public interface ICommand<T> where T : IAppSession
 	{
-		void Execute(T session, CommandInfo commandData);
+		void ExecuteCommand(T session, CommandInfo commandData);
 	}
 }

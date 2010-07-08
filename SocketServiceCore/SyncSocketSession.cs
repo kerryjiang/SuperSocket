@@ -29,18 +29,16 @@ namespace SuperSocket.SocketServiceCore
 
             SayWelcome();
 
-            CommandInfo cmdInfo;
+            string commandLine;
 
-            while (TryGetCommand(out cmdInfo))
+            while (TryGetCommand(out commandLine))
             {
                 LastActiveTime = DateTime.Now;
                 context.Status = SocketContextStatus.Healthy;
 
                 try
                 {
-                    ExecuteCommand(cmdInfo);
-                    context.PrevCommand = cmdInfo.Name;
-                    LastActiveTime = DateTime.Now;
+                    ExecuteCommand(commandLine);                    
 
                     if (Client == null && !IsClosed)
                     {
