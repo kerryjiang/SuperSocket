@@ -26,6 +26,9 @@ namespace SuperSocket.SocketServiceCore.AsyncSocket
             var token = e.UserToken as AsyncUserToken;
             var socketSession = token.SocketSession;
 
+            if (socketSession == null)
+                return;            
+
             if (e.LastOperation == SocketAsyncOperation.Send)
             {
                 socketSession.ProcessSend(e);

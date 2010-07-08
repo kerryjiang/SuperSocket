@@ -136,8 +136,11 @@ namespace SuperSocket.SocketServiceCore
 
         public override void Close()
         {
-            SocketAsyncProxy.Reset();
-            base.Close();
+            if (Client != null && Client.Connected)
+            {
+                SocketAsyncProxy.Reset();
+                base.Close();
+            }
         }
     }
 }

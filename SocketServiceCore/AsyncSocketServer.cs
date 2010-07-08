@@ -94,8 +94,26 @@ namespace SuperSocket.SocketServiceCore
             {
                 m_TcpClientConnected.Reset();
                 acceptEventArg.AcceptSocket = null;
-                if (!m_ListenSocket.AcceptAsync(acceptEventArg))
-                    this.ExecuteAsync(AsyncRunType.ThreadPool, "AcceptNewClient", w => AceptNewClient(acceptEventArg));
+
+                bool willRaiseEvent = true;
+
+                try
+                {
+                    willRaiseEvent = m_ListenSocket.AcceptAsync(acceptEventArg);                    
+                }
+                catch (ObjectDisposedException)//listener has been stopped
+                {
+                    return;
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError("Failed to accept new tcp client in async server!", e);
+                    return;
+                }
+
+                if (!willRaiseEvent)
+                    AceptNewClient(acceptEventArg);
+
                 m_TcpClientConnected.WaitOne();
                 m_MaxConnectionSemaphore.WaitOne();//two wait one here?
             }
@@ -116,40 +134,11 @@ namespace SuperSocket.SocketServiceCore
             TSocketSession session = RegisterSession(e.AcceptSocket);
             session.SocketAsyncProxy = socketEventArgsProxy;
             session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+
             m_TcpClientConnected.Set();
+
             session.Start();
         }
-
-		public void OnClientConnect(IAsyncResult result)
-		{
-            Socket clientSocket = null;
-
-            try
-            {
-                Socket listener = result.AsyncState as Socket;
-
-                if (listener == null)
-                    return;
-
-                clientSocket = listener.EndAccept(result);
-            }
-            catch (ObjectDisposedException)//listener has been stopped
-            {
-                m_TcpClientConnected.Set();
-                return;
-            }
-            catch (Exception e)
-            {
-                LogUtil.LogError("Failed to accept new tcp client in async server!", e);
-                m_TcpClientConnected.Set();
-                return;
-            }
-
-            TSocketSession session = RegisterSession(clientSocket);
-            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-            m_TcpClientConnected.Set();
-			session.Start();
-		}
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
