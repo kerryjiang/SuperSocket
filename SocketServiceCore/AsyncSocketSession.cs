@@ -14,7 +14,7 @@ namespace SuperSocket.SocketServiceCore
     public class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
         where T : IAppSession, new()
 	{
-        AutoResetEvent m_SendResetEvent = new AutoResetEvent(true);
+        AutoResetEvent m_SendReceiveResetEvent = new AutoResetEvent(true);
 
 		protected override void Start(SocketContext context)
 		{
@@ -29,16 +29,18 @@ namespace SuperSocket.SocketServiceCore
             if (Client == null || !Client.Connected)
                 return;
 
-            bool willRaiseEvent = Client.ReceiveAsync(this.SocketAsyncProxy.ReceiveEventArgs);
+            m_SendReceiveResetEvent.WaitOne();
+
+            bool willRaiseEvent = Client.ReceiveAsync(this.SocketAsyncProxy.SocketEventArgs);
             if (!willRaiseEvent)
             {
-                ProcessReceive(this.SocketAsyncProxy.ReceiveEventArgs);
+                ProcessReceive(this.SocketAsyncProxy.SocketEventArgs);
             }
         }
 
         public override void SendResponse(SocketContext context, string message)
         {
-            m_SendResetEvent.WaitOne();
+            m_SendReceiveResetEvent.WaitOne();
 
             if (string.IsNullOrEmpty(message))
                 return;
@@ -46,24 +48,24 @@ namespace SuperSocket.SocketServiceCore
             if (!message.EndsWith(Environment.NewLine))
                 message = message + Environment.NewLine;
 
-            AsyncUserToken token = this.SocketAsyncProxy.SendEventArgs.UserToken as AsyncUserToken;
+            AsyncUserToken token = this.SocketAsyncProxy.SocketEventArgs.UserToken as AsyncUserToken;
             token.SendBuffer = context.Charset.GetBytes(message);
             token.Offset = 0;
-            if (this.SocketAsyncProxy.SendEventArgs.Buffer.Length >= token.SendBuffer.Length)
+            if (this.SocketAsyncProxy.SocketEventArgs.Buffer.Length >= token.SendBuffer.Length)
             {
-                Buffer.BlockCopy(token.SendBuffer, 0, this.SocketAsyncProxy.SendEventArgs.Buffer, 0, token.SendBuffer.Length);
-                this.SocketAsyncProxy.SendEventArgs.SetBuffer(0, token.SendBuffer.Length);
+                Buffer.BlockCopy(token.SendBuffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, token.SendBuffer.Length);
+                this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, token.SendBuffer.Length);
                 token.SendBuffer = new byte[0];
             }
             else
             {
-                Buffer.BlockCopy(token.SendBuffer, 0, this.SocketAsyncProxy.SendEventArgs.Buffer, 0, this.SocketAsyncProxy.SendEventArgs.Buffer.Length);
-                this.SocketAsyncProxy.SendEventArgs.SetBuffer(0, this.SocketAsyncProxy.SendEventArgs.Buffer.Length);
-                token.Offset = token.Offset + this.SocketAsyncProxy.SendEventArgs.Buffer.Length;
+                Buffer.BlockCopy(token.SendBuffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
+                this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
+                token.Offset = token.Offset + this.SocketAsyncProxy.SocketEventArgs.Buffer.Length;
             }
 
-            if (!Client.SendAsync(this.SocketAsyncProxy.SendEventArgs))
-                ProcessSend(this.SocketAsyncProxy.SendEventArgs);
+            if (!Client.SendAsync(this.SocketAsyncProxy.SocketEventArgs))
+                ProcessSend(this.SocketAsyncProxy.SocketEventArgs);
         }
 
         public SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
@@ -76,6 +78,10 @@ namespace SuperSocket.SocketServiceCore
             {
                 string commandLine = token.SocketContext.Charset.GetString(e.Buffer, e.Offset, e.BytesTransferred);
                 CommandInfo cmdInfo = new CommandInfo(commandLine.Trim());
+
+                //this round receive has been finished, the buffer can be used for sending
+                m_SendReceiveResetEvent.Set();
+
                 ExecuteCommand(cmdInfo);
                 //read the next block of data send from the client
                 StartReceive();
@@ -98,28 +104,28 @@ namespace SuperSocket.SocketServiceCore
                 {
                     int leftBytes = token.SendBuffer.Length - token.Offset;
 
-                    if (this.SocketAsyncProxy.SendEventArgs.Buffer.Length >= leftBytes)
+                    if (this.SocketAsyncProxy.SocketEventArgs.Buffer.Length >= leftBytes)
                     {
-                        Buffer.BlockCopy(token.SendBuffer, token.Offset, this.SocketAsyncProxy.SendEventArgs.Buffer, 0, token.SendBuffer.Length);
-                        this.SocketAsyncProxy.SendEventArgs.SetBuffer(0, token.SendBuffer.Length);
+                        Buffer.BlockCopy(token.SendBuffer, token.Offset, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, token.SendBuffer.Length);
+                        this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, token.SendBuffer.Length);
                         token.SendBuffer = new byte[0];
                     }
                     else
                     {
-                        Buffer.BlockCopy(token.SendBuffer, token.Offset, this.SocketAsyncProxy.SendEventArgs.Buffer, 0, this.SocketAsyncProxy.SendEventArgs.Buffer.Length);
-                        this.SocketAsyncProxy.SendEventArgs.SetBuffer(0, this.SocketAsyncProxy.SendEventArgs.Buffer.Length);
-                        token.Offset = token.Offset + this.SocketAsyncProxy.SendEventArgs.Buffer.Length;
+                        Buffer.BlockCopy(token.SendBuffer, token.Offset, this.SocketAsyncProxy.SocketEventArgs.Buffer, 0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
+                        this.SocketAsyncProxy.SocketEventArgs.SetBuffer(0, this.SocketAsyncProxy.SocketEventArgs.Buffer.Length);
+                        token.Offset = token.Offset + this.SocketAsyncProxy.SocketEventArgs.Buffer.Length;
                     }
 
-                    if (!Client.SendAsync(this.SocketAsyncProxy.SendEventArgs))
-                        ProcessSend(this.SocketAsyncProxy.SendEventArgs);
+                    if (!Client.SendAsync(this.SocketAsyncProxy.SocketEventArgs))
+                        ProcessSend(this.SocketAsyncProxy.SocketEventArgs);
 
                     return;
                 }
                 else
                 {
                     //Send was finished, next round of send can be started
-                    m_SendResetEvent.Set();
+                    m_SendReceiveResetEvent.Set();
                 }        
             }
             else

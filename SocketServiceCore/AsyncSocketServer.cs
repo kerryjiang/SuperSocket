@@ -23,10 +23,8 @@ namespace SuperSocket.SocketServiceCore
 
         private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
 
-        private BufferManager m_ReceiveBufferManager;
-
-        private BufferManager m_SendBufferManager;
-
+        private BufferManager m_BufferManager;
+ 
         private SocketAsyncEventArgsPool m_ReadWritePool;
 
         private Semaphore m_MaxConnectionSemaphore;
@@ -44,32 +42,24 @@ namespace SuperSocket.SocketServiceCore
                 if (!base.Start())
                     return false;
 
-                m_ReceiveBufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber,
+                m_BufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber * 2,
                     AppServer.Config.ReceiveBufferSize);
-                m_ReceiveBufferManager.InitBuffer();
-
-                m_SendBufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber, AppServer.Config.ReceiveBufferSize);
-                m_SendBufferManager.InitBuffer();
+                m_BufferManager.InitBuffer();
 
                 m_ReadWritePool = new SocketAsyncEventArgsPool(AppServer.Config.MaxConnectionNumber);
 
                 // preallocate pool of SocketAsyncEventArgs objects
-                SocketAsyncEventArgs receiveEventArg;
-                SocketAsyncEventArgs sendEventArg;
+                SocketAsyncEventArgs socketEventArg;
 
                 for (int i = 0; i < AppServer.Config.MaxConnectionNumber; i++)
                 {
                     //Pre-allocate a set of reusable SocketAsyncEventArgs
-                    receiveEventArg = new SocketAsyncEventArgs();
-                    receiveEventArg.UserToken = new AsyncUserToken();
-                    m_ReceiveBufferManager.SetBuffer(receiveEventArg);
-
-                    sendEventArg = new SocketAsyncEventArgs();
-                    sendEventArg.UserToken = new AsyncUserToken();
-                    m_SendBufferManager.SetBuffer(sendEventArg);
-
+                    socketEventArg = new SocketAsyncEventArgs();
+                    socketEventArg.UserToken = new AsyncUserToken();
+                    m_BufferManager.SetBuffer(socketEventArg);
+ 
                     // add SocketAsyncEventArg to the pool
-                    m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(receiveEventArg, sendEventArg));
+                    m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(socketEventArg));
                 }
 
                 if (m_ListenSocket == null)
