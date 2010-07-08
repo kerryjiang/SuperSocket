@@ -6,11 +6,11 @@ using SuperSocket.SocketServiceCore.Command;
 
 namespace RemoteProcessService.Command
 {
-    public class QUIT : ICommand<RemotePrcessSession>
+    public class QUIT : CommandBase<RemotePrcessSession>
     {
-        #region ICommand<RemotePrcessSession> Members
+        #region CommandBase<RemotePrcessSession> Members
 
-        public void Execute(RemotePrcessSession session, CommandInfo commandData)
+        protected override void Execute(RemotePrcessSession session, CommandInfo commandData)
         {
             session.SendResponse("bye");
             session.Close();

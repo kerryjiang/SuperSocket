@@ -7,11 +7,11 @@ using System.Diagnostics;
 
 namespace RemoteProcessService.Command
 {
-    public class LIST : ICommand<RemotePrcessSession>
+    public class LIST : CommandBase<RemotePrcessSession>
     {
-        #region ICommand<RemotePrcessSession> Members
+        #region CommandBase<RemotePrcessSession> Members
 
-        public void Execute(RemotePrcessSession session, CommandInfo commandData)
+        protected override void Execute(RemotePrcessSession session, CommandInfo commandData)
         {
             Process[] processes;
 

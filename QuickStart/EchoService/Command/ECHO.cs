@@ -6,11 +6,11 @@ using SuperSocket.SocketServiceCore.Command;
 
 namespace EchoService.Command
 {
-    public class ECHO : ICommand<EchoSession>
+    public class ECHO : CommandBase<EchoSession>
     {
-        #region ICommand<EchoSession> Members
+        #region CommandBase<EchoSession> Members
 
-        public void Execute(EchoSession session, CommandInfo commandData)
+        protected override void Execute(EchoSession session, CommandInfo commandData)
         {
             session.SendResponse(commandData.Param);
         }
