@@ -128,7 +128,7 @@ namespace SuperSocket.SocketServiceCore
                 AsyncUserToken token = (AsyncUserToken)e.UserToken;
 
                 //continue send
-                if (token.SendBuffer.Length != token.Offset)
+                if (token.SendBuffer.Length != 0)
                 {
                     PrepareSendBuffer(e, token);
 
@@ -155,9 +155,10 @@ namespace SuperSocket.SocketServiceCore
 
             if (e.Buffer.Length >= leftBytes)
             {
-                Buffer.BlockCopy(token.SendBuffer, token.Offset, e.Buffer, 0, token.SendBuffer.Length);
-                e.SetBuffer(0, token.SendBuffer.Length);
+                Buffer.BlockCopy(token.SendBuffer, token.Offset, e.Buffer, 0, leftBytes);
+                e.SetBuffer(0, leftBytes);
                 token.SendBuffer = new byte[0];
+                token.Offset = 0;
             }
             else
             {
