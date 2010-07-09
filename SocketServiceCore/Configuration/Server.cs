@@ -91,5 +91,11 @@ namespace SuperSocket.SocketServiceCore.Configuration
         {
             get { return (int)this["sendBufferSize"]; }
         }
+
+        [ConfigurationProperty("logCommand", IsRequired = false, DefaultValue = false)]
+        public bool LogCommand
+        {
+            get { return (bool)this["logCommand"]; }
+        }
     }
 }

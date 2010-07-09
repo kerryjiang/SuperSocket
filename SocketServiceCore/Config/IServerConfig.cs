@@ -34,5 +34,7 @@ namespace SuperSocket.SocketServiceCore.Config
         int ReceiveBufferSize { get; }
 
         int SendBufferSize { get; }
+
+        bool LogCommand { get; }
 	}
 }
