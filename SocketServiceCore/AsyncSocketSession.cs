@@ -8,6 +8,7 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.AsyncSocket;
+using System.Collections;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -21,26 +22,32 @@ namespace SuperSocket.SocketServiceCore
 			Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             SocketAsyncProxy.Initialize(Client, this, context);
 			SayWelcome();
-            StartReceive();
+            StartReceive(SocketAsyncProxy.SocketEventArgs);
 		}
 
-        private void StartReceive()
+        private void StartReceive(SocketAsyncEventArgs e)
         {
             if (Client == null || !Client.Connected)
                 return;
 
-            m_SendReceiveResetEvent.WaitOne();
+            var socketContext = ((AsyncUserToken)e.UserToken).SocketContext;
 
-            bool willRaiseEvent = Client.ReceiveAsync(this.SocketAsyncProxy.SocketEventArgs);
+            //LogUtil.LogDebug("Try to acquire receive lock after command " + socketContext.PrevCommand);
+            m_SendReceiveResetEvent.WaitOne();
+            //LogUtil.LogDebug("Acquired receive lock after command " + socketContext.PrevCommand);
+
+            bool willRaiseEvent = Client.ReceiveAsync(e);
             if (!willRaiseEvent)
             {
-                ProcessReceive(this.SocketAsyncProxy.SocketEventArgs);
+                ProcessReceive(e);
             }
         }
 
         public override void SendResponse(SocketContext context, string message)
         {
+            //LogUtil.LogDebug("Try to acquire receive lock after command " + context.CurrentCommand);
             m_SendReceiveResetEvent.WaitOne();
+            //LogUtil.LogDebug("Acquired receive lock after command " + context.CurrentCommand);
 
             if (string.IsNullOrEmpty(message))
                 return;
@@ -68,25 +75,46 @@ namespace SuperSocket.SocketServiceCore
             AsyncUserToken token = (AsyncUserToken)e.UserToken;
             if (e.BytesTransferred > 0 && e.SocketError == SocketError.Success)
             {
+                bool foundEnd = false;
+                int newLineLen = token.SocketContext.NewLineData.Length;
+
+                if (e.BytesTransferred < newLineLen)
+                {
+                    int lessLen = newLineLen - e.BytesTransferred;
+                    if (token.ReceiveBuffer != null && token.ReceiveBuffer.Count >= lessLen)
+                    {
+                        byte[] compareData = new byte[newLineLen];
+                        token.ReceiveBuffer.CopyTo(token.ReceiveBuffer.Count - lessLen, compareData, 0, lessLen);
+                        Array.Copy(e.Buffer, e.Offset, compareData, lessLen, e.BytesTransferred);
+
+                        if (EndsWith(compareData, 0, compareData.Length, token.SocketContext.NewLineData))
+                            foundEnd = true;
+                    }
+                }
+
                 if (EndsWith(e.Buffer, e.Offset, e.BytesTransferred, token.SocketContext.NewLineData))
+                    foundEnd = true;
+
+                if (foundEnd)
                 {
                     string commandLine = string.Empty;
 
                     if (token.ReceiveBuffer != null)
                     {
                         token.ReceiveBuffer.AddRange(e.Buffer.Skip(e.Offset).Take(e.BytesTransferred));
-                        commandLine = token.SocketContext.Charset.GetString(token.ReceiveBuffer.ToArray());
+                        commandLine = token.SocketContext.Charset.GetString(token.ReceiveBuffer.ToArray(), 0, token.ReceiveBuffer.Count - newLineLen);
                         token.ReceiveBuffer.Clear();
                         token.ReceiveBuffer = null;
                     }
                     else
                     {
-                        commandLine = token.SocketContext.Charset.GetString(e.Buffer, e.Offset, e.BytesTransferred);
+                        commandLine = token.SocketContext.Charset.GetString(e.Buffer, e.Offset, e.BytesTransferred - newLineLen);
                     }
-                    //this round receive has been finished, the buffer can be used for sending
-                    m_SendReceiveResetEvent.Set();
 
                     commandLine = commandLine.Trim();
+
+                    //this round receive has been finished, the buffer can be used for sending
+                    m_SendReceiveResetEvent.Set();                    
 
                     try
                     {
@@ -98,7 +126,7 @@ namespace SuperSocket.SocketServiceCore
                         HandleExceptionalError(exc);
                     }
                     //read the next block of data send from the client
-                    StartReceive();
+                    StartReceive(e);
                 }
                 else
                 {
@@ -110,7 +138,7 @@ namespace SuperSocket.SocketServiceCore
 
                     //Continue receive
                     m_SendReceiveResetEvent.Set();
-                    StartReceive();
+                    StartReceive(e);
                     return;
                 }                
             }
