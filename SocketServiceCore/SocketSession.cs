@@ -13,7 +13,7 @@ namespace SuperSocket.SocketServiceCore
 	/// <summary>
 	/// Socket Session, all application session should base on this class
 	/// </summary>
-    public abstract class SocketSession<T> : StreamSocketBase, ISocketSession<T>
+    public abstract class SocketSession<T> : SocketSessionBase, ISocketSession<T>
         where T : IAppSession, new()
 	{
         public IAppServer<T> AppServer { get; private set; }
@@ -147,6 +147,11 @@ namespace SuperSocket.SocketServiceCore
         {
             AppSession.HandleExceptionalError(e);
         }
+
+        public abstract void SendResponse(SocketContext context, string message);
+
+        public abstract void ApplySecureProtocol(SocketContext context);
+
     }
 
     public class SocketSessionClosedEventArgs : EventArgs

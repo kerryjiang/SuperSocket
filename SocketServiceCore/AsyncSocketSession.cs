@@ -189,5 +189,10 @@ namespace SuperSocket.SocketServiceCore
 
             return true;
         }
+
+        public override void ApplySecureProtocol(SocketContext context)
+        {
+            //TODO: Implement async socket SSL/TLS encryption
+        }
     }
 }

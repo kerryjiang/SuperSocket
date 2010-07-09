@@ -97,12 +97,12 @@
     <Compile Include="SocketManagerPasswordValidator.cs" />
     <Compile Include="AppServer.cs" />
     <Compile Include="SocketMode.cs" />
+    <Compile Include="SocketSessionBase.cs" />
     <Compile Include="SyncSocketServer.cs" />
     <Compile Include="SocketServerBase.cs" />
     <Compile Include="SocketServerManager.cs" />
     <Compile Include="SocketSession.cs" />
     <Compile Include="SocketUser.cs" />
-    <Compile Include="StreamSocketBase.cs" />
     <Compile Include="SyncSocketSession.cs" />
   </ItemGroup>
   <ItemGroup>
