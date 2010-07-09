@@ -61,17 +61,10 @@ namespace SuperSocket.SocketServiceCore
 			set { m_Logged = value; }
 		}
 
-		private string m_prevCommand;
 
-		/// <summary>
-		/// Gets or sets the previous command.
-		/// </summary>
-		/// <value>The prev command.</value>
-		public string PrevCommand
-		{
-			get { return m_prevCommand; }
-			set { m_prevCommand = value; }
-		}
+        public string PrevCommand { get; set; }
+
+        public string CurrentCommand { get; set; }
 
 		/// <summary>
 		/// Gets a value indicating whether this user is anonymous.
