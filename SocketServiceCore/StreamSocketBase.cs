@@ -118,10 +118,7 @@ namespace SuperSocket.SocketServiceCore
 				default:
                     m_Stream = new NetworkStream(Client);
 					break;
-			}
-			
-			m_Stream.ReadTimeout	= 300000; // 5 mins
-			m_Stream.WriteTimeout	= 300000; // 5 mins
+			}			
 
 			if (context == null)
 				m_Reader = new StreamReader(m_Stream, Encoding.Default);
