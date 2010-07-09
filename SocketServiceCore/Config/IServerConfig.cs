@@ -31,6 +31,8 @@ namespace SuperSocket.SocketServiceCore.Config
 
         int MaxConnectionNumber { get; }
 
-        int ReceiveBufferSize { get; }        
+        int ReceiveBufferSize { get; }
+
+        int SendBufferSize { get; }
 	}
 }

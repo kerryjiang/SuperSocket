@@ -42,8 +42,9 @@ namespace SuperSocket.SocketServiceCore
                 if (!base.Start())
                     return false;
 
-                m_BufferManager = new BufferManager(AppServer.Config.ReceiveBufferSize * AppServer.Config.MaxConnectionNumber * 2,
-                    AppServer.Config.ReceiveBufferSize);
+                int bufferSize = Math.Max(AppServer.Config.ReceiveBufferSize, AppServer.Config.SendBufferSize);
+
+                m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber * 2, bufferSize);
                 m_BufferManager.InitBuffer();
 
                 m_ReadWritePool = new SocketAsyncEventArgsPool(AppServer.Config.MaxConnectionNumber);
