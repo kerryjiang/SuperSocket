@@ -42,8 +42,14 @@ namespace SuperSocket.SocketServiceCore
         {
             AppServer = appServer;
             SocketSession = socketSession;
+            SocketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(SocketSession_Closed);
             SessionID = socketSession.SessionID;
             OnInit();
+        }
+
+        void SocketSession_Closed(object sender, SocketSessionClosedEventArgs e)
+        {
+            OnClosed();
         }
 
         protected abstract void OnClosed();
