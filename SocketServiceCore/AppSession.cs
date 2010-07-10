@@ -53,9 +53,13 @@ namespace SuperSocket.SocketServiceCore
         }
 
         protected abstract void OnClosed();
+
         protected abstract void OnInit();
+
         public abstract void SayWelcome();
+
         public abstract void HandleExceptionalError(Exception e);
+
         public abstract SocketContext Context { get; }
 
         public SslProtocols SecureProtocol

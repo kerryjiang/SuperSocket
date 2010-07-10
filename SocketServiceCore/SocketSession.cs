@@ -104,9 +104,7 @@ namespace SuperSocket.SocketServiceCore
             if (command != null)
             {
                 AppSession.Context.CurrentCommand = cmdInfo.Name;
-                AppSession.Context.RequireRead = false;
                 command.ExecuteCommand(AppSession, cmdInfo);
-                AppSession.Context.RequireRead = true;
                 AppSession.Context.PrevCommand = cmdInfo.Name;
                 LastActiveTime = DateTime.Now;
                 if (AppServer.Config.LogCommand)
