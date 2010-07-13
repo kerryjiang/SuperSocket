@@ -6,44 +6,44 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.SocketServiceCore.Configuration
 {
-	public class SocketServiceConfig : ConfigurationSection, IConfig
-	{
+    public class SocketServiceConfig : ConfigurationSection, IConfig
+    {
 
-		[ConfigurationProperty("servers")]
-		public ServerCollection Servers
-		{
-			get
-			{
-				return this["servers"] as ServerCollection;
-			}
-		}
+        [ConfigurationProperty("servers")]
+        public ServerCollection Servers
+        {
+            get
+            {
+                return this["servers"] as ServerCollection;
+            }
+        }
 
-		[ConfigurationProperty("services")]
-		public ServiceCollection Services
-		{
-			get
-			{
-				return this["services"] as ServiceCollection;
-			}
-		}
+        [ConfigurationProperty("services")]
+        public ServiceCollection Services
+        {
+            get
+            {
+                return this["services"] as ServiceCollection;
+            }
+        }
 
         [ConfigurationProperty("certificate", IsRequired = false)]
-		public CertificateConfig Certificate
-		{
-			get
-			{
-				return this["certificate"] as CertificateConfig;
-			}
-		}
+        public CertificateConfig Certificate
+        {
+            get
+            {
+                return this["certificate"] as CertificateConfig;
+            }
+        }
 
-		[ConfigurationProperty("credential", IsRequired = false)]
-		public CredentialConfig Credential
-		{
-			get
-			{
-				return this["credential"] as CredentialConfig;
-			}
-		}
+        [ConfigurationProperty("credential", IsRequired = false)]
+        public CredentialConfig Credential
+        {
+            get
+            {
+                return this["credential"] as CredentialConfig;
+            }
+        }
 
         [ConfigurationProperty("consoleBaseAddress", IsRequired = false)]
         public string ConsoleBaseAddress
@@ -54,42 +54,42 @@ namespace SuperSocket.SocketServiceCore.Configuration
             }
         }
 
-		#region IConfig Members
+        #region IConfig Members
 
-		public List<IServerConfig> GetServerList()
-		{
-			List<IServerConfig> serverList = new List<IServerConfig>();
-			
-			foreach(Server server in Servers)
-			{
-				serverList.Add(server);
-			}
-			
-			return serverList;
-		}
+        public List<IServerConfig> GetServerList()
+        {
+            List<IServerConfig> serverList = new List<IServerConfig>();
 
-		public ICertificateConfig GetCertificate()
-		{
-			return Certificate;
-		}
+            foreach (Server server in Servers)
+            {
+                serverList.Add(server);
+            }
 
-		public List<IServiceConfig> GetServiceList()
-		{
-			List<IServiceConfig> serviceList = new List<IServiceConfig>();
+            return serverList;
+        }
 
-			foreach (Service service in Services)
-			{
-				serviceList.Add(service);
-			}
+        public ICertificateConfig GetCertificate()
+        {
+            return Certificate;
+        }
 
-			return serviceList;
-		}
+        public List<IServiceConfig> GetServiceList()
+        {
+            List<IServiceConfig> serviceList = new List<IServiceConfig>();
 
-		public ICredentialConfig CredentialConfig
-		{
-			get { return Credential; }
-		}
+            foreach (Service service in Services)
+            {
+                serviceList.Add(service);
+            }
 
-		#endregion
-	}
+            return serviceList;
+        }
+
+        public ICredentialConfig CredentialConfig
+        {
+            get { return Credential; }
+        }
+
+        #endregion
+    }
 }

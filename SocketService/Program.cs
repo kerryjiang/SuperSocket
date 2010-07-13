@@ -10,13 +10,13 @@ using SuperSocket.SocketServiceCore.Configuration;
 
 namespace SuperSocket.SocketService
 {
-	static class Program
-	{
-		/// <summary>
-		/// The main entry point for the application.
-		/// </summary>
+    static class Program
+    {
+        /// <summary>
+        /// The main entry point for the application.
+        /// </summary>
         static void Main(string[] args)
-		{
+        {
             if (args != null && args.Length > 0)
             {
                 if (args[0].Equals("-i", StringComparison.OrdinalIgnoreCase))
@@ -43,8 +43,8 @@ namespace SuperSocket.SocketService
             else
             {
                 RunAsService();
-            }            
-		}
+            }
+        }
 
         static void RunAsConsole()
         {
@@ -87,5 +87,5 @@ namespace SuperSocket.SocketService
 
             ServiceBase.Run(ServicesToRun);
         }
-	}
+    }
 }

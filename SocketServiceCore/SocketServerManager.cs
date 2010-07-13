@@ -40,11 +40,10 @@ namespace SuperSocket.SocketServiceCore
                 if (service.Disabled)
                     continue;
 
-				if (!AssemblyUtil.TryGetType(service.Type, out serviceType))
+                if (!AssemblyUtil.TryGetType(service.Type, out serviceType))
                 {
                     LogUtil.LogError("Failed to initialize " + service.ServiceName + "!");
                     return false;
-					
                 }
 
                 m_ServiceDict[service.ServiceName] = serviceType;
@@ -76,13 +75,13 @@ namespace SuperSocket.SocketServiceCore
 
                 bool startResult = false;
 
-				if (m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
+                if (m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
                 {
-					IRunable server = Activator.CreateInstance(serviceType) as IRunable;					
-					if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig, config.ConsoleBaseAddress))
+                    IRunable server = Activator.CreateInstance(serviceType) as IRunable;
+                    if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig, config.ConsoleBaseAddress))
                     {
                         //server.ServerCredentials = credentials;
-                        
+
                         if (server.Start())
                         {
                             m_ServerList.Add(server);
@@ -91,18 +90,18 @@ namespace SuperSocket.SocketServiceCore
                     }
                 }
 
-				if (!startResult)
-				{
-					LogUtil.LogError("Failed to start " + serverConfig.Name + " server!");
-					return false;
-				}
-				else
-				{
-					LogUtil.LogInfo(serverConfig.Name + " has been started");
-				}
+                if (!startResult)
+                {
+                    LogUtil.LogError("Failed to start " + serverConfig.Name + " server!");
+                    return false;
+                }
+                else
+                {
+                    LogUtil.LogInfo(serverConfig.Name + " has been started");
+                }
             }
 
-         
+
             return true;
         }
 
@@ -145,35 +144,35 @@ namespace SuperSocket.SocketServiceCore
                 return element.Value;
         }
 
-		public static ServiceCredentials GetServiceCredentials(ICredentialConfig config)
-		{
-			ServiceCredentials credential = new ServiceCredentials();
+        public static ServiceCredentials GetServiceCredentials(ICredentialConfig config)
+        {
+            ServiceCredentials credential = new ServiceCredentials();
 
-			try
-			{
-				credential.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom;
-				credential.UserNameAuthentication.CachedLogonTokenLifetime = TimeSpan.FromHours(1);
-				credential.UserNameAuthentication.CacheLogonTokens = true;
-				credential.UserNameAuthentication.CustomUserNamePasswordValidator = new SocketManagerPasswordValidator(config);
-				credential.ServiceCertificate.SetCertificate(StoreLocation.LocalMachine, StoreName.My, X509FindType.FindBySubjectName, "GiantSocketServer");
-			}
-			catch (Exception e)
-			{
-				//X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-				//store.Open(OpenFlags.ReadWrite);
-				//LogUtil.LogInfo("All certificates count:" + store.Certificates.Count);
-				//X509Certificate2Collection certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
-				//LogUtil.LogInfo("Certificates count:" + certs.Count);
-				//if (certs != null && certs.Count > 1)
-				//{
-				//    store.Remove(certs[0]);
-				//    store.Close();
-				//}
-				LogUtil.LogError(e);
-				credential = null;
-			}
+            try
+            {
+                credential.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom;
+                credential.UserNameAuthentication.CachedLogonTokenLifetime = TimeSpan.FromHours(1);
+                credential.UserNameAuthentication.CacheLogonTokens = true;
+                credential.UserNameAuthentication.CustomUserNamePasswordValidator = new SocketManagerPasswordValidator(config);
+                credential.ServiceCertificate.SetCertificate(StoreLocation.LocalMachine, StoreName.My, X509FindType.FindBySubjectName, "GiantSocketServer");
+            }
+            catch (Exception e)
+            {
+                //X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+                //store.Open(OpenFlags.ReadWrite);
+                //LogUtil.LogInfo("All certificates count:" + store.Certificates.Count);
+                //X509Certificate2Collection certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
+                //LogUtil.LogInfo("Certificates count:" + certs.Count);
+                //if (certs != null && certs.Count > 1)
+                //{
+                //    store.Remove(certs[0]);
+                //    store.Close();
+                //}
+                LogUtil.LogError(e);
+                credential = null;
+            }
 
-			return credential;
-		}
+            return credential;
+        }
     }
 }

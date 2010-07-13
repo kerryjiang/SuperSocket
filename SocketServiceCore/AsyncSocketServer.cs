@@ -13,18 +13,18 @@ namespace SuperSocket.SocketServiceCore
 {
     public class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>, IAsyncRunner
         where TAppSession : IAppSession, new()
-        where TSocketSession : ISocketSession<TAppSession>, IAsyncSocketSession, new()     
-	{
+        where TSocketSession : ISocketSession<TAppSession>, IAsyncSocketSession, new()
+    {
         public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
-		{
-            
-		}
+        {
+
+        }
 
         private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
 
         private BufferManager m_BufferManager;
- 
+
         private SocketAsyncEventArgsPool m_ReadWritePool;
 
         private Semaphore m_MaxConnectionSemaphore;
@@ -36,9 +36,9 @@ namespace SuperSocket.SocketServiceCore
         private bool m_Stopped = false;
 
         public override bool Start()
-		{
-			try
-			{
+        {
+            try
+            {
                 if (!base.Start())
                     return false;
 
@@ -58,7 +58,7 @@ namespace SuperSocket.SocketServiceCore
                     socketEventArg = new SocketAsyncEventArgs();
                     socketEventArg.UserToken = new AsyncUserToken();
                     m_BufferManager.SetBuffer(socketEventArg);
- 
+
                     // add SocketAsyncEventArg to the pool
                     m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(socketEventArg));
                 }
@@ -69,14 +69,14 @@ namespace SuperSocket.SocketServiceCore
                     m_ListenThread.Start();
                 }
 
-                return true;				
-			}
-			catch (Exception e)
-			{
-				LogUtil.LogError(e);
-				return false;
-			}			
-		}        
+                return true;
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+                return false;
+            }
+        }
 
         private void StartListen()
         {
@@ -100,7 +100,7 @@ namespace SuperSocket.SocketServiceCore
 
                 try
                 {
-                    willRaiseEvent = m_ListenSocket.AcceptAsync(acceptEventArg);                    
+                    willRaiseEvent = m_ListenSocket.AcceptAsync(acceptEventArg);
                 }
                 catch (ObjectDisposedException)//listener has been stopped
                 {
@@ -144,23 +144,23 @@ namespace SuperSocket.SocketServiceCore
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             m_MaxConnectionSemaphore.Release();
-            
+
             IAsyncSocketSession socketSession = sender as IAsyncSocketSession;
             if (socketSession != null)
                 this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
         }
 
-		public override void Stop()
-		{
-			base.Stop();            
+        public override void Stop()
+        {
+            base.Stop();
 
             if (m_ListenSocket != null)
-			{
+            {
                 m_ListenSocket.Close();
                 m_ListenSocket = null;
-			}
+            }
 
             m_Stopped = true;
-		}
-	}
+        }
+    }
 }

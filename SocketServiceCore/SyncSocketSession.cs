@@ -36,7 +36,7 @@ namespace SuperSocket.SocketServiceCore
 
                 try
                 {
-                    ExecuteCommand(commandLine);                    
+                    ExecuteCommand(commandLine);
 
                     if (Client == null && !IsClosed)
                     {

@@ -7,25 +7,25 @@ using System.ServiceProcess;
 
 namespace SuperSocket.SocketService
 {
-	[RunInstaller(true)]
-	public partial class SocketServiceInstaller : Installer
-	{
-		private ServiceInstaller serviceInstaller;
-		private ServiceProcessInstaller processInstaller;
-		
-		public SocketServiceInstaller()
-		{
-			InitializeComponent();
+    [RunInstaller(true)]
+    public partial class SocketServiceInstaller : Installer
+    {
+        private ServiceInstaller serviceInstaller;
+        private ServiceProcessInstaller processInstaller;
 
-			processInstaller = new ServiceProcessInstaller();
-			serviceInstaller = new ServiceInstaller();
+        public SocketServiceInstaller()
+        {
+            InitializeComponent();
 
-			processInstaller.Account = ServiceAccount.LocalSystem;
-			serviceInstaller.StartType = ServiceStartMode.Automatic;
+            processInstaller = new ServiceProcessInstaller();
+            serviceInstaller = new ServiceInstaller();
+
+            processInstaller.Account = ServiceAccount.LocalSystem;
+            serviceInstaller.StartType = ServiceStartMode.Automatic;
             serviceInstaller.ServiceName = ConfigurationManager.AppSettings["ServiceName"];
 
-			Installers.Add(serviceInstaller);
-			Installers.Add(processInstaller);
-		}
-	}
+            Installers.Add(serviceInstaller);
+            Installers.Add(processInstaller);
+        }
+    }
 }

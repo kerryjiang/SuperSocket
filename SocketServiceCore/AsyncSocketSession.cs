@@ -19,9 +19,9 @@ namespace SuperSocket.SocketServiceCore
 
 		protected override void Start(SocketContext context)
 		{
-			Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             SocketAsyncProxy.Initialize(Client, this, context);
-			SayWelcome();
+            SayWelcome();
             StartReceive(SocketAsyncProxy.SocketEventArgs);
 		}
 

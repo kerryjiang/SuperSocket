@@ -6,16 +6,16 @@ using System.Runtime.Serialization;
 
 namespace SuperSocket.SocketServiceCore
 {
-	[DataContract]
-	public enum CreateUserResult
-	{
-		[EnumMember]
-		UserNameAlreadyExist,
+    [DataContract]
+    public enum CreateUserResult
+    {
+        [EnumMember]
+        UserNameAlreadyExist,
 
-		[EnumMember]
-		Success,
+        [EnumMember]
+        Success,
 
-		[EnumMember]
-		UnknownError
-	}
+        [EnumMember]
+        UnknownError
+    }
 }

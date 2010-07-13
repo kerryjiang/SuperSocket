@@ -12,36 +12,36 @@ using SuperSocket.SocketServiceCore.Configuration;
 
 namespace SuperSocket.SocketService
 {
-	partial class MainService : ServiceBase
-	{
-		public MainService()
-		{
-			InitializeComponent();
-		}
+    partial class MainService : ServiceBase
+    {
+        public MainService()
+        {
+            InitializeComponent();
+        }
 
-		protected override void OnStart(string[] args)
-		{
-			LogUtil.Setup(new ELLogger());
+        protected override void OnStart(string[] args)
+        {
+            LogUtil.Setup(new ELLogger());
             //LogUtil.Setup(new EventLogger());
-			
-			SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
-			if (!SocketServerManager.Initialize(serverConfig))
-				return;
+
+            SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
+            if (!SocketServerManager.Initialize(serverConfig))
+                return;
 
             if (!SocketServerManager.Start(serverConfig))
                 SocketServerManager.Stop();
-		}
+        }
 
-		protected override void OnStop()
-		{
+        protected override void OnStop()
+        {
             SocketServerManager.Stop();
-			base.OnStop();
-		}
+            base.OnStop();
+        }
 
-		protected override void OnShutdown()
-		{
-			SocketServerManager.Stop();
-			base.OnShutdown();
-		}
-	}
+        protected override void OnShutdown()
+        {
+            SocketServerManager.Stop();
+            base.OnShutdown();
+        }
+    }
 }

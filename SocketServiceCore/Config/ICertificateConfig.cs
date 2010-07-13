@@ -4,10 +4,10 @@ using System.Text;
 
 namespace SuperSocket.SocketServiceCore.Config
 {
-	public interface ICertificateConfig
-	{
-		string CertificateFilePath { get; }
+    public interface ICertificateConfig
+    {
+        string CertificateFilePath { get; }
 
-		string CertificatePassword { get; }
-	}
+        string CertificatePassword { get; }
+    }
 }

@@ -5,13 +5,13 @@ using System.Configuration;
 
 namespace SuperSocket.SocketServiceCore.Config
 {
-	public interface IServerConfig
-	{
-		string ServiceName { get; }
+    public interface IServerConfig
+    {
+        string ServiceName { get; }
 
-		string Ip { get; }
+        string Ip { get; }
 
-		int Port { get; }
+        int Port { get; }
 
         NameValueConfigurationCollection Parameters { get; }
 
@@ -23,7 +23,7 @@ namespace SuperSocket.SocketServiceCore.Config
 
         SocketMode Mode { get; }
 
-		bool EnableManagementService { get; }
+        bool EnableManagementService { get; }
 
         int ReadTimeOut { get; }
 
@@ -36,5 +36,5 @@ namespace SuperSocket.SocketServiceCore.Config
         int SendBufferSize { get; }
 
         bool LogCommand { get; }
-	}
+    }
 }

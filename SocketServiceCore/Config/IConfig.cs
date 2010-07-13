@@ -4,14 +4,14 @@ using System.Text;
 
 namespace SuperSocket.SocketServiceCore.Config
 {
-	public interface IConfig : IGetCerticateConfig
-	{
-		List<IServerConfig> GetServerList();
-		
-		List<IServiceConfig> GetServiceList();
+    public interface IConfig : IGetCerticateConfig
+    {
+        List<IServerConfig> GetServerList();
 
-		ICredentialConfig CredentialConfig { get; }
+        List<IServiceConfig> GetServiceList();
+
+        ICredentialConfig CredentialConfig { get; }
 
         string ConsoleBaseAddress { get; }
-	}
+    }
 }

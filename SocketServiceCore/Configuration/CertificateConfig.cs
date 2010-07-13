@@ -6,28 +6,28 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.SocketServiceCore.Configuration
 {
-	public class CertificateConfig : ConfigurationElement, ICertificateConfig
-	{		
-		#region ICertificateConfig Members
+    public class CertificateConfig : ConfigurationElement, ICertificateConfig
+    {
+        #region ICertificateConfig Members
 
-		[ConfigurationProperty("certificateFilePath", IsRequired = true)]
-		public string CertificateFilePath
-		{
-			get
-			{
-				return this["certificateFilePath"] as string;
-			}
-		}
+        [ConfigurationProperty("certificateFilePath", IsRequired = true)]
+        public string CertificateFilePath
+        {
+            get
+            {
+                return this["certificateFilePath"] as string;
+            }
+        }
 
-		[ConfigurationProperty("certificatePassword", IsRequired = true)]
-		public string CertificatePassword
-		{
-			get
-			{
-				return this["certificatePassword"] as string;
-			}
-		}
+        [ConfigurationProperty("certificatePassword", IsRequired = true)]
+        public string CertificatePassword
+        {
+            get
+            {
+                return this["certificatePassword"] as string;
+            }
+        }
 
-		#endregion
-	}
+        #endregion
+    }
 }

@@ -4,8 +4,8 @@ using System.Text;
 
 namespace SuperSocket.SocketServiceCore.Config
 {
-	public interface IGetCerticateConfig
-	{
-		ICertificateConfig GetCertificate();
-	}
+    public interface IGetCerticateConfig
+    {
+        ICertificateConfig GetCertificate();
+    }
 }

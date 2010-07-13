@@ -10,19 +10,19 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.SocketServiceCore
 {
-	/// <summary>
-	/// Socket Session, all application session should base on this class
-	/// </summary>
+    /// <summary>
+    /// Socket Session, all application session should base on this class
+    /// </summary>
     public abstract class SocketSession<T> : SocketSessionBase, ISocketSession<T>
         where T : IAppSession, new()
-	{
+    {
         public IAppServer<T> AppServer { get; private set; }
         public T AppSession { get; private set; }
 
-		public SocketSession()
-		{
+        public SocketSession()
+        {
 
-		}
+        }
 
         public void Initialize(IAppServer<T> appServer, T appSession, Socket client)
         {
@@ -46,44 +46,44 @@ namespace SuperSocket.SocketServiceCore
             set { m_SessionID = value; }
         }
 
-		private DateTime m_StartTime = DateTime.Now;
+        private DateTime m_StartTime = DateTime.Now;
 
-		/// <summary>
-		/// Gets the session start time.
-		/// </summary>
-		/// <value>The session start time.</value>
-		public DateTime StartTime
-		{
-			get { return m_StartTime; }
-		}
+        /// <summary>
+        /// Gets the session start time.
+        /// </summary>
+        /// <value>The session start time.</value>
+        public DateTime StartTime
+        {
+            get { return m_StartTime; }
+        }
 
-		private DateTime m_LastActiveTime = DateTime.Now;
+        private DateTime m_LastActiveTime = DateTime.Now;
 
-		/// <summary>
-		/// Gets the last active time of the session.
-		/// </summary>
-		/// <value>The last active time.</value>
-		public DateTime LastActiveTime
-		{
-			get { return m_LastActiveTime; }
+        /// <summary>
+        /// Gets the last active time of the session.
+        /// </summary>
+        /// <value>The last active time.</value>
+        public DateTime LastActiveTime
+        {
+            get { return m_LastActiveTime; }
             protected set { m_LastActiveTime = value; }
-		}
+        }
 
-		private IServerConfig m_Config = null;
+        private IServerConfig m_Config = null;
 
-		/// <summary>
-		/// Gets or sets the config.
-		/// </summary>
-		/// <value>The config.</value>
-		public IServerConfig Config
-		{
-			get { return m_Config; }
-			set { m_Config = value; }
-		}
+        /// <summary>
+        /// Gets or sets the config.
+        /// </summary>
+        /// <value>The config.</value>
+        public IServerConfig Config
+        {
+            get { return m_Config; }
+            set { m_Config = value; }
+        }
 
-		/// <summary>
-		/// Starts this session.
-		/// </summary>
+        /// <summary>
+        /// Starts this session.
+        /// </summary>
         public void Start()
         {
             Start(AppSession.Context);
@@ -92,10 +92,10 @@ namespace SuperSocket.SocketServiceCore
         protected abstract void Start(SocketContext context);
 
 
-		/// <summary>
-		/// Executes the command.
-		/// </summary>
-		/// <param name="cmdInfo">The CMD info.</param>
+        /// <summary>
+        /// Executes the command.
+        /// </summary>
+        /// <param name="cmdInfo">The CMD info.</param>
         protected virtual void ExecuteCommand(string commandLine)
         {
             CommandInfo cmdInfo = AppServer.CommandParser.ParseCommand(commandLine);
@@ -112,36 +112,36 @@ namespace SuperSocket.SocketServiceCore
             }
         }
 
-		/// <summary>
-		/// Says the welcome information when a client connectted.
-		/// </summary>
+        /// <summary>
+        /// Says the welcome information when a client connectted.
+        /// </summary>
         protected virtual void SayWelcome()
         {
             AppSession.SayWelcome();
-        }		
+        }
 
-		/// <summary>
-		/// Called when [close].
-		/// </summary>
-		protected override void OnClose()
-		{
+        /// <summary>
+        /// Called when [close].
+        /// </summary>
+        protected override void OnClose()
+        {
             var closedHandler = Closed;
             if (closedHandler != null)
-			{
+            {
                 closedHandler(this, new SocketSessionClosedEventArgs { SessionID = this.SessionID });
-			}
+            }
 
             base.OnClose();
-		}
+        }
 
         public override void Close()
         {
             base.Close();
         }
 
-		/// <summary>
-		/// Occurs when [closed].
-		/// </summary>
+        /// <summary>
+        /// Occurs when [closed].
+        /// </summary>
         public event EventHandler<SocketSessionClosedEventArgs> Closed;
 
         protected virtual void HandleExceptionalError(Exception e)

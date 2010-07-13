@@ -6,76 +6,76 @@ using System.Xml.Serialization;
 
 namespace SuperSocket.SocketServiceCore
 {
-	/// <summary>
-	/// The base class of application user
-	/// </summary>
-	[DataContract]
-	public abstract class SocketUser
-	{
-		private long m_UserID;
+    /// <summary>
+    /// The base class of application user
+    /// </summary>
+    [DataContract]
+    public abstract class SocketUser
+    {
+        private long m_UserID;
 
-		[DataMember]
-		public long UserID
-		{
-			get { return m_UserID; }
-			set { m_UserID = value; }
-		}
+        [DataMember]
+        public long UserID
+        {
+            get { return m_UserID; }
+            set { m_UserID = value; }
+        }
 
-		private string m_UserName;
+        private string m_UserName;
 
-		[DataMember]
+        [DataMember]
         [XmlAttribute("UserName")]
-		public string UserName
-		{
-			get { return m_UserName; }
-			set { m_UserName = value; }
-		}
+        public string UserName
+        {
+            get { return m_UserName; }
+            set { m_UserName = value; }
+        }
 
-		private string m_Password;
+        private string m_Password;
 
-		[DataMember]
+        [DataMember]
         [XmlAttribute("Password")]
-		public string Password
-		{
-			get { return m_Password; }
-			set { m_Password = value; }
-		}
+        public string Password
+        {
+            get { return m_Password; }
+            set { m_Password = value; }
+        }
 
-		private DateTime m_CreateTime;
+        private DateTime m_CreateTime;
 
-		[DataMember]
-		public DateTime CreateTime
-		{
-			get { return m_CreateTime; }
-			set { m_CreateTime = value; }
-		}
+        [DataMember]
+        public DateTime CreateTime
+        {
+            get { return m_CreateTime; }
+            set { m_CreateTime = value; }
+        }
 
-		private DateTime m_LastLoginTime;
+        private DateTime m_LastLoginTime;
 
-		[DataMember]
-		public DateTime LastLoginTime
-		{
-			get { return m_LastLoginTime; }
-			set { m_LastLoginTime = value; }
-		}
+        [DataMember]
+        public DateTime LastLoginTime
+        {
+            get { return m_LastLoginTime; }
+            set { m_LastLoginTime = value; }
+        }
 
-		private int m_LoginTimes;
+        private int m_LoginTimes;
 
-		[DataMember]
-		public int LoginTimes
-		{
-			get { return m_LoginTimes; }
-			set { m_LoginTimes = value; }
-		}
+        [DataMember]
+        public int LoginTimes
+        {
+            get { return m_LoginTimes; }
+            set { m_LoginTimes = value; }
+        }
 
-		private bool m_Disabled;
+        private bool m_Disabled;
 
-		[DataMember]
+        [DataMember]
         [XmlAttribute("Disabled")]
-		public bool Disabled
-		{
-			get { return m_Disabled; }
-			set { m_Disabled = value; }
-		}
-	}
+        public bool Disabled
+        {
+            get { return m_Disabled; }
+            set { m_Disabled = value; }
+        }
+    }
 }

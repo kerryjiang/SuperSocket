@@ -6,15 +6,15 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.SocketServiceCore.Configuration
 {
-	public class Service : ConfigurationElement, IServiceConfig
-	{
-		#region IServiceConfig Members
+    public class Service : ConfigurationElement, IServiceConfig
+    {
+        #region IServiceConfig Members
 
-		[ConfigurationProperty("serviceName", IsRequired = true)]
-		public string ServiceName
-		{
-			get { return this["serviceName"] as string; }
-		}
+        [ConfigurationProperty("serviceName", IsRequired = true)]
+        public string ServiceName
+        {
+            get { return this["serviceName"] as string; }
+        }
 
         [ConfigurationProperty("type", IsRequired = true)]
         public string Type

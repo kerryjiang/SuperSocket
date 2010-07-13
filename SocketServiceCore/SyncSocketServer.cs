@@ -15,36 +15,36 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.SocketServiceCore
 {
-	/// <summary>
-	/// The core socket server which can run any SocketSession
-	/// </summary>
-	/// <typeparam name="T">The typeof the SocketSession</typeparam>
+    /// <summary>
+    /// The core socket server which can run any SocketSession
+    /// </summary>
+    /// <typeparam name="T">The typeof the SocketSession</typeparam>
     public class SyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
         where TSocketSession : ISocketSession<TAppSession>, new()
         where TAppSession : IAppSession, new()
-	{
+    {
 
         private bool m_Stopped = false;
 
         public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
-		{
-			
-		}
+        {
+
+        }
 
         private Socket m_ListenSocket = null;
 
-		private Thread m_ListenThread = null;
+        private Thread m_ListenThread = null;
 
         private Semaphore m_MaxConnectionSemaphore;
 
-		/// <summary>
-		/// Starts the server
-		/// </summary>
-		public override bool Start()
-		{
-			try
-			{
+        /// <summary>
+        /// Starts the server
+        /// </summary>
+        public override bool Start()
+        {
+            try
+            {
                 if (!base.Start())
                     return false;
 
@@ -55,20 +55,20 @@ namespace SuperSocket.SocketServiceCore
                 }
 
                 return true;
-			}
-			catch(Exception e)
-			{
-				LogUtil.LogError(e);
-				return false;
-			}
-		}
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+                return false;
+            }
+        }
 
-		/// <summary>
-		/// Stops this server.
-		/// </summary>
-		public override void Stop()
-		{
-			base.Stop();
+        /// <summary>
+        /// Stops this server.
+        /// </summary>
+        public override void Stop()
+        {
+            base.Stop();
 
             if (m_ListenSocket != null)
             {
@@ -76,14 +76,14 @@ namespace SuperSocket.SocketServiceCore
                 m_ListenSocket = null;
             }
 
-            m_Stopped = true;		
-		}
+            m_Stopped = true;
+        }
 
-		/// <summary>
-		/// Starts to listen
-		/// </summary>
-		private void StartListen()
-		{
+        /// <summary>
+        /// Starts to listen
+        /// </summary>
+        private void StartListen()
+        {
             m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             m_ListenSocket.Bind(this.EndPoint);
             m_ListenSocket.Listen(100);
@@ -93,8 +93,8 @@ namespace SuperSocket.SocketServiceCore
             m_MaxConnectionSemaphore = new Semaphore(AppServer.Config.MaxConnectionNumber, AppServer.Config.MaxConnectionNumber);
 
             while (!m_Stopped)
-			{
-				Socket client = null;
+            {
+                Socket client = null;
 
                 try
                 {
@@ -123,18 +123,18 @@ namespace SuperSocket.SocketServiceCore
                 }
 
                 TSocketSession session = RegisterSession(client);
-                session.Closed +=new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-								
-				Thread thUser	= new Thread(session.Start);
-				thUser.IsBackground = true;
-				thUser.Start();				
-			}
-		}
+                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+
+                Thread thUser = new Thread(session.Start);
+                thUser.IsBackground = true;
+                thUser.Start();
+            }
+        }
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             m_MaxConnectionSemaphore.Release();
         }
-	
-	}
+
+    }
 }

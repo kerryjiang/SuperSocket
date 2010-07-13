@@ -36,9 +36,9 @@ namespace SuperSocket.SocketServiceCore
         private string m_ConsoleBaseAddress;
 
         public AppServer()
-		{
+        {
             LoadCommands();
-		}
+        }
 
         public ServiceCredentials ServerCredentials { get; set; }
 

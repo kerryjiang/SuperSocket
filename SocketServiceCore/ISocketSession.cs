@@ -11,7 +11,7 @@ using SuperSocket.SocketServiceCore.AsyncSocket;
 namespace SuperSocket.SocketServiceCore
 {
     public interface ISocketSession
-    {        
+    {
         void Start();
         void Close();
         void SendResponse(SocketContext context, string message);
@@ -20,7 +20,6 @@ namespace SuperSocket.SocketServiceCore
         DateTime LastActiveTime { get; }
         IPEndPoint LocalEndPoint { get; }
         SslProtocols SecureProtocol { get; set; }
-        //IServerConfig Config { get;  set; }        
         event EventHandler<SocketSessionClosedEventArgs> Closed;
     }
 

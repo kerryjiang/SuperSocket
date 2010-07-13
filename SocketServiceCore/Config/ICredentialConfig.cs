@@ -5,10 +5,10 @@ using System.Text;
 
 namespace SuperSocket.SocketServiceCore.Config
 {
-	public interface ICredentialConfig
-	{
-		string UserName { get; }
+    public interface ICredentialConfig
+    {
+        string UserName { get; }
 
-		string Password { get; }
-	}
+        string Password { get; }
+    }
 }
