@@ -15,6 +15,7 @@ namespace SuperSocket.SocketServiceCore
         void Start();
         void Close();
         void SendResponse(SocketContext context, string message);
+        void SendResponse(SocketContext context, byte[] data);
         void ApplySecureProtocol(SocketContext context);
         string SessionID { get; }
         DateTime LastActiveTime { get; }

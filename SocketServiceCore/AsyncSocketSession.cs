@@ -14,16 +14,16 @@ namespace SuperSocket.SocketServiceCore
 {
     public class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
         where T : IAppSession, new()
-	{
+    {
         AutoResetEvent m_SendReceiveResetEvent = new AutoResetEvent(true);
 
-		protected override void Start(SocketContext context)
-		{
+        protected override void Start(SocketContext context)
+        {
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             SocketAsyncProxy.Initialize(Client, this, context);
             SayWelcome();
             StartReceive(SocketAsyncProxy.SocketEventArgs);
-		}
+        }
 
         private void StartReceive(SocketAsyncEventArgs e)
         {
@@ -45,12 +45,12 @@ namespace SuperSocket.SocketServiceCore
 
         public override void SendResponse(SocketContext context, string message)
         {
+            if (string.IsNullOrEmpty(message))
+                return;
+
             //LogUtil.LogDebug("Try to acquire receive lock after command " + context.CurrentCommand);
             m_SendReceiveResetEvent.WaitOne();
             //LogUtil.LogDebug("Acquired receive lock after command " + context.CurrentCommand);
-
-            if (string.IsNullOrEmpty(message))
-                return;
 
             if (!message.EndsWith(Environment.NewLine))
                 message = message + Environment.NewLine;
@@ -59,6 +59,25 @@ namespace SuperSocket.SocketServiceCore
 
             AsyncUserToken token = eventArgs.UserToken as AsyncUserToken;
             token.SendBuffer = context.Charset.GetBytes(message);
+            token.Offset = 0;
+
+            PrepareSendBuffer(eventArgs, token);
+
+            if (!Client.SendAsync(eventArgs))
+                ProcessSend(eventArgs);
+        }
+
+        public override void SendResponse(SocketContext context, byte[] data)
+        {
+            if(data == null || data.Length <= 0)
+                return;
+
+            m_SendReceiveResetEvent.WaitOne();
+
+            var eventArgs = this.SocketAsyncProxy.SocketEventArgs;
+
+            AsyncUserToken token = eventArgs.UserToken as AsyncUserToken;
+            token.SendBuffer = data;
             token.Offset = 0;
 
             PrepareSendBuffer(eventArgs, token);
@@ -223,5 +242,6 @@ namespace SuperSocket.SocketServiceCore
         {
             //TODO: Implement async socket SSL/TLS encryption
         }
+
     }
 }

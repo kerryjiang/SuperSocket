@@ -151,6 +151,8 @@ namespace SuperSocket.SocketServiceCore
 
         public abstract void SendResponse(SocketContext context, string message);
 
+        public abstract void SendResponse(SocketContext context, byte[] data);
+
         public abstract void ApplySecureProtocol(SocketContext context);
 
     }

@@ -155,5 +155,21 @@ namespace SuperSocket.SocketServiceCore
                 this.Close();
             }
         }
+
+        public override void SendResponse(SocketContext context, byte[] data)
+        {
+            if (data == null || data.Length <= 0)
+                return;
+
+            try
+            {
+                m_Stream.Write(data, 0, data.Length);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+                this.Close();
+            }
+        }
     }
 }
