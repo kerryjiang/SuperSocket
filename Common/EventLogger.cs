@@ -9,7 +9,7 @@ namespace SuperSocket.Common
 
         public void LogError(Exception e)
         {
-			EventLog.WriteEntry("SuperSocket.Common.EventLogger.Error", e.Message + Environment.NewLine + e.StackTrace, EventLogEntryType.Error);
+            EventLog.WriteEntry("SuperSocket.Common.EventLogger.Error", e.Message + Environment.NewLine + e.StackTrace, EventLogEntryType.Error);
         }
 
         public void LogError(string title, Exception e)
@@ -29,7 +29,7 @@ namespace SuperSocket.Common
 
         public void LogInfo(string message)
         {
-			EventLog.WriteEntry("SuperSocket.Common.EventLogger.Info", message, EventLogEntryType.Information);
+            EventLog.WriteEntry("SuperSocket.Common.EventLogger.Info", message, EventLogEntryType.Information);
         }
 
         #endregion
