@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -155,6 +156,9 @@ namespace SuperSocket.SocketServiceCore
 
         public abstract void ApplySecureProtocol(SocketContext context);
 
+        public abstract void ReceiveData(Stream storeSteram, int length);
+
+        public abstract void ReceiveData(Stream storeSteram, byte[] endMark);
     }
 
     public class SocketSessionClosedEventArgs : EventArgs

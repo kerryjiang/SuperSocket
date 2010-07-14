@@ -88,5 +88,19 @@ namespace SuperSocket.SocketServiceCore
         {
             m_IsClosed = true;
         }
+
+        protected bool EndsWith(byte[] buffer, int offset, int length, byte[] endData)
+        {
+            if (length < endData.Length)
+                return false;
+
+            for (int i = 1; i <= endData.Length; i++)
+            {
+                if (endData[endData.Length - i] != buffer[offset + length - i])
+                    return false;
+            }
+
+            return true;
+        }
     }
 }

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
-using SuperSocket.SocketServiceCore.Config;
 using SuperSocket.SocketServiceCore.AsyncSocket;
+using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -16,6 +17,8 @@ namespace SuperSocket.SocketServiceCore
         void Close();
         void SendResponse(SocketContext context, string message);
         void SendResponse(SocketContext context, byte[] data);
+        void ReceiveData(Stream storeSteram, int length);
+        void ReceiveData(Stream storeSteram, byte[] endMark);
         void ApplySecureProtocol(SocketContext context);
         string SessionID { get; }
         DateTime LastActiveTime { get; }
