@@ -16,6 +16,7 @@ namespace SuperSocket.SocketServiceCore
         SocketContext Context { get; }
         IServerConfig Config { get; }
         IPEndPoint LocalEndPoint { get; }
+        IPEndPoint RemoteEndPoint { get; }
         void Close();
         void SayWelcome();
         void HandleExceptionalError(Exception e);
@@ -71,6 +72,11 @@ namespace SuperSocket.SocketServiceCore
         public IPEndPoint LocalEndPoint
         {
             get { return SocketSession.LocalEndPoint; }
+        }
+
+        public IPEndPoint RemoteEndPoint
+        {
+            get { return SocketSession.RemoteEndPoint; }
         }
 
         public string SessionID { get; private set; }

@@ -23,6 +23,7 @@ namespace SuperSocket.SocketServiceCore
         string SessionID { get; }
         DateTime LastActiveTime { get; }
         IPEndPoint LocalEndPoint { get; }
+        IPEndPoint RemoteEndPoint { get; }
         SslProtocols SecureProtocol { get; set; }
         event EventHandler<SocketSessionClosedEventArgs> Closed;
     }
