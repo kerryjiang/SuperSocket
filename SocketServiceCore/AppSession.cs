@@ -29,8 +29,9 @@ namespace SuperSocket.SocketServiceCore
         IAppServer<T> AppServer { get; }
     }
 
-    public abstract class AppSession<T> : IAppSession, IAppSession<T>
+    public abstract class AppSession<T, TSocketContext> : IAppSession, IAppSession<T>
         where T : IAppSession, new()
+        where TSocketContext : SocketContext
     {
         public IAppServer<T> AppServer { get; private set; }
 
@@ -61,7 +62,12 @@ namespace SuperSocket.SocketServiceCore
 
         public abstract void HandleExceptionalError(Exception e);
 
-        public abstract SocketContext Context { get; }
+        public SocketContext Context
+        {
+            get { return AppContext; }
+        }
+
+        public abstract TSocketContext AppContext { get; }
 
         public SslProtocols SecureProtocol
         {
@@ -103,5 +109,13 @@ namespace SuperSocket.SocketServiceCore
         {
             SocketSession.SendResponse(Context, string.Format(message, paramValues));
         }
-    }    
+    }
+
+
+    public abstract class AppSession<T> : AppSession<T, SocketContext>
+        where T : IAppSession, new()
+    {
+
+
+    }
 }
