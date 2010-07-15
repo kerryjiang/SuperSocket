@@ -8,16 +8,9 @@ namespace EchoService
 {
     public class EchoSession : AppSession<EchoSession>
     {
-        private SocketContext m_Context;
-
         protected override void OnClosed()
         {
             
-        }
-
-        protected override void OnInit()
-        {
-            m_Context = new SocketContext();
         }
 
         public override void SayWelcome()
@@ -28,11 +21,6 @@ namespace EchoService
         public override void HandleExceptionalError(Exception e)
         {
             SendResponse("Server side error occurred!");
-        }
-
-        public override SocketContext Context
-        {
-            get { return m_Context; }
         }
     }
 }

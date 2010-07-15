@@ -31,7 +31,7 @@ namespace SuperSocket.SocketServiceCore
 
     public abstract class AppSession<T, TSocketContext> : IAppSession, IAppSession<T>
         where T : IAppSession, new()
-        where TSocketContext : SocketContext
+        where TSocketContext : SocketContext, new()
     {
         public IAppServer<T> AppServer { get; private set; }
 
@@ -56,7 +56,10 @@ namespace SuperSocket.SocketServiceCore
 
         protected abstract void OnClosed();
 
-        protected abstract void OnInit();
+        protected virtual void OnInit()
+        {
+            AppContext = new TSocketContext();
+        }
 
         public abstract void SayWelcome();
 
@@ -67,7 +70,7 @@ namespace SuperSocket.SocketServiceCore
             get { return AppContext; }
         }
 
-        public abstract TSocketContext AppContext { get; }
+        public TSocketContext AppContext { get; private set; }
 
         public SslProtocols SecureProtocol
         {
