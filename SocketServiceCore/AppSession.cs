@@ -42,6 +42,7 @@ namespace SuperSocket.SocketServiceCore
 
         public virtual void Initialize(IAppServer<T> appServer, ISocketSession socketSession)
         {
+            AppContext = new TSocketContext();
             AppServer = appServer;
             SocketSession = socketSession;
             SocketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(SocketSession_Closed);
@@ -58,7 +59,7 @@ namespace SuperSocket.SocketServiceCore
 
         protected virtual void OnInit()
         {
-            AppContext = new TSocketContext();
+
         }
 
         public abstract void SayWelcome();
