@@ -20,6 +20,7 @@ namespace SuperSocket.SocketServiceCore
         void ReceiveData(Stream storeSteram, int length);
         void ReceiveData(Stream storeSteram, byte[] endMark);
         void ApplySecureProtocol(SocketContext context);
+        Stream GetUnderlyStream();
         string SessionID { get; }
         DateTime LastActiveTime { get; }
         IPEndPoint LocalEndPoint { get; }

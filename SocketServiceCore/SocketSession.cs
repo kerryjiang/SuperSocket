@@ -159,6 +159,11 @@ namespace SuperSocket.SocketServiceCore
         public abstract void ReceiveData(Stream storeSteram, int length);
 
         public abstract void ReceiveData(Stream storeSteram, byte[] endMark);
+
+        public Stream GetUnderlyStream()
+        {
+            return new NetworkStream(Client);
+        }
     }
 
     public class SocketSessionClosedEventArgs : EventArgs
