@@ -45,7 +45,16 @@ namespace SuperSocket.SocketServiceCore
                 int bufferSize = Math.Max(AppServer.Config.ReceiveBufferSize, AppServer.Config.SendBufferSize);
 
                 m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber * 2, bufferSize);
-                m_BufferManager.InitBuffer();
+
+                try
+                {
+                    m_BufferManager.InitBuffer();
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
+                    return false;
+                }
 
                 m_ReadWritePool = new SocketAsyncEventArgsPool(AppServer.Config.MaxConnectionNumber);
 
