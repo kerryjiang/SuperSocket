@@ -52,11 +52,14 @@ namespace SuperSocket.SocketService
 
             SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
             if (!SocketServerManager.Initialize(serverConfig))
+            {
+                Console.WriteLine("Failed to initialize SuperSocket server! Please check error log for more information!");
                 return;
+            }
 
             if (!SocketServerManager.Start(serverConfig))
             {
-                Console.WriteLine("Failed to start SuperSocket server!");
+                Console.WriteLine("Failed to start SuperSocket server! Please check error log for more information!");
                 SocketServerManager.Stop();
                 return;
             }

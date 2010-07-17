@@ -77,6 +77,13 @@ namespace SuperSocket.SocketServiceCore
 
                 if (m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
                 {
+                    if (serviceType == null)
+                    {
+                        LogUtil.LogError(string.Format("The service {0} cannot be found in configuration!", serverConfig.ServiceName));
+                        LogUtil.LogError("Failed to start " + serverConfig.Name + " server!");                        
+                        return false;
+                    }
+
                     IRunable server = Activator.CreateInstance(serviceType) as IRunable;
                     if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig, config.ConsoleBaseAddress))
                     {
