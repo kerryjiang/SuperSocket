@@ -74,7 +74,7 @@ namespace SuperSocket.SocketServiceCore.Configuration
             get { return (int)this["sendTimeOut"]; }
         }
 
-        [ConfigurationProperty("maxConnectionNumber", IsRequired = false, DefaultValue = 1000000)]
+        [ConfigurationProperty("maxConnectionNumber", IsRequired = false, DefaultValue = 100)]
         public int MaxConnectionNumber
         {
             get { return (int)this["maxConnectionNumber"]; }
