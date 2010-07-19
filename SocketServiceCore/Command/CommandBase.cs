@@ -25,7 +25,7 @@ namespace SuperSocket.SocketServiceCore.Command
         public void ExecuteCommand(T session, CommandInfo commandData)
         {
             //Prepare parameters
-            m_CommandParameterParser.ParseCommandParameter(commandData);
+            commandData.InitializeParameters(m_CommandParameterParser.ParseCommandParameter(commandData));
             //Excute command
             Execute(session, commandData);
         }

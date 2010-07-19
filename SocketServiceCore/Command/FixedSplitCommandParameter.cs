@@ -16,7 +16,7 @@ namespace SuperSocket.SocketServiceCore.Command
 
         #region ICommandParameterParser Members
 
-        public void ParseCommandParameter(CommandInfo command)
+        public string[] ParseCommandParameter(CommandInfo command)
         { 
             int currentIndex = 0;
             int startPos = 0;
@@ -50,7 +50,7 @@ namespace SuperSocket.SocketServiceCore.Command
                 paramList.Add(command.Param.Substring(startPos));
             }
 
-            command.InitializeParameters(paramList.ToArray());
+            return paramList.ToArray();
         }
 
         #endregion

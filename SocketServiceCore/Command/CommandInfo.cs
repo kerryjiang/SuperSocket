@@ -24,7 +24,7 @@ namespace SuperSocket.SocketServiceCore.Command
 
         private bool m_ParametersInitialized = false;
 
-        public void InitializeParameters(string[] parameters)
+        internal void InitializeParameters(string[] parameters)
         {
             if (m_ParametersInitialized)
                 throw new Exception("Parameter array has been initialized, you shouldn't initialize it again!");

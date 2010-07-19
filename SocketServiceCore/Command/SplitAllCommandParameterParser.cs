@@ -9,10 +9,9 @@ namespace SuperSocket.SocketServiceCore.Command
     {
         #region ICommandParameterParser Members
 
-        public void ParseCommandParameter(CommandInfo command)
+        public string[] ParseCommandParameter(CommandInfo command)
         {
-            string[] arrParam = command.Param.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
-            command.InitializeParameters(arrParam);
+            return command.Param.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         #endregion
