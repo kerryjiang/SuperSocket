@@ -115,6 +115,9 @@ namespace SuperSocket.SocketServiceCore
                 return false;
             }
 
+            if (CommandParser == null)
+                CommandParser = new BasicCommandParser();
+
             if (string.IsNullOrEmpty(assembly))
                 return true;
 
@@ -158,10 +161,7 @@ namespace SuperSocket.SocketServiceCore
             {
                 LogUtil.LogError(e);
                 return false;
-            }
-
-            if (CommandParser == null)
-                CommandParser = new BasicCommandParser();
+            }            
 
             return true;
         }
