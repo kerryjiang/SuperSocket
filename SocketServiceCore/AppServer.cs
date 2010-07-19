@@ -188,7 +188,8 @@ namespace SuperSocket.SocketServiceCore
                     return false;
             }
 
-            SetupClearSessionTimer();
+            if(Config.ClearIdleSession)
+                SetupClearSessionTimer();
 
             if (!StartConsoleHost())
             {
@@ -231,8 +232,11 @@ namespace SuperSocket.SocketServiceCore
                 m_SocketServer.Stop();
             }
 
-            m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            m_ClearIdleSessionTimer.Dispose();
+            if (m_ClearIdleSessionTimer != null)
+            {
+                m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                m_ClearIdleSessionTimer.Dispose();
+            }
 
             m_SessionDict.Values.ToList().ForEach(s => s.Close());
 
@@ -321,7 +325,7 @@ namespace SuperSocket.SocketServiceCore
 
         private void SetupClearSessionTimer()
         {
-            int interval  = 60 * 1000;
+            int interval  = Config.ClearIdleSessionInterval * 1000;//in milliseconds
             m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
         }
 
@@ -334,7 +338,7 @@ namespace SuperSocket.SocketServiceCore
                     lock (m_SessionSyncRoot)
                     {
                         m_SessionDict.Values.Where(s =>
-                            DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalMinutes > 5)
+                            DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalMinutes > Config.IdleSessionTimeOut)
                             .ToList().ForEach(s => s.Close());
                     }
                 }

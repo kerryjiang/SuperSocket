@@ -92,10 +92,46 @@ namespace SuperSocket.SocketServiceCore.Configuration
             get { return (int)this["sendBufferSize"]; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether log command in log file.
+        /// </summary>
+        /// <value><c>true</c> if log command; otherwise, <c>false</c>.</value>
         [ConfigurationProperty("logCommand", IsRequired = false, DefaultValue = false)]
         public bool LogCommand
         {
             get { return (bool)this["logCommand"]; }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether clear idle session.
+        /// </summary>
+        /// <value><c>true</c> if clear idle session; otherwise, <c>false</c>.</value>
+        [ConfigurationProperty("clearIdleSession", IsRequired = false, DefaultValue = true)]
+        public bool ClearIdleSession
+        {
+            get { return (bool)this["clearIdleSession"]; }
+        }
+
+        /// <summary>
+        /// Gets the clear idle session interval, in seconds.
+        /// </summary>
+        /// <value>The clear idle session interval.</value>
+        [ConfigurationProperty("clearIdleSessionInterval", IsRequired = false, DefaultValue = 120)]
+        public int ClearIdleSessionInterval
+        {
+            get { return (int)this["clearIdleSessionInterval"]; }
+        }
+
+
+        /// <summary>
+        /// Gets the idle session timeout time length, in minutes.
+        /// </summary>
+        /// <value>The idle session time out.</value>
+        [ConfigurationProperty("idleSessionTimeOut", IsRequired = false, DefaultValue = 5)]
+        public int IdleSessionTimeOut
+        {
+            get { return (int)this["idleSessionTimeOut"]; }
+        }
+
     }
 }
