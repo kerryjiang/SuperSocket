@@ -7,11 +7,22 @@ namespace SuperSocket.SocketServiceCore.Command
 {
     public class BasicCommandParser : ICommandParser
     {
+        private string m_Spliter;
+
+        public BasicCommandParser() : this(" ")
+        {
+        }
+
+        public BasicCommandParser(string spliter)
+        {
+            m_Spliter = spliter;
+        }
+
         #region ICommandParser Members
 
         public CommandInfo ParseCommand(string command)
         {
-            int pos = command.IndexOf(' ');
+            int pos = command.IndexOf(m_Spliter);
 
             string name = string.Empty;
             string param = string.Empty;
