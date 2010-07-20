@@ -15,6 +15,12 @@ namespace SuperSocket.SocketServiceCore.Command
 
         }
 
+        public CommandBase(string spliter)
+            : this(new SplitAllCommandParameterParser(spliter))
+        {
+
+        }
+
         public CommandBase(ICommandParameterParser commandParameterParser)
         {
             m_CommandParameterParser = commandParameterParser;
