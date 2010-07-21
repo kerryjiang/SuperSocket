@@ -48,8 +48,6 @@ namespace SuperSocket.SocketService
 
         static void RunAsConsole()
         {
-            LogUtil.Setup(new ELLogger());
-
             SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
             if (!SocketServerManager.Initialize(serverConfig))
             {

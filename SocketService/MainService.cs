@@ -21,9 +21,6 @@ namespace SuperSocket.SocketService
 
         protected override void OnStart(string[] args)
         {
-            LogUtil.Setup(new ELLogger());
-            //LogUtil.Setup(new EventLogger());
-
             SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
             if (!SocketServerManager.Initialize(serverConfig))
                 return;
