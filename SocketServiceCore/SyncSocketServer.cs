@@ -58,7 +58,7 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                LogUtil.LogError(AppServer, e);
                 return false;
             }
         }
@@ -117,8 +117,8 @@ namespace SuperSocket.SocketServiceCore
                             return;
                     }
 
-                    LogUtil.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port);
-                    LogUtil.LogError(e);
+                    LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port);
+                    LogUtil.LogError(AppServer, e);
                     return;
                 }
 

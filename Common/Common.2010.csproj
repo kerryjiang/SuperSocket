@@ -15,7 +15,7 @@
     <OldToolsVersion>3.5</OldToolsVersion>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>    
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -62,6 +62,7 @@
     </Compile>
     <Compile Include="AssemblyUtil.cs" />
     <Compile Include="Base64Util.cs" />
+    <Compile Include="DynamicELLogger.cs" />
     <Compile Include="ELLogger.cs" />
     <Compile Include="EventLogger.cs" />
     <Compile Include="FileHelper.cs" />

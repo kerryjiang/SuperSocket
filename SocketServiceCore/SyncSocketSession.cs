@@ -52,7 +52,7 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(e);
+                    LogUtil.LogError(AppServer, e);
                     HandleExceptionalError(e);
                 }
             }
@@ -119,7 +119,7 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                LogUtil.LogError(AppServer, e);
                 this.Close();
                 return false;
             }
@@ -151,7 +151,7 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                LogUtil.LogError(AppServer, e);
                 this.Close();
             }
         }
@@ -167,7 +167,7 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                LogUtil.LogError(AppServer, e);
                 this.Close();
             }
         }

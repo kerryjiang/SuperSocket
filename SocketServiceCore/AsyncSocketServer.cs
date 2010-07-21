@@ -52,7 +52,7 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
+                    LogUtil.LogError(AppServer, "Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
                     return false;
                 }
 
@@ -82,7 +82,7 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                LogUtil.LogError(AppServer, e);
                 return false;
             }
         }
@@ -117,7 +117,7 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError("Failed to accept new tcp client in async server!", e);
+                    LogUtil.LogError(AppServer, "Failed to accept new tcp client in async server!", e);
                     return;
                 }
 
@@ -136,18 +136,25 @@ namespace SuperSocket.SocketServiceCore
 
         void AceptNewClient(SocketAsyncEventArgs e)
         {
-            //Get the socket for the accepted client connection and put it into the 
-            //ReadEventArg object user token
-            SocketAsyncEventArgsProxy socketEventArgsProxy = m_ReadWritePool.Pop();
-            socketEventArgsProxy.Socket = e.AcceptSocket;
+            if (e.SocketError == SocketError.Success)
+            {
+                //Get the socket for the accepted client connection and put it into the 
+                //ReadEventArg object user token
+                SocketAsyncEventArgsProxy socketEventArgsProxy = m_ReadWritePool.Pop();
+                socketEventArgsProxy.Socket = e.AcceptSocket;
 
-            TSocketSession session = RegisterSession(e.AcceptSocket);
-            session.SocketAsyncProxy = socketEventArgsProxy;
-            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                TSocketSession session = RegisterSession(e.AcceptSocket);
+                session.SocketAsyncProxy = socketEventArgsProxy;
+                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 
-            m_TcpClientConnected.Set();
+                m_TcpClientConnected.Set();
 
-            session.Start();
+                session.Start();
+            }
+            else
+            {
+                m_TcpClientConnected.Set();
+            }
         }
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)

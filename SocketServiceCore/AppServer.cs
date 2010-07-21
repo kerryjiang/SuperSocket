@@ -15,7 +15,7 @@ using System.ServiceModel.Channels;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public interface IAppServer<T> : IRunable<T>, ICommandSource<T>
+    public interface IAppServer<T> : IRunable<T>, ICommandSource<T>, ILogApp
          where T : IAppSession, new()
     {
         IServerConfig Config { get; }
@@ -104,14 +104,14 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch(Exception e)
                 {
-                    LogUtil.LogError("Invalid config ip/port", e);
+                    LogUtil.LogError(this, "Invalid config ip/port", e);
                     return false;
                 }
             }
 
             if (m_LocalEndPoint == null)
             {
-                LogUtil.LogError("Config ip/port is missing!");
+                LogUtil.LogError(this, "Config ip/port is missing!");
                 return false;
             }
 
@@ -145,7 +145,7 @@ namespace SuperSocket.SocketServiceCore
                         }
                         else
                         {
-                            LogUtil.LogError("Failed to initalize provider " + arrType[i].ToString() + "!");
+                            LogUtil.LogError(this, "Failed to initalize provider " + arrType[i].ToString() + "!");
                             return false;
                         }
                     }
@@ -153,13 +153,13 @@ namespace SuperSocket.SocketServiceCore
 
                 if (!IsReady)
                 {
-                    LogUtil.LogError("Failed to load service provider from assembly:" + assemblyFile);
+                    LogUtil.LogError(this, "Failed to load service provider from assembly:" + assemblyFile);
                     return false;
                 }
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                LogUtil.LogError(this, e);
                 return false;
             }            
 
@@ -193,7 +193,7 @@ namespace SuperSocket.SocketServiceCore
 
             if (!StartConsoleHost())
             {
-                LogUtil.LogError("Failed to start console service host for " + Name);
+                LogUtil.LogError(this, "Failed to start console service host for " + Name);
                 Stop();
                 return false;
             }
@@ -219,7 +219,7 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                LogUtil.LogError(this, e);
                 m_ConsoleHost = null;
                 return false;
             }
@@ -248,7 +248,7 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError("Failed to close console service host for " + Name, e);
+                    LogUtil.LogError(this, "Failed to close console service host for " + Name, e);
                 }
                 finally
                 {
@@ -313,11 +313,11 @@ namespace SuperSocket.SocketServiceCore
                 {
                     m_SessionDict.Remove(sessionID);
                 }
-                LogUtil.LogInfo("SocketSession " + sessionID + " was closed!");
+                LogUtil.LogInfo(this, "SocketSession " + sessionID + " was closed!");
             }
             catch (Exception exc)
             {
-                LogUtil.LogError(exc);
+                LogUtil.LogError(this, exc);
             }
         }
 
@@ -344,7 +344,7 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError("Clear idle session error!", e);
+                    LogUtil.LogError(this, "Clear idle session error!", e);
                 }
             }
         }

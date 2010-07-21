@@ -67,7 +67,7 @@ namespace SuperSocket.SocketServiceCore
             TSocketSession session = new TSocketSession();
             TAppSession appSession = this.AppServer.CreateAppSession(session);
             session.Initialize(this.AppServer, appSession, client);
-            LogUtil.LogInfo("SocketSession " + appSession.SessionID + " was accepted!");
+            LogUtil.LogInfo(AppServer, "SocketSession " + appSession.SessionID + " was accepted!");
             return session;
         }
 

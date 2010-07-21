@@ -141,7 +141,7 @@ namespace SuperSocket.SocketServiceCore
                     }
                     catch (Exception exc)
                     {
-                        LogUtil.LogError(exc);
+                        LogUtil.LogError(AppServer, exc);
                         HandleExceptionalError(exc);
                     }
                     //read the next block of data send from the client

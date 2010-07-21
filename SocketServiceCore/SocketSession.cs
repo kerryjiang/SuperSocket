@@ -8,13 +8,14 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Config;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketServiceCore
 {
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    public abstract class SocketSession<T> : SocketSessionBase, ISocketSession<T>
+    public abstract class SocketSession<T> : ISocketSession<T>
         where T : IAppSession, new()
     {
         public IAppServer<T> AppServer { get; private set; }
@@ -109,7 +110,7 @@ namespace SuperSocket.SocketServiceCore
                 AppSession.Context.PrevCommand = cmdInfo.Name;
                 LastActiveTime = DateTime.Now;
                 if (AppServer.Config.LogCommand)
-                    LogUtil.LogInfo(string.Format("Command - {0} - {1}", SessionID, cmdInfo.Name));
+                    LogUtil.LogInfo(AppServer, string.Format("Command - {0} - {1}", SessionID, cmdInfo.Name));
             }
         }
 
@@ -124,20 +125,13 @@ namespace SuperSocket.SocketServiceCore
         /// <summary>
         /// Called when [close].
         /// </summary>
-        protected override void OnClose()
+        protected virtual void OnClose()
         {
+            m_IsClosed = true;
+
             var closedHandler = Closed;
             if (closedHandler != null)
-            {
                 closedHandler(this, new SocketSessionClosedEventArgs { SessionID = this.SessionID });
-            }
-
-            base.OnClose();
-        }
-
-        public override void Close()
-        {
-            base.Close();
         }
 
         /// <summary>
@@ -163,6 +157,90 @@ namespace SuperSocket.SocketServiceCore
         public Stream GetUnderlyStream()
         {
             return new NetworkStream(Client);
+        }
+
+        /// <summary>
+        /// Gets or sets the client.
+        /// </summary>
+        /// <value>The client.</value>
+        public Socket Client { get; set; }
+
+        private bool m_IsClosed = false;
+
+        protected bool IsClosed
+        {
+            get { return m_IsClosed; }
+        }
+
+        /// <summary>
+        /// Gets the local end point.
+        /// </summary>
+        /// <value>The local end point.</value>
+        public IPEndPoint LocalEndPoint
+        {
+            get { return (IPEndPoint)Client.LocalEndPoint; }
+        }
+
+        /// <summary>
+        /// Gets the remote end point.
+        /// </summary>
+        /// <value>The remote end point.</value>
+        public IPEndPoint RemoteEndPoint
+        {
+            get { return (IPEndPoint)Client.RemoteEndPoint; }
+        }
+
+        /// <summary>
+        /// Gets or sets the secure protocol.
+        /// </summary>
+        /// <value>The secure protocol.</value>
+        public SslProtocols SecureProtocol { get; set; }
+
+        /// <summary>
+        /// Closes this connection.
+        /// </summary>
+        public virtual void Close()
+        {
+            if (Client != null && !m_IsClosed)
+            {
+                try
+                {
+                    Client.Shutdown(SocketShutdown.Both);
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError(AppServer, e);
+                }
+
+                try
+                {
+                    Client.Close();
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError(AppServer, e);
+                }
+                finally
+                {
+                    Client = null;
+                    m_IsClosed = true;
+                    OnClose();
+                }
+            }
+        }
+
+        protected bool EndsWith(byte[] buffer, int offset, int length, byte[] endData)
+        {
+            if (length < endData.Length)
+                return false;
+
+            for (int i = 1; i <= endData.Length; i++)
+            {
+                if (endData[endData.Length - i] != buffer[offset + length - i])
+                    return false;
+            }
+
+            return true;
         }
     }
 
