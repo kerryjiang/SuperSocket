@@ -97,7 +97,6 @@
     <Compile Include="SocketManagerPasswordValidator.cs" />
     <Compile Include="AppServer.cs" />
     <Compile Include="SocketMode.cs" />
-    <Compile Include="SocketSessionBase.cs" />
     <Compile Include="SyncSocketServer.cs" />
     <Compile Include="SocketServerBase.cs" />
     <Compile Include="SocketServerManager.cs" />
