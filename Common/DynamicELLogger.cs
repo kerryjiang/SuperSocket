@@ -177,6 +177,22 @@ namespace SuperSocket.Common
             m_Writer.Write(entry);
         }
 
+        public void LogPerf(string message)
+        {
+            LogEntry entry = new LogEntry();
+            entry.Message = message;
+            entry.Categories.Add("Perf");
+            m_Writer.Write(entry);
+        }
+
+        public void LogPerf(ILogApp app, string message)
+        {
+            LogEntry entry = new LogEntry();
+            entry.Message = message;
+            entry.Categories.Add(app.Name + ".Perf");
+            m_Writer.Write(entry);
+        }
+
         #endregion
     }
 }

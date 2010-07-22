@@ -57,6 +57,16 @@ namespace SuperSocket.Common
             EventLog.WriteEntry("SuperSocket." + app.Name, message, EventLogEntryType.Information);
         }
 
+        public void LogPerf(string message)
+        {
+            EventLog.WriteEntry("SuperSocket", message, EventLogEntryType.Information);
+        }
+
+        public void LogPerf(ILogApp app, string message)
+        {
+            EventLog.WriteEntry("SuperSocket." + app.Name, message, EventLogEntryType.Information);
+        }
+
         #endregion
     }
 }

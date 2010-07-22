@@ -25,6 +25,10 @@ namespace SuperSocket.Common
         void LogInfo(string message);
 
         void LogInfo(ILogApp app, string message);
+
+        void LogPerf(string message);
+
+        void LogPerf(ILogApp app, string message);
     }
 
     public interface ILogApp

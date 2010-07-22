@@ -125,6 +125,22 @@ namespace SuperSocket.Common
             Logger.Write(entry);
         }
 
+        public void LogPerf(string message)
+        {
+            LogEntry entry = new LogEntry();
+            entry.Message = message;
+            entry.Categories.Add("Perf");
+            Logger.Write(entry);
+        }
+
+        public void LogPerf(ILogApp app, string message)
+        {
+            LogEntry entry = new LogEntry();
+            entry.Message = app.Name + " - " + message;
+            entry.Categories.Add("Perf");
+            Logger.Write(entry);
+        }
+
         #endregion
     }
 }
