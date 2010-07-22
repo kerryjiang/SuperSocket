@@ -31,8 +31,10 @@ namespace SuperSocket.SocketServiceCore
         {
             m_Config = config;
 
-            //LogUtil.Setup(new ELLogger());
-            LogUtil.Setup(new DynamicELLogger("Logs", m_Config.GetServerList().Select(s => s.Name)));
+            if(!config.IndependentLogger)
+                LogUtil.Setup(new ELLogger());
+            else
+                LogUtil.Setup(new DynamicELLogger("Logs", m_Config.GetServerList().Select(s => s.Name)));
 
             List<IServiceConfig> serviceList = config.GetServiceList();
 

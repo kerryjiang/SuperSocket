@@ -13,5 +13,7 @@ namespace SuperSocket.SocketServiceCore.Config
         ICredentialConfig CredentialConfig { get; }
 
         string ConsoleBaseAddress { get; }
+
+        bool IndependentLogger { get; }
     }
 }

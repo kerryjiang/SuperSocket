@@ -54,6 +54,15 @@ namespace SuperSocket.SocketServiceCore.Configuration
             }
         }
 
+        [ConfigurationProperty("independentLogger", IsRequired = false, DefaultValue = false)]
+        public bool IndependentLogger
+        {
+            get
+            {
+                return (bool)this["independentLogger"];
+            }
+        }
+
         #region IConfig Members
 
         public List<IServerConfig> GetServerList()
