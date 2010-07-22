@@ -9,7 +9,7 @@ namespace SuperSocket.SocketServiceCore
     /// <summary>
     /// The base class of the service provider
     /// </summary>
-    public abstract class ProviderBase
+    public abstract class ProviderBase<T> where T : IAppSession, new()
     {
         /// <summary>
         /// Gets the provider name.
@@ -24,13 +24,16 @@ namespace SuperSocket.SocketServiceCore
             get { return m_Config; }
         }
 
+        public IAppServer<T> AppServer { get; private set; }
+
         /// <summary>
         /// Initialize a provider from a config
         /// </summary>
         /// <param name="config">The config.</param>
         /// <returns></returns>
-        public virtual bool Init(IServerConfig config)
+        public virtual bool Init(IAppServer<T> server, IServerConfig config)
         {
+            this.AppServer = server;
             this.m_Config = config;
             return true;
         }

@@ -78,9 +78,9 @@ namespace SuperSocket.SocketServiceCore
             }
 
             return host;
-        }        
+        }
 
-        private Dictionary<string, ProviderBase> m_ProviderDict = new Dictionary<string, ProviderBase>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, ProviderBase<T>> m_ProviderDict = new Dictionary<string, ProviderBase<T>>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Setups the specified factory.
@@ -127,7 +127,7 @@ namespace SuperSocket.SocketServiceCore
 
             try
             {
-                Type typeProvider = typeof(ProviderBase);
+                Type typeProvider = typeof(ProviderBase<T>);
 
                 Assembly ass = Assembly.LoadFrom(assemblyFile);
 
@@ -138,8 +138,8 @@ namespace SuperSocket.SocketServiceCore
                     //Must be a seal class
                     if (arrType[i].IsSubclassOf(typeProvider))
                     {
-                        ProviderBase provider = ass.CreateInstance(arrType[i].ToString()) as ProviderBase;
-                        if (provider.Init(config))
+                        ProviderBase<T> provider = ass.CreateInstance(arrType[i].ToString()) as ProviderBase<T>;
+                        if (provider.Init(this, config))
                         {
                             m_ProviderDict[provider.Name] = provider;
                         }
@@ -262,9 +262,9 @@ namespace SuperSocket.SocketServiceCore
         /// </summary>
         /// <param name="providerName">Name of the provider.</param>
         /// <returns></returns>
-        protected ProviderBase GetProviderByName(string providerName)
+        protected ProviderBase<T> GetProviderByName(string providerName)
         {
-            ProviderBase provider = null;
+            ProviderBase<T> provider = null;
 
             if (m_ProviderDict.TryGetValue(providerName, out provider))
             {
