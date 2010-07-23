@@ -15,7 +15,7 @@ using System.ServiceModel.Channels;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public interface IAppServer<T> : IRunable<T>, ICommandSource<T>, ILogApp
+    public interface IAppServer<T> : IRunable<T>, ICommandSource<T>
          where T : IAppSession, new()
     {
         IServerConfig Config { get; }

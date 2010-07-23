@@ -3,20 +3,15 @@ using System.Collections.Generic;
 using System.ServiceModel.Description;
 using System.Text;
 using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketServiceCore
 {
     /// <summary>
     /// Define the behavior of runable object
     /// </summary>
-    public interface IRunable
+    public interface IRunable : ILogApp
     {
-        /// <summary>
-        /// Gets or sets the name.
-        /// </summary>
-        /// <value>The name.</value>
-        string Name { get; }
-
         ServiceCredentials ServerCredentials { get; set; }
         /// <summary>
         /// Setups the specified config.
