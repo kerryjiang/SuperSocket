@@ -33,11 +33,13 @@ namespace SuperSocket.SocketServiceCore
 
         public virtual ICommandParser CommandParser { get; protected set; }
 
+        public virtual ICommandParameterParser CommandParameterParser { get; protected set; }
+
         private string m_ConsoleBaseAddress;
 
         public AppServer()
         {
-            LoadCommands();
+            
         }
 
         public ServiceCredentials ServerCredentials { get; set; }
@@ -54,16 +56,15 @@ namespace SuperSocket.SocketServiceCore
 
             for (int i = 0; i < arrType.Length; i++)
             {
-                //LogUtil.LogInfo(arrType[i].ToString() + "\r\n");
                 var commandInterface = arrType[i].GetInterfaces().SingleOrDefault(x => x == commandType);
 
                 if (commandInterface != null)
                 {
-                    //LogUtil.LogInfo(arrInterface[j].ToString() + ":" + commandType.ToString());
-                    dictCommand[arrType[i].Name] = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
+                    ICommand<T> command = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
+                    command.DefaultParameterParser = CommandParameterParser;
+                    dictCommand[arrType[i].Name] = command;
                 }
             }
-            //LogUtil.LogInfo("Load " + dictCommand.Count + " commands from " + arrType.Length + " types!");
         }
 
         private ServiceHost CreateConsoleHost(ConsoleHostInfo consoleInfo)
@@ -117,6 +118,11 @@ namespace SuperSocket.SocketServiceCore
 
             if (CommandParser == null)
                 CommandParser = new BasicCommandParser();
+
+            if (CommandParameterParser == null)
+                CommandParameterParser = new SplitAllCommandParameterParser();
+
+            LoadCommands();
 
             if (string.IsNullOrEmpty(assembly))
                 return true;

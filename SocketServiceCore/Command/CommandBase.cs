@@ -10,7 +10,6 @@ namespace SuperSocket.SocketServiceCore.Command
         private readonly ICommandParameterParser m_CommandParameterParser;
 
         public CommandBase()
-            : this(new SplitAllCommandParameterParser())
         {
 
         }
@@ -31,10 +30,15 @@ namespace SuperSocket.SocketServiceCore.Command
         public void ExecuteCommand(T session, CommandInfo commandData)
         {
             //Prepare parameters
-            commandData.InitializeParameters(m_CommandParameterParser.ParseCommandParameter(commandData));
+            if (m_CommandParameterParser != null)           
+                commandData.InitializeParameters(m_CommandParameterParser.ParseCommandParameter(commandData));
+            else
+                commandData.InitializeParameters(DefaultParameterParser.ParseCommandParameter(commandData));
             //Excute command
             Execute(session, commandData);
         }
+
+        public ICommandParameterParser DefaultParameterParser { get; set; }
 
         #endregion
 
