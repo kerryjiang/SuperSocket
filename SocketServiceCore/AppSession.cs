@@ -29,7 +29,7 @@ namespace SuperSocket.SocketServiceCore
         //IAppServer<T> AppServer { get; }
     }
 
-    public abstract class AppSession<TAppServer, TAppSession, TSocketContext> : IAppSession, IAppSession<TAppSession>
+    public abstract class AppSession<TAppSession, TAppServer, TSocketContext> : IAppSession, IAppSession<TAppSession>
         where TAppServer : AppServer<TAppSession>
         where TAppSession : IAppSession, IAppSession<TAppSession>, new()
         where TSocketContext : SocketContext, new()
@@ -116,14 +116,14 @@ namespace SuperSocket.SocketServiceCore
         }
     }
 
-    public abstract class AppSession<TAppSession, TSocketContext> : AppSession<AppServer<TAppSession>, TAppSession, TSocketContext>
+    public abstract class AppSession<TAppSession, TAppServer> : AppSession<TAppSession, TAppServer, SocketContext>
+        where TAppServer : AppServer<TAppSession>
         where TAppSession : IAppSession, IAppSession<TAppSession>, new()
-        where TSocketContext : SocketContext, new()
     {
 
     }
 
-    public abstract class AppSession<TAppSession> : AppSession<TAppSession, SocketContext>
+    public abstract class AppSession<TAppSession> : AppSession<TAppSession, AppServer<TAppSession>, SocketContext>
         where TAppSession : IAppSession, IAppSession<TAppSession>, new()
     {
 
