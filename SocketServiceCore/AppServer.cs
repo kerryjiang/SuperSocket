@@ -21,6 +21,7 @@ namespace SuperSocket.SocketServiceCore
         IServerConfig Config { get; }
         ICommandParser CommandParser { get; }
         T CreateAppSession(ISocketSession socketSession);
+        void RegisterNewAppSession(T session);
     }
 
     public abstract class AppServer<T> : IAppServer<T> where T : IAppSession, IAppSession<T>, new()
@@ -302,14 +303,12 @@ namespace SuperSocket.SocketServiceCore
                 m_SessionDict[appSession.SessionID] = appSession;
             }
 
-            RegisterNewAppSession(appSession);
-
             return appSession;
         }
 
-        protected virtual void RegisterNewAppSession(T session)
+        public virtual void RegisterNewAppSession(T session)
         {
-
+            throw new NotSupportedException();
         }
 
         void socketSession_Closed(object sender, SocketSessionClosedEventArgs e)
