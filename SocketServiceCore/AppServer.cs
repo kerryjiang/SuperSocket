@@ -302,7 +302,14 @@ namespace SuperSocket.SocketServiceCore
                 m_SessionDict[appSession.SessionID] = appSession;
             }
 
+            RegisterNewAppSession(appSession);
+
             return appSession;
+        }
+
+        protected virtual void RegisterNewAppSession(T session)
+        {
+
         }
 
         void socketSession_Closed(object sender, SocketSessionClosedEventArgs e)
