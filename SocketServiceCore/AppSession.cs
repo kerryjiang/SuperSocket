@@ -26,24 +26,25 @@ namespace SuperSocket.SocketServiceCore
         where T : IAppSession, new()
     {
         void Initialize(IAppServer<T> server, ISocketSession socketSession);
-        IAppServer<T> AppServer { get; }
+        //IAppServer<T> AppServer { get; }
     }
 
-    public abstract class AppSession<T, TSocketContext> : IAppSession, IAppSession<T>
-        where T : IAppSession, new()
+    public abstract class AppSession<TAppServer, TAppSession, TSocketContext> : IAppSession, IAppSession<TAppSession>
+        where TAppServer : AppServer<TAppSession>
+        where TAppSession : IAppSession, IAppSession<TAppSession>, new()
         where TSocketContext : SocketContext, new()
     {
-        public IAppServer<T> AppServer { get; private set; }
+        public TAppServer AppServer { get; private set; }
 
         public AppSession()
         {
             SessionID = Guid.NewGuid().ToString(); 
         }
 
-        public virtual void Initialize(IAppServer<T> appServer, ISocketSession socketSession)
+        public virtual void Initialize(IAppServer<TAppSession> appServer, ISocketSession socketSession)
         {
             AppContext = new TSocketContext();
-            AppServer = appServer;
+            AppServer = appServer as TAppServer;
             SocketSession = socketSession;
             SocketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(SocketSession_Closed);
             SessionID = socketSession.SessionID;
@@ -115,11 +116,16 @@ namespace SuperSocket.SocketServiceCore
         }
     }
 
-
-    public abstract class AppSession<T> : AppSession<T, SocketContext>
-        where T : IAppSession, new()
+    public abstract class AppSession<TAppSession, TSocketContext> : AppSession<AppServer<TAppSession>, TAppSession, TSocketContext>
+        where TAppSession : IAppSession, IAppSession<TAppSession>, new()
+        where TSocketContext : SocketContext, new()
     {
 
+    }
+
+    public abstract class AppSession<TAppSession> : AppSession<TAppSession, SocketContext>
+        where TAppSession : IAppSession, IAppSession<TAppSession>, new()
+    {
 
     }
 }
