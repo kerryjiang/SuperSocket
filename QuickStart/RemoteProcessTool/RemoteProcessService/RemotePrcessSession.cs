@@ -6,7 +6,7 @@ using SuperSocket.SocketServiceCore;
 
 namespace RemoteProcessService
 {
-    public class RemotePrcessSession : AppSession<RemotePrcessSession>
+    public class RemotePrcessSession : AppSession<RemotePrcessSession, RemoteProcessServer>
     {
         protected override void OnClosed()
         {
@@ -21,11 +21,6 @@ namespace RemoteProcessService
         public override void HandleExceptionalError(Exception e)
         {
             SendResponse("An error has occurred in server side! Error message: " + e.Message + "!");
-        }
-
-        public RemoteProcessServer CurrentServer
-        {
-            get { return this.AppServer as RemoteProcessServer; }
         }
     }
 }

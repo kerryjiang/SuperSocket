@@ -12,7 +12,7 @@ namespace RemoteProcessService.Command
 
         protected override void Execute(RemotePrcessSession session, CommandInfo commandData)
         {
-            var server = session.CurrentServer;
+            var server = session.AppServer;
 
             string firstParam = commandData.GetFirstParam();
 
