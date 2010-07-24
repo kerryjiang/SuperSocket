@@ -117,6 +117,11 @@ namespace SuperSocket.SocketServiceCore
             {
                 command = m_Reader.ReadLine();
             }
+            catch (ObjectDisposedException)
+            {
+                this.Close();
+                return false;
+            }
             catch (Exception e)
             {
                 LogUtil.LogError(AppServer, e);
