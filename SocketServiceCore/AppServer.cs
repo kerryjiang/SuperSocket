@@ -138,7 +138,7 @@ namespace SuperSocket.SocketServiceCore
 
                 Assembly ass = Assembly.LoadFrom(assemblyFile);
 
-                Type[] arrType = ass.GetTypes();
+                Type[] arrType = ass.GetExportedTypes();
 
                 for (int i = 0; arrType != null && i < arrType.Length; i++)
                 {
