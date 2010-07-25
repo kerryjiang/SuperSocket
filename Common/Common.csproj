@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="AssemblyUtil.cs" />
     <Compile Include="Base64Util.cs" />
+    <Compile Include="ConsoleLogger.cs" />
     <Compile Include="DynamicELLogger.cs" />
     <Compile Include="ELLogger.cs" />
     <Compile Include="EventLogger.cs" />
