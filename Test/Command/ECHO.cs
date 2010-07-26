@@ -6,7 +6,7 @@ using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.Test.Command
 {
-    class ECHO : CommandBase<TestSession>
+    public class ECHO : CommandBase<TestSession>
     {
         protected override void Execute(TestSession session, CommandInfo commandData)
         {

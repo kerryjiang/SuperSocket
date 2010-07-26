@@ -6,7 +6,7 @@ using SuperSocket.SocketServiceCore;
 
 namespace SuperSocket.Test
 {
-    class TestServer : AppServer<TestSession>
+    public class TestServer : AppServer<TestSession>
     {
 
     }

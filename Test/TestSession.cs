@@ -6,7 +6,7 @@ using SuperSocket.SocketServiceCore;
 
 namespace SuperSocket.Test
 {
-    class TestSession : AppSession<TestSession>
+    public class TestSession : AppSession<TestSession>
     {
         public const string WelcomeMessageFormat = "Welcome to {0}";
 
