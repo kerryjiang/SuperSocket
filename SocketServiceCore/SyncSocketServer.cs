@@ -101,9 +101,12 @@ namespace SuperSocket.SocketServiceCore
                     m_MaxConnectionSemaphore.WaitOne();
                     client = m_ListenSocket.Accept();
                 }
-                catch (ObjectDisposedException)
+                catch (ObjectDisposedException)    
                 {
-                    //Do nothing
+                    return;
+                }
+                catch (NullReferenceException)
+                {
                     return;
                 }
                 catch (Exception e)

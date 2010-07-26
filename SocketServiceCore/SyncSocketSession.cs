@@ -40,8 +40,7 @@ namespace SuperSocket.SocketServiceCore
 
                     if (Client == null && !IsClosed)
                     {
-                        //Has been closed
-                        OnClose();
+                        Close();
                         return;
                     }
                 }
@@ -57,13 +56,9 @@ namespace SuperSocket.SocketServiceCore
                 }
             }
 
-            if (Client != null)
+            if (Client != null && !IsClosed)
             {
                 Close();
-            }
-            else if (!IsClosed)
-            {
-                OnClose();
             }
         }
 
@@ -119,6 +114,31 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (ObjectDisposedException)
             {
+                this.Close();
+                return false;
+            }
+            catch (IOException ioe)
+            {
+                if (ioe.InnerException != null)
+                {
+                    if (ioe.InnerException is SocketException)
+                    {
+                        var se = ioe.InnerException as SocketException;
+                        if (se.ErrorCode == 10004)
+                        {
+                            this.Close();
+                            return false;
+                        }
+                    }
+
+                    if (ioe.InnerException is ObjectDisposedException)
+                    {
+                        this.Close();
+                        return false;
+                    }
+                }
+
+                LogUtil.LogError(AppServer, ioe);
                 this.Close();
                 return false;
             }
