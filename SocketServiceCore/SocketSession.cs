@@ -19,7 +19,10 @@ namespace SuperSocket.SocketServiceCore
         where T : IAppSession, new()
     {
         public IAppServer<T> AppServer { get; private set; }
+
         public T AppSession { get; private set; }
+
+        protected readonly object SyncRoot = new object();
 
         public SocketSession()
         {
@@ -127,8 +130,6 @@ namespace SuperSocket.SocketServiceCore
         /// </summary>
         protected virtual void OnClose()
         {
-            m_IsClosed = true;
-
             var closedHandler = Closed;
             if (closedHandler != null)
                 closedHandler(this, new SocketSessionClosedEventArgs { SessionID = this.SessionID });
@@ -201,11 +202,20 @@ namespace SuperSocket.SocketServiceCore
         /// </summary>
         public virtual void Close()
         {
-            if (Client != null && !m_IsClosed)
+            if (Client == null && m_IsClosed)
+                return;
+
+            lock (SyncRoot)
             {
+                if (Client == null && m_IsClosed)
+                    return;
+
                 try
                 {
                     Client.Shutdown(SocketShutdown.Both);
+                }
+                catch (ObjectDisposedException)
+                {
                 }
                 catch (Exception e)
                 {
@@ -214,7 +224,11 @@ namespace SuperSocket.SocketServiceCore
 
                 try
                 {
-                    Client.Close();
+                    if (Client != null)
+                        Client.Close();
+                }
+                catch (ObjectDisposedException)
+                {
                 }
                 catch (Exception e)
                 {
