@@ -44,6 +44,9 @@ namespace SuperSocket.SocketServiceCore
 
                 int bufferSize = Math.Max(AppServer.Config.ReceiveBufferSize, AppServer.Config.SendBufferSize);
 
+                if (bufferSize <= 0)
+                    bufferSize = 1024 * 8;
+
                 m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber * 2, bufferSize);
 
                 try
