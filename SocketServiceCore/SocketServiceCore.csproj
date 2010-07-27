@@ -84,6 +84,7 @@
     <Compile Include="Config\IGetCerticateConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
+    <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
     <Compile Include="CreateUserResult.cs" />
     <Compile Include="GlobalAssemblyInfo.cs" />
