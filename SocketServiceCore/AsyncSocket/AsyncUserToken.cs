@@ -37,5 +37,7 @@ namespace SuperSocket.SocketServiceCore
         public IAsyncSocketSession SocketSession { get; set; }
 
         public List<Byte> ReceiveBuffer { get; set; }
+
+        public SearhMarkResult CommandSearchResult { get; set; }
     }
 }
