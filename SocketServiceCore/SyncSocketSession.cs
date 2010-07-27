@@ -21,9 +21,22 @@ namespace SuperSocket.SocketServiceCore
         /// <param name="context">The context.</param>
         protected override void Start(SocketContext context)
         {
+            //Hasn't started, but already closed
+            if (IsClosed)
+                return;
+        
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
-            InitStream(context);
+            try
+            {
+                InitStream(context);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(AppServer, e);
+                Close();
+                return;
+            }
 
             SayWelcome();
 
@@ -176,7 +189,17 @@ namespace SuperSocket.SocketServiceCore
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                if (e.InnerException != null)
+                {
+                    SocketException se = e.InnerException as SocketException;
+                    if (se != null && se.ErrorCode == 10054)
+                    {
+                        this.Close();
+                        return;
+                    }
+                }
+
+                LogUtil.LogError(AppServer, e.GetType().ToString());
                 this.Close();
             }
         }

@@ -27,14 +27,12 @@ namespace SuperSocket.SocketServiceCore
 
         private void StartReceive(SocketAsyncEventArgs e)
         {
-            if (Client == null || !Client.Connected)
-                return;
-
             var socketContext = ((AsyncUserToken)e.UserToken).SocketContext;
 
-            //LogUtil.LogDebug("Try to acquire receive lock after command " + socketContext.PrevCommand);
             m_SendReceiveResetEvent.WaitOne();
-            //LogUtil.LogDebug("Acquired receive lock after command " + socketContext.PrevCommand);
+
+            if (IsClosed)
+                return;
 
             bool willRaiseEvent = Client.ReceiveAsync(e);
             if (!willRaiseEvent)
@@ -48,9 +46,10 @@ namespace SuperSocket.SocketServiceCore
             if (string.IsNullOrEmpty(message))
                 return;
 
-            //LogUtil.LogDebug("Try to acquire receive lock after command " + context.CurrentCommand);
             m_SendReceiveResetEvent.WaitOne();
-            //LogUtil.LogDebug("Acquired receive lock after command " + context.CurrentCommand);
+
+            if (IsClosed)
+                return;
 
             if (!message.EndsWith(Environment.NewLine))
                 message = message + Environment.NewLine;
@@ -217,7 +216,7 @@ namespace SuperSocket.SocketServiceCore
 
         public override void Close()
         {
-            if (Client != null && Client.Connected)
+            if (!IsClosed)
             {
                 SocketAsyncProxy.Reset();
                 base.Close();

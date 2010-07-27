@@ -65,6 +65,8 @@ namespace SuperSocket.SocketServiceCore.AsyncSocket
             token.Socket = null;
             token.SocketSession = null;
             token.SocketContext = null;
+            token.ReceiveBuffer = null;
+            token.SendBuffer = new byte[0];
         }
     }
 }

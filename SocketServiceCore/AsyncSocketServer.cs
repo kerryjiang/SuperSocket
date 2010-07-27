@@ -127,8 +127,8 @@ namespace SuperSocket.SocketServiceCore
                 if (!willRaiseEvent)
                     AceptNewClient(acceptEventArg);
 
+                m_MaxConnectionSemaphore.WaitOne();
                 m_TcpClientConnected.WaitOne();
-                m_MaxConnectionSemaphore.WaitOne();//two wait one here?
             }
         }
 
