@@ -37,16 +37,6 @@ namespace SuperSocket.SocketServiceCore
             EndPoint = localEndPoint;
         }
 
-        private Dictionary<string, TAppSession> m_SessionDict = new Dictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-
-        protected Dictionary<string, TAppSession> SessionDict
-        {
-            get
-            {
-                return m_SessionDict;
-            }
-        }
-
         public virtual bool Start()
         {
             return true;

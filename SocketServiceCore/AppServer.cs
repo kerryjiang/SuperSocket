@@ -262,6 +262,8 @@ namespace SuperSocket.SocketServiceCore
                     m_ConsoleHost = null;
                 }
             }
+
+            m_SocketServer = null;
         }
 
         /// <summary>
