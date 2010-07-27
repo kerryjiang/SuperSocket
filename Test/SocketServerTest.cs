@@ -53,8 +53,29 @@ namespace SuperSocket.Test
         public void TestStartStop()
         {
             StartServer();
-            Thread.Sleep(2000);
+            Thread.Sleep(1000);
+            Assert.IsTrue(CanConnect());
             StopServer();
+            Thread.Sleep(1000);
+            Assert.IsFalse(CanConnect());
+        }
+
+        private bool CanConnect()
+        {
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                try
+                {
+                    socket.Connect(serverAddress);
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }                
+            }
         }
 
         private void StartServer()
