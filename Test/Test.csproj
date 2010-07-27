@@ -55,9 +55,12 @@
   <ItemGroup>
     <Compile Include="AsyncSocketServerTest.cs" />
     <Compile Include="Command\ECHO.cs" />
+    <Compile Include="Command\PARA.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketServerTest.cs" />
     <Compile Include="SyncSocketServerTest.cs" />
+    <Compile Include="TestCommandParameterParser.cs" />
+    <Compile Include="TestCommandParser.cs" />
     <Compile Include="TestServer.cs" />
     <Compile Include="TestSession.cs" />
   </ItemGroup>

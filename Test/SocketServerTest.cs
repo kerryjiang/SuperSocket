@@ -17,7 +17,6 @@ namespace SuperSocket.Test
 {
     public abstract class SocketServerTest
     {
-        private MockRepository mocks = new MockRepository();
         private TestServer m_Server;
         private readonly int m_Port;
         private readonly string m_ServerName;
@@ -34,19 +33,22 @@ namespace SuperSocket.Test
         public void Setup()
         {
             LogUtil.Setup(new ConsoleLogger());
-            IServerConfig config = mocks.DynamicMock<IServerConfig>();
 
-            using (mocks.Record())
-            {
-                config.Expect(c => c.Name).Return(m_ServerName).Repeat.Any();
-                config.Expect(c => config.Ip).Return("Any").Repeat.Any();
-                config.Expect(c => config.MaxConnectionNumber).Return(1).Repeat.Any();
-                config.Expect(c => config.Port).Return(m_Port).Repeat.Any();
-                config.Expect(c => config.Mode).Return(m_SocketMode).Repeat.Any();
-            }
+            ServerConfig config = GetServerConfig();
 
             m_Server = new TestServer();
             m_Server.Setup(string.Empty, config, string.Empty);
+        }
+
+        private ServerConfig GetServerConfig()
+        {
+            ServerConfig config = new ServerConfig();
+            config.Name = m_ServerName;
+            config.Ip = "Any";
+            config.MaxConnectionNumber = 1;
+            config.Port = m_Port;
+            config.Mode = m_SocketMode;
+            return config;
         }
 
         [Test]
@@ -136,6 +138,72 @@ namespace SuperSocket.Test
             }
 
             StopServer();
+        }
+
+        [Test]
+        public void TestCommandParser()
+        {
+            ServerConfig config = GetServerConfig();
+
+            m_Server = new TestServer(new TestCommandParser());
+            m_Server.Setup(string.Empty, config, string.Empty);
+            m_Server.Start();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                {
+                    string welcomeString = reader.ReadLine();
+                    string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
+                    writer.WriteLine("ECHO:" + command);
+                    writer.Flush();
+                    string echoMessage = reader.ReadLine();
+                    Assert.AreEqual(command, echoMessage);
+                }
+            }
+
+            m_Server.Stop();
+        }
+
+        [Test]
+        public void TestCommandParameterParser()
+        {
+            ServerConfig config = GetServerConfig();
+
+            m_Server = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
+            m_Server.Setup(string.Empty, config, string.Empty);
+            m_Server.Start();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                {
+                    reader.ReadLine();
+                    string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
+                    string[] arrParam = new string[] { "A1", "A2", "A4", "B2", "A6", "E5" };
+                    writer.WriteLine("PARA:" + string.Join(",", arrParam));
+                    writer.Flush();
+
+                    foreach (var p in arrParam)
+                    {
+                        string r = reader.ReadLine();
+                        Console.WriteLine(r);
+                        Assert.AreEqual(p, r);
+                    }
+                }
+            }
+
+            m_Server.Stop();
         }
     }
 }
