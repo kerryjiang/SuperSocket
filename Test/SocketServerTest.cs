@@ -86,7 +86,8 @@ namespace SuperSocket.Test
             Console.WriteLine("Socket server has been started!");
         }
 
-        private void StopServer()
+        [TearDown]
+        public void StopServer()
         {
             m_Server.Stop();
             Console.WriteLine("Socket server has been stopped!");
@@ -110,8 +111,6 @@ namespace SuperSocket.Test
                     Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, m_ServerName), welcomeString);
                 }
             }
-
-            StopServer();
         }
 
         [Test]
@@ -129,15 +128,25 @@ namespace SuperSocket.Test
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
-                    string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
-                    writer.WriteLine("ECHO " + command);
-                    writer.Flush();
-                    string echoMessage = reader.ReadLine();
-                    Assert.AreEqual(command, echoMessage);
+
+                    char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+                    Random rd = new Random(1);
+
+                    StringBuilder sb = new StringBuilder();                   
+
+                    for (int i = 0; i < 100; i++)
+                    {
+                        sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+                        string command = sb.ToString();
+                        writer.WriteLine("ECHO " + command);
+                        writer.Flush();
+                        string echoMessage = reader.ReadLine();
+                        Console.WriteLine(echoMessage);
+                        Assert.AreEqual(command, echoMessage);
+                    }
                 }
             }
-
-            StopServer();
         }
 
         [Test]
@@ -166,8 +175,6 @@ namespace SuperSocket.Test
                     Assert.AreEqual(command, echoMessage);
                 }
             }
-
-            m_Server.Stop();
         }
 
         [Test]
@@ -202,8 +209,52 @@ namespace SuperSocket.Test
                     }
                 }
             }
+        }
 
-            m_Server.Stop();
+        [Test]
+        public void TestReceiveInLength()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                {
+                    reader.ReadLine();
+                    Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
+                    byte[] data = ReadStreamToBytes(testStream);
+                    writer.WriteLine("RECEL " + data.Length);
+                    writer.Flush();
+                    socketStream.Write(data, 0, data.Length);
+                    socketStream.Flush();
+                    byte[] received = ReadStreamToBytes(socketStream);
+                    Assert.AreEqual(data, received);
+                 }
+            }
+        }
+
+        private byte[] ReadStreamToBytes(Stream stream)
+        {
+            MemoryStream ms = new MemoryStream();
+
+            byte[] buffer = new byte[1024 * 10];
+
+            while (true)
+            {
+                int read = stream.Read(buffer, 0, buffer.Length);
+
+                if (read <= 0)
+                    break;
+
+                ms.Write(buffer, 0, read);
+            }
+
+            return ms.ToArray();
         }
     }
 }
