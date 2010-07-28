@@ -250,11 +250,22 @@ namespace SuperSocket.Test
 
                     Thread.Sleep(1000);
 
-                    //string received = reader.ReadLine();
-                    //Console.WriteLine(received);
-                    reader.Close();
-                    byte[] received = ReadStreamToBytes(socketStream);
-                    Assert.AreEqual(data, received);
+                    MemoryStream ms = new MemoryStream();
+
+                    while (true)
+                    {
+                        string received = reader.ReadLine();
+
+                        received += Environment.NewLine;
+                        byte[] temp = Encoding.Default.GetBytes(received);
+                        ms.Write(temp, 0, temp.Length);
+
+                        if (reader.Peek() < 0)
+                            break;
+                    }
+
+                    byte[] receivedData = ms.ToArray();
+                    Assert.AreEqual(data, receivedData);
                 }
             }            
         }
