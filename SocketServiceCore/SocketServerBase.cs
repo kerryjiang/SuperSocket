@@ -18,6 +18,7 @@ namespace SuperSocket.SocketServiceCore
     public interface ISocketServer
     {
         bool Start();
+        bool IsRunning { get; }
         void Stop();
     }
 
@@ -31,10 +32,13 @@ namespace SuperSocket.SocketServiceCore
 
         public IAppServer<TAppSession> AppServer { get; private set; }
 
+        public bool IsRunning { get; protected set; }
+
         public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
         {
             AppServer = appServer;
             EndPoint = localEndPoint;
+            IsRunning = false;
         }
 
         public virtual bool Start()

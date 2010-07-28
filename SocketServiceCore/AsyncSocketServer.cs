@@ -33,8 +33,6 @@ namespace SuperSocket.SocketServiceCore
 
         private Thread m_ListenThread = null;
 
-        private bool m_Stopped = false;
-
         public override bool Start()
         {
             try
@@ -81,6 +79,8 @@ namespace SuperSocket.SocketServiceCore
                     m_ListenThread.Start();
                 }
 
+                IsRunning = true;
+
                 return true;
             }
             catch (Exception e)
@@ -97,13 +97,14 @@ namespace SuperSocket.SocketServiceCore
             m_ListenSocket.Listen(100);
 
             m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, new LingerOption(true, 0));
 
             m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
 
             SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
             acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
 
-            while (!m_Stopped)
+            while (IsRunning)
             {
                 m_TcpClientConnected.Reset();
                 acceptEventArg.AcceptSocket = null;
@@ -179,7 +180,7 @@ namespace SuperSocket.SocketServiceCore
                 m_ListenSocket = null;
             }
 
-            m_Stopped = true;
+            IsRunning = false;
         }
     }
 }

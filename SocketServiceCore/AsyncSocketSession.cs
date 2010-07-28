@@ -130,7 +130,7 @@ namespace SuperSocket.SocketServiceCore
                                 token.ReceiveBuffer.Clear();
                             }
 
-                            token.ReceiveBuffer.AddRange(e.Buffer.Skip(result.EndPos + 1));
+                            token.ReceiveBuffer.AddRange(e.Buffer.Skip(result.EndPos + 1).Take(e.BytesTransferred - result.EndPos - 1 - e.Offset));
                         }
                         else
                         {

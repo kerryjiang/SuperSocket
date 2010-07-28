@@ -266,6 +266,17 @@ namespace SuperSocket.SocketServiceCore
             m_SocketServer = null;
         }
 
+        public bool IsRunning
+        {
+            get
+            {
+                if (m_SocketServer == null)
+                    return false;
+
+                return m_SocketServer.IsRunning;
+            }
+        }
+
         /// <summary>
         /// Gets service provider by name.
         /// </summary>

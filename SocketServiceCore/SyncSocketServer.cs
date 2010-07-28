@@ -23,9 +23,6 @@ namespace SuperSocket.SocketServiceCore
         where TSocketSession : ISocketSession<TAppSession>, new()
         where TAppSession : IAppSession, new()
     {
-
-        private bool m_Stopped = false;
-
         public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
         {
@@ -54,6 +51,8 @@ namespace SuperSocket.SocketServiceCore
                     m_ListenThread.Start();
                 }
 
+                IsRunning = true;
+
                 return true;
             }
             catch (Exception e)
@@ -76,7 +75,7 @@ namespace SuperSocket.SocketServiceCore
                 m_ListenSocket = null;
             }
 
-            m_Stopped = true;
+            IsRunning = false;
         }
 
         /// <summary>
@@ -89,10 +88,11 @@ namespace SuperSocket.SocketServiceCore
             m_ListenSocket.Listen(100);
 
             m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, new LingerOption(true, 0));
 
             m_MaxConnectionSemaphore = new Semaphore(AppServer.Config.MaxConnectionNumber, AppServer.Config.MaxConnectionNumber);
 
-            while (!m_Stopped)
+            while (IsRunning)
             {
                 Socket client = null;
 
