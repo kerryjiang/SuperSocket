@@ -4,16 +4,26 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class SyncSocketServerTest : SocketServerTest
+    public class SyncSocketServerTest : SocketServerTest<ServerConfig>
     {
         public SyncSocketServerTest()
-            : base("Sync Test Socket Server", 100, SocketMode.Sync)
-        {
+            : base(new ServerConfig
+            {
+                Ip = "Any",
+                LogCommand = true,
+                MaxConnectionNumber = 1,
+                Mode = SocketMode.Sync,
+                Name = "Sync Test Socket Server",
+                Port = 100
+            })
 
+        {
+ 
         }
     }
 }

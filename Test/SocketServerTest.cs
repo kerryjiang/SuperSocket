@@ -15,19 +15,17 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.Test
 {
-    public abstract class SocketServerTest
+    public abstract class SocketServerTest<TConfig>
+        where TConfig : IServerConfig
     {
-        private TestServer m_Server;
-        private TestServer m_ServerX;
-        private readonly int m_Port;
-        private readonly string m_ServerName;
-        private readonly SocketMode m_SocketMode = SocketMode.Sync;
+        private static TestServer m_Server;
+        private static TestServer m_ServerX;
+        private static TestServer m_ServerY;
+        private readonly TConfig m_Config;
 
-        public SocketServerTest(string serverName, int port, SocketMode mode)
+        public SocketServerTest(TConfig config)
         {
-            m_ServerName = serverName;
-            m_Port = port;
-            m_SocketMode = mode;
+            m_Config = config;
         }
 
         [TestFixtureSetUp]
@@ -35,21 +33,23 @@ namespace SuperSocket.Test
         {
             LogUtil.Setup(new ConsoleLogger());
 
-            ServerConfig config = GetServerConfig();
+            if (m_Server == null)
+            {
+                m_Server = new TestServer();
+                m_Server.Setup(string.Empty, m_Config, string.Empty);
+            }
 
-            m_Server = new TestServer();
-            m_Server.Setup(string.Empty, config, string.Empty);
-        }
+            if (m_ServerX == null)
+            {
+                m_ServerX = new TestServer(new TestCommandParser());
+                m_ServerX.Setup(string.Empty, m_Config, string.Empty);
+            }
 
-        private ServerConfig GetServerConfig()
-        {
-            ServerConfig config = new ServerConfig();
-            config.Name = m_ServerName;
-            config.Ip = "Any";
-            config.MaxConnectionNumber = 1;
-            config.Port = m_Port;
-            config.Mode = m_SocketMode;
-            return config;
+            if (m_ServerY == null)
+            {
+                m_ServerY = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
+                m_ServerY.Setup(string.Empty, m_Config, string.Empty);
+            }
         }
 
         [Test, Timeout(4000)]
@@ -65,7 +65,7 @@ namespace SuperSocket.Test
 
         private bool CanConnect()
         {
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -104,6 +104,12 @@ namespace SuperSocket.Test
                 m_ServerX.Stop();
                 Console.WriteLine("Socket server X has been stopped!");
             }
+
+            if (m_ServerY != null && m_ServerY.IsRunning)
+            {
+                m_ServerY.Stop();
+                Console.WriteLine("Socket server Y has been stopped!");
+            }
         }
 
         [Test, Timeout(2000)]
@@ -111,7 +117,7 @@ namespace SuperSocket.Test
         {
             StartServer();
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -121,7 +127,7 @@ namespace SuperSocket.Test
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
-                    Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, m_ServerName), welcomeString);
+                    Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, m_Config.Name), welcomeString);
                 }
             }
         }
@@ -131,7 +137,7 @@ namespace SuperSocket.Test
         {
             StartServer();
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -165,13 +171,12 @@ namespace SuperSocket.Test
         [Test, Timeout(2000)]
         public void TestCommandParser()
         {
-            ServerConfig config = GetServerConfig();
+            if (m_ServerX.IsRunning)
+                m_ServerX.Stop();
 
-            m_ServerX = new TestServer(new TestCommandParser());
-            m_ServerX.Setup(string.Empty, config, string.Empty);
             m_ServerX.Start();
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -193,13 +198,12 @@ namespace SuperSocket.Test
         [Test, Timeout(2000)]
         public void TestCommandParameterParser()
         {
-            ServerConfig config = GetServerConfig();
+            if (m_ServerY.IsRunning)
+                m_ServerY.Stop();
 
-            m_ServerX = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
-            m_ServerX.Setup(string.Empty, config, string.Empty);
-            m_ServerX.Start();
+            m_ServerY.Start();
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -224,12 +228,12 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(5000)]
+        [Test, Timeout(10000)]
         public void TestReceiveInLength()
         {
             StartServer();
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -245,6 +249,10 @@ namespace SuperSocket.Test
                     byte[] cmdData = Encoding.Default.GetBytes("RECEL " + data.Length + Environment.NewLine);
 
                     socketStream.Write(cmdData, 0, cmdData.Length);
+                    socketStream.Flush();
+
+                    Thread.Sleep(1000);
+
                     socketStream.Write(data, 0, data.Length);
                     socketStream.Flush();
 
