@@ -18,6 +18,7 @@ namespace SuperSocket.Test
     public abstract class SocketServerTest
     {
         private TestServer m_Server;
+        private TestServer m_ServerX;
         private readonly int m_Port;
         private readonly string m_ServerName;
         private readonly SocketMode m_SocketMode = SocketMode.Sync;
@@ -29,7 +30,7 @@ namespace SuperSocket.Test
             m_SocketMode = mode;
         }
 
-        [SetUp]
+        [TestFixtureSetUp]
         public void Setup()
         {
             LogUtil.Setup(new ConsoleLogger());
@@ -51,7 +52,7 @@ namespace SuperSocket.Test
             return config;
         }
 
-        [Test]
+        [Test, Timeout(4000)]
         public void TestStartStop()
         {
             StartServer();
@@ -82,6 +83,9 @@ namespace SuperSocket.Test
 
         private void StartServer()
         {
+            if (m_Server.IsRunning)
+                m_Server.Stop();
+
             m_Server.Start();
             Console.WriteLine("Socket server has been started!");
         }
@@ -89,11 +93,20 @@ namespace SuperSocket.Test
         [TearDown]
         public void StopServer()
         {
-            m_Server.Stop();
-            Console.WriteLine("Socket server has been stopped!");
+            if (m_Server.IsRunning)
+            {
+                m_Server.Stop();
+                Console.WriteLine("Socket server has been stopped!");
+            }
+
+            if (m_ServerX != null && m_ServerX.IsRunning)
+            {
+                m_ServerX.Stop();
+                Console.WriteLine("Socket server X has been stopped!");
+            }
         }
 
-        [Test]
+        [Test, Timeout(2000)]
         public void TestWelcomeMessage()
         {
             StartServer();
@@ -113,7 +126,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test]
+        [Test, Timeout(30000)]
         public void TestEchoMessage()
         {
             StartServer();
@@ -149,14 +162,14 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test]
+        [Test, Timeout(2000)]
         public void TestCommandParser()
         {
             ServerConfig config = GetServerConfig();
 
-            m_Server = new TestServer(new TestCommandParser());
-            m_Server.Setup(string.Empty, config, string.Empty);
-            m_Server.Start();
+            m_ServerX = new TestServer(new TestCommandParser());
+            m_ServerX.Setup(string.Empty, config, string.Empty);
+            m_ServerX.Start();
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
 
@@ -177,14 +190,14 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test]
+        [Test, Timeout(2000)]
         public void TestCommandParameterParser()
         {
             ServerConfig config = GetServerConfig();
 
-            m_Server = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
-            m_Server.Setup(string.Empty, config, string.Empty);
-            m_Server.Start();
+            m_ServerX = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
+            m_ServerX.Setup(string.Empty, config, string.Empty);
+            m_ServerX.Start();
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Port);
 
@@ -211,7 +224,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test]
+        [Test, Timeout(5000)]
         public void TestReceiveInLength()
         {
             StartServer();
@@ -223,19 +236,27 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
                     reader.ReadLine();
+
                     Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
                     byte[] data = ReadStreamToBytes(testStream);
-                    writer.WriteLine("RECEL " + data.Length);
-                    writer.Flush();
+
+                    byte[] cmdData = Encoding.Default.GetBytes("RECEL " + data.Length + Environment.NewLine);
+
+                    socketStream.Write(cmdData, 0, cmdData.Length);
                     socketStream.Write(data, 0, data.Length);
                     socketStream.Flush();
+
+                    Thread.Sleep(1000);
+
+                    //string received = reader.ReadLine();
+                    //Console.WriteLine(received);
+                    reader.Close();
                     byte[] received = ReadStreamToBytes(socketStream);
                     Assert.AreEqual(data, received);
-                 }
-            }
+                }
+            }            
         }
 
         private byte[] ReadStreamToBytes(Stream stream)
@@ -255,6 +276,6 @@ namespace SuperSocket.Test
             }
 
             return ms.ToArray();
-        }
+        }        
     }
 }

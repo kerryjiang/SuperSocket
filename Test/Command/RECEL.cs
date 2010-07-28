@@ -18,8 +18,7 @@ namespace SuperSocket.Test.Command
             MemoryStream ms = new MemoryStream();
             session.SocketSession.ReceiveData(ms, length);
             byte[] data = ms.ToArray();
-            session.SocketSession.GetUnderlyStream().Write(data, 0, data.Length);
-            session.SocketSession.GetUnderlyStream().Flush();
+            session.SocketSession.SendResponse(session.AppContext, data);
         }
     }
 }
