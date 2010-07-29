@@ -10,9 +10,9 @@ namespace SuperSocket.Test
     {
         #region ICommandParameterParser Members
 
-        public string[] ParseCommandParameter(CommandInfo command)
+        public string[] ParseCommandParameter(string parameter)
         {
-            return command.Param.Split(',');
+            return parameter.Split(',');
         }
 
         #endregion
