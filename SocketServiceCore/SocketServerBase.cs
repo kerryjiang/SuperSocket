@@ -55,8 +55,11 @@ namespace SuperSocket.SocketServiceCore
             if (AppServer.Config.SendTimeOut > 0)
                 client.SendTimeout = AppServer.Config.SendTimeOut;
 
-            client.ReceiveBufferSize = AppServer.Config.ReceiveBufferSize;
-            client.SendBufferSize = AppServer.Config.SendBufferSize;
+            if (AppServer.Config.ReceiveBufferSize > 0)
+                client.ReceiveBufferSize = AppServer.Config.ReceiveBufferSize;
+
+            if (AppServer.Config.SendBufferSize > 0)
+                client.SendBufferSize = AppServer.Config.SendBufferSize;
 
             TSocketSession session = new TSocketSession();
             TAppSession appSession = this.AppServer.CreateAppSession(session);
