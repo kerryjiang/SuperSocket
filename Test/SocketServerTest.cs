@@ -15,17 +15,49 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.Test
 {
-    public abstract class SocketServerTest<TConfig>
-        where TConfig : IServerConfig
+    public abstract class SocketServerTest
     {
-        private static TestServer m_Server;
-        private static TestServer m_ServerX;
-        private static TestServer m_ServerY;
-        private readonly TConfig m_Config;
+        private static Dictionary<IServerConfig, TestServer[]> m_Servers = new Dictionary<IServerConfig, TestServer[]>();
 
-        public SocketServerTest(TConfig config)
+        private readonly IServerConfig m_Config;
+
+        public SocketServerTest(IServerConfig config)
         {
             m_Config = config;
+        }
+
+        private TestServer GetServerByIndex(int index)
+        {
+            TestServer[] servers = new TestServer[0];
+
+            if (!m_Servers.TryGetValue(m_Config, out servers))
+                return null;
+
+            return servers[index];
+        }
+
+        private TestServer ServerX
+        {
+            get
+            {
+                return GetServerByIndex(0);
+            }
+        }
+
+        private TestServer ServerY
+        {
+            get
+            {
+                return GetServerByIndex(1);
+            }
+        }
+
+        private TestServer ServerZ
+        {
+            get
+            {
+                return GetServerByIndex(2);
+            }
         }
 
         [TestFixtureSetUp]
@@ -33,23 +65,31 @@ namespace SuperSocket.Test
         {
             LogUtil.Setup(new ConsoleLogger());
 
-            if (m_Server == null)
-            {
-                m_Server = new TestServer();
-                m_Server.Setup(string.Empty, m_Config, string.Empty);
-            }
+            if (m_Servers.ContainsKey(m_Config))
+                return;
 
-            if (m_ServerX == null)
-            {
-                m_ServerX = new TestServer(new TestCommandParser());
-                m_ServerX.Setup(string.Empty, m_Config, string.Empty);
-            }
+            var serverX = new TestServer();
+            serverX.Setup(string.Empty, m_Config, string.Empty);
 
-            if (m_ServerY == null)
+            var serverY = new TestServer(new TestCommandParser());
+            serverY.Setup(string.Empty, m_Config, string.Empty);
+
+            var serverZ = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
+            serverZ.Setup(string.Empty, m_Config, string.Empty);
+
+            m_Servers[m_Config] = new TestServer[]
             {
-                m_ServerY = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
-                m_ServerY.Setup(string.Empty, m_Config, string.Empty);
-            }
+                serverX,
+                serverY,
+                serverZ
+            };
+
+        }
+
+        [TestFixtureTearDown]
+        public void StopAllServers()
+        {
+            StopServer();
         }
 
         [Test, Timeout(4000)]
@@ -83,32 +123,32 @@ namespace SuperSocket.Test
 
         private void StartServer()
         {
-            if (m_Server.IsRunning)
-                m_Server.Stop();
+            if (ServerX.IsRunning)
+                ServerX.Stop();
 
-            m_Server.Start();
+            ServerX.Start();
             Console.WriteLine("Socket server has been started!");
         }
 
         [TearDown]
         public void StopServer()
         {
-            if (m_Server.IsRunning)
+            if (ServerX.IsRunning)
             {
-                m_Server.Stop();
-                Console.WriteLine("Socket server has been stopped!");
-            }
-
-            if (m_ServerX != null && m_ServerX.IsRunning)
-            {
-                m_ServerX.Stop();
+                ServerX.Stop();
                 Console.WriteLine("Socket server X has been stopped!");
             }
 
-            if (m_ServerY != null && m_ServerY.IsRunning)
+            if (ServerY != null && ServerY.IsRunning)
             {
-                m_ServerY.Stop();
+                ServerY.Stop();
                 Console.WriteLine("Socket server Y has been stopped!");
+            }
+
+            if (ServerZ != null && ServerZ.IsRunning)
+            {
+                ServerZ.Stop();
+                Console.WriteLine("Socket server Z has been stopped!");
             }
         }
 
@@ -171,10 +211,10 @@ namespace SuperSocket.Test
         [Test, Timeout(2000)]
         public void TestCommandParser()
         {
-            if (m_ServerX.IsRunning)
-                m_ServerX.Stop();
+            if (ServerY.IsRunning)
+                ServerY.Stop();
 
-            m_ServerX.Start();
+            ServerY.Start();
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -198,10 +238,10 @@ namespace SuperSocket.Test
         [Test, Timeout(2000)]
         public void TestCommandParameterParser()
         {
-            if (m_ServerY.IsRunning)
-                m_ServerY.Stop();
+            if (ServerZ.IsRunning)
+                ServerZ.Stop();
 
-            m_ServerY.Start();
+            ServerZ.Start();
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -249,6 +289,7 @@ namespace SuperSocket.Test
                     byte[] cmdData = Encoding.Default.GetBytes("RECEL " + data.Length + Environment.NewLine);
 
                     socketStream.Write(cmdData, 0, cmdData.Length);
+                    socketStream.Flush();
                     socketStream.Flush();
 
                     Thread.Sleep(1000);

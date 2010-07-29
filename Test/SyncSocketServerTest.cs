@@ -9,7 +9,7 @@ using SuperSocket.SocketServiceCore.Config;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class SyncSocketServerTest : SocketServerTest<ServerConfig>
+    public class SyncSocketServerTest : SocketServerTest
     {
         public SyncSocketServerTest()
             : base(new ServerConfig
