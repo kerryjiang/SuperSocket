@@ -92,15 +92,13 @@ namespace SuperSocket.Test
             StopServer();
         }
 
-        [Test, Timeout(4000)]
+        [Test, Repeat(10)]
         public void TestStartStop()
         {
             StartServer();
-            Thread.Sleep(1000);
-            Assert.IsTrue(CanConnect());
+            Assert.IsTrue(ServerX.IsRunning);
             StopServer();
-            Thread.Sleep(1000);
-            Assert.IsFalse(CanConnect());
+            Assert.IsFalse(ServerX.IsRunning);
         }
 
         private bool CanConnect()
@@ -127,7 +125,7 @@ namespace SuperSocket.Test
                 ServerX.Stop();
 
             ServerX.Start();
-            Console.WriteLine("Socket server has been started!");
+            Console.WriteLine("Socket server X has been started!");
         }
 
         [TearDown]
@@ -152,7 +150,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(2000)]
+        [Test, Repeat(10)]
         public void TestWelcomeMessage()
         {
             StartServer();
@@ -172,7 +170,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(30000)]
+        [Test]
         public void TestEchoMessage()
         {
             StartServer();
@@ -208,13 +206,14 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(2000)]
+        [Test, Repeat(5)]
         public void TestCommandParser()
         {
             if (ServerY.IsRunning)
                 ServerY.Stop();
 
             ServerY.Start();
+            Console.WriteLine("Socket server Y has been started!");
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -235,13 +234,14 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(2000)]
+        [Test, Repeat(5)]
         public void TestCommandParameterParser()
         {
             if (ServerZ.IsRunning)
                 ServerZ.Stop();
 
             ServerZ.Start();
+            Console.WriteLine("Socket server Z has been started!");
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -268,7 +268,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(10000)]
+        [Test, Repeat(3)]
         public void TestReceiveInLength()
         {
             StartServer();
