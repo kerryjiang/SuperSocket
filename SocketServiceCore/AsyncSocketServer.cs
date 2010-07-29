@@ -71,7 +71,7 @@ namespace SuperSocket.SocketServiceCore
 
                     // add SocketAsyncEventArg to the pool
                     m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(socketEventArg));
-                }
+                }                
 
                 if (m_ListenSocket == null)
                 {
@@ -79,9 +79,7 @@ namespace SuperSocket.SocketServiceCore
                     m_ListenThread.Start();
                 }
 
-                IsRunning = true;
-
-                return true;
+                return VerifySocketServerRunning(true);
             }
             catch (Exception e)
             {
@@ -94,17 +92,19 @@ namespace SuperSocket.SocketServiceCore
         {
             m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             m_ListenSocket.Bind(this.EndPoint);
-            m_ListenSocket.Listen(100);
+            m_ListenSocket.Listen(100);            
 
             m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, new LingerOption(true, 0));
+            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
             m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
 
             SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
             acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
 
-            while (IsRunning)
+            IsRunning = true;
+
+            while (!IsStopped)
             {
                 m_TcpClientConnected.Reset();
                 acceptEventArg.AcceptSocket = null;
@@ -117,10 +117,12 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (ObjectDisposedException)//listener has been stopped
                 {
+                    IsRunning = false;
                     return;
                 }
                 catch (Exception e)
                 {
+                    IsRunning = false;
                     LogUtil.LogError(AppServer, "Failed to accept new tcp client in async server!", e);
                     return;
                 }
@@ -131,6 +133,8 @@ namespace SuperSocket.SocketServiceCore
                 m_MaxConnectionSemaphore.WaitOne();
                 m_TcpClientConnected.WaitOne();
             }
+
+            IsRunning = false;
         }
 
         void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
@@ -180,7 +184,7 @@ namespace SuperSocket.SocketServiceCore
                 m_ListenSocket = null;
             }
 
-            IsRunning = false;
+            VerifySocketServerRunning(false);
         }
     }
 }

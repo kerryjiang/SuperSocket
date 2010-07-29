@@ -34,6 +34,8 @@ namespace SuperSocket.SocketServiceCore
 
         public bool IsRunning { get; protected set; }
 
+        protected bool IsStopped { get; set; }
+
         public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
         {
             AppServer = appServer;
@@ -68,9 +70,27 @@ namespace SuperSocket.SocketServiceCore
             return session;
         }
 
+        protected bool VerifySocketServerRunning(bool isRunning)
+        {
+            //waiting 5 seconds
+            int steps = 10 * 5;
+
+            while (steps > 0)
+            {
+                Thread.Sleep(100);
+
+                if (IsRunning == isRunning)
+                    return true;
+
+                steps--;
+            }
+
+            return false;
+        }
+
         public virtual void Stop()
         {
-
+            IsStopped = true;
         }
     }
 }

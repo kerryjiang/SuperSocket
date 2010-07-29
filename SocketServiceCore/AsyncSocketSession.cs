@@ -34,7 +34,18 @@ namespace SuperSocket.SocketServiceCore
             if (IsClosed)
                 return;
 
-            bool willRaiseEvent = Client.ReceiveAsync(e);
+            bool willRaiseEvent = false;
+
+            try
+            {
+                willRaiseEvent = Client.ReceiveAsync(e);
+            }
+            catch (Exception)
+            {
+                Close();
+                return;
+            }
+
             if (!willRaiseEvent)
             {
                 ProcessReceive(e);
@@ -62,8 +73,18 @@ namespace SuperSocket.SocketServiceCore
 
             PrepareSendBuffer(eventArgs, token);
 
-            if (!Client.SendAsync(eventArgs))
-                ProcessSend(eventArgs);
+            if (IsClosed)
+                return;
+
+            try
+            {
+                if (!Client.SendAsync(eventArgs))
+                    ProcessSend(eventArgs);
+            }
+            catch (Exception)
+            {
+                Close();
+            }
         }
 
         public override void SendResponse(SocketContext context, byte[] data)

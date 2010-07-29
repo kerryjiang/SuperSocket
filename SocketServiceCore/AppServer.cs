@@ -24,7 +24,8 @@ namespace SuperSocket.SocketServiceCore
         void RegisterNewAppSession(T session);
     }
 
-    public abstract class AppServer<T> : IAppServer<T> where T : IAppSession, IAppSession<T>, new()
+    public abstract class AppServer<T> : IAppServer<T>, IDisposable
+        where T : IAppSession, IAppSession<T>, new()
     {
         private IPEndPoint m_LocalEndPoint;
 
@@ -384,6 +385,21 @@ namespace SuperSocket.SocketServiceCore
                 return command;
             else
                 return null;
+        }
+
+        #endregion
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            if (m_SocketServer != null)
+            {
+                if (m_SocketServer.IsRunning)
+                    m_SocketServer.Stop();
+
+                m_SocketServer = null;
+            }
         }
 
         #endregion

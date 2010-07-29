@@ -51,9 +51,7 @@ namespace SuperSocket.SocketServiceCore
                     m_ListenThread.Start();
                 }
 
-                IsRunning = true;
-
-                return true;
+                return VerifySocketServerRunning(true);
             }
             catch (Exception e)
             {
@@ -75,7 +73,7 @@ namespace SuperSocket.SocketServiceCore
                 m_ListenSocket = null;
             }
 
-            IsRunning = false;
+            VerifySocketServerRunning(false);
         }
 
         /// <summary>
@@ -85,14 +83,16 @@ namespace SuperSocket.SocketServiceCore
         {
             m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             m_ListenSocket.Bind(this.EndPoint);
-            m_ListenSocket.Listen(100);
+            m_ListenSocket.Listen(100);           
 
             m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.Linger, new LingerOption(true, 0));
+            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
             m_MaxConnectionSemaphore = new Semaphore(AppServer.Config.MaxConnectionNumber, AppServer.Config.MaxConnectionNumber);
 
-            while (IsRunning)
+            IsRunning = true;
+
+            while (!IsStopped)
             {
                 Socket client = null;
 
@@ -103,14 +103,17 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (ObjectDisposedException)    
                 {
+                    IsRunning = false;
                     return;
                 }
                 catch (NullReferenceException)
                 {
+                    IsRunning = false;
                     return;
                 }
                 catch (Exception e)
                 {
+                    IsRunning = false;
                     SocketException se = e as SocketException;
                     if (se != null)
                     {
