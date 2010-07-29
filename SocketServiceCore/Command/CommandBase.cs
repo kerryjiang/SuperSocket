@@ -31,9 +31,9 @@ namespace SuperSocket.SocketServiceCore.Command
         {
             //Prepare parameters
             if (m_CommandParameterParser != null)           
-                commandData.InitializeParameters(m_CommandParameterParser.ParseCommandParameter(commandData));
+                commandData.InitializeParameters(m_CommandParameterParser.ParseCommandParameter(commandData.Param));
             else
-                commandData.InitializeParameters(DefaultParameterParser.ParseCommandParameter(commandData));
+                commandData.InitializeParameters(DefaultParameterParser.ParseCommandParameter(commandData.Param));
             //Excute command
             Execute(session, commandData);
         }

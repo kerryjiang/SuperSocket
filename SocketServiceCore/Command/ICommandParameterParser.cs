@@ -7,6 +7,6 @@ namespace SuperSocket.SocketServiceCore.Command
 {
     public interface ICommandParameterParser
     {
-        string[] ParseCommandParameter(CommandInfo command);
+        string[] ParseCommandParameter(string parameter);
     }
 }

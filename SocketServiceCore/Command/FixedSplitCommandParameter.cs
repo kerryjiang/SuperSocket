@@ -16,7 +16,7 @@ namespace SuperSocket.SocketServiceCore.Command
 
         #region ICommandParameterParser Members
 
-        public string[] ParseCommandParameter(CommandInfo command)
+        public string[] ParseCommandParameter(string parameter)
         { 
             int currentIndex = 0;
             int startPos = 0;
@@ -26,7 +26,7 @@ namespace SuperSocket.SocketServiceCore.Command
 
             while (currentIndex < m_FixedParameterCount - 1)
             {
-                pos = command.Param.IndexOf(' ', startPos);
+                pos = parameter.IndexOf(' ', startPos);
 
                 if (pos < 0)
                     break;
@@ -37,17 +37,17 @@ namespace SuperSocket.SocketServiceCore.Command
                     continue;
                 }
 
-                paramList.Add(command.Param.Substring(startPos, pos - startPos));
+                paramList.Add(parameter.Substring(startPos, pos - startPos));
                 currentIndex++;
                 startPos = pos + 1;
 
-                if (startPos >= command.Param.Length)
+                if (startPos >= parameter.Length)
                     break;
             }
 
-            if (startPos < command.Param.Length)
+            if (startPos < parameter.Length)
             {
-                paramList.Add(command.Param.Substring(startPos));
+                paramList.Add(parameter.Substring(startPos));
             }
 
             return paramList.ToArray();

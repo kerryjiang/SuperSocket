@@ -21,9 +21,9 @@ namespace SuperSocket.SocketServiceCore.Command
 
         #region ICommandParameterParser Members
 
-        public string[] ParseCommandParameter(CommandInfo command)
+        public string[] ParseCommandParameter(string parameter)
         {
-            return command.Param.Split(new string[] { m_Spliter }, StringSplitOptions.RemoveEmptyEntries);
+            return parameter.Split(new string[] { m_Spliter }, StringSplitOptions.RemoveEmptyEntries);
         }
 
         #endregion
