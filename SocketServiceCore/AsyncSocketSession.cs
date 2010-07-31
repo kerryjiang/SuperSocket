@@ -27,6 +27,9 @@ namespace SuperSocket.SocketServiceCore
 
         private void StartReceive(SocketAsyncEventArgs e)
         {
+            if (IsClosed)
+                return;
+
             var socketContext = ((AsyncUserToken)e.UserToken).SocketContext;
 
             m_SendReceiveResetEvent.WaitOne();
@@ -54,7 +57,7 @@ namespace SuperSocket.SocketServiceCore
 
         public override void SendResponse(SocketContext context, string message)
         {
-            if (string.IsNullOrEmpty(message))
+            if (IsClosed)
                 return;
 
             m_SendReceiveResetEvent.WaitOne();
@@ -62,7 +65,7 @@ namespace SuperSocket.SocketServiceCore
             if (IsClosed)
                 return;
 
-            if (!message.EndsWith(Environment.NewLine))
+            if (string.IsNullOrEmpty(message) || !message.EndsWith(Environment.NewLine))
                 message = message + Environment.NewLine;
 
             var eventArgs = this.SocketAsyncProxy.SocketEventArgs;
@@ -98,7 +101,7 @@ namespace SuperSocket.SocketServiceCore
 
             AsyncUserToken token = eventArgs.UserToken as AsyncUserToken;
             token.SendBuffer = data;
-            token.Offset = 0;
+            token.Offset = 0;            
 
             PrepareSendBuffer(eventArgs, token);
 
@@ -248,12 +251,12 @@ namespace SuperSocket.SocketServiceCore
         public void ProcessSend(SocketAsyncEventArgs e)
         {
             if (e.SocketError == SocketError.Success)
-            {
-                // done echoing data back to the client
+            {                
+                //done echoing data back to the client
                 AsyncUserToken token = (AsyncUserToken)e.UserToken;
 
                 //continue send
-                if (token.SendBuffer.Length != 0)
+                if (token.Offset < token.SendBuffer.Length)
                 {
                     PrepareSendBuffer(e, token);
 
@@ -290,7 +293,7 @@ namespace SuperSocket.SocketServiceCore
                 Buffer.BlockCopy(token.SendBuffer, token.Offset, e.Buffer, 0, e.Buffer.Length);
                 e.SetBuffer(0, e.Buffer.Length);
                 token.Offset = token.Offset + e.Buffer.Length;
-            }            
+            }
         }
 
         public override void Close()

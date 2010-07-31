@@ -175,10 +175,7 @@ namespace SuperSocket.SocketServiceCore
 
         public override void SendResponse(SocketContext context, string message)
         {
-            if (string.IsNullOrEmpty(message))
-                return;
-
-            if (!message.EndsWith(Environment.NewLine))
+            if (string.IsNullOrEmpty(message) || !message.EndsWith(Environment.NewLine))
                 message = message + Environment.NewLine;
 
             byte[] data = context.Charset.GetBytes(message);
