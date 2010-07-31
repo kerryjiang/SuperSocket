@@ -10,6 +10,7 @@ namespace SuperSocket.Test.Command
     {
         protected override void Execute(TestSession session, CommandInfo commandData)
         {
+            Console.WriteLine("R:" + commandData.Param);
             session.SendResponse(commandData.Param);
         }
     }

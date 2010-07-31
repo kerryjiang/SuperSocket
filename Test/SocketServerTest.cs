@@ -186,6 +186,8 @@ namespace SuperSocket.Test
                 {
                     string welcomeString = reader.ReadLine();
 
+                    Console.WriteLine("Welcome: " + welcomeString);
+
                     char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
 
                     Random rd = new Random(1);
@@ -199,7 +201,7 @@ namespace SuperSocket.Test
                         writer.WriteLine("ECHO " + command);
                         writer.Flush();
                         string echoMessage = reader.ReadLine();
-                        Console.WriteLine(echoMessage);
+                        Console.WriteLine("C:" + echoMessage);
                         Assert.AreEqual(command, echoMessage);
                     }
                 }
@@ -258,12 +260,16 @@ namespace SuperSocket.Test
                     writer.WriteLine("PARA:" + string.Join(",", arrParam));
                     writer.Flush();
 
+                    List<string> received = new List<string>();
+
                     foreach (var p in arrParam)
                     {
                         string r = reader.ReadLine();
-                        Console.WriteLine(r);
-                        Assert.AreEqual(p, r);
+                        Console.WriteLine("C: " + r);
+                        received.Add(r);
                     }
+
+                    Assert.AreEqual(arrParam, received);
                 }
             }
         }

@@ -12,6 +12,7 @@ namespace SuperSocket.Test
 
         public string[] ParseCommandParameter(string parameter)
         {
+            Console.WriteLine("Parameter line: " + parameter);
             return parameter.Split(',');
         }
 
