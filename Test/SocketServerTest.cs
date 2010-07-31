@@ -325,7 +325,62 @@ namespace SuperSocket.Test
             }            
         }
 
+        [Test, Repeat(3)]
+        public void TestReceiveByMark()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                {
+                    reader.ReadLine();
+
+                    Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
+                    byte[] data = ReadStreamToBytes(testStream, Encoding.ASCII.GetBytes(string.Format("{0}.{0}", Environment.NewLine)));
+
+                    byte[] cmdData = Encoding.Default.GetBytes("RECEM" + Environment.NewLine);
+
+                    socketStream.Write(cmdData, 0, cmdData.Length);
+                    socketStream.Flush();
+                    
+                    Thread.Sleep(1000);
+
+                    socketStream.Write(data, 0, data.Length);
+                    socketStream.Flush();
+
+                    Thread.Sleep(1000);
+
+                    MemoryStream ms = new MemoryStream();
+
+                    while (true)
+                    {
+                        string received = reader.ReadLine();
+
+                        received += Environment.NewLine;
+                        byte[] temp = Encoding.Default.GetBytes(received);
+                        ms.Write(temp, 0, temp.Length);
+
+                        if (reader.Peek() < 0)
+                            break;
+                    }
+
+                    byte[] receivedData = ms.ToArray();
+                    Assert.AreEqual(data, receivedData);
+                }
+            }
+        }
+
         private byte[] ReadStreamToBytes(Stream stream)
+        {
+            return ReadStreamToBytes(stream, null);
+        }
+
+        private byte[] ReadStreamToBytes(Stream stream, byte[] endMark)
         {
             MemoryStream ms = new MemoryStream();
 
@@ -340,6 +395,9 @@ namespace SuperSocket.Test
 
                 ms.Write(buffer, 0, read);
             }
+
+            if (endMark != null && endMark.Length > 0)
+                ms.Write(endMark, 0, endMark.Length);
 
             return ms.ToArray();
         }        
