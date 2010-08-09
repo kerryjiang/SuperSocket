@@ -15,7 +15,7 @@ namespace SuperSocket.SocketServiceCore
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    public abstract class SocketSession<T> : ISocketSession<T>
+    abstract class SocketSession<T> : ISocketSession<T>
         where T : IAppSession, new()
     {
         public IAppServer<T> AppServer { get; private set; }
@@ -114,6 +114,10 @@ namespace SuperSocket.SocketServiceCore
                 LastActiveTime = DateTime.Now;
                 if (AppServer.Config.LogCommand)
                     LogUtil.LogInfo(AppServer, string.Format("Command - {0} - {1}", SessionID, cmdInfo.Name));
+            }
+            else
+            {
+                AppSession.HandleUnknownCommand(cmdInfo);
             }
         }
 

@@ -12,7 +12,7 @@ using System.Collections;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
+    class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
         where T : IAppSession, new()
     {
         AutoResetEvent m_SendReceiveResetEvent = new AutoResetEvent(true);

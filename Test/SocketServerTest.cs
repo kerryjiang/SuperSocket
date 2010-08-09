@@ -170,6 +170,36 @@ namespace SuperSocket.Test
             }
         }
 
+        [Test, Repeat(2)]
+        public void TestUnknownCommand()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                {
+                    reader.ReadLine();
+
+                    for (int i = 0; i < 10; i++)
+                    {
+                        string commandName = Guid.NewGuid().ToString().Substring(0, 3);
+                        string command = commandName + " " + DateTime.Now;
+                        writer.WriteLine(command);
+                        writer.Flush();
+                        string line = reader.ReadLine();
+                        Console.WriteLine(line);
+                        Assert.AreEqual(string.Format(TestSession.UnknownCommandMessageFormat, commandName), line);
+                    }                        
+                }
+            }
+        }
+
         [Test]
         public void TestEchoMessage()
         {

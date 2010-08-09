@@ -12,7 +12,7 @@ using System.Net.Security;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public class SyncSocketSession<T> : SocketSession<T>
+    class SyncSocketSession<T> : SocketSession<T>
         where T : IAppSession, new()
     {
         /// <summary>

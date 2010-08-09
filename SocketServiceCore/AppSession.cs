@@ -19,6 +19,7 @@ namespace SuperSocket.SocketServiceCore
         IPEndPoint RemoteEndPoint { get; }
         void Close();
         void SayWelcome();
+        void HandleUnknownCommand(CommandInfo cmdInfo);
         void HandleExceptionalError(Exception e);
     }
 
@@ -66,6 +67,11 @@ namespace SuperSocket.SocketServiceCore
         public abstract void SayWelcome();
 
         public abstract void HandleExceptionalError(Exception e);
+
+        public virtual void HandleUnknownCommand(CommandInfo cmdInfo)
+        {
+            SendResponse("Unknown command: " + cmdInfo.Name);
+        }
 
         public SocketContext Context
         {
