@@ -21,7 +21,6 @@ namespace SuperSocket.SocketServiceCore
         IServerConfig Config { get; }
         ICommandParser CommandParser { get; }
         T CreateAppSession(ISocketSession socketSession);
-        void RegisterNewAppSession(T session);
     }
 
     public abstract class AppServer<T> : IAppServer<T>, IDisposable
@@ -318,11 +317,6 @@ namespace SuperSocket.SocketServiceCore
             }
 
             return appSession;
-        }
-
-        public virtual void RegisterNewAppSession(T session)
-        {
-            throw new NotSupportedException();
         }
 
         void socketSession_Closed(object sender, SocketSessionClosedEventArgs e)
