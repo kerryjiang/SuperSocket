@@ -18,8 +18,6 @@ namespace SuperSocket.SocketServiceCore
         public AsyncUserToken(Socket socket)
         {
             m_socket = socket;
-            SendBuffer = new byte[0];
-            Offset = 0;
         }
 
         public Socket Socket
@@ -27,10 +25,6 @@ namespace SuperSocket.SocketServiceCore
             get { return m_socket; }
             set { m_socket = value; }
         }
-
-        public byte[] SendBuffer { get; set; }
-
-        public int Offset { get; set; }
 
         public SocketContext SocketContext { get; set; }
 

@@ -29,17 +29,13 @@ namespace SuperSocket.SocketServiceCore.AsyncSocket
             if (socketSession == null)
                 return;            
 
-            if (e.LastOperation == SocketAsyncOperation.Send)
-            {
-                socketSession.ProcessSend(e);
-            }
-            else if (e.LastOperation == SocketAsyncOperation.Receive)
+            if (e.LastOperation == SocketAsyncOperation.Receive)
             {
                 socketSession.ProcessReceive(e);
             }
             else
             {
-                throw new ArgumentException("The last operation completed on the socket was not a send or receive");
+                throw new ArgumentException("The last operation completed on the socket was not a receive");
             }
         }
 
@@ -67,7 +63,6 @@ namespace SuperSocket.SocketServiceCore.AsyncSocket
             token.SocketContext = null;
             token.ReceiveBuffer = null;
             token.CommandSearchResult = null;
-            token.SendBuffer = new byte[0];
         }
     }
 }

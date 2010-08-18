@@ -40,7 +40,5 @@ namespace SuperSocket.SocketServiceCore
         SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
 
         void ProcessReceive(SocketAsyncEventArgs e);
-
-        void ProcessSend(SocketAsyncEventArgs e);
     }
 }

@@ -15,8 +15,6 @@ namespace SuperSocket.SocketServiceCore
     class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
         where T : IAppSession, new()
     {
-        AutoResetEvent m_SendReceiveResetEvent = new AutoResetEvent(true);
-
         protected override void Start(SocketContext context)
         {
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
@@ -31,11 +29,6 @@ namespace SuperSocket.SocketServiceCore
                 return;
 
             var socketContext = ((AsyncUserToken)e.UserToken).SocketContext;
-
-            m_SendReceiveResetEvent.WaitOne();
-
-            if (IsClosed)
-                return;
 
             bool willRaiseEvent = false;
 
@@ -60,29 +53,17 @@ namespace SuperSocket.SocketServiceCore
             if (IsClosed)
                 return;
 
-            m_SendReceiveResetEvent.WaitOne();
-
-            if (IsClosed)
-                return;
-
             if (string.IsNullOrEmpty(message) || !message.EndsWith(Environment.NewLine))
                 message = message + Environment.NewLine;
 
-            var eventArgs = this.SocketAsyncProxy.SocketEventArgs;
-
-            AsyncUserToken token = eventArgs.UserToken as AsyncUserToken;
-            token.SendBuffer = context.Charset.GetBytes(message);
-            token.Offset = 0;
-
-            PrepareSendBuffer(eventArgs, token);
+            byte[] data = context.Charset.GetBytes(message);
 
             if (IsClosed)
                 return;
 
             try
             {
-                if (!Client.SendAsync(eventArgs))
-                    ProcessSend(eventArgs);
+                Client.Send(data);
             }
             catch (Exception)
             {
@@ -95,18 +76,17 @@ namespace SuperSocket.SocketServiceCore
             if(data == null || data.Length <= 0)
                 return;
 
-            m_SendReceiveResetEvent.WaitOne();
+            if (IsClosed)
+                return;
 
-            var eventArgs = this.SocketAsyncProxy.SocketEventArgs;
-
-            AsyncUserToken token = eventArgs.UserToken as AsyncUserToken;
-            token.SendBuffer = data;
-            token.Offset = 0;            
-
-            PrepareSendBuffer(eventArgs, token);
-
-            if (!Client.SendAsync(eventArgs))
-                ProcessSend(eventArgs);
+            try
+            {
+                Client.Send(data);
+            }
+            catch (Exception)
+            {
+                Close();
+            }
         }
 
         public SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
@@ -219,9 +199,6 @@ namespace SuperSocket.SocketServiceCore
                 {
                     commandLine = commandLine.Trim();
 
-                    //this round receive has been finished, the buffer can be used for sending
-                    m_SendReceiveResetEvent.Set();                    
-
                     try
                     {
                         ExecuteCommand(commandLine);
@@ -236,8 +213,6 @@ namespace SuperSocket.SocketServiceCore
                 }
                 else
                 {
-                    //Continue receive
-                    m_SendReceiveResetEvent.Set();
                     StartReceive(e);
                     return;
                 }                
@@ -246,64 +221,7 @@ namespace SuperSocket.SocketServiceCore
             {
                 Close();
             }
-        }
-
-        public void ProcessSend(SocketAsyncEventArgs e)
-        {
-            if (e.SocketError == SocketError.Success)
-            {                
-                //done echoing data back to the client
-                AsyncUserToken token = (AsyncUserToken)e.UserToken;
-
-                //continue send
-                if (token.Offset < token.SendBuffer.Length)
-                {
-                    PrepareSendBuffer(e, token);
-
-                    if (!Client.SendAsync(e))
-                        ProcessSend(e);
-
-                    return;
-                }
-                else
-                {
-                    //Send was finished, next round of send can be started
-                    m_SendReceiveResetEvent.Set();
-                }        
-            }
-            else
-            {
-                Close();
-            }
-        }
-
-        private void PrepareSendBuffer(SocketAsyncEventArgs e, AsyncUserToken token)
-        {
-            int leftBytes = token.SendBuffer.Length - token.Offset;
-
-            if (e.Buffer.Length >= leftBytes)
-            {
-                Buffer.BlockCopy(token.SendBuffer, token.Offset, e.Buffer, 0, leftBytes);
-                e.SetBuffer(0, leftBytes);
-                token.SendBuffer = new byte[0];
-                token.Offset = 0;
-            }
-            else
-            {
-                Buffer.BlockCopy(token.SendBuffer, token.Offset, e.Buffer, 0, e.Buffer.Length);
-                e.SetBuffer(0, e.Buffer.Length);
-                token.Offset = token.Offset + e.Buffer.Length;
-            }
-        }
-
-        public override void Close()
-        {
-            if (!IsClosed)
-            {
-                SocketAsyncProxy.Reset();
-                base.Close();
-            }
-        }        
+        }      
 
         public override void ApplySecureProtocol(SocketContext context)
         {
