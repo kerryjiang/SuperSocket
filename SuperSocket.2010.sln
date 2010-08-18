@@ -1,11 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketServiceCore.2010", "SocketServiceCore\SocketServiceCore.2010.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketServiceCore", "SocketServiceCore\SocketServiceCore.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketService.2010", "SocketService\SocketService.2010.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketService", "SocketService\SocketService.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.2010", "Common\Common.2010.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
