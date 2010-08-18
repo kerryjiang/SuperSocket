@@ -6,7 +6,7 @@ using System.Net.Sockets;
 
 namespace SuperSocket.SocketServiceCore.AsyncSocket
 {
-    public class SocketAsyncEventArgsProxy
+    class SocketAsyncEventArgsProxy
     {
         public SocketAsyncEventArgs SocketEventArgs { get; private set; }
 

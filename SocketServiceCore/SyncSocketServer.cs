@@ -19,7 +19,7 @@ namespace SuperSocket.SocketServiceCore
     /// The core socket server which can run any SocketSession
     /// </summary>
     /// <typeparam name="T">The typeof the SocketSession</typeparam>
-    public class SyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
+    class SyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
         where TSocketSession : ISocketSession<TAppSession>, new()
         where TAppSession : IAppSession, new()
     {

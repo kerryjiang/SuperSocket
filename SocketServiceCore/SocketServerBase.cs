@@ -15,14 +15,14 @@ using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public interface ISocketServer
+    interface ISocketServer
     {
         bool Start();
         bool IsRunning { get; }
         void Stop();
     }
 
-    public abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IAsyncRunner
+    abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IAsyncRunner
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>, new()        
     {

@@ -11,7 +11,7 @@ using SuperSocket.SocketServiceCore.AsyncSocket;
 
 namespace SuperSocket.SocketServiceCore
 {
-    public class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>, IAsyncRunner
+    class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>, IAsyncRunner
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>, IAsyncSocketSession, new()
     {

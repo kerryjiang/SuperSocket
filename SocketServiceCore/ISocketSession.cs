@@ -35,7 +35,7 @@ namespace SuperSocket.SocketServiceCore
         void Initialize(IAppServer<T> appServer, T appSession, Socket client);
     }
 
-    public interface IAsyncSocketSession
+    interface IAsyncSocketSession
     {
         SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
 
