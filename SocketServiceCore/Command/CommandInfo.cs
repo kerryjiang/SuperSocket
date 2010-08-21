@@ -4,11 +4,11 @@ using System.Text;
 
 namespace SuperSocket.SocketServiceCore.Command
 {
-	public class CommandInfo
-	{
-		private CommandInfo()
-		{
-		}
+    public class CommandInfo
+    {
+        private CommandInfo()
+        {
+        }
 
         public CommandInfo(string name, string parameter)
         {
@@ -32,40 +32,40 @@ namespace SuperSocket.SocketServiceCore.Command
             m_Parmaters = parameters;
             m_ParametersInitialized = true;
         }
-		
-		private string m_Tag = string.Empty;
 
-		public string Tag
-		{
-			get { return m_Tag; }
-			set { m_Tag = value; }
-		}
-		
-		private string m_Name;
+        private string m_Tag = string.Empty;
 
-		public string Name
-		{
-			get { return m_Name; }
-		}
+        public string Tag
+        {
+            get { return m_Tag; }
+            set { m_Tag = value; }
+        }
 
-		private string m_Param;
+        private string m_Name;
 
-		public string Param
-		{
-			get { return m_Param; }
-		}
+        public string Name
+        {
+            get { return m_Name; }
+        }
 
-		private string[] m_Parmaters;
+        private string m_Param;
 
-		public string[] Parameters
-		{
-			get { return m_Parmaters; }
-		}
-		
-		public string GetFirstParam()
-		{
+        public string Param
+        {
+            get { return m_Param; }
+        }
+
+        private string[] m_Parmaters;
+
+        public string[] Parameters
+        {
+            get { return m_Parmaters; }
+        }
+
+        public string GetFirstParam()
+        {
             return GetParamemterByIndex(0);
-		}
+        }
 
         private string GetParamemterByIndex(int index)
         {
@@ -82,5 +82,5 @@ namespace SuperSocket.SocketServiceCore.Command
                 return GetParamemterByIndex(index);
             }
         }
-	}
+    }
 }
