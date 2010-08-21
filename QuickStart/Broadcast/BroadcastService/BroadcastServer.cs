@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
 using System.Threading;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore;
 
 namespace BroadcastService
 {
-    public class BroadcastServer : AppServer<BroadcastSession>
+    public class BroadcastServer : AppServer<BroadcastSession>, IAsyncRunner
     {
         private Dictionary<string, List<string>> broadcastDict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         private object broadcastSyncRoot = new object();
@@ -27,7 +28,7 @@ namespace BroadcastService
             }
         }
 
-        public void RegisterNewSession(BroadcastSession session)
+        internal void RegisterNewSession(BroadcastSession session)
         {
             if (string.IsNullOrEmpty(session.DeviceNumber))
                 return;
@@ -38,7 +39,7 @@ namespace BroadcastService
             }
         }
 
-        public void RemoveOnlineSession(BroadcastSession session)
+        internal void RemoveOnlineSession(BroadcastSession session)
         {
             if (string.IsNullOrEmpty(session.DeviceNumber))
                 return;
@@ -49,7 +50,7 @@ namespace BroadcastService
             }
         }
 
-        public void BroadcastMessage(BroadcastSession session, string message)
+        internal void BroadcastMessage(BroadcastSession session, string message)
         {
             List<string> targetDeviceNumbers;
 
@@ -75,7 +76,7 @@ namespace BroadcastService
                 }
             }
 
-            ThreadPool.QueueUserWorkItem(w =>
+            this.ExecuteAsync(w =>
                 {
                     sessions.ForEach(s => s.SendResponse(message));
                 });

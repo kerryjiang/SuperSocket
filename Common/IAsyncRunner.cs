@@ -6,7 +6,7 @@ using System.Threading;
 
 namespace SuperSocket.Common
 {
-    public delegate void ExceptionCallback();
+    public delegate void ExceptionCallback(Exception e);
 
     public enum AsyncRunType
     {
@@ -23,23 +23,32 @@ namespace SuperSocket.Common
     {
         class ExecuteAsyncThreadStartParameter
         {
-            public string StepName { get; set; }
             public WaitCallback RunCallback { get; set; }
             public ExceptionCallback ExceptionCallback { get; set; }
         }
 
-        public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, string stepName, WaitCallback callback)
+        public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, WaitCallback callback)
         {
-            ExecuteAsync(runner, runType, stepName, callback, null);
+            ExecuteAsync(runner, runType, callback, null);
         }
 
-        public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, string stepName, WaitCallback callback, ExceptionCallback exceptionCallback)
+        public static void ExecuteAsync(this IAsyncRunner runner, WaitCallback callback)
+        {
+            ExecuteAsync(runner, AsyncRunType.ThreadPool, callback, null);
+        }
+
+        public static void ExecuteAsync(this IAsyncRunner runner, WaitCallback callback, ExceptionCallback exceptionCallback)
+        {
+            runner.ExecuteAsync(AsyncRunType.ThreadPool, callback, exceptionCallback);
+        }
+
+        public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, WaitCallback callback, ExceptionCallback exceptionCallback)
         {
             if (runType == AsyncRunType.ThreadPool)
             {
                 ThreadPool.QueueUserWorkItem(delegate
                 {
-                    ExecuteAsyncInternal(stepName, callback, exceptionCallback);
+                    ExecuteAsyncInternal(callback, exceptionCallback);
                 });
             }
             else
@@ -47,7 +56,6 @@ namespace SuperSocket.Common
                 Thread newThread = new Thread(new ParameterizedThreadStart(ExecuteAsyncStart));
                 newThread.Start(new ExecuteAsyncThreadStartParameter
                     {
-                        StepName = stepName,
                         RunCallback = callback,
                         ExceptionCallback = exceptionCallback
                     });
@@ -62,10 +70,10 @@ namespace SuperSocket.Common
             if (startParameter == null)
                 return;
 
-            ExecuteAsyncInternal(startParameter.StepName, startParameter.RunCallback, startParameter.ExceptionCallback);
+            ExecuteAsyncInternal(startParameter.RunCallback, startParameter.ExceptionCallback);
         }
 
-        private static void ExecuteAsyncInternal(string stepName, WaitCallback callback, ExceptionCallback exceptionCallback)
+        private static void ExecuteAsyncInternal(WaitCallback callback, ExceptionCallback exceptionCallback)
         {
             try
             {
@@ -73,17 +81,13 @@ namespace SuperSocket.Common
             }
             catch (Exception e)
             {
-                LogUtil.LogError(stepName, e);
                 if (exceptionCallback != null)
                 {
-                    try
-                    {
-                        exceptionCallback();
-                    }
-                    catch (Exception exc)
-                    {
-                        LogUtil.LogError(stepName + " exception callback", exc);
-                    }
+                    exceptionCallback(e);
+                }
+                else
+                {
+                    LogUtil.LogError(e);
                 }
             }
         }
