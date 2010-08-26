@@ -10,6 +10,7 @@ you must be able to use SuperSocket to build your socket application as a part o
 
 
 Project homepage:	http://supersocket.codeplex.com/
+SVN address:		https://SuperSocket.svn.codeplex.com/svn
 Author email address:	kerry-jiang@hotmail.com
 
 
