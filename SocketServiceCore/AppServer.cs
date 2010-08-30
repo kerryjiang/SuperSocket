@@ -46,9 +46,7 @@ namespace SuperSocket.SocketServiceCore
         public ServiceCredentials ServerCredentials { get; set; }
 
         private Dictionary<string, ICommand<T>> dictCommand = new Dictionary<string, ICommand<T>>(StringComparer.OrdinalIgnoreCase);
-        /// <summary>
-        /// Loads the command dictionary.
-        /// </summary>
+
         private void LoadCommands()
         {
             Type commandType = typeof(ICommand<T>);
@@ -95,25 +93,9 @@ namespace SuperSocket.SocketServiceCore
             Config = config;
             m_ConsoleBaseAddress = consoleBaseAddress;
 
-            if (config.Port > 0)
+            if (!SetupLocalEndpoint(config))
             {
-                try
-                {
-                    if(string.IsNullOrEmpty(config.Ip) || "Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.Any, config.Port);
-                    else
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);
-                }
-                catch(Exception e)
-                {
-                    LogUtil.LogError(this, "Invalid config ip/port", e);
-                    return false;
-                }
-            }
-
-            if (m_LocalEndPoint == null)
-            {
-                LogUtil.LogError(this, "Config ip/port is missing!");
+                LogUtil.LogError(this, "Invalid config ip/port");
                 return false;
             }
 
@@ -125,9 +107,39 @@ namespace SuperSocket.SocketServiceCore
 
             LoadCommands();
 
-            if (string.IsNullOrEmpty(assembly))
-                return true;
+            if (!string.IsNullOrEmpty(assembly))
+            {
+                if (!SetupServiceProviders(config, assembly))
+                    return false;
+            }
 
+            return true;
+        }
+
+        private bool SetupLocalEndpoint(IServerConfig config)
+        {
+            if (config.Port > 0)
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(config.Ip) || "Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
+                        m_LocalEndPoint = new IPEndPoint(IPAddress.Any, config.Port);
+                    else
+                        m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);
+
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
+            }
+
+            return false;
+        }
+
+        private bool SetupServiceProviders(IServerConfig config, string assembly)
+        {
             string dir = FileHelper.GetParentFolder(this.GetType().Assembly.Location);
 
             string assemblyFile = Path.Combine(dir, assembly + ".dll");
@@ -163,14 +175,14 @@ namespace SuperSocket.SocketServiceCore
                     LogUtil.LogError(this, "Failed to load service provider from assembly:" + assemblyFile);
                     return false;
                 }
+
+                return true;
             }
             catch (Exception e)
             {
                 LogUtil.LogError(this, e);
                 return false;
-            }            
-
-            return true;
+            }
         }
 
         public string Name
