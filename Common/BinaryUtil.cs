@@ -2,17 +2,29 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections;
 
 namespace SuperSocket.Common
 {
     public static class BinaryUtil
     {
-        public static int? SearchMark(byte[] source, byte[] mark)
+        public static int IndexOf<T>(this IList<T> source, T target, int pos, int length)
         {
-            return SearchMark(source, 0, source.Length, mark);
+            for (int i = pos; i < pos + length; i++)
+            {
+                if (source[i].Equals(target))
+                    return i;
+            }
+
+            return -1;
         }
 
-        public static int? SearchMark(byte[] source, int offset, int length, byte[] mark)
+        public static int? SearchMark(IList<byte> source, byte[] mark)
+        {
+            return SearchMark(source, 0, source.Count, mark);
+        }  
+
+        public static int? SearchMark(IList<byte> source, int offset, int length, byte[] mark)
         {
             int pos = offset;
             int endOffset = offset + length - 1;
@@ -20,7 +32,7 @@ namespace SuperSocket.Common
 
             while (true)
             {
-                pos = Array.IndexOf<byte>(source, mark[0], pos, length);
+                pos = source.IndexOf(mark[0], pos, length - pos + offset);
 
                 if (pos < 0)
                     return null;

@@ -75,6 +75,7 @@
     <Compile Include="..\SocketServiceCore\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ArraySegmentList.cs" />
     <Compile Include="AssemblyUtil.cs" />
     <Compile Include="Base64Util.cs" />
     <Compile Include="BinaryUtil.cs" />
