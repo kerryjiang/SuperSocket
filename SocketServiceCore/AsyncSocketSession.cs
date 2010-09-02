@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -6,15 +7,16 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.AsyncSocket;
-using System.Collections;
+using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.SocketServiceCore
 {
     class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
         where T : IAppSession, new()
     {
+        IAsyncCommandReader m_CommandReader = new NormalAsyncCommandReader();
+
         protected override void Start(SocketContext context)
         {
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
@@ -95,132 +97,48 @@ namespace SuperSocket.SocketServiceCore
         {
             // check if the remote host closed the connection
             AsyncUserToken token = (AsyncUserToken)e.UserToken;
-            if (e.BytesTransferred > 0 && e.SocketError == SocketError.Success)
+            if (e.BytesTransferred <= 0 || e.SocketError != SocketError.Success)
             {
-                bool foundEnd = false;
-                int newLineLen = token.SocketContext.NewLineData.Length;
-                string commandLine = string.Empty;
+                Close();
+                return;
+            }
 
-                if (token.CommandSearchResult == null
-                    || token.CommandSearchResult.ResultType == SearhMarkResultType.None
-                    || token.CommandSearchResult.ResultType == SearhMarkResultType.FoundEnd
-                    || token.CommandSearchResult.ResultType == SearhMarkResultType.MatchEnd)
-                {
+            byte[] commandData;
 
-                    SearhMarkResult result = SearchMark(e.Buffer, e.Offset, e.BytesTransferred, token.SocketContext.NewLineData);
+            SearhMarkResult result = m_CommandReader.FindCommand(e, token.SocketContext.NewLineData, out commandData);
 
-                    if (result.ResultType == SearhMarkResultType.FoundEnd || result.ResultType == SearhMarkResultType.MatchEnd)
-                    {
-                        foundEnd = true;
+            if (result.Status == SearhMarkStatus.Found)
+            {
+                //Initialize next command reader
+                m_CommandReader = new NormalAsyncCommandReader(m_CommandReader);
 
-                        if (token.ReceiveBuffer != null && token.ReceiveBuffer.Count > 0)
-                        {
-                            token.ReceiveBuffer.AddRange(e.Buffer.Skip(e.Offset).Take(result.EndPos - e.Offset + 1));
-                            commandLine = token.SocketContext.Charset.GetString(token.ReceiveBuffer.ToArray(), 0, token.ReceiveBuffer.Count - newLineLen);
-                        }
-                        else
-                        {
-                            commandLine = token.SocketContext.Charset.GetString(e.Buffer, e.Offset, result.EndPos - e.Offset + 1 - newLineLen);
-                        }
+                string commandLine = token.SocketContext.Charset.GetString(commandData);
 
-                        if (result.ResultType != SearhMarkResultType.MatchEnd)
-                        {
-                            if (token.ReceiveBuffer == null)
-                            {
-                                token.ReceiveBuffer = new List<byte>();
-                            }
-                            else if (token.ReceiveBuffer.Count > 0)
-                            {
-                                token.ReceiveBuffer.Clear();
-                            }
-
-                            token.ReceiveBuffer.AddRange(e.Buffer.Skip(result.EndPos + 1).Take(e.BytesTransferred - result.EndPos - 1 - e.Offset));
-                        }
-                        else
-                        {
-                            if (token.ReceiveBuffer != null)
-                            {
-                                token.ReceiveBuffer.Clear();
-                                token.ReceiveBuffer = null;
-                            }
-                        }
-                    }
-                    else if (result.ResultType == SearhMarkResultType.None)
-                    {
-                        if (token.ReceiveBuffer == null)
-                        {
-                            token.ReceiveBuffer = new List<byte>();
-                        }
-
-                        token.ReceiveBuffer.AddRange(e.Buffer.Skip(e.Offset).Take(e.BytesTransferred));
-                    }
-                    else if(result.ResultType == SearhMarkResultType.FoundStart)
-                    {
-                        if (token.ReceiveBuffer == null)
-                        {
-                            token.ReceiveBuffer = new List<byte>();
-                        }
-
-                        token.ReceiveBuffer.AddRange(e.Buffer.Skip(e.Offset).Take(e.BytesTransferred));
-                    }
-
-                    token.CommandSearchResult = result;
-                }
-                else if (token.CommandSearchResult.ResultType == SearhMarkResultType.FoundStart)
-                {
-                    var result = SearchMark(e.Buffer, e.Offset, token.CommandSearchResult.LeftMark.Length, token.CommandSearchResult.LeftMark);
-
-                    if (result.ResultType == SearhMarkResultType.FoundEnd || result.ResultType == SearhMarkResultType.MatchEnd)
-                    {
-                        foundEnd = true;
-
-                        token.ReceiveBuffer.AddRange(token.CommandSearchResult.LeftMark);
-                        commandLine = token.SocketContext.Charset.GetString(token.ReceiveBuffer.ToArray(), 0, token.ReceiveBuffer.Count - newLineLen);
-                        token.ReceiveBuffer.Clear();
-
-                        if (e.BytesTransferred > token.CommandSearchResult.LeftMark.Length)
-                        {
-                            token.ReceiveBuffer.AddRange(e.Buffer.Skip(e.Offset + token.CommandSearchResult.LeftMark.Length).Take(e.BytesTransferred - token.CommandSearchResult.LeftMark.Length));
-                        }
-                        else
-                        {
-                            token.ReceiveBuffer = null;
-                        }
-                    }
-                    else
-                    {
-                        token.ReceiveBuffer.AddRange(e.Buffer.Skip(e.Offset).Take(e.BytesTransferred));
-                    }
-
-                    token.CommandSearchResult = result;
-                }
-
-                if (foundEnd)
-                {
+                if (!string.IsNullOrEmpty(commandLine))
                     commandLine = commandLine.Trim();
 
-                    try
-                    {
-                        ExecuteCommand(commandLine);
-                    }
-                    catch (Exception exc)
-                    {
-                        LogUtil.LogError(AppServer, exc);
-                        HandleExceptionalError(exc);
-                    }
-                    //read the next block of data send from the client
-                    StartReceive(e);
-                }
-                else
+                try
                 {
-                    StartReceive(e);
-                    return;
-                }                
+                    ExecuteCommand(commandLine);
+                }
+                catch (Exception exc)
+                {
+                    LogUtil.LogError(AppServer, exc);
+                    HandleExceptionalError(exc);
+                }
+                //read the next block of data send from the client
+                StartReceive(e);
             }
             else
             {
-                Close();
-            }
+                if (result.Status == SearhMarkStatus.FoundStart)
+                    m_CommandReader = new PartMatchedAsyncCommandReader(m_CommandReader, result.Value);
+                else
+                    m_CommandReader = new NormalAsyncCommandReader(m_CommandReader);
+
+                StartReceive(e);
+                return;
+            }             
         }      
 
         public override void ApplySecureProtocol(SocketContext context)
@@ -244,10 +162,12 @@ namespace SuperSocket.SocketServiceCore
 
             AsyncUserToken token = this.SocketAsyncProxy.SocketEventArgs.UserToken as AsyncUserToken;
 
-            if (token.ReceiveBuffer != null && token.ReceiveBuffer.Count > 0)
+            var leftBuffer = m_CommandReader.GetLeftBuffer();
+
+            if (leftBuffer != null && leftBuffer.Count > 0)
             {
-                storeSteram.Write(token.ReceiveBuffer.ToArray(), 0, token.ReceiveBuffer.Count);
-                leftRead -= token.ReceiveBuffer.Count;
+                storeSteram.Write(leftBuffer.ToArray(), 0, leftBuffer.Count);
+                leftRead -= leftBuffer.Count;
             }
 
             while (leftRead > 0)
@@ -366,94 +286,5 @@ namespace SuperSocket.SocketServiceCore
                 }
             }
         }
-
-        private SearhMarkResult SearchMark(byte[] source, byte[] mark)
-        {
-            return SearchMark(source, 0, source.Length, mark);
-        }
-
-        private SearhMarkResult SearchMark(byte[] source, int offset, int length, byte[] mark)
-        {
-            int pos = offset;
-            int matchLevel = -1;
-            int endOffset = offset + length - 1;
-
-            while (pos <= endOffset)
-            {
-                for (matchLevel = 0; matchLevel < mark.Length; matchLevel++)
-                {
-                    //reach the end
-                    if (pos + matchLevel > endOffset)
-                    {
-                        break;
-                    }
-
-                    if (source[pos + matchLevel].CompareTo(mark[matchLevel]) != 0)
-                    {
-                        matchLevel = -1;
-                        break;
-                    }
-                }
-
-                if (matchLevel < 0)
-                {
-                    pos++;
-                }
-                else
-                {
-                    matchLevel--;
-                    if (matchLevel == (mark.Length - 1))
-                    {
-                        if ((pos + matchLevel) == (offset + length - 1))
-                        {
-                            return new SearhMarkResult
-                            {
-                                ResultType = SearhMarkResultType.MatchEnd,
-                                EndPos = pos + matchLevel
-                            };
-                        }
-                        else
-                        {
-                            return new SearhMarkResult
-                            {
-                                ResultType = SearhMarkResultType.FoundEnd,
-                                EndPos = pos + matchLevel
-                            };
-                        }
-                    }
-                    else
-                    {
-                        return new SearhMarkResult
-                        {
-                            ResultType = SearhMarkResultType.FoundStart,
-                            EndPos = pos + matchLevel,
-                            LeftMark = mark.Skip(matchLevel + 1).ToArray()
-                        };
-                    }
-                }
-            }
-
-            return new SearhMarkResult
-            {
-                ResultType = SearhMarkResultType.None,
-                EndPos = 0
-            };
-        }
-    }
-
-
-    class SearhMarkResult
-    {
-        public SearhMarkResultType ResultType { get; set; }
-        public int EndPos { get; set; }
-        public byte[] LeftMark { get; set; }
-    }
-
-    enum SearhMarkResultType
-    {
-        None,
-        FoundStart,
-        FoundEnd,
-        MatchEnd
     }
 }

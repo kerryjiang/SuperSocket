@@ -72,8 +72,12 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="AsyncSocketServer.cs" />
     <Compile Include="AsyncSocketSession.cs" />
+    <Compile Include="AsyncSocket\AsyncCommandReader.cs" />
     <Compile Include="AsyncSocket\AsyncUserToken.cs" />
     <Compile Include="AsyncSocket\BufferManager.cs" />
+    <Compile Include="AsyncSocket\NormalAsyncCommandReader.cs" />
+    <Compile Include="AsyncSocket\PartMatchedAsyncCommandReader.cs" />
+    <Compile Include="AsyncSocket\SearhMarkResult.cs" />
     <Compile Include="AsyncSocket\SocketAsyncEventArgPool.cs" />
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs" />
     <Compile Include="AuthenticationManager.cs" />
