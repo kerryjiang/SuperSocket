@@ -254,85 +254,16 @@ namespace SuperSocket.SocketServiceCore
             {
                 thisRead = m_Stream.Read(buffer, 0, buffer.Length);
 
-                if (thisRead > 0)
-                {
-                    if (thisRead >= endMark.Length)
-                    {
-                        if (EndsWith(buffer, 0, thisRead, endMark))
-                        {
-                            storeSteram.Write(buffer, 0, thisRead);
-                            return;
-                        }
-                        else
-                        {
-                            storeSteram.Write(buffer, 0, thisRead);
-                            Array.Copy(buffer, thisRead - endMark.Length - 1, lastData, 0, endMark.Length);
-                            lastDataSzie = endMark.Length;
-                        }
-                    }
-                    else
-                    {
-                        bool matched = false;
-
-                        int searchIndex = endMark.Length - 1;
-
-                        for (int i = thisRead - 1; i >= 0 && searchIndex >= 0; i--, searchIndex--)
-                        {
-                            if (endMark[searchIndex] != buffer[i])
-                            {
-                                matched = false;
-                                break;
-                            }
-                            else
-                            {
-                                matched = true;
-                            }
-                        }
-
-                        if (lastDataSzie > 0)
-                        {
-                            for (int i = lastDataSzie - 1; i >= 0 && searchIndex >= 0; i--, searchIndex--)
-                            {
-                                if (endMark[searchIndex] != lastData[i])
-                                {
-                                    matched = false;
-                                    break;
-                                }
-                                else
-                                {
-                                    matched = true;
-                                }
-                            }
-                        }
-
-                        if (matched && searchIndex < 0)
-                        {
-                            storeSteram.Write(buffer, 0, thisRead);
-                            return;
-                        }
-                        else
-                        {
-                            storeSteram.Write(buffer, 0, thisRead);
-
-                            if (lastDataSzie + thisRead <= lastData.Length)
-                            {
-                                Array.Copy(buffer, 0, lastData, lastDataSzie, thisRead);
-                                lastDataSzie = lastDataSzie + thisRead;
-                            }
-                            else
-                            {
-                                Array.Copy(lastData, thisRead + lastDataSzie - lastData.Length, lastData, 0, lastData.Length - thisRead);
-                                Array.Copy(buffer, 0, lastData, lastDataSzie, thisRead);
-                                lastDataSzie = endMark.Length;
-                            }
-                        }
-                    }
-                }
-                else
+                if (thisRead <= 0)
                 {
                     Thread.Sleep(100);
                     continue;
                 }
+
+                storeSteram.Write(buffer, 0, thisRead);
+
+                if (DetectEndMark(buffer, thisRead, endMark, lastData, ref lastDataSzie))
+                    return;
             }
         }
     }

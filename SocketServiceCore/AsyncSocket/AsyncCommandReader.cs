@@ -53,7 +53,7 @@ namespace SuperSocket.SocketServiceCore.AsyncSocket
 
         protected SearhMarkResult FindCommandDirectly(SocketAsyncEventArgs e, int offset, byte[] endMark, out byte[] commandData)
         {
-            int? result = BinaryUtil.SearchMark(e.Buffer, offset, e.BytesTransferred, endMark);
+            int? result = e.Buffer.SearchMark(offset, e.BytesTransferred, endMark);
 
             if (!result.HasValue)
             {

@@ -74,5 +74,17 @@ namespace SuperSocket.Test.Common
             Assert.AreEqual(3, source.IndexOf('o'));
             Assert.AreEqual(4, source.IndexOf('v'));
         }
+
+        [Test]
+        public void TestEndsWith()
+        {
+            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegmentItem<char>>
+                {
+                    new ArraySegmentItem<char>("I love you,".ToCharArray(), 0, 5),
+                    new ArraySegmentItem<char>("Hello world!".ToCharArray(), 0, 4)
+                });
+
+            Assert.AreEqual(true, source.EndsWith("Hell".ToCharArray()));
+        }
     }
 }

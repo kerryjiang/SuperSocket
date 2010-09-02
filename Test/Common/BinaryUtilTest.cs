@@ -63,7 +63,7 @@ namespace SuperSocket.Test.Common
             byte[] source = Encoding.ASCII.GetBytes("I love you so mu");
             byte[] mark = Encoding.ASCII.GetBytes("xxx");
 
-            Assert.AreEqual(-1, BinaryUtil.StartWith(source, mark));
+            Assert.AreEqual(-1, BinaryUtil.StartsWith(source, mark));
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace SuperSocket.Test.Common
             byte[] source = Encoding.ASCII.GetBytes("I love you so mu");
             byte[] mark = Encoding.ASCII.GetBytes("I love");
 
-            Assert.AreEqual(mark.Length, BinaryUtil.StartWith(source, mark));
+            Assert.AreEqual(mark.Length, BinaryUtil.StartsWith(source, mark));
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace SuperSocket.Test.Common
             byte[] source = Encoding.ASCII.GetBytes("I love");
             byte[] mark = Encoding.ASCII.GetBytes("I love you so mu");
 
-            Assert.AreEqual(source.Length, BinaryUtil.StartWith(source, mark));
+            Assert.AreEqual(source.Length, BinaryUtil.StartsWith(source, mark));
         }
     }
 }

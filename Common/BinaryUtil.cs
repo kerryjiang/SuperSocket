@@ -19,12 +19,12 @@ namespace SuperSocket.Common
             return -1;
         }
 
-        public static int? SearchMark(IList<byte> source, byte[] mark)
+        public static int? SearchMark(this IList<byte> source, byte[] mark)
         {
             return SearchMark(source, 0, source.Count, mark);
         }  
 
-        public static int? SearchMark(IList<byte> source, int offset, int length, byte[] mark)
+        public static int? SearchMark(this IList<byte> source, int offset, int length, byte[] mark)
         {
             int pos = offset;
             int endOffset = offset + length - 1;
@@ -65,13 +65,13 @@ namespace SuperSocket.Common
             }
         }
 
-        public static int StartWith(byte[] source, byte[] mark)
+        public static int StartsWith(this IList<byte> source, byte[] mark)
         {
-            return StartWith(source, 0, source.Length, mark);
+            return source.StartsWith(0, source.Count, mark);
         }
 
-        public static int StartWith(byte[] source, int offset, int length, byte[] mark)
-        {
+        public static int StartsWith(this IList<byte> source, int offset, int length, byte[] mark)
+        {            
             int pos = offset;
             int endOffset = offset + length - 1;
 
@@ -87,6 +87,25 @@ namespace SuperSocket.Common
             }
 
             return mark.Length;
+        }
+
+        public static bool EndsWith<T>(this IList<T> source, T[] mark)
+        {
+            return source.EndsWith(0, source.Count, mark);
+        }
+
+        public static bool EndsWith<T>(this IList<T> source, int offset, int length, T[] mark)
+        {
+            if (mark.Length > length)
+                return false;
+
+            for (int i = 0; i < Math.Min(length, mark.Length); i++)
+            {
+                if (!mark[i].Equals(source[offset + length - mark.Length + i]))
+                    return false;
+            }
+
+            return true;
         }
     }
 }

@@ -247,18 +247,44 @@ namespace SuperSocket.SocketServiceCore
             }
         }
 
-        protected bool EndsWith(byte[] buffer, int offset, int length, byte[] endData)
+        protected bool DetectEndMark(byte[] buffer, int thisRead, byte[] endMark, byte[] lastData, ref int lastDataSzie)
         {
-            if (length < endData.Length)
-                return false;
-
-            for (int i = 1; i <= endData.Length; i++)
+            if (thisRead >= endMark.Length)
             {
-                if (endData[endData.Length - i] != buffer[offset + length - i])
-                    return false;
+                if (buffer.EndsWith(0, thisRead, endMark))
+                    return true;
+
+                Array.Copy(buffer, thisRead - endMark.Length - 1, lastData, 0, endMark.Length);
+                lastDataSzie = endMark.Length;
+            }
+            else
+            {
+                if (lastDataSzie + thisRead < lastData.Length)
+                {
+                    Array.Copy(buffer, 0, lastData, lastDataSzie, thisRead);
+                    lastDataSzie = lastDataSzie + thisRead;
+                }
+                else
+                {
+                    ArraySegmentList<byte> source = new ArraySegmentList<byte>(new List<ArraySegmentItem<byte>>
+                                {
+                                    new ArraySegmentItem<byte>(lastData, 0, lastDataSzie),
+                                    new ArraySegmentItem<byte>(buffer, 0, thisRead)
+                                });
+
+                    if (source.EndsWith(endMark))
+                        return true;
+
+                    for (int i = 0; i < endMark.Length; i++)
+                    {
+                        lastData[i] = source[source.Count - endMark.Length + i];
+                    }
+
+                    lastDataSzie = endMark.Length;
+                }
             }
 
-            return true;
+            return false;
         }
     }
 
