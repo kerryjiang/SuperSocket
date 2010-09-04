@@ -8,8 +8,8 @@
     <ProjectGuid>{6967B4E6-474F-4D79-BD4D-BD701A8A6085}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>EchoService</RootNamespace>
-    <AssemblyName>EchoService</AssemblyName>
+    <RootNamespace>SuperSocket.QuickStart.EchoService</RootNamespace>
+    <AssemblyName>SuperSocket.QuickStart.EchoService</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -51,10 +51,23 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Common\Common.csproj">
+      <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SocketServiceCore\SocketServiceCore.csproj">
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
       <Name>SocketServiceCore</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SocketService\SocketService.csproj">
+      <Project>{B9113694-7226-4152-938D-3172B11571A1}</Project>
+      <Name>SocketService</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="SuperSocket.SocketService.exe.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

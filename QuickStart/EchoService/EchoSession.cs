@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketServiceCore;
 
-namespace EchoService
+namespace SuperSocket.QuickStart.EchoService
 {
     public class EchoSession : AppSession<EchoSession>
     {
