@@ -5,6 +5,7 @@ using System.Configuration;
 
 namespace SuperSocket.SocketServiceCore.Configuration
 {
+    [ConfigurationCollection(typeof(Service), AddItemName = "service")]   
     public class ServiceCollection : ConfigurationElementCollection
     {
         public Service this[int index]

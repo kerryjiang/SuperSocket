@@ -5,6 +5,7 @@ using System.Configuration;
 
 namespace SuperSocket.SocketServiceCore.Configuration
 {
+    [ConfigurationCollection(typeof(Server), AddItemName = "server")] 
     public class ServerCollection : ConfigurationElementCollection
     {
         public Server this[int index]
