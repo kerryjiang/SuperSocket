@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BroadcastService")]
+[assembly: AssemblyTitle("RemoteProcessService")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Microsoft")]
-[assembly: AssemblyProduct("BroadcastService")]
+[assembly: AssemblyProduct("RemoteProcessService")]
 [assembly: AssemblyCopyright("Copyright © Microsoft 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3fa3ae47-b237-4149-bed5-a6217aba3a55")]
+[assembly: Guid("105e35f7-c1e6-4b4d-8fe2-f700b74e4522")]
 
 // Version information for an assembly consists of the following four values:
 //
