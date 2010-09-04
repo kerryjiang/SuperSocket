@@ -1,0 +1,63 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 10.00
+# Visual Studio 2008
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomCommandParser", "CustomCommandParser\CustomCommandParser.csproj", "{18457034-1FC3-4464-AA10-23B58EB1B0D5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\Common\Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketServiceCore", "..\SocketServiceCore\SocketServiceCore.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketService", "..\SocketService\SocketService.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoService", "EchoService\EchoService.csproj", "{6967B4E6-474F-4D79-BD4D-BD701A8A6085}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SuperSocket", "SuperSocket", "{2E6E656A-D747-4A69-B300-8C82573A76B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteProcessService", "RemoteProcessService\RemoteProcessService.csproj", "{CA67AA73-42D0-4A08-85C4-61FB569231A8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BroadcastService", "BroadcastService\BroadcastService.csproj", "{083155D6-A0A2-4703-AC43-7C6496A9B607}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{18457034-1FC3-4464-AA10-23B58EB1B0D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18457034-1FC3-4464-AA10-23B58EB1B0D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18457034-1FC3-4464-AA10-23B58EB1B0D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18457034-1FC3-4464-AA10-23B58EB1B0D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9113694-7226-4152-938D-3172B11571A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9113694-7226-4152-938D-3172B11571A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9113694-7226-4152-938D-3172B11571A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9113694-7226-4152-938D-3172B11571A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6967B4E6-474F-4D79-BD4D-BD701A8A6085}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6967B4E6-474F-4D79-BD4D-BD701A8A6085}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6967B4E6-474F-4D79-BD4D-BD701A8A6085}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6967B4E6-474F-4D79-BD4D-BD701A8A6085}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{083155D6-A0A2-4703-AC43-7C6496A9B607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{083155D6-A0A2-4703-AC43-7C6496A9B607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{083155D6-A0A2-4703-AC43-7C6496A9B607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{083155D6-A0A2-4703-AC43-7C6496A9B607}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A} = {2E6E656A-D747-4A69-B300-8C82573A76B5}
+		{B9113694-7226-4152-938D-3172B11571A1} = {2E6E656A-D747-4A69-B300-8C82573A76B5}
+		{153FEF72-191C-43D9-BE71-2B351C7AC760} = {2E6E656A-D747-4A69-B300-8C82573A76B5}
+	EndGlobalSection
+EndGlobal
