@@ -79,9 +79,19 @@ namespace SuperSocket.Test.Common
         public void StartWithLenth2()
         {
             byte[] source = Encoding.ASCII.GetBytes("I love");
-            byte[] mark = Encoding.ASCII.GetBytes("I love you so mu");
+            byte[] mark = Encoding.ASCII.GetBytes("I love you so much");
 
             Assert.AreEqual(source.Length, BinaryUtil.StartsWith(source, mark));
+        }
+
+        [Test]
+        public void TestEndsWith()
+        {
+            byte[] source = Encoding.ASCII.GetBytes("I love you so much");
+            byte[] markA = Encoding.ASCII.GetBytes("much");
+            byte[] markB = Encoding.ASCII.GetBytes("much1");
+            Assert.AreEqual(true, source.EndsWith(markA));
+            Assert.AreEqual(false, source.EndsWith(markB));
         }
     }
 }
