@@ -156,35 +156,35 @@ namespace SuperSocket.SocketServiceCore
                 return element.Value;
         }
 
-        public static ServiceCredentials GetServiceCredentials(ICredentialConfig config)
-        {
-            ServiceCredentials credential = new ServiceCredentials();
+        //public static ServiceCredentials GetServiceCredentials(ICredentialConfig config)
+        //{
+        //    ServiceCredentials credential = new ServiceCredentials();
 
-            try
-            {
-                credential.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom;
-                credential.UserNameAuthentication.CachedLogonTokenLifetime = TimeSpan.FromHours(1);
-                credential.UserNameAuthentication.CacheLogonTokens = true;
-                credential.UserNameAuthentication.CustomUserNamePasswordValidator = new SocketManagerPasswordValidator(config);
-                credential.ServiceCertificate.SetCertificate(StoreLocation.LocalMachine, StoreName.My, X509FindType.FindBySubjectName, "GiantSocketServer");
-            }
-            catch (Exception e)
-            {
-                //X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-                //store.Open(OpenFlags.ReadWrite);
-                //LogUtil.LogInfo("All certificates count:" + store.Certificates.Count);
-                //X509Certificate2Collection certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
-                //LogUtil.LogInfo("Certificates count:" + certs.Count);
-                //if (certs != null && certs.Count > 1)
-                //{
-                //    store.Remove(certs[0]);
-                //    store.Close();
-                //}
-                LogUtil.LogError(e);
-                credential = null;
-            }
+        //    try
+        //    {
+        //        credential.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom;
+        //        credential.UserNameAuthentication.CachedLogonTokenLifetime = TimeSpan.FromHours(1);
+        //        credential.UserNameAuthentication.CacheLogonTokens = true;
+        //        credential.UserNameAuthentication.CustomUserNamePasswordValidator = new SocketManagerPasswordValidator(config);
+        //        credential.ServiceCertificate.SetCertificate(StoreLocation.LocalMachine, StoreName.My, X509FindType.FindBySubjectName, "GiantSocketServer");
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        //X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
+        //        //store.Open(OpenFlags.ReadWrite);
+        //        //LogUtil.LogInfo("All certificates count:" + store.Certificates.Count);
+        //        //X509Certificate2Collection certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
+        //        //LogUtil.LogInfo("Certificates count:" + certs.Count);
+        //        //if (certs != null && certs.Count > 1)
+        //        //{
+        //        //    store.Remove(certs[0]);
+        //        //    store.Close();
+        //        //}
+        //        LogUtil.LogError(e);
+        //        credential = null;
+        //    }
 
-            return credential;
-        }
+        //    return credential;
+        //}
     }
 }

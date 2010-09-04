@@ -27,15 +27,6 @@ namespace SuperSocket.SocketServiceCore.Configuration
             }
         }
 
-        [ConfigurationProperty("certificate", IsRequired = false)]
-        public CertificateConfig Certificate
-        {
-            get
-            {
-                return this["certificate"] as CertificateConfig;
-            }
-        }
-
         [ConfigurationProperty("credential", IsRequired = false)]
         public CredentialConfig Credential
         {
@@ -75,11 +66,6 @@ namespace SuperSocket.SocketServiceCore.Configuration
             }
 
             return serverList;
-        }
-
-        public ICertificateConfig GetCertificate()
-        {
-            return Certificate;
         }
 
         public List<IServiceConfig> GetServiceList()

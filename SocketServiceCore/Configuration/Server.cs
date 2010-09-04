@@ -133,5 +133,16 @@ namespace SuperSocket.SocketServiceCore.Configuration
             get { return (int)this["idleSessionTimeOut"]; }
         }
 
+
+        [ConfigurationProperty("certificate", IsRequired = false)]
+        public CertificateConfig CertificateConfig
+        {
+            get { return (CertificateConfig)this["certificate"]; }
+        }
+
+        public ICertificateConfig Certificate
+        {
+            get { return CertificateConfig; }
+        }
     }
 }

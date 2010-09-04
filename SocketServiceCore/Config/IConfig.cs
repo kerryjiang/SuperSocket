@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SuperSocket.SocketServiceCore.Config
 {
-    public interface IConfig : IGetCerticateConfig
+    public interface IConfig
     {
         List<IServerConfig> GetServerList();
 

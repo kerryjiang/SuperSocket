@@ -12,6 +12,8 @@ using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Config;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Security.Cryptography.X509Certificates;
+using SuperSocket.SocketServiceCore.Security;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -20,6 +22,7 @@ namespace SuperSocket.SocketServiceCore
     {
         IServerConfig Config { get; }
         ICommandParser CommandParser { get; }
+        X509Certificate Certificate { get; }
         T CreateAppSession(ISocketSession socketSession);
     }
 
@@ -35,6 +38,8 @@ namespace SuperSocket.SocketServiceCore
         public virtual ICommandParser CommandParser { get; protected set; }
 
         public virtual ICommandParameterParser CommandParameterParser { get; protected set; }
+
+        public virtual X509Certificate Certificate { get; protected set; }
 
         private string m_ConsoleBaseAddress;
 
@@ -113,6 +118,12 @@ namespace SuperSocket.SocketServiceCore
                     return false;
             }
 
+            if (config.Certificate != null)
+            {
+                if (!SetupCertificate(config))
+                    return false;
+            }
+
             return true;
         }
 
@@ -181,6 +192,20 @@ namespace SuperSocket.SocketServiceCore
             catch (Exception e)
             {
                 LogUtil.LogError(this, e);
+                return false;
+            }
+        }
+
+        private bool SetupCertificate(IServerConfig config)
+        {
+            try
+            {                
+                Certificate = CertificateManager.Initialize(config.Certificate);
+                return true;
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(this, "Failed to initialize certificate!", e);
                 return false;
             }
         }

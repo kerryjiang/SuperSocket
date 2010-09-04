@@ -46,6 +46,8 @@ namespace SuperSocket.SocketServiceCore.Config
 
         public int IdleSessionTimeOut { get; set; }
 
+        public ICertificateConfig Certificate { get; set; }
+
         #endregion
     }
 }

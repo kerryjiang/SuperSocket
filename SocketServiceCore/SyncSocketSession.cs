@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
-using System.IO;
-using System.Security.Authentication;
-using System.Net.Security;
+using SuperSocket.SocketServiceCore.Security;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -91,7 +92,7 @@ namespace SuperSocket.SocketServiceCore
                 case (SslProtocols.Ssl3):
                 case (SslProtocols.Ssl2):
                     SslStream sslStream = new SslStream(new NetworkStream(Client), false);
-                    sslStream.AuthenticateAsServer(AuthenticationManager.GetCertificate(), false, SslProtocols.Default, true);
+                    sslStream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, true);
                     m_Stream = sslStream as Stream;
                     break;
                 default:

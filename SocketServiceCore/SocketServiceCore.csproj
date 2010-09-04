@@ -80,7 +80,6 @@
     <Compile Include="AsyncSocket\SearhMarkResult.cs" />
     <Compile Include="AsyncSocket\SocketAsyncEventArgPool.cs" />
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs" />
-    <Compile Include="AuthenticationManager.cs" />
     <Compile Include="AuthenticationResult.cs" />
     <Compile Include="Command\BasicCommandParser.cs" />
     <Compile Include="Command\CommandBase.cs" />
@@ -101,7 +100,6 @@
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IConfig.cs" />
     <Compile Include="Config\ICredentialConfig.cs" />
-    <Compile Include="Config\IGetCerticateConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
@@ -113,6 +111,8 @@
     <Compile Include="ISocketSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ProviderBase.cs" />
+    <Compile Include="Security\Certificate.cs" />
+    <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="SocketContext.cs" />
     <Compile Include="SocketContextStatus.cs" />
     <Compile Include="SocketManagerPasswordValidator.cs" />

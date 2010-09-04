@@ -59,5 +59,11 @@ namespace SuperSocket.SocketServiceCore.Config
         /// </summary>
         /// <value>The idle session time out.</value>
         int IdleSessionTimeOut { get; }
+
+        /// <summary>
+        /// Gets X509Certificate configuration.
+        /// </summary>
+        /// <value>X509Certificate configuration.</value>
+        ICertificateConfig Certificate { get; }
     }
 }
