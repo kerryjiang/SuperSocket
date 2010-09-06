@@ -4,15 +4,15 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel;
+using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Config;
-using System.ServiceModel;
-using System.ServiceModel.Channels;
-using System.Security.Cryptography.X509Certificates;
 using SuperSocket.SocketServiceCore.Security;
 
 namespace SuperSocket.SocketServiceCore

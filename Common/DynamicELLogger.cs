@@ -55,7 +55,7 @@ namespace SuperSocket.Common
                 {
                     logSources.Add(new LogSource(app + "." + cate, new List<TraceListener>
                         {
-                            new RollingFlatFileTraceListener(string.Format(logPath, app, cate), "", "", formatters[cate], 0, "yyyy-MM-dd", RollFileExistsBehavior.Overwrite, RollInterval.Day)
+                            new RollingFlatFileTraceListener(string.Format(logPath, app, cate), "", "", formatters[cate], 0, "yyyyMMdd", RollFileExistsBehavior.Overwrite, RollInterval.Day)
                         }, SourceLevels.All));
                 }
             }

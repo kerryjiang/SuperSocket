@@ -27,7 +27,6 @@ namespace SuperSocket.SocketServiceCore
         where T : IAppSession, new()
     {
         void Initialize(IAppServer<T> server, ISocketSession socketSession);
-        //IAppServer<T> AppServer { get; }
     }
 
     public abstract class AppSession<TAppSession, TAppServer, TSocketContext> : IAppSession, IAppSession<TAppSession>

@@ -76,17 +76,11 @@ namespace SuperSocket.SocketService
 
         static void RunAsService()
         {
-            ServiceBase[] ServicesToRun;
+            ServiceBase[] servicesToRun;
 
-            // More than one user Service may run within the same process. To add
-            // another service to this process, change the following line to
-            // create a second service object. For example,
-            //
-            //   ServicesToRun = new ServiceBase[] {new Service1(), new MySecondUserService()};
-            //
-            ServicesToRun = new ServiceBase[] { new MainService() };
+            servicesToRun = new ServiceBase[] { new MainService() };
 
-            ServiceBase.Run(ServicesToRun);
+            ServiceBase.Run(servicesToRun);
         }
     }
 }

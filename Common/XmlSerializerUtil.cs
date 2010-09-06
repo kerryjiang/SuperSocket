@@ -51,7 +51,7 @@ namespace SuperSocket.Common
             try
             {
                 stream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.Write);
-                writer = XmlWriter.Create(stream, GetWriterSetting());                
+                writer = XmlWriter.Create(stream, GetWriterSetting());
                 worker.Serialize(writer, target);
                 return true;
             }

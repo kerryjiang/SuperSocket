@@ -9,7 +9,7 @@ namespace SuperSocket.Common
 
         public void LogError(Exception e)
         {
-            EventLog.WriteEntry("SuperSocket", e.Message + Environment.NewLine + e.StackTrace, EventLogEntryType.Error);
+            EventLog.WriteEntry("SuperSocket.", e.Message + Environment.NewLine + e.StackTrace, EventLogEntryType.Error);
         }
 
         public void LogError(ILogApp app, Exception e)
@@ -29,7 +29,7 @@ namespace SuperSocket.Common
 
         public void LogError(string message)
         {
-            EventLog.WriteEntry("SuperSocket", message, EventLogEntryType.Error);
+            EventLog.WriteEntry("SuperSocket.", message, EventLogEntryType.Error);
         }
 
         public void LogError(ILogApp app, string message)
@@ -39,7 +39,7 @@ namespace SuperSocket.Common
 
         public void LogDebug(string message)
         {
-            EventLog.WriteEntry("SuperSocket", message, EventLogEntryType.Information);
+            EventLog.WriteEntry("SuperSocket.", message, EventLogEntryType.Information);
         }
 
         public void LogDebug(ILogApp app, string message)
@@ -49,7 +49,7 @@ namespace SuperSocket.Common
 
         public void LogInfo(string message)
         {
-            EventLog.WriteEntry("SuperSocket", message, EventLogEntryType.Information);
+            EventLog.WriteEntry("SuperSocket.", message, EventLogEntryType.Information);
         }
 
         public void LogInfo(ILogApp app, string message)
@@ -59,7 +59,7 @@ namespace SuperSocket.Common
 
         public void LogPerf(string message)
         {
-            EventLog.WriteEntry("SuperSocket", message, EventLogEntryType.Information);
+            EventLog.WriteEntry("SuperSocket.", message, EventLogEntryType.Information);
         }
 
         public void LogPerf(ILogApp app, string message)
