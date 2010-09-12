@@ -34,36 +34,32 @@ namespace SuperSocket.SocketServiceCore.AsyncSocket
                 m_CurrentMatchedCount++;
             }
 
-            if (m_CurrentMatchedCount != 0)
+            //skip checked bytes and then search endmark anew
+            if (m_CurrentMatchedCount == 0)                
+                return FindCommandDirectly(e, e.Offset + i, endMark, out commandData);
+
+            //Found end
+            if (m_CurrentMatchedCount == endMark.Length)
             {
-                //Found end
-                if (m_CurrentMatchedCount == endMark.Length)
+                var buffer = SaveBuffer(e.Buffer, e.Offset, i);
+                commandData = buffer.Take(buffer.Count - endMark.Length).ToArray();
+                buffer.Clear();
+                SaveBuffer(e.Buffer, e.Offset + i, e.BytesTransferred - i);
+                return new SearhMarkResult
                 {
-                    var buffer = SaveBuffer(e.Buffer, e.Offset, i);
-                    commandData = buffer.Take(buffer.Count - endMark.Length).ToArray();
-                    buffer.Clear();
-                    SaveBuffer(e.Buffer, e.Offset + i, e.BytesTransferred - i);
-                    return new SearhMarkResult
-                    {
-                        Status = SearhMarkStatus.Found,
-                        Value = e.Offset
-                    };
-                }
-                else
-                {
-                    commandData = new byte[0];
-                    SaveBuffer(e.Buffer, e.Offset, e.BytesTransferred);
-                    return new SearhMarkResult
-                    {
-                        Status = SearhMarkStatus.FoundStart,
-                        Value = m_CurrentMatchedCount
-                    };
-                }
+                    Status = SearhMarkStatus.Found,
+                    Value = e.Offset
+                };
             }
             else
             {
-                //skip checked bytes and then search endmark anew
-                return FindCommandDirectly(e, e.Offset + i, endMark, out commandData);
+                commandData = new byte[0];
+                SaveBuffer(e.Buffer, e.Offset, e.BytesTransferred);
+                return new SearhMarkResult
+                {
+                    Status = SearhMarkStatus.FoundStart,
+                    Value = m_CurrentMatchedCount
+                };
             }
         }
     }

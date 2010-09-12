@@ -22,7 +22,7 @@ namespace SuperSocket.SocketServiceCore
         void Stop();
     }
 
-    abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IAsyncRunner
+    abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IAsyncRunner, IDisposable
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>, new()        
     {
@@ -45,6 +45,7 @@ namespace SuperSocket.SocketServiceCore
 
         public virtual bool Start()
         {
+            IsStopped = false;
             return true;
         }
 
@@ -72,8 +73,8 @@ namespace SuperSocket.SocketServiceCore
 
         protected bool VerifySocketServerRunning(bool isRunning)
         {
-            //waiting 5 seconds
-            int steps = 10 * 5;
+            //waiting 10 seconds
+            int steps = 10 * 10;
 
             while (steps > 0)
             {
@@ -92,5 +93,17 @@ namespace SuperSocket.SocketServiceCore
         {
             IsStopped = true;
         }
+
+        #region IDisposable Members
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected abstract void Dispose(bool disposing);
+
+        #endregion
     }
 }

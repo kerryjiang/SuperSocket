@@ -170,7 +170,7 @@ namespace SuperSocket.SocketServiceCore
             m_MaxConnectionSemaphore.Release();
 
             IAsyncSocketSession socketSession = sender as IAsyncSocketSession;
-            if (socketSession != null)
+            if (socketSession != null && this.m_ReadWritePool != null)
                 this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
         }
 
@@ -184,7 +184,25 @@ namespace SuperSocket.SocketServiceCore
                 m_ListenSocket = null;
             }
 
-            VerifySocketServerRunning(false);
+            if (m_ReadWritePool != null)
+                m_ReadWritePool = null;
+
+            if (m_BufferManager != null)
+                m_BufferManager = null;
+
+            VerifySocketServerRunning(false);            
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (IsRunning)
+                    Stop();
+
+                m_TcpClientConnected.Close();
+                m_MaxConnectionSemaphore.Close();
+            }
         }
     }
 }

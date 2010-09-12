@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Reflection;
 using System.IO;
+using System.Linq;
 
 namespace SuperSocket.Common
 {
@@ -42,6 +43,12 @@ namespace SuperSocket.Common
                 result = null;
                 return false;
             }
+        }
+
+        public static IEnumerable<Type> GetImplementTypes<TBaseType>(this Assembly assembly)
+        {
+            return assembly.GetExportedTypes().Where(t =>
+                t.IsSubclassOf(typeof(TBaseType)) && t.IsClass && !t.IsAbstract);
         }
     }
 }

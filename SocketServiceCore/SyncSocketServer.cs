@@ -49,7 +49,7 @@ namespace SuperSocket.SocketServiceCore
                 {
                     m_ListenThread = new Thread(StartListen);
                     m_ListenThread.Start();
-                }
+                }                
 
                 return VerifySocketServerRunning(true);
             }
@@ -58,23 +58,7 @@ namespace SuperSocket.SocketServiceCore
                 LogUtil.LogError(AppServer, e);
                 return false;
             }
-        }
-
-        /// <summary>
-        /// Stops this server.
-        /// </summary>
-        public override void Stop()
-        {
-            base.Stop();
-
-            if (m_ListenSocket != null)
-            {
-                m_ListenSocket.Close();
-                m_ListenSocket = null;
-            }
-
-            VerifySocketServerRunning(false);
-        }
+        }        
 
         /// <summary>
         /// Starts to listen
@@ -142,5 +126,34 @@ namespace SuperSocket.SocketServiceCore
             m_MaxConnectionSemaphore.Release();
         }
 
+        /// <summary>
+        /// Stops this server.
+        /// </summary>
+        public override void Stop()
+        {
+            base.Stop();
+
+            if (IsRunning)
+            {
+                if (m_ListenSocket != null)
+                {
+                    m_ListenSocket.Close();
+                    m_ListenSocket = null;
+                }
+
+                VerifySocketServerRunning(false);
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (IsRunning)
+                    Stop();
+
+                m_MaxConnectionSemaphore.Close();                
+            }
+        }
     }
 }

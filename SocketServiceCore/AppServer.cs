@@ -124,7 +124,21 @@ namespace SuperSocket.SocketServiceCore
                     return false;
             }
 
+            SetupSocketServer();
+
             return true;
+        }
+
+        private void SetupSocketServer()
+        {
+            if (Config.Mode == SocketMode.Sync)
+            {
+                m_SocketServer = new SyncSocketServer<SyncSocketSession<T>, T>(this, m_LocalEndPoint);
+            }
+            else
+            {
+                m_SocketServer = new AsyncSocketServer<AsyncSocketSession<T>, T>(this, m_LocalEndPoint);
+            }
         }
 
         private bool SetupLocalEndpoint(IServerConfig config)
@@ -157,27 +171,20 @@ namespace SuperSocket.SocketServiceCore
 
             try
             {
-                Type typeProvider = typeof(ProviderBase<T>);
-
                 Assembly ass = Assembly.LoadFrom(assemblyFile);
 
-                Type[] arrType = ass.GetExportedTypes();
-
-                for (int i = 0; arrType != null && i < arrType.Length; i++)
+                foreach(var providerType in ass.GetImplementTypes<ProviderBase<T>>())
                 {
-                    //Must be a seal class
-                    if (arrType[i].IsSubclassOf(typeProvider))
+                    ProviderBase<T> provider = ass.CreateInstance(providerType.ToString()) as ProviderBase<T>;
+
+                    if (provider.Init(this, config))
                     {
-                        ProviderBase<T> provider = ass.CreateInstance(arrType[i].ToString()) as ProviderBase<T>;
-                        if (provider.Init(this, config))
-                        {
-                            m_ProviderDict[provider.Name] = provider;
-                        }
-                        else
-                        {
-                            LogUtil.LogError(this, "Failed to initalize provider " + arrType[i].ToString() + "!");
-                            return false;
-                        }
+                        m_ProviderDict[provider.Name] = provider;
+                    }
+                    else
+                    {
+                        LogUtil.LogError(this, "Failed to initalize provider " + providerType.ToString() + "!");
+                        return false;
                     }
                 }
 
@@ -219,21 +226,11 @@ namespace SuperSocket.SocketServiceCore
 
         public virtual bool Start()
         {
-            if (Config.Mode == SocketMode.Sync)
-            {
-                m_SocketServer = new SyncSocketServer<SyncSocketSession<T>, T>(this, m_LocalEndPoint);
-                if (!m_SocketServer.Start())
-                    return false;
-            }
-            else
-            {
-                m_SocketServer = new AsyncSocketServer<AsyncSocketSession<T>, T>(this, m_LocalEndPoint);
-                if (!m_SocketServer.Start())
-                    return false;
-            }
+            if (!m_SocketServer.Start())
+                return false;
 
             if(Config.ClearIdleSession)
-                SetupClearSessionTimer();
+                StartClearSessionTimer();
 
             if (!StartConsoleHost())
             {
@@ -269,38 +266,29 @@ namespace SuperSocket.SocketServiceCore
             }
         }
 
+        private void CloseConsoleHost()
+        {
+            if (m_ConsoleHost == null)
+                return;
+
+            try
+            {
+                m_ConsoleHost.Close();
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(this, "Failed to close console service host for " + Name, e);
+            }
+            finally
+            {
+                m_ConsoleHost = null;
+            }
+        }
+
         public virtual void Stop()
         {
-            if (m_SocketServer != null)
-            {
-                m_SocketServer.Stop();
-            }
-
-            if (m_ClearIdleSessionTimer != null)
-            {
-                m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                m_ClearIdleSessionTimer.Dispose();
-            }
-
-            m_SessionDict.Values.ToList().ForEach(s => s.Close());
-
-            if (m_ConsoleHost != null)
-            {
-                try
-                {
-                    m_ConsoleHost.Close();
-                }
-                catch (Exception e)
-                {
-                    LogUtil.LogError(this, "Failed to close console service host for " + Name, e);
-                }
-                finally
-                {
-                    m_ConsoleHost = null;
-                }
-            }
-
-            m_SocketServer = null;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         public bool IsRunning
@@ -314,11 +302,6 @@ namespace SuperSocket.SocketServiceCore
             }
         }
 
-        /// <summary>
-        /// Gets service provider by name.
-        /// </summary>
-        /// <param name="providerName">Name of the provider.</param>
-        /// <returns></returns>
         protected ProviderBase<T> GetProviderByName(string providerName)
         {
             ProviderBase<T> provider = null;
@@ -380,7 +363,7 @@ namespace SuperSocket.SocketServiceCore
 
         private System.Threading.Timer m_ClearIdleSessionTimer = null;
 
-        private void SetupClearSessionTimer()
+        private void StartClearSessionTimer()
         {
             int interval  = Config.ClearIdleSessionInterval * 1000;//in milliseconds
             m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
@@ -424,12 +407,29 @@ namespace SuperSocket.SocketServiceCore
 
         public void Dispose()
         {
-            if (m_SocketServer != null)
-            {
-                if (m_SocketServer.IsRunning)
-                    m_SocketServer.Stop();
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
 
-                m_SocketServer = null;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (IsRunning)
+                {
+                    m_SocketServer.Stop();
+                }
+
+                if (m_ClearIdleSessionTimer != null)
+                {
+                    m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    m_ClearIdleSessionTimer.Dispose();
+                    m_ClearIdleSessionTimer = null;
+                }
+
+                m_SessionDict.Values.ToList().ForEach(s => s.Close());
+
+                CloseConsoleHost();     
             }
         }
 
