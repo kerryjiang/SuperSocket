@@ -118,7 +118,8 @@ namespace SuperSocket.SocketServiceCore
                     return false;
             }
 
-            if (config.Certificate != null)
+            if (config.Certificate != null
+                && !string.IsNullOrEmpty(config.Certificate.CertificateFilePath))
             {
                 if (!SetupCertificate(config))
                     return false;
@@ -165,7 +166,7 @@ namespace SuperSocket.SocketServiceCore
 
         private bool SetupServiceProviders(IServerConfig config, string assembly)
         {
-            string dir = FileHelper.GetParentFolder(this.GetType().Assembly.Location);
+            string dir = Path.GetDirectoryName(this.GetType().Assembly.Location);
 
             string assemblyFile = Path.Combine(dir, assembly + ".dll");
 
