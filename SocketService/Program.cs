@@ -33,6 +33,7 @@ namespace SuperSocket.SocketService
                 {
                     Console.WriteLine("Press any key to start server!");
                     Console.ReadKey();
+                    Console.WriteLine();
                     RunAsConsole();
                 }
                 else
