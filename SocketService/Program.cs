@@ -63,11 +63,13 @@ namespace SuperSocket.SocketService
                 return;
             }
 
-            Console.WriteLine();
             Console.WriteLine("The server has been started! Press key 'q' to stop the server.");
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
+            {
+                Console.WriteLine();
                 continue;
+            }
 
             SocketServerManager.Stop();
 
