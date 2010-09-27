@@ -28,6 +28,15 @@ namespace SuperSocket.SocketServiceCore.Configuration
             }
         }
 
-        #endregion
+        [ConfigurationProperty("isEnabled", IsRequired = false, DefaultValue = false)]
+        public bool IsEnabled
+        {
+            get
+            {
+                return (bool)this["isEnabled"];
+            }
+        }
+
+        #endregion ICertificateConfig Members
     }
 }

@@ -6,6 +6,8 @@ namespace SuperSocket.SocketServiceCore.Config
 {
     public interface ICertificateConfig
     {
+        bool IsEnabled { get; }
+
         string CertificateFilePath { get; }
 
         string CertificatePassword { get; }

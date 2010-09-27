@@ -119,7 +119,7 @@ namespace SuperSocket.SocketServiceCore
             }
 
             if (config.Certificate != null
-                && !string.IsNullOrEmpty(config.Certificate.CertificateFilePath))
+                && config.Certificate.IsEnabled)
             {
                 if (!SetupCertificate(config))
                     return false;
