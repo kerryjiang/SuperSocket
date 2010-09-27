@@ -50,24 +50,16 @@ namespace SuperSocket.SocketServiceCore
 
         public ServiceCredentials ServerCredentials { get; set; }
 
-        private Dictionary<string, ICommand<T>> dictCommand = new Dictionary<string, ICommand<T>>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, ICommand<T>> m_CommandDict = new Dictionary<string, ICommand<T>>(StringComparer.OrdinalIgnoreCase);
+
+        private ICommandLoader m_CommandLoader = new ReflectCommandLoader();
 
         private void LoadCommands()
         {
-            Type commandType = typeof(ICommand<T>);
-            Assembly asm = typeof(T).Assembly;
-            Type[] arrType = asm.GetExportedTypes();
-
-            for (int i = 0; i < arrType.Length; i++)
+            foreach (var command in m_CommandLoader.LoadCommands<T>())
             {
-                var commandInterface = arrType[i].GetInterfaces().SingleOrDefault(x => x == commandType);
-
-                if (commandInterface != null)
-                {
-                    ICommand<T> command = arrType[i].GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<T>;
-                    command.DefaultParameterParser = CommandParameterParser;
-                    dictCommand[arrType[i].Name] = command;
-                }
+                command.DefaultParameterParser = CommandParameterParser;
+                m_CommandDict[command.GetType().Name] = command;
             }
         }
 
@@ -396,7 +388,7 @@ namespace SuperSocket.SocketServiceCore
         {
             ICommand<T> command;
 
-            if (dictCommand.TryGetValue(commandName, out command))
+            if (m_CommandDict.TryGetValue(commandName, out command))
                 return command;
             else
                 return null;

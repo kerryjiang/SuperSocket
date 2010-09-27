@@ -86,8 +86,10 @@
     <Compile Include="Command\CommandInfo.cs" />
     <Compile Include="Command\FixedSplitCommandParameter.cs" />
     <Compile Include="Command\ICommand.cs" />
+    <Compile Include="Command\ICommandLoader.cs" />
     <Compile Include="Command\ICommandParameterParser.cs" />
     <Compile Include="Command\ICommandParser.cs" />
+    <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Command\SplitAllCommandParameterParser.cs" />
     <Compile Include="Command\TagCommandParser.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
