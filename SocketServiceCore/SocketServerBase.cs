@@ -36,6 +36,8 @@ namespace SuperSocket.SocketServiceCore
 
         protected bool IsStopped { get; set; }
 
+        private ManualResetEvent m_ServerStartupEvent = new ManualResetEvent(false);
+
         public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
         {
             AppServer = appServer;
@@ -46,7 +48,18 @@ namespace SuperSocket.SocketServiceCore
         public virtual bool Start()
         {
             IsStopped = false;
+            m_ServerStartupEvent.Reset();
             return true;
+        }
+
+        protected void WaitForStartupFinished()
+        {
+            m_ServerStartupEvent.WaitOne();
+        }
+
+        protected void OnStartupFinished()
+        {
+            m_ServerStartupEvent.Set();
         }
 
         protected virtual TSocketSession RegisterSession(Socket client)
@@ -102,7 +115,11 @@ namespace SuperSocket.SocketServiceCore
             GC.SuppressFinalize(this);
         }
 
-        protected abstract void Dispose(bool disposing);
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+                m_ServerStartupEvent.Close();
+        }
 
         #endregion
     }

@@ -79,7 +79,9 @@ namespace SuperSocket.SocketServiceCore
                     m_ListenThread.Start();
                 }
 
-                return VerifySocketServerRunning(true);
+                WaitForStartupFinished();
+
+                return IsRunning;
             }
             catch (Exception e)
             {
@@ -91,11 +93,21 @@ namespace SuperSocket.SocketServiceCore
         private void StartListen()
         {
             m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            m_ListenSocket.Bind(this.EndPoint);
-            m_ListenSocket.Listen(100);            
 
-            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+            try
+            {
+                m_ListenSocket.Bind(this.EndPoint);
+                m_ListenSocket.Listen(100);
+
+                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(AppServer, e);
+                OnStartupFinished();
+                return;
+            }
 
             m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
 
@@ -103,6 +115,8 @@ namespace SuperSocket.SocketServiceCore
             acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
 
             IsRunning = true;
+
+            OnStartupFinished();
 
             while (!IsStopped)
             {
@@ -203,6 +217,8 @@ namespace SuperSocket.SocketServiceCore
                 m_TcpClientConnected.Close();
                 m_MaxConnectionSemaphore.Close();
             }
+
+            base.Dispose(disposing);
         }
     }
 }

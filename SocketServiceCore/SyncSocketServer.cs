@@ -49,9 +49,10 @@ namespace SuperSocket.SocketServiceCore
                 {
                     m_ListenThread = new Thread(StartListen);
                     m_ListenThread.Start();
-                }                
+                }
 
-                return VerifySocketServerRunning(true);
+                WaitForStartupFinished();
+                return IsRunning;
             }
             catch (Exception e)
             {
@@ -66,15 +67,27 @@ namespace SuperSocket.SocketServiceCore
         private void StartListen()
         {
             m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            m_ListenSocket.Bind(this.EndPoint);
-            m_ListenSocket.Listen(100);           
 
-            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+            try
+            {
+                m_ListenSocket.Bind(this.EndPoint);
+                m_ListenSocket.Listen(100);
+
+                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(AppServer, e);
+                OnStartupFinished();
+                return;
+            }
 
             m_MaxConnectionSemaphore = new Semaphore(AppServer.Config.MaxConnectionNumber, AppServer.Config.MaxConnectionNumber);
 
             IsRunning = true;
+
+            OnStartupFinished();
 
             while (!IsStopped)
             {
@@ -103,12 +116,11 @@ namespace SuperSocket.SocketServiceCore
                     {
                         //A blocking operation was interrupted by a call to WSACancelBlockingCall
                         //SocketListener has been stopped normally
-                        if (se.ErrorCode == 10004)
+                        if (se.ErrorCode == 10004 || se.ErrorCode == 10038)
                             return;
                     }
 
-                    LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port);
-                    LogUtil.LogError(AppServer, e);
+                    LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
                     return;
                 }
 
@@ -154,6 +166,8 @@ namespace SuperSocket.SocketServiceCore
 
                 m_MaxConnectionSemaphore.Close();                
             }
+
+            base.Dispose(disposing);
         }
     }
 }
