@@ -55,7 +55,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 
         public void StartFroze()
         {
-            int interval = Convert.ToInt32(this.Config.Parameters.GetConfigElementValue("MonitorInterval", "1"));
+            int interval = this.Config.Parameters.GetValue("MonitorInterval", "1").ToInt32();
             TimeSpan intervalTimeSpan = new TimeSpan(0, interval, 0);
             m_MonitorTimer.Change(intervalTimeSpan, intervalTimeSpan);
         }
@@ -67,7 +67,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService
             if (!base.Setup(assembly, config, consoleBaseAddress))
                 return false;
 
-            int interval = Convert.ToInt32(config.Parameters.GetConfigElementValue("MonitorInterval", "1"));
+            int interval = config.Parameters.GetValue("MonitorInterval", "1").ToInt32();
             TimeSpan intervalTimeSpan = new TimeSpan(0, interval, 0);
             m_MonitorTimer = new Timer(new TimerCallback(OnMonitorTimerCallback), new object(), intervalTimeSpan, intervalTimeSpan);
 
