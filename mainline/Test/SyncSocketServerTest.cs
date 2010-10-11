@@ -11,19 +11,20 @@ namespace SuperSocket.Test
     [TestFixture]
     public class SyncSocketServerTest : SocketServerTest
     {
-        public SyncSocketServerTest()
-            : base(new ServerConfig
-            {
-                Ip = "Any",
-                LogCommand = true,
-                MaxConnectionNumber = 1,
-                Mode = SocketMode.Sync,
-                Name = "Sync Test Socket Server",
-                Port = 100
-            })
-
+        protected override IServerConfig DefaultServerConfig
         {
- 
+            get
+            {
+                return new ServerConfig
+                    {
+                        Ip = "Any",
+                        LogCommand = true,
+                        MaxConnectionNumber = 3,
+                        Mode = SocketMode.Sync,
+                        Name = "Sync Test Socket Server",
+                        Port = 100
+                    };
+            }
         }
     }
 }

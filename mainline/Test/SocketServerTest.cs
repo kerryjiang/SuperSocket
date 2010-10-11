@@ -21,9 +21,9 @@ namespace SuperSocket.Test
 
         private readonly IServerConfig m_Config;
 
-        public SocketServerTest(IServerConfig config)
+        public SocketServerTest()
         {
-            m_Config = config;
+            m_Config = DefaultServerConfig;
         }
 
         private TestServer GetServerByIndex(int index)
@@ -59,6 +59,9 @@ namespace SuperSocket.Test
                 return GetServerByIndex(2);
             }
         }
+
+        protected abstract IServerConfig DefaultServerConfig { get; }
+
 
         [TestFixtureSetUp]
         public void Setup()
@@ -128,8 +131,7 @@ namespace SuperSocket.Test
             Console.WriteLine("Socket server X has been started!");
         }
 
-        [TearDown]
-        public void StopServer()
+        private void StopServer()
         {
             if (ServerX.IsRunning)
             {
@@ -150,7 +152,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Repeat(10)]
+        [Test, Repeat(3)]
         public void TestWelcomeMessage()
         {
             StartServer();
@@ -168,6 +170,83 @@ namespace SuperSocket.Test
                     Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, m_Config.Name), welcomeString);
                 }
             }
+        }
+
+        private void TestMaxConnectionNumber(int maxConnectionNumber)
+        {
+            var server = new TestServer();
+            var defaultConfig = DefaultServerConfig;
+
+            var config = new ServerConfig
+            {
+                Ip = defaultConfig.Ip,
+                LogCommand = defaultConfig.LogCommand,
+                MaxConnectionNumber = maxConnectionNumber,
+                Mode = defaultConfig.Mode,
+                Name = defaultConfig.Name,
+                Port = defaultConfig.Port
+            };
+
+            server.Setup(string.Empty, config, string.Empty);
+
+            List<Socket> sockets = new List<Socket>();
+
+            try
+            {
+                server.Start();
+
+                EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+                for (int i = 0; i < maxConnectionNumber; i++)
+                {
+                    Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    socket.Connect(serverAddress);
+                    Stream socketStream = new NetworkStream(socket);
+                    StreamReader reader = new StreamReader(socketStream, Encoding.Default, true);
+                    reader.ReadLine();
+                    sockets.Add(socket);
+                }
+
+                using (Socket trySocket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+                {
+                    Console.WriteLine("Start to connect try socket");
+                    trySocket.Connect(serverAddress);
+                    var innerSocketStream = new NetworkStream(trySocket);
+                    innerSocketStream.ReadTimeout = 500;
+
+                    using (StreamReader tryReader = new StreamReader(innerSocketStream, Encoding.Default, true))
+                    {
+                        Assert.Throws<IOException>(delegate
+                        {
+                            string welcome = tryReader.ReadLine();
+                            Console.WriteLine(welcome);
+                        });
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + " " + e.StackTrace);
+            }
+            finally
+            {
+                sockets.ForEach(s =>
+                {
+                    s.Shutdown(SocketShutdown.Both);
+                    s.Close();
+                });
+
+                server.Stop();
+            }
+        }
+
+        [Test]
+        public void TestMaxConnectionNumber()
+        {
+            TestMaxConnectionNumber(1);
+            TestMaxConnectionNumber(2);
+            TestMaxConnectionNumber(5);
+            TestMaxConnectionNumber(15);
         }
 
         [Test, Repeat(2)]
@@ -238,7 +317,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Repeat(5)]
+        [Test, Repeat(3)]
         public void TestCommandParser()
         {
             if (ServerY.IsRunning)
@@ -266,7 +345,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Repeat(5)]
+        [Test, Repeat(3)]
         public void TestCommandParameterParser()
         {
             if (ServerZ.IsRunning)
