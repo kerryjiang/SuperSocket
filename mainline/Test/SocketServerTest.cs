@@ -131,7 +131,8 @@ namespace SuperSocket.Test
             Console.WriteLine("Socket server X has been started!");
         }
 
-        private void StopServer()
+        [TearDown]
+        public void StopServer()
         {
             if (ServerX.IsRunning)
             {
@@ -381,6 +382,8 @@ namespace SuperSocket.Test
                     Assert.AreEqual(arrParam, received);
                 }
             }
+
+            ServerZ.Stop();
         }
 
         [Test, Repeat(3)]
