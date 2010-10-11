@@ -120,6 +120,7 @@ namespace SuperSocket.SocketServiceCore
 
             while (!IsStopped)
             {
+                m_MaxConnectionSemaphore.WaitOne();
                 m_TcpClientConnected.Reset();
                 acceptEventArg.AcceptSocket = null;
 
@@ -134,6 +135,11 @@ namespace SuperSocket.SocketServiceCore
                     IsRunning = false;
                     return;
                 }
+                catch (NullReferenceException)
+                {
+                    IsRunning = false;
+                    return;
+                }
                 catch (Exception e)
                 {
                     IsRunning = false;
@@ -143,8 +149,7 @@ namespace SuperSocket.SocketServiceCore
 
                 if (!willRaiseEvent)
                     AceptNewClient(acceptEventArg);
-
-                m_MaxConnectionSemaphore.WaitOne();
+                
                 m_TcpClientConnected.WaitOne();
             }
 
@@ -170,7 +175,6 @@ namespace SuperSocket.SocketServiceCore
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 
                 m_TcpClientConnected.Set();
-
                 session.Start();
             }
             else
