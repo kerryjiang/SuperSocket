@@ -123,7 +123,7 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (Exception exc)
                 {
-                    LogUtil.LogError(AppServer, exc);
+                    LogUtil.LogError(AppServer, "An error occurred in session: " + this.SessionID, exc);
                     HandleExceptionalError(exc);
                 }
                 //read the next block of data send from the client

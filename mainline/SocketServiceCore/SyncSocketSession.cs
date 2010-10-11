@@ -138,7 +138,7 @@ namespace SuperSocket.SocketServiceCore
                     if (ioe.InnerException is SocketException)
                     {
                         var se = ioe.InnerException as SocketException;
-                        if (se.ErrorCode == 10004)
+                        if (se.ErrorCode == 10004 || se.ErrorCode == 10053)
                         {
                             this.Close();
                             return false;
@@ -152,7 +152,7 @@ namespace SuperSocket.SocketServiceCore
                     }
                 }
 
-                LogUtil.LogError(AppServer, ioe);
+                LogUtil.LogError(AppServer, "An error occurred in session: " + this.SessionID, ioe);
                 this.Close();
                 return false;
             }
