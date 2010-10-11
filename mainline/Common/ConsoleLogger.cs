@@ -12,21 +12,37 @@ namespace SuperSocket.Common
         public void LogError(Exception e)
         {
             Console.WriteLine(e.Message + " " + e.StackTrace);
+            if (e.InnerException != null)
+            {
+                Console.WriteLine(e.InnerException.Message + " " + e.InnerException.StackTrace);
+            }
         }
 
         public void LogError(ILogApp app, Exception e)
         {
             Console.WriteLine(app.Name + " : " + e.Message + " " + e.StackTrace);
+            if (e.InnerException != null)
+            {
+                Console.WriteLine(e.InnerException.Message + " " + e.InnerException.StackTrace);
+            }
         }
 
         public void LogError(string title, Exception e)
         {
             Console.WriteLine(title + " " + e.Message + " " + e.StackTrace);
+            if (e.InnerException != null)
+            {
+                Console.WriteLine(e.InnerException.Message + " " + e.InnerException.StackTrace);
+            }
         }
 
         public void LogError(ILogApp app, string title, Exception e)
         {
             Console.WriteLine(app.Name + " : " + title + " " + e.Message + " " + e.StackTrace);
+            if (e.InnerException != null)
+            {
+                Console.WriteLine(e.InnerException.Message + " " + e.InnerException.StackTrace);
+            }
         }
 
         public void LogError(string message)
