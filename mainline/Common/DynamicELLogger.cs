@@ -62,7 +62,7 @@ namespace SuperSocket.Common
 
             var nonExistantLog = new LogSource("Empty");
 
-            m_Writer = new LogWriter(new ILogFilter[0], logSources, nonExistantLog, categories[0]);
+            m_Writer = new LogWriterImpl(new ILogFilter[0], logSources, nonExistantLog, categories[0]);
         }
 
         #region ILogger Members

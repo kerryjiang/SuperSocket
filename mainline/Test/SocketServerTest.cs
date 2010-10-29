@@ -7,7 +7,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
-using Rhino.Mocks;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore;
 using SuperSocket.SocketServiceCore.Config;
