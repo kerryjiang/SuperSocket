@@ -54,13 +54,21 @@ namespace SuperSocket.SocketServiceCore
 
         private ICommandLoader m_CommandLoader = new ReflectCommandLoader();
 
-        private void LoadCommands()
+        private bool LoadCommands()
         {
             foreach (var command in m_CommandLoader.LoadCommands<T>())
             {
                 command.DefaultParameterParser = CommandParameterParser;
-                m_CommandDict[command.GetType().Name] = command;
+                if (m_CommandDict.ContainsKey(command.Name))
+                {
+                    LogUtil.LogError(this, "Duplicated name command has been found! Command name: " + command.Name);
+                    return false;
+                }
+
+                m_CommandDict.Add(command.Name, command);
             }
+
+            return true;
         }
 
         private ServiceHost CreateConsoleHost(ConsoleHostInfo consoleInfo)
@@ -102,7 +110,8 @@ namespace SuperSocket.SocketServiceCore
             if (CommandParameterParser == null)
                 CommandParameterParser = new SplitAllCommandParameterParser();
 
-            LoadCommands();
+            if (!LoadCommands())
+                return false;
 
             if (!string.IsNullOrEmpty(assembly))
             {

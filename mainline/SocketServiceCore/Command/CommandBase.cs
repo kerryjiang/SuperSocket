@@ -9,18 +9,17 @@ namespace SuperSocket.SocketServiceCore.Command
     {
         private readonly ICommandParameterParser m_CommandParameterParser;
 
+        public virtual string Name
+        {
+            get { return this.GetType().Name; }
+        }
+
         public CommandBase()
         {
 
         }
 
-        public CommandBase(string spliter)
-            : this(new SplitAllCommandParameterParser(spliter))
-        {
-
-        }
-
-        public CommandBase(ICommandParameterParser commandParameterParser)
+        public CommandBase(ICommandParameterParser commandParameterParser) : this()
         {
             m_CommandParameterParser = commandParameterParser;
         }
