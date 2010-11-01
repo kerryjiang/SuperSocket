@@ -317,6 +317,31 @@ namespace SuperSocket.Test
             }
         }
 
+        [Test]
+        public void TestCustomCommandName()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                {
+                    string welcomeString = reader.ReadLine();
+                    string param = Guid.NewGuid().ToString();
+                    writer.WriteLine("325 " + param);
+                    writer.Flush();
+                    string echoMessage = reader.ReadLine();
+                    Console.WriteLine("C:" + echoMessage);
+                    Assert.AreEqual(string.Format(SuperSocket.Test.Command.NUM.ReplyFormat, param), echoMessage);
+                }
+            }
+        }
+
         [Test, Repeat(3)]
         public void TestCommandParser()
         {
