@@ -20,7 +20,7 @@ namespace SuperSocket.SocketServiceCore
 
         private Semaphore m_MaxConnectionSemaphore;
 
-        private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
+        private ManualResetEvent m_UdpClientConnected = new ManualResetEvent(false);
 
         private BufferManager m_BufferManager;
 
@@ -44,7 +44,8 @@ namespace SuperSocket.SocketServiceCore
                 if (bufferSize <= 0)
                     bufferSize = 1024 * 8;
 
-                m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber * 2, bufferSize);
+                //m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber * 2, bufferSize);
+                m_BufferManager = new BufferManager(bufferSize * 2, bufferSize);
 
                 try
                 {
@@ -56,18 +57,18 @@ namespace SuperSocket.SocketServiceCore
                     return false;
                 }
 
-                m_ReadWritePool = new SocketAsyncEventArgsPool(AppServer.Config.MaxConnectionNumber);
+                m_ReadWritePool = new SocketAsyncEventArgsPool(2);
 
                 // preallocate pool of SocketAsyncEventArgs objects
                 SocketAsyncEventArgs socketEventArg;
 
-                for (int i = 0; i < AppServer.Config.MaxConnectionNumber; i++)
+                for (int i = 0; i < 1; i++)
                 {
                     //Pre-allocate a set of reusable SocketAsyncEventArgs
                     socketEventArg = new SocketAsyncEventArgs();
                     socketEventArg.UserToken = new AsyncUserToken();
+                    socketEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(socketEventArg_Completed);
                     m_BufferManager.SetBuffer(socketEventArg);
-
                     // add SocketAsyncEventArg to the pool
                     m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(socketEventArg));
                 }
@@ -86,6 +87,26 @@ namespace SuperSocket.SocketServiceCore
                 LogUtil.LogError(AppServer, e);
                 return false;
             }
+        }
+
+        void socketEventArg_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            if (e.LastOperation == SocketAsyncOperation.ReceiveFrom)
+            {
+                OnSocketReceived(e);
+            }
+        }
+
+        private void OnSocketReceived(SocketAsyncEventArgs e)
+        {
+            string receivedNessage = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred);
+            var address = e.RemoteEndPoint.Serialize();
+            m_UdpClientConnected.Set();
+
+            var ipAddress = EndPoint.Create(address) as IPEndPoint;
+            TSocketSession session = RegisterSession(null);
+            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+            session.Start();
         }
 
         private void StartListen()
@@ -111,12 +132,13 @@ namespace SuperSocket.SocketServiceCore
 
             while (!IsStopped)
             {
-                Socket client = null;
-
                 try
                 {
-                    m_MaxConnectionSemaphore.WaitOne();
-                    //client = m_ListenSocket.ReceiveFromAsync()
+                    m_UdpClientConnected.WaitOne();
+                    m_MaxConnectionSemaphore.WaitOne();                    
+                    SocketAsyncEventArgs eventArgs = m_ReadWritePool.Pop().SocketEventArgs;
+                    m_ListenSocket.ReceiveFromAsync(eventArgs);
+                    m_UdpClientConnected.Reset();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -142,15 +164,13 @@ namespace SuperSocket.SocketServiceCore
 
                     LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
                     return;
-                }
-
-                TSocketSession session = RegisterSession(client);
-                //session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-
-                Thread thUser = new Thread(session.Start);
-                thUser.IsBackground = true;
-                thUser.Start();
+                }                
             }
+        }
+
+        void session_Closed(object sender, SocketSessionClosedEventArgs e)
+        {
+            m_MaxConnectionSemaphore.Release();
         }
     }
 }

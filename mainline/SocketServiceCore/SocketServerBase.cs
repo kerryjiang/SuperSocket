@@ -64,18 +64,21 @@ namespace SuperSocket.SocketServiceCore
 
         protected virtual TSocketSession RegisterSession(Socket client)
         {
-            //load socket setting
-            if (AppServer.Config.ReadTimeOut > 0)
-                client.ReceiveTimeout = AppServer.Config.ReadTimeOut;
+            if (client != null)
+            {
+                //load socket setting
+                if (AppServer.Config.ReadTimeOut > 0)
+                    client.ReceiveTimeout = AppServer.Config.ReadTimeOut;
 
-            if (AppServer.Config.SendTimeOut > 0)
-                client.SendTimeout = AppServer.Config.SendTimeOut;
+                if (AppServer.Config.SendTimeOut > 0)
+                    client.SendTimeout = AppServer.Config.SendTimeOut;
 
-            if (AppServer.Config.ReceiveBufferSize > 0)
-                client.ReceiveBufferSize = AppServer.Config.ReceiveBufferSize;
+                if (AppServer.Config.ReceiveBufferSize > 0)
+                    client.ReceiveBufferSize = AppServer.Config.ReceiveBufferSize;
 
-            if (AppServer.Config.SendBufferSize > 0)
-                client.SendBufferSize = AppServer.Config.SendBufferSize;
+                if (AppServer.Config.SendBufferSize > 0)
+                    client.SendBufferSize = AppServer.Config.SendBufferSize;
+            }
 
             TSocketSession session = new TSocketSession();
             TAppSession appSession = this.AppServer.CreateAppSession(session);

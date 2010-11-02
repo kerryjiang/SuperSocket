@@ -203,7 +203,7 @@ namespace SuperSocket.SocketServiceCore
         /// Gets the local end point.
         /// </summary>
         /// <value>The local end point.</value>
-        public IPEndPoint LocalEndPoint
+        public virtual IPEndPoint LocalEndPoint
         {
             get { return (IPEndPoint)Client.LocalEndPoint; }
         }
@@ -212,7 +212,7 @@ namespace SuperSocket.SocketServiceCore
         /// Gets the remote end point.
         /// </summary>
         /// <value>The remote end point.</value>
-        public IPEndPoint RemoteEndPoint
+        public virtual IPEndPoint RemoteEndPoint
         {
             get { return (IPEndPoint)Client.RemoteEndPoint; }
         }

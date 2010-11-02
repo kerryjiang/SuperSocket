@@ -11,15 +11,19 @@ namespace SuperSocket.SocketServiceCore
     class UdpSocketSession<T> : SocketSession<T>
         where T : IAppSession, new()
     {
-        public override void Initialize(IAppServer<T> appServer, T appSession, Socket client)
+        public override IPEndPoint LocalEndPoint
         {
-            base.Initialize(appServer, appSession, client);
-            this.IdentityKey = client.RemoteEndPoint.ToString();
+            get { throw new NotSupportedException(); }
+        }
+
+        public override IPEndPoint RemoteEndPoint
+        {
+            get { throw new NotImplementedException(); }
         }
 
         protected override void Start(SocketContext context)
         {
-            throw new NotImplementedException();
+            IdentityKey = RemoteEndPoint.ToString();
         }
 
         public override void SendResponse(SocketContext context, string message)
@@ -29,22 +33,22 @@ namespace SuperSocket.SocketServiceCore
 
         public override void SendResponse(SocketContext context, byte[] data)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override void ApplySecureProtocol(SocketContext context)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override void ReceiveData(Stream storeSteram, int length)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
 
         public override void ReceiveData(Stream storeSteram, byte[] endMark)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }
