@@ -335,7 +335,7 @@ namespace SuperSocket.SocketServiceCore
 
             lock (m_SessionSyncRoot)
             {
-                m_SessionDict[appSession.SessionID] = appSession;
+                m_SessionDict[appSession.IdentityKey] = appSession;
             }
 
             return appSession;
@@ -344,18 +344,18 @@ namespace SuperSocket.SocketServiceCore
         void socketSession_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             //the sender is a sessionID
-            string sessionID = e.SessionID;
+            string identityKey = e.IdentityKey;
 
-            if (string.IsNullOrEmpty(sessionID))
+            if (string.IsNullOrEmpty(identityKey))
                 return;
 
             try
             {
                 lock (m_SessionSyncRoot)
                 {
-                    m_SessionDict.Remove(sessionID);
+                    m_SessionDict.Remove(identityKey);
                 }
-                LogUtil.LogInfo(this, "SocketSession " + sessionID + " was closed!");
+                LogUtil.LogInfo(this, "SocketSession " + identityKey + " was closed!");
             }
             catch (Exception exc)
             {

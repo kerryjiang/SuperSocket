@@ -13,6 +13,7 @@ namespace SuperSocket.SocketServiceCore
     {
         ISocketSession SocketSession { get; }
         string SessionID { get; }
+        string IdentityKey { get; }
         SocketContext Context { get; }
         IServerConfig Config { get; }
         IPEndPoint LocalEndPoint { get; }
@@ -38,7 +39,7 @@ namespace SuperSocket.SocketServiceCore
 
         public AppSession()
         {
-            SessionID = Guid.NewGuid().ToString(); 
+            
         }
 
         public virtual void Initialize(IAppServer<TAppSession> appServer, ISocketSession socketSession)
@@ -48,6 +49,7 @@ namespace SuperSocket.SocketServiceCore
             SocketSession = socketSession;
             SocketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(SocketSession_Closed);
             SessionID = socketSession.SessionID;
+            IdentityKey = socketSession.IdentityKey;
             OnInit();
         }
 
@@ -96,6 +98,8 @@ namespace SuperSocket.SocketServiceCore
         }
 
         public string SessionID { get; private set; }
+
+        public string IdentityKey { get; private set; }
 
         public ISocketSession SocketSession { get; private set; }
 

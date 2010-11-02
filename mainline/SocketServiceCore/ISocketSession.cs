@@ -22,6 +22,7 @@ namespace SuperSocket.SocketServiceCore
         void ApplySecureProtocol(SocketContext context);
         Stream GetUnderlyStream();
         string SessionID { get; }
+        string IdentityKey { get; }
         DateTime LastActiveTime { get; }
         IPEndPoint LocalEndPoint { get; }
         IPEndPoint RemoteEndPoint { get; }

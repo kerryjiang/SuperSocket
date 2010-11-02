@@ -29,7 +29,7 @@ namespace SuperSocket.SocketServiceCore
 
         }
 
-        public void Initialize(IAppServer<T> appServer, T appSession, Socket client)
+        public virtual void Initialize(IAppServer<T> appServer, T appSession, Socket client)
         {
             AppServer = appServer;
             AppSession = appSession;
@@ -48,7 +48,29 @@ namespace SuperSocket.SocketServiceCore
         public string SessionID
         {
             get { return m_SessionID; }
-            set { m_SessionID = value; }
+        }
+
+
+        private string m_IdentityKey;
+        /// <summary>
+        /// Gets or sets the IdentityKey, in some case we cannot use sessionID as key directly
+        /// Then we need to use indentity key
+        /// </summary>
+        /// <value>The IdentityKey.</value>
+        public string IdentityKey
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_IdentityKey))
+                    return m_SessionID;
+
+                return m_IdentityKey;
+            }
+
+            protected set
+            {
+                m_IdentityKey = value;
+            }
         }
 
         private DateTime m_StartTime = DateTime.Now;
@@ -136,7 +158,7 @@ namespace SuperSocket.SocketServiceCore
         {
             var closedHandler = Closed;
             if (closedHandler != null)
-                closedHandler(this, new SocketSessionClosedEventArgs { SessionID = this.SessionID });
+                closedHandler(this, new SocketSessionClosedEventArgs { IdentityKey = this.IdentityKey });
         }
 
         /// <summary>
@@ -290,6 +312,6 @@ namespace SuperSocket.SocketServiceCore
 
     public class SocketSessionClosedEventArgs : EventArgs
     {
-        public string SessionID { get; set; }
+        public string IdentityKey { get; set; }
     }
 }
