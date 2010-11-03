@@ -8,6 +8,7 @@ namespace SuperSocket.SocketServiceCore
     public enum SocketMode
     {
         Sync,
-        Async
+        Async,
+        Udp
     }
 }

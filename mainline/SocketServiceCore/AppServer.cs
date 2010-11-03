@@ -24,6 +24,7 @@ namespace SuperSocket.SocketServiceCore
         ICommandParser CommandParser { get; }
         X509Certificate Certificate { get; }
         T CreateAppSession(ISocketSession socketSession);
+        T GetAppSessionByIndentityKey(string identityKey);
     }
 
     public abstract class AppServer<T> : IAppServer<T>, IDisposable
@@ -126,20 +127,25 @@ namespace SuperSocket.SocketServiceCore
                     return false;
             }
 
-            SetupSocketServer();
-
-            return true;
+            return SetupSocketServer();
         }
 
-        private void SetupSocketServer()
+        private bool SetupSocketServer()
         {
-            if (Config.Mode == SocketMode.Sync)
+            switch(Config.Mode)
             {
-                m_SocketServer = new SyncSocketServer<SyncSocketSession<T>, T>(this, m_LocalEndPoint);
-            }
-            else
-            {
-                m_SocketServer = new AsyncSocketServer<AsyncSocketSession<T>, T>(this, m_LocalEndPoint);
+                case(SocketMode.Sync):
+                    m_SocketServer = new SyncSocketServer<SyncSocketSession<T>, T>(this, m_LocalEndPoint);
+                    return true;
+                case(SocketMode.Async):
+                    m_SocketServer = new AsyncSocketServer<AsyncSocketSession<T>, T>(this, m_LocalEndPoint);
+                    return true;
+                case(SocketMode.Udp):
+                    m_SocketServer = new UdpSocketServer<UdpSocketSession<T>, T>(this, m_LocalEndPoint);
+                    return true;
+                default:
+                    LogUtil.LogError(this, "Unkonwn SocketMode: " + Config.Mode);
+                    return false;
             }
         }
 
@@ -339,6 +345,17 @@ namespace SuperSocket.SocketServiceCore
             }
 
             return appSession;
+        }
+
+        public T GetAppSessionByIndentityKey(string identityKey)
+        {
+            T targetSession;
+
+            lock (m_SessionSyncRoot)
+            {
+                m_SessionDict.TryGetValue(identityKey, out targetSession);
+                return targetSession;
+            }
         }
 
         void socketSession_Closed(object sender, SocketSessionClosedEventArgs e)

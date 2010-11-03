@@ -20,7 +20,7 @@ namespace SuperSocket.SocketServiceCore
 
         private Semaphore m_MaxConnectionSemaphore;
 
-        private ManualResetEvent m_UdpClientConnected = new ManualResetEvent(false);
+        private AutoResetEvent m_UdpClientConnected = new AutoResetEvent(false);
 
         private BufferManager m_BufferManager;
 
@@ -104,9 +104,21 @@ namespace SuperSocket.SocketServiceCore
             m_UdpClientConnected.Set();
 
             var ipAddress = EndPoint.Create(address) as IPEndPoint;
-            TSocketSession session = RegisterSession(null);
-            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-            session.Start();
+            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(ipAddress.ToString());
+
+            if (appSession == null) //New session
+            {
+                TSocketSession session = RegisterSession(null);
+                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                session.AppSession.Context.DataContext = ipAddress;
+                session.Start();
+                session.ExecuteCommand(receivedNessage);
+            }
+            else //Existing session
+            {
+                var session = appSession.SocketSession as UdpSocketSession<TAppSession>;
+                session.ExecuteCommand(receivedNessage);
+            }
         }
 
         private void StartListen()
@@ -134,11 +146,11 @@ namespace SuperSocket.SocketServiceCore
             {
                 try
                 {
-                    m_UdpClientConnected.WaitOne();
-                    m_MaxConnectionSemaphore.WaitOne();                    
+                    m_MaxConnectionSemaphore.WaitOne();
                     SocketAsyncEventArgs eventArgs = m_ReadWritePool.Pop().SocketEventArgs;
+                    eventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
                     m_ListenSocket.ReceiveFromAsync(eventArgs);
-                    m_UdpClientConnected.Reset();
+                    m_UdpClientConnected.WaitOne();
                 }
                 catch (ObjectDisposedException)
                 {
@@ -171,6 +183,39 @@ namespace SuperSocket.SocketServiceCore
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             m_MaxConnectionSemaphore.Release();
+        }
+
+        public override void Stop()
+        {
+            base.Stop();
+
+            if (m_ListenSocket != null)
+            {
+                m_ListenSocket.Close();
+                m_ListenSocket = null;
+            }
+
+            if (m_ReadWritePool != null)
+                m_ReadWritePool = null;
+
+            if (m_BufferManager != null)
+                m_BufferManager = null;
+
+            VerifySocketServerRunning(false);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (IsRunning)
+                    Stop();
+
+                m_UdpClientConnected.Close();
+                m_MaxConnectionSemaphore.Close();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

@@ -65,7 +65,9 @@ namespace SuperSocket.SocketServiceCore
 
         }
 
-        public abstract void SayWelcome();
+        public virtual void SayWelcome()
+        {
+        }
 
         public abstract void HandleExceptionalError(Exception e);
 

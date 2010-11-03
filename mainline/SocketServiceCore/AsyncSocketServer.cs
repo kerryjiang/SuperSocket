@@ -21,7 +21,7 @@ namespace SuperSocket.SocketServiceCore
 
         }
 
-        private ManualResetEvent m_TcpClientConnected = new ManualResetEvent(false);
+        private AutoResetEvent m_TcpClientConnected = new AutoResetEvent(false);
 
         private BufferManager m_BufferManager;
 
@@ -121,7 +121,7 @@ namespace SuperSocket.SocketServiceCore
             while (!IsStopped)
             {
                 m_MaxConnectionSemaphore.WaitOne();
-                m_TcpClientConnected.Reset();
+
                 acceptEventArg.AcceptSocket = null;
 
                 bool willRaiseEvent = true;
@@ -150,7 +150,7 @@ namespace SuperSocket.SocketServiceCore
                 if (!willRaiseEvent)
                     AceptNewClient(acceptEventArg);
                 
-                m_TcpClientConnected.WaitOne();
+                m_TcpClientConnected.WaitOne();                
             }
 
             IsRunning = false;

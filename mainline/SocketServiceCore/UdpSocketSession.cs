@@ -16,15 +16,18 @@ namespace SuperSocket.SocketServiceCore
             get { throw new NotSupportedException(); }
         }
 
+        private IPEndPoint m_RemoteEndPoint;
+
         public override IPEndPoint RemoteEndPoint
         {
-            get { throw new NotImplementedException(); }
+            get { return m_RemoteEndPoint; }
         }
 
         protected override void Start(SocketContext context)
         {
+            m_RemoteEndPoint = context.DataContext as IPEndPoint;
             IdentityKey = RemoteEndPoint.ToString();
-        }
+        }        
 
         public override void SendResponse(SocketContext context, string message)
         {
