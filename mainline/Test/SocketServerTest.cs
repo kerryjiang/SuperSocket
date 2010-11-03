@@ -107,7 +107,7 @@ namespace SuperSocket.Test
         {
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 try
                 {
@@ -152,6 +152,11 @@ namespace SuperSocket.Test
             }
         }
 
+        protected virtual Socket CreateClientSocket()
+        {
+            return new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        }
+
         [Test, Repeat(3)]
         public void TestWelcomeMessage()
         {
@@ -159,7 +164,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
@@ -199,7 +204,7 @@ namespace SuperSocket.Test
 
                 for (int i = 0; i < maxConnectionNumber; i++)
                 {
-                    Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                    Socket socket = CreateClientSocket();
                     socket.Connect(serverAddress);
                     Stream socketStream = new NetworkStream(socket);
                     StreamReader reader = new StreamReader(socketStream, Encoding.Default, true);
@@ -207,7 +212,7 @@ namespace SuperSocket.Test
                     sockets.Add(socket);
                 }
 
-                using (Socket trySocket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+                using (Socket trySocket = CreateClientSocket())
                 {
                     Console.WriteLine("Start to connect try socket");
                     trySocket.Connect(serverAddress);
@@ -256,7 +261,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
@@ -286,7 +291,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
@@ -324,7 +329,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
@@ -353,7 +358,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
@@ -381,7 +386,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
@@ -417,7 +422,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
@@ -468,7 +473,7 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);

@@ -69,6 +69,7 @@
     <Compile Include="TestCommandParser.cs" />
     <Compile Include="TestServer.cs" />
     <Compile Include="TestSession.cs" />
+    <Compile Include="UdpSocketServerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\Common.csproj">
