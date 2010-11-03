@@ -25,7 +25,7 @@ namespace SuperSocket.SocketServiceCore
 
         private BufferManager m_BufferManager;
 
-        private SocketAsyncEventArgsPool m_ReadWritePool;
+        private SynchronizedPool<SocketAsyncEventArgsProxy> m_ReadWritePool;
 
         private Semaphore m_MaxConnectionSemaphore;
 
@@ -57,7 +57,7 @@ namespace SuperSocket.SocketServiceCore
                     return false;
                 }
 
-                m_ReadWritePool = new SocketAsyncEventArgsPool(AppServer.Config.MaxConnectionNumber);
+                m_ReadWritePool = new SynchronizedPool<SocketAsyncEventArgsProxy>(AppServer.Config.MaxConnectionNumber);
 
                 // preallocate pool of SocketAsyncEventArgs objects
                 SocketAsyncEventArgs socketEventArg;

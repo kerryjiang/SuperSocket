@@ -24,7 +24,7 @@ namespace SuperSocket.SocketServiceCore
 
         private BufferManager m_BufferManager;
 
-        private SocketAsyncEventArgsPool m_ReadWritePool;
+        private SynchronizedPool<SocketAsyncEventArgs> m_ReadWritePool;
 
         public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
@@ -57,7 +57,7 @@ namespace SuperSocket.SocketServiceCore
                     return false;
                 }
 
-                m_ReadWritePool = new SocketAsyncEventArgsPool(2);
+                m_ReadWritePool = new SynchronizedPool<SocketAsyncEventArgs>(2);
 
                 // preallocate pool of SocketAsyncEventArgs objects
                 SocketAsyncEventArgs socketEventArg;
@@ -70,7 +70,7 @@ namespace SuperSocket.SocketServiceCore
                     socketEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(socketEventArg_Completed);
                     m_BufferManager.SetBuffer(socketEventArg);
                     // add SocketAsyncEventArg to the pool
-                    m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(socketEventArg));
+                    m_ReadWritePool.Push(socketEventArg);
                 }
 
                 if (m_ListenSocket == null)
@@ -102,7 +102,6 @@ namespace SuperSocket.SocketServiceCore
             string receivedNessage = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred);
             var address = e.RemoteEndPoint.Serialize();
             m_UdpClientConnected.Set();
-
             var ipAddress = EndPoint.Create(address) as IPEndPoint;
             TAppSession appSession = AppServer.GetAppSessionByIndentityKey(ipAddress.ToString());
 
@@ -147,7 +146,7 @@ namespace SuperSocket.SocketServiceCore
                 try
                 {
                     m_MaxConnectionSemaphore.WaitOne();
-                    SocketAsyncEventArgs eventArgs = m_ReadWritePool.Pop().SocketEventArgs;
+                    SocketAsyncEventArgs eventArgs = m_ReadWritePool.Pop();
                     eventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
                     m_ListenSocket.ReceiveFromAsync(eventArgs);
                     m_UdpClientConnected.WaitOne();

@@ -81,7 +81,6 @@
     <Compile Include="AsyncSocket\NormalAsyncCommandReader.cs" />
     <Compile Include="AsyncSocket\PartMatchedAsyncCommandReader.cs" />
     <Compile Include="AsyncSocket\SearhMarkResult.cs" />
-    <Compile Include="AsyncSocket\SocketAsyncEventArgPool.cs" />
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs" />
     <Compile Include="AuthenticationResult.cs" />
     <Compile Include="Command\BasicCommandParser.cs" />
