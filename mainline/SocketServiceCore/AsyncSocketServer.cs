@@ -11,9 +11,8 @@ using SuperSocket.SocketServiceCore.AsyncSocket;
 
 namespace SuperSocket.SocketServiceCore
 {
-    class AsyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>, IAsyncRunner
+    class AsyncSocketServer<TAppSession> : TcpSocketServerBase<AsyncSocketSession<TAppSession>, TAppSession>, IAsyncRunner
         where TAppSession : IAppSession, new()
-        where TSocketSession : ISocketSession<TAppSession>, IAsyncSocketSession, new()
     {
         public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
@@ -164,10 +163,10 @@ namespace SuperSocket.SocketServiceCore
             {
                 //Get the socket for the accepted client connection and put it into the 
                 //ReadEventArg object user token
-                SocketAsyncEventArgsProxy socketEventArgsProxy = m_ReadWritePool.Pop();
+                var socketEventArgsProxy = m_ReadWritePool.Pop();
                 socketEventArgsProxy.Socket = e.AcceptSocket;
 
-                TSocketSession session = RegisterSession(e.AcceptSocket);
+                var session = RegisterSession(e.AcceptSocket);
                 session.SocketAsyncProxy = socketEventArgsProxy;
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 

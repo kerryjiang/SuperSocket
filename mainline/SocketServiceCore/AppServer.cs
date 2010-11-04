@@ -135,13 +135,13 @@ namespace SuperSocket.SocketServiceCore
             switch(Config.Mode)
             {
                 case(SocketMode.Sync):
-                    m_SocketServer = new SyncSocketServer<SyncSocketSession<T>, T>(this, m_LocalEndPoint);
+                    m_SocketServer = new SyncSocketServer<T>(this, m_LocalEndPoint);
                     return true;
                 case(SocketMode.Async):
-                    m_SocketServer = new AsyncSocketServer<AsyncSocketSession<T>, T>(this, m_LocalEndPoint);
+                    m_SocketServer = new AsyncSocketServer<T>(this, m_LocalEndPoint);
                     return true;
                 case(SocketMode.Udp):
-                    m_SocketServer = new UdpSocketServer<UdpSocketSession<T>, T>(this, m_LocalEndPoint);
+                    m_SocketServer = new UdpSocketServer<T>(this, m_LocalEndPoint);
                     return true;
                 default:
                     LogUtil.LogError(this, "Unkonwn SocketMode: " + Config.Mode);
@@ -344,6 +344,7 @@ namespace SuperSocket.SocketServiceCore
                 m_SessionDict[appSession.IdentityKey] = appSession;
             }
 
+            LogUtil.LogInfo(this, "SocketSession " + socketSession.IdentityKey + " was accepted!");
             return appSession;
         }
 

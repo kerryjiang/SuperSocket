@@ -24,7 +24,7 @@ namespace SuperSocket.SocketServiceCore
 
     abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IAsyncRunner, IDisposable
         where TAppSession : IAppSession, new()
-        where TSocketSession : ISocketSession<TAppSession>, new()        
+        where TSocketSession : ISocketSession<TAppSession>
     {
         protected object SyncRoot = new object();
 
@@ -60,32 +60,7 @@ namespace SuperSocket.SocketServiceCore
         protected void OnStartupFinished()
         {
             m_ServerStartupEvent.Set();
-        }
-
-        protected virtual TSocketSession RegisterSession(Socket client)
-        {
-            if (client != null)
-            {
-                //load socket setting
-                if (AppServer.Config.ReadTimeOut > 0)
-                    client.ReceiveTimeout = AppServer.Config.ReadTimeOut;
-
-                if (AppServer.Config.SendTimeOut > 0)
-                    client.SendTimeout = AppServer.Config.SendTimeOut;
-
-                if (AppServer.Config.ReceiveBufferSize > 0)
-                    client.ReceiveBufferSize = AppServer.Config.ReceiveBufferSize;
-
-                if (AppServer.Config.SendBufferSize > 0)
-                    client.SendBufferSize = AppServer.Config.SendBufferSize;
-            }
-
-            TSocketSession session = new TSocketSession();
-            TAppSession appSession = this.AppServer.CreateAppSession(session);
-            session.Initialize(this.AppServer, appSession, client);
-            LogUtil.LogInfo(AppServer, "SocketSession " + appSession.SessionID + " was accepted!");
-            return session;
-        }
+        }        
 
         protected bool VerifySocketServerRunning(bool isRunning)
         {
