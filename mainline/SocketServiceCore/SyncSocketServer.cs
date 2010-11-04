@@ -131,6 +131,8 @@ namespace SuperSocket.SocketServiceCore
                 thUser.IsBackground = true;
                 thUser.Start();
             }
+
+            IsRunning = false;
         }
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
@@ -164,7 +166,7 @@ namespace SuperSocket.SocketServiceCore
                 if (IsRunning)
                     Stop();
 
-                m_MaxConnectionSemaphore.Close();                
+                m_MaxConnectionSemaphore.Close();
             }
 
             base.Dispose(disposing);
