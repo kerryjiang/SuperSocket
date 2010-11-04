@@ -21,9 +21,11 @@ namespace SuperSocket.SocketServiceCore
 
         private BufferManager m_BufferManager;
 
-        private SynchronizedPool<SocketAsyncEventArgs> m_ReadWritePool;
+        private SocketAsyncEventArgs m_SocketAsyncEventArgs;
 
         private int m_LiveConnectionCount = 0;
+
+        private const string m_InvalidEndPoint = "0.0.0.0:0";
 
         public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
@@ -56,26 +58,16 @@ namespace SuperSocket.SocketServiceCore
                     return false;
                 }
 
-                m_ReadWritePool = new SynchronizedPool<SocketAsyncEventArgs>(2);
-
-                // preallocate pool of SocketAsyncEventArgs objects
-                SocketAsyncEventArgs socketEventArg;
-
-                for (int i = 0; i < 1; i++)
-                {
-                    //Pre-allocate a set of reusable SocketAsyncEventArgs
-                    socketEventArg = new SocketAsyncEventArgs();
-                    socketEventArg.UserToken = new AsyncUserToken();
-                    socketEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(socketEventArg_Completed);
-                    m_BufferManager.SetBuffer(socketEventArg);
-                    // add SocketAsyncEventArg to the pool
-                    m_ReadWritePool.Push(socketEventArg);
-                }
+                //Pre-allocate a set of reusable SocketAsyncEventArgs
+                m_SocketAsyncEventArgs = new SocketAsyncEventArgs();
+                m_SocketAsyncEventArgs.UserToken = new AsyncUserToken();
+                m_SocketAsyncEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(socketEventArg_Completed);
+                m_BufferManager.SetBuffer(m_SocketAsyncEventArgs);
 
                 if (m_ListenSocket == null)
                 {
                     m_ListenThread = new Thread(StartListen);
-                    m_ListenThread.Start();
+                    m_ListenThread.Start(m_SocketAsyncEventArgs);
                 }
 
                 WaitForStartupFinished();
@@ -96,52 +88,9 @@ namespace SuperSocket.SocketServiceCore
             }
         }
 
-        protected UdpSocketSession<TAppSession> RegisterSession(IPEndPoint remoteEndPoint)
+        private void StartListen(object state)
         {
-            UdpSocketSession<TAppSession> session = new UdpSocketSession<TAppSession>(m_ListenSocket, remoteEndPoint);
-            TAppSession appSession = this.AppServer.CreateAppSession(session);
-            session.Initialize(this.AppServer, appSession, null);
-            return session;
-        }
-
-        private void OnSocketReceived(SocketAsyncEventArgs e)
-        {
-            string receivedNessage = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred);
-            LogUtil.LogInfo("Server received: [" + receivedNessage + "]");
-            if (receivedNessage.EndsWith(Environment.NewLine))
-                receivedNessage = receivedNessage.Substring(0, receivedNessage.Length - Environment.NewLine.Length);
-
-            var address = e.RemoteEndPoint.Serialize();
-
-            m_ReadWritePool.Push(e);
-            m_UdpClientConnected.Set();
-     
-            var ipAddress = EndPoint.Create(address) as IPEndPoint;
-            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(ipAddress.ToString());
-
-            if (appSession == null) //New session
-            {
-                if (m_LiveConnectionCount >= AppServer.Config.MaxConnectionNumber)
-                {
-                    LogUtil.LogError(AppServer, string.Format("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
-                        ipAddress.ToString(), AppServer.Config.MaxConnectionNumber));
-                    return;
-                }
-                var session = RegisterSession(ipAddress);
-                Interlocked.Increment(ref m_LiveConnectionCount);
-                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-                session.Start();
-                session.ExecuteCommand(receivedNessage);
-            }
-            else //Existing session
-            {
-                var session = appSession.SocketSession as UdpSocketSession<TAppSession>;
-                session.ExecuteCommand(receivedNessage);
-            }
-        }
-
-        private void StartListen()
-        {
+            var socketAsyncEventArgs = state as SocketAsyncEventArgs;
             m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
             try
@@ -163,10 +112,10 @@ namespace SuperSocket.SocketServiceCore
             {
                 try
                 {
-                    SocketAsyncEventArgs eventArgs = m_ReadWritePool.Pop();
-                    eventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                    m_ListenSocket.ReceiveFromAsync(eventArgs);
+                    socketAsyncEventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+                    m_ListenSocket.ReceiveFromAsync(socketAsyncEventArgs);
                     m_UdpClientConnected.WaitOne();
+                    Console.WriteLine("IsStopped=" + IsStopped);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -195,14 +144,63 @@ namespace SuperSocket.SocketServiceCore
             IsRunning = false;
         }
 
+        protected UdpSocketSession<TAppSession> RegisterSession(IPEndPoint remoteEndPoint)
+        {
+            UdpSocketSession<TAppSession> session = new UdpSocketSession<TAppSession>(m_ListenSocket, remoteEndPoint);
+            TAppSession appSession = this.AppServer.CreateAppSession(session);
+            session.Initialize(this.AppServer, appSession, null);
+            return session;
+        }
+
+        private void OnSocketReceived(SocketAsyncEventArgs e)
+        {
+            string receivedNessage = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred);
+            if (receivedNessage.EndsWith(Environment.NewLine))
+                receivedNessage = receivedNessage.Substring(0, receivedNessage.Length - Environment.NewLine.Length);
+
+            var address = e.RemoteEndPoint.Serialize();
+
+            m_UdpClientConnected.Set();
+
+            var ipAddress = EndPoint.Create(address) as IPEndPoint;
+
+            if (m_InvalidEndPoint.Equals(ipAddress.ToString()))
+                return;
+
+            LogUtil.LogInfo("Server received: [" + receivedNessage + "]");
+
+            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(ipAddress.ToString());
+
+            if (appSession == null) //New session
+            {
+                if (m_LiveConnectionCount >= AppServer.Config.MaxConnectionNumber)
+                {
+                    LogUtil.LogError(AppServer, string.Format("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
+                        ipAddress.ToString(), AppServer.Config.MaxConnectionNumber));
+                    return;
+                }
+                var session = RegisterSession(ipAddress);
+                Interlocked.Increment(ref m_LiveConnectionCount);
+                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                session.Start();
+                session.ExecuteCommand(receivedNessage);
+            }
+            else //Existing session
+            {
+                var session = appSession.SocketSession as UdpSocketSession<TAppSession>;
+                session.ExecuteCommand(receivedNessage);
+            }
+        }
+
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
-            Interlocked.Increment(ref m_LiveConnectionCount);
+            Interlocked.Decrement(ref m_LiveConnectionCount);
         }
 
         public override void Stop()
         {
             base.Stop();
+            Console.WriteLine("IsStopped=" + IsStopped);
 
             if (m_ListenSocket != null)
             {
@@ -210,11 +208,10 @@ namespace SuperSocket.SocketServiceCore
                 m_ListenSocket = null;
             }
 
-            if (m_ReadWritePool != null)
-                m_ReadWritePool = null;
-
             if (m_BufferManager != null)
                 m_BufferManager = null;
+
+            m_UdpClientConnected.Set();
 
             VerifySocketServerRunning(false);
         }
