@@ -5,18 +5,29 @@ using System.Text;
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketServiceCore
 {
     class UdpSocketSession<T> : SocketSession<T>
         where T : IAppSession, new()
     {
-        public override IPEndPoint LocalEndPoint
+        private Socket m_ServerSocket;
+
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint)
+            : base()
         {
-            get { throw new NotSupportedException(); }
+            m_ServerSocket = serverSocket;
+            m_RemoteEndPoint = remoteEndPoint;
+            IdentityKey = m_RemoteEndPoint.ToString();
         }
 
-        private IPEndPoint m_RemoteEndPoint;
+        public override IPEndPoint LocalEndPoint
+        {
+            get { return (IPEndPoint)m_ServerSocket.LocalEndPoint; }
+        }
+
+        private readonly IPEndPoint m_RemoteEndPoint;
 
         public override IPEndPoint RemoteEndPoint
         {
@@ -25,13 +36,15 @@ namespace SuperSocket.SocketServiceCore
 
         protected override void Start(SocketContext context)
         {
-            m_RemoteEndPoint = context.DataContext as IPEndPoint;
-            IdentityKey = RemoteEndPoint.ToString();
-        }        
+            
+        }
 
         public override void SendResponse(SocketContext context, string message)
         {
-            
+            LogUtil.LogInfo("Server prepare sent: " + message);
+            byte[] data = context.Charset.GetBytes(message);
+            m_ServerSocket.SendTo(data, m_RemoteEndPoint);
+            LogUtil.LogInfo("Server sent: " + message);
         }
 
         public override void SendResponse(SocketContext context, byte[] data)
