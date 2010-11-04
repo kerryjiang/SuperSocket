@@ -131,6 +131,8 @@ namespace SuperSocket.SocketServiceCore
                 thUser.IsBackground = true;
                 thUser.Start();
             }
+
+            IsRunning = false;
         }
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
