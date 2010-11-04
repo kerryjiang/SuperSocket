@@ -8,6 +8,7 @@ using NUnit.Framework;
 using System.Net.Sockets;
 using SuperSocket.Common;
 using System.Net;
+using System.Threading;
 
 namespace SuperSocket.Test
 {
@@ -81,6 +82,9 @@ namespace SuperSocket.Test
         {
             StartServer();
             Assert.IsTrue(m_Server.IsRunning);
+
+            Thread.Sleep(1000);
+
             StopServer();
             Assert.IsFalse(m_Server.IsRunning);
         }
