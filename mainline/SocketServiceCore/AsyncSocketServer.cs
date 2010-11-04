@@ -132,25 +132,22 @@ namespace SuperSocket.SocketServiceCore
                 }
                 catch (ObjectDisposedException)//listener has been stopped
                 {
-                    IsRunning = false;
-                    return;
+                    break;
                 }
                 catch (NullReferenceException)
                 {
-                    IsRunning = false;
-                    return;
+                    break;
                 }
                 catch (Exception e)
                 {
-                    IsRunning = false;
                     LogUtil.LogError(AppServer, "Failed to accept new tcp client in async server!", e);
-                    return;
+                    break;
                 }
 
                 if (!willRaiseEvent)
                     AceptNewClient(acceptEventArg);
                 
-                m_TcpClientConnected.WaitOne();                
+                m_TcpClientConnected.WaitOne();
             }
 
             IsRunning = false;
@@ -208,7 +205,7 @@ namespace SuperSocket.SocketServiceCore
             if (m_BufferManager != null)
                 m_BufferManager = null;
 
-            VerifySocketServerRunning(false);            
+            VerifySocketServerRunning(false);
         }
 
         protected override void Dispose(bool disposing)

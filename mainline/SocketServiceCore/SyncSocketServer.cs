@@ -98,30 +98,27 @@ namespace SuperSocket.SocketServiceCore
                     m_MaxConnectionSemaphore.WaitOne();
                     client = m_ListenSocket.Accept();
                 }
-                catch (ObjectDisposedException)    
+                catch (ObjectDisposedException)
                 {
-                    IsRunning = false;
-                    return;
+                    break;
                 }
                 catch (NullReferenceException)
                 {
-                    IsRunning = false;
-                    return;
+                    break;
                 }
                 catch (Exception e)
                 {
-                    IsRunning = false;
                     SocketException se = e as SocketException;
                     if (se != null)
                     {
                         //A blocking operation was interrupted by a call to WSACancelBlockingCall
                         //SocketListener has been stopped normally
                         if (se.ErrorCode == 10004 || se.ErrorCode == 10038)
-                            return;
+                            break;
                     }
 
                     LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
-                    return;
+                    break;
                 }
 
                 TSocketSession session = RegisterSession(client);
