@@ -19,8 +19,7 @@ namespace SuperSocket.SocketServiceCore
     /// The core socket server which can run any SocketSession
     /// </summary>
     /// <typeparam name="T">The typeof the SocketSession</typeparam>
-    class SyncSocketServer<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
-        where TSocketSession : ISocketSession<TAppSession>, new()
+    class SyncSocketServer<TAppSession> : TcpSocketServerBase<SyncSocketSession<TAppSession>, TAppSession>
         where TAppSession : IAppSession, new()
     {
         public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
@@ -121,7 +120,7 @@ namespace SuperSocket.SocketServiceCore
                     break;
                 }
 
-                TSocketSession session = RegisterSession(client);
+                var session = RegisterSession(client);
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 
                 Thread thUser = new Thread(session.Start);
