@@ -85,7 +85,6 @@ namespace SuperSocket.Test
                 serverY,
                 serverZ
             };
-
         }
 
         [TestFixtureTearDown]
