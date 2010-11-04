@@ -135,7 +135,7 @@ namespace SuperSocket.SocketServiceCore
                 AppSession.Context.PrevCommand = cmdInfo.Name;
                 LastActiveTime = DateTime.Now;
                 if (AppServer.Config.LogCommand)
-                    LogUtil.LogInfo(AppServer, string.Format("Command - {0} - {1}", SessionID, cmdInfo.Name));
+                    LogUtil.LogInfo(AppServer, string.Format("Command - {0} - {1}", IdentityKey, cmdInfo.Name));
             }
             else
             {
