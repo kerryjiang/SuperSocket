@@ -49,6 +49,7 @@ namespace SuperSocket.Test
         }
 
         [TestFixtureTearDown]
+        [TearDown]
         public void Stop()
         {
             StopServer();
@@ -61,29 +62,24 @@ namespace SuperSocket.Test
 
         private void StartServer()
         {
-            if (m_Server.IsRunning)
-                return;
-
             m_Server.Start();
             Console.WriteLine("The UDP Socket server is started!");
         }
 
         private void StopServer()
         {
-            if (!m_Server.IsRunning)
-                return;
-
-            m_Server.Stop();
-            Console.WriteLine("The UDP Socket server is stopped!");
+            if (m_Server.IsRunning)
+            {
+                m_Server.Stop();
+                Console.WriteLine("The UDP Socket server is stopped!");
+            }
         }
 
-        [Test, Repeat(10)]
+        [Test, Repeat(5)]
         public void TestStartStop()
         {
             StartServer();
             Assert.IsTrue(m_Server.IsRunning);
-
-            Thread.Sleep(1000);
 
             StopServer();
             Assert.IsFalse(m_Server.IsRunning);
@@ -116,6 +112,196 @@ namespace SuperSocket.Test
                     Assert.AreEqual(command, echoMessage);
                 }
             }
+        }
+
+        [Test, Repeat(2)]
+        public void TestUnknownCommand()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                for (int i = 0; i < 10; i++)
+                {
+                    string commandName = Guid.NewGuid().ToString().Substring(0, 3);
+                    string command = commandName + " " + DateTime.Now;
+                    socket.SendTo(Encoding.UTF8.GetBytes(command + "\r\n"), serverAddress);
+                    string line = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    Console.WriteLine(line);
+                    Assert.AreEqual(string.Format(TestSession.UnknownCommandMessageFormat, commandName), line);
+                }
+            }
+        }
+
+        [Test, Repeat(3)]
+        public void TestCustomCommandName()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                string param = Guid.NewGuid().ToString();
+                string command = "325 " + param + Environment.NewLine;
+                socket.SendTo(Encoding.UTF8.GetBytes(command), serverAddress);
+                string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                Console.WriteLine("C:" + echoMessage);
+                Assert.AreEqual(string.Format(SuperSocket.Test.Command.NUM.ReplyFormat, param), echoMessage);
+            }
+        }
+
+        [Test, Repeat(3)]
+        public void TestCommandParser()
+        {
+            var server = new TestServer(new TestCommandParser());
+            server.Setup(string.Empty, m_Config, string.Empty);
+
+            try
+            {
+                server.Start();
+
+                EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+                using (Socket socket = CreateClientSocket())
+                {
+                    string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
+                    socket.SendTo(Encoding.UTF8.GetBytes("ECHO:" + command), serverAddress);
+                    string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    Assert.AreEqual(command, echoMessage);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                if (server.IsRunning)
+                    server.Stop();
+            }
+        }
+
+        [Test, Repeat(3)]
+        public void TestCommandParameterParser()
+        {
+            var server = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
+            server.Setup(string.Empty, m_Config, string.Empty);
+
+            try
+            {
+                server.Start();
+
+                EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+                using (Socket socket = CreateClientSocket())
+                {
+                    string[] arrParam = new string[] { "A1", "A2", "A4", "B2", "A6", "E5" };
+                    socket.SendTo(Encoding.UTF8.GetBytes("PARA:" + string.Join(",", arrParam)), serverAddress);
+
+                    List<string> received = new List<string>();
+
+                    foreach (var p in arrParam)
+                    {
+                        string r = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                        Console.WriteLine("C: " + r);
+                        received.Add(r);
+                    }
+
+                    Assert.AreEqual(arrParam, received);
+                }
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            finally
+            {
+                if (server.IsRunning)
+                    server.Stop();
+            }
+        }
+
+        private bool TestMaxConnectionNumber(int maxConnectionNumber)
+        {
+            var server = new TestServer();
+            var defaultConfig = DefaultServerConfig;
+
+            var config = new ServerConfig
+            {
+                Ip = defaultConfig.Ip,
+                LogCommand = defaultConfig.LogCommand,
+                MaxConnectionNumber = maxConnectionNumber,
+                Mode = defaultConfig.Mode,
+                Name = defaultConfig.Name,
+                Port = defaultConfig.Port
+            };
+
+            server.Setup(string.Empty, config, string.Empty);
+
+            List<Socket> sockets = new List<Socket>();
+
+            try
+            {
+                server.Start();
+
+                EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+                for (int i = 0; i < maxConnectionNumber; i++)
+                {
+                    Socket socket = CreateClientSocket();
+                    socket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), serverAddress);
+                    Console.WriteLine("C: " + Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray()));
+                    sockets.Add(socket);
+                }
+
+                using (Socket trySocket = CreateClientSocket())
+                {
+                    Console.WriteLine("Start to connect try socket");
+                    trySocket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), serverAddress);
+                    Thread thread = new Thread(new ThreadStart(() =>
+                        {
+                            Console.WriteLine("C: " + Encoding.UTF8.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
+                        }));
+                    thread.Start();
+                    if (thread.Join(500))
+                    {
+                        Assert.Fail("Current connection number: {0}, max connectionnumber: {1}", maxConnectionNumber + 1, maxConnectionNumber);
+                        return false;
+                    }
+                    else
+                    {
+                        thread.Abort();
+                        return true;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message + " " + e.StackTrace);
+                return false;
+            }
+            finally
+            {
+                sockets.ForEach(s =>
+                {
+                    s.Shutdown(SocketShutdown.Both);
+                    s.Close();
+                });
+
+                server.Stop();
+            }
+        }
+
+        [Test]
+        public void TestMaxConnectionNumber()
+        {
+            Assert.IsTrue(TestMaxConnectionNumber(1));
+            Assert.IsTrue(TestMaxConnectionNumber(2));
+            Assert.IsTrue(TestMaxConnectionNumber(5));
+            Assert.IsTrue(TestMaxConnectionNumber(15));
         }
 
         private List<byte> ReceiveMessage(Socket socket, EndPoint serverAddress)
