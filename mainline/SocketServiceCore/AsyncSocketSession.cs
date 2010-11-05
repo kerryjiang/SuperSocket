@@ -97,7 +97,7 @@ namespace SuperSocket.SocketServiceCore
         {
             // check if the remote host closed the connection
             AsyncUserToken token = (AsyncUserToken)e.UserToken;
-            if (e.BytesTransferred <= 0 || e.SocketError != SocketError.Success)
+            if (e.SocketError != SocketError.Success)
             {
                 Close();
                 return;
