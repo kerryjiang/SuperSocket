@@ -123,6 +123,9 @@ namespace SuperSocket.SocketServiceCore
             {
                 m_MaxConnectionSemaphore.WaitOne();
 
+                if (IsStopped)
+                    break;
+
                 acceptEventArg.AcceptSocket = null;
 
                 bool willRaiseEvent = true;

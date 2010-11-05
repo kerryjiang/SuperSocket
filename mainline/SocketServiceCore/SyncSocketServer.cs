@@ -95,6 +95,10 @@ namespace SuperSocket.SocketServiceCore
                 try
                 {
                     m_MaxConnectionSemaphore.WaitOne();
+
+                    if (IsStopped)
+                        break;
+
                     client = m_ListenSocket.Accept();
                 }
                 catch (ObjectDisposedException)
