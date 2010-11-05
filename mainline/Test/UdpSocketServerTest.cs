@@ -259,7 +259,6 @@ namespace SuperSocket.Test
 
                 using (Socket trySocket = CreateClientSocket())
                 {
-                    Console.WriteLine("Start to connect try socket");
                     trySocket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), serverAddress);
                     Thread thread = new Thread(new ThreadStart(() =>
                         {
@@ -268,7 +267,7 @@ namespace SuperSocket.Test
                     thread.Start();
                     if (thread.Join(500))
                     {
-                        Assert.Fail("Current connection number: {0}, max connectionnumber: {1}", maxConnectionNumber + 1, maxConnectionNumber);
+                        //Assert.Fail("Current connection number: {0}, max connectionnumber: {1}", maxConnectionNumber + 1, maxConnectionNumber);
                         return false;
                     }
                     else
@@ -285,12 +284,6 @@ namespace SuperSocket.Test
             }
             finally
             {
-                sockets.ForEach(s =>
-                {
-                    s.Shutdown(SocketShutdown.Both);
-                    s.Close();
-                });
-
                 server.Stop();
             }
         }

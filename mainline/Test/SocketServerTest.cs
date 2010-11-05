@@ -197,7 +197,7 @@ namespace SuperSocket.Test
 
             try
             {
-                server.Start();
+                server.Start();                
 
                 EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -213,12 +213,8 @@ namespace SuperSocket.Test
 
                 try
                 {
-                    Thread.Sleep(2000);
-                    Console.WriteLine("sleep");
-
                     using (Socket trySocket = CreateClientSocket())
-                    {
-                        Console.WriteLine("Start to connect try socket");
+                    {                        
                         trySocket.Connect(serverAddress);
                         var innerSocketStream = new NetworkStream(trySocket);
                         innerSocketStream.ReadTimeout = 500;
@@ -243,12 +239,6 @@ namespace SuperSocket.Test
             }
             finally
             {
-                sockets.ForEach(s =>
-                {
-                    s.Shutdown(SocketShutdown.Both);
-                    s.Close();
-                });
-
                 server.Stop();
             }
         }
@@ -257,9 +247,9 @@ namespace SuperSocket.Test
         public void TestMaxConnectionNumber()
         {
             Assert.IsTrue(TestMaxConnectionNumber(1));
-            //Assert.IsTrue(TestMaxConnectionNumber(2));
-            //Assert.IsTrue(TestMaxConnectionNumber(5));
-            //Assert.IsTrue(TestMaxConnectionNumber(15));
+            Assert.IsTrue(TestMaxConnectionNumber(2));
+            Assert.IsTrue(TestMaxConnectionNumber(5));
+            Assert.IsTrue(TestMaxConnectionNumber(15));
         }
 
         [Test, Repeat(2)]
