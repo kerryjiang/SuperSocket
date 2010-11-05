@@ -20,7 +20,7 @@ namespace SuperSocket.SocketServiceCore
 
         }
 
-        private AutoResetEvent m_TcpClientConnected = new AutoResetEvent(false);
+        private AutoResetEvent m_TcpClientConnected;
 
         private BufferManager m_BufferManager;
 
@@ -38,6 +38,8 @@ namespace SuperSocket.SocketServiceCore
             {
                 if (!base.Start())
                     return false;
+
+                m_TcpClientConnected = new AutoResetEvent(false);
 
                 int bufferSize = Math.Max(AppServer.Config.ReceiveBufferSize, AppServer.Config.SendBufferSize);
 
