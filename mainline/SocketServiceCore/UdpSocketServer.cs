@@ -17,7 +17,7 @@ namespace SuperSocket.SocketServiceCore
 
         private Thread m_ListenThread = null;
 
-        private AutoResetEvent m_UdpClientConnected = new AutoResetEvent(false);
+        private AutoResetEvent m_UdpClientConnected;
 
         private BufferManager m_BufferManager;
 
@@ -39,6 +39,8 @@ namespace SuperSocket.SocketServiceCore
             {
                 if (!base.Start())
                     return false;
+
+                m_UdpClientConnected = new AutoResetEvent(false);
 
                 int bufferSize = Math.Max(AppServer.Config.ReceiveBufferSize, AppServer.Config.SendBufferSize);
 
@@ -108,14 +110,14 @@ namespace SuperSocket.SocketServiceCore
 
             OnStartupFinished();
 
+            bool willRaiseEvent = true;
+
             while (!IsStopped)
             {
                 try
-                {
+                {                    
                     socketAsyncEventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
-                    m_ListenSocket.ReceiveFromAsync(socketAsyncEventArgs);
-                    m_UdpClientConnected.WaitOne();
-                    Console.WriteLine("IsStopped=" + IsStopped);
+                    willRaiseEvent = m_ListenSocket.ReceiveFromAsync(socketAsyncEventArgs);
                 }
                 catch (ObjectDisposedException)
                 {
@@ -138,7 +140,12 @@ namespace SuperSocket.SocketServiceCore
 
                     LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
                     break;
-                }                
+                }
+
+                if (!willRaiseEvent)
+                    ThreadPool.QueueUserWorkItem(w => OnSocketReceived(socketAsyncEventArgs));
+
+                m_UdpClientConnected.WaitOne();
             }
 
             IsRunning = false;
@@ -195,21 +202,24 @@ namespace SuperSocket.SocketServiceCore
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             Interlocked.Decrement(ref m_LiveConnectionCount);
+            Console.WriteLine("Live connection count: " + m_LiveConnectionCount);
         }
 
         public override void Stop()
         {
             base.Stop();
-            Console.WriteLine("IsStopped=" + IsStopped);
 
             if (m_ListenSocket != null)
             {
+                m_ListenSocket.Shutdown(SocketShutdown.Both);
                 m_ListenSocket.Close();
                 m_ListenSocket = null;
             }
 
             if (m_BufferManager != null)
                 m_BufferManager = null;
+
+            m_SocketAsyncEventArgs = null;
 
             m_UdpClientConnected.Set();
 
