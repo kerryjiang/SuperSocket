@@ -234,6 +234,12 @@ namespace SuperSocket.SocketServiceCore
 
         public virtual bool Start()
         {
+            if (this.IsRunning)
+            {
+                LogUtil.LogError(this, "This socket server is running already, you needn't start it.");
+                return false;
+            }
+
             if (!m_SocketServer.Start())
                 return false;
 
