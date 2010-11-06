@@ -25,6 +25,7 @@ namespace SuperSocket.SocketServiceCore
         X509Certificate Certificate { get; }
         T CreateAppSession(ISocketSession socketSession);
         T GetAppSessionByIndentityKey(string identityKey);
+        int SessionCount { get; }
     }
 
     public abstract class AppServer<T> : IAppServer<T>, IDisposable
@@ -384,6 +385,14 @@ namespace SuperSocket.SocketServiceCore
             catch (Exception exc)
             {
                 LogUtil.LogError(this, exc);
+            }
+        }
+
+        public int SessionCount
+        {
+            get
+            {
+                return m_SessionDict.Count;
             }
         }
 
