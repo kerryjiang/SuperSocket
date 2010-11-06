@@ -29,7 +29,9 @@ namespace SuperSocket.Test
                         MaxConnectionNumber = 3,
                         Mode = SocketMode.Udp,
                         Name = "Udp Test Socket Server",
-                        Port = 2196
+                        Port = 2196,
+                        ClearIdleSession = true,
+                        ClearIdleSessionInterval = 5
                     };
             }
         }
@@ -295,6 +297,29 @@ namespace SuperSocket.Test
             Assert.IsTrue(TestMaxConnectionNumber(2));
             Assert.IsTrue(TestMaxConnectionNumber(5));
             Assert.IsTrue(TestMaxConnectionNumber(15));
+        }
+
+        [Test]
+        public void TestClearTimeoutSession()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                string param = Guid.NewGuid().ToString();
+                string command = "325 " + param + Environment.NewLine;
+                socket.SendTo(Encoding.UTF8.GetBytes(command), serverAddress);
+                string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                Console.WriteLine("C:" + echoMessage);
+            }
+
+            Assert.AreEqual(1, m_Server.SessionCount);
+            Thread.Sleep(2000);
+            Assert.AreEqual(1, m_Server.SessionCount);
+            Thread.Sleep(3000);
+            Assert.AreEqual(0, m_Server.SessionCount);
         }
 
         private List<byte> ReceiveMessage(Socket socket, EndPoint serverAddress)
