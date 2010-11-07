@@ -202,7 +202,6 @@ namespace SuperSocket.SocketServiceCore
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
             Interlocked.Decrement(ref m_LiveConnectionCount);
-            Console.WriteLine("Live connection count: " + m_LiveConnectionCount);
         }
 
         public override void Stop()
