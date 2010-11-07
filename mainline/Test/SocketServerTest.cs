@@ -320,6 +320,95 @@ namespace SuperSocket.Test
             }
         }
 
+        private bool RunEchoMessage()
+        {
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            Socket socket = CreateClientSocket();
+            socket.Connect(serverAddress);
+            Stream socketStream = new NetworkStream(socket);
+            using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+            using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+            {
+                string welcomeString = reader.ReadLine();
+
+                char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+                Random rd = new Random(1);
+
+                StringBuilder sb = new StringBuilder();
+
+                for (int i = 0; i < 10; i++)
+                {
+                    sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+                    string command = sb.ToString();
+                    writer.WriteLine("ECHO " + command);
+                    writer.Flush();
+                    string echoMessage = reader.ReadLine();
+                    Assert.AreEqual(command, echoMessage);
+                    if (!string.Equals(command, echoMessage))
+                    {
+                        return false;
+                    }
+                    Thread.Sleep(100);
+                }
+            }
+
+            return true;
+        }
+
+        [Test, Repeat(3)]
+        public void TestConcurrencyCommunication()
+        {
+            StartServer();
+
+            int concurrencyCount = 64;
+
+            List<ManualResetEvent> events = new List<ManualResetEvent>();
+            Semaphore semaphore = new Semaphore(concurrencyCount, concurrencyCount * 2);
+
+            for (var i = 0; i < concurrencyCount - 1; i++)
+            {
+                var resetEvent = new ManualResetEvent(false);
+                events.Add(resetEvent);
+            }
+
+            System.Threading.Tasks.Parallel.For(0, concurrencyCount - 1, i =>
+            {
+                if (RunEchoMessage())
+                    events[i].Set();
+                semaphore.Release();
+            });
+
+            semaphore.WaitOne();
+
+            if (!WaitHandle.WaitAll(events.ToArray(), 1000))
+                Assert.Fail();
+        }
+
+        [Test, Repeat(5)]
+        public void TestClearTimeoutSession()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            Socket socket = CreateClientSocket();
+            socket.Connect(serverAddress);
+            Stream socketStream = new NetworkStream(socket);
+            using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+            using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+            {
+                string welcomeString = reader.ReadLine();
+            }
+
+            Assert.AreEqual(1, ServerX.SessionCount);
+            Thread.Sleep(2000);
+            Assert.AreEqual(1, ServerX.SessionCount);
+            Thread.Sleep(5000);
+            Assert.AreEqual(0, ServerX.SessionCount);
+        }
+
         [Test]
         public void TestCustomCommandName()
         {

@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SuperSocket.SocketServiceCore.Config;
-using SuperSocket.SocketServiceCore;
-using NUnit.Framework;
-using System.Net.Sockets;
-using SuperSocket.Common;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
+using NUnit.Framework;
+using SuperSocket.Common;
+using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketServiceCore.Config;
 
 namespace SuperSocket.Test
 {
@@ -26,12 +26,13 @@ namespace SuperSocket.Test
                     {
                         Ip = "127.0.0.1",
                         LogCommand = true,
-                        MaxConnectionNumber = 3,
+                        MaxConnectionNumber = 100,
                         Mode = SocketMode.Udp,
                         Name = "Udp Test Socket Server",
                         Port = 2196,
                         ClearIdleSession = true,
-                        ClearIdleSessionInterval = 5
+                        ClearIdleSessionInterval = 1,
+                        IdleSessionTimeOut = 5
                     };
             }
         }
@@ -114,6 +115,62 @@ namespace SuperSocket.Test
                     Assert.AreEqual(command, echoMessage);
                 }
             }
+        }
+
+        private bool RunEchoMessage()
+        {
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+                Random rd = new Random(1);
+
+                StringBuilder sb = new StringBuilder();
+
+                for (int i = 0; i < 10; i++)
+                {
+                    sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+                    string command = sb.ToString();
+                    socket.SendTo(Encoding.UTF8.GetBytes("ECHO " + command + "\r\n"), serverAddress);
+                    string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    if (!string.Equals(command, echoMessage))
+                        return false;
+                    Thread.Sleep(100);
+                }
+            }
+
+            return true;
+        }
+
+        [Test, Repeat(3)]
+        public void TestConcurrencyCommunication()
+        {
+            StartServer();
+
+            int concurrencyCount = 64;
+
+            List<ManualResetEvent> events = new List<ManualResetEvent>();
+            Semaphore semaphore = new Semaphore(concurrencyCount, concurrencyCount * 2);
+
+            for (var i = 0; i < concurrencyCount - 1; i++)
+            {
+                var resetEvent = new ManualResetEvent(false);
+                events.Add(resetEvent);
+            }
+
+            System.Threading.Tasks.Parallel.For(0, concurrencyCount - 1, i =>
+                {
+                    if (RunEchoMessage())
+                        events[i].Set();
+                    semaphore.Release();
+                });
+
+            semaphore.WaitOne();
+
+            if (!WaitHandle.WaitAll(events.ToArray(), 1000))
+                Assert.Fail();
         }
 
         [Test, Repeat(2)]
@@ -318,7 +375,7 @@ namespace SuperSocket.Test
             Assert.AreEqual(1, m_Server.SessionCount);
             Thread.Sleep(2000);
             Assert.AreEqual(1, m_Server.SessionCount);
-            Thread.Sleep(3000);
+            Thread.Sleep(4000);
             Assert.AreEqual(0, m_Server.SessionCount);
         }
 

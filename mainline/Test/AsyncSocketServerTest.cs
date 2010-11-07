@@ -19,10 +19,13 @@ namespace SuperSocket.Test
                     {
                         Ip = "Any",
                         LogCommand = true,
-                        MaxConnectionNumber = 3,
+                        MaxConnectionNumber = 100,
                         Mode = SocketMode.Async,
                         Name = "Async Test Socket Server",
-                        Port = 100
+                        Port = 100,
+                        ClearIdleSession = true,
+                        ClearIdleSessionInterval = 1,
+                        IdleSessionTimeOut = 5
                     };
             }
         }
