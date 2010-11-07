@@ -55,7 +55,7 @@ namespace SuperSocket.SocketServiceCore.Config
 
 
         /// <summary>
-        /// Gets the idle session timeout time length, in minutes.
+        /// Gets the idle session timeout time length, in seconds.
         /// </summary>
         /// <value>The idle session time out.</value>
         int IdleSessionTimeOut { get; }

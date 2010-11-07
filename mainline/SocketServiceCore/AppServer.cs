@@ -413,8 +413,12 @@ namespace SuperSocket.SocketServiceCore
                     lock (m_SessionSyncRoot)
                     {
                         m_SessionDict.Values.Where(s =>
-                            DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalMinutes > Config.IdleSessionTimeOut)
-                            .ToList().ForEach(s => s.Close());
+                            DateTime.Now.Subtract(s.SocketSession.LastActiveTime).TotalSeconds > Config.IdleSessionTimeOut)
+                            .ToList().ForEach(s =>
+                            {
+                                s.Close();
+                                LogUtil.LogInfo(this, string.Format("The socket session: {0} has been closed for timeout!", s.IdentityKey));
+                            });
                     }
                 }
                 catch (Exception e)

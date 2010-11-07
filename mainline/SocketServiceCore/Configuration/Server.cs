@@ -124,10 +124,10 @@ namespace SuperSocket.SocketServiceCore.Configuration
 
 
         /// <summary>
-        /// Gets the idle session timeout time length, in minutes.
+        /// Gets the idle session timeout time length, in seconds.
         /// </summary>
         /// <value>The idle session time out.</value>
-        [ConfigurationProperty("idleSessionTimeOut", IsRequired = false, DefaultValue = 5)]
+        [ConfigurationProperty("idleSessionTimeOut", IsRequired = false, DefaultValue = 300)]
         public int IdleSessionTimeOut
         {
             get { return (int)this["idleSessionTimeOut"]; }
