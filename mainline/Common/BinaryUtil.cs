@@ -19,12 +19,12 @@ namespace SuperSocket.Common
             return -1;
         }
 
-        public static int? SearchMark(this IList<byte> source, byte[] mark)
+        public static int? SearchMark<T>(this IList<T> source, T[] mark)
         {
             return SearchMark(source, 0, source.Count, mark);
         }  
 
-        public static int? SearchMark(this IList<byte> source, int offset, int length, byte[] mark)
+        public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark)
         {
             int pos = offset;
             int endOffset = offset + length - 1;
@@ -49,7 +49,7 @@ namespace SuperSocket.Common
                         return (0 - i);
                     }
 
-                    if (source[checkPos] != mark[i])
+                    if (!source[checkPos].Equals(mark[i]))
                         break;
 
                     matchCount++;
@@ -65,12 +65,12 @@ namespace SuperSocket.Common
             }
         }
 
-        public static int StartsWith(this IList<byte> source, byte[] mark)
+        public static int StartsWith<T>(this IList<T> source, T[] mark)
         {
             return source.StartsWith(0, source.Count, mark);
         }
 
-        public static int StartsWith(this IList<byte> source, int offset, int length, byte[] mark)
+        public static int StartsWith<T>(this IList<T> source, int offset, int length, T[] mark)
         {            
             int pos = offset;
             int endOffset = offset + length - 1;
@@ -82,7 +82,7 @@ namespace SuperSocket.Common
                 if (checkPos > endOffset)
                     return i;
 
-                if (source[checkPos] != mark[i])
+                if (!source[checkPos].Equals(mark[i]))
                     return -1;
             }
 
