@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Config;
-using System.Security.Authentication;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -289,11 +290,11 @@ namespace SuperSocket.SocketServiceCore
                 }
                 else
                 {
-                    ArraySegmentList<byte> source = new ArraySegmentList<byte>(new List<ArraySegmentItem<byte>>
-                                {
-                                    new ArraySegmentItem<byte>(lastData, 0, lastDataSzie),
-                                    new ArraySegmentItem<byte>(buffer, 0, thisRead)
-                                });
+                    var source = new ArraySegmentList<byte>(new List<ArraySegment<byte>>
+                            {
+                                new ArraySegment<byte>(lastData, 0, lastDataSzie),
+                                new ArraySegment<byte>(buffer, 0, thisRead)
+                            });
 
                     if (source.EndsWith(endMark))
                         return true;

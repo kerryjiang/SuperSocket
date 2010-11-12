@@ -5,65 +5,43 @@ using System.Text;
 
 namespace SuperSocket.Common
 {
-    public class ArraySegmentItem<T>
+    class ArraySegmentInfo<T>
     {
-        public IList<T> Data { get; private set; }
-
-        public int Offset { get; private set; }
-
-        public int Length { get; private set; }
-
-        public ArraySegmentItem(IList<T> data)
-            : this(data, 0, data.Count)
-        {
-
-        }
-
-        public ArraySegmentItem(IList<T> data, int offset, int length)
-        {
-            Data = data;
-            Offset = offset;
-            Length = length;
-        }
-    }
-
-    class ArraySegmentItemInfo<T>
-    {
-        public ArraySegmentItem<T> Segment { get; set; }
+        public ArraySegment<T> Segment { get; set; }
         public int From { get; set; }
         public int To { get; set; }
     }
 
     public class ArraySegmentList<T> : IList<T>
     {
-        private IList<ArraySegmentItemInfo<T>> m_Segments;
-        private ArraySegmentItemInfo<T> m_PrevSegment;
+        private IList<ArraySegmentInfo<T>> m_Segments;
+        private ArraySegmentInfo<T> m_PrevSegment;
 
         private int m_Count;
 
-        public ArraySegmentList(IList<ArraySegmentItem<T>> segments)
+        public ArraySegmentList(IList<ArraySegment<T>> segments)
         {
             PrepareData(segments);
         }
 
-        private void PrepareData(IList<ArraySegmentItem<T>> segments)
+        private void PrepareData(IList<ArraySegment<T>> segments)
         {
             int total = 0;
 
-            m_Segments = new List<ArraySegmentItemInfo<T>>();
+            m_Segments = new List<ArraySegmentInfo<T>>();
 
             foreach (var segment in segments)
             {
-                if (segment.Length <= 0)
+                if (segment.Count <= 0)
                     continue;
 
-                m_Segments.Add(new ArraySegmentItemInfo<T>
+                m_Segments.Add(new ArraySegmentInfo<T>
                 {
                     Segment = segment,
                     From = total,
-                    To = total + segment.Length - 1
+                    To = total + segment.Count - 1
                 });
-                total += segment.Length;
+                total += segment.Count;
             }
 
             m_Count = total;
@@ -103,7 +81,7 @@ namespace SuperSocket.Common
                 {
                     if (index >= m_PrevSegment.From && index <= m_PrevSegment.To)
                     {
-                        return m_PrevSegment.Segment.Data[index - m_PrevSegment.From];
+                        return m_PrevSegment.Segment.Array[index - m_PrevSegment.From];
                     }
                 }
 
@@ -113,12 +91,11 @@ namespace SuperSocket.Common
                     if (index >= segment.From && index <= segment.To)
                     {
                         m_PrevSegment = segment;
-                        return segment.Segment.Data[index - segment.From];
+                        return segment.Segment.Array[index - segment.From];
                     }
                 }
 
                 throw new IndexOutOfRangeException();
-
             }
             set
             {
