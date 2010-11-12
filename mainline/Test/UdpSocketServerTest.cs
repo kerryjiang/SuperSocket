@@ -375,7 +375,7 @@ namespace SuperSocket.Test
             Assert.AreEqual(1, m_Server.SessionCount);
             Thread.Sleep(2000);
             Assert.AreEqual(1, m_Server.SessionCount);
-            Thread.Sleep(4000);
+            Thread.Sleep(5000);
             Assert.AreEqual(0, m_Server.SessionCount);
         }
 
