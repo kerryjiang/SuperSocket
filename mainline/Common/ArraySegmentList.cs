@@ -19,16 +19,19 @@ namespace SuperSocket.Common
 
         private int m_Count;
 
-        public ArraySegmentList(IList<ArraySegment<T>> segments)
+        public ArraySegmentList()
         {
-            PrepareData(segments);
+            m_Segments = new List<ArraySegmentInfo<T>>();
         }
 
-        private void PrepareData(IList<ArraySegment<T>> segments)
+        public ArraySegmentList(IList<ArraySegment<T>> segments) : this()
+        {
+            CalculateSegmentsInfo(segments);
+        }
+
+        private void CalculateSegmentsInfo(IList<ArraySegment<T>> segments)
         {
             int total = 0;
-
-            m_Segments = new List<ArraySegmentInfo<T>>();
 
             foreach (var segment in segments)
             {
@@ -161,5 +164,47 @@ namespace SuperSocket.Common
         }
 
         #endregion
+
+        public void RemoveSegmentAt(int index)
+        {
+            var removedSegment = m_Segments[index];
+            m_Segments.RemoveAt(index);
+
+            m_PrevSegment = null;
+
+            //the removed item is not the the last item 
+            if(index != m_Segments.Count)
+            {
+                for (int i = index; i < m_Segments.Count; i++)
+                {
+                    m_Segments[i].From -= removedSegment.Segment.Count;
+                    m_Segments[i].To -= removedSegment.Segment.Count;
+                }
+            }
+
+            m_Count -= removedSegment.Segment.Count;
+        }
+
+        public void AddSegment(ArraySegment<T> segment)
+        {
+            if (segment.Count <= 0)
+                return;
+
+            var currentTotal = m_Count;
+
+            m_Segments.Add(new ArraySegmentInfo<T>
+            {
+                Segment = segment,
+                From = currentTotal,
+                To = currentTotal + segment.Count - 1
+            });
+
+            m_Count = currentTotal + segment.Count;
+        }
+
+        public int SegmentCount
+        {
+            get { return m_Segments.Count; }
+        }
     }
 }
