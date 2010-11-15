@@ -379,6 +379,10 @@ namespace SuperSocket.SocketServiceCore
                 {
                     LogUtil.LogError(this, "Clear idle session error!", e);
                 }
+                finally
+                {
+                    Monitor.Exit(state);
+                }
             }
         }
 
