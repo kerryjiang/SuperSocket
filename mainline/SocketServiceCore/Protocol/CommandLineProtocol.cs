@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.IO;
+using SuperSocket.SocketServiceCore.Command;
 
 namespace SuperSocket.SocketServiceCore.Protocol
 {
-    public class CommandLineProtocol : ISyncProtocol, IAsyncProtocol
+    public class CommandLineProtocol : SocketProtocolBase, ISyncProtocol, IAsyncProtocol
     {
         #region IAsyncProtocol Members
 
@@ -23,7 +24,6 @@ namespace SuperSocket.SocketServiceCore.Protocol
         public ICommandStreamReader CreateSyncCommandReader()
         {
             return new TerminatorCommandStreamReader(Environment.NewLine);
-            //return new CommandLineStreamReader();
         }
 
         #endregion

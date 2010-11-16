@@ -122,11 +122,13 @@ namespace SuperSocket.SocketServiceCore
             if (Protocol == null)
                 Protocol = new CommandLineProtocol();
 
+            var commandParserProtocol = Protocol as ICommandParserProtocol;
+
             if (CommandParser == null)
-                CommandParser = new BasicCommandParser();
+                CommandParser = commandParserProtocol.CommandParser;
 
             if (CommandParameterParser == null)
-                CommandParameterParser = new SplitAllCommandParameterParser();
+                CommandParameterParser = commandParserProtocol.CommandParameterParser;
 
             if (!LoadCommands())
                 return false;

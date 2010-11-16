@@ -116,6 +116,7 @@
     <Compile Include="Protocol\CommandLineProtocol.cs" />
     <Compile Include="Protocol\CommandLineStreamReader.cs" />
     <Compile Include="Protocol\IAsyncProtocol.cs" />
+    <Compile Include="Protocol\ICommandParserProtocol.cs" />
     <Compile Include="Protocol\ISyncProtocol.cs" />
     <Compile Include="Protocol\NewTerminatorCommandAsyncReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -125,6 +126,7 @@
     <Compile Include="Protocol\ICommandStreamReader.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Protocol\SocketProtocolBase.cs" />
     <Compile Include="Protocol\TerminatorCommandAsyncReaderBase.cs">
       <SubType>Code</SubType>
     </Compile>
