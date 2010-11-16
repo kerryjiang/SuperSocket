@@ -206,5 +206,29 @@ namespace SuperSocket.Common
         {
             get { return m_Segments.Count; }
         }
+
+        public void ClearSegements()
+        {
+            m_Segments.Clear();
+            m_PrevSegment = null;
+            m_Count = 0;
+        }
+
+        public T[] ToArrayData()
+        {
+            return ToArrayData(0, m_Count);
+        }
+
+        public T[] ToArrayData(int startIndex, int length)
+        {
+            var result = new T[length];
+
+            for (var i = 0; i < length; i++)
+            {
+                result[i] = this[startIndex + i];
+            }
+
+            return result;
+        }
     }
 }
