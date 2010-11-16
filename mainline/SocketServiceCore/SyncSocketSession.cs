@@ -10,12 +10,20 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Security;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
     class SyncSocketSession<T> : SocketSession<T>
         where T : IAppSession, new()
     {
+        private ICommandStreamReader m_CommandReader;
+
+        public SyncSocketSession(ICommandStreamReader commandReader)
+        {
+            m_CommandReader = commandReader;
+        }
+
         /// <summary>
         /// Starts the the session with specified context.
         /// </summary>
@@ -101,16 +109,9 @@ namespace SuperSocket.SocketServiceCore
             }
 
             if (context == null)
-                m_Reader = new StreamReader(m_Stream, Encoding.Default);
+                m_CommandReader.InitializeReader(m_Stream, Encoding.Default, 0x400);
             else
-                m_Reader = new StreamReader(m_Stream, context.Charset);
-        }
-
-        private StreamReader m_Reader = null;
-
-        protected StreamReader SocketReader
-        {
-            get { return m_Reader; }
+                m_CommandReader.InitializeReader(m_Stream, context.Charset, 0x400);
         }
 
         public override void ApplySecureProtocol(SocketContext context)
@@ -124,7 +125,7 @@ namespace SuperSocket.SocketServiceCore
 
             try
             {
-                command = m_Reader.ReadLine();
+                command = m_CommandReader.ReadCommand();
             }
             catch (ObjectDisposedException)
             {
@@ -138,7 +139,7 @@ namespace SuperSocket.SocketServiceCore
                     if (ioe.InnerException is SocketException)
                     {
                         var se = ioe.InnerException as SocketException;
-                        if (se.ErrorCode == 10004 || se.ErrorCode == 10053)
+                        if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
                         {
                             this.Close();
                             return false;
@@ -176,9 +177,6 @@ namespace SuperSocket.SocketServiceCore
 
         public override void SendResponse(SocketContext context, string message)
         {
-            if (string.IsNullOrEmpty(message) || !message.EndsWith(Environment.NewLine))
-                message = message + Environment.NewLine;
-
             byte[] data = context.Charset.GetBytes(message);
 
             try
@@ -230,6 +228,7 @@ namespace SuperSocket.SocketServiceCore
             {
                 shouldRead = Math.Min(buffer.Length, leftRead);
                 thisRead = m_Stream.Read(buffer, 0, shouldRead);
+                LastActiveTime = DateTime.Now;
 
                 if (thisRead <= 0)
                 {
@@ -254,6 +253,7 @@ namespace SuperSocket.SocketServiceCore
             while (true)
             {
                 thisRead = m_Stream.Read(buffer, 0, buffer.Length);
+                this.LastActiveTime = DateTime.Now;
 
                 if (thisRead <= 0)
                 {

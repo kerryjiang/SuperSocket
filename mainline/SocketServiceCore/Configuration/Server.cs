@@ -20,6 +20,12 @@ namespace SuperSocket.SocketServiceCore.Configuration
             get { return this["serviceName"] as string; }
         }
 
+        [ConfigurationProperty("protocol", IsRequired = true)]
+        public string Protocol
+        {
+            get { return this["protocol"] as string; }
+        }
+
         [ConfigurationProperty("ip", IsRequired = false)]
         public string Ip
         {

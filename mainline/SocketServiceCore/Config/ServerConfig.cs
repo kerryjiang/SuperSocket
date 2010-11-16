@@ -12,6 +12,8 @@ namespace SuperSocket.SocketServiceCore.Config
 
         public string ServiceName { get; set; }
 
+        public string Protocol { get; set; }
+
         public string Ip { get; set; }
 
         public int Port { get; set; }

@@ -116,12 +116,12 @@ namespace SuperSocket.SocketServiceCore
             OnClosed();
         }
 
-        public void SendResponse(string message)
+        public virtual void SendResponse(string message)
         {
             SocketSession.SendResponse(Context, message);
         }
 
-        public void SendResponse(string message, params object[] paramValues)
+        public virtual void SendResponse(string message, params object[] paramValues)
         {
             SocketSession.SendResponse(Context, string.Format(message, paramValues));
         }

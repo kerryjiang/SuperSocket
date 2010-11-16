@@ -124,7 +124,7 @@ namespace SuperSocket.SocketServiceCore
         /// Executes the command.
         /// </summary>
         /// <param name="cmdInfo">The CMD info.</param>
-        protected internal virtual void ExecuteCommand(string commandLine)
+        protected virtual void ExecuteCommand(string commandLine)
         {
             CommandInfo cmdInfo = AppServer.CommandParser.ParseCommand(commandLine);
             ICommand<T> command = AppServer.GetCommandByName(cmdInfo.Name);
@@ -134,7 +134,6 @@ namespace SuperSocket.SocketServiceCore
                 AppSession.Context.CurrentCommand = cmdInfo.Name;
                 command.ExecuteCommand(AppSession, cmdInfo);
                 AppSession.Context.PrevCommand = cmdInfo.Name;
-                LastActiveTime = DateTime.Now;
                 if (AppServer.Config.LogCommand)
                     LogUtil.LogInfo(AppServer, string.Format("Command - {0} - {1}", IdentityKey, cmdInfo.Name));
             }
@@ -142,6 +141,8 @@ namespace SuperSocket.SocketServiceCore
             {
                 AppSession.HandleUnknownCommand(cmdInfo);
             }
+
+            LastActiveTime = DateTime.Now;
         }
 
         /// <summary>

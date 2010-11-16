@@ -10,7 +10,7 @@ namespace SuperSocket.SocketServiceCore
 {
     class TcpSocketServerBase<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
         where TAppSession : IAppSession, new()
-        where TSocketSession : ISocketSession<TAppSession>, new()
+        where TSocketSession : ISocketSession<TAppSession>
     {
         public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
             : base(appServer, localEndPoint)
@@ -18,7 +18,7 @@ namespace SuperSocket.SocketServiceCore
 
         }
 
-        protected TSocketSession RegisterSession(Socket client)
+        protected TSocketSession RegisterSession(Socket client, TSocketSession session)
         {
             //load socket setting
             if (AppServer.Config.ReadTimeOut > 0)
@@ -33,7 +33,6 @@ namespace SuperSocket.SocketServiceCore
             if (AppServer.Config.SendBufferSize > 0)
                 client.SendBufferSize = AppServer.Config.SendBufferSize;
 
-            TSocketSession session = new TSocketSession();
             TAppSession appSession = this.AppServer.CreateAppSession(session);
             session.Initialize(this.AppServer, appSession, client);
 

@@ -11,6 +11,7 @@ using System.ServiceModel.Security;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -19,6 +20,8 @@ namespace SuperSocket.SocketServiceCore
         private static List<IRunable> m_ServerList = new List<IRunable>();
 
         private static Dictionary<string, Type> m_ServiceDict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+
+        private static Dictionary<string, Type> m_ProtocolDict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 
         private static IConfig m_Config;
 
@@ -40,18 +43,31 @@ namespace SuperSocket.SocketServiceCore
 
             Type serviceType;
 
-            foreach (IServiceConfig service in serviceList)
+            foreach (var service in serviceList)
             {
                 if (service.Disabled)
                     continue;
 
                 if (!AssemblyUtil.TryGetType(service.Type, out serviceType))
                 {
-                    LogUtil.LogError("Failed to initialize " + service.ServiceName + "!");
+                    LogUtil.LogError("Failed to initialize service " + service.ServiceName + "!");
                     return false;
                 }
 
                 m_ServiceDict[service.ServiceName] = serviceType;
+            }
+
+            Type protocolType;
+
+            foreach (var protocol in config.GetProtocolList())
+            {
+                if (!AssemblyUtil.TryGetType(protocol.Type, out protocolType))
+                {
+                    LogUtil.LogError("Failed to initialize protocol " + protocol.Name + "!");
+                    return false;
+                }
+
+                m_ProtocolDict[protocol.Name] = protocolType;
             }
 
             return true;
@@ -89,11 +105,12 @@ namespace SuperSocket.SocketServiceCore
                         return false;
                     }
 
+                    var protocol = GetProtocolByName(serverConfig.Protocol);
+
                     IRunable server = Activator.CreateInstance(serviceType) as IRunable;
-                    if (server != null && server.Setup(GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider), serverConfig, config.ConsoleBaseAddress))
+                    if (server != null && server.Setup(serverConfig, protocol, config.ConsoleBaseAddress, GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider)))
                     {
                         //server.ServerCredentials = credentials;
-
                         if (server.Start())
                         {
                             m_ServerList.Add(server);
@@ -139,6 +156,30 @@ namespace SuperSocket.SocketServiceCore
                 }
             }
             return null;
+        }
+
+        private static object GetProtocolByName(string protocolName)
+        {
+            if (string.IsNullOrEmpty(protocolName))
+                return null;
+
+            Type type;
+
+            if (!m_ProtocolDict.TryGetValue(protocolName, out type))
+            {
+                LogUtil.LogError(string.Format("The protocol {0} hasn't been defined in configuration!", protocolName));
+                return null;
+            }
+
+            try
+            {
+                return Activator.CreateInstance(type);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+                return null;
+            }
         }
 
         public static string GetServiceProvider(string service, string provider)

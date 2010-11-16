@@ -14,6 +14,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Config;
 using SuperSocket.SocketServiceCore.Security;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -42,6 +43,8 @@ namespace SuperSocket.SocketServiceCore
         public virtual ICommandParameterParser CommandParameterParser { get; protected set; }
 
         public virtual X509Certificate Certificate { get; protected set; }
+
+        public virtual object Protocol { get; protected set; }
 
         private string m_ConsoleBaseAddress;
 
@@ -89,22 +92,35 @@ namespace SuperSocket.SocketServiceCore
 
         private Dictionary<string, ProviderBase<T>> m_ProviderDict = new Dictionary<string, ProviderBase<T>>(StringComparer.OrdinalIgnoreCase);
 
-        /// <summary>
-        /// Setups the specified factory.
-        /// </summary>
-        /// <param name="assembly">The assembly name.</param>
-        /// <param name="config">The config.</param>
-        /// <returns></returns>
-        public virtual bool Setup(string assembly, IServerConfig config, string consoleBaseAddress)
+        public bool Setup(IServerConfig config)
+        {
+            return Setup(config, null);
+        }
+
+        public bool Setup(IServerConfig config, object protocol)
+        {
+            return Setup(config, protocol, string.Empty);
+        }
+
+        public bool Setup(IServerConfig config, object protocol, string consoleBaseAddress)
+        {
+            return Setup(config, protocol, consoleBaseAddress, string.Empty);
+        }
+
+        public bool Setup(IServerConfig config, object protocol, string consoleBaseAddress, string assembly)
         {
             Config = config;
             m_ConsoleBaseAddress = consoleBaseAddress;
+            Protocol = protocol;
 
             if (!SetupLocalEndpoint(config))
             {
                 LogUtil.LogError(this, "Invalid config ip/port");
                 return false;
             }
+
+            if (Protocol == null)
+                Protocol = new CommandLineProtocol();
 
             if (CommandParser == null)
                 CommandParser = new BasicCommandParser();
@@ -136,18 +152,36 @@ namespace SuperSocket.SocketServiceCore
             switch(Config.Mode)
             {
                 case(SocketMode.Sync):
-                    m_SocketServer = new SyncSocketServer<T>(this, m_LocalEndPoint);
+                    var syncProtocol = GetProperProtocol<ISyncProtocol>(Config.Mode);
+                    if (syncProtocol == null)
+                        return false;
+                    m_SocketServer = new SyncSocketServer<T>(this, m_LocalEndPoint, syncProtocol);
                     return true;
                 case(SocketMode.Async):
-                    m_SocketServer = new AsyncSocketServer<T>(this, m_LocalEndPoint);
+                    var asyncProtocol = GetProperProtocol<IAsyncProtocol>(Config.Mode);
+                    if (asyncProtocol == null)
+                        return false;
+                    m_SocketServer = new AsyncSocketServer<T>(this, m_LocalEndPoint, asyncProtocol);
                     return true;
                 case(SocketMode.Udp):
-                    m_SocketServer = new UdpSocketServer<T>(this, m_LocalEndPoint);
+                    var udpProtocol = GetProperProtocol<IAsyncProtocol>(Config.Mode);
+                    if (udpProtocol == null)
+                        return false;
+                    m_SocketServer = new UdpSocketServer<T>(this, m_LocalEndPoint, udpProtocol);
                     return true;
                 default:
                     LogUtil.LogError(this, "Unkonwn SocketMode: " + Config.Mode);
                     return false;
             }
+        }
+
+        private TProtocol GetProperProtocol<TProtocol>(SocketMode mode)
+        {
+            if (Protocol is TProtocol)
+                return (TProtocol)Protocol;
+
+            LogUtil.LogError(this, "The protocol doesn't support SocketModel: " + mode);
+            return default(TProtocol);
         }
 
         private bool SetupLocalEndpoint(IServerConfig config)
@@ -424,6 +458,10 @@ namespace SuperSocket.SocketServiceCore
                 catch (Exception e)
                 {
                     LogUtil.LogError(this, "Clear idle session error!", e);
+                }
+                finally
+                {
+                    Monitor.Exit(state);
                 }
             }
         }

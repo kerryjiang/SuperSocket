@@ -27,6 +27,15 @@ namespace SuperSocket.SocketServiceCore.Configuration
             }
         }
 
+        [ConfigurationProperty("protocols")]
+        public ProtocolCollectionConfig Protocols
+        {
+            get
+            {
+                return this["protocols"] as ProtocolCollectionConfig;
+            }
+        }
+
         [ConfigurationProperty("credential", IsRequired = false)]
         public CredentialConfig Credential
         {
@@ -83,6 +92,18 @@ namespace SuperSocket.SocketServiceCore.Configuration
         public ICredentialConfig CredentialConfig
         {
             get { return Credential; }
+        }
+
+        public List<IProtocolConfig> GetProtocolList()
+        {
+            var protocolList = new List<IProtocolConfig>();
+
+            foreach (ProtocolConfig protocol in Protocols)
+            {
+                protocolList.Add(protocol);
+            }
+
+            return protocolList;
         }
 
         #endregion

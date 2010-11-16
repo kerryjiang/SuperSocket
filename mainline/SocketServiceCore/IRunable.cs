@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ServiceModel.Description;
 using System.Text;
-using SuperSocket.SocketServiceCore.Config;
 using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -14,12 +15,10 @@ namespace SuperSocket.SocketServiceCore
     {
         ServiceCredentials ServerCredentials { get; set; }
         /// <summary>
-        /// Setups the specified config.
+        /// Setups with the specified config.
         /// </summary>
-        /// <param name="assembly">The assembly.</param>
-        /// <param name="config">The config.</param>
         /// <returns></returns>
-        bool Setup(string assembly, IServerConfig config, string consoleBaseAddress);
+        bool Setup(IServerConfig config, object protocol, string consoleBaseAddress, string assembly);
 
         /// <summary>
         /// Starts with the specified config.

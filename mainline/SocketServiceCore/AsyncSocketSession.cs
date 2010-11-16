@@ -9,13 +9,20 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.AsyncSocket;
 using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
     class AsyncSocketSession<T> : SocketSession<T>, IAsyncSocketSession
         where T : IAppSession, new()
     {
-        IAsyncCommandReader m_CommandReader = new NormalAsyncCommandReader();
+        ICommandAsyncReader m_CommandReader;
+
+        public AsyncSocketSession(ICommandAsyncReader initialCommandReader)
+            : base()
+        {
+            m_CommandReader = initialCommandReader;
+        }
 
         protected override void Start(SocketContext context)
         {
@@ -54,9 +61,6 @@ namespace SuperSocket.SocketServiceCore
         {
             if (IsClosed)
                 return;
-
-            if (string.IsNullOrEmpty(message) || !message.EndsWith(Environment.NewLine))
-                message = message + Environment.NewLine;
 
             byte[] data = context.Charset.GetBytes(message);
 
@@ -105,13 +109,12 @@ namespace SuperSocket.SocketServiceCore
 
             byte[] commandData;
 
-            SearhMarkResult result = m_CommandReader.FindCommand(e, token.SocketContext.NewLineData, out commandData);
+            var result = m_CommandReader.FindCommand(e.Buffer, e.Offset, e.BytesTransferred, out commandData);
 
-            if (result.Status == SearhMarkStatus.Found)
+            m_CommandReader = m_CommandReader.NextCommandReader;
+
+            if (result)
             {
-                //Initialize next command reader
-                m_CommandReader = new NormalAsyncCommandReader(m_CommandReader);
-
                 string commandLine = token.SocketContext.Charset.GetString(commandData);
 
                 if (!string.IsNullOrEmpty(commandLine))
@@ -131,11 +134,6 @@ namespace SuperSocket.SocketServiceCore
             }
             else
             {
-                if (result.Status == SearhMarkStatus.FoundStart)
-                    m_CommandReader = new PartMatchedAsyncCommandReader(m_CommandReader, result.Value);
-                else
-                    m_CommandReader = new NormalAsyncCommandReader(m_CommandReader);
-
                 StartReceive(e);
                 return;
             }             

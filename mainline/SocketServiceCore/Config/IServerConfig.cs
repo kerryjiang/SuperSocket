@@ -9,6 +9,8 @@ namespace SuperSocket.SocketServiceCore.Config
     {
         string ServiceName { get; }
 
+        string Protocol { get; }
+
         string Ip { get; }
 
         int Port { get; }

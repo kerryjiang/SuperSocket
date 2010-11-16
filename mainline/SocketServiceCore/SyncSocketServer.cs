@@ -11,6 +11,7 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.Command;
 using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.SocketServiceCore.Protocol;
 
 
 namespace SuperSocket.SocketServiceCore
@@ -22,11 +23,13 @@ namespace SuperSocket.SocketServiceCore
     class SyncSocketServer<TAppSession> : TcpSocketServerBase<SyncSocketSession<TAppSession>, TAppSession>
         where TAppSession : IAppSession, new()
     {
-        public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
+        public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ISyncProtocol protocol)
             : base(appServer, localEndPoint)
         {
-
+            m_Protocol = protocol;
         }
+
+        private ISyncProtocol m_Protocol;
 
         private Socket m_ListenSocket = null;
 
@@ -124,7 +127,7 @@ namespace SuperSocket.SocketServiceCore
                     break;
                 }
 
-                var session = RegisterSession(client);
+                var session = RegisterSession(client, new SyncSocketSession<TAppSession>(m_Protocol.CreateSyncCommandReader()));
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 
                 Thread thUser = new Thread(session.Start);

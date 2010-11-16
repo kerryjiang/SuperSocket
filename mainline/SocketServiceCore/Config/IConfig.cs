@@ -10,6 +10,8 @@ namespace SuperSocket.SocketServiceCore.Config
 
         List<IServiceConfig> GetServiceList();
 
+        List<IProtocolConfig> GetProtocolList();
+
         ICredentialConfig CredentialConfig { get; }
 
         string ConsoleBaseAddress { get; }

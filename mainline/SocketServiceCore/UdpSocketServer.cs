@@ -7,10 +7,11 @@ using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.AsyncSocket;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
-    class UdpSocketServer<TAppSession> : SocketServerBase<UdpSocketSession<TAppSession>, TAppSession>
+    class UdpSocketServer<TAppSession> : SocketServerBase<UdpSocketSession<TAppSession>, TAppSession>, IAsyncRunner
         where TAppSession : IAppSession, new()
     {
         private Socket m_ListenSocket = null;
@@ -27,10 +28,12 @@ namespace SuperSocket.SocketServiceCore
 
         private const string m_InvalidEndPoint = "0.0.0.0:0";
 
-        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
+        private IAsyncProtocol m_Protocol;
+
+        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IAsyncProtocol protocol)
             : base(appServer, localEndPoint)
         {
-
+            m_Protocol = protocol;
         }
 
         public override bool Start()
@@ -143,7 +146,7 @@ namespace SuperSocket.SocketServiceCore
                 }
 
                 if (!willRaiseEvent)
-                    ThreadPool.QueueUserWorkItem(w => OnSocketReceived(socketAsyncEventArgs));
+                    this.ExecuteAsync(w => OnSocketReceived(socketAsyncEventArgs));
 
                 m_UdpClientConnected.WaitOne();
             }
@@ -153,7 +156,7 @@ namespace SuperSocket.SocketServiceCore
 
         protected UdpSocketSession<TAppSession> RegisterSession(IPEndPoint remoteEndPoint)
         {
-            UdpSocketSession<TAppSession> session = new UdpSocketSession<TAppSession>(m_ListenSocket, remoteEndPoint);
+            UdpSocketSession<TAppSession> session = new UdpSocketSession<TAppSession>(m_ListenSocket, remoteEndPoint, m_Protocol.CreateAsyncCommandReader());
             TAppSession appSession = this.AppServer.CreateAppSession(session);
             session.Initialize(this.AppServer, appSession, null);
             return session;
@@ -161,10 +164,7 @@ namespace SuperSocket.SocketServiceCore
 
         private void OnSocketReceived(SocketAsyncEventArgs e)
         {
-            string receivedNessage = Encoding.UTF8.GetString(e.Buffer, e.Offset, e.BytesTransferred);
-            if (receivedNessage.EndsWith(Environment.NewLine))
-                receivedNessage = receivedNessage.Substring(0, receivedNessage.Length - Environment.NewLine.Length);
-
+            var receivedData = e.Buffer.Skip(e.Offset).Take(e.BytesTransferred).ToArray();
             var address = e.RemoteEndPoint.Serialize();
 
             m_UdpClientConnected.Set();
@@ -173,8 +173,6 @@ namespace SuperSocket.SocketServiceCore
 
             if (m_InvalidEndPoint.Equals(ipAddress.ToString()))
                 return;
-
-            LogUtil.LogInfo("Server received: [" + receivedNessage + "]");
 
             TAppSession appSession = AppServer.GetAppSessionByIndentityKey(ipAddress.ToString());
 
@@ -190,12 +188,12 @@ namespace SuperSocket.SocketServiceCore
                 Interlocked.Increment(ref m_LiveConnectionCount);
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 session.Start();
-                session.ExecuteCommand(receivedNessage);
+                this.ExecuteAsync(w => session.ProcessData(receivedData));
             }
             else //Existing session
             {
                 var session = appSession.SocketSession as UdpSocketSession<TAppSession>;
-                session.ExecuteCommand(receivedNessage);
+                this.ExecuteAsync(w => session.ProcessData(receivedData));
             }
         }
 

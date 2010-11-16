@@ -8,17 +8,20 @@ using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketServiceCore.AsyncSocket;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
     class AsyncSocketServer<TAppSession> : TcpSocketServerBase<AsyncSocketSession<TAppSession>, TAppSession>, IAsyncRunner
         where TAppSession : IAppSession, new()
     {
-        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
+        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IAsyncProtocol protocol)
             : base(appServer, localEndPoint)
         {
-
+            m_Protocol = protocol;
         }
+
+        private IAsyncProtocol m_Protocol;
 
         private AutoResetEvent m_TcpClientConnected;
 
@@ -171,10 +174,9 @@ namespace SuperSocket.SocketServiceCore
                 var socketEventArgsProxy = m_ReadWritePool.Pop();
                 socketEventArgsProxy.Socket = e.AcceptSocket;
 
-                var session = RegisterSession(e.AcceptSocket);
+                var session = RegisterSession(e.AcceptSocket, new AsyncSocketSession<TAppSession>(m_Protocol.CreateAsyncCommandReader()));
                 session.SocketAsyncProxy = socketEventArgsProxy;
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-
                 m_TcpClientConnected.Set();
                 session.Start();
             }

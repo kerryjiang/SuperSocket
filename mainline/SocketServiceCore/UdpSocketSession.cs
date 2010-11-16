@@ -6,6 +6,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Net;
 using SuperSocket.Common;
+using SuperSocket.SocketServiceCore.Protocol;
 
 namespace SuperSocket.SocketServiceCore
 {
@@ -14,12 +15,17 @@ namespace SuperSocket.SocketServiceCore
     {
         private Socket m_ServerSocket;
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint)
+        private ICommandAsyncReader m_CommandReader;
+
+        private SocketContext m_Context;
+
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandAsyncReader commandReader)
             : base()
         {
             m_ServerSocket = serverSocket;
             m_RemoteEndPoint = remoteEndPoint;
             IdentityKey = m_RemoteEndPoint.ToString();
+            m_CommandReader = commandReader;
         }
 
         public override IPEndPoint LocalEndPoint
@@ -36,15 +42,34 @@ namespace SuperSocket.SocketServiceCore
 
         protected override void Start(SocketContext context)
         {
-            
+            m_Context = context;
+        }
+
+        internal void ProcessData(byte[] data)
+        {
+            ProcessData(data, 0, data.Length);
+        }
+
+        internal void ProcessData(byte[] data, int offset, int length)
+        {
+            byte[] commandData;
+
+            bool result = m_CommandReader.FindCommand(data, offset, length, out commandData);
+
+            m_CommandReader = m_CommandReader.NextCommandReader;
+
+            if (!result)
+                return;
+
+            var commandLine = m_Context.Charset.GetString(commandData);
+
+            ExecuteCommand(commandLine);
         }
 
         public override void SendResponse(SocketContext context, string message)
         {
-            LogUtil.LogInfo("Server prepare sent: " + message);
             byte[] data = context.Charset.GetBytes(message);
             m_ServerSocket.SendTo(data, m_RemoteEndPoint);
-            LogUtil.LogInfo("Server sent: " + message);
         }
 
         public override void SendResponse(SocketContext context, byte[] data)
