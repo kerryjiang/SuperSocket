@@ -48,7 +48,7 @@ namespace SuperSocket.Test
             LogUtil.Setup(new ConsoleLogger());
 
             m_Server = new TestServer();
-            m_Server.Setup(string.Empty, m_Config, string.Empty);
+            m_Server.Setup(m_Config);
         }
 
         [TestFixtureTearDown]
@@ -216,7 +216,7 @@ namespace SuperSocket.Test
         public void TestCommandParser()
         {
             var server = new TestServer(new TestCommandParser());
-            server.Setup(string.Empty, m_Config, string.Empty);
+            server.Setup(m_Config);
 
             try
             {
@@ -227,7 +227,7 @@ namespace SuperSocket.Test
                 using (Socket socket = CreateClientSocket())
                 {
                     string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
-                    socket.SendTo(Encoding.UTF8.GetBytes("ECHO:" + command), serverAddress);
+                    socket.SendTo(Encoding.UTF8.GetBytes("ECHO:" + command + Environment.NewLine), serverAddress);
                     string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                     Assert.AreEqual(command, echoMessage);
                 }
@@ -247,7 +247,7 @@ namespace SuperSocket.Test
         public void TestCommandParameterParser()
         {
             var server = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
-            server.Setup(string.Empty, m_Config, string.Empty);
+            server.Setup(m_Config);
 
             try
             {
@@ -258,7 +258,7 @@ namespace SuperSocket.Test
                 using (Socket socket = CreateClientSocket())
                 {
                     string[] arrParam = new string[] { "A1", "A2", "A4", "B2", "A6", "E5" };
-                    socket.SendTo(Encoding.UTF8.GetBytes("PARA:" + string.Join(",", arrParam)), serverAddress);
+                    socket.SendTo(Encoding.UTF8.GetBytes("PARA:" + string.Join(",", arrParam) + Environment.NewLine), serverAddress);
 
                     List<string> received = new List<string>();
 
@@ -298,7 +298,7 @@ namespace SuperSocket.Test
                 Port = defaultConfig.Port
             };
 
-            server.Setup(string.Empty, config, string.Empty);
+            server.Setup(config);
 
             List<Socket> sockets = new List<Socket>();
 
@@ -311,14 +311,14 @@ namespace SuperSocket.Test
                 for (int i = 0; i < maxConnectionNumber; i++)
                 {
                     Socket socket = CreateClientSocket();
-                    socket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), serverAddress);
+                    socket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString() + Environment.NewLine), serverAddress);
                     Console.WriteLine("C: " + Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray()));
                     sockets.Add(socket);
                 }
 
                 using (Socket trySocket = CreateClientSocket())
                 {
-                    trySocket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString()), serverAddress);
+                    trySocket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString() + Environment.NewLine), serverAddress);
                     Thread thread = new Thread(new ThreadStart(() =>
                         {
                             Console.WriteLine("C: " + Encoding.UTF8.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
@@ -356,7 +356,7 @@ namespace SuperSocket.Test
             Assert.IsTrue(TestMaxConnectionNumber(15));
         }
 
-        [Test]
+        [Test, Repeat(5)]
         public void TestClearTimeoutSession()
         {
             StartServer();

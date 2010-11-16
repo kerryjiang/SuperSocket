@@ -71,13 +71,13 @@ namespace SuperSocket.Test
                 return;
 
             var serverX = new TestServer();
-            serverX.Setup(string.Empty, m_Config, string.Empty);
+            serverX.Setup(m_Config);
 
             var serverY = new TestServer(new TestCommandParser());
-            serverY.Setup(string.Empty, m_Config, string.Empty);
+            serverY.Setup(m_Config);
 
             var serverZ = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
-            serverZ.Setup(string.Empty, m_Config, string.Empty);
+            serverZ.Setup(m_Config);
 
             m_Servers[m_Config] = new TestServer[]
             {
@@ -191,7 +191,7 @@ namespace SuperSocket.Test
                 Port = defaultConfig.Port
             };
 
-            server.Setup(string.Empty, config, string.Empty);
+            server.Setup(config);
 
             List<Socket> sockets = new List<Socket>();
 

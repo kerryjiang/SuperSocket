@@ -130,6 +130,20 @@ namespace SuperSocket.Test.Common
         }
 
         [Test]
+        public void TestToArray()
+        {
+            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
+                {
+                    new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
+                    new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
+                });
+
+            char[] exptected = "I lovHell".ToCharArray();
+
+            Assert.AreEqual(exptected, source.ToArrayData());
+        }
+
+        [Test]
         public void TestRemoveSegment()
         {
             ArraySegmentList<char> source = new ArraySegmentList<char>();

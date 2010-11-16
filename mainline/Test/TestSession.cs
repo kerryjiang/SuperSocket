@@ -31,5 +31,23 @@ namespace SuperSocket.Test
         {
             SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.Name));
         }
+
+        private string ProcessSendingMessage(string rawMessage)
+        {
+            if (string.IsNullOrEmpty(rawMessage) || !rawMessage.EndsWith(Environment.NewLine))
+                return rawMessage + Environment.NewLine;
+            else
+                return rawMessage;
+        }
+
+        public override void SendResponse(string message)
+        {
+            base.SendResponse(ProcessSendingMessage(message));
+        }
+
+        public override void SendResponse(string message, params object[] paramValues)
+        {
+            base.SendResponse(ProcessSendingMessage(message), paramValues);
+        }
     }
 }
