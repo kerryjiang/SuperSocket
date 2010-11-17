@@ -5,7 +5,7 @@ using System.Text;
 using SuperSocket.SocketServiceCore.Protocol;
 using SuperSocket.Common;
 
-namespace NWebSocket.Protocol
+namespace SuperWebSocket.Protocol
 {
     public class DataAsyncReader : AsyncReaderBase
     {
