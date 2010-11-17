@@ -111,7 +111,6 @@ namespace SuperSocket.SocketServiceCore
         {
             Config = config;
             m_ConsoleBaseAddress = consoleBaseAddress;
-            Protocol = protocol;
 
             if (!SetupLocalEndpoint(config))
             {
@@ -119,6 +118,11 @@ namespace SuperSocket.SocketServiceCore
                 return false;
             }
 
+            //The protocol passed from config has higher priority
+            if (protocol != null)
+                Protocol = protocol;
+
+            //If there is no defined protocol, use CommandLineProtocol as default
             if (Protocol == null)
                 Protocol = new CommandLineProtocol();
 
