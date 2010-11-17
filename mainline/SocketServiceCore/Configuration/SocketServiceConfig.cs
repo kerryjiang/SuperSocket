@@ -27,7 +27,7 @@ namespace SuperSocket.SocketServiceCore.Configuration
             }
         }
 
-        [ConfigurationProperty("protocols")]
+        [ConfigurationProperty("protocols", IsRequired = false)]
         public ProtocolCollectionConfig Protocols
         {
             get
