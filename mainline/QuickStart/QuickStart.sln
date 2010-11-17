@@ -19,7 +19,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BroadcastService", "Broadca
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "..\Test\Test.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NWebSocket", "NWebSocket\NWebSocket.csproj", "{2DC79E40-BB70-4F6A-B378-905F2FBC6E97}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperWebsocket", "SuperWebSocket\SuperWebsocket.csproj", "{2DC79E40-BB70-4F6A-B378-905F2FBC6E97}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
