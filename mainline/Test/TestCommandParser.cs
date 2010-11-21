@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test
 {
@@ -10,14 +10,17 @@ namespace SuperSocket.Test
     {
         #region ICommandParser Members
 
-        public CommandInfo ParseCommand(string command)
+        public StringCommandInfo ParseCommand(string command)
         {
             int pos = command.IndexOf(':');
 
             if(pos <= 0)
                 return null;
 
-            return new CommandInfo(command.Substring(0, pos), command.Substring(pos + 1));
+            string param = command.Substring(pos + 1);
+
+            return new StringCommandInfo(command.Substring(0, pos), param,
+                param.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         #endregion

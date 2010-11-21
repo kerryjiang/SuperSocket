@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test
 {
-    public class TestSession : AppSession<TestSession>
+    public class TestSession : AppSession<TestSession, StringCommandInfo>
     {
         public const string WelcomeMessageFormat = "Welcome to {0}";
         public const string UnknownCommandMessageFormat = "Unknown command: {0}";
@@ -17,9 +17,9 @@ namespace SuperSocket.Test
             
         }
 
-        public override void SayWelcome()
+        public override void  StartSession()
         {
-            SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
+ 	         SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
         }
 
         public override void HandleExceptionalError(Exception e)
@@ -27,13 +27,16 @@ namespace SuperSocket.Test
             
         }
 
-        public override void HandleUnknownCommand(CommandInfo cmdInfo)
+        public override void HandleUnknownCommand(StringCommandInfo cmdInfo)
         {
-            SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.Name));
+            SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.CommandKey));
         }
 
         private string ProcessSendingMessage(string rawMessage)
         {
+            if (AppServer.Config.Mode == SocketMode.Udp)
+                return rawMessage;
+
             if (string.IsNullOrEmpty(rawMessage) || !rawMessage.EndsWith(Environment.NewLine))
                 return rawMessage + Environment.NewLine;
             else

@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test.Command
 {
-    public class NUM : CommandBase<TestSession>
+    public class NUM : StringCommandBase<TestSession>
     {
         public const string ReplyFormat = "325 received {0}!";
 
-        protected override void Execute(TestSession session, CommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
-            session.SendResponse(string.Format(ReplyFormat, commandData.Param));
+            session.SendResponse(string.Format(ReplyFormat, commandData.CommandData));
         }
 
         public override string Name

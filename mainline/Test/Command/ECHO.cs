@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test.Command
 {
-    public class ECHO : CommandBase<TestSession>
+    public class ECHO : StringCommandBase<TestSession>
     {
-        protected override void Execute(TestSession session, CommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
-            Console.WriteLine("R:" + commandData.Param);
-            session.SendResponse(commandData.Param);
+            Console.WriteLine("R:" + commandData.CommandData);
+            session.SendResponse(commandData.CommandData);
         }
     }
 }

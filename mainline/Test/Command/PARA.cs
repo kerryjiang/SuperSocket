@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test.Command
 {
-    public class PARA : CommandBase<TestSession>
+    public class PARA : StringCommandBase<TestSession>
     {
-        protected override void Execute(TestSession session, CommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
             foreach (var p in commandData.Parameters)
             {

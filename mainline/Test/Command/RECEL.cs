@@ -2,23 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
 using System.Resources;
 using System.Reflection;
 using System.IO;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test.Command
 {
-    public class RECEL : CommandBase<TestSession>
+    public class RECEL : StringCommandBase<TestSession>
     {
-        protected override void Execute(TestSession session, CommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
             int length = int.Parse(commandData[0]);
 
             MemoryStream ms = new MemoryStream();
             session.SocketSession.ReceiveData(ms, length);
             byte[] data = ms.ToArray();
-            session.SocketSession.SendResponse(session.AppContext, data);
+            session.SocketSession.SendResponse(session.Context, data);
         }
     }
 }

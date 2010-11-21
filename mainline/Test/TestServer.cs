@@ -2,29 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test
 {
-    public class TestServer : AppServer<TestSession>
+    public class TestServer : AppServer<TestSession, StringCommandInfo>
     {
         public TestServer()
+            : base()
         {
 
         }
 
         public TestServer(ICommandParser commandParser)
-            : this(commandParser, null)
-        {
-
-        }
-
-        public TestServer(ICommandParser commandParser, ICommandParameterParser commandParameterParser)
             : this()
         {
-            CommandParser = commandParser;
-            CommandParameterParser = commandParameterParser;
+            this.Protocol = new CommandLineProtocol(commandParser);
         }
     }
 }

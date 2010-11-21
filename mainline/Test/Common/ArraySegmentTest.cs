@@ -106,15 +106,15 @@ namespace SuperSocket.Test.Common
         {
             ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
                 {
-                    new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
+                    new ArraySegment<char>("I love you,".ToCharArray(), 3, 7),
                     new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
                 });
 
-            //string exptected = "I lovHell";
-            Assert.AreEqual(0, source.IndexOf('I'));
-            Assert.AreEqual(2, source.IndexOf('l'));
-            Assert.AreEqual(3, source.IndexOf('o'));
-            Assert.AreEqual(4, source.IndexOf('v'));
+            //string exptected = "ove youHell";
+            Assert.AreEqual(-1, source.IndexOf('I'));
+            Assert.AreEqual(9, source.IndexOf('l'));
+            Assert.AreEqual(0, source.IndexOf('o'));
+            Assert.AreEqual(1, source.IndexOf('v'));
         }
 
         [Test]
