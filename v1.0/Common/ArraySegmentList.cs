@@ -103,7 +103,7 @@ namespace SuperSocket.Common
                 {
                     if (index >= m_PrevSegment.From && index <= m_PrevSegment.To)
                     {
-                        return m_PrevSegment.Segment.Data[index - m_PrevSegment.From];
+                        return m_PrevSegment.Segment.Data[m_PrevSegment.Segment.Offset + index - m_PrevSegment.From];
                     }
                 }
 
@@ -113,7 +113,7 @@ namespace SuperSocket.Common
                     if (index >= segment.From && index <= segment.To)
                     {
                         m_PrevSegment = segment;
-                        return segment.Segment.Data[index - segment.From];
+                        return segment.Segment.Data[segment.Segment.Offset + index - segment.From];
                     }
                 }
 
