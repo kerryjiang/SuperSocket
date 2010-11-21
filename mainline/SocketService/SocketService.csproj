@@ -69,7 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SocketServiceCore\GlobalAssemblyInfo.cs">
+    <Compile Include="..\SocketBase\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="MainService.cs">
@@ -132,9 +132,13 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\SocketServiceCore\SocketServiceCore.csproj">
+    <ProjectReference Include="..\SocketBase\SocketBase.csproj">
+      <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
+      <Name>SocketBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SocketEngine\SocketEngine.csproj">
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
-      <Name>SocketServiceCore</Name>
+      <Name>SocketEngine</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

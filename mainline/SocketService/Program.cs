@@ -4,8 +4,8 @@ using System.Configuration;
 using System.ServiceProcess;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketServiceCore;
-using SuperSocket.SocketServiceCore.Configuration;
+using SuperSocket.SocketEngine;
+using SuperSocket.SocketEngine.Configuration;
 
 
 namespace SuperSocket.SocketService

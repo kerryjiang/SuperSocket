@@ -7,8 +7,9 @@ using System.Diagnostics;
 using System.ServiceProcess;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketServiceCore;
-using SuperSocket.SocketServiceCore.Configuration;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketEngine;
+using SuperSocket.SocketEngine.Configuration;
 
 namespace SuperSocket.SocketService
 {
@@ -21,7 +22,7 @@ namespace SuperSocket.SocketService
 
         protected override void OnStart(string[] args)
         {
-            SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
+            var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
             if (!SocketServerManager.Initialize(serverConfig))
                 return;
 
