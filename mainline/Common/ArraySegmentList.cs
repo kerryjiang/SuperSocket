@@ -39,11 +39,12 @@ namespace SuperSocket.Common
                     continue;
 
                 m_Segments.Add(new ArraySegmentInfo<T>
-                {
-                    Segment = segment,
-                    From = total,
-                    To = total + segment.Count - 1
-                });
+                    {
+                        Segment = segment,
+                        From = total,
+                        To = total + segment.Count - 1
+                    });
+
                 total += segment.Count;
             }
 
@@ -84,7 +85,7 @@ namespace SuperSocket.Common
                 {
                     if (index >= m_PrevSegment.From && index <= m_PrevSegment.To)
                     {
-                        return m_PrevSegment.Segment.Array[index - m_PrevSegment.From];
+                        return m_PrevSegment.Segment.Array[m_PrevSegment.Segment.Offset + index - m_PrevSegment.From];
                     }
                 }
 
@@ -94,7 +95,7 @@ namespace SuperSocket.Common
                     if (index >= segment.From && index <= segment.To)
                     {
                         m_PrevSegment = segment;
-                        return segment.Segment.Array[index - segment.From];
+                        return segment.Segment.Array[segment.Segment.Offset + index - segment.From];
                     }
                 }
 
