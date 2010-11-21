@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.CustomCommandParser
 {
@@ -13,14 +13,15 @@ namespace SuperSocket.QuickStart.CustomCommandParser
     {
         #region ICommandParser Members
 
-        public CommandInfo ParseCommand(string command)
+        public StringCommandInfo ParseCommand(string command)
         {
             if(!command.StartsWith("CMD:"))
                 return null;
 
             command = command.Substring(4);
             string[] data = command.Split(' ');
-            return new CommandInfo(data[0], data[1]);
+            return new StringCommandInfo(data[0], data[1],
+                Encoding.ASCII.GetString(Convert.FromBase64String(data[1])).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries));
         }
 
         #endregion

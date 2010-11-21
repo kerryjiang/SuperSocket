@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.CustomCommandParser.Command
 {
-    public class ECHO : CommandBase<YourSession>
+    public class ECHO : StringCommandBase<YourSession>
     {
-        protected override void Execute(YourSession session, CommandInfo commandData)
+        public override void ExecuteCommand(YourSession session, StringCommandInfo commandData)
         {
             foreach (var p in commandData.Parameters)
             {

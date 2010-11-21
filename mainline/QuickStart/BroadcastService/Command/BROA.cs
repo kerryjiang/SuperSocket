@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.BroadcastService.Command
 {
-    public class BROA : CommandBase<BroadcastSession>
+    public class BROA : StringCommandBase<BroadcastSession>
     {
-        protected override void Execute(BroadcastSession session, CommandInfo commandData)
+        public override void ExecuteCommand(BroadcastSession session, StringCommandInfo commandData)
         {
-            string message = commandData.Param;
+            string message = commandData.CommandData;
             session.AppServer.BroadcastMessage(session, message);
             session.SendResponse("101 message broadcasted");
         }

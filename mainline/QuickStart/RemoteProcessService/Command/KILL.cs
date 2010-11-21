@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
 using System.Diagnostics;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.RemoteProcessService.Command
 {
-    public class KILL : CommandBase<RemotePrcessSession>
+    public class KILL : StringCommandBase<RemoteProcessSession>
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        protected override void Execute(RemotePrcessSession session, CommandInfo commandData)
+        public override void ExecuteCommand(RemoteProcessSession session, StringCommandInfo commandData)
         {
             int processId;
 

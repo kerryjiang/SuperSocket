@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomCommandParser
 {
@@ -10,8 +11,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser
     {
         public YourServer() : base()
         {
-            this.CommandParser = new CustomCommandParser();
-            this.CommandParameterParser = new Base64CommandParameterParser();
+            Protocol = new CommandLineProtocol(new CustomCommandParser());
         }
     }
 }

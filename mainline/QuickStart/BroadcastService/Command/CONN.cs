@@ -2,13 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.BroadcastService.Command
 {
-    public class CONN : CommandBase<BroadcastSession>
+    public class CONN : StringCommandBase<BroadcastSession>
     {
-        protected override void Execute(BroadcastSession session, CommandInfo commandData)
+        public override void ExecuteCommand(BroadcastSession session, StringCommandInfo commandData)
         {
             session.DeviceNumber = commandData[0];
             session.AppServer.RegisterNewSession(session);

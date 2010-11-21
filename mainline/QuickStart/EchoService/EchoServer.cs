@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.EchoService
 {

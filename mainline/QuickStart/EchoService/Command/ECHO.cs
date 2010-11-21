@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.EchoService.Command
 {
-    public class ECHO : CommandBase<EchoSession>
+    public class ECHO : StringCommandBase<EchoSession>
     {
         #region CommandBase<EchoSession> Members
 
-        protected override void Execute(EchoSession session, CommandInfo commandData)
+        public override void ExecuteCommand(EchoSession session, StringCommandInfo commandInfo)
         {
-            session.SendResponse(commandData.Param);
+            session.SendResponse(commandInfo.CommandData);
         }
 
         #endregion

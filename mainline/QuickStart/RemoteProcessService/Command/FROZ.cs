@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.RemoteProcessService.Command
 {
-    public class FROZ : CommandBase<RemotePrcessSession>
+    public class FROZ : StringCommandBase<RemoteProcessSession>
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        protected override void Execute(RemotePrcessSession session, CommandInfo commandData)
+        public override void ExecuteCommand(RemoteProcessSession session, StringCommandInfo commandData)
         {
             var server = session.AppServer;
 

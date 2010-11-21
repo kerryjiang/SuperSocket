@@ -2,18 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.RemoteProcessService
 {
-    public class RemotePrcessSession : AppSession<RemotePrcessSession, RemoteProcessServer>
+    public class RemoteProcessSession : AppSession<RemoteProcessSession>
     {
         protected override void OnClosed()
         {
-            
+  
         }
 
-        public override void SayWelcome()
+        public new RemoteProcessServer AppServer
+        {
+            get { return (RemoteProcessServer)base.AppServer; }
+        }
+
+        public override void StartSession()
         {
             SendResponse("Welcome to use this tool!");
         }

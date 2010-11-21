@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.CustomCommandParser
 {
-    public class YourSession : AppSession<YourSession, YourServer>
+    public class YourSession : AppSession<YourSession>
     {
         protected override void OnClosed()
         {
             
         }
 
-        public override void SayWelcome()
+        public override void StartSession()
         {
             SendResponse("Welcome");   
         }

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-using SuperSocket.SocketServiceCore.Config;
-using SuperSocket.SocketServiceCore;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
+using System.Text;
+using NUnit.Framework;
+using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketEngine;
 
 namespace SuperSocket.QuickStart.CustomCommandParser
 {
@@ -27,7 +28,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser
             };
 
             YourServer server = new YourServer();
-            server.Setup(string.Empty, config, string.Empty);
+            server.Setup(config, SocketServerFactory.Instance);
 
             server.Start();
 

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore.Command;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.RemoteProcessService.Command
 {
-    public class QUIT : CommandBase<RemotePrcessSession>
+    public class QUIT : StringCommandBase<RemoteProcessSession>
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        protected override void Execute(RemotePrcessSession session, CommandInfo commandData)
+        public override void ExecuteCommand(RemoteProcessSession session, StringCommandInfo commandData)
         {
             session.SendResponse("bye");
             session.Close();

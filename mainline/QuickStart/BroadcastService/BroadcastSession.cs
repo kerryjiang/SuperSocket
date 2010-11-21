@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.BroadcastService
 {
-    public class BroadcastSession : AppSession<BroadcastSession, BroadcastServer>
+    public class BroadcastSession : AppSession<BroadcastSession>
     {
         public string DeviceNumber { get; set; }
 
@@ -15,9 +15,9 @@ namespace SuperSocket.QuickStart.BroadcastService
             AppServer.RemoveOnlineSession(this);   
         }
 
-        public override void SayWelcome()
+        public new BroadcastServer AppServer
         {
-            
+            get { return (BroadcastServer)this.AppServer; }
         }
 
         public override void HandleExceptionalError(Exception e)

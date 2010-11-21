@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.EchoService
 {
@@ -11,9 +11,9 @@ namespace SuperSocket.QuickStart.EchoService
         protected override void OnClosed()
         {
             
-        }
+        }        
 
-        public override void SayWelcome()
+        public override void StartSession()
         {
             SendResponse("Welcome to EchoServer!");
         }

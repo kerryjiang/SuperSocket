@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.SocketServiceCore;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.BroadcastService
 {

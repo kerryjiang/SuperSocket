@@ -77,9 +77,9 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\SocketServiceCore\SocketServiceCore.csproj">
-      <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
-      <Name>SocketServiceCore</Name>
+    <ProjectReference Include="..\..\SocketBase\SocketBase.csproj">
+      <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
+      <Name>SocketBase</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SocketService\SocketService.csproj">
       <Project>{B9113694-7226-4152-938D-3172B11571A1}</Project>

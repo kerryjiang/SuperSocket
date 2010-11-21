@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.SocketServiceCore;
-using SuperSocket.SocketServiceCore.Config;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.QuickStart.RemoteProcessService
 {
-    public class RemoteProcessServer : AppServer<RemotePrcessSession>
+    public class RemoteProcessServer : AppServer<RemoteProcessSession>
     {
         private Dictionary<string, string> m_FrozedProcesses = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
@@ -62,9 +62,9 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 
         private Timer m_MonitorTimer;
 
-        public override bool Setup(string assembly, IServerConfig config, string consoleBaseAddress)
+        public override bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string assembly, string consoleBaseAddress)
         {
-            if (!base.Setup(assembly, config, consoleBaseAddress))
+            if (!base.Setup(config, socketServerFactory, protocol, assembly, consoleBaseAddress))
                 return false;
 
             int interval = config.Parameters.GetValue("MonitorInterval", "1").ToInt32();
