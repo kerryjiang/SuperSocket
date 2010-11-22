@@ -7,7 +7,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test
 {
-    public class TestSession : AppSession<TestSession, StringCommandInfo>
+    public class TestSession : AppSession<TestSession>
     {
         public const string WelcomeMessageFormat = "Welcome to {0}";
         public const string UnknownCommandMessageFormat = "Unknown command: {0}";
@@ -30,27 +30,6 @@ namespace SuperSocket.Test
         public override void HandleUnknownCommand(StringCommandInfo cmdInfo)
         {
             SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.CommandKey));
-        }
-
-        private string ProcessSendingMessage(string rawMessage)
-        {
-            if (AppServer.Config.Mode == SocketMode.Udp)
-                return rawMessage;
-
-            if (string.IsNullOrEmpty(rawMessage) || !rawMessage.EndsWith(Environment.NewLine))
-                return rawMessage + Environment.NewLine;
-            else
-                return rawMessage;
-        }
-
-        public override void SendResponse(string message)
-        {
-            base.SendResponse(ProcessSendingMessage(message));
-        }
-
-        public override void SendResponse(string message, params object[] paramValues)
-        {
-            base.SendResponse(ProcessSendingMessage(message), paramValues);
         }
     }
 }

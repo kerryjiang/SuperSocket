@@ -8,7 +8,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test
 {
-    public class TestServer : AppServer<TestSession, StringCommandInfo>
+    public class TestServer : AppServer<TestSession>
     {
         public TestServer()
             : base()
