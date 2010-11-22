@@ -137,8 +137,25 @@ namespace SuperSocket.SocketBase
     public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringCommandInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
     {
+
+        private bool m_AppendNewLineForResponse = false;
+
+        public AppSession()
+            : this(true)
+        {
+
+        }
+
+        public AppSession(bool appendNewLineForResponse)
+        {
+            m_AppendNewLineForResponse = appendNewLineForResponse;
+        }
+
         protected virtual string ProcessSendingMessage(string rawMessage)
         {
+            if (!m_AppendNewLineForResponse)
+                return rawMessage;
+
             if (AppServer.Config.Mode == SocketMode.Udp)
                 return rawMessage;
 
