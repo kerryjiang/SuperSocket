@@ -11,7 +11,7 @@ namespace SuperSocket.SocketBase.Protocol
     public interface ICommandAsyncReader<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
-        TCommandInfo FindCommand(byte[] readBuffer, int offset, int length);
+        TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length);
 
         ArraySegmentList<byte> GetLeftBuffer();
 

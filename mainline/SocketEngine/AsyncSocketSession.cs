@@ -25,6 +25,7 @@ namespace SuperSocket.SocketEngine
         where TCommandInfo : ICommandInfo
     {
         ICommandAsyncReader<TCommandInfo> m_CommandReader;
+        SocketContext m_Context;
 
         public AsyncSocketSession(ICommandAsyncReader<TCommandInfo> initialCommandReader)
             : base()
@@ -34,6 +35,7 @@ namespace SuperSocket.SocketEngine
 
         protected override void Start(SocketContext context)
         {
+            m_Context = context;
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             SocketAsyncProxy.Initialize(Client, this, context);
             StartSession();
@@ -113,7 +115,7 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            var commandInfo = m_CommandReader.FindCommand(e.Buffer, e.Offset, e.BytesTransferred);
+            var commandInfo = m_CommandReader.FindCommand(m_Context, e.Buffer, e.Offset, e.BytesTransferred);
 
             m_CommandReader = m_CommandReader.NextCommandReader;
 

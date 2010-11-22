@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase.Protocol
     public interface ICommandStreamReader<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
-        void InitializeReader(Stream stream, Encoding encoding, int bufferSize);
+        void InitializeReader(SocketContext context, Stream stream, Encoding encoding, int bufferSize);
 
         TCommandInfo ReadCommand();
     }

@@ -55,7 +55,7 @@ namespace SuperSocket.SocketEngine
 
         internal void ProcessData(byte[] data, int offset, int length)
         {
-            var commandInfo = m_CommandReader.FindCommand(data, offset, length);
+            var commandInfo = m_CommandReader.FindCommand(m_Context, data, offset, length);
 
             m_CommandReader = m_CommandReader.NextCommandReader;
 

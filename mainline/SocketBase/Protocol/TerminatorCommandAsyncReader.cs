@@ -43,7 +43,7 @@ namespace SuperSocket.SocketBase.Protocol
 
         #region IAsyncCommandReader Members
 
-        public StringCommandInfo FindCommand(byte[] readBuffer, int offset, int length)
+        public StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length)
         {
             NextCommandReader = this;
 

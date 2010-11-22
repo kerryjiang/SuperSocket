@@ -28,7 +28,7 @@ namespace SuperSocket.SocketBase.Protocol
 
         #region ICommandStreamReader Members
 
-        public void InitializeReader(Stream stream, Encoding encoding, int bufferSize)
+        public void InitializeReader(SocketContext context, Stream stream, Encoding encoding, int bufferSize)
         {
             m_UnderlyingStream = stream;
             m_CommandEncoding = encoding;

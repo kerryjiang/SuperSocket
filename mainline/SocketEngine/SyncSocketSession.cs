@@ -110,9 +110,9 @@ namespace SuperSocket.SocketEngine
             }
 
             if (context == null)
-                m_CommandReader.InitializeReader(m_Stream, Encoding.Default, 0x400);
+                m_CommandReader.InitializeReader(context, m_Stream, Encoding.Default, 0x400);
             else
-                m_CommandReader.InitializeReader(m_Stream, context.Charset, 0x400);
+                m_CommandReader.InitializeReader(context, m_Stream, context.Charset, 0x400);
         }
 
         public override void ApplySecureProtocol(SocketContext context)
