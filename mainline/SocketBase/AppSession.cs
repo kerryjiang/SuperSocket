@@ -16,20 +16,20 @@ namespace SuperSocket.SocketBase
     {
         public virtual IAppServer<TAppSession, TCommandInfo> AppServer { get; private set; }
 
-        protected void Initialize(IAppServer<TAppSession, TCommandInfo> appServer, ISocketSession socketSession, SocketContext context)
+        protected virtual SocketContext CreateSocketContext()
         {
-            Context = context;
+            return new SocketContext();
+        }
+
+        public virtual void Initialize(IAppServer<TAppSession, TCommandInfo> appServer, ISocketSession socketSession)
+        {
+            Context = CreateSocketContext();
             AppServer = appServer;
             SocketSession = socketSession;
             SocketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(SocketSession_Closed);
             SessionID = socketSession.SessionID;
             IdentityKey = socketSession.IdentityKey;
             OnInit();
-        }
-
-        public virtual void Initialize(IAppServer<TAppSession, TCommandInfo> appServer, ISocketSession socketSession)
-        {
-            Initialize(appServer, socketSession, new SocketContext());
         }
 
         void SocketSession_Closed(object sender, SocketSessionClosedEventArgs e)
