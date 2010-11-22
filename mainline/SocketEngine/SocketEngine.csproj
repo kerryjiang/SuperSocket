@@ -90,7 +90,6 @@
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AuthenticationResult.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\CredentialConfig.cs" />
     <Compile Include="Configuration\ProtocolCollectionConfig.cs" />
