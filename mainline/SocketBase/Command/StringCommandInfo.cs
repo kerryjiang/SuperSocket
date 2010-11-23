@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public class StringCommandInfo : CommandInfoBase<string>
+    public class StringCommandInfo : CommandInfo<string>
     {
         public StringCommandInfo(string key, string data, string[] parameters)
             : base(key, data)

@@ -53,30 +53,7 @@ namespace SuperSocket.SocketBase
 
         public void ExecuteCommand(TAppSession session, TCommandInfo cmdInfo)
         {
-            ////Header
-            //if (string.IsNullOrEmpty(Context.PrevCommand) && AppServer.HeaderParser != null)
-            //{
-            //    AppServer.HeaderParser.ExecuteParser(AppSession, commandLine);
-            //    AppSession.Context.PrevCommand = "HEADER";
-            //    return;
-            //}
-
-            ICommand<TAppSession, TCommandInfo> command = AppServer.GetCommandByName(cmdInfo.CommandKey);
-
-            if (command != null)
-            {
-                Context.CurrentCommand = cmdInfo.CommandKey;
-                command.ExecuteCommand(session, cmdInfo);
-                Context.PrevCommand = cmdInfo.CommandKey;
-                if (AppServer.Config.LogCommand)
-                    LogUtil.LogInfo(AppServer, string.Format("Command - {0} - {1}", IdentityKey, cmdInfo.CommandKey));
-            }
-            else
-            {
-                HandleUnknownCommand(cmdInfo);
-            }
-
-            LastActiveTime = DateTime.Now;
+            AppServer.ExecuteCommand(session, cmdInfo);
         }
 
         public virtual void HandleUnknownCommand(TCommandInfo cmdInfo)

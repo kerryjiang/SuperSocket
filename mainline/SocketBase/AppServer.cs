@@ -340,6 +340,48 @@ namespace SuperSocket.SocketBase
             get { return true; }
         }
 
+        private CommandHandler<TAppSession, TCommandInfo> m_CommandHandler;
+
+        public event CommandHandler<TAppSession, TCommandInfo> CommandHandler
+        {
+            add { m_CommandHandler += value; }
+            remove { m_CommandHandler -= value; }
+        }
+
+        public virtual void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
+        {
+            if (m_CommandHandler == null)
+            {
+                var command = GetCommandByName(commandInfo.CommandKey);
+
+                if (command != null)
+                {
+                    session.Context.CurrentCommand = commandInfo.CommandKey;
+                    command.ExecuteCommand(session, commandInfo);
+                    session.Context.PrevCommand = commandInfo.CommandKey;
+
+                    if (Config.LogCommand)
+                        LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.CommandKey));
+                }
+                else
+                {
+                    session.HandleUnknownCommand(commandInfo);
+                }
+
+                session.LastActiveTime = DateTime.Now;
+            }
+            else
+            {
+                session.Context.CurrentCommand = commandInfo.CommandKey;
+                m_CommandHandler(session, commandInfo);
+                session.Context.PrevCommand = commandInfo.CommandKey;                
+                session.LastActiveTime = DateTime.Now;
+
+                if (Config.LogCommand)
+                    LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.CommandKey));
+            }
+        }
+
         private Dictionary<string, TAppSession> m_SessionDict = new Dictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
 
         private object m_SessionSyncRoot = new object();
@@ -348,7 +390,7 @@ namespace SuperSocket.SocketBase
         {
             TAppSession appSession = new TAppSession();
             appSession.Initialize(this, socketSession);
-            socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(socketSession_Closed);
+            socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);
 
             lock (m_SessionSyncRoot)
             {
@@ -370,7 +412,7 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        void socketSession_Closed(object sender, SocketSessionClosedEventArgs e)
+        protected virtual void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
             //the sender is a sessionID
             string identityKey = e.IdentityKey;

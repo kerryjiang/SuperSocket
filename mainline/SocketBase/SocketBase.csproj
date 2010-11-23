@@ -44,9 +44,10 @@
   <ItemGroup>
     <Compile Include="AppServer.cs" />
     <Compile Include="AppSession.cs" />
+    <Compile Include="CommandHandler.cs" />
     <Compile Include="Command\BinaryCommandInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
-    <Compile Include="Command\CommandInfoBase.cs" />
+    <Compile Include="Command\CommandInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandInfo.cs" />
     <Compile Include="Command\ICommandLoader.cs" />

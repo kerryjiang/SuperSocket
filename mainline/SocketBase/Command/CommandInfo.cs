@@ -5,9 +5,9 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public abstract class CommandInfoBase<TCommandData> : ICommandInfo<TCommandData>
+    public abstract class CommandInfo<TCommandData> : ICommandInfo<TCommandData>
     {
-        public CommandInfoBase(string key, TCommandData data)
+        public CommandInfo(string key, TCommandData data)
         {
             CommandKey = key;
             CommandData = data;

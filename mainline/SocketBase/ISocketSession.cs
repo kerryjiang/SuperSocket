@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Security.Authentication;
 using System.Net.Sockets;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
@@ -32,9 +33,9 @@ namespace SuperSocket.SocketBase
         event EventHandler<SocketSessionClosedEventArgs> Closed;
     }
 
-    public interface ISocketSession<T> : ISocketSession
-        where T : IAppSession, new()
+    public interface ISocketSession<TAppSession> : ISocketSession
+        where TAppSession : IAppSession, new()
     {
-        void Initialize(IAppServer<T> appServer, T appSession, Socket client);
+        void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession, Socket client);
     }
 }

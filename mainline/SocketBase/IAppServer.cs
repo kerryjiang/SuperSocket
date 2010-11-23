@@ -35,6 +35,6 @@ namespace SuperSocket.SocketBase
         where TCommandInfo : ICommandInfo
         where TAppSession : IAppSession<TCommandInfo>
     {
-        
+        void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
     }
 }
