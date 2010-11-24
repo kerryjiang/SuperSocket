@@ -6,17 +6,30 @@ using System.Reflection;
 
 namespace SuperSocket.SocketBase.Command
 {
-    internal class ReflectCommandLoader : ICommandLoader
+    internal class ReflectCommandLoader<TAppSession, TCommandInfo> : ICommandLoader<TAppSession, TCommandInfo>
+        where TCommandInfo : ICommandInfo
+        where TAppSession : IAppSession, IAppSession<TCommandInfo>, new()
     {
+        private Assembly m_CommandAssembly;
+
+        public ReflectCommandLoader()
+            : this(typeof(TAppSession).Assembly)
+        {
+
+        }
+
+        public ReflectCommandLoader(Assembly assembly)
+        {
+            m_CommandAssembly = assembly;
+        }
+
+
         #region ICommandLoader Members
 
-        public List<ICommand<TAppSession, TCommandInfo>> LoadCommands<TAppSession, TCommandInfo>()
-            where TCommandInfo : ICommandInfo
-            where TAppSession : IAppSession, IAppSession<TCommandInfo>, new()
+        public List<ICommand<TAppSession, TCommandInfo>> LoadCommands()            
         {
             Type commandType = typeof(ICommand<TAppSession, TCommandInfo>);
-            Assembly asm = typeof(TAppSession).Assembly;
-            Type[] arrType = asm.GetExportedTypes();
+            Type[] arrType = m_CommandAssembly.GetExportedTypes();
 
             List<ICommand<TAppSession, TCommandInfo>> commands = new List<ICommand<TAppSession, TCommandInfo>>();
 

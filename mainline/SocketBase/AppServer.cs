@@ -46,27 +46,31 @@ namespace SuperSocket.SocketBase
 
         private Dictionary<string, ProviderBase<TAppSession>> m_ProviderDict = new Dictionary<string, ProviderBase<TAppSession>>(StringComparer.OrdinalIgnoreCase);
 
-        private ICommandLoader m_CommandLoader = new ReflectCommandLoader();
-
         private ISocketServerFactory m_SocketServerFactory;
 
         public AppServer()
         {
             
-        }       
+        }
 
-        private bool LoadCommands()
+        protected virtual IEnumerable<ICommand<TAppSession, TCommandInfo>> LoadCommands()
         {
-            foreach (var command in m_CommandLoader.LoadCommands<TAppSession, TCommandInfo>())
+            var commandLoader = new ReflectCommandLoader<TAppSession, TCommandInfo>();
+            return commandLoader.LoadCommands();
+        }
+
+        private bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
+        {
+            foreach (var command in LoadCommands())
             {
                 //command.DefaultParameterParser = CommandParameterParser;
-                if (m_CommandDict.ContainsKey(command.Name))
+                if (commandDict.ContainsKey(command.Name))
                 {
                     LogUtil.LogError(this, "Duplicated name command has been found! Command name: " + command.Name);
                     return false;
                 }
 
-                m_CommandDict.Add(command.Name, command);
+                commandDict.Add(command.Name, command);
             }
 
             return true;
@@ -164,7 +168,7 @@ namespace SuperSocket.SocketBase
             if (Protocol == null)
                 Protocol = new CommandLineProtocol();
 
-            if (!LoadCommands())
+            if (!SetupCommands(m_CommandDict))
                 return false;
 
             if (!string.IsNullOrEmpty(assembly))
