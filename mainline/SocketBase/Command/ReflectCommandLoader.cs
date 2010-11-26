@@ -6,32 +6,24 @@ using System.Reflection;
 
 namespace SuperSocket.SocketBase.Command
 {
-    internal class ReflectCommandLoader<TAppSession, TCommandInfo> : ICommandLoader<TAppSession, TCommandInfo>
-        where TCommandInfo : ICommandInfo
-        where TAppSession : IAppSession, IAppSession<TCommandInfo>, new()
+    public class ReflectCommandLoader<TCommandInfo> : ICommandLoader<TCommandInfo>
+        where TCommandInfo : class
     {
         private Assembly m_CommandAssembly;
-
-        public ReflectCommandLoader()
-            : this(typeof(TAppSession).Assembly)
-        {
-
-        }
 
         public ReflectCommandLoader(Assembly assembly)
         {
             m_CommandAssembly = assembly;
         }
 
-
         #region ICommandLoader Members
 
-        public List<ICommand<TAppSession, TCommandInfo>> LoadCommands()            
+        public List<TCommandInfo> LoadCommands()            
         {
-            Type commandType = typeof(ICommand<TAppSession, TCommandInfo>);
+            Type commandType = typeof(TCommandInfo);
             Type[] arrType = m_CommandAssembly.GetExportedTypes();
 
-            List<ICommand<TAppSession, TCommandInfo>> commands = new List<ICommand<TAppSession, TCommandInfo>>();
+            var commands = new List<TCommandInfo>();
 
             for (int i = 0; i < arrType.Length; i++)
             {
@@ -44,7 +36,7 @@ namespace SuperSocket.SocketBase.Command
 
                 if (commandInterface != null)
                 {
-                    commands.Add(currentCommandType.GetConstructor(new Type[0]).Invoke(new object[0]) as ICommand<TAppSession, TCommandInfo>);
+                    commands.Add(currentCommandType.GetConstructor(new Type[0]).Invoke(new object[0]) as TCommandInfo);
                 }
             }
 

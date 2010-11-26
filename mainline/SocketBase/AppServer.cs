@@ -51,17 +51,13 @@ namespace SuperSocket.SocketBase
         public AppServer()
         {
             
-        }
+        } 
 
-        protected virtual IEnumerable<ICommand<TAppSession, TCommandInfo>> LoadCommands()
+        protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
         {
-            var commandLoader = new ReflectCommandLoader<TAppSession, TCommandInfo>();
-            return commandLoader.LoadCommands();
-        }
+            var commandLoader = new ReflectCommandLoader<ICommand<TAppSession, TCommandInfo>>(typeof(TAppSession).Assembly);
 
-        private bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
-        {
-            foreach (var command in LoadCommands())
+            foreach (var command in commandLoader.LoadCommands())
             {
                 //command.DefaultParameterParser = CommandParameterParser;
                 if (commandDict.ContainsKey(command.Name))
