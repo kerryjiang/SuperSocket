@@ -115,7 +115,7 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            var commandInfo = m_CommandReader.FindCommand(m_Context, e.Buffer, e.Offset, e.BytesTransferred);
+            var commandInfo = m_CommandReader.FindCommand(m_Context, e.Buffer, e.Offset, e.BytesTransferred, true);
 
             m_CommandReader = m_CommandReader.NextCommandReader;
 
