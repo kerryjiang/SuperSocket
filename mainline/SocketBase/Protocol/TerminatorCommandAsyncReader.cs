@@ -43,13 +43,13 @@ namespace SuperSocket.SocketBase.Protocol
 
         #region IAsyncCommandReader Members
 
-        public StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length)
+        public StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             NextCommandReader = this;
 
             string command;
 
-            if (!FindCommandDirectly(readBuffer, offset, length, out command))
+            if (!FindCommandDirectly(readBuffer, offset, length, isReusableBuffer, out command))
                 return null;
 
             return m_CommandParser.ParseCommand(command);
@@ -69,9 +69,20 @@ namespace SuperSocket.SocketBase.Protocol
             m_BufferSegments.ClearSegements();
         }
 
-        protected bool FindCommandDirectly(byte[] readBuffer, int offset, int length, out string command)
+        protected bool FindCommandDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command)
         {
-            var currentSegment = new ArraySegment<byte>(readBuffer, offset, length);
+            ArraySegment<byte> currentSegment;
+
+            if (isReusableBuffer)
+            {
+                //Next received data also will be saved in this buffer, so we should create a new byte[] to persistent current received data
+                currentSegment = new ArraySegment<byte>(readBuffer.Skip(offset).Take(length).ToArray());
+            }
+            else
+            {
+                currentSegment = new ArraySegment<byte>(readBuffer, offset, length);
+            }
+
             m_BufferSegments.AddSegment(currentSegment);
 
             int? result = m_BufferSegments.SearchMark(Terminator);
