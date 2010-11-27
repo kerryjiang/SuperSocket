@@ -107,7 +107,11 @@ namespace SuperSocket.SocketBase.Protocol
             if (findLen < total)
             {
                 int left = total - findLen;
-                m_BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer, offset + length - left, left));
+
+                if (isReusableBuffer)
+                    m_BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer.Skip(offset + length - left).Take(left).ToArray()));
+                else
+                    m_BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer, offset + length - left, left));
             }
 
             return true;
