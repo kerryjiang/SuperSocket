@@ -40,6 +40,7 @@ namespace SuperSocket.SocketEngine
             else
                 LogUtil.Setup(new DynamicELLogger("Logs", m_Config.GetServerList().Select(s => s.Name)));
 
+            //Initialize services
             List<IServiceConfig> serviceList = config.GetServiceList();
 
             Type serviceType;
@@ -58,6 +59,8 @@ namespace SuperSocket.SocketEngine
                 m_ServiceDict[service.ServiceName] = serviceType;
             }
 
+
+            //Initialize protocol list
             Type protocolType;
 
             foreach (var protocol in config.GetProtocolList())
@@ -71,66 +74,69 @@ namespace SuperSocket.SocketEngine
                 m_ProtocolDict[protocol.Name] = protocolType;
             }
 
-            return true;
-        }
-
-        /// <summary>
-        /// Starts with specified config.
-        /// </summary>
-        /// <param name="config">The config.</param>
-        /// <returns></returns>
-        public static bool Start(IConfig config)
-        {
-            List<IServerConfig> serverList = config.GetServerList();
-
-            Type serviceType = null;
-
-            //ServiceCredentials credentials = null;
-
-            //if (config.CredentialConfig != null)
-            //    credentials = GetServiceCredentials(config.CredentialConfig);
-
-            foreach (IServerConfig serverConfig in serverList)
+            //Initialize servers
+            foreach (var serverConfig in config.GetServerList())
             {
-                if (serverConfig.Disabled)
-                    continue;
-
-                bool startResult = false;
-
-                if (m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
+                if (!InitializeServer(serverConfig))
                 {
-                    if (serviceType == null)
-                    {
-                        LogUtil.LogError(string.Format("The service {0} cannot be found in configuration!", serverConfig.ServiceName));
-                        LogUtil.LogError("Failed to start " + serverConfig.Name + " server!");                        
-                        return false;
-                    }
-
-                    var protocol = GetProtocolByName(serverConfig.Protocol);
-
-                    var server = Activator.CreateInstance(serviceType) as IAppServer;
-                    if (server != null && server.Setup(serverConfig, SocketServerFactory.Instance, protocol, config.ConsoleBaseAddress, GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider)))
-                    {
-                        //server.ServerCredentials = credentials;
-                        if (server.Start())
-                        {
-                            m_ServerList.Add(server);
-                            startResult = true;
-                        }
-                    }
-                }
-
-                if (!startResult)
-                {
-                    LogUtil.LogError("Failed to start " + serverConfig.Name + " server!");
-                    return false;
-                }
-                else
-                {
-                    LogUtil.LogInfo(serverConfig.Name + " has been started");
+                    LogUtil.LogError("Failed to initialize server " + serverConfig.Name + "!");
                 }
             }
 
+            return true;
+        }
+
+        private static bool InitializeServer(IServerConfig serverConfig)
+        {
+            if (serverConfig.Disabled)
+                return true;
+
+            Type serviceType = null;
+
+            if (!m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
+            {
+                LogUtil.LogError(string.Format("The service {0} cannot be found in configuration!", serverConfig.ServiceName));
+                return false;
+            }
+
+            var protocol = GetProtocolByName(serverConfig.Protocol);
+
+            IAppServer server;
+
+            try
+            {
+                server = (IAppServer)Activator.CreateInstance(serviceType);
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError("Failed to create server instance!", e);
+                return false;
+            }
+
+            if (!server.Setup(serverConfig, SocketServerFactory.Instance, protocol, m_Config.ConsoleBaseAddress,
+                GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider)))
+            {
+                LogUtil.LogError("Failed to setup server instance!");
+                return false;
+            }
+
+            m_ServerList.Add(server);
+            return true;
+        }
+
+        public static bool Start()
+        {
+            foreach (IAppServer server in m_ServerList)
+            {
+                if (!server.Start())
+                {
+                    LogUtil.LogError("Failed to start " + server.Name + " server!");
+                }
+                else
+                {
+                    LogUtil.LogInfo(server.Name + " has been started");
+                }
+            }
 
             return true;
         }
@@ -196,6 +202,11 @@ namespace SuperSocket.SocketEngine
                 return string.Empty;
             else
                 return element.Value;
+        }
+
+        public static IAppServer GetServerByName(string name)
+        {
+            return m_ServerList.SingleOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         //public static ServiceCredentials GetServiceCredentials(ICredentialConfig config)
