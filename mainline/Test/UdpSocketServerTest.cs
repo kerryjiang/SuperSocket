@@ -118,6 +118,46 @@ namespace SuperSocket.Test
             }
         }
 
+        //[Test]
+        //public void TestBrokenCommandBlock()
+        //{
+        //    StartServer();
+
+        //    EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+        //    using (Socket socket = CreateClientSocket())
+        //    {
+        //        char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+        //        Random rd = new Random(1);
+
+        //        StringBuilder sb = new StringBuilder();
+
+        //        for (int i = 0; i < 50; i++)
+        //        {
+        //            sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+        //        }
+
+        //        string command = sb.ToString();
+
+        //        var commandSource = ("ECHO " + command).ToList();
+
+        //        while (commandSource.Count > 0)
+        //        {
+        //            int readLen = rd.Next(1, commandSource.Count);
+        //            Console.WriteLine(commandSource.Take(readLen).ToArray());
+        //            socket.SendTo(Encoding.UTF8.GetBytes(commandSource.Take(readLen).ToArray()), serverAddress);
+        //            commandSource.RemoveRange(0, readLen);
+        //        }
+
+        //        socket.SendTo(Encoding.UTF8.GetBytes("\r\n"), serverAddress);
+
+        //        string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+        //        Console.WriteLine("C:" + echoMessage);
+        //        Assert.AreEqual(command, echoMessage);
+        //    }
+        //}
+
         private bool RunEchoMessage()
         {
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);

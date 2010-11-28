@@ -320,6 +320,60 @@ namespace SuperSocket.Test
             }
         }
 
+
+        [Test]
+        public void TestBrokenCommandBlock()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                {
+                    string welcomeString = reader.ReadLine();
+
+                    Console.WriteLine("Welcome: " + welcomeString);
+
+                    char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+                    Random rd = new Random(1);
+
+                    StringBuilder sb = new StringBuilder();
+
+                    for (int i = 0; i < 50; i++)
+                    {
+                        sb.Append(chars[rd.Next(0, chars.Length - 1)]);                        
+                    }
+
+                    string command = sb.ToString();
+
+                    var commandSource = ("ECHO " + command).ToList();
+
+                    while (commandSource.Count > 0)
+                    {
+                        int readLen = rd.Next(1, commandSource.Count);
+                        writer.Write(commandSource.Take(readLen).ToArray());
+                        Console.WriteLine(commandSource.Take(readLen).ToArray());
+                        writer.Flush();
+                        commandSource.RemoveRange(0, readLen);
+                        Thread.Sleep(200);
+                    }
+
+                    writer.WriteLine();
+                    writer.Flush();
+                  
+                    string echoMessage = reader.ReadLine();
+                    Console.WriteLine("C:" + echoMessage);
+                    Assert.AreEqual(command, echoMessage);
+                }
+            }
+        }
+
         private bool RunEchoMessage()
         {
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
