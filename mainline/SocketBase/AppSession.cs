@@ -109,6 +109,11 @@ namespace SuperSocket.SocketBase
         {
             SocketSession.SendResponse(Context, string.Format(message, paramValues));
         }
+
+        public virtual void SendResponse(byte[] data)
+        {
+            SocketSession.SendResponse(Context, data);
+        }
     }
 
     public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringCommandInfo>
