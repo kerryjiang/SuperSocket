@@ -26,7 +26,7 @@ namespace SuperSocket.SocketService
             if (!SocketServerManager.Initialize(serverConfig))
                 return;
 
-            if (!SocketServerManager.Start(serverConfig))
+            if (!SocketServerManager.Start())
                 SocketServerManager.Stop();
         }
 

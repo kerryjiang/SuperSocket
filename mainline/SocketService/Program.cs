@@ -56,7 +56,7 @@ namespace SuperSocket.SocketService
                 return;
             }
 
-            if (!SocketServerManager.Start(serverConfig))
+            if (!SocketServerManager.Start())
             {
                 Console.WriteLine("Failed to start SuperSocket server! Please check error log for more information!");
                 SocketServerManager.Stop();
