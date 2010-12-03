@@ -45,7 +45,7 @@ namespace SuperSocket.SocketEngine
             catch (Exception e)
             {
                 LogUtil.LogError(AppServer, e);
-                Close();
+                Close(CloseReason.SocketError);
                 return;
             }
 
@@ -63,13 +63,13 @@ namespace SuperSocket.SocketEngine
 
                     if (Client == null && !IsClosed)
                     {
-                        Close();
+                        Close(CloseReason.ServerClosing);
                         return;
                     }
                 }
                 catch (SocketException)
                 {
-                    Close();
+                    Close(CloseReason.SocketError);
                     break;
                 }
                 catch (Exception e)
@@ -81,14 +81,14 @@ namespace SuperSocket.SocketEngine
 
             if (Client != null && !IsClosed)
             {
-                Close();
+                Close(CloseReason.ServerClosing);
             }
         }
 
 
-        public override void Close()
+        public override void Close(CloseReason reason)
         {
-            base.Close();
+            base.Close(reason);
         }
 
         private Stream m_Stream;
@@ -130,7 +130,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (ObjectDisposedException)
             {
-                this.Close();
+                this.Close(CloseReason.SocketError);
                 return false;
             }
             catch (IOException ioe)
@@ -142,26 +142,26 @@ namespace SuperSocket.SocketEngine
                         var se = ioe.InnerException as SocketException;
                         if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
                         {
-                            this.Close();
+                            this.Close(CloseReason.SocketError);
                             return false;
                         }
                     }
 
                     if (ioe.InnerException is ObjectDisposedException)
                     {
-                        this.Close();
+                        this.Close(CloseReason.SocketError);
                         return false;
                     }
                 }
 
                 LogUtil.LogError(AppServer, "An error occurred in session: " + this.SessionID, ioe);
-                this.Close();
+                this.Close(CloseReason.SocketError);
                 return false;
             }
             catch (Exception e)
             {
                 LogUtil.LogError(AppServer, e);
-                this.Close();
+                this.Close(CloseReason.Unknown);
                 return false;
             }
 
@@ -183,13 +183,13 @@ namespace SuperSocket.SocketEngine
                     SocketException se = e.InnerException as SocketException;
                     if (se != null && se.ErrorCode == 10054)
                     {
-                        this.Close();
+                        this.Close(CloseReason.SocketError);
                         return;
                     }
                 }
 
                 LogUtil.LogError(AppServer, e.GetType().ToString());
-                this.Close();
+                this.Close(CloseReason.Unknown);
             }
         }
 
@@ -205,7 +205,7 @@ namespace SuperSocket.SocketEngine
             catch (Exception e)
             {
                 LogUtil.LogError(AppServer, e);
-                this.Close();
+                this.Close(CloseReason.SocketError);
             }
         }
 

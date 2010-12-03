@@ -55,7 +55,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception)
             {
-                Close();
+                Close(CloseReason.SocketError);
                 return;
             }
 
@@ -81,7 +81,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception)
             {
-                Close();
+                Close(CloseReason.SocketError);
             }
         }
 
@@ -99,7 +99,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception)
             {
-                Close();
+                Close(CloseReason.SocketError);
             }
         }
 
@@ -109,9 +109,15 @@ namespace SuperSocket.SocketEngine
         {
             // check if the remote host closed the connection
             AsyncUserToken token = (AsyncUserToken)e.UserToken;
-            if (e.BytesTransferred <= 0 || e.SocketError != SocketError.Success)
+            if (e.BytesTransferred <= 0)
             {
-                Close();
+                Close(CloseReason.ClientClosing);
+                return;
+            }
+
+            if (e.SocketError != SocketError.Success)
+            {
+                Close(CloseReason.SocketError);
                 return;
             }
 
@@ -137,7 +143,7 @@ namespace SuperSocket.SocketEngine
             {
                 StartReceive(e);
                 return;
-            }             
+            }   
         }      
 
         public override void ApplySecureProtocol(SocketContext context)

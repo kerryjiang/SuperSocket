@@ -10,15 +10,26 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
+    public enum CloseReason
+    {
+        ServerShutdown,
+        ClientClosing,
+        ServerClosing,
+        SocketError,
+        TimeOut,
+        Unknown
+    }
+
     public class SocketSessionClosedEventArgs : EventArgs
     {
         public string IdentityKey { get; set; }
+        public CloseReason Reason { get; set; }
     }
 
     public interface ISocketSession
     {
         void Start();
-        void Close();
+        void Close(CloseReason reason);
         void SendResponse(SocketContext context, string message);
         void SendResponse(SocketContext context, byte[] data);
         void ReceiveData(Stream storeSteram, int length);

@@ -462,7 +462,7 @@ namespace SuperSocket.SocketBase
                             DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds > Config.IdleSessionTimeOut)
                             .ToList().ForEach(s =>
                             {
-                                s.Close();
+                                s.Close(CloseReason.TimeOut);
                                 LogUtil.LogInfo(this, string.Format("The socket session: {0} has been closed for {1} timeout!", s.IdentityKey, DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds));
                             });
                     }
@@ -512,7 +512,7 @@ namespace SuperSocket.SocketBase
                     m_ClearIdleSessionTimer = null;
                 }
 
-                m_SessionDict.Values.ToList().ForEach(s => s.Close());
+                m_SessionDict.Values.ToList().ForEach(s => s.Close(CloseReason.ServerShutdown));
 
                 CloseConsoleHost();
             }

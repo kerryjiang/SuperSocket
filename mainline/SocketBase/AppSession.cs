@@ -94,10 +94,15 @@ namespace SuperSocket.SocketBase
             get { return AppServer.Config; }
         }
 
+        public virtual void Close(CloseReason reason)
+        {
+            this.SocketSession.Close(reason);
+            OnClosed();
+        }
+
         public virtual void Close()
         {
-            this.SocketSession.Close();
-            OnClosed();
+            Close(CloseReason.ServerClosing);
         }
 
         public virtual void SendResponse(string message)

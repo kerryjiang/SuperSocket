@@ -20,6 +20,7 @@ namespace SuperSocket.SocketBase
         DateTime LastActiveTime { get; set; }
         DateTime StartTime { get; }
         void Close();
+        void Close(CloseReason reason);
         void StartSession();
         void HandleExceptionalError(Exception e);
     }

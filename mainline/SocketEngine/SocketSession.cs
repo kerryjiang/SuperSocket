@@ -105,11 +105,17 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Called when [close].
         /// </summary>
-        protected virtual void OnClose()
+        protected virtual void OnClose(CloseReason reason)
         {
             var closedHandler = Closed;
             if (closedHandler != null)
-                closedHandler(this, new SocketSessionClosedEventArgs { IdentityKey = this.IdentityKey });
+            {
+                closedHandler(this, new SocketSessionClosedEventArgs
+                    {
+                        IdentityKey = this.IdentityKey,
+                        Reason = reason
+                    });
+            }
         }
 
         /// <summary>
@@ -174,10 +180,7 @@ namespace SuperSocket.SocketEngine
         /// <value>The secure protocol.</value>
         public SslProtocols SecureProtocol { get; set; }
 
-        /// <summary>
-        /// Closes this connection.
-        /// </summary>
-        public virtual void Close()
+        public virtual void Close(CloseReason reason)
         {
             if (Client == null && m_IsClosed)
                 return;
@@ -216,7 +219,7 @@ namespace SuperSocket.SocketEngine
                 {
                     Client = null;
                     m_IsClosed = true;
-                    OnClose();
+                    OnClose(reason);
                 }
             }
         }
