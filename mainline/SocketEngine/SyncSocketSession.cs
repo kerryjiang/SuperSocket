@@ -201,6 +201,7 @@ namespace SuperSocket.SocketEngine
             try
             {
                 m_Stream.Write(data, 0, data.Length);
+                m_Stream.Flush();
             }
             catch (Exception e)
             {
