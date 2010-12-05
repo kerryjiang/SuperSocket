@@ -165,7 +165,7 @@ namespace SuperSocket.SocketEngine
                 return false;
             }
 
-            return true;
+            return commandInfo != null;
         }
 
         public override void SendResponse(SocketContext context, string message)
@@ -181,10 +181,18 @@ namespace SuperSocket.SocketEngine
                 if (e.InnerException != null)
                 {
                     SocketException se = e.InnerException as SocketException;
-                    if (se != null && se.ErrorCode == 10054)
+                    if (se != null)
                     {
-                        this.Close(CloseReason.SocketError);
-                        return;
+                        if (se.ErrorCode == 10054)
+                        {
+                            this.Close(CloseReason.SocketError);
+                            return;
+                        }
+                        else if (se.ErrorCode == 10053)
+                        {
+                            this.Close(CloseReason.ServerClosing);
+                            return;
+                        }
                     }
                 }
 
