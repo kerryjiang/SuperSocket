@@ -50,5 +50,31 @@ namespace SuperSocket.Common
             return assembly.GetExportedTypes().Where(t =>
                 t.IsSubclassOf(typeof(TBaseType)) && t.IsClass && !t.IsAbstract);
         }
+
+        public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly)
+            where TBaseInterface : class
+        {
+            Type interfaceType = typeof(TBaseInterface);
+            Type[] arrType = assembly.GetExportedTypes();
+
+            var result = new List<TBaseInterface>();
+
+            for (int i = 0; i < arrType.Length; i++)
+            {
+                var currentImplementType = arrType[i];
+
+                if (currentImplementType.IsAbstract)
+                    continue;
+
+                var foundInterface = currentImplementType.GetInterfaces().SingleOrDefault(x => x == interfaceType);
+
+                if (foundInterface != null)
+                {
+                    result.Add(currentImplementType.GetConstructor(new Type[0]).Invoke(new object[0]) as TBaseInterface);
+                }
+            }
+
+            return result;
+        }
     }
 }
