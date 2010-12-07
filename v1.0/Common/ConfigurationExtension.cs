@@ -10,7 +10,7 @@ namespace SuperSocket.Common
     {
         public static string GetValue(this NameValueConfigurationCollection collection, string key)
         {
-            return GetValue(collection, string.Empty);
+            return GetValue(collection, key, string.Empty);
         }
 
         public static string GetValue(this NameValueConfigurationCollection collection, string key, string defaultValue)
