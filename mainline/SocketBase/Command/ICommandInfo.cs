@@ -7,11 +7,11 @@ namespace SuperSocket.SocketBase.Command
 {
     public interface ICommandInfo
     {
-        string CommandKey { get; }
+        string Key { get; }
     }
 
     public interface ICommandInfo<TCommandData> : ICommandInfo
-    {        
-        TCommandData CommandData { get; }
+    {
+        TCommandData Data { get; }
     }
 }

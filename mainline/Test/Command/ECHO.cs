@@ -10,8 +10,8 @@ namespace SuperSocket.Test.Command
     {
         public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
-            Console.WriteLine("R:" + commandData.CommandData);
-            session.SendResponse(commandData.CommandData);
+            Console.WriteLine("R:" + commandData.Data);
+            session.SendResponse(commandData.Data);
         }
     }
 }

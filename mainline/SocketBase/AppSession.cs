@@ -58,7 +58,7 @@ namespace SuperSocket.SocketBase
 
         public virtual void HandleUnknownCommand(TCommandInfo cmdInfo)
         {
-            SendResponse("Unknown command: " + cmdInfo.CommandKey);
+            SendResponse("Unknown command: " + cmdInfo.Key);
         }
 
         public virtual SocketContext Context { get; private set; }

@@ -12,7 +12,7 @@ namespace SuperSocket.Test.Command
 
         public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
-            session.SendResponse(string.Format(ReplyFormat, commandData.CommandData));
+            session.SendResponse(string.Format(ReplyFormat, commandData.Data));
         }
 
         public override string Name

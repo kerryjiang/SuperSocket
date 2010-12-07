@@ -5,9 +5,9 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public interface ICommandLoader<TCommandInfo>
+    public interface ICommandLoader<out TCommandInfo>
         where TCommandInfo : class
     {
-        List<TCommandInfo> LoadCommands();
+        IEnumerable<TCommandInfo> LoadCommands();
     }
 }

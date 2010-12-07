@@ -9,19 +9,19 @@ namespace SuperSocket.SocketBase.Command
     {
         public CommandInfo(string key, TCommandData data)
         {
-            CommandKey = key;
-            CommandData = data;
+            Key = key;
+            Data = data;
         }
 
         #region ICommandInfo<TCommandData> Members
 
-        public TCommandData CommandData { get; private set; }
+        public TCommandData Data { get; private set; }
 
         #endregion
 
         #region ICommandInfo Members
 
-        public string CommandKey { get; private set; }
+        public string Key { get; private set; }
 
         #endregion
     }

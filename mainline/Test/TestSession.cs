@@ -29,7 +29,7 @@ namespace SuperSocket.Test
 
         public override void HandleUnknownCommand(StringCommandInfo cmdInfo)
         {
-            SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.CommandKey));
+            SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.Data));
         }
     }
 }

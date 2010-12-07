@@ -352,16 +352,16 @@ namespace SuperSocket.SocketBase
         {
             if (m_CommandHandler == null)
             {
-                var command = GetCommandByName(commandInfo.CommandKey);
+                var command = GetCommandByName(commandInfo.Key);
 
                 if (command != null)
                 {
-                    session.Context.CurrentCommand = commandInfo.CommandKey;
+                    session.Context.CurrentCommand = commandInfo.Key;
                     command.ExecuteCommand(session, commandInfo);
-                    session.Context.PrevCommand = commandInfo.CommandKey;
+                    session.Context.PrevCommand = commandInfo.Key;
 
                     if (Config.LogCommand)
-                        LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.CommandKey));
+                        LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
                 }
                 else
                 {
@@ -372,13 +372,13 @@ namespace SuperSocket.SocketBase
             }
             else
             {
-                session.Context.CurrentCommand = commandInfo.CommandKey;
+                session.Context.CurrentCommand = commandInfo.Key;
                 m_CommandHandler(session, commandInfo);
-                session.Context.PrevCommand = commandInfo.CommandKey;                
+                session.Context.PrevCommand = commandInfo.Key;                
                 session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand)
-                    LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.CommandKey));
+                    LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
             }
         }
 
