@@ -40,6 +40,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
+                SecureProtocol = Config.Security;
                 InitStream(context);
             }
             catch (Exception e)
@@ -97,12 +98,16 @@ namespace SuperSocket.SocketEngine
         {
             switch (SecureProtocol)
             {
+                case (SslProtocols.Default):
                 case (SslProtocols.Tls):
                 case (SslProtocols.Ssl3):
-                case (SslProtocols.Ssl2):
                     SslStream sslStream = new SslStream(new NetworkStream(Client), false);
                     sslStream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, true);
-                    m_Stream = sslStream as Stream;
+                    break;
+                case (SslProtocols.Ssl2):
+                    SslStream ssl2Stream = new SslStream(new NetworkStream(Client), false);
+                    ssl2Stream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Ssl2, true);
+                    m_Stream = ssl2Stream as Stream;
                     break;
                 default:
                     m_Stream = new NetworkStream(Client);

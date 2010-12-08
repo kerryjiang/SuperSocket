@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -67,5 +68,8 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         /// <value>X509Certificate configuration.</value>
         ICertificateConfig Certificate { get; }
+
+
+        SslProtocols Security { get; }
     }
 }

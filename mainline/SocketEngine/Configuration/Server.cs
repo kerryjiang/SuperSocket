@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
@@ -153,6 +154,20 @@ namespace SuperSocket.SocketEngine.Configuration
         public ICertificateConfig Certificate
         {
             get { return CertificateConfig; }
+        }
+
+        [ConfigurationProperty("security", IsRequired = false, DefaultValue = SslProtocols.None)]
+        public SslProtocols Security
+        {
+            get
+            {
+                var configValue = this["security"];
+
+                if (configValue is SslProtocols)
+                    return (SslProtocols)configValue;
+
+                return (SslProtocols)Enum.Parse(typeof(SslProtocols), this["security"].ToString(), true);
+            }
         }
     }
 }

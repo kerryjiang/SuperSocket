@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Configuration;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketBase.Config
 {
     public class ServerConfig : IServerConfig
     {
+        public ServerConfig()
+        {
+            Security = SslProtocols.None;
+        }
+
         #region IServerConfig Members
 
         public string ServiceName { get; set; }
@@ -49,6 +55,8 @@ namespace SuperSocket.SocketBase.Config
         public int IdleSessionTimeOut { get; set; }
 
         public ICertificateConfig Certificate { get; set; }
+
+        public SslProtocols Security { get; set; }
 
         #endregion
     }
