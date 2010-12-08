@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using SuperSocket.SocketBase.Command;
 using System.ServiceModel.Description;
 using SuperSocket.Common;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketBase
 {
@@ -26,6 +27,7 @@ namespace SuperSocket.SocketBase
     {
         IServerConfig Config { get; }
         X509Certificate Certificate { get; }
+        SslProtocols BasicSecurity { get; }
         TAppSession CreateAppSession(ISocketSession socketSession);
         TAppSession GetAppSessionByIndentityKey(string identityKey);
         int SessionCount { get; }

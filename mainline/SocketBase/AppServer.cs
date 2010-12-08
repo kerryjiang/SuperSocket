@@ -15,6 +15,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Security;
 using SuperSocket.SocketBase.Protocol;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketBase
 {
@@ -47,6 +48,8 @@ namespace SuperSocket.SocketBase
         private Dictionary<string, ProviderBase<TAppSession>> m_ProviderDict = new Dictionary<string, ProviderBase<TAppSession>>(StringComparer.OrdinalIgnoreCase);
 
         private ISocketServerFactory m_SocketServerFactory;
+
+        public SslProtocols BasicSecurity { get; private set; }
 
         public AppServer()
         {
@@ -173,14 +176,43 @@ namespace SuperSocket.SocketBase
                     return false;
             }
 
-            if (config.Certificate != null
-                && config.Certificate.IsEnabled)
-            {
-                if (!SetupCertificate(config))
-                    return false;
-            }
+            if (!SetupSecurity(config))
+                return false;
 
             return SetupSocketServer();
+        }
+
+        private bool SetupSecurity(IServerConfig config)
+        {
+            if (!string.IsNullOrEmpty(config.Security))
+            {
+                SslProtocols configProtocol;
+                if (!Enum.TryParse<SslProtocols>(config.Security, true, out configProtocol))
+                {
+                    LogUtil.LogError(this, string.Format("Failed to parse '{0}' to SslProtocol!", config.Security));
+                    return false;
+                }
+
+                if (configProtocol != SslProtocols.None)
+                {
+                    if (config.Certificate == null || !config.Certificate.IsEnabled)
+                    {
+                        LogUtil.LogError(this, "There is no certificate defined and enabled!");
+                        return false;
+                    }
+
+                    if (!SetupCertificate(config))
+                        return false;
+                }
+
+                BasicSecurity = configProtocol;
+            }
+            else
+            {
+                BasicSecurity = SslProtocols.None;
+            }
+
+            return true;
         }
 
         private bool SetupSocketServer()
@@ -223,6 +255,7 @@ namespace SuperSocket.SocketBase
         {
             try
             {
+
                 Certificate = CertificateManager.Initialize(config.Certificate);
                 return true;
             }

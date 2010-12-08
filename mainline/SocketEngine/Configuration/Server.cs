@@ -156,17 +156,12 @@ namespace SuperSocket.SocketEngine.Configuration
             get { return CertificateConfig; }
         }
 
-        [ConfigurationProperty("security", IsRequired = false, DefaultValue = SslProtocols.None)]
-        public SslProtocols Security
+        [ConfigurationProperty("security", IsRequired = false, DefaultValue = "None")]
+        public string Security
         {
             get
             {
-                var configValue = this["security"];
-
-                if (configValue is SslProtocols)
-                    return (SslProtocols)configValue;
-
-                return (SslProtocols)Enum.Parse(typeof(SslProtocols), this["security"].ToString(), true);
+                return (string)this["security"];
             }
         }
     }

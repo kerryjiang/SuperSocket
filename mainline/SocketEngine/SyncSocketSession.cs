@@ -40,7 +40,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                SecureProtocol = Config.Security;
+                SecureProtocol = AppServer.BasicSecurity;
                 InitStream(context);
             }
             catch (Exception e)

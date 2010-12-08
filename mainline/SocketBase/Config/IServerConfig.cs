@@ -70,6 +70,6 @@ namespace SuperSocket.SocketBase.Config
         ICertificateConfig Certificate { get; }
 
 
-        SslProtocols Security { get; }
+        string Security { get; }
     }
 }

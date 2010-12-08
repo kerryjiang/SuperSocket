@@ -11,7 +11,7 @@ namespace SuperSocket.SocketBase.Config
     {
         public ServerConfig()
         {
-            Security = SslProtocols.None;
+            Security = "None";
         }
 
         #region IServerConfig Members
@@ -56,7 +56,7 @@ namespace SuperSocket.SocketBase.Config
 
         public ICertificateConfig Certificate { get; set; }
 
-        public SslProtocols Security { get; set; }
+        public string Security { get; set; }
 
         #endregion
     }
