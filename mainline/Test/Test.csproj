@@ -63,6 +63,7 @@
     <Compile Include="Common\ArraySegmentTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SecureSocketServerTest.cs" />
     <Compile Include="SocketServerTest.cs" />
     <Compile Include="SyncSocketServerTest.cs" />
     <Compile Include="TestCommandParser.cs" />
@@ -86,6 +87,11 @@
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
       <Name>SocketEngine</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="supersocket.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

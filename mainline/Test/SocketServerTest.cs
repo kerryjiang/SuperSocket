@@ -156,6 +156,11 @@ namespace SuperSocket.Test
             return new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
+        protected virtual Stream GetSocketStream(Socket socket)
+        {
+            return new NetworkStream(socket);
+        }
+
         [Test, Repeat(3)]
         public void TestWelcomeMessage()
         {
@@ -166,7 +171,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
@@ -188,7 +193,9 @@ namespace SuperSocket.Test
                 MaxConnectionNumber = maxConnectionNumber,
                 Mode = defaultConfig.Mode,
                 Name = defaultConfig.Name,
-                Port = defaultConfig.Port
+                Port = defaultConfig.Port,
+                Security = defaultConfig.Security,
+                Certificate = defaultConfig.Certificate
             };
 
             server.Setup(config, SocketServerFactory.Instance);
@@ -205,7 +212,7 @@ namespace SuperSocket.Test
                 {
                     Socket socket = CreateClientSocket();
                     socket.Connect(serverAddress);
-                    Stream socketStream = new NetworkStream(socket);
+                    Stream socketStream = GetSocketStream(socket);
                     StreamReader reader = new StreamReader(socketStream, Encoding.Default, true);
                     reader.ReadLine();
                     sockets.Add(socket);
@@ -262,7 +269,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
@@ -292,7 +299,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
@@ -331,7 +338,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
@@ -380,7 +387,7 @@ namespace SuperSocket.Test
 
             Socket socket = CreateClientSocket();
             socket.Connect(serverAddress);
-            Stream socketStream = new NetworkStream(socket);
+            Stream socketStream = GetSocketStream(socket);
             using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
             using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
             {
@@ -449,7 +456,7 @@ namespace SuperSocket.Test
 
             Socket socket = CreateClientSocket();
             socket.Connect(serverAddress);
-            Stream socketStream = new NetworkStream(socket);
+            Stream socketStream = GetSocketStream(socket);
             using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
             using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
             {
@@ -473,7 +480,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
@@ -502,7 +509,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
@@ -530,7 +537,7 @@ namespace SuperSocket.Test
         //    using (Socket socket = CreateClientSocket())
         //    {
         //        socket.Connect(serverAddress);
-        //        Stream socketStream = new NetworkStream(socket);
+        //        Stream socketStream = GetSocketStream(socket);
         //        using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
         //        using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
         //        {
@@ -565,7 +572,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 {
                     reader.ReadLine();
@@ -616,7 +623,7 @@ namespace SuperSocket.Test
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
+                Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 {
                     reader.ReadLine();
