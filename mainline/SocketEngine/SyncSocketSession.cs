@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
@@ -102,12 +103,13 @@ namespace SuperSocket.SocketEngine
                 case (SslProtocols.Tls):
                 case (SslProtocols.Ssl3):
                     SslStream sslStream = new SslStream(new NetworkStream(Client), false);
-                    sslStream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, true);
+                    sslStream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, false);
+                    m_Stream = sslStream;
                     break;
                 case (SslProtocols.Ssl2):
                     SslStream ssl2Stream = new SslStream(new NetworkStream(Client), false);
-                    ssl2Stream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Ssl2, true);
-                    m_Stream = ssl2Stream as Stream;
+                    ssl2Stream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Ssl2, false);
+                    m_Stream = ssl2Stream;
                     break;
                 default:
                     m_Stream = new NetworkStream(Client);
