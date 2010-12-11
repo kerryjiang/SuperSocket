@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SuperSocket.Common;
@@ -13,7 +14,17 @@ namespace SuperSocket.SocketBase.Security
     {
         internal static X509Certificate Initialize(ICertificateConfig cerConfig)
         {
-            return new X509Certificate2(cerConfig.CertificateFilePath, cerConfig.CertificatePassword);
+            //To keep compatible with website hosting
+            string filePath;
+
+            if (Path.IsPathRooted(cerConfig.CertificateFilePath))
+                filePath = cerConfig.CertificateFilePath;
+            else
+            {
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cerConfig.CertificateFilePath);
+            }
+
+            return new X509Certificate2(filePath, cerConfig.CertificatePassword);
         }
 
         internal static void CreateCertificate(string commonName, ICertificateConfig cerConfig)

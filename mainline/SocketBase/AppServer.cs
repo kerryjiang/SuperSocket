@@ -262,7 +262,6 @@ namespace SuperSocket.SocketBase
         {
             try
             {
-
                 Certificate = CertificateManager.Initialize(config.Certificate);
                 return true;
             }
