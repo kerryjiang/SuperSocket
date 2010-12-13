@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("CertificateCreator")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("CDC")]
+[assembly: AssemblyCompany("SuperSocket")]
 [assembly: AssemblyProduct("CertificateCreator")]
-[assembly: AssemblyCopyright("Copyright © CDC 2010")]
+[assembly: AssemblyCopyright("Copyright © SuperSocket 2010")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
