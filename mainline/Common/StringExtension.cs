@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.Common
 {
-    public static class StringExtension
+    public static partial class StringExtension
     {
         public static int ToInt32(this string source)
         {
@@ -114,5 +114,7 @@ namespace SuperSocket.Common
 
             return value;
         }
+
+        
     }
 }

@@ -187,7 +187,7 @@ namespace SuperSocket.SocketBase
             if (!string.IsNullOrEmpty(config.Security))
             {
                 SslProtocols configProtocol;
-                if (!Enum.TryParse<SslProtocols>(config.Security, true, out configProtocol))
+                if (!config.Security.TryParseEnum<SslProtocols>(true, out configProtocol))
                 {
                     LogUtil.LogError(this, string.Format("Failed to parse '{0}' to SslProtocol!", config.Security));
                     return false;
