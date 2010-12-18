@@ -8,8 +8,8 @@ namespace SuperSocket.SocketBase.Config
     {
         bool IsEnabled { get; }
 
-        string CertificateFilePath { get; }
+        string FilePath { get; }
 
-        string CertificatePassword { get; }
+        string Password { get; }
     }
 }

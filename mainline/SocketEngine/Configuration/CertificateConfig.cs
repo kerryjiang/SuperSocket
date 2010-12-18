@@ -10,21 +10,21 @@ namespace SuperSocket.SocketEngine.Configuration
     {
         #region ICertificateConfig Members
 
-        [ConfigurationProperty("certificateFilePath", IsRequired = true)]
-        public string CertificateFilePath
+        [ConfigurationProperty("filePath", IsRequired = true)]
+        public string FilePath
         {
             get
             {
-                return this["certificateFilePath"] as string;
+                return this["filePath"] as string;
             }
         }
 
-        [ConfigurationProperty("certificatePassword", IsRequired = true)]
-        public string CertificatePassword
+        [ConfigurationProperty("password", IsRequired = true)]
+        public string Password
         {
             get
             {
-                return this["certificatePassword"] as string;
+                return this["password"] as string;
             }
         }
 

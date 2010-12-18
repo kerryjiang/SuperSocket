@@ -17,14 +17,14 @@ namespace SuperSocket.SocketBase.Security
             //To keep compatible with website hosting
             string filePath;
 
-            if (Path.IsPathRooted(cerConfig.CertificateFilePath))
-                filePath = cerConfig.CertificateFilePath;
+            if (Path.IsPathRooted(cerConfig.FilePath))
+                filePath = cerConfig.FilePath;
             else
             {
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cerConfig.CertificateFilePath);
+                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cerConfig.FilePath);
             }
 
-            return new X509Certificate2(filePath, cerConfig.CertificatePassword);
+            return new X509Certificate2(filePath, cerConfig.Password);
         }
 
         internal static void CreateCertificate(string commonName, ICertificateConfig cerConfig)
@@ -32,9 +32,9 @@ namespace SuperSocket.SocketBase.Security
             byte[] certificateData = Certificate.CreateSelfSignCertificatePfx(commonName, //host name
                 DateTime.Now, //not valid before
                 DateTime.Now.AddYears(5), //not valid after
-                cerConfig.CertificatePassword);
+                cerConfig.Password);
 
-            using (BinaryWriter binWriter = new BinaryWriter(File.Open(cerConfig.CertificateFilePath, FileMode.Create)))
+            using (BinaryWriter binWriter = new BinaryWriter(File.Open(cerConfig.FilePath, FileMode.Create)))
             {
                 binWriter.Write(certificateData);
                 binWriter.Flush();

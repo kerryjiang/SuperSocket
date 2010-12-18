@@ -11,9 +11,9 @@ namespace SuperSocket.SocketBase.Config
 
         public bool IsEnabled { get; set; }
 
-        public string CertificateFilePath { get; set; }
+        public string FilePath { get; set; }
 
-        public string CertificatePassword { get; set; }
+        public string Password { get; set; }
 
         #endregion
     }

@@ -35,8 +35,8 @@ namespace SuperSocket.Test
                     Certificate = new CertificateConfig
                     {
                         IsEnabled = true,
-                        CertificatePassword = "supersocket",
-                        CertificateFilePath = "supersocket.pfx"
+                        Password = "supersocket",
+                        FilePath = "supersocket.pfx"
                     }
                 };
             }
