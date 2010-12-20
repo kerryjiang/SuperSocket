@@ -12,6 +12,8 @@ namespace SuperSocket.SocketBase.Config
         public ServerConfig()
         {
             Security = "None";
+			MaxConnectionNumber = 100;
+			Mode = SocketMode.Async;
         }
 
         #region IServerConfig Members
