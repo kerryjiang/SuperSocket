@@ -12,7 +12,7 @@ namespace SuperSocket.QuickStart.EchoService.Command
 
         public override void ExecuteCommand(EchoSession session, StringCommandInfo commandInfo)
         {
-            session.SendResponse(commandInfo.CommandData);
+            session.SendResponse(commandInfo.Data);
         }
 
         #endregion

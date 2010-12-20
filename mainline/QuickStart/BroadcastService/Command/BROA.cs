@@ -10,7 +10,7 @@ namespace SuperSocket.QuickStart.BroadcastService.Command
     {
         public override void ExecuteCommand(BroadcastSession session, StringCommandInfo commandData)
         {
-            string message = commandData.CommandData;
+            string message = commandData.Data;
             session.AppServer.BroadcastMessage(session, message);
             session.SendResponse("101 message broadcasted");
         }
