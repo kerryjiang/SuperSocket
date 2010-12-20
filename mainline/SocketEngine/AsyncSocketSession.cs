@@ -108,7 +108,6 @@ namespace SuperSocket.SocketEngine
         public void ProcessReceive(SocketAsyncEventArgs e)
         {
             // check if the remote host closed the connection
-            AsyncUserToken token = (AsyncUserToken)e.UserToken;
             if (e.BytesTransferred <= 0)
             {
                 Close(CloseReason.ClientClosing);
@@ -164,8 +163,6 @@ namespace SuperSocket.SocketEngine
             int thisRead = 0;
             int leftRead = length;
             int shouldRead = 0;
-
-            AsyncUserToken token = this.SocketAsyncProxy.SocketEventArgs.UserToken as AsyncUserToken;
 
             var leftBuffer = m_CommandReader.GetLeftBuffer();
 
