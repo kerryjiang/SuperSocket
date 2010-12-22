@@ -63,7 +63,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 return false;
             }
         }        
@@ -85,7 +85,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 OnStartupFinished();
                 return;
             }
@@ -128,7 +128,7 @@ namespace SuperSocket.SocketEngine
                             break;
                     }
 
-                    LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
+                    AppServer.Logger.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
                     break;
                 }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
@@ -54,12 +55,22 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        [Obsolete]
         [ConfigurationProperty("independentLogger", IsRequired = false, DefaultValue = false)]
         public bool IndependentLogger
         {
             get
             {
                 return (bool)this["independentLogger"];
+            }
+        }
+
+        [ConfigurationProperty("loggingMode", IsRequired = false, DefaultValue = "ShareFile")]
+        public LoggingMode LoggingMode
+        {
+            get
+            {
+                return (LoggingMode)this["loggingMode"];
             }
         }
 

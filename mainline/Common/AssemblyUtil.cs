@@ -4,6 +4,7 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SuperSocket.Common
 {
@@ -75,6 +76,17 @@ namespace SuperSocket.Common
             }
 
             return result;
+        }
+
+        public static T BinaryClone<T>(this T target)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+            using (MemoryStream ms = new MemoryStream())
+            {
+                formatter.Serialize(ms, target);
+                ms.Position = 0;
+                return (T)formatter.Deserialize(ms);
+            }
         }
     }
 }

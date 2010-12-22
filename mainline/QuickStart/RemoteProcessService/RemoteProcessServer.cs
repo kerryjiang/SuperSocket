@@ -62,9 +62,9 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 
         private Timer m_MonitorTimer;
 
-        public override bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string assembly, string consoleBaseAddress)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string assembly)
         {
-            if (!base.Setup(config, socketServerFactory, protocol, assembly, consoleBaseAddress))
+            if (!base.Setup(rootConfig, config, socketServerFactory, protocol, assembly))
                 return false;
 
             int interval = config.Parameters.GetValue("MonitorInterval", "1").ToInt32();
@@ -104,13 +104,13 @@ namespace SuperSocket.QuickStart.RemoteProcessService
                         }
                         catch (Exception e)
                         {
-                            LogUtil.LogError("Failed to kill the process " + p.ProcessName, e);
+                            Logger.LogError("Failed to kill the process " + p.ProcessName, e);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(e);
+                    Logger.LogError(e);
                 }
                 finally
                 {

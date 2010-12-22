@@ -46,7 +46,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -76,7 +76,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(AppServer, e);
+                    AppServer.Logger.LogError(e);
                     HandleExceptionalError(e);
                 }
             }
@@ -161,13 +161,13 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                LogUtil.LogError(AppServer, "An error occurred in session: " + this.SessionID, ioe);
+                AppServer.Logger.LogError("An error occurred in session: " + this.SessionID, ioe);
                 this.Close(CloseReason.SocketError);
                 return false;
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 this.Close(CloseReason.Unknown);
                 return false;
             }
@@ -203,7 +203,7 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                LogUtil.LogError(AppServer, e.GetType().ToString());
+                AppServer.Logger.LogError(e);
                 this.Close(CloseReason.Unknown);
             }
         }
@@ -220,7 +220,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 this.Close(CloseReason.SocketError);
             }
         }

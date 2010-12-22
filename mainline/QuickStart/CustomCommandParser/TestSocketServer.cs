@@ -27,8 +27,13 @@ namespace SuperSocket.QuickStart.CustomCommandParser
                 MaxConnectionNumber = 1
             };
 
+            var rootConfig = new RootConfig
+            {
+                LoggingMode = LoggingMode.Console
+            };
+
             YourServer server = new YourServer();
-            server.Setup(config, SocketServerFactory.Instance);
+            server.Setup(rootConfig, config, SocketServerFactory.Instance);
 
             server.Start();
 

@@ -200,7 +200,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(AppServer, e);
+                    AppServer.Logger.LogError(e);
                 }
 
                 try
@@ -213,7 +213,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(AppServer, e);
+                    AppServer.Logger.LogError(e);
                 }
                 finally
                 {

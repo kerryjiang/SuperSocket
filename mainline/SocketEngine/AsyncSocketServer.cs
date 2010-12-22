@@ -63,7 +63,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(AppServer, "Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
+                    AppServer.Logger.LogError("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
                     return false;
                 }
 
@@ -95,7 +95,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 return false;
             }
         }
@@ -114,7 +114,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 OnStartupFinished();
                 return;
             }
@@ -153,7 +153,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(AppServer, "Failed to accept new tcp client in async server!", e);
+                    AppServer.Logger.LogError("Failed to accept new tcp client in async server!", e);
                     break;
                 }
 

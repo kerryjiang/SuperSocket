@@ -132,7 +132,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception exc)
                 {
-                    LogUtil.LogError(AppServer, "An error occurred in session: " + this.SessionID, exc);
+                    AppServer.Logger.LogError("An error occurred in session: " + this.SessionID, exc);
                     HandleExceptionalError(exc);
                 }
                 //read the next block of data send from the client

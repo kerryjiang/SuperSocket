@@ -18,6 +18,7 @@ namespace SuperSocket.Test
     {
         private TestServer m_Server;
         private IServerConfig m_Config;
+        private IRootConfig m_RootConfig;
 
         protected IServerConfig DefaultServerConfig
         {
@@ -41,6 +42,10 @@ namespace SuperSocket.Test
         public UdpSocketServerTest()
         {
             m_Config = DefaultServerConfig;
+            m_RootConfig = new RootConfig
+            {
+                LoggingMode = LoggingMode.Console
+            };
         }
 
         [TestFixtureSetUp]
@@ -49,7 +54,7 @@ namespace SuperSocket.Test
             LogUtil.Setup(new ConsoleLogger());
 
             m_Server = new TestServer();
-            m_Server.Setup(m_Config, SocketServerFactory.Instance);
+            m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
         }
 
         [TestFixtureTearDown]
@@ -257,7 +262,7 @@ namespace SuperSocket.Test
         public void TestCommandParser()
         {
             var server = new TestServer(new TestCommandParser());
-            server.Setup(m_Config, SocketServerFactory.Instance);
+            server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
             try
             {
@@ -339,7 +344,7 @@ namespace SuperSocket.Test
                 Port = defaultConfig.Port
             };
 
-            server.Setup(config, SocketServerFactory.Instance);
+            server.Setup(m_RootConfig, config, SocketServerFactory.Instance);
 
             List<Socket> sockets = new List<Socket>();
 

@@ -4,18 +4,12 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Config
 {
-    public interface IConfig
+    public interface IConfig : IRootConfig
     {
         List<IServerConfig> GetServerList();
 
         List<IServiceConfig> GetServiceList();
 
         List<IProtocolConfig> GetProtocolList();
-
-        ICredentialConfig CredentialConfig { get; }
-
-        string ConsoleBaseAddress { get; }
-
-        bool IndependentLogger { get; }
     }
 }

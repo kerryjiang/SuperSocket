@@ -65,7 +65,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(AppServer, "Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
+                    AppServer.Logger.LogError("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
                     return false;
                 }
 
@@ -86,7 +86,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 return false;
             }
         }
@@ -110,7 +110,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError(AppServer, e);
+                AppServer.Logger.LogError(e);
                 OnStartupFinished();
                 return;
             }
@@ -147,7 +147,7 @@ namespace SuperSocket.SocketEngine
                             break;
                     }
 
-                    LogUtil.LogError(AppServer, "Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
+                    AppServer.Logger.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
                     break;
                 }
 
@@ -186,7 +186,7 @@ namespace SuperSocket.SocketEngine
             {
                 if (m_LiveConnectionCount >= AppServer.Config.MaxConnectionNumber)
                 {
-                    LogUtil.LogError(AppServer, string.Format("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
+                    AppServer.Logger.LogError(string.Format("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
                         ipAddress.ToString(), AppServer.Config.MaxConnectionNumber));
                     return;
                 }

@@ -35,11 +35,6 @@ namespace SuperSocket.SocketEngine
         {
             m_Config = config;
 
-            if(!config.IndependentLogger)
-                LogUtil.Setup(new ELLogger());
-            else
-                LogUtil.Setup(new DynamicELLogger("Logs", m_Config.GetServerList().Select(s => s.Name)));
-
             //Initialize services
             List<IServiceConfig> serviceList = config.GetServiceList();
 
@@ -113,8 +108,7 @@ namespace SuperSocket.SocketEngine
                 return false;
             }
 
-            if (!server.Setup(serverConfig, SocketServerFactory.Instance, protocol, m_Config.ConsoleBaseAddress,
-                GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider)))
+            if (!server.Setup(m_Config, serverConfig, SocketServerFactory.Instance, protocol, GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider)))
             {
                 LogUtil.LogError("Failed to setup server instance!");
                 return false;

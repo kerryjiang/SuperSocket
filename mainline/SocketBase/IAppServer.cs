@@ -11,11 +11,18 @@ using System.Security.Authentication;
 
 namespace SuperSocket.SocketBase
 {
-    public interface IAppServer : ILogApp
+    public interface ILoggerProvider
     {
+        ILogger Logger { get; }
+    }
+
+    public interface IAppServer : ILoggerProvider
+    {
+        string Name { get; }
+
         ServiceCredentials ServerCredentials { get; set; }
 
-        bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string consoleBaseAddress, string assembly);
+        bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string assembly);
 
         bool Start();
         

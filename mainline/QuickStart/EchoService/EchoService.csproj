@@ -89,6 +89,7 @@
   <ItemGroup>
     <Content Include="SuperSocket.SocketService.exe.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>

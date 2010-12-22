@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.ServiceProcess;
 using System.Text;
 using SuperSocket.Common;
@@ -17,6 +18,8 @@ namespace SuperSocket.SocketService
         /// </summary>
         static void Main(string[] args)
         {
+            LogUtil.Setup();
+
             if (args != null && args.Length > 0)
             {
                 if (args[0].Equals("-i", StringComparison.OrdinalIgnoreCase))

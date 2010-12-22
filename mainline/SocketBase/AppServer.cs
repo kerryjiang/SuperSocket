@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
@@ -13,9 +14,8 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Security;
 using SuperSocket.SocketBase.Protocol;
-using System.Security.Authentication;
+using SuperSocket.SocketBase.Security;
 
 namespace SuperSocket.SocketBase
 {
@@ -51,6 +51,10 @@ namespace SuperSocket.SocketBase
 
         public SslProtocols BasicSecurity { get; private set; }
 
+        protected IRootConfig RootConfig { get; private set; }
+
+        public ILogger Logger { get; private set; }
+
         public AppServer()
         {
             
@@ -65,7 +69,7 @@ namespace SuperSocket.SocketBase
                 //command.DefaultParameterParser = CommandParameterParser;
                 if (commandDict.ContainsKey(command.Name))
                 {
-                    LogUtil.LogError(this, "Duplicated name command has been found! Command name: " + command.Name);
+                    Logger.LogError("Duplicated name command has been found! Command name: " + command.Name);
                     return false;
                 }
 
@@ -107,7 +111,7 @@ namespace SuperSocket.SocketBase
             }
             catch (Exception e)
             {
-                LogUtil.LogError(this, e);
+                Logger.LogError(e);
                 m_ConsoleHost = null;
                 return false;
             }
@@ -124,7 +128,7 @@ namespace SuperSocket.SocketBase
             }
             catch (Exception e)
             {
-                LogUtil.LogError(this, "Failed to close console service host for " + Name, e);
+                Logger.LogError("Failed to close console service host!", e);
             }
             finally
             {
@@ -132,30 +136,36 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
-            return Setup(config, socketServerFactory, null);
+            return Setup(rootConfig, config, socketServerFactory, null);
         }
 
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, object protocol)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, object protocol)
         {
-            return Setup(config, socketServerFactory, protocol, string.Empty);
+            return Setup(rootConfig, config, socketServerFactory, protocol, string.Empty);
         }
 
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string consoleBaseAddress)
+        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string assembly)
         {
-            return Setup(config, socketServerFactory, protocol, consoleBaseAddress, string.Empty);
-        }
+            if (rootConfig == null)
+                throw new ArgumentNullException("rootConfig");
 
-        public virtual bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string consoleBaseAddress, string assembly)
-        {
+            RootConfig = rootConfig;
+
+            if (config == null)
+                throw new ArgumentNullException("config");
+
             Config = config;
-            m_ConsoleBaseAddress = consoleBaseAddress;
+
+            m_ConsoleBaseAddress = rootConfig.ConsoleBaseAddress;
             m_SocketServerFactory = socketServerFactory;
+
+            SetupLogger();
 
             if (!SetupLocalEndpoint(config))
             {
-                LogUtil.LogError(this, "Invalid config ip/port");
+                Logger.LogError("Invalid config ip/port");
                 return false;
             }
 
@@ -182,6 +192,24 @@ namespace SuperSocket.SocketBase
             return SetupSocketServer();
         }
 
+        private void SetupLogger()
+        {
+            switch (RootConfig.LoggingMode)
+            {
+                case (LoggingMode.IndependantFile):
+                    Logger = new DynamicLog4NetLogger(Config.Name);
+                    break;
+
+                case (LoggingMode.Console):
+                    Logger = new ConsoleLogger(Config.Name);
+                    break;
+
+                default:
+                    Logger = new Log4NetLogger(Config.Name);
+                    break;
+            }
+        }
+
         private bool SetupSecurity(IServerConfig config)
         {
             if (!string.IsNullOrEmpty(config.Security))
@@ -189,7 +217,7 @@ namespace SuperSocket.SocketBase
                 SslProtocols configProtocol;
                 if (!config.Security.TryParseEnum<SslProtocols>(true, out configProtocol))
                 {
-                    LogUtil.LogError(this, string.Format("Failed to parse '{0}' to SslProtocol!", config.Security));
+                    Logger.LogError(string.Format("Failed to parse '{0}' to SslProtocol!", config.Security));
                     return false;
                 }
 
@@ -198,13 +226,13 @@ namespace SuperSocket.SocketBase
                     //SSL/TLS is only supported in Sync mode
                     if (config.Mode != SocketMode.Sync)
                     {
-                        LogUtil.LogError(this, "You cannot enable SSL/TLS security for your current SocketMode, it only can be used in Sync mode!");
+                        Logger.LogError("You cannot enable SSL/TLS security for your current SocketMode, it only can be used in Sync mode!");
                         return false;
                     }
 
                     if (config.Certificate == null || !config.Certificate.IsEnabled)
                     {
-                        LogUtil.LogError(this, "There is no certificate defined and enabled!");
+                        Logger.LogError("There is no certificate defined and enabled!");
                         return false;
                     }
 
@@ -231,7 +259,7 @@ namespace SuperSocket.SocketBase
             }
             catch (Exception e)
             {
-                LogUtil.LogError(this, e);
+                Logger.LogError(e);
                 return false;
             }
         }
@@ -244,13 +272,16 @@ namespace SuperSocket.SocketBase
                 {
                     if (string.IsNullOrEmpty(config.Ip) || "Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
                         m_LocalEndPoint = new IPEndPoint(IPAddress.Any, config.Port);
+                    else if ("IPv6Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
+                        m_LocalEndPoint = new IPEndPoint(IPAddress.IPv6Any, config.Port);
                     else
                         m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);
 
                     return true;
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
+                    Logger.LogError(e);
                     return false;
                 }
             }
@@ -267,7 +298,7 @@ namespace SuperSocket.SocketBase
             }
             catch (Exception e)
             {
-                LogUtil.LogError(this, "Failed to initialize certificate!", e);
+                Logger.LogError("Failed to initialize certificate!", e);
                 return false;
             }
         }
@@ -306,14 +337,14 @@ namespace SuperSocket.SocketBase
                     }
                     else
                     {
-                        LogUtil.LogError(this, "Failed to initalize provider " + providerType.ToString() + "!");
+                        Logger.LogError("Failed to initalize provider " + providerType.ToString() + "!");
                         return false;
                     }
                 }
 
                 if (!IsReady)
                 {
-                    LogUtil.LogError(this, "Failed to load service provider from assembly:" + assemblyFile);
+                    Logger.LogError("Failed to load service provider from assembly:" + assemblyFile);
                     return false;
                 }
 
@@ -321,7 +352,7 @@ namespace SuperSocket.SocketBase
             }
             catch (Exception e)
             {
-                LogUtil.LogError(this, e);
+                Logger.LogError(e);
                 return false;
             }
         }
@@ -337,7 +368,7 @@ namespace SuperSocket.SocketBase
         {
             if (this.IsRunning)
             {
-                LogUtil.LogError(this, "This socket server is running already, you needn't start it.");
+                Logger.LogError("This socket server is running already, you needn't start it.");
                 return false;
             }
 
@@ -349,7 +380,7 @@ namespace SuperSocket.SocketBase
 
             if (!StartConsoleHost())
             {
-                LogUtil.LogError(this, "Failed to start console service host for " + Name);
+                Logger.LogError("Failed to start console service host!");
                 Stop();
                 return false;
             }
@@ -400,7 +431,7 @@ namespace SuperSocket.SocketBase
                     session.Context.PrevCommand = commandInfo.Key;
 
                     if (Config.LogCommand)
-                        LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
+                        Logger.LogInfo(string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
                 }
                 else
                 {
@@ -417,7 +448,7 @@ namespace SuperSocket.SocketBase
                 session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand)
-                    LogUtil.LogInfo(this, string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
+                    Logger.LogInfo(string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
             }
         }
 
@@ -436,7 +467,7 @@ namespace SuperSocket.SocketBase
                 m_SessionDict[appSession.IdentityKey] = appSession;
             }
 
-            LogUtil.LogInfo(this, "SocketSession " + socketSession.IdentityKey + " was accepted!");
+            Logger.LogInfo("SocketSession " + socketSession.IdentityKey + " was accepted!");
             return appSession;
         }
 
@@ -465,11 +496,11 @@ namespace SuperSocket.SocketBase
                 {
                     m_SessionDict.Remove(identityKey);
                 }
-                LogUtil.LogInfo(this, "SocketSession " + identityKey + " was closed!");
+                Logger.LogInfo("SocketSession " + identityKey + " was closed!");
             }
             catch (Exception exc)
             {
-                LogUtil.LogError(this, exc);
+                Logger.LogError(exc);
             }
         }
 
@@ -502,13 +533,13 @@ namespace SuperSocket.SocketBase
                             .ToList().ForEach(s =>
                             {
                                 s.Close(CloseReason.TimeOut);
-                                LogUtil.LogInfo(this, string.Format("The socket session: {0} has been closed for {1} timeout!", s.IdentityKey, DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds));
+                                Logger.LogInfo(string.Format("The socket session: {0} has been closed for {1} timeout!", s.IdentityKey, DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds));
                             });
                     }
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(this, "Clear idle session error!", e);
+                    Logger.LogError("Clear idle session error!", e);
                 }
                 finally
                 {

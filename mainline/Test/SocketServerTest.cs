@@ -21,9 +21,15 @@ namespace SuperSocket.Test
 
         private readonly IServerConfig m_Config;
 
+        private IRootConfig m_RootConfig;
+
         public SocketServerTest()
         {
             m_Config = DefaultServerConfig;
+            m_RootConfig = new RootConfig
+            {
+                LoggingMode = LoggingMode.Console
+            };
         }
 
         private TestServer GetServerByIndex(int index)
@@ -72,10 +78,10 @@ namespace SuperSocket.Test
                 return;
 
             var serverX = new TestServer();
-            serverX.Setup(m_Config, SocketServerFactory.Instance);
+            serverX.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
             var serverY = new TestServer(new TestCommandParser());
-            serverY.Setup(m_Config, SocketServerFactory.Instance);
+            serverY.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
             //var serverZ = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
             //serverZ.Setup(m_Config);
@@ -198,7 +204,7 @@ namespace SuperSocket.Test
                 Certificate = defaultConfig.Certificate
             };
 
-            server.Setup(config, SocketServerFactory.Instance);
+            server.Setup(m_RootConfig, config, SocketServerFactory.Instance);
 
             List<Socket> sockets = new List<Socket>();
 
