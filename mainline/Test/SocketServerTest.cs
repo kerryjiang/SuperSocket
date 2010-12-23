@@ -283,14 +283,14 @@ namespace SuperSocket.Test
 
                     for (int i = 0; i < 10; i++)
                     {
-                        string commandName = Guid.NewGuid().ToString().Substring(0, 3);
+                        string commandName = Guid.NewGuid().ToString().Substring(i, 3);
                         string command = commandName + " " + DateTime.Now;
                         writer.WriteLine(command);
                         writer.Flush();
                         string line = reader.ReadLine();
                         Console.WriteLine(line);
                         Assert.AreEqual(string.Format(TestSession.UnknownCommandMessageFormat, commandName), line);
-                    }                        
+                    }
                 }
             }
         }
