@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertificateCreator", "CertificateCreator\CertificateCreator.csproj", "{70A6E952-4245-44BC-9B03-1BB60C8435EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestAgent", "PerformanceTestAgent\PerformanceTestAgent.csproj", "{B6421F10-595A-421D-9156-97C9E3B83C65}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -13,6 +15,10 @@ Global
 		{70A6E952-4245-44BC-9B03-1BB60C8435EB}.Debug|x86.Build.0 = Debug|x86
 		{70A6E952-4245-44BC-9B03-1BB60C8435EB}.Release|x86.ActiveCfg = Release|x86
 		{70A6E952-4245-44BC-9B03-1BB60C8435EB}.Release|x86.Build.0 = Release|x86
+		{B6421F10-595A-421D-9156-97C9E3B83C65}.Debug|x86.ActiveCfg = Debug|x86
+		{B6421F10-595A-421D-9156-97C9E3B83C65}.Debug|x86.Build.0 = Debug|x86
+		{B6421F10-595A-421D-9156-97C9E3B83C65}.Release|x86.ActiveCfg = Release|x86
+		{B6421F10-595A-421D-9156-97C9E3B83C65}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
