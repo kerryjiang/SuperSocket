@@ -29,17 +29,27 @@ namespace SuperSocket.Common
 
         public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, WaitCallback callback)
         {
-            ExecuteAsync(runner, runType, callback, null);
+            runner.ExecuteAsync(runType, callback);
         }
 
         public static void ExecuteAsync(this IAsyncRunner runner, WaitCallback callback)
         {
-            ExecuteAsync(runner, AsyncRunType.ThreadPool, callback, null);
+            runner.ExecuteAsync(AsyncRunType.ThreadPool, callback, LogUtil.GetRootLogger());
         }
 
         public static void ExecuteAsync(this IAsyncRunner runner, WaitCallback callback, ExceptionCallback exceptionCallback)
         {
             runner.ExecuteAsync(AsyncRunType.ThreadPool, callback, exceptionCallback);
+        }
+
+        public static void ExecuteAsync(this IAsyncRunner runner, WaitCallback callback, ILogger logger)
+        {
+            runner.ExecuteAsync(AsyncRunType.ThreadPool, callback, logger);
+        }
+
+        public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, WaitCallback callback, ILogger logger)
+        {
+            runner.ExecuteAsync(runType, callback, e => logger.LogError(e));
         }
 
         public static void ExecuteAsync(this IAsyncRunner runner, AsyncRunType runType, WaitCallback callback, ExceptionCallback exceptionCallback)
@@ -84,10 +94,6 @@ namespace SuperSocket.Common
                 if (exceptionCallback != null)
                 {
                     exceptionCallback(e);
-                }
-                else
-                {
-                    LogUtil.LogError(e);
                 }
             }
         }

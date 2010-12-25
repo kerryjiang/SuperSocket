@@ -18,21 +18,49 @@ namespace SuperSocket.SocketBase
 
     public interface IAppServer : ILoggerProvider
     {
+        /// <summary>
+        /// Gets the name of the server instance.
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Gets or sets the server credentials for client console
+        /// </summary>
+        /// <value>
+        /// The server credentials.
+        /// </value>
         ServiceCredentials ServerCredentials { get; set; }
 
-        bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string assembly);
+        /// <summary>
+        /// Setups the specified root config.
+        /// </summary>
+        /// <param name="rootConfig">The SuperSocket root config.</param>
+        /// <param name="config">The socket server instance config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <param name="assembly">The service provider assembly.</param>
+        /// <returns></returns>
+        bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, string providerAssembly);
 
+        /// <summary>
+        /// Starts this server instance.
+        /// </summary>
+        /// <returns>return true if start successfull, else false</returns>
         bool Start();
-        
+
+        /// <summary>
+        /// Stops this server instance.
+        /// </summary>
         void Stop();
+
+        /// <summary>
+        /// Gets the server's config.
+        /// </summary>
+        IServerConfig Config { get; }
     }
 
     public interface IAppServer<TAppSession> : IAppServer
         where TAppSession : IAppSession
     {
-        IServerConfig Config { get; }
         X509Certificate Certificate { get; }
         SslProtocols BasicSecurity { get; }
         TAppSession CreateAppSession(ISocketSession socketSession);

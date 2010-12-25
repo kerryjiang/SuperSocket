@@ -26,7 +26,7 @@ namespace SuperSocket.SocketBase
         public CloseReason Reason { get; set; }
     }
 
-    public interface ISocketSession
+    public interface ISocketSession : ISessionBase
     {
         void Start();
         void Close(CloseReason reason);
@@ -35,11 +35,8 @@ namespace SuperSocket.SocketBase
         void ReceiveData(Stream storeSteram, int length);
         void ReceiveData(Stream storeSteram, byte[] endMark);
         void ApplySecureProtocol(SocketContext context);
-        Stream GetUnderlyStream();
-        string SessionID { get; }
-        string IdentityKey { get; }        
+        Stream GetUnderlyStream();  
         IPEndPoint LocalEndPoint { get; }
-        IPEndPoint RemoteEndPoint { get; }
         SslProtocols SecureProtocol { get; set; }
         event EventHandler<SocketSessionClosedEventArgs> Closed;
     }
@@ -47,6 +44,6 @@ namespace SuperSocket.SocketBase
     public interface ISocketSession<TAppSession> : ISocketSession
         where TAppSession : IAppSession, new()
     {
-        void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession, Socket client);
+        void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession);
     }
 }

@@ -9,7 +9,5 @@ namespace SuperSocket.SocketBase.Config
         List<IServerConfig> GetServerList();
 
         List<IServiceConfig> GetServiceList();
-
-        List<IProtocolConfig> GetProtocolList();
     }
 }

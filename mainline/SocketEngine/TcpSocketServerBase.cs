@@ -35,7 +35,7 @@ namespace SuperSocket.SocketEngine
                 client.SendBufferSize = AppServer.Config.SendBufferSize;
 
             TAppSession appSession = this.AppServer.CreateAppSession(session);
-            session.Initialize(this.AppServer, appSession, client);
+            session.Initialize(this.AppServer, appSession);
 
             return session;
         }

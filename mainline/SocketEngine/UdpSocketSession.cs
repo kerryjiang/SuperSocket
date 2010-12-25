@@ -18,29 +18,22 @@ namespace SuperSocket.SocketEngine
     {
         private Socket m_ServerSocket;
 
-        private ICommandAsyncReader<TCommandInfo> m_CommandReader;
+        private ICommandReader<TCommandInfo> m_CommandReader;
 
         private SocketContext m_Context;
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandAsyncReader<TCommandInfo> commandReader)
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TCommandInfo> commandReader)
             : base()
         {
             m_ServerSocket = serverSocket;
-            m_RemoteEndPoint = remoteEndPoint;
-            IdentityKey = m_RemoteEndPoint.ToString();
+            RemoteEndPoint = remoteEndPoint;
+            IdentityKey = remoteEndPoint.ToString();
             m_CommandReader = commandReader;
         }
 
         public override IPEndPoint LocalEndPoint
         {
             get { return (IPEndPoint)m_ServerSocket.LocalEndPoint; }
-        }
-
-        private readonly IPEndPoint m_RemoteEndPoint;
-
-        public override IPEndPoint RemoteEndPoint
-        {
-            get { return m_RemoteEndPoint; }
         }
 
         protected override void Start(SocketContext context)
@@ -55,7 +48,25 @@ namespace SuperSocket.SocketEngine
 
         internal void ProcessData(byte[] data, int offset, int length)
         {
-            var commandInfo = m_CommandReader.FindCommand(m_Context, data, offset, length, false);
+            TCommandInfo commandInfo;
+
+            try
+            {
+                commandInfo = m_CommandReader.FindCommand(m_Context, data, offset, length, false);
+            }
+            catch (ExceedMaxCommandLengthException exc)
+            {
+                AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
+                    exc.MaxCommandLength, exc.CurrentProcessedLength));
+                Close(CloseReason.ServerClosing);
+                return;
+            }
+            catch (Exception exce)
+            {
+                AppServer.Logger.LogError(this, exce);
+                Close(CloseReason.ServerClosing);
+                return;
+            }
 
             m_CommandReader = m_CommandReader.NextCommandReader;
 
@@ -68,7 +79,7 @@ namespace SuperSocket.SocketEngine
         public override void SendResponse(SocketContext context, string message)
         {
             byte[] data = context.Charset.GetBytes(message);
-            m_ServerSocket.SendTo(data, m_RemoteEndPoint);
+            m_ServerSocket.SendTo(data, RemoteEndPoint);
         }
 
         public override void SendResponse(SocketContext context, byte[] data)

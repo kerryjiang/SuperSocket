@@ -8,7 +8,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase.Protocol
 {
-    public class CommandLineProtocol : SocketProtocolBase, ISyncProtocol<StringCommandInfo>, IAsyncProtocol<StringCommandInfo>
+    public class CommandLineProtocol : ICustomProtocol<StringCommandInfo>
     {
         private ICommandParser m_CommandParser;
 
@@ -22,22 +22,9 @@ namespace SuperSocket.SocketBase.Protocol
             m_CommandParser = commandParser;
         }
 
-        #region IAsyncProtocol Members
-
-        public ICommandAsyncReader<StringCommandInfo> CreateAsyncCommandReader()
+        public ICommandReader<StringCommandInfo> CreateCommandReader(IAppServer appServer)
         {
-            return new TerminatorCommandAsyncReader(Encoding.UTF8, Environment.NewLine, m_CommandParser);
+            return new TerminatorCommandReader(appServer, Encoding.UTF8, Environment.NewLine, m_CommandParser);
         }
-
-        #endregion
-
-        #region ISyncProtocol Members
-
-        public ICommandStreamReader<StringCommandInfo> CreateSyncCommandReader()
-        {
-            return new TerminatorCommandStreamReader(Environment.NewLine, m_CommandParser);
-        }
-
-        #endregion
     }
 }

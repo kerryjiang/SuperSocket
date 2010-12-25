@@ -8,15 +8,12 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
-    public interface IAppSession
+    public interface IAppSession : ISessionBase
     {
         ISocketSession SocketSession { get; }
-        string SessionID { get; }
-        string IdentityKey { get; }
         SocketContext Context { get; }
         IServerConfig Config { get; }
         IPEndPoint LocalEndPoint { get; }
-        IPEndPoint RemoteEndPoint { get; }
         DateTime LastActiveTime { get; set; }
         DateTime StartTime { get; }
         void Close();

@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Net.Sockets;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Protocol
 {
-    public interface ICommandAsyncReader<TCommandInfo>
+    public interface ICommandReader<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
+        IAppServer AppServer { get; }
+
         TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer);
 
         ArraySegmentList<byte> GetLeftBuffer();
 
-        ICommandAsyncReader<TCommandInfo> NextCommandReader { get; }
+        ICommandReader<TCommandInfo> NextCommandReader { get; }
     }
 }

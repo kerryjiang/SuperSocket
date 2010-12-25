@@ -70,6 +70,18 @@ namespace SuperSocket.SocketBase.Config
         ICertificateConfig Certificate { get; }
 
 
+        /// <summary>
+        /// Gets the security protocol, X509 certificate.
+        /// </summary>
         string Security { get; }
+
+
+        /// <summary>
+        /// Gets the max command length.
+        /// </summary>
+        /// <value>
+        /// The length of the max command.
+        /// </value>
+        int MaxCommandLength { get; }
     }
 }

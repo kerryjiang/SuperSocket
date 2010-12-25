@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.IO;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Protocol
 {
-    public interface ISyncProtocol<TCommandInfo>
+    public interface ICustomProtocol<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
-        ICommandStreamReader<TCommandInfo> CreateSyncCommandReader();
+        ICommandReader<TCommandInfo> CreateCommandReader(IAppServer appServer);
     }
 }

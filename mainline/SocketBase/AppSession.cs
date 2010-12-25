@@ -79,6 +79,11 @@ namespace SuperSocket.SocketBase
             get { return SocketSession.RemoteEndPoint; }
         }
 
+        public ILogger Logger
+        {
+            get { return AppServer.Logger; }
+        }
+
         public DateTime LastActiveTime { get; set; }
 
         public DateTime StartTime { get; private set; }

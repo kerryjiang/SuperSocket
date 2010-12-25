@@ -23,18 +23,21 @@ namespace SuperSocket.SocketEngine
 
         #region ISocketServerFactory Members
 
-        public ISocketServer CreateSocketServer<TAppSession, TCommandInfo>(IAppServer<TAppSession> appServer, System.Net.IPEndPoint localEndPoint, SocketBase.Config.IServerConfig config, object protocol)
+        public ISocketServer CreateSocketServer<TAppSession, TCommandInfo>(IAppServer<TAppSession> appServer, System.Net.IPEndPoint localEndPoint, SocketBase.Config.IServerConfig config, ICustomProtocol<TCommandInfo> protocol)
             where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
             where TCommandInfo : SocketBase.Command.ICommandInfo
         {
+            if (protocol == null)
+                throw new ArgumentNullException("protocol");
+
             switch(config.Mode)
             {
                 case(SocketMode.Udp):
-                    return new UdpSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol as IAsyncProtocol<TCommandInfo>);
+                    return new UdpSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
                 case(SocketMode.Sync):
-                    return new SyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol as ISyncProtocol<TCommandInfo>);
+                    return new SyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
                 case(SocketMode.Async):
-                    return new AsyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol as IAsyncProtocol<TCommandInfo>);
+                    return new AsyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
                 default:
                     throw new NotSupportedException("Unsupported SocketMode:" + config.Mode);
             }

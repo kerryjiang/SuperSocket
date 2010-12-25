@@ -21,29 +21,33 @@ namespace SuperSocket.SocketBase.Protocol
         public int Value { get; set; }
     }
 
-    public class TerminatorCommandAsyncReader : ICommandAsyncReader<StringCommandInfo>
+    public class TerminatorCommandReader : CommandReaderBase<StringCommandInfo>
     {
         public byte[] Terminator { get; private set; }
         protected Encoding Encoding { get; private set; }
         private ICommandParser m_CommandParser;
 
-        private ArraySegmentList<byte> m_BufferSegments;
-
-        private TerminatorCommandAsyncReader()
+        public TerminatorCommandReader(IAppServer appServer)
+            : base(appServer)
         {
-            m_BufferSegments = new ArraySegmentList<byte>();
+
         }
 
-        public TerminatorCommandAsyncReader(Encoding encoding, string terminator, ICommandParser commandParser) : this()
+        public TerminatorCommandReader(ICommandReader<StringCommandInfo> previousCommandReader)
+            : base(previousCommandReader)
+        {
+
+        }
+
+        public TerminatorCommandReader(IAppServer appServer, Encoding encoding, string terminator, ICommandParser commandParser)
+            : this(appServer)
         {
             Encoding = encoding;
             Terminator = encoding.GetBytes(terminator);
             m_CommandParser = commandParser;
         }
 
-        #region IAsyncCommandReader Members
-
-        public StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        protected override StringCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             NextCommandReader = this;
 
@@ -55,18 +59,9 @@ namespace SuperSocket.SocketBase.Protocol
             return m_CommandParser.ParseCommand(command);
         }
 
-        public ICommandAsyncReader<StringCommandInfo> NextCommandReader { get; protected set; }
-
-        public ArraySegmentList<byte> GetLeftBuffer()
-        {
-            return m_BufferSegments;
-        }
-
-        #endregion
-
         protected void ClearBuffer()
         {
-            m_BufferSegments.ClearSegements();
+            BufferSegments.ClearSegements();
         }
 
         protected bool FindCommandDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command)
@@ -83,9 +78,9 @@ namespace SuperSocket.SocketBase.Protocol
                 currentSegment = new ArraySegment<byte>(readBuffer, offset, length);
             }
 
-            m_BufferSegments.AddSegment(currentSegment);
+            BufferSegments.AddSegment(currentSegment);
 
-            int? result = m_BufferSegments.SearchMark(Terminator);
+            int? result = BufferSegments.SearchMark(Terminator);
 
             if (!result.HasValue)
             {
@@ -100,8 +95,8 @@ namespace SuperSocket.SocketBase.Protocol
             }
 
             int findLen = result.Value + Terminator.Length;
-            int total = m_BufferSegments.Count;
-            command = Encoding.GetString(m_BufferSegments.ToArrayData(0, result.Value));
+            int total = BufferSegments.Count;
+            command = Encoding.GetString(BufferSegments.ToArrayData(0, result.Value));
             ClearBuffer();
 
             if (findLen < total)
@@ -109,9 +104,9 @@ namespace SuperSocket.SocketBase.Protocol
                 int left = total - findLen;
 
                 if (isReusableBuffer)
-                    m_BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer.Skip(offset + length - left).Take(left).ToArray()));
+                    BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer.Skip(offset + length - left).Take(left).ToArray()));
                 else
-                    m_BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer, offset + length - left, left));
+                    BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer, offset + length - left, left));
             }
 
             return true;

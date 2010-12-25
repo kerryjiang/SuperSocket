@@ -11,9 +11,6 @@ namespace SuperSocket.Common
     {
         protected ILog Logger { get; private set; }
 
-        private string m_ServerTemplate = "{0}:";
-        private string m_ServerDetailTemplate = "{0} : {1}";
-
         public Log4NetLogger()
             : this("SuperSocket")
         {
@@ -36,31 +33,31 @@ namespace SuperSocket.Common
 
         public override void LogError(Exception e)
         {
-            Logger.Error(string.Format(m_ServerTemplate, Name), e);
+            Logger.Error(e);
             base.LogError(e);
         }
 
         public override void LogError(string title, Exception e)
         {
-            Logger.Error(string.Format(m_ServerDetailTemplate, Name, title), e);
+            Logger.Error(title, e);
             base.LogError(title, e);
         }
 
         public override void LogError(string message)
         {
-            Logger.ErrorFormat(m_ServerDetailTemplate, Name, message);
+            Logger.Error(message);
             base.LogError(message);
         }
 
         public override void LogDebug(string message)
         {
-            Logger.DebugFormat(m_ServerDetailTemplate, Name, message);
+            Logger.Debug(message);
             base.LogDebug(message);
         }
 
         public override void LogInfo(string message)
         {
-            Logger.InfoFormat(m_ServerDetailTemplate, Name, message);
+            Logger.Info(message);
             base.LogInfo(message);
         }
 

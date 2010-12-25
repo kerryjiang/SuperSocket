@@ -164,5 +164,20 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (string)this["security"];
             }
         }
+
+        /// <summary>
+        /// Gets the max command length in bytes. Default value is 1024.
+        /// </summary>
+        /// <value>
+        /// The length of the max command.
+        /// </value>
+        [ConfigurationProperty("maxCommandLength", IsRequired = false, DefaultValue = 1024)]
+        public int MaxCommandLength
+        {
+            get
+            {
+                return (int)this["maxCommandLength"];
+            }
+        }
     }
 }

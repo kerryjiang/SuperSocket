@@ -24,11 +24,17 @@ namespace SuperSocket.SocketEngine
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
-        ICommandAsyncReader<TCommandInfo> m_CommandReader;
+        ICommandReader<TCommandInfo> m_CommandReader;
         SocketContext m_Context;
 
-        public AsyncSocketSession(ICommandAsyncReader<TCommandInfo> initialCommandReader)
-            : base()
+        public AsyncSocketSession(Socket client)
+            : base(client)
+        {
+
+        }
+
+        public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
+            : base(client)
         {
             m_CommandReader = initialCommandReader;
         }
@@ -120,7 +126,25 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            var commandInfo = m_CommandReader.FindCommand(m_Context, e.Buffer, e.Offset, e.BytesTransferred, true);
+            TCommandInfo commandInfo;
+
+            try
+            {
+                commandInfo = m_CommandReader.FindCommand(m_Context, e.Buffer, e.Offset, e.BytesTransferred, true);
+            }
+            catch (ExceedMaxCommandLengthException exc)
+            {
+                AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
+                    exc.MaxCommandLength, exc.CurrentProcessedLength));
+                Close(CloseReason.ServerClosing);
+                return;
+            }
+            catch (Exception exce)
+            {
+                AppServer.Logger.LogError(this, exce);
+                Close(CloseReason.ServerClosing);
+                return;
+            }
 
             m_CommandReader = m_CommandReader.NextCommandReader;
 
@@ -132,7 +156,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception exc)
                 {
-                    AppServer.Logger.LogError("An error occurred in session: " + this.SessionID, exc);
+                    AppServer.Logger.LogError(this, exc);
                     HandleExceptionalError(exc);
                 }
                 //read the next block of data send from the client

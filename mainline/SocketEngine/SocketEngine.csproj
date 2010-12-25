@@ -92,8 +92,6 @@
     </Compile>
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\CredentialConfig.cs" />
-    <Compile Include="Configuration\ProtocolCollectionConfig.cs" />
-    <Compile Include="Configuration\ProtocolConfig.cs" />
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />
     <Compile Include="Configuration\Service.cs" />

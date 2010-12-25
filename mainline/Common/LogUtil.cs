@@ -26,6 +26,11 @@ namespace SuperSocket.Common
             m_logger = logger; 
         }
 
+        public static ILogger GetRootLogger()
+        {
+            return m_logger;
+        }
+
         public static void LogError(Exception e)
         {
             if (m_logger != null)

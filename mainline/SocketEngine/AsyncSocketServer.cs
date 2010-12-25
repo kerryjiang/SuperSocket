@@ -18,16 +18,13 @@ namespace SuperSocket.SocketEngine
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
-        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IAsyncProtocol<TCommandInfo> protocol)
+        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
             : base(appServer, localEndPoint)
         {
-            if (protocol == null)
-                throw new ArgumentNullException("protocol");
-
             m_Protocol = protocol;
         }
 
-        private IAsyncProtocol<TCommandInfo> m_Protocol;
+        private ICustomProtocol<TCommandInfo> m_Protocol;
 
         private AutoResetEvent m_TcpClientConnected;
 
@@ -180,7 +177,7 @@ namespace SuperSocket.SocketEngine
                 var socketEventArgsProxy = m_ReadWritePool.Pop();
                 socketEventArgsProxy.Socket = e.AcceptSocket;
 
-                var session = RegisterSession(e.AcceptSocket, new AsyncSocketSession<TAppSession, TCommandInfo>(m_Protocol.CreateAsyncCommandReader()));
+                var session = RegisterSession(e.AcceptSocket, new AsyncSocketSession<TAppSession, TCommandInfo>(e.AcceptSocket, m_Protocol.CreateCommandReader(AppServer)));
                 session.SocketAsyncProxy = socketEventArgsProxy;
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 m_TcpClientConnected.Set();

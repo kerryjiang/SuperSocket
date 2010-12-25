@@ -20,11 +20,19 @@ namespace SuperSocket.SocketEngine
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
-        private ICommandStreamReader<TCommandInfo> m_CommandReader;
+        private ICommandReader<TCommandInfo> m_CommandReader;
+        private byte[] m_ReadBuffer;
 
-        public SyncSocketSession(ICommandStreamReader<TCommandInfo> commandReader)
+        public SyncSocketSession(Socket client)
+            : base(client)
         {
-            m_CommandReader = commandReader;
+
+        }
+
+        public SyncSocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
+            : base(client)
+        {
+            m_CommandReader = commandReader;            
         }
 
         /// <summary>
@@ -38,6 +46,8 @@ namespace SuperSocket.SocketEngine
                 return;
         
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
+            m_ReadBuffer = new byte[Client.ReceiveBufferSize];
 
             try
             {
@@ -76,7 +86,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.LogError(e);
+                    AppServer.Logger.LogError(this, e);
                     HandleExceptionalError(e);
                 }
             }
@@ -115,11 +125,6 @@ namespace SuperSocket.SocketEngine
                     m_Stream = new NetworkStream(Client);
                     break;
             }
-
-            if (context == null)
-                m_CommandReader.InitializeReader(context, m_Stream, Encoding.Default, 0x400);
-            else
-                m_CommandReader.InitializeReader(context, m_Stream, context.Charset, 0x400);
         }
 
         public override void ApplySecureProtocol(SocketContext context)
@@ -133,7 +138,23 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                commandInfo = m_CommandReader.ReadCommand();
+                int thisRead = 0;
+
+                while (true)
+                {
+                    thisRead = m_Stream.Read(m_ReadBuffer, 0, m_ReadBuffer.Length);
+                    if (thisRead <= 0)
+                    {
+                        this.Close(CloseReason.ClientClosing);
+                        return false;
+                    }
+
+                    commandInfo = m_CommandReader.FindCommand(this.AppSession.Context, m_ReadBuffer, 0, thisRead, true);
+                    m_CommandReader = m_CommandReader.NextCommandReader;
+
+                    if (commandInfo != null)
+                        break;
+                }
             }
             catch (ObjectDisposedException)
             {
@@ -161,13 +182,20 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                AppServer.Logger.LogError("An error occurred in session: " + this.SessionID, ioe);
+                AppServer.Logger.LogError(this, ioe);
                 this.Close(CloseReason.SocketError);
+                return false;
+            }
+            catch (ExceedMaxCommandLengthException exc)
+            {
+                AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
+                    exc.MaxCommandLength, exc.CurrentProcessedLength));
+                Close(CloseReason.ServerClosing);
                 return false;
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.LogError(this, e);
                 this.Close(CloseReason.Unknown);
                 return false;
             }
@@ -203,7 +231,7 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.LogError(this, e);
                 this.Close(CloseReason.Unknown);
             }
         }
@@ -220,7 +248,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.LogError(this, e);
                 this.Close(CloseReason.SocketError);
             }
         }

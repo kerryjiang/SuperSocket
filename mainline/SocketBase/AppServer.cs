@@ -22,7 +22,11 @@ namespace SuperSocket.SocketBase
     public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringCommandInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
     {
-
+        public AppServer()
+            : base()
+        {
+            Protocol = new CommandLineProtocol();
+        }
     }
 
     public abstract class AppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession, TCommandInfo>
@@ -37,7 +41,7 @@ namespace SuperSocket.SocketBase
 
         public virtual X509Certificate Certificate { get; protected set; }
 
-        public virtual object Protocol { get; protected set; }
+        public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
 
         private string m_ConsoleBaseAddress;
 
@@ -66,6 +70,7 @@ namespace SuperSocket.SocketBase
 
             foreach (var command in commandLoader.LoadCommands())
             {
+                Logger.LogDebug(string.Format("Command found: {0} - {1}", command.Name, command.GetType().AssemblyQualifiedName));
                 //command.DefaultParameterParser = CommandParameterParser;
                 if (commandDict.ContainsKey(command.Name))
                 {
@@ -138,15 +143,20 @@ namespace SuperSocket.SocketBase
 
         public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
-            return Setup(rootConfig, config, socketServerFactory, null);
+            return Setup(rootConfig, config, socketServerFactory, null, string.Empty);
         }
 
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, object protocol)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol)
         {
             return Setup(rootConfig, config, socketServerFactory, protocol, string.Empty);
         }
 
-        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, object protocol, string assembly)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, string providerAssembly)
+        {
+            return Setup(rootConfig, config, socketServerFactory, null, providerAssembly);
+        }
+
+        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol, string assembly)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -169,13 +179,8 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
-            //The protocol passed from config has higher priority
-            if (protocol != null)
-                Protocol = protocol;
-
-            //If there is no defined protocol, use CommandLineProtocol as default
-            if (Protocol == null)
-                Protocol = new CommandLineProtocol();
+            if (!SetupProtocol(config, protocol))
+                return false;
 
             if (!SetupCommands(m_CommandDict))
                 return false;
@@ -190,6 +195,38 @@ namespace SuperSocket.SocketBase
                 return false;
 
             return SetupSocketServer();
+        }
+
+        private bool SetupProtocol(IServerConfig config, ICustomProtocol<TCommandInfo> protocol)
+        {
+            //The protocol passed by programming has higher priority, then by config
+            if (protocol != null)
+            {
+                Protocol = protocol;
+            }
+            else
+            {
+                //There is a protocol configuration existing
+                if (!string.IsNullOrEmpty(config.Protocol))
+                {
+                    ICustomProtocol<TCommandInfo> configuredProtocol;
+                    if (!AssemblyUtil.TryCreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol, out configuredProtocol))
+                    {
+                        Logger.LogError("Invalid configured protocol " + config.Protocol + ".");
+                        return false;
+                    }
+                    Protocol = configuredProtocol;
+                }
+            }
+
+            //If there is no defined protocol, use CommandLineProtocol as default
+            if (Protocol == null)
+            {
+                Logger.LogError("Protocol hasn't been set!");
+                return false;
+            }
+
+            return true;
         }
 
         private void SetupLogger()
@@ -431,7 +468,7 @@ namespace SuperSocket.SocketBase
                     session.Context.PrevCommand = commandInfo.Key;
 
                     if (Config.LogCommand)
-                        Logger.LogInfo(string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
+                        Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
                 }
                 else
                 {
@@ -448,7 +485,7 @@ namespace SuperSocket.SocketBase
                 session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand)
-                    Logger.LogInfo(string.Format("Command - {0} - {1}", session.IdentityKey, commandInfo.Key));
+                    Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
             }
         }
 
@@ -467,7 +504,7 @@ namespace SuperSocket.SocketBase
                 m_SessionDict[appSession.IdentityKey] = appSession;
             }
 
-            Logger.LogInfo("SocketSession " + socketSession.IdentityKey + " was accepted!");
+            Logger.LogInfo(appSession, "New SocketSession was accepted!");
             return appSession;
         }
 
@@ -532,8 +569,8 @@ namespace SuperSocket.SocketBase
                             DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds > Config.IdleSessionTimeOut)
                             .ToList().ForEach(s =>
                             {
-                                s.Close(CloseReason.TimeOut);
-                                Logger.LogInfo(string.Format("The socket session: {0} has been closed for {1} timeout!", s.IdentityKey, DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds));
+                                Logger.LogInfo(s, string.Format("The socket session has been closed for {0} timeout!", DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds));
+                                s.Close(CloseReason.TimeOut);                                
                             });
                     }
                 }

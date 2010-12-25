@@ -25,16 +25,13 @@ namespace SuperSocket.SocketEngine
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
-        public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ISyncProtocol<TCommandInfo> protocol)
+        public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
             : base(appServer, localEndPoint)
         {
-            if (protocol == null)
-                throw new ArgumentNullException("protocol");
-
             m_Protocol = protocol;
         }
 
-        private ISyncProtocol<TCommandInfo> m_Protocol;
+        private ICustomProtocol<TCommandInfo> m_Protocol;
 
         private Socket m_ListenSocket = null;
 
@@ -132,7 +129,18 @@ namespace SuperSocket.SocketEngine
                     break;
                 }
 
-                var session = RegisterSession(client, new SyncSocketSession<TAppSession, TCommandInfo>(m_Protocol.CreateSyncCommandReader()));
+                SyncSocketSession<TAppSession, TCommandInfo> session;
+
+                try
+                {
+                    session = RegisterSession(client, new SyncSocketSession<TAppSession, TCommandInfo>(client, m_Protocol.CreateCommandReader(AppServer)));
+                }
+                catch (Exception e)
+                {
+                    AppServer.Logger.LogError(e);
+                    continue;
+                }
+
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 
                 Thread thUser = new Thread(session.Start);

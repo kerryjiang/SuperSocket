@@ -32,11 +32,17 @@ namespace SuperSocket.SocketEngine
 
         }
 
-        public virtual void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession, Socket client)
+        public SocketSession(Socket client)
+        {
+            Client = client;
+            LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
+            RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
+        }
+
+        public virtual void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession)
         {
             AppServer = appServer;
             AppSession = appSession;
-            Client = client;
         }
 
         /// <summary>
@@ -160,19 +166,13 @@ namespace SuperSocket.SocketEngine
         /// Gets the local end point.
         /// </summary>
         /// <value>The local end point.</value>
-        public virtual IPEndPoint LocalEndPoint
-        {
-            get { return (IPEndPoint)Client.LocalEndPoint; }
-        }
+        public virtual IPEndPoint LocalEndPoint { get; protected set; }
 
         /// <summary>
         /// Gets the remote end point.
         /// </summary>
         /// <value>The remote end point.</value>
-        public virtual IPEndPoint RemoteEndPoint
-        {
-            get { return (IPEndPoint)Client.RemoteEndPoint; }
-        }
+        public virtual IPEndPoint RemoteEndPoint { get; protected set; }
 
         /// <summary>
         /// Gets or sets the secure protocol.

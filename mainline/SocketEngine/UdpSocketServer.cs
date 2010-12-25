@@ -31,14 +31,11 @@ namespace SuperSocket.SocketEngine
 
         private const string m_InvalidEndPoint = "0.0.0.0:0";
 
-        private IAsyncProtocol<TCommandInfo> m_Protocol;
+        private ICustomProtocol<TCommandInfo> m_Protocol;
 
-        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IAsyncProtocol<TCommandInfo> protocol)
+        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
             : base(appServer, localEndPoint)
         {
-            if (protocol == null)
-                throw new ArgumentNullException("protocol");
-
             m_Protocol = protocol;
         }
 
@@ -152,7 +149,7 @@ namespace SuperSocket.SocketEngine
                 }
 
                 if (!willRaiseEvent)
-                    this.ExecuteAsync(w => OnSocketReceived(socketAsyncEventArgs));
+                    this.ExecuteAsync(w => OnSocketReceived(socketAsyncEventArgs), AppServer.Logger);
 
                 m_UdpClientConnected.WaitOne();
             }
@@ -162,9 +159,9 @@ namespace SuperSocket.SocketEngine
 
         protected UdpSocketSession<TAppSession, TCommandInfo> RegisterSession(IPEndPoint remoteEndPoint)
         {
-            var session = new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, m_Protocol.CreateAsyncCommandReader());
+            var session = new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, m_Protocol.CreateCommandReader(AppServer));
             TAppSession appSession = this.AppServer.CreateAppSession(session);
-            session.Initialize(this.AppServer, appSession, null);
+            session.Initialize(this.AppServer, appSession);
             return session;
         }
 
@@ -194,12 +191,12 @@ namespace SuperSocket.SocketEngine
                 Interlocked.Increment(ref m_LiveConnectionCount);
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 session.Start();
-                this.ExecuteAsync(w => session.ProcessData(receivedData));
+                this.ExecuteAsync(w => session.ProcessData(receivedData), AppServer.Logger);
             }
             else //Existing session
             {
                 var session = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
-                this.ExecuteAsync(w => session.ProcessData(receivedData));
+                this.ExecuteAsync(w => session.ProcessData(receivedData), AppServer.Logger);
             }
         }
 
