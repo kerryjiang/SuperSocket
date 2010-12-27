@@ -39,20 +39,7 @@ namespace SuperSocket.SocketBase.Protocol
 
         public IAppServer AppServer { get; private set; }
 
-        public TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
-        {
-            var commandInfo = FindCommandInfo(context, readBuffer, offset, length, isReusableBuffer);
-
-            if (commandInfo == null)
-            {
-                if (m_BufferSegments.Count >= AppServer.Config.MaxCommandLength)
-                    throw new ExceedMaxCommandLengthException(AppServer.Config.MaxCommandLength, m_BufferSegments.Count);
-            }
-
-            return commandInfo;
-        }
-
-        protected abstract TCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer);
+        public abstract TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer);
 
         public ArraySegmentList<byte> GetLeftBuffer()
         {

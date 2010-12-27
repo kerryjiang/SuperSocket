@@ -47,7 +47,7 @@ namespace SuperSocket.SocketBase.Protocol
             m_CommandParser = commandParser;
         }
 
-        protected override StringCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        public override StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             NextCommandReader = this;
 

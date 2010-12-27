@@ -11,6 +11,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
@@ -23,20 +24,29 @@ namespace SuperSocket.SocketEngine
     {
         public IAppServer<TAppSession> AppServer { get; private set; }
 
+        protected ICommandReader<TCommandInfo> CommandReader { get; private set; }
+
+        private static readonly TCommandInfo m_NullCommandInfo = default(TCommandInfo);
+
+        protected TCommandInfo NullCommandInfo
+        {
+            get { return m_NullCommandInfo; }
+        }
+
         public TAppSession AppSession { get; private set; }
 
         protected readonly object SyncRoot = new object();
 
-        public SocketSession()
+        public SocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
         {
+            if (client != null)
+            {
+                Client = client;
+                LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
+                RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
+            }
 
-        }
-
-        public SocketSession(Socket client)
-        {
-            Client = client;
-            LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
-            RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
+            CommandReader = commandReader;
         }
 
         public virtual void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession)
@@ -87,16 +97,31 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Starts this session.
         /// </summary>
-        public void Start()
-        {
-            Start(AppSession.Context);
-        }
-
-        protected abstract void Start(SocketContext context);
+        public abstract void Start();
 
         protected virtual void ExecuteCommand(TCommandInfo commandInfo)
         {
             AppSession.ExecuteCommand(AppSession, commandInfo);
+        }
+
+        protected internal TCommandInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        {
+            var commandInfo = CommandReader.FindCommand(AppSession.Context, readBuffer, offset, length, isReusableBuffer);
+
+            if (commandInfo == null)
+            {
+                int leftBufferCount = CommandReader.GetLeftBuffer().Count;
+                if (leftBufferCount >= AppServer.Config.MaxCommandLength)
+                {
+                    AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
+                        AppServer.Config.MaxCommandLength, leftBufferCount));
+                    Close(CloseReason.ServerClosing);
+                    return m_NullCommandInfo;
+                }
+            }
+
+            CommandReader = CommandReader.NextCommandReader;
+            return commandInfo;
         }
 
         /// <summary>

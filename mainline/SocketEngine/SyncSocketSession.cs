@@ -20,26 +20,18 @@ namespace SuperSocket.SocketEngine
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
-        private ICommandReader<TCommandInfo> m_CommandReader;
         private byte[] m_ReadBuffer;
 
-        public SyncSocketSession(Socket client)
-            : base(client)
-        {
-
-        }
-
         public SyncSocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
-            : base(client)
+            : base(client, commandReader)
         {
-            m_CommandReader = commandReader;            
+
         }
 
         /// <summary>
-        /// Starts the the session with specified context.
+        /// Starts the the session.
         /// </summary>
-        /// <param name="context">The context.</param>
-        protected override void Start(SocketContext context)
+        public override void Start()
         {
             //Hasn't started, but already closed
             if (IsClosed)
@@ -52,7 +44,7 @@ namespace SuperSocket.SocketEngine
             try
             {
                 SecureProtocol = AppServer.BasicSecurity;
-                InitStream(context);
+                InitStream(AppSession.Context);
             }
             catch (Exception e)
             {
@@ -67,7 +59,7 @@ namespace SuperSocket.SocketEngine
 
             while (TryGetCommand(out commandInfo))
             {
-                context.Status = SocketContextStatus.Healthy;
+                AppSession.Context.Status = SocketContextStatus.Healthy;
 
                 try
                 {
@@ -134,7 +126,7 @@ namespace SuperSocket.SocketEngine
 
         private bool TryGetCommand(out TCommandInfo commandInfo)
         {
-            commandInfo = default(TCommandInfo);
+            commandInfo = NullCommandInfo;
 
             try
             {
@@ -149,10 +141,9 @@ namespace SuperSocket.SocketEngine
                         return false;
                     }
 
-                    commandInfo = m_CommandReader.FindCommand(this.AppSession.Context, m_ReadBuffer, 0, thisRead, true);
-                    m_CommandReader = m_CommandReader.NextCommandReader;
+                    commandInfo = FindCommand(m_ReadBuffer, 0, thisRead, true);
 
-                    if (commandInfo != null)
+                    if (commandInfo != null || IsClosed)
                         break;
                 }
             }
@@ -184,13 +175,6 @@ namespace SuperSocket.SocketEngine
 
                 AppServer.Logger.LogError(this, ioe);
                 this.Close(CloseReason.SocketError);
-                return false;
-            }
-            catch (ExceedMaxCommandLengthException exc)
-            {
-                AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
-                    exc.MaxCommandLength, exc.CurrentProcessedLength));
-                Close(CloseReason.ServerClosing);
                 return false;
             }
             catch (Exception e)

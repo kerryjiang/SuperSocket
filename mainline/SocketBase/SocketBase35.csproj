@@ -78,7 +78,6 @@
     <Compile Include="Protocol\BasicCommandParser.cs" />
     <Compile Include="Protocol\CommandLineProtocol.cs" />
     <Compile Include="Protocol\CommandReaderBase.cs" />
-    <Compile Include="Protocol\ExceedMaxCommandLengthException.cs" />
     <Compile Include="Protocol\ICommandParameterParser.cs" />
     <Compile Include="Protocol\ICommandParser.cs" />
     <Compile Include="Protocol\ICommandParserProtocol.cs" />

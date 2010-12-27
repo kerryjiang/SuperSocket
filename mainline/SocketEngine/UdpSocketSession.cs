@@ -18,17 +18,12 @@ namespace SuperSocket.SocketEngine
     {
         private Socket m_ServerSocket;
 
-        private ICommandReader<TCommandInfo> m_CommandReader;
-
-        private SocketContext m_Context;
-
         public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TCommandInfo> commandReader)
-            : base()
+            : base(null, commandReader)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
             IdentityKey = remoteEndPoint.ToString();
-            m_CommandReader = commandReader;
         }
 
         public override IPEndPoint LocalEndPoint
@@ -36,9 +31,9 @@ namespace SuperSocket.SocketEngine
             get { return (IPEndPoint)m_ServerSocket.LocalEndPoint; }
         }
 
-        protected override void Start(SocketContext context)
+        public override void Start()
         {
-            m_Context = context;
+
         }
 
         internal void ProcessData(byte[] data)
@@ -48,27 +43,7 @@ namespace SuperSocket.SocketEngine
 
         internal void ProcessData(byte[] data, int offset, int length)
         {
-            TCommandInfo commandInfo;
-
-            try
-            {
-                commandInfo = m_CommandReader.FindCommand(m_Context, data, offset, length, false);
-            }
-            catch (ExceedMaxCommandLengthException exc)
-            {
-                AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
-                    exc.MaxCommandLength, exc.CurrentProcessedLength));
-                Close(CloseReason.ServerClosing);
-                return;
-            }
-            catch (Exception exce)
-            {
-                AppServer.Logger.LogError(this, exce);
-                Close(CloseReason.ServerClosing);
-                return;
-            }
-
-            m_CommandReader = m_CommandReader.NextCommandReader;
+            TCommandInfo commandInfo = FindCommand(data, offset, length, false);
 
             if (commandInfo == null)
                 return;

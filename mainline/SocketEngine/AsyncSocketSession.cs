@@ -23,27 +23,17 @@ namespace SuperSocket.SocketEngine
     class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
-    {
-        ICommandReader<TCommandInfo> m_CommandReader;
-        SocketContext m_Context;
-
-        public AsyncSocketSession(Socket client)
-            : base(client)
-        {
-
-        }
-
+    {        
         public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
-            : base(client)
+            : base(client, initialCommandReader)
         {
-            m_CommandReader = initialCommandReader;
+
         }
 
-        protected override void Start(SocketContext context)
+        public override void Start()
         {
-            m_Context = context;
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            SocketAsyncProxy.Initialize(Client, this, context);
+            SocketAsyncProxy.Initialize(Client, this, AppSession.Context);
             StartSession();
             StartReceive(SocketAsyncProxy.SocketEventArgs);
         }
@@ -126,27 +116,10 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            TCommandInfo commandInfo;
+            TCommandInfo commandInfo = FindCommand(e.Buffer, e.Offset, e.BytesTransferred, true);
 
-            try
-            {
-                commandInfo = m_CommandReader.FindCommand(m_Context, e.Buffer, e.Offset, e.BytesTransferred, true);
-            }
-            catch (ExceedMaxCommandLengthException exc)
-            {
-                AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
-                    exc.MaxCommandLength, exc.CurrentProcessedLength));
-                Close(CloseReason.ServerClosing);
-                return;
-            }
-            catch (Exception exce)
-            {
-                AppServer.Logger.LogError(this, exce);
-                Close(CloseReason.ServerClosing);
-                return;
-            }
-
-            m_CommandReader = m_CommandReader.NextCommandReader;
+            if (IsClosed)
+                return;                
 
             if (commandInfo != null)
             {
@@ -188,7 +161,7 @@ namespace SuperSocket.SocketEngine
             int leftRead = length;
             int shouldRead = 0;
 
-            var leftBuffer = m_CommandReader.GetLeftBuffer();
+            var leftBuffer = CommandReader.GetLeftBuffer();
 
             if (leftBuffer != null && leftBuffer.Count > 0)
             {
