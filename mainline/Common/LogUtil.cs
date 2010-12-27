@@ -17,6 +17,9 @@ namespace SuperSocket.Common
 
         public static void Setup(string log4netConfig)
         {
+            if (!Path.IsPathRooted(log4netConfig))
+                log4netConfig = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, log4netConfig);
+
             XmlConfigurator.Configure(new FileInfo(log4netConfig));
             m_logger = new Log4NetLogger();
         }
