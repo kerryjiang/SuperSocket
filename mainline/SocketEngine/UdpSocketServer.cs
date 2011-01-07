@@ -167,7 +167,7 @@ namespace SuperSocket.SocketEngine
 
         private void OnSocketReceived(SocketAsyncEventArgs e)
         {
-            var receivedData = e.Buffer.Skip(e.Offset).Take(e.BytesTransferred).ToArray();
+            var receivedData = e.Buffer.CloneRange(e.Offset, e.BytesTransferred);
             var address = e.RemoteEndPoint.Serialize();
 
             m_UdpClientConnected.Set();

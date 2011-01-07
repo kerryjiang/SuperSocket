@@ -107,5 +107,12 @@ namespace SuperSocket.Common
 
             return true;
         }
+
+        public static T[] CloneRange<T>(this T[] source, int offset, int length)
+        {
+            T[] target = new T[length];
+            Array.Copy(source, offset, target, 0, length);
+            return target;
+        }
     }
 }

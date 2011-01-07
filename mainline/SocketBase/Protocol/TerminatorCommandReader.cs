@@ -71,7 +71,7 @@ namespace SuperSocket.SocketBase.Protocol
             if (isReusableBuffer)
             {
                 //Next received data also will be saved in this buffer, so we should create a new byte[] to persistent current received data
-                currentSegment = new ArraySegment<byte>(readBuffer.Skip(offset).Take(length).ToArray());
+                currentSegment = new ArraySegment<byte>(readBuffer.CloneRange(offset, length));
             }
             else
             {
@@ -104,7 +104,7 @@ namespace SuperSocket.SocketBase.Protocol
                 int left = total - findLen;
 
                 if (isReusableBuffer)
-                    BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer.Skip(offset + length - left).Take(left).ToArray()));
+                    BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer.CloneRange(offset + length - left, left)));
                 else
                     BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer, offset + length - left, left));
             }
