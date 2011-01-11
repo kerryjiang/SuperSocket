@@ -5,6 +5,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CertificateCreator", "Certi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestAgent", "PerformanceTestAgent\PerformanceTestAgent.csproj", "{B6421F10-595A-421D-9156-97C9E3B83C65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestConsole", "PerformanceTestConsole\PerformanceTestConsole.csproj", "{62C39592-6C9C-4450-A3A4-1FF3929A82EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
@@ -19,6 +21,10 @@ Global
 		{B6421F10-595A-421D-9156-97C9E3B83C65}.Debug|x86.Build.0 = Debug|x86
 		{B6421F10-595A-421D-9156-97C9E3B83C65}.Release|x86.ActiveCfg = Release|x86
 		{B6421F10-595A-421D-9156-97C9E3B83C65}.Release|x86.Build.0 = Release|x86
+		{62C39592-6C9C-4450-A3A4-1FF3929A82EF}.Debug|x86.ActiveCfg = Debug|x86
+		{62C39592-6C9C-4450-A3A4-1FF3929A82EF}.Debug|x86.Build.0 = Debug|x86
+		{62C39592-6C9C-4450-A3A4-1FF3929A82EF}.Release|x86.ActiveCfg = Release|x86
+		{62C39592-6C9C-4450-A3A4-1FF3929A82EF}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
