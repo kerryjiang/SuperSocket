@@ -85,6 +85,67 @@ namespace PerformanceTestConsole
             }
         }
 
+        //private static byte[] m_NewLine = Encoding.ASCII.GetBytes(Environment.NewLine);
+
+        //static void RunTestAsync(int execIndex, IPEndPoint remoteEndPoint)
+        //{
+        //    var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+        //    var connect = Observable.FromAsyncPattern<EndPoint>(socket.BeginConnect, socket.EndConnect);
+        //    var whenConnected = connect(remoteEndPoint);
+        //    whenConnected.Subscribe((u) => Console.WriteLine("Socket {0} connected!", execIndex),
+        //        (e) => Console.WriteLine(e.Message + " " + e.StackTrace));
+
+        //    if (!socket.Connected)
+        //    {
+        //        Console.WriteLine("Socket {0} cannot connect to server!", execIndex);
+        //        m_Semaphore.Release();
+        //        return;
+        //    }
+                        
+        //    byte[] buffer = new byte[64];
+        //    var receive = Observable.FromAsyncPattern<byte[], int, int, SocketFlags, int>(socket.BeginReceive, socket.EndReceive);
+        //    var whenReceive = receive(buffer, 0, buffer.Length, SocketFlags.None);
+        //    //TryReceiveLine(whenReceive, buffer);
+        //}
+
+
+        //private static bool TryReceiveLine(IObservable<int> whenReceive, byte[] buffer, out string line)
+        //{
+        //    bool foundNewLine = false;
+        //    bool error = false;
+        //    MemoryStream receiveStream = new MemoryStream();
+
+        //    while (!foundNewLine && !error)
+        //    {
+        //        whenReceive.Subscribe((i) =>
+        //            {
+        //                receiveStream.Write(buffer, 0, i);
+        //                receiveStream.Seek(2, SeekOrigin.End);
+        //                if (receiveStream.ReadByte() == m_NewLine[0])
+        //                    if (receiveStream.ReadByte() == m_NewLine[1])
+        //                        foundNewLine = true;
+        //            },
+        //            (e) =>
+        //            {
+        //                error = true;
+        //                Console.WriteLine(e.Message + " " + e.StackTrace);
+        //            });
+        //    }
+
+        //    if (error)
+        //    {
+        //        line = string.Empty;
+        //        return false;
+        //    }
+
+        //    receiveStream.Seek(0, SeekOrigin.Begin);
+        //    StreamReader reader = new StreamReader(receiveStream, Encoding.ASCII, false);
+        //    line = reader.ReadToEnd().Trim();
+        //    return true;
+        //}
+        
+
         static void RunTest(int execIndex, IPEndPoint remoteEndPoint, Func<StreamReader, StreamWriter, bool> processSocket)
         {
             var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
