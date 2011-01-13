@@ -56,6 +56,11 @@ namespace SuperSocket.SocketBase
         /// Gets the server's config.
         /// </summary>
         IServerConfig Config { get; }
+
+        /// <summary>
+        /// Logs the current performance.
+        /// </summary>
+        void LogPerf();
     }
 
     public interface IAppServer<TAppSession> : IAppServer

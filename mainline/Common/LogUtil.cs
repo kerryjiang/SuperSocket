@@ -63,5 +63,11 @@ namespace SuperSocket.Common
             if (m_logger != null)
                 m_logger.LogInfo(message);
         }
+
+        public static void LogPerf(string message)
+        {
+            if (m_logger != null)
+                m_logger.LogPerf(message);
+        }
     }
 }

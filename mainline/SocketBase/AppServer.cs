@@ -595,6 +595,11 @@ namespace SuperSocket.SocketBase
                 return null;
         }
 
+        public void LogPerf()
+        {
+            Logger.LogPerf(string.Format("Live Connection Count: {0}", m_SessionDict.Count));
+        }
+
         #region IDisposable Members
 
         public void Dispose()

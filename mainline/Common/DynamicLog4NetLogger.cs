@@ -29,6 +29,13 @@ namespace SuperSocket.Common
 
             foreach (var ap in currentLogger.Repository.GetAppenders())
             {
+                //Always use shared perf appender
+                if (ap.Name.StartsWith("perf", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentLogger.AddAppender(ap);
+                    continue;
+                }
+
                 var rollingFileAppender = CloneAppender(ap as RollingFileAppender);
                 if (rollingFileAppender == null)
                     continue;

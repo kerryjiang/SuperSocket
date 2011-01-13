@@ -16,7 +16,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    public static class SocketServerManager
+    public static partial class SocketServerManager
     {
         private static List<IAppServer> m_ServerList = new List<IAppServer>();
 
@@ -61,6 +61,17 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
+            return true;
+        }
+
+        /// <summary>
+        /// Initializes the specified servers.
+        /// </summary>
+        /// <param name="servers">The passed in AppServers, which have been setup.</param>
+        /// <returns></returns>
+        public static bool Initialize(IEnumerable<IAppServer> servers)
+        {
+            m_ServerList.AddRange(servers);
             return true;
         }
 
@@ -113,6 +124,8 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
+            StartPerformanceLog();
+
             return true;
         }
 
@@ -126,6 +139,8 @@ namespace SuperSocket.SocketEngine
                 server.Stop();
                 LogUtil.LogInfo(server.Name + " has been stopped");
             }
+
+            StopPerformanceLog();
         }
 
         public static IServiceConfig GetServiceConfig(string name)
