@@ -11,7 +11,7 @@ namespace SuperSocket.SocketEngine
     public static partial class SocketServerManager
     {
         private static Timer m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
-        private static readonly int m_TimerInterval = 1000 * 60 * 5;//5 minute
+        private static readonly int m_TimerInterval = 1000 * 60;//1 minute
 
         private static Timer m_CpuUsageTimer = new Timer(OnCpuUsageTimerCallback);
         private static readonly int m_CpuTimerInterval = 1000;//1 second

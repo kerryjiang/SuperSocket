@@ -26,6 +26,7 @@ namespace SuperSocket.Common
         private void AdaptAppenderFilePath()
         {
             var currentLogger = Logger.Logger as log4net.Repository.Hierarchy.Logger;
+            currentLogger.Additivity = false;//disable root appender for this logger
 
             foreach (var ap in currentLogger.Repository.GetAppenders())
             {
@@ -41,7 +42,6 @@ namespace SuperSocket.Common
                     continue;
 
                 rollingFileAppender.File = ProcessLogFilePath(rollingFileAppender.File);
-                currentLogger.Additivity = false;//disable root appender for this logger
                 currentLogger.AddAppender(rollingFileAppender);
                 rollingFileAppender.ActivateOptions();
             }

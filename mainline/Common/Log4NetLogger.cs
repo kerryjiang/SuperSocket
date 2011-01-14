@@ -67,7 +67,9 @@ namespace SuperSocket.Common
                 {
                     LoggerName = Name,
                     Message = message,
-                    Level = Level.Trace
+                    Level = Level.Trace,
+                    TimeStamp = DateTime.Now,
+                    Domain = AppDomain.CurrentDomain.FriendlyName
                 }));
             base.LogPerf(message);
         }
