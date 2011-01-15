@@ -49,5 +49,13 @@ namespace SuperSocket.SocketBase.Protocol
         public ICommandReader<TCommandInfo> NextCommandReader { get; protected set; }
 
         #endregion
+
+        protected void AddArraySegment(byte[] buffer, int offset, int length, bool isReusableBuffer)
+        {
+            if (isReusableBuffer)
+                BufferSegments.AddSegment(new ArraySegment<byte>(buffer.CloneRange(offset, length)));
+            else
+                BufferSegments.AddSegment(new ArraySegment<byte>(buffer, offset, length));
+        }
     }
 }
