@@ -10,7 +10,7 @@ namespace SuperSocket.Test.Common
     [TestFixture]
     public class PerformanceTest
     {
-        [Test]
+        //[Test]
         public void TestCopyArrayByLINQ()
         {
             byte[] source = new byte[1024 * 1024 * 10]; //10MB
