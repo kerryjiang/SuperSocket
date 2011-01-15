@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketBase", "..\SocketBase
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketEngine", "..\SocketEngine\SocketEngine.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CutomProtocol", "CutomProtocol\CutomProtocol.csproj", "{FB261628-26FD-48B5-9D3D-C9E34B4728CF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB261628-26FD-48B5-9D3D-C9E34B4728CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB261628-26FD-48B5-9D3D-C9E34B4728CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB261628-26FD-48B5-9D3D-C9E34B4728CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB261628-26FD-48B5-9D3D-C9E34B4728CF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
