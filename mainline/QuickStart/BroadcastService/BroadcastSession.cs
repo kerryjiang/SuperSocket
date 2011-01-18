@@ -17,7 +17,7 @@ namespace SuperSocket.QuickStart.BroadcastService
 
         public new BroadcastServer AppServer
         {
-            get { return (BroadcastServer)this.AppServer; }
+            get { return (BroadcastServer)base.AppServer; }
         }
 
         public override void HandleExceptionalError(Exception e)
