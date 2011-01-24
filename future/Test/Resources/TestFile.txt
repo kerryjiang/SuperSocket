@@ -1,0 +1,29 @@
+[ERROR] 04-06 15:48:22 1 CdcSoftware.Iaf.Services.Commands.CommandService.GetNavigationNode 
+Problem configuring filters and providers: Failed to load type "CdcSoftware.Erp.Reporting.Ssrs.MRSAddInCommandProvider, CdcSoftware.Erp.Reporting.Ssrs.ClientUI" in assembly "CdcSoftware.Erp.Reporting.Ssrs.ClientUI".
+No IErrors provided.
+Inner Exception: System.ArgumentException: Failed to load type "CdcSoftware.Erp.Reporting.Ssrs.MRSAddInCommandProvider, CdcSoftware.Erp.Reporting.Ssrs.ClientUI" in assembly "CdcSoftware.Erp.Reporting.Ssrs.ClientUI".
+   at CdcSoftware.Shared.IosObject.GetType(String assemblyName, String className)
+   at CdcSoftware.Shared.IosObject.GetType(IEnvSection env)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance(IEnvSection definition, Boolean ensureExists)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance[T](IEnvSection definition)
+   at CdcSoftware.Iaf.Services.Commands.CommandService.GetConfigElement(ConfigElement& configElement)
+
+   at CdcSoftware.Shared.IosObject.GetType(String assemblyName, String className)
+   at CdcSoftware.Shared.IosObject.GetType(IEnvSection env)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance(IEnvSection definition, Boolean ensureExists)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance[T](IEnvSection definition)
+   at CdcSoftware.Iaf.Services.Commands.CommandService.GetConfigElement(ConfigElement& configElement)Failed to load type "CdcSoftware.Erp.Reporting.Ssrs.MRSAddInCommandProvider, CdcSoftware.Erp.Reporting.Ssrs.ClientUI" in assembly "CdcSoftware.Erp.Reporting.Ssrs.ClientUI".
+No IErrors provided.
+Inner Exception: System.ArgumentException: Failed to load type "CdcSoftware.Erp.Reporting.Ssrs.MRSAddInCommandProvider, CdcSoftware.Erp.Reporting.Ssrs.ClientUI" in assembly "CdcSoftware.Erp.Reporting.Ssrs.ClientUI".
+   at CdcSoftware.Shared.IosObject.GetType(String assemblyName, String className)
+   at CdcSoftware.Shared.IosObject.GetType(IEnvSection env)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance(IEnvSection definition, Boolean ensureExists)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance[T](IEnvSection definition)
+   at CdcSoftware.Iaf.Services.Commands.CommandService.GetConfigElement(ConfigElement& configElement)
+
+   at CdcSoftware.Shared.IosObject.GetType(String assemblyName, String className)
+   at CdcSoftware.Shared.IosObject.GetType(IEnvSection env)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance(IEnvSection definition, Boolean ensureExists)
+   at CdcSoftware.Iaf.SmartClient.Core.ContainerWorkItem.GetInstance[T](IEnvSection definition)
+   at CdcSoftware.Iaf.Services.Commands.CommandService.GetConfigElement(ConfigElement& configElement)
+
