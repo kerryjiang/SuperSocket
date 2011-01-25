@@ -82,5 +82,117 @@ namespace SuperSocket.Test.Common
 
             Console.WriteLine(watch.ElapsedMilliseconds);
         }
+
+        [Test]
+        [TestCase(50000, 10)]
+        [TestCase(500000, 10)]
+        [TestCase(5000000, 10)]
+        public void CompareIntDictionaryAndArray(int testCount, int testRepeat)
+        {
+            Stopwatch watch = new Stopwatch();
+
+            //Prepare data
+            Dictionary<int, int> dict = new Dictionary<int, int>(testCount);
+            int[] array = new int[testCount];
+
+            for (int i = 0; i < testCount; i++)
+            {
+                dict.Add(i, i);
+                array[i] = i;
+            }
+
+            watch.Start();
+
+            for (int j = 0; j < 10; j++)
+            {
+                for (int i = 0; i < testCount; i++)
+                {
+                    var sample = array[i];
+                }
+            }
+
+            watch.Stop();
+
+            long arraySpan = watch.ElapsedTicks;
+
+            Console.WriteLine(arraySpan);
+
+            watch.Reset();
+            watch.Start();
+
+            for (int j = 0; j < 10; j++)
+            {
+                for (int i = 0; i < testCount; i++)
+                {
+                    var sample = array[i];
+                    var result = dict[sample];
+                }
+            }
+
+            watch.Stop();
+
+            long dictSpan = watch.ElapsedTicks;
+
+            Console.WriteLine(dictSpan);
+
+            GC.Collect();
+        }
+
+        [Test]
+        [TestCase(50000, 10)]
+        [TestCase(500000, 10)]
+        [TestCase(5000000, 10)]
+        public void CompareStringDictionaryAndArray(int testCount, int testRepeat)
+        {
+            Stopwatch watch = new Stopwatch();
+
+            //Prepare data
+            Dictionary<string, string> dict = new Dictionary<string, string>(testCount);
+            string[] array = new string[testCount];
+
+            for (int i = 0; i < testCount; i++)
+            {
+                var sample = Guid.NewGuid().ToString();
+                dict.Add(sample, sample);
+                array[i] = sample;
+            }
+
+            watch.Start();
+
+            for (int j = 0; j < testRepeat; j++)
+            {
+                for (int i = 0; i < testCount; i++)
+                {
+                    var sample = array[i];
+                }
+            }
+
+            watch.Stop();
+
+            long arraySpan = watch.ElapsedMilliseconds;
+
+            Console.WriteLine(arraySpan);
+
+            watch.Reset();
+            watch.Start();
+
+            for (int j = 0; j < testRepeat; j++)
+            {
+                for (int i = 0; i < testCount; i++)
+                {
+                    var sample = array[i];
+                    var result = dict[sample];
+                }
+            }
+
+            watch.Stop();
+
+            long dictSpan = watch.ElapsedMilliseconds;
+
+            Console.WriteLine(dictSpan);
+            Console.WriteLine(watch.ElapsedTicks / (testCount * testRepeat));
+
+            GC.Collect();
+        }
     }
 }
