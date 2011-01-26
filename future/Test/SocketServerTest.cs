@@ -28,8 +28,11 @@ namespace SuperSocket.Test
             m_Config = DefaultServerConfig;
             m_RootConfig = new RootConfig
             {
-                LoggingMode = LoggingMode.Console
+                LoggingMode = LoggingMode.Console,
+                MaxCompletionPortThreads = 2000
             };
+
+            Console.WriteLine("ThreadPool Setting: {0}, {1}, {2}, {3}", m_RootConfig.MaxWorkingThreads, m_RootConfig.MaxCompletionPortThreads, m_RootConfig.MinWorkingThreads, m_RootConfig.MinCompletionPortThreads);
         }
 
         private TestServer GetServerByIndex(int index)
