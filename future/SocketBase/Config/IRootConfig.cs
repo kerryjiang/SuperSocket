@@ -15,5 +15,13 @@ namespace SuperSocket.SocketBase.Config
         bool IndependentLogger { get; }
 
         LoggingMode LoggingMode { get; }
+
+        int MaxWorkingThreads { get; }
+
+        int MinWorkingThreads { get; }
+
+        int MaxCompletionPortThreads { get; }
+
+        int MinCompletionPortThreads { get; }
     }
 }

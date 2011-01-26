@@ -65,6 +65,42 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        [ConfigurationProperty("maxWorkingThreads", IsRequired = false, DefaultValue = -1)]
+        public int MaxWorkingThreads
+        {
+            get
+            {
+                return (int)this["maxWorkingThreads"];
+            }
+        }
+
+        [ConfigurationProperty("minWorkingThreads", IsRequired = false, DefaultValue = -1)]
+        public int MinWorkingThreads
+        {
+            get
+            {
+                return (int)this["minWorkingThreads"];
+            }
+        }
+
+        [ConfigurationProperty("maxCompletionPortThreads", IsRequired = false, DefaultValue = -1)]
+        public int MaxCompletionPortThreads
+        {
+            get
+            {
+                return (int)this["maxCompletionPortThreads"];
+            }
+        }
+
+        [ConfigurationProperty("minCompletionPortThreads", IsRequired = false, DefaultValue = -1)]
+        public int MinCompletionPortThreads
+        {
+            get
+            {
+                return (int)this["minCompletionPortThreads"];
+            }
+        }
+
         #region IConfig Members
 
         public List<IServerConfig> GetServerList()
