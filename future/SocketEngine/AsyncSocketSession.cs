@@ -18,6 +18,7 @@ namespace SuperSocket.SocketEngine
     {
         SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
         void ProcessReceive(SocketAsyncEventArgs e);
+        ILogger Logger { get; }
     }
 
     class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
@@ -28,6 +29,11 @@ namespace SuperSocket.SocketEngine
             : base(client, initialCommandReader)
         {
 
+        }
+
+        ILogger IAsyncSocketSession.Logger
+        {
+            get { return AppServer.Logger; }
         }
 
         public override void Start()
@@ -231,6 +237,6 @@ namespace SuperSocket.SocketEngine
                 if(DetectEndMark(buffer, thisRead, endMark, lastData, ref lastDataSzie))
                     return;
             }
-        }        
+        }
     }
 }

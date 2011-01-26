@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Net.Sockets;
+using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine
@@ -10,7 +11,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// This class is designed for use as the object to be assigned to the SocketAsyncEventArgs.UserToken property. 
     /// </summary>
-    class AsyncUserToken
+    class AsyncUserToken : IAsyncRunner
     {
         Socket m_socket;
 
