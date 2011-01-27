@@ -69,6 +69,9 @@ namespace PerformanceTestConsole
             Console.WriteLine("{0} requests per second!", m_TotalRequests / watch.Elapsed.TotalSeconds);
             
             Console.WriteLine("All threads quit!");
+
+            GC.Collect();
+
             Console.ReadKey();
         }
 
