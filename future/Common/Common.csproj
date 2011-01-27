@@ -93,7 +93,7 @@
     <Compile Include="GlobalResources.cs" />
     <Compile Include="StringExtension.cs" />
     <Compile Include="StringExtension.NET4.cs" />
-    <Compile Include="SynchronizedPool.cs" />
+    <Compile Include="TheadPoolEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

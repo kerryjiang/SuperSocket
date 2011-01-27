@@ -90,7 +90,8 @@
     <Compile Include="GlobalResources.cs" />
     <Compile Include="StringExtension.cs" />
     <Compile Include="StringExtension.NET35.cs" />
-    <Compile Include="SynchronizedPool.cs" />
+    <Compile Include="ConcurrentStack.cs" />
+    <Compile Include="TheadPoolEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
