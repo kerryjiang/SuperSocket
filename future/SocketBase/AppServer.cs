@@ -167,8 +167,13 @@ namespace SuperSocket.SocketBase
 
             if (!m_ThreadPoolConfigured)
             {
-                if (!ConfigureThreadPool(rootConfig))
+                if (!TheadPoolEx.ResetThreadPool(rootConfig.MaxWorkingThreads >= 0 ? rootConfig.MaxWorkingThreads : new Nullable<int>(),
+                        rootConfig.MaxCompletionPortThreads >= 0 ? rootConfig.MaxCompletionPortThreads : new Nullable<int>(),
+                        rootConfig.MinWorkingThreads >= 0 ? rootConfig.MinWorkingThreads : new Nullable<int>(),
+                        rootConfig.MinCompletionPortThreads >= 0 ? rootConfig.MinCompletionPortThreads : new Nullable<int>()))
+                {
                     return false;
+                }
 
                 m_ThreadPoolConfigured = true;
             }
@@ -205,63 +210,6 @@ namespace SuperSocket.SocketBase
                 return false;
 
             return SetupSocketServer();
-        }
-
-        private bool ConfigureThreadPool(IRootConfig rootConfig)
-        {
-            int maxWorkingThread, maxCompletionPortThreads;
-            int newMaxWorkingThread, newMaxCompletionPortThreads;
-
-            ThreadPool.GetMaxThreads(out maxWorkingThread, out maxCompletionPortThreads);
-
-            if (rootConfig.MaxWorkingThreads < 0)
-                newMaxWorkingThread = maxWorkingThread;
-            else
-                newMaxWorkingThread = rootConfig.MaxWorkingThreads;
-
-            if (rootConfig.MaxCompletionPortThreads < 0)
-                newMaxCompletionPortThreads = maxCompletionPortThreads;
-            else
-                newMaxCompletionPortThreads = rootConfig.MaxCompletionPortThreads;
-
-            if (newMaxWorkingThread != maxWorkingThread || newMaxCompletionPortThreads != maxCompletionPortThreads)
-            {
-                if (!ThreadPool.SetMaxThreads(newMaxWorkingThread, newMaxCompletionPortThreads))
-                {
-                    LogUtil.LogError(string.Format("Failed to run ThreadPool.SetMaxThreads({0}, {1})!", newMaxWorkingThread, newMaxCompletionPortThreads));
-                    return false;
-                }
-
-                LogUtil.LogInfo(string.Format("Run ThreadPool.SetMaxThreads({0}, {1}) successfully!", newMaxWorkingThread, newMaxCompletionPortThreads));
-            }
-
-            int minWorkingThread, minCompletionPortThreads;
-            int newMinWorkingThread, newMinCompletionPortThreads;
-
-            ThreadPool.GetMinThreads(out minWorkingThread, out minCompletionPortThreads);
-
-            if (rootConfig.MinWorkingThreads < 0)
-                newMinWorkingThread = minWorkingThread;
-            else
-                newMinWorkingThread = rootConfig.MinWorkingThreads;
-
-            if (rootConfig.MinCompletionPortThreads < 0)
-                newMinCompletionPortThreads = minCompletionPortThreads;
-            else
-                newMinCompletionPortThreads = rootConfig.MinCompletionPortThreads;
-
-            if (newMinWorkingThread != minWorkingThread || newMinCompletionPortThreads != minCompletionPortThreads)
-            {
-                if (!ThreadPool.SetMinThreads(newMinWorkingThread, newMinCompletionPortThreads))
-                {
-                    LogUtil.LogError(string.Format("Failed to run ThreadPool.SetMinThreads({0}, {1})!", newMinWorkingThread, newMinCompletionPortThreads));
-                    return false;
-                }
-
-                LogUtil.LogInfo(string.Format("Run ThreadPool.SetMinThreads({0}, {1}) successfully!", newMinWorkingThread, newMinCompletionPortThreads));
-            }
-
-            return true;
         }
 
         private bool SetupProtocol(IServerConfig config, ICustomProtocol<TCommandInfo> protocol)
