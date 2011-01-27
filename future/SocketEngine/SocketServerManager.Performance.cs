@@ -18,11 +18,16 @@ namespace SuperSocket.SocketEngine
         private static double m_PrevTotalProcessorTime = 0;
         private static DateTime m_PrevCheckingTime = DateTime.MinValue;
         private static double m_CpuUsgae = 0;
+        private static readonly long m_MbUnit = 1024 * 1024;
+
 
         private static void OnPerformanceTimerCallback(object state)
         {
             var process = Process.GetCurrentProcess();
-            LogUtil.LogPerf(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1}, Virtual Memory Usage: {2}, Total Thread Count: {3}", m_CpuUsgae.ToString("0.00"), process.WorkingSet64, process.VirtualMemorySize64, process.Threads.Count));
+            LogUtil.LogPerf(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", m_CpuUsgae.ToString("0.00"), process.WorkingSet64 / m_MbUnit, process.VirtualMemorySize64 / m_MbUnit, process.Threads.Count));
+            int availableWorkingThreads, availableCompletionPortThreads;
+            ThreadPool.GetAvailableThreads(out availableWorkingThreads, out availableCompletionPortThreads);
+            LogUtil.LogPerf(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", availableWorkingThreads, availableCompletionPortThreads));
             m_ServerList.ForEach(s => s.LogPerf());
         }
 
@@ -36,7 +41,7 @@ namespace SuperSocket.SocketEngine
             double currentProcessorTime = process.TotalProcessorTime.TotalMilliseconds;
             DateTime currentCheckingTime = DateTime.Now;
 
-            m_CpuUsgae = (currentProcessorTime - m_PrevTotalProcessorTime) * 100 / currentCheckingTime.Subtract(m_PrevCheckingTime).TotalMilliseconds;
+            m_CpuUsgae = (currentProcessorTime - m_PrevTotalProcessorTime) * 100 / (currentCheckingTime.Subtract(m_PrevCheckingTime).TotalMilliseconds * Environment.ProcessorCount);
             m_PrevCheckingTime = currentCheckingTime;
             m_PrevTotalProcessorTime = currentProcessorTime;
         }
