@@ -231,6 +231,8 @@ namespace SuperSocket.SocketBase
                     LogUtil.LogError(string.Format("Failed to run ThreadPool.SetMaxThreads({0}, {1})!", newMaxWorkingThread, newMaxCompletionPortThreads));
                     return false;
                 }
+
+                LogUtil.LogInfo(string.Format("Run ThreadPool.SetMaxThreads({0}, {1}) successfully!", newMaxWorkingThread, newMaxCompletionPortThreads));
             }
 
             int minWorkingThread, minCompletionPortThreads;
@@ -255,6 +257,8 @@ namespace SuperSocket.SocketBase
                     LogUtil.LogError(string.Format("Failed to run ThreadPool.SetMinThreads({0}, {1})!", newMinWorkingThread, newMinCompletionPortThreads));
                     return false;
                 }
+
+                LogUtil.LogInfo(string.Format("Run ThreadPool.SetMinThreads({0}, {1}) successfully!", newMinWorkingThread, newMinCompletionPortThreads));
             }
 
             return true;
