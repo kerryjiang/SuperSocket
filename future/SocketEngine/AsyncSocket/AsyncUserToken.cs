@@ -11,7 +11,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// This class is designed for use as the object to be assigned to the SocketAsyncEventArgs.UserToken property. 
     /// </summary>
-    class AsyncUserToken : IAsyncRunner
+    class AsyncUserToken
     {
         Socket m_socket;
 
