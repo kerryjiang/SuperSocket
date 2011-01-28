@@ -188,6 +188,10 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
                 var session = RegisterSession(ipAddress);
+
+                if (session == null)
+                    return;
+
                 Interlocked.Increment(ref m_LiveConnectionCount);
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 session.Start();

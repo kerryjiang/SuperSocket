@@ -141,6 +141,9 @@ namespace SuperSocket.SocketEngine
                     continue;
                 }
 
+                if (session == null)
+                    continue;
+
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 
                 Thread thUser = new Thread(session.Start);

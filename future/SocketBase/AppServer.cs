@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -496,7 +497,7 @@ namespace SuperSocket.SocketBase
             {
                 session.Context.CurrentCommand = commandInfo.Key;
                 m_CommandHandler(session, commandInfo);
-                session.Context.PrevCommand = commandInfo.Key;                
+                session.Context.PrevCommand = commandInfo.Key;
                 session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand)
@@ -504,9 +505,7 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        private Dictionary<string, TAppSession> m_SessionDict = new Dictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-
-        private object m_SessionSyncRoot = new object();
+        private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
 
         public TAppSession CreateAppSession(ISocketSession socketSession)
         {
@@ -514,24 +513,23 @@ namespace SuperSocket.SocketBase
             appSession.Initialize(this, socketSession);
             socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);
 
-            lock (m_SessionSyncRoot)
+            if (m_SessionDict.TryAdd(appSession.IdentityKey, appSession))
             {
-                m_SessionDict[appSession.IdentityKey] = appSession;
+                Logger.LogInfo(appSession, "New SocketSession was accepted!");
+                return appSession;
             }
-
-            Logger.LogInfo(appSession, "New SocketSession was accepted!");
-            return appSession;
+            else
+            {
+                Logger.LogError(appSession, "SocketSession was refused because the session's IdentityKey already exists!");
+                return default(TAppSession);
+            }
         }
 
         public TAppSession GetAppSessionByIndentityKey(string identityKey)
         {
             TAppSession targetSession;
-
-            lock (m_SessionSyncRoot)
-            {
-                m_SessionDict.TryGetValue(identityKey, out targetSession);
-                return targetSession;
-            }
+            m_SessionDict.TryGetValue(identityKey, out targetSession);
+            return targetSession;
         }
 
         protected virtual void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
@@ -542,18 +540,11 @@ namespace SuperSocket.SocketBase
             if (string.IsNullOrEmpty(identityKey))
                 return;
 
-            try
-            {
-                lock (m_SessionSyncRoot)
-                {
-                    m_SessionDict.Remove(identityKey);
-                }
-                Logger.LogInfo("SocketSession " + identityKey + " was closed!");
-            }
-            catch (Exception exc)
-            {
-                Logger.LogError(exc);
-            }
+            TAppSession removedSession;
+            if (m_SessionDict.TryRemove(identityKey, out removedSession))
+                Logger.LogInfo(removedSession, "This session was closed!");
+            else
+                Logger.LogError(removedSession, "Failed to remove this session, Because it haven't been in session container!");
         }
 
         public int SessionCount
@@ -578,16 +569,13 @@ namespace SuperSocket.SocketBase
             {
                 try
                 {
-                    lock (m_SessionSyncRoot)
-                    {
-                        m_SessionDict.Values.Where(s =>
+                    m_SessionDict.Values.Where(s =>
                             DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds > Config.IdleSessionTimeOut)
                             .ToList().ForEach(s =>
                             {
                                 Logger.LogInfo(s, string.Format("The socket session has been closed for {0} timeout!", DateTime.Now.Subtract(s.LastActiveTime).TotalSeconds));
-                                s.Close(CloseReason.TimeOut);                                
+                                s.Close(CloseReason.TimeOut);
                             });
-                    }
                 }
                 catch (Exception e)
                 {

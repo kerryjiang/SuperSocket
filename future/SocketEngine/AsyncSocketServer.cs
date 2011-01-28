@@ -174,23 +174,28 @@ namespace SuperSocket.SocketEngine
         {            
             if (e.SocketError == SocketError.Success)
             {
+                var curerntSocket = e.AcceptSocket;
+                m_TcpClientConnected.Set();
+
                 //Get the socket for the accepted client connection and put it into the 
                 //ReadEventArg object user token
                 SocketAsyncEventArgsProxy socketEventArgsProxy;
                 if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
                 {
                     AppServer.Logger.LogError("There is no enough buffer block to arrange to new accepted client!");
-                    m_TcpClientConnected.Set();
                     return;
                 }
 
-                socketEventArgsProxy.Socket = e.AcceptSocket;
+                socketEventArgsProxy.Socket = curerntSocket;
 
-                var session = RegisterSession(e.AcceptSocket, new AsyncSocketSession<TAppSession, TCommandInfo>(e.AcceptSocket, m_Protocol.CreateCommandReader(AppServer)));
-                session.SocketAsyncProxy = socketEventArgsProxy;
-                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-                m_TcpClientConnected.Set();
-                session.Start();
+                var session = RegisterSession(curerntSocket, new AsyncSocketSession<TAppSession, TCommandInfo>(curerntSocket, m_Protocol.CreateCommandReader(AppServer)));
+                
+                if (session != null)
+                {
+                    session.SocketAsyncProxy = socketEventArgsProxy;
+                    session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                    session.Start();
+                }
             }
             else
             {
