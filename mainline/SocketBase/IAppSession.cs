@@ -35,4 +35,17 @@ namespace SuperSocket.SocketBase
         void Initialize(IAppServer<TAppSession, TCommandInfo> server, ISocketSession socketSession);
         void ExecuteCommand(TAppSession session, TCommandInfo cmdInfo);
     }
+
+    public class AppSessionClosedEventArgs<TAppSession> : EventArgs
+        where TAppSession : IAppSession, new()
+    {
+        public TAppSession Session { get; private set; }
+        public CloseReason Reason { get; private set; }
+
+        public AppSessionClosedEventArgs(TAppSession session, CloseReason reason)
+        {
+            Session = session;
+            Reason = reason;
+        }
+    }
 }

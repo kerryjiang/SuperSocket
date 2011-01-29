@@ -8,11 +8,6 @@ namespace SuperSocket.QuickStart.EchoService
 {
     public class EchoSession : AppSession<EchoSession>
     {
-        protected override void OnClosed()
-        {
-            
-        }        
-
         public override void StartSession()
         {
             SendResponse("Welcome to EchoServer!");

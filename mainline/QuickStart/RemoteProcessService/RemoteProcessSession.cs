@@ -8,11 +8,6 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 {
     public class RemoteProcessSession : AppSession<RemoteProcessSession>
     {
-        protected override void OnClosed()
-        {
-  
-        }
-
         public new RemoteProcessServer AppServer
         {
             get { return (RemoteProcessServer)base.AppServer; }

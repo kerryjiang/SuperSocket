@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.BroadcastService
 {
@@ -80,6 +81,12 @@ namespace SuperSocket.QuickStart.BroadcastService
                 {
                     sessions.ForEach(s => s.SendResponse(message));
                 });
+        }
+
+        protected override void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<BroadcastSession> e)
+        {
+            RemoveOnlineSession(e.Session);
+            base.OnAppSessionClosed(sender, e);
         }
     }
 }

@@ -9,11 +9,6 @@ namespace SuperSocket.QuickStart.CustomProtocol
 {
     public class CustomProtocolSession : AppSession<CustomProtocolSession, BinaryCommandInfo>
     {
-        protected override void OnClosed()
-        {
-            
-        }
-
         public override void HandleExceptionalError(Exception e)
         {
 

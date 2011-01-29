@@ -8,11 +8,6 @@ namespace SuperSocket.QuickStart.CustomCommandParser
 {
     public class YourSession : AppSession<YourSession>
     {
-        protected override void OnClosed()
-        {
-            
-        }
-
         public override void StartSession()
         {
             SendResponse("Welcome");   

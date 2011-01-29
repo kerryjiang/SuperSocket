@@ -32,18 +32,10 @@ namespace SuperSocket.SocketBase
             Context = CreateSocketContext();
             AppServer = appServer;
             SocketSession = socketSession;
-            SocketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(SocketSession_Closed);
             SessionID = socketSession.SessionID;
             IdentityKey = socketSession.IdentityKey;
             OnInit();
         }
-
-        void SocketSession_Closed(object sender, SocketSessionClosedEventArgs e)
-        {
-            OnClosed();
-        }
-
-        protected abstract void OnClosed();
 
         protected virtual void OnInit()
         {
@@ -55,7 +47,10 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public abstract void HandleExceptionalError(Exception e);
+        public virtual void HandleExceptionalError(Exception e)
+        {
+            Logger.LogError(e);
+        }
 
         public void ExecuteCommand(TAppSession session, TCommandInfo cmdInfo)
         {
@@ -108,7 +103,6 @@ namespace SuperSocket.SocketBase
         public virtual void Close(CloseReason reason)
         {
             this.SocketSession.Close(reason);
-            OnClosed();
         }
 
         public virtual void Close()

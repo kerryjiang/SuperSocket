@@ -10,11 +10,6 @@ namespace SuperSocket.QuickStart.BroadcastService
     {
         public string DeviceNumber { get; set; }
 
-        protected override void OnClosed()
-        {
-            AppServer.RemoveOnlineSession(this);   
-        }
-
         public new BroadcastServer AppServer
         {
             get { return (BroadcastServer)base.AppServer; }

@@ -31,7 +31,7 @@ namespace SuperSocket.SocketBase
         }
     }
 
-    public abstract class AppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession, TCommandInfo>
+    public abstract class AppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession, TCommandInfo>, IAsyncRunner
         where TCommandInfo : ICommandInfo
         where TAppSession : IAppSession<TAppSession, TCommandInfo>, new()
     {
@@ -535,7 +535,7 @@ namespace SuperSocket.SocketBase
             return targetSession;
         }
 
-        protected virtual void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
+        private void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
             //the sender is a sessionID
             string identityKey = e.IdentityKey;
@@ -545,9 +545,20 @@ namespace SuperSocket.SocketBase
 
             TAppSession removedSession;
             if (m_SessionDict.TryRemove(identityKey, out removedSession))
+            {
                 Logger.LogInfo(removedSession, "This session was closed!");
+                this.ExecuteAsync(w => OnAppSessionClosed(this, new AppSessionClosedEventArgs<TAppSession>(removedSession, e.Reason)),
+                    exc => Logger.LogError(exc));
+            }
             else
+            {
                 Logger.LogError(removedSession, "Failed to remove this session, Because it haven't been in session container!");
+            }
+        }
+
+        protected virtual void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<TAppSession> e)
+        {
+
         }
 
         public int SessionCount
