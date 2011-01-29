@@ -616,7 +616,7 @@ namespace SuperSocket.SocketBase
         private void StartSessionSnapshotTimer()
         {
             int interval = Math.Max(Config.SessionSnapshotInterval, 1) * 1000;//in milliseconds
-            m_SessionSnapshotTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
+            m_SessionSnapshotTimer = new System.Threading.Timer(TakeSessionSnapshot, new object(), interval, interval);
         }
 
         private void TakeSessionSnapshot(object state)
