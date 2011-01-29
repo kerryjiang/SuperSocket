@@ -181,6 +181,7 @@ namespace SuperSocket.Test
                     string command = sb.ToString();
                     socket.SendTo(Encoding.UTF8.GetBytes("ECHO " + command + "\r\n"), serverAddress);
                     string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    Assert.AreEqual(command, echoMessage);
                     if (!string.Equals(command, echoMessage))
                         return false;
                     Thread.Sleep(100);
@@ -201,9 +202,9 @@ namespace SuperSocket.Test
 
             ManualResetEvent taskEvent = new ManualResetEvent(true);
 
-            System.Threading.Tasks.Parallel.For(0, concurrencyCount - 1, i =>
+            System.Threading.Tasks.Parallel.For(0, concurrencyCount, i =>
                 {
-                    if (RunEchoMessage())
+                    if (!RunEchoMessage())
                         taskEvent.Reset();
                     semaphore.Release();
                 });
