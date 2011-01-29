@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -7,10 +8,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.SocketEngine.AsyncSocket;
-using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
@@ -30,7 +31,7 @@ namespace SuperSocket.SocketEngine
 
         private BufferManager m_BufferManager;
 
-        private SynchronizedPool<SocketAsyncEventArgsProxy> m_ReadWritePool;
+        private ConcurrentStack<SocketAsyncEventArgsProxy> m_ReadWritePool;
 
         private Semaphore m_MaxConnectionSemaphore;
 
@@ -64,10 +65,10 @@ namespace SuperSocket.SocketEngine
                     return false;
                 }
 
-                m_ReadWritePool = new SynchronizedPool<SocketAsyncEventArgsProxy>(AppServer.Config.MaxConnectionNumber);
-
                 // preallocate pool of SocketAsyncEventArgs objects
                 SocketAsyncEventArgs socketEventArg;
+
+                var socketArgsProxyList = new List<SocketAsyncEventArgsProxy>(AppServer.Config.MaxConnectionNumber);
 
                 for (int i = 0; i < AppServer.Config.MaxConnectionNumber; i++)
                 {
@@ -76,9 +77,10 @@ namespace SuperSocket.SocketEngine
                     socketEventArg.UserToken = new AsyncUserToken();
                     m_BufferManager.SetBuffer(socketEventArg);
 
-                    // add SocketAsyncEventArg to the pool
-                    m_ReadWritePool.Push(new SocketAsyncEventArgsProxy(socketEventArg));
-                }                
+                    socketArgsProxyList.Add(new SocketAsyncEventArgsProxy(socketEventArg));
+                }
+
+                m_ReadWritePool = new ConcurrentStack<SocketAsyncEventArgsProxy>(socketArgsProxyList);
 
                 if (m_ListenSocket == null)
                 {
@@ -172,16 +174,26 @@ namespace SuperSocket.SocketEngine
         {            
             if (e.SocketError == SocketError.Success)
             {
+                var curerntSocket = e.AcceptSocket;
+                m_TcpClientConnected.Set();
+
                 //Get the socket for the accepted client connection and put it into the 
                 //ReadEventArg object user token
-                var socketEventArgsProxy = m_ReadWritePool.Pop();
-                socketEventArgsProxy.Socket = e.AcceptSocket;
+                SocketAsyncEventArgsProxy socketEventArgsProxy;
+                if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
+                {
+                    AppServer.Logger.LogError("There is no enough buffer block to arrange to new accepted client!");
+                    return;
+                }
 
-                var session = RegisterSession(e.AcceptSocket, new AsyncSocketSession<TAppSession, TCommandInfo>(e.AcceptSocket, m_Protocol.CreateCommandReader(AppServer)));
-                session.SocketAsyncProxy = socketEventArgsProxy;
-                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-                m_TcpClientConnected.Set();
-                session.Start();
+                var session = RegisterSession(curerntSocket, new AsyncSocketSession<TAppSession, TCommandInfo>(curerntSocket, m_Protocol.CreateCommandReader(AppServer)));
+                
+                if (session != null)
+                {
+                    session.SocketAsyncProxy = socketEventArgsProxy;
+                    session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                    session.Start();
+                }
             }
             else
             {

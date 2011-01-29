@@ -197,25 +197,23 @@ namespace SuperSocket.Test
 
             int concurrencyCount = 64;
 
-            List<ManualResetEvent> events = new List<ManualResetEvent>();
-            Semaphore semaphore = new Semaphore(concurrencyCount, concurrencyCount * 2);
+            Semaphore semaphore = new Semaphore(0, concurrencyCount);
 
-            for (var i = 0; i < concurrencyCount - 1; i++)
-            {
-                var resetEvent = new ManualResetEvent(false);
-                events.Add(resetEvent);
-            }
+            ManualResetEvent taskEvent = new ManualResetEvent(true);
 
             System.Threading.Tasks.Parallel.For(0, concurrencyCount - 1, i =>
                 {
                     if (RunEchoMessage())
-                        events[i].Set();
+                        taskEvent.Reset();
                     semaphore.Release();
                 });
 
-            semaphore.WaitOne();
+            for (var i = 0; i < concurrencyCount; i++)
+            {
+                semaphore.WaitOne();
+            }
 
-            if (!WaitHandle.WaitAll(events.ToArray(), 1000))
+            if(!taskEvent.WaitOne(1000))
                 Assert.Fail();
         }
 

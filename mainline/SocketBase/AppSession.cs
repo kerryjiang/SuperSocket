@@ -16,6 +16,12 @@ namespace SuperSocket.SocketBase
     {
         public virtual IAppServer<TAppSession, TCommandInfo> AppServer { get; private set; }
 
+        public AppSession()
+        {
+            this.StartTime = DateTime.Now;
+            this.LastActiveTime = this.StartTime;
+        }
+
         protected virtual SocketContext CreateSocketContext()
         {
             return new SocketContext();
@@ -41,7 +47,7 @@ namespace SuperSocket.SocketBase
 
         protected virtual void OnInit()
         {
-            this.StartTime = DateTime.Now;
+            
         }
 
         public virtual void StartSession()

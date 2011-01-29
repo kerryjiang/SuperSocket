@@ -14,10 +14,11 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    interface IAsyncSocketSession
+    interface IAsyncSocketSession : IAsyncRunner
     {
         SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
         void ProcessReceive(SocketAsyncEventArgs e);
+        ILogger Logger { get; }
     }
 
     class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
@@ -28,6 +29,11 @@ namespace SuperSocket.SocketEngine
             : base(client, initialCommandReader)
         {
 
+        }
+
+        ILogger IAsyncSocketSession.Logger
+        {
+            get { return AppServer.Logger; }
         }
 
         public override void Start()

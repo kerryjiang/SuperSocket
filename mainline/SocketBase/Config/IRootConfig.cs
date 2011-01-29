@@ -11,9 +11,14 @@ namespace SuperSocket.SocketBase.Config
 
         string ConsoleBaseAddress { get; }
 
-        [Obsolete]
-        bool IndependentLogger { get; }
-
         LoggingMode LoggingMode { get; }
+
+        int MaxWorkingThreads { get; }
+
+        int MinWorkingThreads { get; }
+
+        int MaxCompletionPortThreads { get; }
+
+        int MinCompletionPortThreads { get; }
     }
 }

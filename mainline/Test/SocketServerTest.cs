@@ -28,7 +28,11 @@ namespace SuperSocket.Test
             m_Config = DefaultServerConfig;
             m_RootConfig = new RootConfig
             {
-                LoggingMode = LoggingMode.Console
+                LoggingMode = LoggingMode.Console,
+                MaxWorkingThreads = 500,
+                MaxCompletionPortThreads = 500,
+                MinWorkingThreads = 5,
+                MinCompletionPortThreads = 5
             };
         }
 
@@ -398,6 +402,7 @@ namespace SuperSocket.Test
             using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
             {
                 string welcomeString = reader.ReadLine();
+                Console.WriteLine(welcomeString);
 
                 char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
 
@@ -411,10 +416,11 @@ namespace SuperSocket.Test
                     string command = sb.ToString();
                     writer.WriteLine("ECHO " + command);
                     writer.Flush();
-                    string echoMessage = reader.ReadLine();
+                    string echoMessage = reader.ReadLine();                    
                     Assert.AreEqual(command, echoMessage);
                     if (!string.Equals(command, echoMessage))
                     {
+                        Console.WriteLine(echoMessage);
                         return false;
                     }
                     Thread.Sleep(100);
@@ -429,27 +435,26 @@ namespace SuperSocket.Test
         {
             StartServer();
 
-            int concurrencyCount = 20;
+            int concurrencyCount = 100;
 
-            List<ManualResetEvent> events = new List<ManualResetEvent>();
-            Semaphore semaphore = new Semaphore(concurrencyCount, concurrencyCount * 2);
+            Semaphore semaphore = new Semaphore(0, concurrencyCount);
 
-            for (var i = 0; i < concurrencyCount - 1; i++)
+            ManualResetEvent taskEvent = new ManualResetEvent(true);
+
+            System.Threading.Tasks.Parallel.For(0, concurrencyCount, i =>
             {
-                var resetEvent = new ManualResetEvent(false);
-                events.Add(resetEvent);
-            }
-
-            System.Threading.Tasks.Parallel.For(0, concurrencyCount - 1, i =>
-            {
-                if (RunEchoMessage())
-                    events[i].Set();
+                if (!RunEchoMessage())
+                    taskEvent.Reset();
                 semaphore.Release();
             });
 
-            semaphore.WaitOne();
+            for (var i = 0; i < concurrencyCount; i++)
+            {
+                semaphore.WaitOne();
+                Console.WriteLine("Got " + i);
+            }
 
-            if (!WaitHandle.WaitAll(events.ToArray(), 1000))
+            if (!taskEvent.WaitOne(1000))
                 Assert.Fail();
         }
 

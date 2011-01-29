@@ -19,7 +19,7 @@ namespace SuperSocket.SocketEngine
         private Socket m_ServerSocket;
 
         public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TCommandInfo> commandReader)
-            : base(null, commandReader)
+            : base(commandReader)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;

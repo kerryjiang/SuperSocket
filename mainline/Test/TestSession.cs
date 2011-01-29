@@ -17,7 +17,7 @@ namespace SuperSocket.Test
             
         }
 
-        public override void  StartSession()
+        public override void StartSession()
         {
  	         SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
         }

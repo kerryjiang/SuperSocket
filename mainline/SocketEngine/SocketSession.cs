@@ -38,14 +38,18 @@ namespace SuperSocket.SocketEngine
         protected readonly object SyncRoot = new object();
 
         public SocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
+            : this(commandReader)
         {
-            if (client != null)
-            {
-                Client = client;
-                LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
-                RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
-            }
+            if (client == null)
+                throw new ArgumentNullException("client");
 
+            Client = client;
+            LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
+            RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;            
+        }
+
+        public SocketSession(ICommandReader<TCommandInfo> commandReader)
+        {
             CommandReader = commandReader;
         }
 

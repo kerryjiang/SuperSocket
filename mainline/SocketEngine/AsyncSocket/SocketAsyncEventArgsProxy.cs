@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Net.Sockets;
+using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine.AsyncSocket
@@ -32,21 +33,14 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
             if (e.LastOperation == SocketAsyncOperation.Receive)
             {
-                socketSession.ProcessReceive(e);
+                socketSession.ExecuteAsync(w => socketSession.ProcessReceive(e),
+                    exc => socketSession.Logger.LogError(socketSession as ISessionBase, exc));
             }
             else
             {
                 throw new ArgumentException("The last operation completed on the socket was not a receive");
             }
-        }
-
-        public Socket Socket
-        {
-            set
-            {
-                ((AsyncUserToken)SocketEventArgs.UserToken).Socket = value;
-            }
-        }
+        } 
 
         public void Initialize(Socket socket, IAsyncSocketSession socketSession, SocketContext socketContext)
         {
