@@ -179,5 +179,17 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["maxCommandLength"];
             }
         }
+
+        /// <summary>
+        /// Gets the interval to taking snapshot for all live sessions.
+        /// </summary>
+        [ConfigurationProperty("sessionSnapshotInterval", IsRequired = false, DefaultValue = 5)]
+        public int SessionSnapshotInterval
+        {
+            get
+            {
+                return (int)this["sessionSnapshotInterval"];
+            }
+        }
     }
 }

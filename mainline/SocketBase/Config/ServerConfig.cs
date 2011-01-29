@@ -87,6 +87,8 @@ namespace SuperSocket.SocketBase.Config
 
         public int MaxCommandLength { get; set; }
 
+        public int SessionSnapshotInterval { get; set; }
+
         #endregion
     }
 }

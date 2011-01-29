@@ -83,5 +83,11 @@ namespace SuperSocket.SocketBase.Config
         /// The length of the max command.
         /// </value>
         int MaxCommandLength { get; }
+
+
+        /// <summary>
+        /// Gets the interval to taking snapshot for all live sessions.
+        /// </summary>
+        int SessionSnapshotInterval { get; }
     }
 }

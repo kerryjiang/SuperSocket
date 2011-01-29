@@ -17,6 +17,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
+using System.Threading.Tasks;
 
 namespace SuperSocket.SocketBase
 {
@@ -428,6 +429,8 @@ namespace SuperSocket.SocketBase
             if (!m_SocketServer.Start())
                 return false;
 
+            StartSessionSnapshotTimer();
+
             if (Config.ClearIdleSession)
                 StartClearSessionTimer();
 
@@ -555,6 +558,8 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        #region Clear idle sessions
+
         private System.Threading.Timer m_ClearIdleSessionTimer = null;
 
         private void StartClearSessionTimer()
@@ -571,7 +576,8 @@ namespace SuperSocket.SocketBase
                 {
                     DateTime now = DateTime.Now;
                     DateTime timeOut = now.AddSeconds(0 - Config.IdleSessionTimeOut);
-                    var timeOutSessions = m_SessionDict.ToArray().Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
+
+                    var timeOutSessions = m_SessionsSnapshot.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                         {
                             Logger.LogInfo(s, string.Format("The socket session has been closed for {0} timeout, last active time: {1}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.LastActiveTime));
@@ -599,6 +605,54 @@ namespace SuperSocket.SocketBase
                 return null;
         }
 
+        #endregion
+
+        #region Take session snapshot
+
+        private System.Threading.Timer m_SessionSnapshotTimer = null;
+
+        private KeyValuePair<string, TAppSession>[] m_SessionsSnapshot = new KeyValuePair<string, TAppSession>[0];
+
+        private void StartSessionSnapshotTimer()
+        {
+            int interval = Math.Max(Config.SessionSnapshotInterval, 1) * 1000;//in milliseconds
+            m_SessionSnapshotTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
+        }
+
+        private void TakeSessionSnapshot(object state)
+        {
+            if (Monitor.TryEnter(state))
+            {
+                Interlocked.Exchange(ref m_SessionsSnapshot, m_SessionDict.ToArray());
+                Monitor.Exit(state);
+            }
+        }
+
+        #endregion
+
+        #region Search session utils
+
+        /// <summary>
+        /// Gets the matched sessions from sessions snapshot.
+        /// </summary>
+        /// <param name="critera">The prediction critera.</param>
+        /// <returns></returns>
+        public IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
+        {
+            return m_SessionsSnapshot.Select(p => p.Value).Where(critera);
+        }
+
+        /// <summary>
+        /// Gets all sessions in sessions snapshot.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<TAppSession> GetAllSessions()
+        {
+            return m_SessionsSnapshot.Select(p => p.Value);
+        }
+
+        #endregion
+
         public void LogPerf()
         {
             Logger.LogPerf(string.Format("Live Connection Count: {0}", m_SessionDict.Count));
@@ -621,6 +675,13 @@ namespace SuperSocket.SocketBase
                     m_SocketServer.Stop();
                 }
 
+                if (m_SessionSnapshotTimer != null)
+                {
+                    m_SessionSnapshotTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                    m_SessionSnapshotTimer.Dispose();
+                    m_SessionSnapshotTimer = null;
+                }
+
                 if (m_ClearIdleSessionTimer != null)
                 {
                     m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -628,7 +689,22 @@ namespace SuperSocket.SocketBase
                     m_ClearIdleSessionTimer = null;
                 }
 
-                m_SessionDict.Values.ToList().ForEach(s => s.Close(CloseReason.ServerShutdown));
+                var sessions = m_SessionDict.ToArray();
+
+                if(sessions.Length > 0)
+                {
+                    var tasks = new Task[sessions.Length];
+                    
+                    for(var i = 0; i < tasks.Length; i++)
+                    {
+                        tasks[i] = Task.Factory.StartNew((s) =>
+                            {
+                                ((TAppSession)s).Close(CloseReason.ServerShutdown);
+                            }, sessions[i].Value);
+                    }
+
+                    Task.WaitAll(tasks);
+                }
 
                 CloseConsoleHost();
             }
