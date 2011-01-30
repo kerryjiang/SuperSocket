@@ -53,7 +53,7 @@ namespace SuperSocket.SocketEngine
                 if (bufferSize <= 0)
                     bufferSize = 1024 * 8;
 
-                m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber * 2, bufferSize);
+                m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber, bufferSize);
 
                 try
                 {
