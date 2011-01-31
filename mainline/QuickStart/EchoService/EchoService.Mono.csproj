@@ -81,6 +81,10 @@
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
       <Name>SocketBase.Mono</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SocketService\SocketService.Mono.csproj">
+      <Project>{B9113694-7226-4152-938D-3172B11571A1}</Project>
+      <Name>SocketService.Mono</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="SuperSocket.SocketService.exe.config">

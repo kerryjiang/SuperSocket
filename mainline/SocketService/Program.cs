@@ -11,7 +11,7 @@ using SuperSocket.SocketEngine.Configuration;
 
 namespace SuperSocket.SocketService
 {
-    static class Program
+    static partial class Program
     {
         /// <summary>
         /// The main entry point for the application.

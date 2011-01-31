@@ -92,6 +92,7 @@
     <Compile Include="SocketServiceInstaller.Designer.cs">
       <DependentUpon>SocketServiceInstaller.cs</DependentUpon>
     </Compile>
+    <Compile Include="Program.Mono.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
