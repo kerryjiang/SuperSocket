@@ -12,12 +12,13 @@ using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.ConnectionFilter;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
-using System.Threading.Tasks;
 
 namespace SuperSocket.SocketBase
 {
@@ -62,6 +63,8 @@ namespace SuperSocket.SocketBase
         public ILogger Logger { get; private set; }
 
         private static bool m_ThreadPoolConfigured = false;
+		
+		private List<IConnectionFilter> m_ConnectionFilters;
 
         public AppServer()
         {
@@ -356,6 +359,12 @@ namespace SuperSocket.SocketBase
                 return false;
             }
         }
+		
+		private bool SetupConnectionFilters(IServerConfig config)
+		{
+			m_ConnectionFilters = new List<IConnectionFilter>();
+			return true;
+		}
 
         protected ProviderBase<TAppSession> GetProviderByName(string providerName)
         {
@@ -509,9 +518,27 @@ namespace SuperSocket.SocketBase
         }
 
         private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-
+		
+		private bool ExecuteConnectionFilters(IPEndPoint remoteAddress)
+		{
+			for(var i = 0; i < m_ConnectionFilters.Count; i++)
+			{
+				var currentFilter = m_ConnectionFilters[i];
+				if(!currentFilter.AllowConnect(remoteAddress))
+				{
+					Logger.LogInfo(string.Format("A connection from {0} has been refused by filter {1}!", remoteAddress, currentFilter.Name));
+					return false;	
+				}
+			}
+			
+			return true;
+		}		
+		
         public TAppSession CreateAppSession(ISocketSession socketSession)
         {
+			if(!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
+				return default(TAppSession);
+				
             TAppSession appSession = new TAppSession();
             appSession.Initialize(this, socketSession);
             socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);

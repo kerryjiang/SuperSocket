@@ -44,6 +44,7 @@
   <ItemGroup>
     <Compile Include="AppServer.cs" />
     <Compile Include="AppSession.cs" />
+    <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="CommandHandler.cs" />
     <Compile Include="Command\BinaryCommandInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
@@ -63,6 +64,9 @@
     <Compile Include="Config\IServiceConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
+    <Compile Include="ConnectionFilter\BlackListConnectionFilter.cs" />
+    <Compile Include="ConnectionFilter\IConnectionFilter.cs" />
+    <Compile Include="ConnectionFilter\WhiteListConnectionFilter.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
     <Compile Include="GlobalAssemblyInfo.cs" />
     <Compile Include="IAppServer.cs" />

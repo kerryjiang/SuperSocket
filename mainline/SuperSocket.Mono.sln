@@ -51,6 +51,35 @@ Global
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = SocketService\SocketService.Mono.csproj
+		Policies = $0
+		$0.TextStylePolicy = $1
+		$1.inheritsSet = null
+		$1.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $2
+		$2.BeforeMethodCallParentheses = False
+		$2.BeforeMethodDeclarationParentheses = False
+		$2.BeforeConstructorDeclarationParentheses = False
+		$2.BeforeDelegateDeclarationParentheses = False
+		$2.NewParentheses = False
+		$2.inheritsSet = Mono
+		$2.inheritsScope = text/x-csharp
+		$2.scope = text/x-csharp
+		$0.TextStylePolicy = $3
+		$3.FileWidth = 120
+		$3.TabWidth = 4
+		$3.inheritsSet = Mono
+		$3.inheritsScope = text/plain
+		$3.scope = text/plain
+		$0.TextStylePolicy = $4
+		$4.inheritsSet = null
+		$4.scope = application/xml
+		$0.XmlFormattingPolicy = $5
+		$5.inheritsSet = Mono
+		$5.inheritsScope = application/xml
+		$5.scope = application/xml
+		$0.StandardHeader = $6
+		$6.Text = 
+		$6.inheritsSet = Apache2License
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
