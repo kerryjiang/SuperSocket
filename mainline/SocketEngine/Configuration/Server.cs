@@ -1,21 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Security.Authentication;
 using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using System.Security.Authentication;
+using System.Collections.Specialized;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
-    public class Server : ConfigurationElement, IServerConfig
+    public class Server : ConfigurationElementBase, IServerConfig
     {
-        [ConfigurationProperty("name", IsRequired = true)]
-        public string Name
-        {
-            get { return this["name"] as string; }
-        }
-
         [ConfigurationProperty("serviceName", IsRequired = true)]
         public string ServiceName
         {
@@ -56,12 +52,6 @@ namespace SuperSocket.SocketEngine.Configuration
         public bool EnableManagementService
         {
             get { return (bool)this["enableManagementService"]; }
-        }
-
-        [ConfigurationProperty("parameters")]
-        public NameValueConfigurationCollection Parameters
-        {
-            get { return (NameValueConfigurationCollection)this["parameters"]; }
         }
 
         [ConfigurationProperty("provider", IsRequired = false)]
@@ -190,6 +180,28 @@ namespace SuperSocket.SocketEngine.Configuration
             {
                 return (int)this["sessionSnapshotInterval"];
             }
+        }
+        
+        [ConfigurationProperty("connectionFilters", IsRequired = false)]
+        public string ConnectionFilters
+        {
+            get
+            {
+                return (string)this["connectionFilters"];
+            }
+        }
+        
+        public NameValueCollection Options { get; private set; }
+        
+        protected override bool OnDeserializeUnrecognizedAttribute (string name, string value)
+        {
+            if(Options == null)
+            {
+                Options = new NameValueCollection();
+            }
+            
+            Options.Add(name, value);
+            return true;
         }
     }
 }

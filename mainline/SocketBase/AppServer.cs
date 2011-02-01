@@ -52,8 +52,6 @@ namespace SuperSocket.SocketBase
 
         private Dictionary<string, ICommand<TAppSession, TCommandInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TCommandInfo>>(StringComparer.OrdinalIgnoreCase);
 
-        private Dictionary<string, ProviderBase<TAppSession>> m_ProviderDict = new Dictionary<string, ProviderBase<TAppSession>>(StringComparer.OrdinalIgnoreCase);
-
         private ISocketServerFactory m_SocketServerFactory;
 
         public SslProtocols BasicSecurity { get; private set; }
@@ -78,7 +76,6 @@ namespace SuperSocket.SocketBase
             foreach (var command in commandLoader.LoadCommands())
             {
                 Logger.LogDebug(string.Format("Command found: {0} - {1}", command.Name, command.GetType().AssemblyQualifiedName));
-                //command.DefaultParameterParser = CommandParameterParser;
                 if (commandDict.ContainsKey(command.Name))
                 {
                     Logger.LogError("Duplicated name command has been found! Command name: " + command.Name);
@@ -150,20 +147,10 @@ namespace SuperSocket.SocketBase
 
         public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
-            return Setup(rootConfig, config, socketServerFactory, null, string.Empty);
+            return Setup(rootConfig, config, socketServerFactory, null);
         }
 
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol)
-        {
-            return Setup(rootConfig, config, socketServerFactory, protocol, string.Empty);
-        }
-
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, string providerAssembly)
-        {
-            return Setup(rootConfig, config, socketServerFactory, null, providerAssembly);
-        }
-
-        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol, string assembly)
+        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -204,12 +191,6 @@ namespace SuperSocket.SocketBase
 
             if (!SetupCommands(m_CommandDict))
                 return false;
-
-            if (!string.IsNullOrEmpty(assembly))
-            {
-                if (!SetupServiceProviders(config, assembly))
-                    return false;
-            }
 
             if (!SetupSecurity(config))
                 return false;
@@ -359,66 +340,7 @@ namespace SuperSocket.SocketBase
                 return false;
             }
         }
-		
-		private bool SetupConnectionFilters(IServerConfig config)
-		{
-			m_ConnectionFilters = new List<IConnectionFilter>();
-			return true;
-		}
 
-        protected ProviderBase<TAppSession> GetProviderByName(string providerName)
-        {
-            ProviderBase<TAppSession> provider = null;
-
-            if (m_ProviderDict.TryGetValue(providerName, out provider))
-            {
-                return provider;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        private bool SetupServiceProviders(IServerConfig config, string assembly)
-        {
-            string dir = Path.GetDirectoryName(this.GetType().Assembly.Location);
-
-            string assemblyFile = Path.Combine(dir, assembly + ".dll");
-
-            try
-            {
-                Assembly ass = Assembly.LoadFrom(assemblyFile);
-
-                foreach (var providerType in ass.GetImplementTypes<ProviderBase<TAppSession>>())
-                {
-                    ProviderBase<TAppSession> provider = ass.CreateInstance(providerType.ToString()) as ProviderBase<TAppSession>;
-
-                    if (provider.Init(this, config))
-                    {
-                        m_ProviderDict[provider.Name] = provider;
-                    }
-                    else
-                    {
-                        Logger.LogError("Failed to initalize provider " + providerType.ToString() + "!");
-                        return false;
-                    }
-                }
-
-                if (!IsReady)
-                {
-                    Logger.LogError("Failed to load service provider from assembly:" + assemblyFile);
-                    return false;
-                }
-
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e);
-                return false;
-            }
-        }
 
         public string Name
         {
@@ -518,27 +440,42 @@ namespace SuperSocket.SocketBase
         }
 
         private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-		
-		private bool ExecuteConnectionFilters(IPEndPoint remoteAddress)
-		{
-			for(var i = 0; i < m_ConnectionFilters.Count; i++)
-			{
-				var currentFilter = m_ConnectionFilters[i];
-				if(!currentFilter.AllowConnect(remoteAddress))
-				{
-					Logger.LogInfo(string.Format("A connection from {0} has been refused by filter {1}!", remoteAddress, currentFilter.Name));
-					return false;	
-				}
-			}
-			
-			return true;
-		}		
-		
+
+        public IEnumerable<IConnectionFilter> ConnectionFilters
+        {
+            get { return m_ConnectionFilters; }
+            set
+            {
+                if(m_ConnectionFilters == null)
+                    m_ConnectionFilters = new List<IConnectionFilter>();
+                
+                m_ConnectionFilters.AddRange(value);
+            }
+        }
+        
+        private bool ExecuteConnectionFilters(IPEndPoint remoteAddress)
+        {
+            if(m_ConnectionFilters == null)
+                return true;
+            
+            for(var i = 0; i < m_ConnectionFilters.Count; i++)
+            {
+                var currentFilter = m_ConnectionFilters[i];
+                if(!currentFilter.AllowConnect(remoteAddress))
+                {
+                    Logger.LogInfo(string.Format("A connection from {0} has been refused by filter {1}!", remoteAddress, currentFilter.Name));
+                    return false;	
+                }
+            }
+            
+            return true;
+        }
+        
         public TAppSession CreateAppSession(ISocketSession socketSession)
         {
-			if(!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
-				return default(TAppSession);
-				
+            if(!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
+                return default(TAppSession);
+
             TAppSession appSession = new TAppSession();
             appSession.Initialize(this, socketSession);
             socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);

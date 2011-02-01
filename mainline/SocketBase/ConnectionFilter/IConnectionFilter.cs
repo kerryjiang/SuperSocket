@@ -1,13 +1,18 @@
 using System;
+using System.Collections.Specialized;
+using System.Configuration.Provider;
 using System.Net;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.ConnectionFilter
 {
-	public interface IConnectionFilter
-	{
-		string Name { get; }
-		
-		bool AllowConnect(IPEndPoint remoteAddress);
-	}
+    public interface IConnectionFilter
+    {
+        bool Initialize(string name, NameValueCollection options);
+        
+        string Name { get; }
+
+        bool AllowConnect(IPEndPoint remoteAddress);
+    }
 }
 

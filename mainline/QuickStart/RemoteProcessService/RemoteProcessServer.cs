@@ -57,19 +57,19 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 
         public void StartFroze()
         {
-            int interval = this.Config.Parameters.GetValue("MonitorInterval", "1").ToInt32();
+            int interval = this.Config.Options.GetValue("MonitorInterval", "1").ToInt32();
             TimeSpan intervalTimeSpan = new TimeSpan(0, interval, 0);
             m_MonitorTimer.Change(intervalTimeSpan, intervalTimeSpan);
         }
 
         private Timer m_MonitorTimer;
 
-        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<StringCommandInfo> protocol, string assembly)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<StringCommandInfo> protocol)
         {
-            if (!base.Setup(rootConfig, config, socketServerFactory, protocol, assembly))
+            if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
                 return false;
 
-            int interval = config.Parameters.GetValue("MonitorInterval", "1").ToInt32();
+            int interval = config.Options.GetValue("MonitorInterval", "1").ToInt32();
             TimeSpan intervalTimeSpan = new TimeSpan(0, interval, 0);
             m_MonitorTimer = new Timer(new TimerCallback(OnMonitorTimerCallback), new object(), intervalTimeSpan, intervalTimeSpan);
 

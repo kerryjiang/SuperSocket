@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.Linq;
 using System.Security.Authentication;
+using System.Text;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -27,7 +28,7 @@ namespace SuperSocket.SocketBase.Config
 
         public int Port { get; set; }
 
-        public NameValueConfigurationCollection Parameters { get; set; }
+        public NameValueCollection Options { get; set; }
 
         public string Provider { get; set; }
 
@@ -88,6 +89,8 @@ namespace SuperSocket.SocketBase.Config
         public int MaxCommandLength { get; set; }
 
         public int SessionSnapshotInterval { get; set; }
+        
+        public string ConnectionFilters { get; set; }
 
         #endregion
     }

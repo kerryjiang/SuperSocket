@@ -9,7 +9,6 @@ namespace SuperSocket.SocketEngine.Configuration
 {
     public class SocketServiceConfig : ConfigurationSection, IConfig
     {
-
         [ConfigurationProperty("servers")]
         public ServerCollection Servers
         {
@@ -25,6 +24,15 @@ namespace SuperSocket.SocketEngine.Configuration
             get
             {
                 return this["services"] as ServiceCollection;
+            }
+        }
+        
+        [ConfigurationProperty("connectionFilters", IsRequired = false)]
+        public ConnectionFilterConfigCollection ConnectionFilters
+        {
+            get
+            {
+                return this["connectionFilters"] as ConnectionFilterConfigCollection;
             }
         }
 
@@ -90,38 +98,38 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["minCompletionPortThreads"];
             }
         }
-
-        #region IConfig Members
-
-        public List<IServerConfig> GetServerList()
+        
+        #region IConfig implementation
+        
+        IEnumerable<IServerConfig> IConfig.Servers
         {
-            List<IServerConfig> serverList = new List<IServerConfig>();
-
-            foreach (Server server in Servers)
+            get
             {
-                serverList.Add(server);
+                return this.Servers;
             }
-
-            return serverList;
         }
 
-        public List<IServiceConfig> GetServiceList()
+        IEnumerable<IServiceConfig> IConfig.Services
         {
-            List<IServiceConfig> serviceList = new List<IServiceConfig>();
-
-            foreach (Service service in Services)
+            get
             {
-                serviceList.Add(service);
+                return this.Services;
             }
-
-            return serviceList;
         }
-
-        public ICredentialConfig CredentialConfig
+        
+        IEnumerable<IConnectionFilterConfig> IConfig.ConnectionFilters
         {
-            get { return Credential; }
+            get
+            {
+                return this.ConnectionFilters;
+            }
         }
-
+        
+        ICredentialConfig IRootConfig.CredentialConfig
+        {
+            get { return this.Credential; }
+        }
+        
         #endregion
     }
 }

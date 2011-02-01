@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
 using System.Security.Authentication;
+using System.Collections.Specialized;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -16,7 +17,7 @@ namespace SuperSocket.SocketBase.Config
 
         int Port { get; }
 
-        NameValueConfigurationCollection Parameters { get; }
+        NameValueCollection Options { get; }
 
         string Provider { get; }
 
@@ -89,5 +90,13 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the interval to taking snapshot for all live sessions.
         /// </summary>
         int SessionSnapshotInterval { get; }
+        
+        /// <summary>
+        /// Gets the connection filters used by this server instance.
+        /// </summary>
+        /// <value>
+        /// The connection filters's name list, seperated by comma
+        /// </value>
+        string ConnectionFilters { get; }
     }
 }

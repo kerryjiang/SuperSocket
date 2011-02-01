@@ -6,8 +6,10 @@ namespace SuperSocket.SocketBase.Config
 {
     public interface IConfig : IRootConfig
     {
-        List<IServerConfig> GetServerList();
+        IEnumerable<IServerConfig> Servers { get; }
 
-        List<IServiceConfig> GetServiceList();
+        IEnumerable<IServiceConfig> Services { get; }
+        
+        IEnumerable<IConnectionFilterConfig> ConnectionFilters { get; }
     }
 }

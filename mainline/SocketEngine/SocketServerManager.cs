@@ -13,6 +13,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.ConnectionFilter;
 
 namespace SuperSocket.SocketEngine
 {
@@ -21,6 +22,8 @@ namespace SuperSocket.SocketEngine
         private static List<IAppServer> m_ServerList = new List<IAppServer>();
 
         private static Dictionary<string, Type> m_ServiceDict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        
+        private static Dictionary<string, IConnectionFilter> m_ConnectionFilterDict = new Dictionary<string, IConnectionFilter>(StringComparer.OrdinalIgnoreCase);
 
         private static IConfig m_Config;
 
@@ -34,26 +37,59 @@ namespace SuperSocket.SocketEngine
             m_Config = config;
 
             //Initialize services
-            List<IServiceConfig> serviceList = config.GetServiceList();
-
-            Type serviceType;
-
-            foreach (var service in serviceList)
+            foreach (var service in config.Services)
             {
                 if (service.Disabled)
                     continue;
+                
+                Type serviceType;
 
                 if (!AssemblyUtil.TryGetType(service.Type, out serviceType))
                 {
-                    LogUtil.LogError("Failed to initialize service " + service.ServiceName + "!");
+                    LogUtil.LogError("Failed to initialize service " + service.Name + "!");
                     return false;
                 }
 
-                m_ServiceDict[service.ServiceName] = serviceType;
+                m_ServiceDict[service.Name] = serviceType;
+            }
+            
+            //Initialize connection filter
+            foreach (var filter in config.ConnectionFilters)
+            {
+                
+                Type filterType;
+
+                if (!AssemblyUtil.TryGetType(filter.Type, out filterType))
+                {
+                    LogUtil.LogError("Failed to initialize connection filter " + filter.Name + "!");
+                    return false;
+                }
+                
+                IConnectionFilter filterInstance;
+                
+                try
+                {
+                    filterInstance = (IConnectionFilter)Activator.CreateInstance(filterType);
+                    if(filterInstance == null)
+                        throw new Exception(filterType.ToString());
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError("Failed to create connection filter instance!", e);
+                    return false;
+                }
+                
+                if(!filterInstance.Initialize(filter.Name, filter.Options))
+                {
+                    LogUtil.LogError(string.Format("Failed to initialize filter instance {0}!", filter.Name));
+                    return false;
+                }
+                
+                m_ConnectionFilterDict[filter.Name] = filterInstance;
             }
 
             //Initialize servers
-            foreach (var serverConfig in config.GetServerList())
+            foreach (var serverConfig in config.Servers)
             {
                 if (!InitializeServer(serverConfig))
                 {
@@ -100,10 +136,33 @@ namespace SuperSocket.SocketEngine
                 return false;
             }
 
-            if (!server.Setup(m_Config, serverConfig, SocketServerFactory.Instance, GetServiceProvider(serverConfig.ServiceName, serverConfig.Provider)))
+            if (!server.Setup(m_Config, serverConfig, SocketServerFactory.Instance))
             {
                 LogUtil.LogError("Failed to setup server instance!");
                 return false;
+            }
+            
+            if(!string.IsNullOrEmpty(serverConfig.ConnectionFilters))
+            {
+                var filters = serverConfig.ConnectionFilters.Split(new char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                
+                if(filters != null && filters.Length > 0)
+                {
+                    var filterInstances = new List<IConnectionFilter>(filters.Length);
+                    
+                    foreach(var f in filters)
+                    {
+                        IConnectionFilter currentFilter;
+                        if(!m_ConnectionFilterDict.TryGetValue(f, out currentFilter))
+                        {
+                            LogUtil.LogError(string.Format("Failed to find a connection filter '{0}'!", f)); 
+                            return false;
+                        }
+                        filterInstances.Add(currentFilter);
+                    }
+                    
+                    server.ConnectionFilters = filterInstances;
+                }
             }
 
             m_ServerList.Add(server);
@@ -145,9 +204,9 @@ namespace SuperSocket.SocketEngine
 
         public static IServiceConfig GetServiceConfig(string name)
         {
-            foreach (var config in m_Config.GetServiceList())
+            foreach (var config in m_Config.Services)
             {
-                if (string.Compare(config.ServiceName, name, true) == 0)
+                if (string.Compare(config.Name, name, true) == 0)
                 {
                     return config;
                 }
@@ -155,55 +214,10 @@ namespace SuperSocket.SocketEngine
             return null;
         }
 
-        public static string GetServiceProvider(string service, string provider)
-        {
-            IServiceConfig config = GetServiceConfig(service);
-
-            if (config == null)
-                return string.Empty;
-
-            NameValueConfigurationElement element = config.Providers[provider];
-
-            if (element == null)
-                return string.Empty;
-            else
-                return element.Value;
-        }
 
         public static IAppServer GetServerByName(string name)
         {
             return m_ServerList.SingleOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
-
-        //public static ServiceCredentials GetServiceCredentials(ICredentialConfig config)
-        //{
-        //    ServiceCredentials credential = new ServiceCredentials();
-
-        //    try
-        //    {
-        //        credential.UserNameAuthentication.UserNamePasswordValidationMode = UserNamePasswordValidationMode.Custom;
-        //        credential.UserNameAuthentication.CachedLogonTokenLifetime = TimeSpan.FromHours(1);
-        //        credential.UserNameAuthentication.CacheLogonTokens = true;
-        //        credential.UserNameAuthentication.CustomUserNamePasswordValidator = new SocketManagerPasswordValidator(config);
-        //        credential.ServiceCertificate.SetCertificate(StoreLocation.LocalMachine, StoreName.My, X509FindType.FindBySubjectName, "GiantSocketServer");
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        //X509Store store = new X509Store(StoreName.My, StoreLocation.LocalMachine);
-        //        //store.Open(OpenFlags.ReadWrite);
-        //        //LogUtil.LogInfo("All certificates count:" + store.Certificates.Count);
-        //        //X509Certificate2Collection certs = store.Certificates.Find(X509FindType.FindBySubjectName, "localhost", false);
-        //        //LogUtil.LogInfo("Certificates count:" + certs.Count);
-        //        //if (certs != null && certs.Count > 1)
-        //        //{
-        //        //    store.Remove(certs[0]);
-        //        //    store.Close();
-        //        //}
-        //        LogUtil.LogError(e);
-        //        credential = null;
-        //    }
-
-        //    return credential;
-        //}
     }
 }

@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SuperSocket.SocketBase.Config;
-using System.Security.Cryptography.X509Certificates;
-using SuperSocket.SocketBase.Command;
-using System.ServiceModel.Description;
-using SuperSocket.Common;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
+using System.ServiceModel.Description;
+using System.Text;
+using SuperSocket.Common;
+using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.ConnectionFilter;
 
 namespace SuperSocket.SocketBase
 {
@@ -30,6 +31,14 @@ namespace SuperSocket.SocketBase
         /// The server credentials.
         /// </value>
         ServiceCredentials ServerCredentials { get; set; }
+        
+        /// <summary>
+        /// Gets or sets the server's connection filter
+        /// </summary>
+        /// <value>
+        /// The server's connection filters
+        /// </value>
+        IEnumerable<IConnectionFilter> ConnectionFilters{ get; set; }
 
         /// <summary>
         /// Setups the specified root config.
@@ -37,9 +46,8 @@ namespace SuperSocket.SocketBase
         /// <param name="rootConfig">The SuperSocket root config.</param>
         /// <param name="config">The socket server instance config.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <param name="assembly">The service provider assembly.</param>
         /// <returns></returns>
-        bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, string providerAssembly);
+        bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory);
 
         /// <summary>
         /// Starts this server instance.

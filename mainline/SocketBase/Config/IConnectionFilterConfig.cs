@@ -1,19 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Configuration;
-using System.Text;
+using System.Collections.Specialized;
 
 namespace SuperSocket.SocketBase.Config
 {
-    public interface IServiceConfig
+    public interface IConnectionFilterConfig
     {
         string Name { get; }
 
         string Type { get; }
 
         NameValueCollection Options { get; }
-
-        bool Disabled { get; }
     }
 }
+

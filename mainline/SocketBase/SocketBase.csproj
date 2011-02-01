@@ -58,6 +58,7 @@
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IConfig.cs" />
+    <Compile Include="Config\IConnectionFilterConfig.cs" />
     <Compile Include="Config\ICredentialConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />

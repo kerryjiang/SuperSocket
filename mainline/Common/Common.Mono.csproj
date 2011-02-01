@@ -94,6 +94,8 @@
     <Compile Include="Log4NetLogger.cs" />
     <Compile Include="LoggerBase.cs" />
     <Compile Include="TheadPoolEx.cs" />
+    <Compile Include="GenericConfigurationElementCollection.cs" />
+    <Compile Include="ConfigurationElementBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
