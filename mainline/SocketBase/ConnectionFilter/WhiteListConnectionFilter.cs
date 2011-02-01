@@ -5,24 +5,12 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.ConnectionFilter
 {
-    public sealed class WhiteListConnectionFilter : IConnectionFilter
+    public sealed class WhiteListConnectionFilter : TextFileSourceFilter
     {
-        #region IConnectionFilter implementation
-        
-        public bool Initialize(string name, NameValueCollection options)
+        public override bool AllowConnect(IPEndPoint remoteAddress)
         {
-            Name = name;
-            return true;
+            return Contains(remoteAddress.Address.ToString());
         }
-
-        public bool AllowConnect(IPEndPoint remoteAddress)
-        {
-            throw new NotImplementedException();
-        }
-
-        public string Name { get; private set; }
-        
-        #endregion
     }
 }
 
