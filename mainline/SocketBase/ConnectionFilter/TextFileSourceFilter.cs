@@ -14,7 +14,7 @@ namespace SuperSocket.SocketBase.ConnectionFilter
         private FileSystemWatcher m_FileSourceWatcher;
         private string m_FullFilePath;
         private HashSet<string> m_IpLibrary = new HashSet<string>();
-        private DateTime m_LastUpdatedTime = DateTime.MinValue;
+        private long m_LastUpdatedTicks = 0;
         
         #region IConnectionFilter implementation
         
@@ -55,10 +55,10 @@ namespace SuperSocket.SocketBase.ConnectionFilter
             return true;
         }
         
-        bool IsFileChanged(string filePath, out DateTime lastModifiedTime)
+        bool IsFileChanged(string filePath, out long lastModifiedTimeTicks)
         {
-            lastModifiedTime = File.GetLastWriteTime(filePath);
-            return lastModifiedTime > m_LastUpdatedTime;
+            lastModifiedTimeTicks = File.GetLastWriteTime(filePath).Ticks;
+            return lastModifiedTimeTicks > m_LastUpdatedTicks;
         }
 
         void HandleFileSourceWatcherChanged(object sender, FileSystemEventArgs e)
@@ -66,11 +66,11 @@ namespace SuperSocket.SocketBase.ConnectionFilter
             if(!m_FullFilePath.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase))
                 return;
             
-            DateTime lastModifiedTime;
-            if(!IsFileChanged(e.FullPath, out lastModifiedTime))
+            long lastModifiedTimeTicks;
+            if(!IsFileChanged(e.FullPath, out lastModifiedTimeTicks))
                 return;
             
-            this.ExecuteAsync(w => ProcessUpdatedFile(e.FullPath, lastModifiedTime));
+            this.ExecuteAsync(w => ProcessUpdatedFile(e.FullPath, lastModifiedTimeTicks));
         }
 
         void HandleFileSourceWatcherCreated(object sender, FileSystemEventArgs e)
@@ -78,14 +78,14 @@ namespace SuperSocket.SocketBase.ConnectionFilter
             if(!m_FullFilePath.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase))
                 return;
             
-            DateTime lastModifiedTime;
-            if(!IsFileChanged(e.FullPath, out lastModifiedTime))
+            long lastModifiedTimeTicks;
+            if(!IsFileChanged(e.FullPath, out lastModifiedTimeTicks))
                 return;
             
-            this.ExecuteAsync(w => ProcessUpdatedFile(e.FullPath, lastModifiedTime));
+            this.ExecuteAsync(w => ProcessUpdatedFile(e.FullPath, lastModifiedTimeTicks));
         }
         
-        void ProcessUpdatedFile(string filePath, DateTime lastModifiedTime)
+        void ProcessUpdatedFile(string filePath, long lastModifiedTimeTicks)
         {
             using(StreamReader reader = new StreamReader(filePath, Encoding.UTF8, true))
             {
@@ -99,7 +99,7 @@ namespace SuperSocket.SocketBase.ConnectionFilter
                 }
                 
                 Interlocked.Exchange(ref m_IpLibrary, newIpLibrary);
-                m_LastUpdatedTime = lastModifiedTime;
+                Interlocked.Exchange(ref m_LastUpdatedTicks, lastModifiedTimeTicks);
             }
         }
 
