@@ -61,13 +61,16 @@ namespace SuperSocket.SocketBase
         public ILogger Logger { get; private set; }
 
         private static bool m_ThreadPoolConfigured = false;
-		
-		private List<IConnectionFilter> m_ConnectionFilters;
+
+        private List<IConnectionFilter> m_ConnectionFilters;
+
+        private Dictionary<string, List<CommandFilterAttribute>> m_CommandFilterDict;
 
         public AppServer()
         {
             
-        } 
+        }
+        
 
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
         {
@@ -84,8 +87,15 @@ namespace SuperSocket.SocketBase
 
                 commandDict.Add(command.Name, command);
             }
+            
+            SetupCommandFilters(commandDict.Values);
 
             return true;
+        }
+        
+        private void SetupCommandFilters(IEnumerable<ICommand> commands)
+        {
+            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands);
         }
 
         private ServiceHost CreateConsoleHost(ConsoleHostInfo consoleInfo)
@@ -404,6 +414,22 @@ namespace SuperSocket.SocketBase
             add { m_CommandHandler += value; }
             remove { m_CommandHandler -= value; }
         }
+        
+        private void ExecuteCommandFilters(List<CommandFilterAttribute> filters, TAppSession session, ICommand command, Action<CommandFilterAttribute, TAppSession, ICommand> filterAction)
+        {
+            if(filters == null || filters.Count <= 0)
+                return;
+            
+            for(var i = 0; i < filters.Count; i++)
+            {
+                var filter = filters[i];
+                if(filter.IsAsync)
+                    this.ExecuteAsync(w => filterAction(filter, session, command),
+                                      x => Logger.LogError(session, x));
+                else
+                    filterAction(filter, session, command);
+            }
+        }
 
         public virtual void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
         {
@@ -413,8 +439,19 @@ namespace SuperSocket.SocketBase
 
                 if (command != null)
                 {
+                    List<CommandFilterAttribute> commandFilters;
+                    m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
+                        
                     session.Context.CurrentCommand = commandInfo.Key;
+                    
+                    ExecuteCommandFilters(commandFilters, session, command,
+                                          (f, s, c) => f.OnCommandExecuting(s, c));
+                    
                     command.ExecuteCommand(session, commandInfo);
+                    
+                    ExecuteCommandFilters(commandFilters, session, command,
+                                          (f, s, c) => f.OnCommandExecuted(s, c));
+                    
                     session.Context.PrevCommand = commandInfo.Key;
 
                     if (Config.LogCommand)

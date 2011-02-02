@@ -19,9 +19,9 @@ namespace SuperSocket.SocketBase
 
         public bool IsAsync { get; private set; }
 
-        protected internal abstract void OnCommandExecuting(IAppSession session, ICommand command);
+        public abstract void OnCommandExecuting(IAppSession session, ICommand command);
 
-        protected internal abstract void OnCommandExecuted(IAppSession session, ICommand command);
+        public abstract void OnCommandExecuted(IAppSession session, ICommand command);
     }
 }
 

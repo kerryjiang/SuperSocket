@@ -55,6 +55,7 @@
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="Command\StringCommandInfo.cs" />
+    <Compile Include="CommanFilterFactory.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IConfig.cs" />
