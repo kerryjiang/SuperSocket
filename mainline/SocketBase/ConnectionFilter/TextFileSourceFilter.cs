@@ -12,6 +12,7 @@ namespace SuperSocket.SocketBase.ConnectionFilter
     public abstract class TextFileSourceFilter : IConnectionFilter, IAsyncRunner
     {
         private FileSystemWatcher m_FileSourceWatcher;
+        private string m_FullFilePath;
         private HashSet<string> m_IpLibrary = new HashSet<string>();
         private DateTime m_LastUpdatedTime = DateTime.MinValue;
         
@@ -35,7 +36,9 @@ namespace SuperSocket.SocketBase.ConnectionFilter
             
             try
             {
-                m_FileSourceWatcher = new FileSystemWatcher(filePath);
+                m_FullFilePath = Path.GetFullPath(filePath);
+                var parentDir = Path.GetDirectoryName(m_FullFilePath);
+                m_FileSourceWatcher = new FileSystemWatcher(parentDir);
             }
             catch(Exception e)
             {
@@ -60,6 +63,9 @@ namespace SuperSocket.SocketBase.ConnectionFilter
 
         void HandleFileSourceWatcherChanged(object sender, FileSystemEventArgs e)
         {
+            if(!m_FullFilePath.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase))
+                return;
+            
             DateTime lastModifiedTime;
             if(!IsFileChanged(e.FullPath, out lastModifiedTime))
                 return;
@@ -69,6 +75,9 @@ namespace SuperSocket.SocketBase.ConnectionFilter
 
         void HandleFileSourceWatcherCreated(object sender, FileSystemEventArgs e)
         {
+            if(!m_FullFilePath.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase))
+                return;
+            
             DateTime lastModifiedTime;
             if(!IsFileChanged(e.FullPath, out lastModifiedTime))
                 return;
