@@ -67,6 +67,7 @@
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="ConnectionFilter\BlackListConnectionFilter.cs" />
     <Compile Include="ConnectionFilter\IConnectionFilter.cs" />
+    <Compile Include="ConnectionFilter\TextFileSourceFilter.cs" />
     <Compile Include="ConnectionFilter\WhiteListConnectionFilter.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
     <Compile Include="GlobalAssemblyInfo.cs" />
