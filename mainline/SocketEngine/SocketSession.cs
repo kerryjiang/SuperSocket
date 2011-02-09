@@ -219,37 +219,11 @@ namespace SuperSocket.SocketEngine
                 if (Client == null && m_IsClosed)
                     return;
 
-                try
-                {
-                    if (Client != null)
-                        Client.Shutdown(SocketShutdown.Both);
-                }
-                catch (ObjectDisposedException)
-                {
-                }
-                catch (Exception e)
-                {
-                    AppServer.Logger.LogError(e);
-                }
+                Client.SafeCloseClientSocket(AppServer.Logger);
 
-                try
-                {
-                    if (Client != null)
-                        Client.Close();
-                }
-                catch (ObjectDisposedException)
-                {
-                }
-                catch (Exception e)
-                {
-                    AppServer.Logger.LogError(e);
-                }
-                finally
-                {
-                    Client = null;
-                    m_IsClosed = true;
-                    OnClose(reason);
-                }
+                Client = null;
+                m_IsClosed = true;
+                OnClose(reason);
             }
         }
 

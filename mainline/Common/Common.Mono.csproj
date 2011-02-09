@@ -96,6 +96,7 @@
     <Compile Include="TheadPoolEx.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="ConfigurationElementBase.cs" />
+    <Compile Include="SocketEx.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
