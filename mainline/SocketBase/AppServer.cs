@@ -92,10 +92,10 @@ namespace SuperSocket.SocketBase
 
             return true;
         }
-        
-        private void SetupCommandFilters(IEnumerable<ICommand> commands)
+
+        private void SetupCommandFilters(IEnumerable<ICommand<TAppSession, TCommandInfo>> commands)
         {
-            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands);
+            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
         }
 
         private ServiceHost CreateConsoleHost(ConsoleHostInfo consoleInfo)
