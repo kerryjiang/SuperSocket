@@ -48,6 +48,7 @@
   <ItemGroup>
     <Compile Include="AppServer.cs" />
     <Compile Include="AppSession.cs" />
+    <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="CommandHandler.cs" />
     <Compile Include="Command\BinaryCommandInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
@@ -58,15 +59,21 @@
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="Command\StringCommandInfo.cs" />
+    <Compile Include="CommanFilterFactory.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IConfig.cs" />
+    <Compile Include="Config\IConnectionFilterConfig.cs" />
     <Compile Include="Config\ICredentialConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
+    <Compile Include="ConnectionFilter\BlackListConnectionFilter.cs" />
+    <Compile Include="ConnectionFilter\IConnectionFilter.cs" />
+    <Compile Include="ConnectionFilter\TextFileSourceFilter.cs" />
+    <Compile Include="ConnectionFilter\WhiteListConnectionFilter.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
     <Compile Include="GlobalAssemblyInfo.cs" />
     <Compile Include="IAppServer.cs" />
