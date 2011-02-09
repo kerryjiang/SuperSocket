@@ -142,7 +142,10 @@ namespace SuperSocket.SocketEngine
                 }
 
                 if (session == null)
+                {
+                    this.ExecuteAsync(w => client.SafeCloseClientSocket(AppServer.Logger));
                     continue;
+                }
 
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
 

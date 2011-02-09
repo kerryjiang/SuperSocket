@@ -174,7 +174,7 @@ namespace SuperSocket.SocketEngine
         {            
             if (e.SocketError == SocketError.Success)
             {
-                var curerntSocket = e.AcceptSocket;
+                var client = e.AcceptSocket;
                 m_TcpClientConnected.Set();
 
                 //Get the socket for the accepted client connection and put it into the 
@@ -186,13 +186,17 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                var session = RegisterSession(curerntSocket, new AsyncSocketSession<TAppSession, TCommandInfo>(curerntSocket, m_Protocol.CreateCommandReader(AppServer)));
+                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TCommandInfo>(client, m_Protocol.CreateCommandReader(AppServer)));
                 
                 if (session != null)
                 {
                     session.SocketAsyncProxy = socketEventArgsProxy;
                     session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                     session.Start();
+                }
+                else
+                {
+                    this.ExecuteAsync(w => client.SafeCloseClientSocket(AppServer.Logger));
                 }
             }
             else
