@@ -148,10 +148,8 @@ namespace SuperSocket.SocketEngine
                 }
 
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-
-                Thread thUser = new Thread(session.Start);
-                thUser.IsBackground = true;
-                thUser.Start();
+    
+                this.ExecuteAsync(w => session.Start());
             }
 
             IsRunning = false;
