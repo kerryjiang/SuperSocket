@@ -14,7 +14,7 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    interface IAsyncSocketSession : IAsyncRunner
+    interface IAsyncSocketSession
     {
         SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
         void ProcessReceive(SocketAsyncEventArgs e);

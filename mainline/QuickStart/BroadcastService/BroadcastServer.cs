@@ -9,7 +9,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.BroadcastService
 {
-    public class BroadcastServer : AppServer<BroadcastSession>, IAsyncRunner
+    public class BroadcastServer : AppServer<BroadcastSession>
     {
         private Dictionary<string, List<string>> broadcastDict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         private object broadcastSyncRoot = new object();
@@ -77,7 +77,7 @@ namespace SuperSocket.QuickStart.BroadcastService
                 }
             }
 
-            this.ExecuteAsync(w =>
+            Async.Run(() =>
                 {
                     sessions.ForEach(s => s.SendResponse(message));
                 });

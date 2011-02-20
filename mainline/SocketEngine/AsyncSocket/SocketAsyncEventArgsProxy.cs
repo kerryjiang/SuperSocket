@@ -33,7 +33,7 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
             if (e.LastOperation == SocketAsyncOperation.Receive)
             {
-                socketSession.ExecuteAsync(w => socketSession.ProcessReceive(e),
+                Async.Run(() => socketSession.ProcessReceive(e),
                     exc => socketSession.Logger.LogError(socketSession as ISessionBase, exc));
             }
             else

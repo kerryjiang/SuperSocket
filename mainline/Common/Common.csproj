@@ -73,6 +73,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssemblyUtil.cs" />
+    <Compile Include="Async.cs" />
     <Compile Include="BinaryUtil.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -84,7 +85,6 @@
     <Compile Include="DynamicLog4NetLogger.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="GlobalResourceManager.cs" />
-    <Compile Include="IAsyncRunner.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Log4NetLogger.cs" />
     <Compile Include="LoggerBase.cs" />

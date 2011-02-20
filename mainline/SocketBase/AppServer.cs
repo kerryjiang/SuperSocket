@@ -32,7 +32,7 @@ namespace SuperSocket.SocketBase
         }
     }
 
-    public abstract class AppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession, TCommandInfo>, IAsyncRunner
+    public abstract class AppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession, TCommandInfo>
         where TCommandInfo : ICommandInfo
         where TAppSession : IAppSession<TAppSession, TCommandInfo>, new()
     {
@@ -424,7 +424,7 @@ namespace SuperSocket.SocketBase
             {
                 var filter = filters[i];
                 if(filter.IsAsync)
-                    this.ExecuteAsync(w => filterAction(filter, session, command),
+                    Async.Run(() => filterAction(filter, session, command),
                                       x => Logger.LogError(session, x));
                 else
                     filterAction(filter, session, command);
@@ -548,7 +548,7 @@ namespace SuperSocket.SocketBase
             if (m_SessionDict.TryRemove(identityKey, out removedSession))
             {
                 Logger.LogInfo(removedSession, "This session was closed!");
-                this.ExecuteAsync(w => OnAppSessionClosed(this, new AppSessionClosedEventArgs<TAppSession>(removedSession, e.Reason)),
+                Async.Run(() => OnAppSessionClosed(this, new AppSessionClosedEventArgs<TAppSession>(removedSession, e.Reason)),
                     exc => Logger.LogError(exc));
             }
             else

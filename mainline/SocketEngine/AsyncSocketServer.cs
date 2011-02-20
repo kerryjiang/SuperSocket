@@ -15,7 +15,7 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncSocketServer<TAppSession, TCommandInfo> : TcpSocketServerBase<AsyncSocketSession<TAppSession, TCommandInfo>, TAppSession>, IAsyncRunner
+    class AsyncSocketServer<TAppSession, TCommandInfo> : TcpSocketServerBase<AsyncSocketSession<TAppSession, TCommandInfo>, TAppSession>
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
@@ -196,7 +196,7 @@ namespace SuperSocket.SocketEngine
                 }
                 else
                 {
-                    this.ExecuteAsync(w => client.SafeCloseClientSocket(AppServer.Logger));
+                    Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
                 }
             }
             else

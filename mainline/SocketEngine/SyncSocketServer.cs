@@ -13,6 +13,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase;
+using System.Threading.Tasks;
 
 
 namespace SuperSocket.SocketEngine
@@ -143,13 +144,14 @@ namespace SuperSocket.SocketEngine
 
                 if (session == null)
                 {
-                    this.ExecuteAsync(w => client.SafeCloseClientSocket(AppServer.Logger));
+                    Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
                     continue;
                 }
 
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-    
-                this.ExecuteAsync(w => session.Start());
+                
+                //Start run session asynchronous
+                Async.Run(() => session.Start(), TaskCreationOptions.LongRunning, (x) => AppServer.Logger.LogError(session, x));
             }
 
             IsRunning = false;

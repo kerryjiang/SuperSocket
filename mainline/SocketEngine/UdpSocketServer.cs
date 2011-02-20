@@ -13,7 +13,7 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketServer<TAppSession, TCommandInfo> : SocketServerBase<UdpSocketSession<TAppSession, TCommandInfo>, TAppSession>, IAsyncRunner
+    class UdpSocketServer<TAppSession, TCommandInfo> : SocketServerBase<UdpSocketSession<TAppSession, TCommandInfo>, TAppSession>
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
@@ -149,7 +149,7 @@ namespace SuperSocket.SocketEngine
                 }
 
                 if (!willRaiseEvent)
-                    this.ExecuteAsync(w => OnSocketReceived(socketAsyncEventArgs), AppServer.Logger);
+                    Async.Run(() => OnSocketReceived(socketAsyncEventArgs), (x) => AppServer.Logger.LogError(x));
 
                 m_UdpClientConnected.WaitOne();
             }
@@ -195,12 +195,12 @@ namespace SuperSocket.SocketEngine
                 Interlocked.Increment(ref m_LiveConnectionCount);
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 session.Start();
-                this.ExecuteAsync(w => session.ProcessData(receivedData), AppServer.Logger);
+                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
             }
             else //Existing session
             {
                 var session = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
-                this.ExecuteAsync(w => session.ProcessData(receivedData), AppServer.Logger);
+                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
             }
         }
 

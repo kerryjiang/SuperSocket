@@ -9,7 +9,7 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.ConnectionFilter
 {
-    public abstract class TextFileSourceFilter : IConnectionFilter, IAsyncRunner
+    public abstract class TextFileSourceFilter : IConnectionFilter
     {
         private FileSystemWatcher m_FileSourceWatcher;
         private string m_FullFilePath;
@@ -69,8 +69,8 @@ namespace SuperSocket.SocketBase.ConnectionFilter
             long lastModifiedTimeTicks;
             if(!IsFileChanged(e.FullPath, out lastModifiedTimeTicks))
                 return;
-            
-            this.ExecuteAsync(w => ProcessUpdatedFile(e.FullPath, lastModifiedTimeTicks));
+
+            Async.Run(() => ProcessUpdatedFile(e.FullPath, lastModifiedTimeTicks));
         }
 
         void HandleFileSourceWatcherCreated(object sender, FileSystemEventArgs e)
@@ -81,8 +81,8 @@ namespace SuperSocket.SocketBase.ConnectionFilter
             long lastModifiedTimeTicks;
             if(!IsFileChanged(e.FullPath, out lastModifiedTimeTicks))
                 return;
-            
-            this.ExecuteAsync(w => ProcessUpdatedFile(e.FullPath, lastModifiedTimeTicks));
+
+            Async.Run(() => ProcessUpdatedFile(e.FullPath, lastModifiedTimeTicks));
         }
         
         void ProcessUpdatedFile(string filePath, long lastModifiedTimeTicks)

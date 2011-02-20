@@ -64,6 +64,10 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Threading, Version=1.0.2787.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Reference\System.Threading.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -74,6 +78,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssemblyUtil.cs" />
+    <Compile Include="Async.cs" />
     <Compile Include="BinaryUtil.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -83,7 +88,6 @@
     <Compile Include="DynamicLog4NetLogger.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="GlobalResourceManager.cs" />
-    <Compile Include="IAsyncRunner.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="Log4NetLogger.cs" />
     <Compile Include="LoggerBase.cs" />

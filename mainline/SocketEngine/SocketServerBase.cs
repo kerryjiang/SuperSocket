@@ -14,7 +14,7 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IAsyncRunner, IDisposable
+    abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IDisposable
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>
     {
