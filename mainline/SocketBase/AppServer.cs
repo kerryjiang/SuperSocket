@@ -531,6 +531,9 @@ namespace SuperSocket.SocketBase
 
         public TAppSession GetAppSessionByIndentityKey(string identityKey)
         {
+            if(string.IsNullOrEmpty(identityKey))
+                return default(TAppSession);
+
             TAppSession targetSession;
             m_SessionDict.TryGetValue(identityKey, out targetSession);
             return targetSession;
