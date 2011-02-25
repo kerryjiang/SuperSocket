@@ -49,6 +49,7 @@
     <Compile Include="SocksProtocol.cs" />
     <Compile Include="SocksServer.cs" />
     <Compile Include="SocksSession.cs" />
+    <Compile Include="SocksSocketContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Common.csproj">

@@ -30,6 +30,8 @@ namespace SuperSocket.QuickStart.SocksServer
                 if (m_SocksVersion != 4)
                     return null;
 
+                ((SocksSocketContext)context).SocksVersion = m_SocksVersion;
+ 
                 return ProcessDataNotStartDetectMark(readBuffer, offset, length, isReusableBuffer);
             }
             else
