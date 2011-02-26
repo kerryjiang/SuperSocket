@@ -77,6 +77,12 @@ namespace SuperSocket.QuickStart.SocksServer
 
             if (e.LastOperation == SocketAsyncOperation.Receive)
             {
+                if (e.BytesTransferred <= 0)
+                {
+                    Close(CloseReason.ServerClosing);
+                    return;
+                }
+
                 SendResponse(e.Buffer.CloneRange(e.Offset, e.BytesTransferred));
             }
         }
