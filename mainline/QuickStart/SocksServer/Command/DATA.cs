@@ -10,7 +10,7 @@ namespace SuperSocket.QuickStart.SocksServer.Command
     {
         public override void ExecuteCommand(SocksSession session, BinaryCommandInfo commandInfo)
         {
-            throw new NotImplementedException();
+            session.SendDataToTargetSocket(commandInfo.Data);
         }
     }
 }

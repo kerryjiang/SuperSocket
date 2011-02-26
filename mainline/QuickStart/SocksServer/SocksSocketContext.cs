@@ -9,5 +9,7 @@ namespace SuperSocket.QuickStart.SocksServer
     public class SocksSocketContext : SocketContext
     {
         public int SocksVersion { get; set; }
+        public int CommandCode { get; set; }
+        public string UserID { get; set; }
     }
 }
