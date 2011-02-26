@@ -35,16 +35,36 @@ namespace SuperSocket.QuickStart.SocksServer
 
         private Socket m_TargetSocket;
 
-        public SocketAsyncEventArgs SocketEventArgs { get; private set; }
+        private SocketAsyncEventArgs m_SocketEventArgs;
 
         internal void ConnectTargetSocket(IPEndPoint remoteEndPoint)
         {
             m_TargetSocket = new Socket(remoteEndPoint.AddressFamily, m_TargetSocket.SocketType, ProtocolType.Tcp);
             m_TargetSocket.Connect(remoteEndPoint);
-            SocketEventArgs = AppServer.GetSocketAsyncEventArgs();
-            if (SocketEventArgs == null)
+            m_SocketEventArgs = AppServer.GetSocketAsyncEventArgs();
+            if (m_SocketEventArgs == null)
                 throw new Exception("There is no free SocketAsyncEventArgs!");
-            SocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(socketAsyncEventArgs_Completed);
+            m_SocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(socketAsyncEventArgs_Completed);
+            SocketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(SocketSession_Closed);
+        }
+
+        void SocketSession_Closed(object sender, SocketSessionClosedEventArgs e)
+        {
+            if (m_TargetSocket != null)
+            {
+                try
+                {
+                    m_TargetSocket.Shutdown(SocketShutdown.Both);
+                    m_TargetSocket.Close();
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+
+            if (m_SocketEventArgs != null)
+                AppServer.ReleaseSocketAsyncEventArgs(m_SocketEventArgs);
         }
 
         void socketAsyncEventArgs_Completed(object sender, SocketAsyncEventArgs e)
@@ -63,7 +83,14 @@ namespace SuperSocket.QuickStart.SocksServer
 
         internal void SendDataToTargetSocket(byte[] data)
         {
-            m_TargetSocket.Send(data);
+            try
+            {
+                m_TargetSocket.Send(data);
+            }
+            catch (Exception)
+            {
+                Close(CloseReason.SocketError);
+            }
         }
     }
 }

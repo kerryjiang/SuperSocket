@@ -69,11 +69,9 @@ namespace SuperSocket.QuickStart.SocksServer
                 return null;
         }
 
-        protected override void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<SocksSession> e)
+        internal void ReleaseSocketAsyncEventArgs(SocketAsyncEventArgs e)
         {
-            base.OnAppSessionClosed(sender, e);
-            if (e.Session.SocketEventArgs != null)
-                m_SocketAsyncPool.Push(e.Session.SocketEventArgs);
+            m_SocketAsyncPool.Push(e);
         }
     }
 }
