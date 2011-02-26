@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Net.Sockets;
 
-namespace SuperSocket.SocketEngine
+namespace SuperSocket.Common
 {
     /// <summary>
     /// This class creates a single large buffer which can be divided up and assigned to SocketAsyncEventArgs objects for use
@@ -11,7 +11,7 @@ namespace SuperSocket.SocketEngine
     /// 
     /// The operations exposed on the BufferManager class are not thread safe.
     /// </summary>
-    class BufferManager
+    public class BufferManager
     {
         int m_numBytes;                 // the total number of bytes controlled by the buffer pool
         byte[] m_buffer;                // the underlying byte array maintained by the Buffer Manager

@@ -70,7 +70,11 @@ namespace SuperSocket.SocketBase
         {
             
         }
-        
+
+        protected AppServer(ICustomProtocol<TCommandInfo> protocol)
+        {
+            this.Protocol = protocol;
+        }   
 
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
         {

@@ -90,9 +90,6 @@
     <Compile Include="Protocol\ICommandParserProtocol.cs" />
     <Compile Include="Protocol\ICommandReader.cs" />
     <Compile Include="Protocol\ICustomProtocol.cs" />
-    <Compile Include="Protocol\SocketProtocolBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Protocol\TerminatorCommandReader.cs" />
     <Compile Include="ProviderBase.cs" />
     <Compile Include="Security\Certificate.cs" />

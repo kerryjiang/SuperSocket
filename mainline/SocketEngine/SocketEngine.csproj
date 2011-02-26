@@ -84,9 +84,6 @@
     <Compile Include="AsyncSocket\AsyncUserToken.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AsyncSocket\BufferManager.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs">
       <SubType>Code</SubType>
     </Compile>

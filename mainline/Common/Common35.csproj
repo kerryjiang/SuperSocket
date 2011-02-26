@@ -82,6 +82,7 @@
     <Compile Include="BinaryUtil.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="BufferManager.cs" />
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="ConfigurationExtension.cs" />
     <Compile Include="ConsoleLogger.cs" />
