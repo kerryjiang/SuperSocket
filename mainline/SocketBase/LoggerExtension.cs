@@ -8,7 +8,7 @@ namespace SuperSocket.SocketBase
 {
     public static class LoggerExtension
     {
-        private readonly static string m_SessionInfoTemplate = "SessionID: {0}, SessionKey: {1}, RemoteEndPoint: {2}";
+        private readonly static string m_SessionInfoTemplate = "Session:{0}-{1}-{2}";
 
         public static void LogError(this ILogger logger, ISessionBase session, Exception e)
         {
