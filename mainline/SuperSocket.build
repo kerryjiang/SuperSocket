@@ -22,12 +22,22 @@
 	</target>
 	
 	<target name="build40">
+		<property name="buildConfiguration" value="Debug" />
+		<exec program="${msbuild.exe}"
+			commandline="SuperSocket.2010.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\${buildConfiguration}"
+			failonerror="true" verbose="false" />
+		<property name="buildConfiguration" value="Release" />
 		<exec program="${msbuild.exe}"
 			commandline="SuperSocket.2010.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\${buildConfiguration}"
 			failonerror="true" verbose="false" />
 	</target>
 	
 	<target name="build35">
+		<property name="buildConfiguration" value="Debug" />
+		<exec program="${msbuild.exe}"
+			commandline="SuperSocket.2010.NET35.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\${buildConfiguration}"
+			failonerror="true" verbose="false" />
+		<property name="buildConfiguration" value="Release" />
 		<exec program="${msbuild.exe}"
 			commandline="SuperSocket.2010.NET35.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\${buildConfiguration}"
 			failonerror="true" verbose="false" />
