@@ -44,7 +44,7 @@
 	
 	<target name="buildDebug35">
 		<property name="buildConfiguration" value="Debug" />
-		<property name="net.version" value="Net40" />
+		<property name="net.version" value="Net35" />
 		<property name="project.file" value="SocketEngine\SocketEngine35.csproj" />
 		<call target="buildProject"/>
 	</target>
