@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<project name="ICPriceSocket.build" default="ICPriceSocket.build" xmlns="http://nant.sf.net/schemas/nant.xsd">
+<project name="SuperSocket" default="buildDebug40" xmlns="http://nant.sf.net/schemas/nant.xsd">
 	<property name="working.dir" value="${project::get-base-directory()}" />
 	<property name="build.dir" value="${project::get-base-directory()}\build" />
 	<property name="output.dir" value="${project::get-base-directory()}\..\..\Publish\SuperSocket" />
@@ -8,10 +8,17 @@
 	<property name="framework.version" value="v4.0.30319"/>
 	<property name="msbuild.exe" value="${framework.dir}\${framework.version}\msbuild.exe"/>
 	<property name="aspnet.compiler.exe" value="${framework.dir}\${framework.version}\aspnet_compiler.exe"/>
-	<property name="program.files" value="${environment::get-variable('ProgramFiles')}"/>
-	<echo message="program.files:${program.files}" />
+	<property name="program.files" value="D:"/>
 	<property name="svn.exe" value="${program.files}\SlikSvn\bin\svn.exe" unless="${property::exists('svn.exe')}" />
 	<property name="buildConfiguration" value="Debug" />
+	
+	<target name="getHeadRevision" description="Get Head Revision">
+		<exec program="${svn.exe}" commandline="info -r HEAD" output="rootinfo.txt" />
+		<foreach item="Line" in="rootinfo.txt" property="infoline">
+			<property name="head.revision" value="${string::substring(infoline,10,string::get-length(infoline) - 10)}"
+				if="${string::starts-with(infoline,'Revision: ')}" />
+		</foreach>
+	</target>
 
 	<target name="clean" description="Delete Automated Build artifacts">
 		<delete>
@@ -23,8 +30,9 @@
 	
 	<target name="buildProject">
 		<call target="clean"/>
+		<call target="getHeadRevision"/>
 		<exec program="${msbuild.exe}"
-			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${net.version}\${buildConfiguration}"
+			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${head.revision}\${net.version}\${buildConfiguration}"
 			failonerror="true" verbose="false" />
 	</target>
 	
