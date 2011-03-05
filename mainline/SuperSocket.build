@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<project name="ICPriceSocket.build" default="ICPriceSocket.build" xmlns="http://nant.sf.net/schemas/nant.xsd">
+	<property name="working.dir" value="${project::get-base-directory()}" />
+	<property name="build.dir" value="${project::get-base-directory()}\build" />
+	<property name="output.dir" value="${project::get-base-directory()}\..\..\SuperSocket" />
+	<property name="web.dir" value="${working.dir}\web" />
+	<property name="framework.dir" value="${environment::get-variable('windir')}\Microsoft.Net\Framework"/>
+	<property name="framework.version" value="v4.0.30319"/>
+	<property name="msbuild.exe" value="${framework.dir}\${framework.version}\msbuild.exe"/>
+	<property name="aspnet.compiler.exe" value="${framework.dir}\${framework.version}\aspnet_compiler.exe"/>
+	<property name="program.files" value="${environment::get-variable('ProgramFiles')}"/>
+	<echo message="program.files:${program.files}" />
+	<property name="svn.exe" value="${program.files}\SlikSvn\bin\svn.exe" unless="${property::exists('svn.exe')}" />
+	<property name="buildConfiguration" value="Debug" />
+
+	<target name="clean" description="Delete Automated Build artifacts">
+		<delete>
+			<fileset>
+				<include name="**/bin/**" />
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="build40">
+		<exec program="${msbuild.exe}"
+			commandline="SuperSocket.2010.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\${buildConfiguration}"
+			failonerror="true" verbose="false" />
+	</target>
+	
+	<target name="build35">
+		<exec program="${msbuild.exe}"
+			commandline="SuperSocket.2010.NET35.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\${buildConfiguration}"
+			failonerror="true" verbose="false" />
+	</target>
+	
+	<target name="deploy" description="deploy build">
+
+	</target>
+</project>
+
