@@ -2,7 +2,7 @@
 <project name="ICPriceSocket.build" default="ICPriceSocket.build" xmlns="http://nant.sf.net/schemas/nant.xsd">
 	<property name="working.dir" value="${project::get-base-directory()}" />
 	<property name="build.dir" value="${project::get-base-directory()}\build" />
-	<property name="output.dir" value="${project::get-base-directory()}\..\..\SuperSocket" />
+	<property name="output.dir" value="${project::get-base-directory()}\..\..\Publish\SuperSocket" />
 	<property name="web.dir" value="${working.dir}\web" />
 	<property name="framework.dir" value="${environment::get-variable('windir')}\Microsoft.Net\Framework"/>
 	<property name="framework.version" value="v4.0.30319"/>
