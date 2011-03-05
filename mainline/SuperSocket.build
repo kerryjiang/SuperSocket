@@ -21,26 +21,40 @@
 		</delete>
 	</target>
 	
-	<target name="build">
-		<property name="buildConfiguration" value="Debug" />
-		<exec program="${msbuild.exe}"
-			commandline="SuperSocket.2010.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\Net40\${buildConfiguration}"
-			failonerror="true" verbose="false" />
+	<target name="buildProject">
 		<call target="clean"/>
-		<property name="buildConfiguration" value="Release" />
 		<exec program="${msbuild.exe}"
-			commandline="SuperSocket.2010.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\Net40\${buildConfiguration}"
-			failonerror="true" verbose="false" />
-		<call target="clean"/>
-		<property name="buildConfiguration" value="Debug" />
-		<exec program="${msbuild.exe}"
-			commandline="SuperSocket.2010.NET35.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\Net35\${buildConfiguration}"
-			failonerror="true" verbose="false" />
-		<call target="clean"/>
-		<property name="buildConfiguration" value="Release" />
-		<exec program="${msbuild.exe}"
-			commandline="SuperSocket.2010.NET35.sln /p:Configuration=${buildConfiguration} /p:OutputPath=${output.dir}\Net35\${buildConfiguration}"
+			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${net.version}\${buildConfiguration}"
 			failonerror="true" verbose="false" />
 	</target>
+	
+	<target name="buildDebug40">
+		<property name="buildConfiguration" value="Debug" />
+		<property name="net.version" value="Net40" />
+		<property name="project.file" value="SocketEngine\SocketEngine.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildRelease40">
+		<property name="buildConfiguration" value="Release" />
+		<property name="net.version" value="Net40" />
+		<property name="project.file" value="SocketEngine\SocketEngine.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildDebug35">
+		<property name="buildConfiguration" value="Debug" />
+		<property name="net.version" value="Net40" />
+		<property name="project.file" value="SocketEngine\SocketEngine35.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildRelease35">
+		<property name="buildConfiguration" value="Release" />
+		<property name="net.version" value="Net35" />
+		<property name="project.file" value="SocketEngine\SocketEngine35.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
 </project>
 
