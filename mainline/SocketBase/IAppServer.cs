@@ -64,11 +64,12 @@ namespace SuperSocket.SocketBase
         /// Gets the server's config.
         /// </summary>
         IServerConfig Config { get; }
-
+        
         /// <summary>
-        /// Logs the current performance.
+        /// Collects the performance data.
         /// </summary>
-        void LogPerf();
+        /// <returns></returns>
+        PerformanceData CollectPerformanceData();
     }
 
     public interface IAppServer<TAppSession> : IAppServer

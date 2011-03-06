@@ -72,6 +72,8 @@ namespace SuperSocket.SocketBase
 
         private Dictionary<string, List<CommandFilterAttribute>> m_CommandFilterDict;
 
+        private long m_TotalHandledCommands = 0;
+
         public AppServer()
         {
             
@@ -484,6 +486,8 @@ namespace SuperSocket.SocketBase
                 if (Config.LogCommand)
                     Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
             }
+
+            Interlocked.Increment(ref m_TotalHandledCommands);
         }
 
         private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
@@ -678,9 +682,15 @@ namespace SuperSocket.SocketBase
 
         #endregion
 
-        public void LogPerf()
+        private PerformanceData m_PerformanceData = new PerformanceData();
+
+        public PerformanceData CollectPerformanceData()
         {
-            Logger.LogPerf(string.Format("Live Connection Count: {0}", m_SessionDict.Count));
+            return m_PerformanceData.PushRecord(new PerformanceRecord
+                {
+                    TotalConnections = m_SessionDict.Count,
+                    TotalHandledCommands = m_TotalHandledCommands
+                });
         }
 
         #region IDisposable Members

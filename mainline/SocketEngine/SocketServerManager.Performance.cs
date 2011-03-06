@@ -28,7 +28,14 @@ namespace SuperSocket.SocketEngine
             int availableWorkingThreads, availableCompletionPortThreads;
             ThreadPool.GetAvailableThreads(out availableWorkingThreads, out availableCompletionPortThreads);
             LogUtil.LogPerf(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", availableWorkingThreads, availableCompletionPortThreads));
-            m_ServerList.ForEach(s => s.LogPerf());
+            m_ServerList.ForEach(s =>
+                {
+                    var perfData = s.CollectPerformanceData();
+                    s.Logger.LogPerf(string.Format("Total connections: {0}, total handled commands: {1}, command handling speed: {2}/s",
+                        perfData.CurrentRecord.TotalConnections,
+                        perfData.CurrentRecord.TotalHandledCommands,
+                        (perfData.CurrentRecord.TotalHandledCommands - perfData.PreviousRecord.TotalHandledCommands) / perfData.CurrentRecord.RecordSpan));
+                });
         }
 
         private static void OnCpuUsageTimerCallback(object state)
