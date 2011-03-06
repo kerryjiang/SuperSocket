@@ -26,9 +26,15 @@ namespace SuperSocket.SocketBase
         where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
     {
         public AppServer()
-            : base()
+            : base(new CommandLineProtocol())
         {
-            Protocol = new CommandLineProtocol();
+
+        }
+
+        public AppServer(ICustomProtocol<StringCommandInfo> protocol)
+            : base(protocol)
+        {
+
         }
     }
 
@@ -44,7 +50,7 @@ namespace SuperSocket.SocketBase
 
         public virtual X509Certificate Certificate { get; protected set; }
 
-        public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
+        public virtual ICustomProtocol<TCommandInfo> Protocol { get; private set; }
 
         private string m_ConsoleBaseAddress;
 

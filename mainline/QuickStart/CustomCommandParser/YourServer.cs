@@ -9,9 +9,10 @@ namespace SuperSocket.QuickStart.CustomCommandParser
 {
     public class YourServer : AppServer<YourSession>
     {
-        public YourServer() : base()
+        public YourServer()
+            : base(new CommandLineProtocol(new CustomCommandParser()))
         {
-            Protocol = new CommandLineProtocol(new CustomCommandParser());
+ 
         }
     }
 }

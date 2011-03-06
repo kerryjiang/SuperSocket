@@ -17,9 +17,9 @@ namespace SuperSocket.Test
         }
 
         public TestServer(ICommandParser commandParser)
-            : this()
+            : base(new CommandLineProtocol(commandParser))
         {
-            this.Protocol = new CommandLineProtocol(commandParser);
+            
         }
     }
 }

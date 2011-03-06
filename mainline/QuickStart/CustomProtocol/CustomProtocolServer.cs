@@ -17,9 +17,9 @@ namespace SuperSocket.QuickStart.CustomProtocol
     class CustomProtocolServer : AppServer<CustomProtocolSession, BinaryCommandInfo>
     {
         public CustomProtocolServer()
-            : base()
+            : base(new MyCustomProtocol())
         {
-            Protocol = new MyCustomProtocol();
+
         }
     }
 }
