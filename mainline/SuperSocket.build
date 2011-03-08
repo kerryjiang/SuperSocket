@@ -72,6 +72,7 @@
 				<exclude name="**/bin/**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/rootinfo.txt" />
+				<exclude name="**/*.build" />
 			</fileset>
 		</zip>
 	</target>
