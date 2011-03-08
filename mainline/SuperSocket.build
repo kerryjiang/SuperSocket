@@ -64,5 +64,17 @@
 		<call target="buildProject"/>
 	</target>
 	
+	<target name="createReleasePackage">
+		<zip zipfile="${output.dir}\${head.revision}\SuperSocket.zip">
+			<fileset>
+				<include name="**/*" />
+				<exclude name="**/obj/*" />
+				<exclude name="**/bin/*" />
+				<exclude name="**/.svn/*" />
+				<exclude name="**/rootinfo.txt" />
+			</fileset>
+		</zip>
+	</target>
+	
 </project>
 
