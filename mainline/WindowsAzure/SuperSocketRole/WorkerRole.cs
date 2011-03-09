@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
@@ -9,9 +10,8 @@ using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.StorageClient;
 using SuperSocket.Common;
-using System.Configuration;
-using SuperSocket.SocketEngine.Configuration;
 using SuperSocket.SocketEngine;
+using SuperSocket.SocketEngine.Configuration;
 
 namespace SuperSocket.SuperSocketRole
 {
