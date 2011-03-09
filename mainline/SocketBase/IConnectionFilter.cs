@@ -4,7 +4,7 @@ using System.Configuration.Provider;
 using System.Net;
 using SuperSocket.SocketBase.Config;
 
-namespace SuperSocket.SocketBase.ConnectionFilter
+namespace SuperSocket.SocketBase
 {
     public interface IConnectionFilter
     {
