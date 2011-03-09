@@ -8,24 +8,24 @@ namespace SuperSocket.Common
 {
     public static class Async
     {
-        public static void Run(Action task)
+        public static Task Run(Action task)
         {
-            Run(task, TaskCreationOptions.None);
+            return Run(task, TaskCreationOptions.None);
         }
 
-        public static void Run(Action task, TaskCreationOptions taskOption)
+        public static Task Run(Action task, TaskCreationOptions taskOption)
         {
-            Run(task, taskOption, null);
+            return Run(task, taskOption, null);
         }
 
-        public static void Run(Action task, Action<Exception> exceptionHandler)
+        public static Task Run(Action task, Action<Exception> exceptionHandler)
         {
-            Run(task, TaskCreationOptions.None, exceptionHandler);
+            return Run(task, TaskCreationOptions.None, exceptionHandler);
         }
 
-        public static void Run(Action task, TaskCreationOptions taskOption, Action<Exception> exceptionHandler)
+        public static Task Run(Action task, TaskCreationOptions taskOption, Action<Exception> exceptionHandler)
         {
-            Task.Factory.StartNew(task, taskOption).ContinueWith(t =>
+            return Task.Factory.StartNew(task, taskOption).ContinueWith(t =>
                 {
                     if (exceptionHandler != null)
                         exceptionHandler(t.Exception);
