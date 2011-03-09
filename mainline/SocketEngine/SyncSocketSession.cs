@@ -37,7 +37,7 @@ namespace SuperSocket.SocketEngine
             if (IsClosed)
                 return;
         
-            Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            //Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
             m_ReadBuffer = new byte[Client.ReceiveBufferSize];
 

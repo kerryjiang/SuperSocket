@@ -38,7 +38,7 @@ namespace SuperSocket.SocketEngine
 
         public override void Start()
         {
-            Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            //Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             SocketAsyncProxy.Initialize(Client, this, AppSession.Context);
             StartSession();
             StartReceive(SocketAsyncProxy.SocketEventArgs);
