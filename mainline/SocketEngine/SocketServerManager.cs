@@ -13,7 +13,6 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketBase.ConnectionFilter;
 
 namespace SuperSocket.SocketEngine
 {

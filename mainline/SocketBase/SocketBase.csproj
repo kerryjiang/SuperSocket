@@ -66,15 +66,12 @@
     <Compile Include="Config\IServiceConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
-    <Compile Include="ConnectionFilter\BlackListConnectionFilter.cs" />
-    <Compile Include="ConnectionFilter\IConnectionFilter.cs" />
-    <Compile Include="ConnectionFilter\TextFileSourceFilter.cs" />
-    <Compile Include="ConnectionFilter\WhiteListConnectionFilter.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
     <Compile Include="GlobalAssemblyInfo.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />
+    <Compile Include="IConnectionFilter.cs" />
     <Compile Include="ISessionBase.cs" />
     <Compile Include="ISocketServer.cs" />
     <Compile Include="ISocketServerFactory.cs" />

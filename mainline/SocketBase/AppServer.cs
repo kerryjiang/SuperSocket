@@ -16,7 +16,6 @@ using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.ConnectionFilter;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
 

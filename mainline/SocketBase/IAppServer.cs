@@ -8,7 +8,6 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.ConnectionFilter;
 
 namespace SuperSocket.SocketBase
 {
