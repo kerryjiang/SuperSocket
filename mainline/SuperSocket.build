@@ -30,7 +30,6 @@
 	
 	<target name="buildProject">
 		<call target="clean"/>
-		<call target="getHeadRevision"/>
 		<exec program="${msbuild.exe}"
 			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${head.revision}\${net.version}\${buildConfiguration}"
 			failonerror="true" verbose="false" />
