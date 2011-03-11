@@ -98,5 +98,17 @@ namespace SuperSocket.SocketBase.Config
         /// The connection filters's name list, seperated by comma
         /// </value>
         string ConnectionFilters { get; }
+
+
+        /// <summary>
+        /// Gets the start keep alive time, in seconds
+        /// </summary>
+        int KeepAliveTime { get; }
+
+
+        /// <summary>
+        /// Gets the keep alive interval, in seconds.
+        /// </summary>
+        int KeepAliveInterval { get; }
     }
 }

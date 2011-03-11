@@ -190,10 +190,34 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (string)this["connectionFilters"];
             }
         }
+
+        /// <summary>
+        /// Gets the start keep alive time, in seconds
+        /// </summary>
+        [ConfigurationProperty("keepAliveTime", IsRequired = false, DefaultValue = 600)]
+        public int KeepAliveTime
+        {
+            get
+            {
+                return (int)this["keepAliveTime"];
+            }
+        }
+
+        /// <summary>
+        /// Gets the keep alive interval, in seconds.
+        /// </summary>
+        [ConfigurationProperty("keepAliveInterval", IsRequired = false, DefaultValue = 60)]
+        public int KeepAliveInterval
+        {
+            get
+            {
+                return (int)this["keepAliveInterval"];
+            }
+        }
         
         public NameValueCollection Options { get; private set; }
         
-        protected override bool OnDeserializeUnrecognizedAttribute (string name, string value)
+        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
         {
             if(Options == null)
             {

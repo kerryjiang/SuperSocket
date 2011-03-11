@@ -16,6 +16,8 @@ namespace SuperSocket.SocketBase.Config
 			MaxConnectionNumber = 100;
 			Mode = SocketMode.Async;
             MaxCommandLength = 1024;
+            KeepAliveTime = 10 * 60;// 10 minutes
+            KeepAliveInterval = 60;// 60 seconds
         }
 
         #region IServerConfig Members
@@ -91,6 +93,16 @@ namespace SuperSocket.SocketBase.Config
         public int SessionSnapshotInterval { get; set; }
         
         public string ConnectionFilters { get; set; }
+
+        /// <summary>
+        /// Gets the start keep alive time, in seconds
+        /// </summary>
+        public int KeepAliveTime { get; set; }
+
+        /// <summary>
+        /// Gets the keep alive interval, in seconds.
+        /// </summary>
+        public int KeepAliveInterval { get; set; }
 
         #endregion
     }

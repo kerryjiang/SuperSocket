@@ -23,10 +23,10 @@ namespace SuperSocket.SocketEngine
             m_KeepAliveOptionValues = new byte[Marshal.SizeOf(dummy) * 3];
             //whether enable KeepAlive
             BitConverter.GetBytes((uint)1).CopyTo(m_KeepAliveOptionValues, 0);
-            //how long will start first keep alive, 60 seconds default
-            BitConverter.GetBytes((uint)60000).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy));
-            //keep alive interval, 60 seconds default
-            BitConverter.GetBytes((uint)60000).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy) * 2);
+            //how long will start first keep alive
+            BitConverter.GetBytes((uint)(appServer.Config.KeepAliveTime * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy));
+            //keep alive interval
+            BitConverter.GetBytes((uint)(appServer.Config.KeepAliveInterval * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy) * 2);
         }
 
         protected TSocketSession RegisterSession(Socket client, TSocketSession session)
