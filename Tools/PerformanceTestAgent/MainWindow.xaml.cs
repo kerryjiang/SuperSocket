@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using PerformanceTestAgent.ViewModel;
 
 namespace PerformanceTestAgent
 {
@@ -22,6 +23,17 @@ namespace PerformanceTestAgent
         public MainWindow()
         {
             InitializeComponent();
+            var viewModel = new MainViewModel();
+            viewModel.ContentAppend += new EventHandler<ContentAppendEventArgs>(viewModel_ContentAppend);
+            this.DataContext = viewModel;
+        }
+
+        void viewModel_ContentAppend(object sender, ContentAppendEventArgs e)
+        {
+            Dispatcher.Invoke(new Action(() =>
+            {
+                tbDashBoard.AppendText(e.Content);
+            }));
         }
     }
 }

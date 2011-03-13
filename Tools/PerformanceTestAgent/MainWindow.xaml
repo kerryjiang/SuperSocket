@@ -3,62 +3,60 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="clr-namespace:PerformanceTestAgent.ViewModel"
         xmlns:vr="clr-namespace:PerformanceTestAgent.Validation"
+        xmlns:cv="clr-namespace:PerformanceTestAgent.Converter"
         Title="SuperSocket Performance Test Agent" Height="350" Width="814">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Style\General.xaml"></ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
-            <vm:MainViewModel x:Key="MainViewModel"></vm:MainViewModel>
+            <cv:VisibilityConverter x:Key="visibilityConverter"></cv:VisibilityConverter>
+            <cv:ReverseConverter x:Key="reverseConverter"></cv:ReverseConverter>
         </ResourceDictionary>        
     </Window.Resources>
-    <Window.DataContext>
-        <Binding Source="{StaticResource MainViewModel}"></Binding>
-    </Window.DataContext>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="30"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid>
-            <Grid.Resources>
+        <StackPanel Grid.Row="0" Orientation="Horizontal">
+            <StackPanel.Resources>
                 <Style TargetType="{x:Type Label}">
-                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>                    
+                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
                 </Style>
                 <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource ValidationTextBox}">
                     <Setter Property="HorizontalAlignment" Value="Left"></Setter>
                     <Setter Property="Margin" Value="1,4,1,4"></Setter>
                 </Style>
-            </Grid.Resources>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="100"></ColumnDefinition>
-                <ColumnDefinition Width="150"></ColumnDefinition>
-                <ColumnDefinition Width="60"></ColumnDefinition>
-                <ColumnDefinition Width="60"></ColumnDefinition>
-                <ColumnDefinition Width="100"></ColumnDefinition>
-                <ColumnDefinition Width="70"></ColumnDefinition>
-                <ColumnDefinition Width="60"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-            </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" Content="Test Server:"></Label>
-            <TextBox Grid.Column="1" Width="130">
-                <TextBox.Text>
-                    <Binding Path="TargetServer" UpdateSourceTrigger="PropertyChanged">
-                        <Binding.ValidationRules>
-                            <vr:StringRegularationValidationRule
+                <Style TargetType="{x:Type Button}">
+                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                    <Setter Property="Margin" Value="1,4,1,4"></Setter>
+                    <Setter Property="Padding" Value="5,0,5,0"></Setter>
+                </Style>
+            </StackPanel.Resources>
+            <StackPanel Orientation="Horizontal" IsEnabled="{Binding IsRunning, Converter={StaticResource reverseConverter}}">            
+                <Label Content="Test Server:"></Label>
+                <TextBox Width="130">
+                    <TextBox.Text>
+                        <Binding Path="TargetServer" UpdateSourceTrigger="PropertyChanged">
+                            <Binding.ValidationRules>
+                                <vr:StringRegularationValidationRule
                                 Regularation="^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$"
-                                ErrorMessage="Invalid IP address!">                                
-                            </vr:StringRegularationValidationRule>
-                        </Binding.ValidationRules>
-                    </Binding>
-                </TextBox.Text>                
-            </TextBox>
-            <Label Grid.Column="2" Content="Port:"></Label>
-            <TextBox Grid.Column="3" Width="40" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            <Label Grid.Column="4" Content="Thread Count:"></Label>
-            <TextBox Grid.Column="5" Width="50" Text="{Binding ThreadCount, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-            <Button Grid.Column="6" Content="Start" Command="{Binding StartCommand}"></Button>
-        </Grid>
-        <TextBox Grid.Row="1" Margin="5"></TextBox>
+                                ErrorMessage="Invalid IP address!">
+                                </vr:StringRegularationValidationRule>
+                            </Binding.ValidationRules>
+                        </Binding>
+                    </TextBox.Text>
+                </TextBox>
+                <Label Content="Port:"></Label>
+                <TextBox Width="40" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <Label Content="Connections:"></Label>
+                <TextBox Width="50" Text="{Binding ConnectionCount, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <Button Content="Start" Command="{Binding StartCommand}" IsEnabled="{Binding IsRunning, Converter={StaticResource reverseConverter}}"></Button>
+            </StackPanel>
+            <Button Content="Stop" Command="{Binding StopCommand}" IsEnabled="{Binding IsRunning}"></Button>
+        </StackPanel>        
+        <TextBox Grid.Row="1" Margin="5" x:Name="tbDashBoard" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"
+                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsReadOnly="True"></TextBox>
     </Grid>
 </Window>

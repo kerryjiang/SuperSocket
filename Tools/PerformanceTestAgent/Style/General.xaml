@@ -5,7 +5,7 @@
             <Setter.Value>
                 <ControlTemplate>
                     <DockPanel>
-                        <Popup IsOpen="True" Placement="Left" PlacementTarget="{Binding ElementName=ErrorControl}">
+                        <Popup IsOpen="True" Placement="Bottom" PlacementTarget="{Binding ElementName=ErrorControl}">
                             <Border BorderThickness="1" Background="LightYellow" BorderBrush="Black" CornerRadius="3" DockPanel.Dock="Left">
                                 <TextBlock
                                     Text="{Binding ElementName=ErrorControl,Path=AdornedElement.(Validation.Errors)[0].ErrorContent}"
