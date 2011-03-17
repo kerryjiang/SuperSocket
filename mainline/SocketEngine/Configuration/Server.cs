@@ -104,7 +104,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// Gets a value indicating whether clear idle session.
         /// </summary>
         /// <value><c>true</c> if clear idle session; otherwise, <c>false</c>.</value>
-        [ConfigurationProperty("clearIdleSession", IsRequired = false, DefaultValue = true)]
+        [ConfigurationProperty("clearIdleSession", IsRequired = false, DefaultValue = false)]
         public bool ClearIdleSession
         {
             get { return (bool)this["clearIdleSession"]; }
