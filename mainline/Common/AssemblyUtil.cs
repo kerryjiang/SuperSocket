@@ -88,5 +88,27 @@ namespace SuperSocket.Common
                 return (T)formatter.Deserialize(ms);
             }
         }
+
+        private static object[] m_EmptyObjectArray = new object[] { };
+
+        public static void CopyPropertiesTo(this object source, object target)
+        {
+            PropertyInfo[] properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+            Dictionary<string, PropertyInfo> sourcePropertiesDict = properties.ToDictionary(p => p.Name);
+
+            PropertyInfo[] targetProperties = target.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+            for (int i = 0; i < targetProperties.Length; i++)
+            {
+                var p = targetProperties[i];
+                PropertyInfo sourceProperty;
+                if (sourcePropertiesDict.TryGetValue(p.Name, out sourceProperty))
+                {
+                    if (sourceProperty.PropertyType != p.PropertyType)
+                        continue;
+                }
+
+                p.SetValue(target, sourceProperty.GetValue(source, m_EmptyObjectArray), m_EmptyObjectArray);
+            }
+        }
     }
 }

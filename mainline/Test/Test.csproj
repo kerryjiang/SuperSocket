@@ -61,6 +61,7 @@
     <Compile Include="Command\RECEL.cs" />
     <Compile Include="Command\RECEM.cs" />
     <Compile Include="Common\ArraySegmentTest.cs" />
+    <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />
     <Compile Include="Common\PerformanceTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
