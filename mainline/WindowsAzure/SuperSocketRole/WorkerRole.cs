@@ -12,6 +12,7 @@ using Microsoft.WindowsAzure.StorageClient;
 using SuperSocket.Common;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SuperSocketRole
 {
@@ -33,14 +34,14 @@ namespace SuperSocket.SuperSocketRole
         {
             LogUtil.Setup();
             // Set the maximum number of concurrent connections 
-            ServicePointManager.DefaultConnectionLimit = 12;
+            ServicePointManager.DefaultConnectionLimit = 100;
 
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
             var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
 
-            if (!SocketServerManager.Initialize(serverConfig))
+            if (!SocketServerManager.Initialize(serverConfig, ResolveServerConfig))
             {
                 Trace.WriteLine("Failed to initialize SuperSocket!", "Error");
                 return false;
@@ -53,6 +54,24 @@ namespace SuperSocket.SuperSocketRole
             }
 
             return base.OnStart();
+        }
+
+        private IServerConfig ResolveServerConfig(IServerConfig serverConfig)
+        {
+            var config = new ServerConfig();
+            serverConfig.CopyPropertiesTo(config);
+
+            var instanceEndpoint = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[serverConfig.Name + "Endpoint"];
+            if (instanceEndpoint == null)
+            {
+                Trace.WriteLine(string.Format("Failed to find Input Endpoint configuration {0}!", serverConfig.Name + "Endpoint"), "Error");
+                return serverConfig;
+            }
+
+            var ipEndpoint = instanceEndpoint.IPEndpoint;
+            config.Ip = ipEndpoint.Address.ToString();
+            config.Port = ipEndpoint.Port;
+            return config;
         }
 
         public override void OnStop()
