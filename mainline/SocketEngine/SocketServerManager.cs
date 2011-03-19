@@ -27,11 +27,12 @@ namespace SuperSocket.SocketEngine
         private static IConfig m_Config;
 
         /// <summary>
-        /// Initializes with the specified config.
+        /// Initializes SuperSocket with the specified config.
         /// </summary>
         /// <param name="config">The config.</param>
+        /// <param name="serverConfigResolver">The server config resolver.</param>
         /// <returns></returns>
-        public static bool Initialize(IConfig config)
+        public static bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver)
         {
             m_Config = config;
 
@@ -90,13 +91,23 @@ namespace SuperSocket.SocketEngine
             //Initialize servers
             foreach (var serverConfig in config.Servers)
             {
-                if (!InitializeServer(serverConfig))
+                if (!InitializeServer(serverConfigResolver(serverConfig)))
                 {
                     LogUtil.LogError("Failed to initialize server " + serverConfig.Name + "!");
                 }
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Initializes SuperSocket with the specified config.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <returns></returns>
+        public static bool Initialize(IConfig config)
+        {
+            return Initialize(config, c => c);
         }
 
         /// <summary>
