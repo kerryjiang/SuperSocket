@@ -13,5 +13,9 @@
     <Imports>
       <Import moduleName="Diagnostics" />
     </Imports>
+    <ConfigurationSettings></ConfigurationSettings>
+    <Endpoints>
+      <InputEndpoint name="EchoServerEndpoint" protocol="tcp" port="911" />
+    </Endpoints>
   </WorkerRole>
 </ServiceDefinition>
