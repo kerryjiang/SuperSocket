@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Diagnostics;
 using SuperSocket.Common;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine
 {
@@ -24,13 +25,26 @@ namespace SuperSocket.SocketEngine
         private static void OnPerformanceTimerCallback(object state)
         {
             var process = Process.GetCurrentProcess();
-            LogUtil.LogPerf(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", m_CpuUsgae.ToString("0.00"), process.WorkingSet64 / m_MbUnit, process.VirtualMemorySize64 / m_MbUnit, process.Threads.Count));
+
             int availableWorkingThreads, availableCompletionPortThreads;
             ThreadPool.GetAvailableThreads(out availableWorkingThreads, out availableCompletionPortThreads);
-            LogUtil.LogPerf(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", availableWorkingThreads, availableCompletionPortThreads));
+
+            var globalPerfData = new GlobalPerformanceData
+            {
+                AvailableWorkingThreads = availableWorkingThreads,
+                AvailableCompletionPortThreads = availableCompletionPortThreads,
+                CpuUsage = m_CpuUsgae,
+                TotalThreadCount = process.Threads.Count,
+                WorkingSet = process.WorkingSet64,
+                VirtualMemorySize = process.VirtualMemorySize64
+            };
+
+            LogUtil.LogPerf(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet / m_MbUnit, globalPerfData.VirtualMemorySize / m_MbUnit, globalPerfData.TotalThreadCount));
+            LogUtil.LogPerf(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads));
+            
             m_ServerList.ForEach(s =>
                 {
-                    var perfData = s.CollectPerformanceData();
+                    var perfData = s.CollectPerformanceData(globalPerfData);
                     s.Logger.LogPerf(string.Format("Total connections: {0}, total handled commands: {1}, command handling speed: {2}/s",
                         perfData.CurrentRecord.TotalConnections,
                         perfData.CurrentRecord.TotalHandledCommands,

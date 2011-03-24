@@ -63,12 +63,13 @@ namespace SuperSocket.SocketBase
         /// Gets the server's config.
         /// </summary>
         IServerConfig Config { get; }
-        
+
         /// <summary>
         /// Collects the performance data.
         /// </summary>
+        /// <param name="globalPerfData">The global perf data.</param>
         /// <returns></returns>
-        PerformanceData CollectPerformanceData();
+        PerformanceData CollectPerformanceData(GlobalPerformanceData globalPerfData);
     }
 
     public interface IAppServer<TAppSession> : IAppServer

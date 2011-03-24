@@ -36,4 +36,14 @@ namespace SuperSocket.SocketBase
         public DateTime RecordTime { get; private set; }
         public double RecordSpan { get; set; }
     }
+
+    public class GlobalPerformanceData
+    {
+        public int AvailableWorkingThreads { get; set; }
+        public int AvailableCompletionPortThreads { get; set; }
+        public int TotalThreadCount { get; set; }
+        public double CpuUsage { get; set; }
+        public long WorkingSet { get; set; }
+        public long VirtualMemorySize { get; set; }
+    }
 }

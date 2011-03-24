@@ -685,7 +685,7 @@ namespace SuperSocket.SocketBase
 
         private PerformanceData m_PerformanceData = new PerformanceData();
 
-        public PerformanceData CollectPerformanceData()
+        public PerformanceData CollectPerformanceData(GlobalPerformanceData globalPerfData)
         {
             m_PerformanceData.PushRecord(new PerformanceRecord
                 {
@@ -694,13 +694,13 @@ namespace SuperSocket.SocketBase
                 });
 
             //User can process the performance data by self
-            Async.Run(() => OnPerformanceDataCollected(m_PerformanceData), e => Logger.LogError(e));
+            Async.Run(() => OnPerformanceDataCollected(globalPerfData, m_PerformanceData), e => Logger.LogError(e));
 
             return m_PerformanceData;
         }
 
         //User can override this method a get collected performance data
-        protected virtual void OnPerformanceDataCollected(PerformanceData performanceData)
+        protected virtual void OnPerformanceDataCollected(GlobalPerformanceData globalPerfData, PerformanceData performanceData)
         {
 
         }
