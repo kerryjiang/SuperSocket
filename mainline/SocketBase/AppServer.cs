@@ -681,16 +681,31 @@ namespace SuperSocket.SocketBase
 
         #endregion
 
+        #region Performance logging
+
         private PerformanceData m_PerformanceData = new PerformanceData();
 
         public PerformanceData CollectPerformanceData()
         {
-            return m_PerformanceData.PushRecord(new PerformanceRecord
+            m_PerformanceData.PushRecord(new PerformanceRecord
                 {
                     TotalConnections = m_SessionDict.Count,
                     TotalHandledCommands = m_TotalHandledCommands
                 });
+
+            //User can process the performance data by self
+            Async.Run(() => OnPerformanceDataCollected(m_PerformanceData), e => Logger.LogError(e));
+
+            return m_PerformanceData;
         }
+
+        //User can override this method a get collected performance data
+        protected virtual void OnPerformanceDataCollected(PerformanceData performanceData)
+        {
+
+        }
+
+        #endregion
 
         #region IDisposable Members
 
