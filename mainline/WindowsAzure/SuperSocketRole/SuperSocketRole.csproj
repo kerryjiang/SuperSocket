@@ -79,6 +79,10 @@
       <Project>{6967B4E6-474F-4D79-BD4D-BD701A8A6085}</Project>
       <Name>EchoService</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\QuickStart\RemoteProcessService\RemoteProcessService.csproj">
+      <Project>{CA67AA73-42D0-4A08-85C4-61FB569231A8}</Project>
+      <Name>RemoteProcessService</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SocketBase\SocketBase.csproj">
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
       <Name>SocketBase</Name>

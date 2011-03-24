@@ -21,6 +21,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "QuickStart", "QuickStart", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoService", "..\QuickStart\EchoService\EchoService.csproj", "{6967B4E6-474F-4D79-BD4D-BD701A8A6085}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteProcessService", "..\QuickStart\RemoteProcessService\RemoteProcessService.csproj", "{CA67AA73-42D0-4A08-85C4-61FB569231A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +61,10 @@ Global
 		{6967B4E6-474F-4D79-BD4D-BD701A8A6085}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6967B4E6-474F-4D79-BD4D-BD701A8A6085}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6967B4E6-474F-4D79-BD4D-BD701A8A6085}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -70,5 +76,6 @@ Global
 		{B9113694-7226-4152-938D-3172B11571A1} = {A59169C3-C141-42A9-B2FC-71908841E033}
 		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02} = {A59169C3-C141-42A9-B2FC-71908841E033}
 		{6967B4E6-474F-4D79-BD4D-BD701A8A6085} = {17469CB9-FBD3-490C-B502-D7F9C5B5C632}
+		{CA67AA73-42D0-4A08-85C4-61FB569231A8} = {17469CB9-FBD3-490C-B502-D7F9C5B5C632}
 	EndGlobalSection
 EndGlobal
