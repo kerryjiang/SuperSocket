@@ -59,7 +59,7 @@ namespace SuperSocket.SocketEngine
 
         public override void SendResponse(SocketContext context, byte[] data)
         {
-            throw new NotSupportedException();
+            m_ServerSocket.SendTo(data, RemoteEndPoint);
         }
 
         public override void ApplySecureProtocol(SocketContext context)
