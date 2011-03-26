@@ -83,7 +83,6 @@
     <Compile Include="ConfigurationExtension.cs" />
     <Compile Include="ConsoleLogger.cs" />
     <Compile Include="GlobalResourceManager.cs" />
-    <Compile Include="IAsyncRunner.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="LogUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -97,6 +96,8 @@
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="SocketEx.cs" />
+    <Compile Include="Async.cs" />
+    <Compile Include="BufferManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

@@ -102,12 +102,10 @@
     <Compile Include="Protocol\TerminatorCommandReader.cs" />
     <Compile Include="Protocol\CommandReaderBase.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
-    <Compile Include="ConnectionFilter\IConnectionFilter.cs" />
-    <Compile Include="ConnectionFilter\WhiteListConnectionFilter.cs" />
-    <Compile Include="ConnectionFilter\BlackListConnectionFilter.cs" />
     <Compile Include="Config\IConnectionFilterConfig.cs" />
-    <Compile Include="ConnectionFilter\TextFileSourceFilter.cs" />
     <Compile Include="CommanFilterFactory.cs" />
+    <Compile Include="IConnectionFilter.cs" />
+    <Compile Include="PerformanceData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
@@ -123,8 +121,5 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>Common.Mono</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ConnectionFilter\" />
   </ItemGroup>
 </Project>
