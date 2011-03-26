@@ -124,7 +124,10 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            CommandReader = CommandReader.NextCommandReader;
+            //If next command reader wasn't set, still use current command reader in next round received data processing
+            if (CommandReader.NextCommandReader != null)
+                CommandReader = CommandReader.NextCommandReader;
+
             return commandInfo;
         }
 
