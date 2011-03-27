@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
-using log4net.Appender;
-using System.IO;
-using log4net.Repository.Hierarchy;
 using log4net;
+using log4net.Appender;
+using log4net.Repository.Hierarchy;
 
 namespace SuperSocket.Common
 {
     public class DynamicLog4NetLogger : Log4NetLogger
     {
+        private static IAppender[] m_RawAppenders;
+
+        static DynamicLog4NetLogger()
+        {
+            m_RawAppenders = log4net.LogManager.GetRepository().GetAppenders();
+        }
+
         public DynamicLog4NetLogger(string name)
             : this(name, null)
         {
@@ -28,7 +35,7 @@ namespace SuperSocket.Common
             var currentLogger = Logger.Logger as log4net.Repository.Hierarchy.Logger;
             currentLogger.Additivity = false;//disable root appender for this logger
 
-            foreach (var ap in currentLogger.Repository.GetAppenders())
+            foreach (var ap in m_RawAppenders)
             {
                 //Always use shared perf appender
                 if (ap.Name.StartsWith("perf", StringComparison.OrdinalIgnoreCase))
