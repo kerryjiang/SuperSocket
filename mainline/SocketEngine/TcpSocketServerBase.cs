@@ -44,7 +44,11 @@ namespace SuperSocket.SocketEngine
             if (AppServer.Config.SendBufferSize > 0)
                 client.SendBufferSize = AppServer.Config.SendBufferSize;
 
+#if MONO
+            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+#else
             client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
+#endif
 
             TAppSession appSession = this.AppServer.CreateAppSession(session);
             session.Initialize(this.AppServer, appSession);
