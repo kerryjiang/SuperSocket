@@ -94,6 +94,7 @@ namespace SuperSocket.SocketEngine
                 if (!InitializeServer(serverConfigResolver(serverConfig)))
                 {
                     LogUtil.LogError("Failed to initialize server " + serverConfig.Name + "!");
+                    return false;
                 }
             }
 
