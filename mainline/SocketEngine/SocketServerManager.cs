@@ -27,6 +27,11 @@ namespace SuperSocket.SocketEngine
         private static IConfig m_Config;
 
         /// <summary>
+        /// Indicate whether the server has been initialized
+        /// </summary>
+        private static bool m_Initialized = false;
+
+        /// <summary>
         /// Initializes SuperSocket with the specified config.
         /// </summary>
         /// <param name="config">The config.</param>
@@ -34,6 +39,9 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public static bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver)
         {
+            if (m_Initialized)
+                throw new Exception("The server had been initialized already, you cannot initialize it again!");
+
             m_Config = config;
 
             //Initialize services
@@ -98,6 +106,8 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
+            m_Initialized = true;
+
             return true;
         }
 
@@ -119,6 +129,7 @@ namespace SuperSocket.SocketEngine
         public static bool Initialize(IEnumerable<IAppServer> servers)
         {
             m_ServerList.AddRange(servers);
+            m_Initialized = true;
             return true;
         }
 
