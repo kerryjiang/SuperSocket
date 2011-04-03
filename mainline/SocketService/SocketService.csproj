@@ -69,7 +69,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SocketBase\GlobalAssemblyInfo.cs">
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="MainService.cs">
@@ -89,9 +89,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="UninstallService.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -140,6 +137,11 @@
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
       <Name>SocketEngine</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Solution Items\Net40\App.config">
+      <Link>App.config</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

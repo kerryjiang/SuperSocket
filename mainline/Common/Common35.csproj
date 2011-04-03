@@ -71,7 +71,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SocketBase\GlobalAssemblyInfo.cs">
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ArraySegmentList.cs">

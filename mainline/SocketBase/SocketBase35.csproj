@@ -46,6 +46,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="AppServer.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
@@ -71,7 +74,6 @@
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
-    <Compile Include="GlobalAssemblyInfo.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />
@@ -107,7 +109,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Common\Common35.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
-      <Name>Common</Name>
+      <Name>Common35</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

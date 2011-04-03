@@ -70,9 +70,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SocketBase\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="ArraySegmentList.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -98,6 +95,9 @@
     <Compile Include="SocketEx.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="BufferManager.cs" />
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

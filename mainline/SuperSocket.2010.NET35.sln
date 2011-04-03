@@ -11,6 +11,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketEngine35", "SocketEng
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.NET35", "Test\Test.NET35.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{310FD673-1D6B-41B3-9BFF-8E0F984B524C}"
+	ProjectSection(SolutionItems) = preProject
+		Solution Items\GlobalAssemblyInfo.cs = Solution Items\GlobalAssemblyInfo.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net40", "Net40", "{09AA86CA-0CF7-48CE-891C-F64BFD544AD4}"
+	ProjectSection(SolutionItems) = preProject
+		Solution Items\Net40\App.config = Solution Items\Net40\App.config
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net35", "Net35", "{0E2D03FA-3792-4F50-9CA4-77E4C4598746}"
+	ProjectSection(SolutionItems) = preProject
+		Solution Items\Net35\App.config = Solution Items\Net35\App.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,5 +55,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{09AA86CA-0CF7-48CE-891C-F64BFD544AD4} = {310FD673-1D6B-41B3-9BFF-8E0F984B524C}
+		{0E2D03FA-3792-4F50-9CA4-77E4C4598746} = {310FD673-1D6B-41B3-9BFF-8E0F984B524C}
 	EndGlobalSection
 EndGlobal

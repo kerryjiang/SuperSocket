@@ -74,9 +74,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SocketBase\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="MainService.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -92,11 +89,11 @@
     <Compile Include="SocketServiceInstaller.Designer.cs">
       <DependentUpon>SocketServiceInstaller.cs</DependentUpon>
     </Compile>
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
     <Content Include="UninstallService.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -153,5 +150,10 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>Common.Mono</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Solution Items\Net40\App.config">
+      <Link>App.config</Link>
+    </None>
   </ItemGroup>
 </Project>

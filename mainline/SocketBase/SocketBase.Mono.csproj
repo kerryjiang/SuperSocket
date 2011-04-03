@@ -71,7 +71,6 @@
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
-    <Compile Include="GlobalAssemblyInfo.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />
@@ -106,6 +105,9 @@
     <Compile Include="CommanFilterFactory.cs" />
     <Compile Include="IConnectionFilter.cs" />
     <Compile Include="PerformanceData.cs" />
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

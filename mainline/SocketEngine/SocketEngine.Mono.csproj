@@ -72,9 +72,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\SocketBase\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="AsyncSocketServer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -111,6 +108,9 @@
     </Compile>
     <Compile Include="SocketServerManager.Performance.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
