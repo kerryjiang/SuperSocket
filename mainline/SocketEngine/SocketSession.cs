@@ -108,9 +108,9 @@ namespace SuperSocket.SocketEngine
             AppSession.ExecuteCommand(AppSession, commandInfo);
         }
 
-        protected internal TCommandInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        protected internal TCommandInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
-            var commandInfo = CommandReader.FindCommand(AppSession.Context, readBuffer, offset, length, isReusableBuffer);
+            var commandInfo = CommandReader.FindCommand(AppSession.Context, readBuffer, offset, length, isReusableBuffer, out left);
 
             if (commandInfo == null)
             {

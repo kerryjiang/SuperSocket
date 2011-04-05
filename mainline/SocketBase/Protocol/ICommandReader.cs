@@ -13,7 +13,7 @@ namespace SuperSocket.SocketBase.Protocol
     {
         IAppServer AppServer { get; }
 
-        TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer);
+        TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
 
         ArraySegmentList<byte> GetLeftBuffer();
 

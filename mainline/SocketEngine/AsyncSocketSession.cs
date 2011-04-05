@@ -122,13 +122,21 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            TCommandInfo commandInfo = FindCommand(e.Buffer, e.Offset, e.BytesTransferred, true);
+            int bytesTransferred = e.BytesTransferred;
+            int offset = e.Offset;
 
-            if (IsClosed)
-                return;                
-
-            if (commandInfo != null)
+            while (bytesTransferred > 0)
             {
+                int left;
+
+                TCommandInfo commandInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
+
+                if (IsClosed)
+                    return;
+
+                if (commandInfo == null)
+                    break;
+
                 try
                 {
                     ExecuteCommand(commandInfo);
@@ -138,14 +146,16 @@ namespace SuperSocket.SocketEngine
                     AppServer.Logger.LogError(this, exc);
                     HandleExceptionalError(exc);
                 }
-                //read the next block of data send from the client
-                StartReceive(e);
+
+                if (left <= 0)
+                    break;
+
+                bytesTransferred = left;
+                offset += left;
             }
-            else
-            {
-                StartReceive(e);
-                return;
-            }   
+
+            //read the next block of data sent from the client
+            StartReceive(e);
         }      
 
         public override void ApplySecureProtocol(SocketContext context)

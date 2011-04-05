@@ -43,12 +43,25 @@ namespace SuperSocket.SocketEngine
 
         internal void ProcessData(byte[] data, int offset, int length)
         {
-            TCommandInfo commandInfo = FindCommand(data, offset, length, false);
+            ProcessData(data, offset, length, false);
+        }
+
+        void ProcessData(byte[] data, int offset, int length, bool isReusableBuffer)
+        {
+
+            int left;
+
+            TCommandInfo commandInfo = FindCommand(data, offset, length, isReusableBuffer, out left);
 
             if (commandInfo == null)
                 return;
 
             ExecuteCommand(commandInfo);
+
+            if (left > 0)
+            {
+                ProcessData(data, offset + left, left, true);
+            }
         }
 
         public override void SendResponse(SocketContext context, string message)

@@ -21,6 +21,8 @@ namespace SuperSocket.SocketEngine
         where TCommandInfo : ICommandInfo
     {
         private byte[] m_ReadBuffer;
+        private int m_ReadBufferLeft = 0;
+        private int m_ReadBufferTotal = 0;
 
         public SyncSocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
             : base(client, commandReader)
@@ -130,6 +132,18 @@ namespace SuperSocket.SocketEngine
 
             try
             {
+                if (m_ReadBufferLeft > 0)
+                {
+                    int offset;
+                    commandInfo = FindCommand(m_ReadBuffer, m_ReadBufferTotal - m_ReadBufferLeft, m_ReadBufferLeft, true, out offset);
+
+                    if (offset > 0)
+                        m_ReadBufferLeft = offset;
+
+                    if (commandInfo != null)
+                        return true;
+                }
+
                 int thisRead = 0;
 
                 while (true)
@@ -141,7 +155,12 @@ namespace SuperSocket.SocketEngine
                         return false;
                     }
 
-                    commandInfo = FindCommand(m_ReadBuffer, 0, thisRead, true);
+                    commandInfo = FindCommand(m_ReadBuffer, 0, thisRead, true, out m_ReadBufferLeft);
+
+                    if (m_ReadBufferLeft > 0)
+                    {
+                        m_ReadBufferTotal = thisRead;
+                    }
 
                     if (commandInfo != null || IsClosed)
                         break;

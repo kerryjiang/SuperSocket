@@ -39,7 +39,16 @@ namespace SuperSocket.SocketBase.Protocol
 
         public IAppServer AppServer { get; private set; }
 
-        public abstract TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer);
+        public virtual TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        {
+            left = 0;
+            return FindCommand(context, readBuffer, offset, length, isReusableBuffer);
+        }
+
+        public virtual TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        {
+            return default(TCommandInfo);
+        }
 
         public ArraySegmentList<byte> GetLeftBuffer()
         {
