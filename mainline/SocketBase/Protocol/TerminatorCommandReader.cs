@@ -47,13 +47,13 @@ namespace SuperSocket.SocketBase.Protocol
             m_CommandParser = commandParser;
         }
 
-        public override StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        public override StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             NextCommandReader = this;
 
             string command;
 
-            if (!FindCommandDirectly(readBuffer, offset, length, isReusableBuffer, out command))
+            if (!FindCommandDirectly(readBuffer, offset, length, isReusableBuffer, out command, out left))
                 return null;
 
             return m_CommandParser.ParseCommand(command);
@@ -64,8 +64,9 @@ namespace SuperSocket.SocketBase.Protocol
             BufferSegments.ClearSegements();
         }
 
-        protected bool FindCommandDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command)
+        protected bool FindCommandDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command, out int left)
         {
+            left = 0;
             ArraySegment<byte> currentSegment;
 
             if (isReusableBuffer)
@@ -101,12 +102,7 @@ namespace SuperSocket.SocketBase.Protocol
 
             if (findLen < total)
             {
-                int left = total - findLen;
-
-                if (isReusableBuffer)
-                    BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer.CloneRange(offset + length - left, left)));
-                else
-                    BufferSegments.AddSegment(new ArraySegment<byte>(readBuffer, offset + length - left, left));
+                left = total - findLen;
             }
 
             return true;

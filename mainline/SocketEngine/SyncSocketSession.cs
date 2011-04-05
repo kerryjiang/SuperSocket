@@ -134,11 +134,10 @@ namespace SuperSocket.SocketEngine
             {
                 if (m_ReadBufferLeft > 0)
                 {
-                    int offset;
-                    commandInfo = FindCommand(m_ReadBuffer, m_ReadBufferTotal - m_ReadBufferLeft, m_ReadBufferLeft, true, out offset);
+                    int left;
+                    commandInfo = FindCommand(m_ReadBuffer, m_ReadBufferTotal - m_ReadBufferLeft, m_ReadBufferLeft, true, out left);
 
-                    if (offset > 0)
-                        m_ReadBufferLeft = offset;
+                    m_ReadBufferLeft = left;
 
                     if (commandInfo != null)
                         return true;

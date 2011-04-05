@@ -151,7 +151,7 @@ namespace SuperSocket.SocketEngine
                     break;
 
                 bytesTransferred = left;
-                offset += left;
+                offset = e.Offset + e.BytesTransferred - left;
             }
 
             //read the next block of data sent from the client

@@ -10,6 +10,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
+using System.IO;
 
 namespace SuperSocket.Test
 {
@@ -119,6 +120,49 @@ namespace SuperSocket.Test
                     string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                     Console.WriteLine("C:" + echoMessage);
                     Assert.AreEqual(command, echoMessage);
+                }
+            }
+        }
+
+        [Test]
+        public void TestCommandCombining()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+                Random rd = new Random(1);
+
+                for (int j = 0; j < 10; j++)
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    List<string> source = new List<string>(5);
+
+                    StringBuilder sbCombile = new StringBuilder();
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+                        string command = sb.ToString();
+                        source.Add(command);
+                        sbCombile.AppendLine("ECHO " + command);
+                    }
+
+                    socket.SendTo(Encoding.UTF8.GetBytes(sbCombile.ToString()), serverAddress);                    
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        byte[] receivedData = ReceiveMessage(socket, serverAddress).ToArray();
+                        string receivedContent = Encoding.UTF8.GetString(receivedData);
+                        StringReader reader = new StringReader(receivedContent);
+                        string line = reader.ReadLine();
+                        Assert.AreEqual(source[i], line);
+                    }
                 }
             }
         }

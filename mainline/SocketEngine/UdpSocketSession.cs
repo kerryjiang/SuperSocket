@@ -48,7 +48,6 @@ namespace SuperSocket.SocketEngine
 
         void ProcessData(byte[] data, int offset, int length, bool isReusableBuffer)
         {
-
             int left;
 
             TCommandInfo commandInfo = FindCommand(data, offset, length, isReusableBuffer, out left);
@@ -60,7 +59,7 @@ namespace SuperSocket.SocketEngine
 
             if (left > 0)
             {
-                ProcessData(data, offset + left, left, true);
+                ProcessData(data, offset + length - left, left, true);
             }
         }
 

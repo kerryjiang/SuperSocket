@@ -339,6 +339,55 @@ namespace SuperSocket.Test
 
 
         [Test]
+        public void TestCommandCombining()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = GetSocketStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                {
+                    string welcomeString = reader.ReadLine();
+
+                    Console.WriteLine("Welcome: " + welcomeString);
+
+                    char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+                    Random rd = new Random(1);
+
+                    for (int j = 0; j < 10; j++)
+                    {
+                        StringBuilder sb = new StringBuilder();
+
+                        List<string> source = new List<string>(5);
+
+                        for (int i = 0; i < 5; i++)
+                        {
+                            sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+                            string command = sb.ToString();
+                            source.Add(command);
+                            writer.WriteLine("ECHO " + command);
+                        }
+
+                        writer.Flush();
+
+                        for (int i = 0; i < 5; i++)
+                        {
+                            string line = reader.ReadLine();
+                            Assert.AreEqual(source[i], line);
+                        }
+                    }
+                }
+            }
+        }
+
+
+        [Test]
         public void TestBrokenCommandBlock()
         {
             StartServer();
