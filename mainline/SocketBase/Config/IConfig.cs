@@ -8,6 +8,8 @@ namespace SuperSocket.SocketBase.Config
     {
         IEnumerable<IServerConfig> Servers { get; }
 
+        IEnumerable<IGenericServerConfig> GenericServers { get; }
+
         IEnumerable<IServiceConfig> Services { get; }
         
         IEnumerable<IConnectionFilterConfig> ConnectionFilters { get; }

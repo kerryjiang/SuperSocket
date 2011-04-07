@@ -18,7 +18,15 @@ namespace SuperSocket.SocketEngine
 {
     public static partial class SocketServerManager
     {
+        /// <summary>
+        /// main AppServer instances list
+        /// </summary>
         private static List<IAppServer> m_ServerList = new List<IAppServer>();
+
+        /// <summary>
+        /// generic helper server instances list
+        /// </summary>
+        private static List<IGenericServer> m_GenericServerList = new List<IGenericServer>();
 
         private static Dictionary<string, Type> m_ServiceDict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
         
@@ -78,12 +86,10 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     filterInstance = (IConnectionFilter)Activator.CreateInstance(filterType);
-                    if(filterInstance == null)
-                        throw new Exception(filterType.ToString());
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError("Failed to create connection filter instance!", e);
+                    LogUtil.LogError(string.Format("Failed to initialize filter instance {0}!", filter.Name), e);
                     return false;
                 }
                 
@@ -94,6 +100,34 @@ namespace SuperSocket.SocketEngine
                 }
                 
                 m_ConnectionFilterDict[filter.Name] = filterInstance;
+            }
+
+            //Initialize generic servers
+            foreach (var genericServerConfig in config.GenericServers)
+            {
+                Type serverType;
+
+                if (!AssemblyUtil.TryGetType(genericServerConfig.Type, out serverType))
+                {
+                    LogUtil.LogError("Failed to initialize generic server type " + genericServerConfig.Name + "!");
+                    continue;
+                }
+
+                IGenericServer serverInstance;
+
+                try
+                {
+                    serverInstance = (IGenericServer)Activator.CreateInstance(serverType);
+                    if(!serverInstance.Initialize(genericServerConfig, LogUtil.GetRootLogger()))
+                        throw new Exception("Failed to initialize GeneriServer!");
+
+                    m_GenericServerList.Add(serverInstance);                    
+                }
+                catch (Exception e)
+                {
+                    LogUtil.LogError("Failed to initialize generic server instance " + genericServerConfig.Name + "!", e);
+                    continue;
+                }
             }
 
             //Initialize servers
@@ -207,6 +241,18 @@ namespace SuperSocket.SocketEngine
 
             StartPerformanceLog();
 
+            try
+            {
+                foreach (var server in m_GenericServerList)
+                {
+                    server.Start();
+                }
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+            }
+
             return true;
         }
 
@@ -222,6 +268,18 @@ namespace SuperSocket.SocketEngine
             }
 
             StopPerformanceLog();
+
+            try
+            {
+                foreach (var server in m_GenericServerList)
+                {
+                    server.Stop();
+                }
+            }
+            catch (Exception e)
+            {
+                LogUtil.LogError(e);
+            }
         }
 
         public static IServiceConfig GetServiceConfig(string name)

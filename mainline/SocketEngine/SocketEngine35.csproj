@@ -94,6 +94,7 @@
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />
     <Compile Include="Configuration\CredentialConfig.cs" />
+    <Compile Include="Configuration\GenericServerConfig.cs" />
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />
     <Compile Include="Configuration\Service.cs" />

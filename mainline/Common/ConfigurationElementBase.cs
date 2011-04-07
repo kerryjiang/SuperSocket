@@ -1,5 +1,6 @@
 using System;
 using System.Configuration;
+using System.Collections.Specialized;
 
 namespace SuperSocket.Common
 {
@@ -9,6 +10,19 @@ namespace SuperSocket.Common
         public string Name
         {
             get { return this["name"] as string; }
+        }
+
+        public NameValueCollection Options { get; private set; }
+
+        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
+        {
+            if (Options == null)
+            {
+                Options = new NameValueCollection();
+            }
+
+            Options.Add(name, value);
+            return true;
         }
     }
 }

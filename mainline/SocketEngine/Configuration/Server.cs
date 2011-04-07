@@ -214,18 +214,5 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["keepAliveInterval"];
             }
         }
-        
-        public NameValueCollection Options { get; private set; }
-        
-        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
-        {
-            if(Options == null)
-            {
-                Options = new NameValueCollection();
-            }
-            
-            Options.Add(name, value);
-            return true;
-        }
     }
 }

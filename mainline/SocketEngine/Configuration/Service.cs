@@ -22,19 +22,6 @@ namespace SuperSocket.SocketEngine.Configuration
         {
             get { return (bool)this["disabled"]; }
         }
-        
-        public NameValueCollection Options { get; private set; }
         #endregion
-        
-        protected override bool OnDeserializeUnrecognizedAttribute (string name, string value)
-        {
-            if(Options == null)
-            {
-                Options = new NameValueCollection();
-            }
-            
-            Options.Add(name, value);
-            return true;
-        }
     }
 }
