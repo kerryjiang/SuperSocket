@@ -179,10 +179,10 @@ namespace SuperSocket.SocketEngine
 
             var leftBuffer = CommandReader.GetLeftBuffer();
 
-            if (leftBuffer != null && leftBuffer.Count > 0)
+            if (leftBuffer != null && leftBuffer.Length > 0)
             {
-                storeSteram.Write(leftBuffer.ToArrayData(), 0, leftBuffer.Count);
-                leftRead -= leftBuffer.Count;
+                storeSteram.Write(leftBuffer, 0, leftBuffer.Length);
+                leftRead -= leftBuffer.Length;
             }
 
             while (leftRead > 0)

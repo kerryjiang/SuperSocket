@@ -29,10 +29,10 @@ namespace SuperSocket.SocketBase.Protocol
             m_BufferSegments = new ArraySegmentList<byte>();
         }
 
-        public CommandReaderBase(ICommandReader<TCommandInfo> previousCommandReader)
+        public CommandReaderBase(CommandReaderBase<TCommandInfo> previousCommandReader)
         {
             AppServer = previousCommandReader.AppServer;
-            m_BufferSegments = previousCommandReader.GetLeftBuffer();
+            m_BufferSegments = previousCommandReader.BufferSegments;
         }
 
         #region ICommandReader<TCommandInfo> Members
@@ -50,9 +50,14 @@ namespace SuperSocket.SocketBase.Protocol
             return default(TCommandInfo);
         }
 
-        public ArraySegmentList<byte> GetLeftBuffer()
+        public byte[] GetLeftBuffer()
         {
-            return m_BufferSegments;
+            return m_BufferSegments.ToArrayData();
+        }
+
+        public int LeftBufferSize
+        {
+            get { return m_BufferSegments.Count; }
         }
 
         public ICommandReader<TCommandInfo> NextCommandReader { get; protected set; }

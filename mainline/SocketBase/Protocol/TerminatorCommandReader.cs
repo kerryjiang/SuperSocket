@@ -33,7 +33,7 @@ namespace SuperSocket.SocketBase.Protocol
 
         }
 
-        public TerminatorCommandReader(ICommandReader<StringCommandInfo> previousCommandReader)
+        public TerminatorCommandReader(CommandReaderBase<StringCommandInfo> previousCommandReader)
             : base(previousCommandReader)
         {
 

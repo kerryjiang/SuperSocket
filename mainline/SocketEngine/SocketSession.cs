@@ -114,7 +114,7 @@ namespace SuperSocket.SocketEngine
 
             if (commandInfo == null)
             {
-                int leftBufferCount = CommandReader.GetLeftBuffer().Count;
+                int leftBufferCount = CommandReader.LeftBufferSize;
                 if (leftBufferCount >= AppServer.Config.MaxCommandLength)
                 {
                     AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",

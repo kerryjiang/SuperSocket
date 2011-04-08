@@ -15,7 +15,9 @@ namespace SuperSocket.SocketBase.Protocol
 
         TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
 
-        ArraySegmentList<byte> GetLeftBuffer();
+        byte[] GetLeftBuffer();
+
+        int LeftBufferSize { get; }
 
         ICommandReader<TCommandInfo> NextCommandReader { get; }
     }
