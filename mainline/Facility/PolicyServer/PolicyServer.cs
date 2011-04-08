@@ -11,217 +11,79 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Collections.Concurrent;
+using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    public abstract class PolicyServer : IGenericServer, IPolicyServer
+    public abstract class PolicyServer : AppServer<PolicySession, BinaryCommandInfo>
     {
-        protected ILogger Logger { get; private set; }
-
-        private EndPoint m_LocalEndPoint;
         private string m_PolicyFile;
-        private string m_PolicyRequest;
-        private byte[] m_policyResponse;
-        private bool m_Stopped = false;
-
-        private Socket m_ListenSocket;
-
-        private AutoResetEvent m_TcpClientConnected;
-
+        private string m_PolicyRequest = "<policy-file-request/>";
+        private byte[] m_PolicyResponse;
         private int m_ExpectedReceivedLength;
 
-        private BufferManager m_BufferManager;
-
-        private ConcurrentStack<SocketAsyncEventArgs> m_ReadPool;
-
-        public bool Initialize(IGenericServerConfig config, ILogger logger)
+        public PolicyServer()
+            : base()
         {
-            Logger = logger;
 
-            m_PolicyFile = config.Options.GetValue("policyFile");
+        }
 
-            if (string.IsNullOrEmpty(m_PolicyFile))
-            {
-                logger.LogError("Configuration option policyFile is required!");
-                return false;
-            }
-
-            if (!File.Exists(m_PolicyFile))
-            {
-                logger.LogError("The specified policyFile doesn't exist! " + m_PolicyFile);
-                return false;
-            }
-
-            m_policyResponse = Encoding.UTF8.GetBytes(File.ReadAllText(m_PolicyFile, Encoding.UTF8));
-
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<BinaryCommandInfo> protocol)
+        {
             var policyRequest = config.Options.GetValue("policyRequest");
             if (!string.IsNullOrEmpty(policyRequest))
                 m_PolicyRequest = policyRequest;
 
             m_ExpectedReceivedLength = Encoding.UTF8.GetByteCount(m_PolicyRequest);
 
-            int port;
+            this.Protocol = new FixSizeCommandProtocol(m_ExpectedReceivedLength);
 
-            if (!int.TryParse(config.Options.GetValue("port"), out port))
+            if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
+                return false;
+
+            m_PolicyFile = config.Options.GetValue("policyFile");
+
+            if (string.IsNullOrEmpty(m_PolicyFile))
             {
-                logger.LogError("Invalid port configuration!");
+                Logger.LogError("Configuration option policyFile is required!");
                 return false;
             }
 
-            var ip = config.Options.GetValue("ip");
-
-            try
+            if (!File.Exists(m_PolicyFile))
             {
-                if (string.IsNullOrEmpty(ip) || "Any".Equals(ip, StringComparison.OrdinalIgnoreCase))
-                    m_LocalEndPoint = new IPEndPoint(IPAddress.Any, port);
-                else if ("IPv6Any".Equals(ip, StringComparison.OrdinalIgnoreCase))
-                    m_LocalEndPoint = new IPEndPoint(IPAddress.IPv6Any, port);
-                else
-                    m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(ip), port);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Invalid ip configuration!", e);
+                Logger.LogError("The specified policyFile doesn't exist! " + m_PolicyFile);
                 return false;
             }
 
-            int concurrentCount = 100;
-
-            m_BufferManager = new BufferManager(concurrentCount * m_ExpectedReceivedLength, m_ExpectedReceivedLength);
-
-            var socketEventArgsList = new List<SocketAsyncEventArgs>(concurrentCount);
-
-            for (var i = 0; i < concurrentCount; i++)
-            {
-                var e = new SocketAsyncEventArgs();
-                e.Completed += new EventHandler<SocketAsyncEventArgs>(e_Completed);
-                m_BufferManager.SetBuffer(e);
-                socketEventArgsList.Add(e);
-            }
-
-            m_ReadPool = new ConcurrentStack<SocketAsyncEventArgs>(socketEventArgsList);
-
-            m_TcpClientConnected = new AutoResetEvent(false);
+            m_PolicyResponse = SetupPolicyResponse(File.ReadAllBytes(m_PolicyFile));
+            
+            this.CommandHandler += new CommandHandler<PolicySession, BinaryCommandInfo>(PolicyServer_CommandHandler);
 
             return true;
         }
 
-        void e_Completed(object sender, SocketAsyncEventArgs e)
+        protected virtual byte[] SetupPolicyResponse(byte[] policyFileData)
         {
-            ProcessReceive(e);
+            return policyFileData;
         }
 
-        void ProcessReceive(SocketAsyncEventArgs e)
+        void PolicyServer_CommandHandler(PolicySession session, BinaryCommandInfo commandInfo)
         {
-            PolicySession session = e.UserToken as PolicySession;
-            if (session != null)
-                session.ProcessReceive(e);
+            ProcessRequest(session, commandInfo.Data);
         }
 
-        public void Start()
+        protected virtual void ProcessRequest(PolicySession session, byte[] data)
         {
-            Async.Run(() => StartListen(), TaskCreationOptions.LongRunning);
-        }
+            var request = Encoding.UTF8.GetString(data);
 
-        private void StartListen()
-        {
-            m_ListenSocket = new Socket(this.m_LocalEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            try
+            if (string.Compare(request, m_PolicyRequest, StringComparison.InvariantCultureIgnoreCase) != 0)
             {
-                m_ListenSocket.Bind(this.m_LocalEndPoint);
-                m_ListenSocket.Listen(100);
-
-                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e);
+                session.Close();
                 return;
             }
 
-            SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
-            acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
-
-            while (!m_Stopped)
-            {
-                acceptEventArg.AcceptSocket = null;
-
-                bool willRaiseEvent = true;
-
-                try
-                {
-                    willRaiseEvent = m_ListenSocket.AcceptAsync(acceptEventArg);
-                }
-                catch (ObjectDisposedException)//listener has been stopped
-                {
-                    break;
-                }
-                catch (NullReferenceException)
-                {
-                    break;
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError("Failed to accept new tcp client in async server!", e);
-                    break;
-                }
-
-                if (!willRaiseEvent)
-                    ProcessAccept(acceptEventArg);
-
-                m_TcpClientConnected.WaitOne();
-            }
-        }
-
-        void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
-        {
-            ProcessAccept(e);
-        }
-
-        void ProcessAccept(SocketAsyncEventArgs e)
-        {
-            var session = new PolicySession();
-            session.Initialize(this, e.AcceptSocket, m_ExpectedReceivedLength);
-
-            SocketAsyncEventArgs eventArgs;
-            if (m_ReadPool.TryPop(out eventArgs))
-            {
-                eventArgs.UserToken = session;
-                session.StartReceive(eventArgs);
-            }
-            else
-            {
-                Logger.LogError("No enough SocketAsyncEventArgs to process so many clients!");
-            }
-            
-            m_TcpClientConnected.Set();
-        }
-
-        public void Stop()
-        {
-            if (m_Stopped)
-                return;
-
-            m_Stopped = true;
-
-            if (m_ListenSocket != null)
-            {
-                m_ListenSocket.Close();
-                m_ListenSocket = null;
-            }
-        }
-
-        public void ValidateSession(IPolicySession session, SocketAsyncEventArgs e, byte[] data)
-        {
-            e.UserToken = null;
-            m_ReadPool.Push(e);
-            Async.Run(() =>
-                {
-                    session.SendResponse(m_policyResponse);
-                    session.Close();
-                });
+            session.SendResponse(m_PolicyResponse);
         }
     }
 }

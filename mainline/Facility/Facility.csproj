@@ -43,9 +43,9 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="PolicyServer\FixSizeCommandProtocol.cs" />
+    <Compile Include="PolicyServer\FixSizeCommandReader.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
-    <Compile Include="PolicyServer\IPolicyServer.cs" />
-    <Compile Include="PolicyServer\IPolicySession.cs" />
     <Compile Include="PolicyServer\PolicyServer.cs" />
     <Compile Include="PolicyServer\PolicySession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -61,6 +61,7 @@
       <Name>SocketBase</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

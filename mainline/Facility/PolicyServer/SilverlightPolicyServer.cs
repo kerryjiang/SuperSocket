@@ -5,8 +5,18 @@ using System.Text;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    class SilverlightPolicyServer : PolicyServer
+    public class SilverlightPolicyServer : PolicyServer
     {
+        public SilverlightPolicyServer()
+            : base()
+        {
 
+        }
+
+        protected override void ProcessRequest(PolicySession session, byte[] data)
+        {
+            base.ProcessRequest(session, data);
+            session.Close();
+        }
     }
 }
