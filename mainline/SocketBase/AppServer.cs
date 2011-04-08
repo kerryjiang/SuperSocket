@@ -37,348 +37,25 @@ namespace SuperSocket.SocketBase
         }
     }
 
-    public abstract class AppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession, TCommandInfo>
+    public abstract class AppServer<TAppSession, TCommandInfo> : AppServerBase<TAppSession, TCommandInfo>, IPerformanceDataSource
         where TCommandInfo : ICommandInfo
         where TAppSession : IAppSession<TAppSession, TCommandInfo>, new()
-    {
-        private IPEndPoint m_LocalEndPoint;
-
-        public IServerConfig Config { get; private set; }
-
-        protected virtual ConsoleHostInfo ConsoleHostInfo { get { return null; } }
-
-        public virtual X509Certificate Certificate { get; protected set; }
-
-        public virtual ICustomProtocol<TCommandInfo> Protocol { get; private set; }
-
-        private string m_ConsoleBaseAddress;
-
-        public ServiceCredentials ServerCredentials { get; set; }
-
-        private Dictionary<string, ICommand<TAppSession, TCommandInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TCommandInfo>>(StringComparer.OrdinalIgnoreCase);
-
-        private ISocketServerFactory m_SocketServerFactory;
-
-        public SslProtocols BasicSecurity { get; private set; }
-
-        protected IRootConfig RootConfig { get; private set; }
-
-        public ILogger Logger { get; private set; }
-
-        private static bool m_ThreadPoolConfigured = false;
-
-        private List<IConnectionFilter> m_ConnectionFilters;
-
-        private Dictionary<string, List<CommandFilterAttribute>> m_CommandFilterDict;
-
-        private long m_TotalHandledCommands = 0;
-
+    {        
         public AppServer()
+            : base()
         {
             
         }
 
         protected AppServer(ICustomProtocol<TCommandInfo> protocol)
+            : base(protocol)
         {
-            this.Protocol = protocol;
-        }   
-
-        protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
-        {
-            var commandLoader = new ReflectCommandLoader<ICommand<TAppSession, TCommandInfo>>(typeof(TAppSession).Assembly);
-
-            foreach (var command in commandLoader.LoadCommands())
-            {
-                Logger.LogDebug(string.Format("Command found: {0} - {1}", command.Name, command.GetType().AssemblyQualifiedName));
-                if (commandDict.ContainsKey(command.Name))
-                {
-                    Logger.LogError("Duplicated name command has been found! Command name: " + command.Name);
-                    return false;
-                }
-
-                commandDict.Add(command.Name, command);
-            }
-            
-            SetupCommandFilters(commandDict.Values);
-
-            return true;
+   
         }
 
-        private void SetupCommandFilters(IEnumerable<ICommand<TAppSession, TCommandInfo>> commands)
+        public override bool Start()
         {
-            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
-        }
-
-        private ServiceHost CreateConsoleHost(ConsoleHostInfo consoleInfo)
-        {
-            Binding binding = new BasicHttpBinding();
-
-            var host = new ServiceHost(consoleInfo.ServiceInstance, new Uri(m_ConsoleBaseAddress + Name));
-
-            foreach (var contract in consoleInfo.ServiceContracts)
-            {
-                host.AddServiceEndpoint(contract, binding, contract.Name);
-            }
-
-            return host;
-        }
-
-        private ServiceHost m_ConsoleHost;
-
-        private bool StartConsoleHost()
-        {
-            var consoleInfo = ConsoleHostInfo;
-
-            if (consoleInfo == null)
-                return true;
-
-            m_ConsoleHost = CreateConsoleHost(consoleInfo);
-
-            try
-            {
-                m_ConsoleHost.Open();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e);
-                m_ConsoleHost = null;
-                return false;
-            }
-        }
-
-        private void CloseConsoleHost()
-        {
-            if (m_ConsoleHost == null)
-                return;
-
-            try
-            {
-                m_ConsoleHost.Close();
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Failed to close console service host!", e);
-            }
-            finally
-            {
-                m_ConsoleHost = null;
-            }
-        }
-
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
-        {
-            return Setup(rootConfig, config, socketServerFactory, null);
-        }
-
-        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol)
-        {
-            if (rootConfig == null)
-                throw new ArgumentNullException("rootConfig");
-
-            RootConfig = rootConfig;
-
-            if (!m_ThreadPoolConfigured)
-            {
-                if (!TheadPoolEx.ResetThreadPool(rootConfig.MaxWorkingThreads >= 0 ? rootConfig.MaxWorkingThreads : new Nullable<int>(),
-                        rootConfig.MaxCompletionPortThreads >= 0 ? rootConfig.MaxCompletionPortThreads : new Nullable<int>(),
-                        rootConfig.MinWorkingThreads >= 0 ? rootConfig.MinWorkingThreads : new Nullable<int>(),
-                        rootConfig.MinCompletionPortThreads >= 0 ? rootConfig.MinCompletionPortThreads : new Nullable<int>()))
-                {
-                    return false;
-                }
-
-                m_ThreadPoolConfigured = true;
-            }
-
-            if (config == null)
-                throw new ArgumentNullException("config");
-
-            Config = config;
-
-            m_ConsoleBaseAddress = rootConfig.ConsoleBaseAddress;
-            m_SocketServerFactory = socketServerFactory;
-
-            SetupLogger();
-
-            if (!SetupLocalEndpoint(config))
-            {
-                Logger.LogError("Invalid config ip/port");
-                return false;
-            }
-
-            if (!SetupProtocol(config, protocol))
-                return false;
-
-            if (!SetupCommands(m_CommandDict))
-                return false;
-
-            if (!SetupSecurity(config))
-                return false;
-
-            return SetupSocketServer();
-        }
-
-        private bool SetupProtocol(IServerConfig config, ICustomProtocol<TCommandInfo> protocol)
-        {
-            //The protocol passed by programming has higher priority, then by config
-            if (protocol != null)
-            {
-                Protocol = protocol;
-            }
-            else
-            {
-                //There is a protocol configuration existing
-                if (!string.IsNullOrEmpty(config.Protocol))
-                {
-                    ICustomProtocol<TCommandInfo> configuredProtocol;
-                    if (!AssemblyUtil.TryCreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol, out configuredProtocol))
-                    {
-                        Logger.LogError("Invalid configured protocol " + config.Protocol + ".");
-                        return false;
-                    }
-                    Protocol = configuredProtocol;
-                }
-            }
-
-            //If there is no defined protocol, use CommandLineProtocol as default
-            if (Protocol == null)
-            {
-                Logger.LogError("Protocol hasn't been set!");
-                return false;
-            }
-
-            return true;
-        }
-
-        private void SetupLogger()
-        {
-            switch (RootConfig.LoggingMode)
-            {
-                case (LoggingMode.IndependantFile):
-                    Logger = new DynamicLog4NetLogger(Config.Name);
-                    break;
-
-                case (LoggingMode.Console):
-                    Logger = new ConsoleLogger(Config.Name);
-                    break;
-
-                default:
-                    Logger = new Log4NetLogger(Config.Name);
-                    break;
-            }
-        }
-
-        private bool SetupSecurity(IServerConfig config)
-        {
-            if (!string.IsNullOrEmpty(config.Security))
-            {
-                SslProtocols configProtocol;
-                if (!config.Security.TryParseEnum<SslProtocols>(true, out configProtocol))
-                {
-                    Logger.LogError(string.Format("Failed to parse '{0}' to SslProtocol!", config.Security));
-                    return false;
-                }
-
-                if (configProtocol != SslProtocols.None)
-                {
-                    //SSL/TLS is only supported in Sync mode
-                    if (config.Mode != SocketMode.Sync)
-                    {
-                        Logger.LogError("You cannot enable SSL/TLS security for your current SocketMode, it only can be used in Sync mode!");
-                        return false;
-                    }
-
-                    if (config.Certificate == null || !config.Certificate.IsEnabled)
-                    {
-                        Logger.LogError("There is no certificate defined and enabled!");
-                        return false;
-                    }
-
-                    if (!SetupCertificate(config))
-                        return false;
-                }
-
-                BasicSecurity = configProtocol;
-            }
-            else
-            {
-                BasicSecurity = SslProtocols.None;
-            }
-
-            return true;
-        }
-
-        private bool SetupSocketServer()
-        {
-            try
-            {
-                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TAppSession, TCommandInfo>(this, m_LocalEndPoint, Config, Protocol);
-                return m_SocketServer != null;
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e);
-                return false;
-            }
-        }
-
-        private bool SetupLocalEndpoint(IServerConfig config)
-        {
-            if (config.Port > 0)
-            {
-                try
-                {
-                    if (string.IsNullOrEmpty(config.Ip) || "Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.Any, config.Port);
-                    else if ("IPv6Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.IPv6Any, config.Port);
-                    else
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);
-
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    Logger.LogError(e);
-                    return false;
-                }
-            }
-
-            return false;
-        }
-
-        private bool SetupCertificate(IServerConfig config)
-        {
-            try
-            {
-                Certificate = CertificateManager.Initialize(config.Certificate);
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Failed to initialize certificate!", e);
-                return false;
-            }
-        }
-
-
-        public string Name
-        {
-            get { return Config.Name; }
-        }
-
-        private ISocketServer m_SocketServer;
-
-        public virtual bool Start()
-        {
-            if (this.IsRunning)
-            {
-                Logger.LogError("This socket server is running already, you needn't start it.");
-                return false;
-            }
-
-            if (!m_SocketServer.Start())
+            if (!base.Start())
                 return false;
 
             StartSessionSnapshotTimer();
@@ -386,149 +63,16 @@ namespace SuperSocket.SocketBase
             if (Config.ClearIdleSession)
                 StartClearSessionTimer();
 
-            if (!StartConsoleHost())
-            {
-                Logger.LogError("Failed to start console service host!");
-                Stop();
-                return false;
-            }
-
             return true;
-        }
-
-        public virtual void Stop()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public bool IsRunning
-        {
-            get
-            {
-                if (m_SocketServer == null)
-                    return false;
-
-                return m_SocketServer.IsRunning;
-            }
-        }
-
-        public virtual bool IsReady
-        {
-            get { return true; }
-        }
-
-        private CommandHandler<TAppSession, TCommandInfo> m_CommandHandler;
-
-        public event CommandHandler<TAppSession, TCommandInfo> CommandHandler
-        {
-            add { m_CommandHandler += value; }
-            remove { m_CommandHandler -= value; }
-        }
-        
-        private void ExecuteCommandFilters(List<CommandFilterAttribute> filters, TAppSession session, ICommand command, Action<CommandFilterAttribute, TAppSession, ICommand> filterAction)
-        {
-            if(filters == null || filters.Count <= 0)
-                return;
-            
-            for(var i = 0; i < filters.Count; i++)
-            {
-                var filter = filters[i];
-                if(filter.IsAsync)
-                    Async.Run(() => filterAction(filter, session, command),
-                                      x => Logger.LogError(session, x));
-                else
-                    filterAction(filter, session, command);
-            }
-        }
-
-        public virtual void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
-        {
-            if (m_CommandHandler == null)
-            {
-                var command = GetCommandByName(commandInfo.Key);
-
-                if (command != null)
-                {
-                    List<CommandFilterAttribute> commandFilters;
-                    m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
-                        
-                    session.Context.CurrentCommand = commandInfo.Key;
-                    
-                    ExecuteCommandFilters(commandFilters, session, command,
-                                          (f, s, c) => f.OnCommandExecuting(s, c));
-                    
-                    command.ExecuteCommand(session, commandInfo);
-                    
-                    ExecuteCommandFilters(commandFilters, session, command,
-                                          (f, s, c) => f.OnCommandExecuted(s, c));
-                    
-                    session.Context.PrevCommand = commandInfo.Key;
-
-                    if (Config.LogCommand)
-                        Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
-                }
-                else
-                {
-                    session.HandleUnknownCommand(commandInfo);
-                }
-
-                session.LastActiveTime = DateTime.Now;
-            }
-            else
-            {
-                session.Context.CurrentCommand = commandInfo.Key;
-                m_CommandHandler(session, commandInfo);
-                session.Context.PrevCommand = commandInfo.Key;
-                session.LastActiveTime = DateTime.Now;
-
-                if (Config.LogCommand)
-                    Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
-            }
-
-            Interlocked.Increment(ref m_TotalHandledCommands);
         }
 
         private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-
-        public IEnumerable<IConnectionFilter> ConnectionFilters
+                       
+        public override TAppSession CreateAppSession(ISocketSession socketSession)
         {
-            get { return m_ConnectionFilters; }
-            set
-            {
-                if(m_ConnectionFilters == null)
-                    m_ConnectionFilters = new List<IConnectionFilter>();
-                
-                m_ConnectionFilters.AddRange(value);
-            }
-        }
-        
-        private bool ExecuteConnectionFilters(IPEndPoint remoteAddress)
-        {
-            if(m_ConnectionFilters == null)
-                return true;
-            
-            for(var i = 0; i < m_ConnectionFilters.Count; i++)
-            {
-                var currentFilter = m_ConnectionFilters[i];
-                if(!currentFilter.AllowConnect(remoteAddress))
-                {
-                    Logger.LogInfo(string.Format("A connection from {0} has been refused by filter {1}!", remoteAddress, currentFilter.Name));
-                    return false;	
-                }
-            }
-            
-            return true;
-        }
-        
-        public TAppSession CreateAppSession(ISocketSession socketSession)
-        {
-            if(!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
-                return default(TAppSession);
-
-            TAppSession appSession = new TAppSession();
-            appSession.Initialize(this, socketSession);
-            socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);
+            var appSession = base.CreateAppSession(socketSession);
+            if (appSession.Equals(NullAppSession))
+                return appSession;
 
             if (m_SessionDict.TryAdd(appSession.IdentityKey, appSession))
             {
@@ -538,21 +82,21 @@ namespace SuperSocket.SocketBase
             else
             {
                 Logger.LogError(appSession, "SocketSession was refused because the session's IdentityKey already exists!");
-                return default(TAppSession);
+                return NullAppSession;
             }
         }
 
-        public TAppSession GetAppSessionByIndentityKey(string identityKey)
+        public override TAppSession GetAppSessionByIndentityKey(string identityKey)
         {
             if(string.IsNullOrEmpty(identityKey))
-                return default(TAppSession);
+                return NullAppSession;
 
             TAppSession targetSession;
             m_SessionDict.TryGetValue(identityKey, out targetSession);
             return targetSession;
         }
 
-        private void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
+        internal protected override void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
             //the sender is a sessionID
             string identityKey = e.IdentityKey;
@@ -578,7 +122,7 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public int SessionCount
+        public override int SessionCount
         {
             get
             {
@@ -621,16 +165,6 @@ namespace SuperSocket.SocketBase
                     Monitor.Exit(state);
                 }
             }
-        }
-
-        public ICommand<TAppSession, TCommandInfo> GetCommandByName(string commandName)
-        {
-            ICommand<TAppSession, TCommandInfo> command;
-
-            if (m_CommandDict.TryGetValue(commandName, out command))
-                return command;
-            else
-                return null;
         }
 
         #endregion
@@ -690,7 +224,7 @@ namespace SuperSocket.SocketBase
             m_PerformanceData.PushRecord(new PerformanceRecord
                 {
                     TotalConnections = m_SessionDict.Count,
-                    TotalHandledCommands = m_TotalHandledCommands
+                    TotalHandledCommands = TotalHandledCommands
                 });
 
             //User can process the performance data by self
@@ -709,21 +243,12 @@ namespace SuperSocket.SocketBase
 
         #region IDisposable Members
 
-        public void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+            base.Dispose(disposing);
 
-        protected virtual void Dispose(bool disposing)
-        {
             if (disposing)
-            {
-                if (IsRunning)
-                {
-                    m_SocketServer.Stop();
-                }
-
+            {                
                 if (m_SessionSnapshotTimer != null)
                 {
                     m_SessionSnapshotTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -754,8 +279,6 @@ namespace SuperSocket.SocketBase
 
                     Task.WaitAll(tasks);
                 }
-
-                CloseConsoleHost();
             }
         }
 

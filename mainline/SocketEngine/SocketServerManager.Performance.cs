@@ -44,11 +44,15 @@ namespace SuperSocket.SocketEngine
             
             m_ServerList.ForEach(s =>
                 {
-                    var perfData = s.CollectPerformanceData(globalPerfData);
-                    s.Logger.LogPerf(string.Format("Total connections: {0}, total handled commands: {1}, command handling speed: {2}/s",
-                        perfData.CurrentRecord.TotalConnections,
-                        perfData.CurrentRecord.TotalHandledCommands,
-                        (perfData.CurrentRecord.TotalHandledCommands - perfData.PreviousRecord.TotalHandledCommands) / perfData.CurrentRecord.RecordSpan));
+                    var perfSource = s as IPerformanceDataSource;
+                    if (perfSource != null)
+                    {
+                        var perfData = perfSource.CollectPerformanceData(globalPerfData);
+                        s.Logger.LogPerf(string.Format("Total connections: {0}, total handled commands: {1}, command handling speed: {2}/s",
+                            perfData.CurrentRecord.TotalConnections,
+                            perfData.CurrentRecord.TotalHandledCommands,
+                            (perfData.CurrentRecord.TotalHandledCommands - perfData.PreviousRecord.TotalHandledCommands) / perfData.CurrentRecord.RecordSpan));
+                    }
                 });
         }
 
