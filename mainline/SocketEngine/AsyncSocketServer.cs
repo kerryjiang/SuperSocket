@@ -48,10 +48,10 @@ namespace SuperSocket.SocketEngine
 
                 m_TcpClientConnected = new AutoResetEvent(false);
 
-                int bufferSize = Math.Max(AppServer.Config.ReceiveBufferSize, AppServer.Config.SendBufferSize);
+                int bufferSize = AppServer.Config.ReceiveBufferSize;
 
                 if (bufferSize <= 0)
-                    bufferSize = 1024 * 8;
+                    bufferSize = 1024 * 4;
 
                 m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber, bufferSize);
 
