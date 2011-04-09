@@ -33,7 +33,8 @@
 	</target>
 	
 	<target name="restoreTempChange" description="restore temporary changes">
-		<copy file="Solution Items\GlobalAssemblyInfo.cs.bak" tofile="Solution Items\GlobalAssemblyInfo.cs" overwrite="true" />		
+		<copy file="Solution Items\GlobalAssemblyInfo.cs.bak" tofile="Solution Items\GlobalAssemblyInfo.cs" overwrite="true" />
+		<delete file="Solution Items\GlobalAssemblyInfo.cs.bak" />
 	</target>
 
 	<target name="clean" description="Delete Automated Build artifacts">
