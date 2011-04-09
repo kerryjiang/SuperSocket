@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketEngine", "..\SocketEn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomProtocol", "CustomProtocol\CustomProtocol.csproj", "{FB261628-26FD-48B5-9D3D-C9E34B4728CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility", "..\Facility\Facility.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +71,10 @@ Global
 		{FB261628-26FD-48B5-9D3D-C9E34B4728CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FB261628-26FD-48B5-9D3D-C9E34B4728CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FB261628-26FD-48B5-9D3D-C9E34B4728CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01987BAC-C498-44DD-B274-62EA2506B51D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01987BAC-C498-44DD-B274-62EA2506B51D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01987BAC-C498-44DD-B274-62EA2506B51D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01987BAC-C498-44DD-B274-62EA2506B51D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,5 +85,6 @@ Global
 		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02} = {2E6E656A-D747-4A69-B300-8C82573A76B5}
 		{40B77789-EA11-4C05-8F52-86711D7BCAAF} = {2E6E656A-D747-4A69-B300-8C82573A76B5}
 		{153FEF72-191C-43D9-BE71-2B351C7AC760} = {2E6E656A-D747-4A69-B300-8C82573A76B5}
+		{01987BAC-C498-44DD-B274-62EA2506B51D} = {2E6E656A-D747-4A69-B300-8C82573A76B5}
 	EndGlobalSection
 EndGlobal
