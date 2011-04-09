@@ -80,8 +80,7 @@
 		<call target="buildProject"/>
 	</target>
 	
-	<target name="createReleasePackage">
-		<call target="restoreTempChange" />
+	<target name="createReleasePackage">		
 		<zip zipfile="${output.dir}\${head.revision}\SuperSocket.zip">
 			<fileset>
 				<include name="**/*" />
@@ -91,8 +90,10 @@
 				<exclude name="**/rootinfo.txt" />
 				<exclude name="**/*.build" />
 				<exclude name="Solution Items\GlobalAssemblyInfo.txt" />
+				<exclude name="Solution Items\GlobalAssemblyInfo.cs.bak" />
 			</fileset>
 		</zip>
+		<call target="restoreTempChange" />
 	</target>
 	
 </project>
