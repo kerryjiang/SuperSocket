@@ -11,6 +11,7 @@
 	<property name="program.files" value="D:"/>
 	<property name="svn.exe" value="${program.files}\SlikSvn\bin\svn.exe" unless="${property::exists('svn.exe')}" />
 	<property name="buildConfiguration" value="Debug" />
+	<property name="build.version" value="1.4.1" />
 	
 	<target name="getHeadRevision" description="Get Head Revision">
 		<exec program="${svn.exe}" commandline="info -r HEAD" output="rootinfo.txt" />
@@ -18,6 +19,21 @@
 			<property name="head.revision" value="${string::substring(infoline,10,string::get-length(infoline) - 10)}"
 				if="${string::starts-with(infoline,'Revision: ')}" />
 		</foreach>
+		<call target="updateVersion"/>
+	</target>
+	
+	<target name="updateVersion" description="update version number in GlobalAssembly.cs">
+		<copy file="Solution Items\GlobalAssemblyInfo.cs" tofile="Solution Items\GlobalAssemblyInfo.cs.bak" overwrite="true" />
+		<copy file="Solution Items\GlobalAssemblyInfo.txt" tofile="Solution Items\GlobalAssemblyInfo.cs" overwrite="true">
+			<filterchain>
+				<replacestring from="{build.version}" to="${build.version}" ignorecase="true" />
+				<replacestring from="{head.revision}" to="${head.revision}" ignorecase="true" />
+			</filterchain>
+		</copy>
+	</target>
+	
+	<target name="restoreTempChange" description="restore temporary changes">
+		<copy file="Solution Items\GlobalAssemblyInfo.cs.bak" tofile="Solution Items\GlobalAssemblyInfo.cs" overwrite="true" />		
 	</target>
 
 	<target name="clean" description="Delete Automated Build artifacts">
@@ -64,6 +80,7 @@
 	</target>
 	
 	<target name="createReleasePackage">
+		<call target="restoreTempChange" />
 		<zip zipfile="${output.dir}\${head.revision}\SuperSocket.zip">
 			<fileset>
 				<include name="**/*" />
@@ -72,6 +89,7 @@
 				<exclude name="**/.svn/**" />
 				<exclude name="**/rootinfo.txt" />
 				<exclude name="**/*.build" />
+				<exclude name="Solution Items\GlobalAssemblyInfo.txt" />
 			</fileset>
 		</zip>
 	</target>
