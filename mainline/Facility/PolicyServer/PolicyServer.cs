@@ -20,7 +20,7 @@ namespace SuperSocket.Facility.PolicyServer
     {
         private string m_PolicyFile;
         private string m_PolicyRequest = "<policy-file-request/>";
-        private byte[] m_PolicyResponse;
+        protected byte[] PolicyResponse { get; private set; }
         private int m_ExpectedReceivedLength;
 
         public PolicyServer()
@@ -56,7 +56,7 @@ namespace SuperSocket.Facility.PolicyServer
                 return false;
             }
 
-            m_PolicyResponse = SetupPolicyResponse(File.ReadAllBytes(m_PolicyFile));
+            PolicyResponse = SetupPolicyResponse(File.ReadAllBytes(m_PolicyFile));
             
             this.CommandHandler += new CommandHandler<PolicySession, BinaryCommandInfo>(PolicyServer_CommandHandler);
 
@@ -66,6 +66,11 @@ namespace SuperSocket.Facility.PolicyServer
         protected virtual byte[] SetupPolicyResponse(byte[] policyFileData)
         {
             return policyFileData;
+        }
+
+        protected virtual byte[] GetPolicyFileResponse(IPEndPoint clientEndPoint)
+        {
+            return PolicyResponse;
         }
 
         void PolicyServer_CommandHandler(PolicySession session, BinaryCommandInfo commandInfo)
@@ -83,7 +88,7 @@ namespace SuperSocket.Facility.PolicyServer
                 return;
             }
 
-            session.SendResponse(m_PolicyResponse);
+            session.SendResponse(GetPolicyFileResponse(session.RemoteEndPoint));
         }
     }
 }
