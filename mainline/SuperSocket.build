@@ -57,12 +57,16 @@
 		<property name="net.version" value="Net40" />
 		<property name="project.file" value="SocketService\SocketService.csproj" />
 		<call target="buildProject"/>
+		<property name="project.file" value="Facility\Facility.csproj" />
+		<call target="buildProject"/>
 	</target>
 	
 	<target name="buildRelease40">
 		<property name="buildConfiguration" value="Release" />
 		<property name="net.version" value="Net40" />
 		<property name="project.file" value="SocketService\SocketService.csproj" />
+		<call target="buildProject"/>
+		<property name="project.file" value="Facility\Facility.csproj" />
 		<call target="buildProject"/>
 	</target>
 	
@@ -71,12 +75,16 @@
 		<property name="net.version" value="Net35" />
 		<property name="project.file" value="SocketService\SocketService35.csproj" />
 		<call target="buildProject"/>
+		<property name="project.file" value="Facility\Facility.Net35.csproj" />
+		<call target="buildProject"/>
 	</target>
 	
 	<target name="buildRelease35">
 		<property name="buildConfiguration" value="Release" />
 		<property name="net.version" value="Net35" />
 		<property name="project.file" value="SocketService\SocketService35.csproj" />
+		<call target="buildProject"/>
+		<property name="project.file" value="Facility\Facility.Net35.csproj" />
 		<call target="buildProject"/>
 	</target>
 	
