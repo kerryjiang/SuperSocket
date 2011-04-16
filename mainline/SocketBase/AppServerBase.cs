@@ -482,8 +482,6 @@ namespace SuperSocket.SocketBase
             Interlocked.Increment(ref m_TotalHandledCommands);
         }
 
-        private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-
         public IEnumerable<IConnectionFilter> ConnectionFilters
         {
             get { return m_ConnectionFilters; }
