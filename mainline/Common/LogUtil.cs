@@ -12,7 +12,10 @@ namespace SuperSocket.Common
 
         public static void Setup()
         {
-            Setup(Path.Combine("Config", "log4net.config"));
+            if(Path.DirectorySeparatorChar == '\\') // Windows
+                Setup(Path.Combine("Config", "log4net.config"));
+            else //Unix
+                Setup(Path.Combine("Config", "log4net.unix.config"));
         }
 
         public static void Setup(string log4netConfig)

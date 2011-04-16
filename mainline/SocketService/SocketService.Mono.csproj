@@ -103,6 +103,13 @@
     <Content Include="InstallService.bat">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Config\log4net.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\Solution Items\log4net.config">
+      <Link>Config\log4net.unix.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -151,9 +158,6 @@
   <ItemGroup>
     <None Include="..\Solution Items\Net40\App.config">
       <Link>App.config</Link>
-    </None>
-    <None Include="..\Solution Items\Linux\log4net.config">
-      <Link>Config\log4net.config</Link>
     </None>
   </ItemGroup>
   <ItemGroup>
