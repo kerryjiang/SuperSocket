@@ -56,8 +56,7 @@ namespace SuperSocket.Common
 
         private string ProcessLogFilePath(string rawFilePath)
         {
-            rawFilePath = rawFilePath.Replace('/', Path.DirectorySeparatorChar);
-            var fileNodes = rawFilePath.Split(Path.DirectorySeparatorChar).ToList();
+            var fileNodes = rawFilePath.Split('/', '\\').ToList();
             fileNodes.Insert(fileNodes.Count - 1, Name);
             return string.Join(Path.DirectorySeparatorChar.ToString(), fileNodes.ToArray());
         }

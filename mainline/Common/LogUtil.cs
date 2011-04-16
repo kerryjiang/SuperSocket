@@ -12,7 +12,7 @@ namespace SuperSocket.Common
 
         public static void Setup()
         {
-            Setup(@"Config\log4net.config");
+            Setup(Path.Combine("Config", "log4net.config"));
         }
 
         public static void Setup(string log4netConfig)
