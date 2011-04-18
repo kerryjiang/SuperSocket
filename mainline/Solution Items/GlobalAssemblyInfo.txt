@@ -1,15 +1,10 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-// Version information for an assembly consists of the following four values:
-//
-//      Major Version
-//      Minor Version 
-//      Build Number
-//      Revision
-//
-[assembly: AssemblyVersion("{build.version}.{head.revision}")]
-[assembly: AssemblyFileVersion("{build.version}.{head.revision}")]
+
+[assembly: AssemblyVersion("{build.version}.0")]
+[assembly: AssemblyFileVersion("{build.version}.0")]
+[assembly: AssemblyInformationalVersion("{build.version}.{head.revision}")]
 [assembly: AssemblyCompany("SuperSocket")]
 [assembly: AssemblyProduct("SuperSocket")]
 [assembly: AssemblyCopyright("Copyright © supersocket.codeplex.com 2011")]
