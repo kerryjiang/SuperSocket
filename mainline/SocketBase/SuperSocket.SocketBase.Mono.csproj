@@ -122,9 +122,9 @@
   </Target>
   -->
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.Mono.csproj">
+    <ProjectReference Include="..\Common\SuperSocket.Common.Mono.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
-      <Name>Common.Mono</Name>
+      <Name>SuperSocket.Common.Mono</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

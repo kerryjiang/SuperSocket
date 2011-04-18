@@ -103,9 +103,9 @@
     <Compile Include="SocketUser.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\Common.csproj">
+    <ProjectReference Include="..\Common\SuperSocket.Common.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
-      <Name>Common</Name>
+      <Name>SuperSocket.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

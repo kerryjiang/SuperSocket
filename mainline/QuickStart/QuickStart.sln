@@ -5,9 +5,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SuperSocket", "SuperSocket"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomCommandParser", "CustomCommandParser\CustomCommandParser.csproj", "{18457034-1FC3-4464-AA10-23B58EB1B0D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\Common\Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common", "..\Common\SuperSocket.Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketService", "..\SocketService\SocketService.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService", "..\SocketService\SuperSocket.SocketService.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EchoService", "EchoService\EchoService.csproj", "{6967B4E6-474F-4D79-BD4D-BD701A8A6085}"
 EndProject
@@ -15,15 +15,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteProcessService", "Rem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BroadcastService", "BroadcastService\BroadcastService.csproj", "{083155D6-A0A2-4703-AC43-7C6496A9B607}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "..\Test\Test.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Test", "..\Test\SuperSocket.Test.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketBase", "..\SocketBase\SocketBase.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase", "..\SocketBase\SuperSocket.SocketBase.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SocketEngine", "..\SocketEngine\SocketEngine.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine", "..\SocketEngine\SuperSocket.SocketEngine.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomProtocol", "CustomProtocol\CustomProtocol.csproj", "{FB261628-26FD-48B5-9D3D-C9E34B4728CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Facility", "..\Facility\Facility.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility", "..\Facility\SuperSocket.Facility.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

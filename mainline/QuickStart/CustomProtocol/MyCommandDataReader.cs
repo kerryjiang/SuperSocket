@@ -14,7 +14,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
 
         private string m_CommandName;
 
-        public MyCommandDataReader(string commandName, int length, ICommandReader<BinaryCommandInfo> previousCommandReader)
+        public MyCommandDataReader(string commandName, int length, CommandReaderBase<BinaryCommandInfo> previousCommandReader)
             : base(previousCommandReader)
         {
             m_Length = length;
