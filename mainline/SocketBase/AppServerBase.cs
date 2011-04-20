@@ -413,7 +413,7 @@ namespace SuperSocket.SocketBase
 
         private CommandHandler<TAppSession, TCommandInfo> m_CommandHandler;
 
-        public event CommandHandler<TAppSession, TCommandInfo> CommandHandler
+        protected event CommandHandler<TAppSession, TCommandInfo> CommandHandler
         {
             add { m_CommandHandler += value; }
             remove { m_CommandHandler -= value; }
