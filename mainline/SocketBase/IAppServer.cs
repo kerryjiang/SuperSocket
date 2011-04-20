@@ -78,10 +78,33 @@ namespace SuperSocket.SocketBase
     public interface IAppServer<TAppSession> : IAppServer
         where TAppSession : IAppSession
     {
+        /// <summary>
+        /// Gets the certificate of current server.
+        /// </summary>
         X509Certificate Certificate { get; }
+
+        /// <summary>
+        /// Gets the transfer layer security protocol.
+        /// </summary>
         SslProtocols BasicSecurity { get; }
+
+        /// <summary>
+        /// Creates a new app session by a socket session.
+        /// </summary>
+        /// <param name="socketSession">The socket session.</param>
+        /// <returns></returns>
         TAppSession CreateAppSession(ISocketSession socketSession);
+
+        /// <summary>
+        /// Gets the app session by indentity key from server's session container.
+        /// </summary>
+        /// <param name="identityKey">The identity key.</param>
+        /// <returns></returns>
         TAppSession GetAppSessionByIndentityKey(string identityKey);
+
+        /// <summary>
+        /// Gets the total session count.
+        /// </summary>
         int SessionCount { get; }
     }
 
@@ -89,6 +112,11 @@ namespace SuperSocket.SocketBase
         where TCommandInfo : ICommandInfo
         where TAppSession : IAppSession<TCommandInfo>
     {
+        /// <summary>
+        /// Executes the command.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="commandInfo">The command info.</param>
         void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
     }
 }
