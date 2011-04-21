@@ -110,6 +110,11 @@ namespace SuperSocket.SocketBase
         void ApplySecureProtocol(SocketContext context);
 
         /// <summary>
+        /// Gets the client socket.
+        /// </summary>
+        Socket Client { get; }
+
+        /// <summary>
         /// Gets the underly stream of the socket connection, only supported in Sync mode.
         /// </summary>
         /// <returns></returns>
