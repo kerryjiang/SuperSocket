@@ -12,6 +12,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using PerformanceTestAgent.ViewModel;
+using System.Threading;
 
 namespace PerformanceTestAgent
 {
@@ -20,6 +21,8 @@ namespace PerformanceTestAgent
     /// </summary>
     public partial class MainWindow : Window
     {
+        private int m_TotalMessages = 0;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -30,10 +33,24 @@ namespace PerformanceTestAgent
 
         void viewModel_ContentAppend(object sender, ContentAppendEventArgs e)
         {
-            Dispatcher.Invoke(new Action(() =>
+            bool clearFirst = false;
+
+            if (m_TotalMessages > 2000)
             {
+                clearFirst = true;
+            }
+                
+            Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (clearFirst)
+                {
+                    Interlocked.Exchange(ref m_TotalMessages, 0);
+                    tbDashBoard.Clear();
+                }
                 tbDashBoard.AppendText(e.Content);
             }));
+
+            Interlocked.Increment(ref m_TotalMessages);
         }
     }
 }
