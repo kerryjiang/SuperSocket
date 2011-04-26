@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestAgent", "Per
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerformanceTestConsole", "PerformanceTestConsole\PerformanceTestConsole.csproj", "{62C39592-6C9C-4450-A3A4-1FF3929A82EF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "..\mainline\Common\Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common", "..\mainline\Common\SuperSocket.Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
