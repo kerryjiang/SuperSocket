@@ -49,6 +49,8 @@ namespace SuperSocket.SocketEngine
 #else
             client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
 #endif
+            client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
+            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
             TAppSession appSession = this.AppServer.CreateAppSession(session);
             session.Initialize(this.AppServer, appSession);
