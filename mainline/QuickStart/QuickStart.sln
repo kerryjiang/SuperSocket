@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomProtocol", "CustomPro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility", "..\Facility\SuperSocket.Facility.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPSSocketServer", "GPSSocketServer\GPSSocketServer.csproj", "{2B1DD784-5A9D-4177-9291-ADEB3213A938}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{01987BAC-C498-44DD-B274-62EA2506B51D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01987BAC-C498-44DD-B274-62EA2506B51D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{01987BAC-C498-44DD-B274-62EA2506B51D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B1DD784-5A9D-4177-9291-ADEB3213A938}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B1DD784-5A9D-4177-9291-ADEB3213A938}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B1DD784-5A9D-4177-9291-ADEB3213A938}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B1DD784-5A9D-4177-9291-ADEB3213A938}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
