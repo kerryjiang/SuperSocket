@@ -54,7 +54,7 @@
 	
 	<target name="buildMonoProject">
 		<call target="clean"/>
-		<exec program="mono xbuild"
+		<exec program="xbuild"
 			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${head.revision}\${net.version}\${buildConfiguration}"
 			failonerror="true" verbose="false" />
 	</target>
