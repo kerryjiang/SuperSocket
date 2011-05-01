@@ -52,6 +52,13 @@
 			failonerror="true" verbose="false" />
 	</target>
 	
+	<target name="buildMonoProject">
+		<call target="clean"/>
+		<exec program="mono xbuild"
+			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${head.revision}\${net.version}\${buildConfiguration}"
+			failonerror="true" verbose="false" />
+	</target>
+	
 	<target name="buildDebug40">
 		<property name="buildConfiguration" value="Debug" />
 		<property name="net.version" value="Net40" />
@@ -86,6 +93,24 @@
 		<call target="buildProject"/>
 		<property name="project.file" value="Facility\SuperSocket.Facility.Net35.csproj" />
 		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildMonoDebug">
+		<property name="buildConfiguration" value="Debug" />
+		<property name="net.version" value="Mono-Net40" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.Mono.csproj" />
+		<call target="buildMonoProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.Mono.csproj" />
+		<call target="buildMonoProject"/>
+	</target>
+	
+	<target name="buildMonoRelease">
+		<property name="buildConfiguration" value="Release" />
+		<property name="net.version" value="Mono-Net40" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.Mono.csproj" />
+		<call target="buildMonoProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.Mono.csproj" />
+		<call target="buildMonoProject"/>
 	</target>
 	
 	<target name="createReleasePackage">		
