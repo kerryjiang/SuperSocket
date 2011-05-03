@@ -534,6 +534,23 @@ namespace SuperSocket.SocketBase
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Gets the matched sessions from sessions snapshot.
+        /// </summary>
+        /// <param name="critera">The prediction critera.</param>
+        public virtual IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Gets all sessions in sessions snapshot.
+        /// </summary>
+        public virtual IEnumerable<TAppSession> GetAllSessions()
+        {
+            throw new NotSupportedException();
+        }
+
         public virtual int SessionCount
         {
             get

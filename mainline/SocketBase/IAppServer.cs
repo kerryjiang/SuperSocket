@@ -103,6 +103,19 @@ namespace SuperSocket.SocketBase
         TAppSession GetAppSessionByIndentityKey(string identityKey);
 
         /// <summary>
+        /// Gets the matched sessions from sessions snapshot.
+        /// </summary>
+        /// <param name="critera">The prediction critera.</param>
+        /// <returns></returns>
+        IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera);
+
+        /// <summary>
+        /// Gets all sessions in sessions snapshot.
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<TAppSession> GetAllSessions();
+
+        /// <summary>
         /// Gets the total session count.
         /// </summary>
         int SessionCount { get; }

@@ -199,7 +199,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="critera">The prediction critera.</param>
         /// <returns></returns>
-        public IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
+        public override IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
         {
             return m_SessionsSnapshot.Select(p => p.Value).Where(critera);
         }
@@ -208,7 +208,7 @@ namespace SuperSocket.SocketBase
         /// Gets all sessions in sessions snapshot.
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<TAppSession> GetAllSessions()
+        public override IEnumerable<TAppSession> GetAllSessions()
         {
             return m_SessionsSnapshot.Select(p => p.Value);
         }
