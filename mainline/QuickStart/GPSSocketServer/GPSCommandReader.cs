@@ -31,7 +31,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer
             
         }
 
-        public override BinaryCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public override BinaryCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
 

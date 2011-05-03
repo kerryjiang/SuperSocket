@@ -47,24 +47,19 @@ namespace SuperSocket.SocketBase.Protocol
             m_CommandParser = commandParser;
         }
 
-        public override StringCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public override StringCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             NextCommandReader = this;
 
             string command;
 
-            if (!FindCommandDirectly(readBuffer, offset, length, isReusableBuffer, out command, out left))
+            if (!FindCommandInfoDirectly(readBuffer, offset, length, isReusableBuffer, out command, out left))
                 return null;
 
             return m_CommandParser.ParseCommand(command);
-        }
+        }        
 
-        protected void ClearBuffer()
-        {
-            BufferSegments.ClearSegements();
-        }
-
-        protected bool FindCommandDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command, out int left)
+        protected bool FindCommandInfoDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command, out int left)
         {
             left = 0;
             ArraySegment<byte> currentSegment;
@@ -98,7 +93,8 @@ namespace SuperSocket.SocketBase.Protocol
             int findLen = result.Value + Terminator.Length;
             int total = BufferSegments.Count;
             command = Encoding.GetString(BufferSegments.ToArrayData(0, result.Value));
-            ClearBuffer();
+
+            ClearBufferSegments();
 
             if (findLen < total)
             {

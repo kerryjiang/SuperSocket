@@ -28,7 +28,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
         /// <param name="length">The length.</param>
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         /// <returns></returns>
-        public override BinaryCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        public override BinaryCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             int leftLength = 10 - this.BufferSegments.Count;
 

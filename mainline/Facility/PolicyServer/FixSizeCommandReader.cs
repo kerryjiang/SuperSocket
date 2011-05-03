@@ -22,7 +22,7 @@ namespace SuperSocket.Facility.PolicyServer
 
         public IAppServer AppServer { get; private set; }
 
-        public BinaryCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public BinaryCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
 

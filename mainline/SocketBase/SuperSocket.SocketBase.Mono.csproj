@@ -81,12 +81,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicCommandParser.cs" />
     <Compile Include="Protocol\CommandLineProtocol.cs" />
-    <Compile Include="Protocol\ICommandParameterParser.cs" />
     <Compile Include="Protocol\ICommandParser.cs" />
-    <Compile Include="Protocol\ICommandParserProtocol.cs" />
-    <Compile Include="Protocol\SocketProtocolBase.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="ProviderBase.cs" />
     <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />

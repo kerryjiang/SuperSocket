@@ -88,10 +88,10 @@
     <Compile Include="Protocol\BasicCommandParser.cs" />
     <Compile Include="Protocol\CommandLineProtocol.cs" />
     <Compile Include="Protocol\CommandReaderBase.cs" />
-    <Compile Include="Protocol\ICommandParameterParser.cs" />
     <Compile Include="Protocol\ICommandParser.cs" />
-    <Compile Include="Protocol\ICommandParserProtocol.cs" />
-    <Compile Include="Protocol\ICommandReader.cs" />
+    <Compile Include="Protocol\ICommandReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Protocol\ICustomProtocol.cs" />
     <Compile Include="Protocol\TerminatorCommandReader.cs" />
     <Compile Include="ProviderBase.cs" />

@@ -8,11 +8,18 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Protocol
 {
+    /// <summary>
+    /// The base class for command reader
+    /// </summary>
+    /// <typeparam name="TCommandInfo">The type of the command info.</typeparam>
     public abstract class CommandReaderBase<TCommandInfo> : ICommandReader<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
         private readonly ArraySegmentList<byte> m_BufferSegments;
 
+        /// <summary>
+        /// Gets the buffer segments which can help you parse your commands conviniently.
+        /// </summary>
         protected ArraySegmentList<byte> BufferSegments
         {
             get { return m_BufferSegments; }
@@ -23,12 +30,20 @@ namespace SuperSocket.SocketBase.Protocol
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandReaderBase&lt;TCommandInfo&gt;"/> class.
+        /// </summary>
+        /// <param name="appServer">The app server.</param>
         public CommandReaderBase(IAppServer appServer)
         {
             AppServer = appServer;
             m_BufferSegments = new ArraySegmentList<byte>();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandReaderBase&lt;TCommandInfo&gt;"/> class.
+        /// </summary>
+        /// <param name="previousCommandReader">The previous command reader.</param>
         public CommandReaderBase(CommandReaderBase<TCommandInfo> previousCommandReader)
         {
             AppServer = previousCommandReader.AppServer;
@@ -37,39 +52,92 @@ namespace SuperSocket.SocketBase.Protocol
 
         #region ICommandReader<TCommandInfo> Members
 
+        /// <summary>
+        /// Gets the app server.
+        /// </summary>
         public IAppServer AppServer { get; private set; }
 
-        public virtual TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        /// <summary>
+        /// Finds the command info from current received read buffer.
+        /// </summary>
+        /// <param name="context">The socket context.</param>
+        /// <param name="readBuffer">The read buffer.</param>
+        /// <param name="offset">The offset of the received data in readBuffer.</param>
+        /// <param name="length">The length the received data.</param>
+        /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
+        /// <param name="left">The size of left data which has not been parsed by this commandReader.</param>
+        /// <returns>return the found commandInfo, return null if found nothing</returns>
+        public virtual TCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
-            return FindCommand(context, readBuffer, offset, length, isReusableBuffer);
+            return FindCommandInfo(context, readBuffer, offset, length, isReusableBuffer);
         }
 
-        public virtual TCommandInfo FindCommand(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        /// <summary>
+        /// Finds the command info from current received read buffer.
+        /// </summary>
+        /// <param name="context">The socket context.</param>
+        /// <param name="readBuffer">The read buffer.</param>
+        /// <param name="offset">The offset of the received data in readBuffer.</param>
+        /// <param name="length">The length the received data.</param>
+        /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
+        /// <returns>return the found commandInfo, return null if found nothing</returns>
+        public virtual TCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             return default(TCommandInfo);
         }
 
+        /// <summary>
+        /// Gets the left buffer.
+        /// </summary>
+        /// <returns></returns>
         public byte[] GetLeftBuffer()
         {
             return m_BufferSegments.ToArrayData();
         }
 
+        /// <summary>
+        /// Gets the size of the left buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the left buffer.
+        /// </value>
         public int LeftBufferSize
         {
             get { return m_BufferSegments.Count; }
         }
 
+        /// <summary>
+        /// Gets the command reader which will be used for next round receiving.
+        /// </summary>
+        /// <value>
+        /// The next command reader.
+        /// </value>
         public ICommandReader<TCommandInfo> NextCommandReader { get; protected set; }
 
         #endregion
 
+        /// <summary>
+        /// Adds the array into BufferSegments.
+        /// </summary>
+        /// <param name="buffer">The buffer which will be added into BufferSegments.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         protected void AddArraySegment(byte[] buffer, int offset, int length, bool isReusableBuffer)
         {
             if (isReusableBuffer)
                 BufferSegments.AddSegment(new ArraySegment<byte>(buffer.CloneRange(offset, length)));
             else
                 BufferSegments.AddSegment(new ArraySegment<byte>(buffer, offset, length));
+        }
+
+        /// <summary>
+        /// Clears the buffer segments.
+        /// </summary>
+        protected void ClearBufferSegments()
+        {
+            BufferSegments.ClearSegements();
         }
     }
 }
