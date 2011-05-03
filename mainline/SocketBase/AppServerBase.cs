@@ -376,7 +376,14 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
+            OnStartup();
+
             return true;
+        }
+
+        protected virtual void OnStartup()
+        {
+
         }
 
         public virtual void Stop()
