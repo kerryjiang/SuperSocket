@@ -100,7 +100,6 @@
     <Compile Include="SocketContext.cs" />
     <Compile Include="SocketContextStatus.cs" />
     <Compile Include="SocketMode.cs" />
-    <Compile Include="SocketUser.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.csproj">

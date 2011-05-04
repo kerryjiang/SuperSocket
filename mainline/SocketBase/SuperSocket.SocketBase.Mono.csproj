@@ -88,7 +88,6 @@
     <Compile Include="SocketContext.cs" />
     <Compile Include="SocketContextStatus.cs" />
     <Compile Include="SocketMode.cs" />
-    <Compile Include="SocketUser.cs" />
     <Compile Include="ISessionBase.cs" />
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="Protocol\ICustomProtocol.cs" />

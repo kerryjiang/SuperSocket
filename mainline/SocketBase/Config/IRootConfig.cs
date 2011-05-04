@@ -9,8 +9,6 @@ namespace SuperSocket.SocketBase.Config
     {
         ICredentialConfig CredentialConfig { get; }
 
-        string ConsoleBaseAddress { get; }
-
         LoggingMode LoggingMode { get; }
 
         int MaxWorkingThreads { get; }

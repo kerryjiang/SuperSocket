@@ -34,8 +34,6 @@ namespace SuperSocket.SocketBase
 
         public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
 
-        private string m_ConsoleBaseAddress;
-
         public ServiceCredentials ServerCredentials { get; set; }
 
         private Dictionary<string, ICommand<TAppSession, TCommandInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TCommandInfo>>(StringComparer.OrdinalIgnoreCase);
@@ -97,63 +95,6 @@ namespace SuperSocket.SocketBase
             m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
         }
 
-        private ServiceHost CreateConsoleHost(ConsoleHostInfo consoleInfo)
-        {
-            var binding = new BasicHttpBinding();
-
-            var host = new ServiceHost(consoleInfo.ServiceInstance, new Uri(m_ConsoleBaseAddress + Name));
-
-            foreach (var contract in consoleInfo.ServiceContracts)
-            {
-                host.AddServiceEndpoint(contract, binding, contract.Name);
-            }
-
-            return host;
-        }
-
-        private ServiceHost m_ConsoleHost;
-
-        private bool StartConsoleHost()
-        {
-            var consoleInfo = ConsoleHostInfo;
-
-            if (consoleInfo == null)
-                return true;
-
-            m_ConsoleHost = CreateConsoleHost(consoleInfo);
-
-            try
-            {
-                m_ConsoleHost.Open();
-                return true;
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e);
-                m_ConsoleHost = null;
-                return false;
-            }
-        }
-
-        private void CloseConsoleHost()
-        {
-            if (m_ConsoleHost == null)
-                return;
-
-            try
-            {
-                m_ConsoleHost.Close();
-            }
-            catch (Exception e)
-            {
-                Logger.LogError("Failed to close console service host!", e);
-            }
-            finally
-            {
-                m_ConsoleHost = null;
-            }
-        }
-
         public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
             return Setup(rootConfig, config, socketServerFactory, null);
@@ -184,7 +125,6 @@ namespace SuperSocket.SocketBase
 
             Config = config;
 
-            m_ConsoleBaseAddress = rootConfig.ConsoleBaseAddress;
             m_SocketServerFactory = socketServerFactory;
 
             SetupLogger();
@@ -367,14 +307,7 @@ namespace SuperSocket.SocketBase
             }
 
             if (!m_SocketServer.Start())
-                return false;            
-
-            if (!StartConsoleHost())
-            {
-                Logger.LogError("Failed to start console service host!");
-                Stop();
                 return false;
-            }
 
             OnStartup();
 
@@ -386,10 +319,16 @@ namespace SuperSocket.SocketBase
 
         }
 
+        protected virtual void OnStopped()
+        {
+
+        }
+
         public virtual void Stop()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+            OnStopped();
         }
 
         public bool IsRunning
@@ -582,8 +521,6 @@ namespace SuperSocket.SocketBase
                 {
                     m_SocketServer.Stop();
                 }
-
-                CloseConsoleHost();
             }
         }
 

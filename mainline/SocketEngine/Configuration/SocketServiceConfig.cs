@@ -54,15 +54,6 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        [ConfigurationProperty("consoleBaseAddress", IsRequired = false)]
-        public string ConsoleBaseAddress
-        {
-            get
-            {
-                return this["consoleBaseAddress"] as string;
-            }
-        }
-
         [ConfigurationProperty("loggingMode", IsRequired = false, DefaultValue = "ShareFile")]
         public LoggingMode LoggingMode
         {
