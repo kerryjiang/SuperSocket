@@ -35,7 +35,7 @@ namespace SuperSocket.Common
         {
             try
             {
-                result = Type.GetType(type);
+                result = Type.GetType(type, true);
                 return true;
             }
             catch (Exception e)
