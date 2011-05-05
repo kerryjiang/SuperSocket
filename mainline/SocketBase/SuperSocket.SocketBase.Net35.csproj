@@ -69,7 +69,6 @@
     <Compile Include="Config\IConfig.cs" />
     <Compile Include="Config\IConnectionFilterConfig.cs" />
     <Compile Include="Config\ICredentialConfig.cs" />
-    <Compile Include="Config\IGenericServerConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
@@ -80,7 +79,6 @@
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />
     <Compile Include="IConnectionFilter.cs" />
-    <Compile Include="IGenericServer.cs" />
     <Compile Include="ISessionBase.cs" />
     <Compile Include="ISocketServer.cs" />
     <Compile Include="ISocketServerFactory.cs" />

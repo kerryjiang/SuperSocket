@@ -6,12 +6,19 @@ namespace SuperSocket.SocketBase.Config
 {
     public interface IConfig : IRootConfig
     {
+        /// <summary>
+        /// Gets all the server configurations
+        /// </summary>
         IEnumerable<IServerConfig> Servers { get; }
 
-        IEnumerable<IGenericServerConfig> GenericServers { get; }
-
+        /// <summary>
+        /// Gets the service configurations
+        /// </summary>
         IEnumerable<IServiceConfig> Services { get; }
-        
+
+        /// <summary>
+        /// Gets all the connection filter configurations.
+        /// </summary>
         IEnumerable<IConnectionFilterConfig> ConnectionFilters { get; }
     }
 }

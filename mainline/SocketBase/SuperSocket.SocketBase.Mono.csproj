@@ -102,8 +102,6 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Config\IGenericServerConfig.cs" />
-    <Compile Include="IGenericServer.cs" />
     <Compile Include="AppServerBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

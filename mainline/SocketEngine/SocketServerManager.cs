@@ -21,16 +21,11 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// main AppServer instances list
         /// </summary>
-        private static List<IAppServer> m_ServerList = new List<IAppServer>();
+        private static List<IAppServer> m_ServerList;
 
-        /// <summary>
-        /// generic helper server instances list
-        /// </summary>
-        private static List<IGenericServer> m_GenericServerList = new List<IGenericServer>();
-
-        private static Dictionary<string, Type> m_ServiceDict = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, Type> m_ServiceDict;
         
-        private static Dictionary<string, IConnectionFilter> m_ConnectionFilterDict = new Dictionary<string, IConnectionFilter>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, IConnectionFilter> m_ConnectionFilterDict;
 
         private static IConfig m_Config;
 
@@ -50,9 +45,11 @@ namespace SuperSocket.SocketEngine
             if (m_Initialized)
                 throw new Exception("The server had been initialized already, you cannot initialize it again!");
 
-            m_Config = config;
+            m_Config = config;            
 
             //Initialize services
+            m_ServiceDict = new Dictionary<string, Type>(config.Services.Count(), StringComparer.OrdinalIgnoreCase);
+
             foreach (var service in config.Services)
             {
                 if (service.Disabled)
@@ -68,11 +65,12 @@ namespace SuperSocket.SocketEngine
 
                 m_ServiceDict[service.Name] = serviceType;
             }
-            
-            //Initialize connection filter
+
+            //Initialize connection filters
+            m_ConnectionFilterDict = new Dictionary<string, IConnectionFilter>(config.ConnectionFilters.Count(), StringComparer.OrdinalIgnoreCase);
+
             foreach (var filter in config.ConnectionFilters)
-            {
-                
+            {                
                 Type filterType;
 
                 if (!AssemblyUtil.TryGetType(filter.Type, out filterType))
@@ -100,36 +98,9 @@ namespace SuperSocket.SocketEngine
                 }
                 
                 m_ConnectionFilterDict[filter.Name] = filterInstance;
-            }
+            }            
 
-            //Initialize generic servers
-            foreach (var genericServerConfig in config.GenericServers)
-            {
-                Type serverType;
-
-                if (!AssemblyUtil.TryGetType(genericServerConfig.Type, out serverType))
-                {
-                    LogUtil.LogError("Failed to initialize generic server type " + genericServerConfig.Name + "!");
-                    continue;
-                }
-
-                IGenericServer serverInstance;
-
-                try
-                {
-                    serverInstance = (IGenericServer)Activator.CreateInstance(serverType);
-                    if(!serverInstance.Initialize(genericServerConfig, LogUtil.GetRootLogger()))
-                        throw new Exception("Failed to initialize GeneriServer!");
-
-                    m_GenericServerList.Add(serverInstance);                    
-                }
-                catch (Exception e)
-                {
-                    LogUtil.LogError("Failed to initialize generic server instance " + genericServerConfig.Name + "!", e);
-                    continue;
-                }
-            }
-
+            m_ServerList = new List<IAppServer>(config.Servers.Count());
             //Initialize servers
             foreach (var serverConfig in config.Servers)
             {
@@ -162,6 +133,7 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public static bool Initialize(IEnumerable<IAppServer> servers)
         {
+            m_ServerList = new List<IAppServer>(servers.Count());
             m_ServerList.AddRange(servers);
             m_Initialized = true;
             return true;
@@ -227,6 +199,12 @@ namespace SuperSocket.SocketEngine
 
         public static bool Start()
         {
+            if (!m_Initialized)
+            {
+                LogUtil.LogError("You cannot invoke method Start() before initializing!");
+                return false;
+            }
+
             foreach (IAppServer server in m_ServerList)
             {
                 if (!server.Start())
@@ -240,18 +218,6 @@ namespace SuperSocket.SocketEngine
             }
 
             StartPerformanceLog();
-
-            try
-            {
-                foreach (var server in m_GenericServerList)
-                {
-                    server.Start();
-                }
-            }
-            catch (Exception e)
-            {
-                LogUtil.LogError(e);
-            }
 
             return true;
         }
@@ -268,18 +234,6 @@ namespace SuperSocket.SocketEngine
             }
 
             StopPerformanceLog();
-
-            try
-            {
-                foreach (var server in m_GenericServerList)
-                {
-                    server.Stop();
-                }
-            }
-            catch (Exception e)
-            {
-                LogUtil.LogError(e);
-            }
         }
 
         public static IServiceConfig GetServiceConfig(string name)
