@@ -167,4 +167,9 @@ namespace SuperSocket.SocketBase
             base.SendResponse(ProcessSendingMessage(message), paramValues);
         }
     }
+
+    public class AppSession : AppSession<AppSession>
+    {
+
+    }
 }

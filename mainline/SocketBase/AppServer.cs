@@ -21,6 +21,21 @@ using SuperSocket.SocketBase.Security;
 
 namespace SuperSocket.SocketBase
 {
+    public abstract class AppServer : AppServer<AppSession>
+    {
+        public AppServer()
+            : base()
+        {
+
+        }
+
+        public AppServer(ICustomProtocol<StringCommandInfo> protocol)
+            : base(protocol)
+        {
+
+        }
+    }
+
     public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringCommandInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
     {
