@@ -392,7 +392,7 @@ namespace SuperSocket.SocketBase
                     List<CommandFilterAttribute> commandFilters;
                     m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
                         
-                    session.Context.CurrentCommand = commandInfo.Key;
+                    session.CurrentCommand = commandInfo.Key;
                     
                     ExecuteCommandFilters(commandFilters, session, command,
                                           (f, s, c) => f.OnCommandExecuting(s, c));
@@ -402,7 +402,7 @@ namespace SuperSocket.SocketBase
                     ExecuteCommandFilters(commandFilters, session, command,
                                           (f, s, c) => f.OnCommandExecuted(s, c));
                     
-                    session.Context.PrevCommand = commandInfo.Key;
+                    session.PrevCommand = commandInfo.Key;
 
                     if (Config.LogCommand)
                         Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
@@ -416,9 +416,9 @@ namespace SuperSocket.SocketBase
             }
             else
             {
-                session.Context.CurrentCommand = commandInfo.Key;
+                session.CurrentCommand = commandInfo.Key;
                 m_CommandHandler(session, commandInfo);
-                session.Context.PrevCommand = commandInfo.Key;
+                session.PrevCommand = commandInfo.Key;
                 session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand)

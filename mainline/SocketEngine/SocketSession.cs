@@ -110,7 +110,7 @@ namespace SuperSocket.SocketEngine
 
         protected internal TCommandInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
-            var commandInfo = CommandReader.FindCommandInfo(AppSession.Context, readBuffer, offset, length, isReusableBuffer, out left);
+            var commandInfo = CommandReader.FindCommandInfo(AppSession, readBuffer, offset, length, isReusableBuffer, out left);
 
             if (commandInfo == null)
             {
@@ -166,11 +166,11 @@ namespace SuperSocket.SocketEngine
             AppSession.HandleExceptionalError(e);
         }
 
-        public abstract void SendResponse(SocketContext context, string message);
+        public abstract void SendResponse(string message);
 
-        public abstract void SendResponse(SocketContext context, byte[] data);
+        public abstract void SendResponse(byte[] data);
 
-        public abstract void ApplySecureProtocol(SocketContext context);
+        public abstract void ApplySecureProtocol();
 
         public abstract void ReceiveData(Stream storeSteram, int length);
 

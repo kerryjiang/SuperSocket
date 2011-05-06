@@ -60,29 +60,33 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Finds the command info from current received read buffer.
         /// </summary>
-        /// <param name="context">The socket context.</param>
+        /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
         /// <param name="offset">The offset of the received data in readBuffer.</param>
         /// <param name="length">The length the received data.</param>
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         /// <param name="left">The size of left data which has not been parsed by this commandReader.</param>
-        /// <returns>return the found commandInfo, return null if found nothing</returns>
-        public virtual TCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        /// <returns>
+        /// return the found commandInfo, return null if found nothing
+        /// </returns>
+        public virtual TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
-            return FindCommandInfo(context, readBuffer, offset, length, isReusableBuffer);
+            return FindCommandInfo(session, readBuffer, offset, length, isReusableBuffer);
         }
 
         /// <summary>
         /// Finds the command info from current received read buffer.
         /// </summary>
-        /// <param name="context">The socket context.</param>
+        /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
         /// <param name="offset">The offset of the received data in readBuffer.</param>
         /// <param name="length">The length the received data.</param>
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
-        /// <returns>return the found commandInfo, return null if found nothing</returns>
-        public virtual TCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        /// <returns>
+        /// return the found commandInfo, return null if found nothing
+        /// </returns>
+        public virtual TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             return default(TCommandInfo);
         }

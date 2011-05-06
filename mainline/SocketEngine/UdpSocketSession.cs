@@ -63,18 +63,18 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public override void SendResponse(SocketContext context, string message)
+        public override void SendResponse(string message)
         {
-            byte[] data = context.Charset.GetBytes(message);
+            byte[] data = AppSession.Charset.GetBytes(message);
             m_ServerSocket.SendTo(data, RemoteEndPoint);
         }
 
-        public override void SendResponse(SocketContext context, byte[] data)
+        public override void SendResponse(byte[] data)
         {
             m_ServerSocket.SendTo(data, RemoteEndPoint);
         }
 
-        public override void ApplySecureProtocol(SocketContext context)
+        public override void ApplySecureProtocol()
         {
             throw new NotSupportedException();
         }

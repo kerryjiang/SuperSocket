@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.SocketBase
 {
-    public enum SocketContextStatus
+    public enum SessionStatus
     {
         Healthy,
         Error,

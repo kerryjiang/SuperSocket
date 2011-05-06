@@ -18,7 +18,7 @@ namespace SuperSocket.Test.Command
             MemoryStream ms = new MemoryStream();
             session.SocketSession.ReceiveData(ms, length);
             byte[] data = ms.ToArray();
-            session.SocketSession.SendResponse(session.Context, data);
+            session.SocketSession.SendResponse(data);
         }
     }
 }

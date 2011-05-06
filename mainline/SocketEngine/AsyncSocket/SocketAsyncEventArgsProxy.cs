@@ -42,12 +42,11 @@ namespace SuperSocket.SocketEngine.AsyncSocket
             }
         } 
 
-        public void Initialize(Socket socket, IAsyncSocketSession socketSession, SocketContext socketContext)
+        public void Initialize(Socket socket, IAsyncSocketSession socketSession)
         {
             var token = SocketEventArgs.UserToken as AsyncUserToken;
             token.Socket = socket;
             token.SocketSession = socketSession;
-            token.SocketContext = socketContext;
         }
 
         public void Reset()
@@ -55,7 +54,6 @@ namespace SuperSocket.SocketEngine.AsyncSocket
             var token = SocketEventArgs.UserToken as AsyncUserToken;
             token.Socket = null;
             token.SocketSession = null;
-            token.SocketContext = null;
         }
     }
 }

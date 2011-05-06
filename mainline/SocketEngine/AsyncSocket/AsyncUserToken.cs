@@ -27,8 +27,6 @@ namespace SuperSocket.SocketEngine
             set { m_socket = value; }
         }
 
-        public SocketContext SocketContext { get; set; }
-
         public IAsyncSocketSession SocketSession { get; set; }
     }
 }

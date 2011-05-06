@@ -97,8 +97,7 @@
     <Compile Include="ProviderBase.cs" />
     <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
-    <Compile Include="SocketContext.cs" />
-    <Compile Include="SocketContextStatus.cs" />
+    <Compile Include="SessionStatus.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>
   <ItemGroup>

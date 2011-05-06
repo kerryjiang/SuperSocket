@@ -38,8 +38,7 @@ namespace SuperSocket.SocketEngine
 
         public override void Start()
         {
-            //Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-            SocketAsyncProxy.Initialize(Client, this, AppSession.Context);
+            SocketAsyncProxy.Initialize(Client, this);
             StartSession();
             StartReceive(SocketAsyncProxy.SocketEventArgs);
         }
@@ -67,12 +66,12 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public override void SendResponse(SocketContext context, string message)
+        public override void SendResponse(string message)
         {
             if (IsClosed)
                 return;
 
-            byte[] data = context.Charset.GetBytes(message);
+            byte[] data = AppSession.Charset.GetBytes(message);
 
             if (IsClosed)
                 return;
@@ -87,7 +86,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public override void SendResponse(SocketContext context, byte[] data)
+        public override void SendResponse(byte[] data)
         {
             if(data == null || data.Length <= 0)
                 return;
@@ -158,7 +157,7 @@ namespace SuperSocket.SocketEngine
             StartReceive(e);
         }      
 
-        public override void ApplySecureProtocol(SocketContext context)
+        public override void ApplySecureProtocol()
         {
             //TODO: Implement async socket SSL/TLS encryption
         }

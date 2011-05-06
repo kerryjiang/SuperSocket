@@ -22,13 +22,13 @@ namespace SuperSocket.QuickStart.CustomProtocol
         /// "SEND 0008 xg^89W(v"
         /// Read 10 chars as command name and command data length
         /// </summary>
-        /// <param name="context">The context.</param>
+        /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         /// <returns></returns>
-        public override BinaryCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             int leftLength = 10 - this.BufferSegments.Count;
 

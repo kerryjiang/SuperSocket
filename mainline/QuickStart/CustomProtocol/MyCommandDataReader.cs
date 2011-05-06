@@ -21,7 +21,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
             m_CommandName = commandName;
         }
 
-        public override BinaryCommandInfo FindCommandInfo(SocketContext context, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
         {
             int leftLength = m_Length - BufferSegments.Count;
 

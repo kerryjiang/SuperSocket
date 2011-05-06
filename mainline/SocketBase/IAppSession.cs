@@ -5,6 +5,7 @@ using System.Text;
 using System.Net;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Command;
+using System.Collections;
 
 namespace SuperSocket.SocketBase
 {
@@ -16,9 +17,9 @@ namespace SuperSocket.SocketBase
         ISocketSession SocketSession { get; }
 
         /// <summary>
-        /// Gets the context of the socket session.
+        /// Gets the items.
         /// </summary>
-        SocketContext Context { get; }
+        IDictionary<object, object> Items { get; }
 
         /// <summary>
         /// Gets the config of the server.
@@ -64,6 +65,36 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="e">The e.</param>
         void HandleExceptionalError(Exception e);
+
+        /// <summary>
+        /// Gets or sets the status of session.
+        /// </summary>
+        /// <value>
+        /// The status.
+        /// </value>
+        SessionStatus Status { get; set; }
+
+        /// <summary>
+        /// Gets or sets the charset which is used for transfering text message.
+        /// </summary>
+        /// <value>The charset.</value>
+        Encoding Charset { get; set; }
+
+        /// <summary>
+        /// Gets or sets the previous command.
+        /// </summary>
+        /// <value>
+        /// The prev command.
+        /// </value>
+        string PrevCommand { get; set; }
+
+        /// <summary>
+        /// Gets or sets the current executing command.
+        /// </summary>
+        /// <value>
+        /// The current command.
+        /// </value>
+        string CurrentCommand { get; set; }
     }
 
     public interface IAppSession<TCommandInfo> : IAppSession

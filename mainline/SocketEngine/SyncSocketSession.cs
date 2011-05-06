@@ -38,15 +38,13 @@ namespace SuperSocket.SocketEngine
             //Hasn't started, but already closed
             if (IsClosed)
                 return;
-        
-            //Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
 
             m_ReadBuffer = new byte[Client.ReceiveBufferSize];
 
             try
             {
                 SecureProtocol = AppServer.BasicSecurity;
-                InitStream(AppSession.Context);
+                InitStream();
             }
             catch (Exception e)
             {
@@ -61,7 +59,7 @@ namespace SuperSocket.SocketEngine
 
             while (TryGetCommand(out commandInfo))
             {
-                AppSession.Context.Status = SocketContextStatus.Healthy;
+                AppSession.Status = SessionStatus.Healthy;
 
                 try
                 {
@@ -99,7 +97,7 @@ namespace SuperSocket.SocketEngine
 
         private Stream m_Stream;
 
-        private void InitStream(SocketContext context)
+        private void InitStream()
         {
             switch (SecureProtocol)
             {
@@ -121,9 +119,9 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public override void ApplySecureProtocol(SocketContext context)
+        public override void ApplySecureProtocol()
         {
-            InitStream(context);
+            InitStream();
         }
 
         private bool TryGetCommand(out TCommandInfo commandInfo)
@@ -205,9 +203,9 @@ namespace SuperSocket.SocketEngine
             return commandInfo != null;
         }
 
-        public override void SendResponse(SocketContext context, string message)
+        public override void SendResponse(string message)
         {
-            byte[] data = context.Charset.GetBytes(message);
+            byte[] data = AppSession.Charset.GetBytes(message);
 
             try
             {
@@ -238,7 +236,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public override void SendResponse(SocketContext context, byte[] data)
+        public override void SendResponse(byte[] data)
         {
             if (data == null || data.Length <= 0)
                 return;

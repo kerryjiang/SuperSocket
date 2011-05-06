@@ -71,6 +71,7 @@
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
+    <Compile Include="SessionStatus.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />
@@ -95,8 +96,6 @@
     <Compile Include="ProviderBase.cs" />
     <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
-    <Compile Include="SocketContext.cs" />
-    <Compile Include="SocketContextStatus.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>
   <ItemGroup>

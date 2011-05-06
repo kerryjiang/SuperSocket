@@ -78,16 +78,14 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Sends the message to client.
         /// </summary>
-        /// <param name="context">The context.</param>
         /// <param name="message">The message.</param>
-        void SendResponse(SocketContext context, string message);
+        void SendResponse(string message);
 
         /// <summary>
         /// Sends the binary data to client.
         /// </summary>
-        /// <param name="context">The context.</param>
         /// <param name="data">The binary data should be sent to client.</param>
-        void SendResponse(SocketContext context, byte[] data);
+        void SendResponse(byte[] data);
 
         /// <summary>
         /// Receives the data of specific length from socket.
@@ -106,8 +104,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Applies the secure protocol.
         /// </summary>
-        /// <param name="context">The context.</param>
-        void ApplySecureProtocol(SocketContext context);
+        void ApplySecureProtocol();
 
         /// <summary>
         /// Gets the client socket.
