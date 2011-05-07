@@ -373,11 +373,7 @@ namespace SuperSocket.SocketBase
             for(var i = 0; i < filters.Count; i++)
             {
                 var filter = filters[i];
-                if(filter.IsAsync)
-                    Async.Run(() => filterAction(filter, session, command),
-                                      x => Logger.LogError(session, x));
-                else
-                    filterAction(filter, session, command);
+                filterAction(filter, session, command);
             }
         }
 
