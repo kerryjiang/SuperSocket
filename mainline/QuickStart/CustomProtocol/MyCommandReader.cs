@@ -28,8 +28,10 @@ namespace SuperSocket.QuickStart.CustomProtocol
         /// <param name="length">The length.</param>
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         /// <returns></returns>
-        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
+            left = 0;
+
             int leftLength = 10 - this.BufferSegments.Count;
 
             if (length < leftLength)
@@ -48,23 +50,25 @@ namespace SuperSocket.QuickStart.CustomProtocol
             if (length > leftLength)
             {
                 int leftDataLength = length - leftLength;
-                if (leftDataLength == commandDataLength)
+                if (leftDataLength >= commandDataLength)
                 {
-                    byte[] commandData = readBuffer.CloneRange(offset + leftLength, length - leftLength);
+                    byte[] commandData = readBuffer.CloneRange(offset + leftLength, commandDataLength);
                     BufferSegments.ClearSegements();
                     NextCommandReader = this;
-                    return new BinaryCommandInfo(commandName, commandData);
+                    var commandInfo = new BinaryCommandInfo(commandName, commandData);
+
+                    //The next commandInfo is comming
+                    if (leftDataLength > commandDataLength)
+                        left = leftDataLength - commandDataLength;
+
+                    return commandInfo;
                 }
-                else if (leftDataLength < commandDataLength)
+                else// if (leftDataLength < commandDataLength)
                 {
                     //Save left data
                     AddArraySegment(readBuffer, offset + leftLength, length - leftLength, isReusableBuffer);
                     NextCommandReader = new MyCommandDataReader(commandName, commandDataLength, this);
                     return null;
-                }
-                else
-                {
-                    throw new Exception("Unordered message!");
                 }
             }
             else

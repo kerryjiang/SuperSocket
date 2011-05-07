@@ -21,28 +21,28 @@ namespace SuperSocket.QuickStart.CustomProtocol
             m_CommandName = commandName;
         }
 
-        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
+        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
+            left = 0;
+
             int leftLength = m_Length - BufferSegments.Count;
 
-            if (length <= leftLength)
-            {
-                AddArraySegment(readBuffer, offset, length, isReusableBuffer);
+            AddArraySegment(readBuffer, offset, length, isReusableBuffer);
 
-                if (length == leftLength)
-                {
-                    NextCommandReader = new MyCommandReader(AppServer);
-                    return new BinaryCommandInfo(m_CommandName, BufferSegments.ToArrayData());
-                }
-                else
-                {
-                    NextCommandReader = this;
-                    return null;
-                }
+            if (length >= leftLength)
+            {
+                NextCommandReader = new MyCommandReader(AppServer);
+                var commandInfo = new BinaryCommandInfo(m_CommandName, BufferSegments.ToArrayData(0, m_Length));
+
+                if (length > leftLength)
+                    left = length - leftLength;
+
+                return commandInfo;
             }
             else
             {
-                throw new Exception("Unordered message!");
+                NextCommandReader = this;
+                return null;
             }
         }
     }
