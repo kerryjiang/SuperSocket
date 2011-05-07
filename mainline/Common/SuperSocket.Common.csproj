@@ -83,6 +83,7 @@
     <Compile Include="ConsoleLogger.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DictionaryExtension.cs" />
     <Compile Include="DynamicLog4NetLogger.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="GlobalResourceManager.cs" />

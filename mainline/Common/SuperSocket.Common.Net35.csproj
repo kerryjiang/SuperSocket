@@ -86,6 +86,7 @@
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="ConfigurationExtension.cs" />
     <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="DictionaryExtension.cs" />
     <Compile Include="DynamicLog4NetLogger.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="GlobalResourceManager.cs" />
