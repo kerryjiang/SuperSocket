@@ -367,15 +367,19 @@ namespace SuperSocket.SocketBase
         
         private void ExecuteCommandFilters(List<CommandFilterAttribute> filters, TAppSession session, ICommand command, Action<CommandFilterAttribute, TAppSession, ICommand> filterAction)
         {
-            if(filters == null || filters.Count <= 0)
+            if (filters == null || filters.Count <= 0)
                 return;
-            
+
             for(var i = 0; i < filters.Count; i++)
             {
                 var filter = filters[i];
                 filterAction(filter, session, command);
             }
         }
+
+        private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutingAction = (f, s, c) => f.OnCommandExecuting(s, c);
+
+        private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutedAction = (f, s, c) => f.OnCommandExecuted(s, c);
 
         public virtual void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
         {
@@ -389,14 +393,17 @@ namespace SuperSocket.SocketBase
                     m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
                         
                     session.CurrentCommand = commandInfo.Key;
-                    
-                    ExecuteCommandFilters(commandFilters, session, command,
-                                          (f, s, c) => f.OnCommandExecuting(s, c));
-                    
-                    command.ExecuteCommand(session, commandInfo);
-                    
-                    ExecuteCommandFilters(commandFilters, session, command,
-                                          (f, s, c) => f.OnCommandExecuted(s, c));
+
+                    ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
+
+                    //Command filter may close the session,
+                    //so detect whether session is connected before execute command
+                    if (session.Status != SessionStatus.Disconnected)
+                    {
+                        command.ExecuteCommand(session, commandInfo);
+
+                        ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
+                    }
                     
                     session.PrevCommand = commandInfo.Key;
 

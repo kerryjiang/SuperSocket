@@ -122,6 +122,7 @@ namespace SuperSocket.SocketBase
             TAppSession removedSession;
             if (m_SessionDict.TryRemove(identityKey, out removedSession))
             {
+                removedSession.Status = SessionStatus.Disconnected;
                 Logger.LogInfo(removedSession, "This session was closed!");
                 Async.Run(() => OnAppSessionClosed(this, new AppSessionClosedEventArgs<TAppSession>(removedSession, e.Reason)),
                     exc => Logger.LogError(exc));
