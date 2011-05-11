@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Net;
-using SuperSocket.SocketBase.Config;
+using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
-using System.Collections;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase
 {
@@ -95,6 +96,11 @@ namespace SuperSocket.SocketBase
         /// The current command.
         /// </value>
         string CurrentCommand { get; set; }
+
+        /// <summary>
+        /// Gets the logger assosiated with this session.
+        /// </summary>
+        ILogger Logger { get; }
     }
 
     public interface IAppSession<TCommandInfo> : IAppSession
