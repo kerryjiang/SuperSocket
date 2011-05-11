@@ -32,7 +32,7 @@ namespace SuperSocket.SocketBase
         private IDictionary<object, object> m_Items;
 
         /// <summary>
-        /// Gets the items dictionary.
+        /// Gets the items dictionary, only support 10 items maximum
         /// </summary>
         public IDictionary<object, object> Items
         {
@@ -163,6 +163,7 @@ namespace SuperSocket.SocketBase
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             IdentityKey = socketSession.IdentityKey;
+            Status = SessionStatus.Healthy;
             OnInit();
         }
 
@@ -217,6 +218,7 @@ namespace SuperSocket.SocketBase
         public virtual void Close(CloseReason reason)
         {
             this.SocketSession.Close(reason);
+            Status = SessionStatus.Disconnected;
         }
 
         /// <summary>
