@@ -10,4 +10,9 @@ namespace SuperSocket.SocketBase.Command
     {
 
     }
+
+    public abstract class StringCommandBase : StringCommandBase<AppSession>
+    {
+
+    }
 }
