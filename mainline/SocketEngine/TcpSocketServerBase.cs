@@ -53,6 +53,10 @@ namespace SuperSocket.SocketEngine
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
             TAppSession appSession = this.AppServer.CreateAppSession(session);
+
+            if (appSession == null)
+                return default(TSocketSession);
+
             session.Initialize(this.AppServer, appSession);
 
             return session;

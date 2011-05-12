@@ -86,7 +86,8 @@ namespace SuperSocket.SocketBase
         public override TAppSession CreateAppSession(ISocketSession socketSession)
         {
             var appSession = base.CreateAppSession(socketSession);
-            if (appSession.Equals(NullAppSession))
+
+            if (ReferenceEquals(NullAppSession, appSession))
                 return appSession;
 
             if (m_SessionDict.TryAdd(appSession.IdentityKey, appSession))

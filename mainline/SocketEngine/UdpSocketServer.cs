@@ -161,6 +161,10 @@ namespace SuperSocket.SocketEngine
         {
             var session = new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, m_Protocol.CreateCommandReader(AppServer));
             TAppSession appSession = this.AppServer.CreateAppSession(session);
+
+            if (appSession == null)
+                return null;
+
             session.Initialize(this.AppServer, appSession);
             return session;
         }
@@ -187,6 +191,7 @@ namespace SuperSocket.SocketEngine
                         ipAddress.ToString(), AppServer.Config.MaxConnectionNumber));
                     return;
                 }
+
                 var session = RegisterSession(ipAddress);
 
                 if (session == null)

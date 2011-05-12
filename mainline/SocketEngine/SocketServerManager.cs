@@ -84,16 +84,13 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     filterInstance = (IConnectionFilter)Activator.CreateInstance(filterType);
+
+                    if (!filterInstance.Initialize(filter.Name, filter.Options))
+                        return false;
                 }
                 catch (Exception e)
                 {
                     LogUtil.LogError(string.Format("Failed to initialize filter instance {0}!", filter.Name), e);
-                    return false;
-                }
-                
-                if(!filterInstance.Initialize(filter.Name, filter.Options))
-                {
-                    LogUtil.LogError(string.Format("Failed to initialize filter instance {0}!", filter.Name));
                     return false;
                 }
                 
