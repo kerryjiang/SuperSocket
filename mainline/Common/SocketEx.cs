@@ -9,6 +9,9 @@ namespace SuperSocket.Common
         {
             if(client == null)
                 return;
+
+            if (!client.Connected)
+                return;
             
             try
             {
