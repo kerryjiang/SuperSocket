@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPSSocketServer", "GPSSocke
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandFilter", "CommandFilter\CommandFilter.csproj", "{595A2664-BBC7-41CF-AA19-E34DEA3DBE6E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectionFilter", "ConnectionFilter\ConnectionFilter.csproj", "{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,10 @@ Global
 		{595A2664-BBC7-41CF-AA19-E34DEA3DBE6E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{595A2664-BBC7-41CF-AA19-E34DEA3DBE6E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{595A2664-BBC7-41CF-AA19-E34DEA3DBE6E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
