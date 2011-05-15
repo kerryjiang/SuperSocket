@@ -31,6 +31,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandFilter", "CommandFil
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectionFilter", "ConnectionFilter\ConnectionFilter.csproj", "{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleAppServer", "MultipleAppServer\MultipleAppServer.csproj", "{22A610A1-5F55-449E-8831-A832D692DAEC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -93,6 +95,10 @@ Global
 		{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E286C017-49DB-4EA9-A6BC-EC6ADB51E0A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{22A610A1-5F55-449E-8831-A832D692DAEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{22A610A1-5F55-449E-8831-A832D692DAEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{22A610A1-5F55-449E-8831-A832D692DAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{22A610A1-5F55-449E-8831-A832D692DAEC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
