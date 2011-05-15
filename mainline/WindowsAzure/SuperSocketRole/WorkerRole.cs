@@ -10,9 +10,9 @@ using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.StorageClient;
 using SuperSocket.Common;
+using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
-using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SuperSocketRole
 {
