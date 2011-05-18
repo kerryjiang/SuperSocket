@@ -25,6 +25,7 @@ namespace PerformanceTestAgent.ViewModel
         {
             m_StartCommand = new RelayCommand(ExecuteStart, CanExecuteStart);
             m_StopCommand = new RelayCommand(ExecuteStop, CanExecuteStop);
+            ThreadPool.SetMaxThreads(1000, 1000);
         }
 
         private string m_TargetServer;
@@ -60,6 +61,18 @@ namespace PerformanceTestAgent.ViewModel
             {
                 m_ConnectionCount = value;
                 RaisePropertyChanged("ConnectionCount");
+            }
+        }
+
+        private bool m_IsWaitResponse = false;
+
+        public bool IsWaitResponse
+        {
+            get { return m_IsWaitResponse; }
+            set
+            {
+                m_IsWaitResponse = value;
+                RaisePropertyChanged("IsWaitResponse");
             }
         }
 
@@ -188,33 +201,82 @@ namespace PerformanceTestAgent.ViewModel
 
         private void ProcessSendWorker()
         {
-            while (!m_IsStopped)
+            if (m_IsWaitResponse)
             {
-                Socket socket;
+                int sendTimes = 0;
 
-                if (m_SocketQueue.TryDequeue(out socket))
+                while (!m_IsStopped)
                 {
-                    string message = Guid.NewGuid() + Environment.NewLine;
-                    string line = "ECHO " + message;
-                    socket.Send(Encoding.ASCII.GetBytes(line));
-                    SocketAsyncEventArgs e;
-                    if (m_SocketReceivePool.TryPop(out e))
-                    {
-                        e.UserToken = new AsyncUserToken
-                            {
-                                RequireLength = Encoding.ASCII.GetByteCount(message),
-                                Socket = socket
-                            };
+                    Socket socket;
 
-                        if (!socket.ReceiveAsync(e))
-                            ProcessReceive(e);
+                    if (m_SocketQueue.TryDequeue(out socket))
+                    {
+                        Task.Factory.StartNew(() => StartSend(socket, true));
+                        sendTimes++;
+
+                        if (sendTimes % 100 == 0)
+                        {
+                            Thread.Sleep(1);
+                            sendTimes = 0;
+                        }
+                    }
+                    else
+                    {
+                        Thread.Sleep(1);
                     }
                 }
+            }
+            else
+            {
+                while (!IsStopped)
+                {
+                    for (var i = 0; i < m_Sockets.Length; i++)
+                    {
+                        StartSend(m_Sockets[i], false);
 
-                Thread.Sleep(1);
+                        if (IsStopped)
+                        {
+                            IsRunning = false;
+                            return;
+                        }
+                    }
+
+                    Thread.Sleep(100);
+                }
             }
 
             IsRunning = false;
+        }
+
+        private void StartSend(Socket socket, bool waitResponse)
+        {
+            string message = Guid.NewGuid() + Environment.NewLine;
+            string line = "TEST " + message;
+
+            try
+            {
+                socket.Send(Encoding.ASCII.GetBytes(line));
+            }
+            catch
+            {
+                return;
+            }
+
+            if (!waitResponse)
+                return;
+
+            SocketAsyncEventArgs e;
+            if (m_SocketReceivePool.TryPop(out e))
+            {
+                e.UserToken = new AsyncUserToken
+                {
+                    RequireLength = Encoding.ASCII.GetByteCount(message),
+                    Socket = socket
+                };
+
+                if (!socket.ReceiveAsync(e))
+                    ProcessReceive(e);
+            }
         }
 
         private bool CanExecuteStart()
@@ -239,6 +301,22 @@ namespace PerformanceTestAgent.ViewModel
         private void ExecuteStop()
         {
             IsStopped = true;
+
+            for (var i = 0; i < m_Sockets.Length; i++)
+            {
+                var socket = m_Sockets[i];
+
+                try
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
+                }
+                catch
+                {
+                }
+            }
+
+            m_SocketQueue = null;
         }
 
         private EventHandler<ContentAppendEventArgs> m_ContentAppend;

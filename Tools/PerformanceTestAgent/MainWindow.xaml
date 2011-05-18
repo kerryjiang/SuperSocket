@@ -28,6 +28,10 @@
                     <Setter Property="HorizontalAlignment" Value="Left"></Setter>
                     <Setter Property="Margin" Value="1,4,1,4"></Setter>
                 </Style>
+                <Style TargetType="{x:Type CheckBox}">
+                    <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                    <Setter Property="Margin" Value="5,5,5,5"></Setter>
+                </Style>
                 <Style TargetType="{x:Type Button}">
                     <Setter Property="HorizontalAlignment" Value="Left"></Setter>
                     <Setter Property="Margin" Value="1,4,1,4"></Setter>
@@ -52,6 +56,7 @@
                 <TextBox Width="40" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}"></TextBox>
                 <Label Content="Connections:"></Label>
                 <TextBox Width="50" Text="{Binding ConnectionCount, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                <CheckBox Content="Wait Response?" VerticalAlignment="Center" IsChecked="{Binding IsWaitResponse, UpdateSourceTrigger=PropertyChanged}"></CheckBox>
                 <Button Content="Start" Command="{Binding StartCommand}" IsEnabled="{Binding IsRunning, Converter={StaticResource reverseConverter}}"></Button>
             </StackPanel>
             <Button Content="Stop" Command="{Binding StopCommand}" IsEnabled="{Binding IsRunning}"></Button>
