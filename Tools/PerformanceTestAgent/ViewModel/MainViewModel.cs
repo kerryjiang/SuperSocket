@@ -211,7 +211,7 @@ namespace PerformanceTestAgent.ViewModel
 
                     if (m_SocketQueue.TryDequeue(out socket))
                     {
-                        Task.Factory.StartNew(() => StartSend(socket, true));
+                        Task.Factory.StartNew(() => StartSendThenWait(socket));
                         sendTimes++;
 
                         if (sendTimes % 100 == 0)
@@ -232,7 +232,7 @@ namespace PerformanceTestAgent.ViewModel
                 {
                     for (var i = 0; i < m_Sockets.Length; i++)
                     {
-                        StartSend(m_Sockets[i], false);
+                        StartSend(m_Sockets[i]);
 
                         if (IsStopped)
                         {
@@ -248,22 +248,34 @@ namespace PerformanceTestAgent.ViewModel
             IsRunning = false;
         }
 
-        private void StartSend(Socket socket, bool waitResponse)
-        {
-            string message = Guid.NewGuid() + Environment.NewLine;
-            string line = "TEST " + message;
+        private byte[] m_SendData = Encoding.ASCII.GetBytes("TEST " + Guid.NewGuid() + Environment.NewLine);
 
+        private void StartSend(Socket socket)
+        {
             try
             {
-                socket.Send(Encoding.ASCII.GetBytes(line));
+                socket.Send(m_SendData);
             }
             catch
             {
+                OnContentAppend("The connection was dropped!" + Environment.NewLine);
                 return;
             }
+        }
 
-            if (!waitResponse)
+        private void StartSendThenWait(Socket socket)
+        {
+            string message = Guid.NewGuid() + Environment.NewLine;
+
+            try
+            {
+                socket.Send(Encoding.ASCII.GetBytes("TEST " + message));
+            }
+            catch
+            {
+                OnContentAppend("The connection was dropped!" + Environment.NewLine);
                 return;
+            }
 
             SocketAsyncEventArgs e;
             if (m_SocketReceivePool.TryPop(out e))
