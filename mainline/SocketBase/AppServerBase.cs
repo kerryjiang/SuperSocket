@@ -15,6 +15,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
+using System.Reflection;
 
 namespace SuperSocket.SocketBase
 {
@@ -71,7 +72,27 @@ namespace SuperSocket.SocketBase
 
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
         {
-            var commandLoader = new ReflectCommandLoader<ICommand<TAppSession, TCommandInfo>>(typeof(TAppSession).Assembly);
+            var commandAssemblies = new List<Assembly> { typeof(TAppSession).Assembly };
+
+            string commandAssembly = Config.Options.GetValue("commandAssembly");
+
+            if (!string.IsNullOrEmpty(commandAssembly))
+            {
+                try
+                {
+                    var definedAssemblies = AssemblyUtil.GetAssembliesFromString(commandAssembly);
+
+                    if (definedAssemblies.Any())
+                        commandAssemblies.AddRange(definedAssemblies);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError("Failed to load defined command assemblies!", e);
+                    return false;
+                }
+            }
+
+            var commandLoader = new ReflectCommandLoader<ICommand<TAppSession, TCommandInfo>>(commandAssemblies);
 
             foreach (var command in commandLoader.LoadCommands())
             {

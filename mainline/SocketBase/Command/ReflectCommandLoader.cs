@@ -7,21 +7,28 @@ using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public class ReflectCommandLoader<TCommandInfo> : ICommandLoader<TCommandInfo>
-        where TCommandInfo : class
+    public class ReflectCommandLoader<TCommand> : ICommandLoader<TCommand>
+        where TCommand : class
     {
-        private Assembly m_CommandAssembly;
+        private Assembly[] m_CommandAssemblies;
 
-        public ReflectCommandLoader(Assembly assembly)
+        public ReflectCommandLoader(IEnumerable<Assembly> assemblies)
         {
-            m_CommandAssembly = assembly;
+            m_CommandAssemblies = assemblies.Where(a => a != null).ToArray();
         }
 
         #region ICommandLoader Members
 
-        public IEnumerable<TCommandInfo> LoadCommands()            
+        public IEnumerable<TCommand> LoadCommands()
         {
-            return m_CommandAssembly.GetImplementedObjectsByInterface<TCommandInfo>();
+            var commands = new List<TCommand>();
+
+            foreach (var assembly in m_CommandAssemblies)
+            {
+                commands.AddRange(assembly.GetImplementedObjectsByInterface<TCommand>());
+            }
+
+            return commands;
         }
 
         #endregion

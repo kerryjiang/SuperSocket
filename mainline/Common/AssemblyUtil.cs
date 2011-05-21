@@ -110,5 +110,19 @@ namespace SuperSocket.Common
                 p.SetValue(target, sourceProperty.GetValue(source, m_EmptyObjectArray), m_EmptyObjectArray);
             }
         }
+
+        public static IEnumerable<Assembly> GetAssembliesFromString(string assemblyDef)
+        {
+            string[] assemblies = assemblyDef.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+            List<Assembly> result = new List<Assembly>(assemblies.Length);
+
+            foreach (var a in assemblies)
+            {
+                result.Add(Assembly.Load(a));
+            }
+
+            return result;
+        }
     }
 }
