@@ -149,7 +149,7 @@ namespace SuperSocket.SocketBase
         {
             this.StartTime = DateTime.Now;
             this.LastActiveTime = this.StartTime;
-            this.Charset = Encoding.Default;
+            this.Charset = Encoding.UTF8;
         }
 
         /// <summary>
