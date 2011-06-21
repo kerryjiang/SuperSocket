@@ -15,11 +15,23 @@ namespace SuperSocket.SocketBase.Protocol
     {
         private ICommandParser m_CommandParser;
 
+        private Encoding m_Encoding;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandLineProtocol"/> class.
         /// </summary>
         public CommandLineProtocol()
-            : this(new BasicCommandParser())
+            : this(new BasicCommandParser(), Encoding.UTF8)
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandLineProtocol"/> class.
+        /// </summary>
+        /// <param name="encoding">The encoding.</param>
+        public CommandLineProtocol(Encoding encoding)
+            : this(new BasicCommandParser(), encoding)
         {
 
         }
@@ -29,8 +41,27 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="commandParser">The command parser.</param>
         public CommandLineProtocol(ICommandParser commandParser)
+            : this(commandParser, Encoding.UTF8)
         {
             m_CommandParser = commandParser;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandLineProtocol"/> class.
+        /// </summary>
+        /// <param name="commandParser">The command parser.</param>
+        /// <param name="encoding">The encoding.</param>
+        public CommandLineProtocol(ICommandParser commandParser, Encoding encoding)
+        {
+            if (commandParser == null)
+                throw new ArgumentNullException("commandParser");
+
+            m_CommandParser = commandParser;
+
+            if (encoding == null)
+                throw new ArgumentNullException("encoding");
+
+            m_Encoding = encoding;
         }
 
         /// <summary>
@@ -40,7 +71,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns></returns>
         public ICommandReader<StringCommandInfo> CreateCommandReader(IAppServer appServer)
         {
-            return new TerminatorCommandReader(appServer, Encoding.UTF8, Environment.NewLine, m_CommandParser);
+            return new TerminatorCommandReader(appServer, m_Encoding, Environment.NewLine, m_CommandParser);
         }
     }
 }
