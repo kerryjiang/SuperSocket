@@ -101,6 +101,12 @@ namespace SuperSocket.SocketEngine
             //Initialize servers
             foreach (var serverConfig in config.Servers)
             {
+                if (string.IsNullOrEmpty(serverConfig.Name))
+                {
+                    LogUtil.LogError("The name attribute of server node is required!");
+                    return false;
+                }
+
                 if (!InitializeServer(serverConfigResolver(serverConfig)))
                 {
                     LogUtil.LogError("Failed to initialize server " + serverConfig.Name + "!");
