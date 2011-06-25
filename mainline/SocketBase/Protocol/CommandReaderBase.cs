@@ -95,7 +95,8 @@ namespace SuperSocket.SocketBase.Protocol
         /// Gets the left buffer.
         /// </summary>
         /// <returns></returns>
-        public byte[] GetLeftBuffer()
+        [Obsolete]
+        protected byte[] GetLeftBuffer()
         {
             return m_BufferSegments.ToArrayData();
         }

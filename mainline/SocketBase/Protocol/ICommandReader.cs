@@ -35,12 +35,6 @@ namespace SuperSocket.SocketBase.Protocol
         TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
 
         /// <summary>
-        /// Gets the left buffer.
-        /// </summary>
-        /// <returns></returns>
-        byte[] GetLeftBuffer();
-
-        /// <summary>
         /// Gets the size of the left buffer.
         /// </summary>
         /// <value>
