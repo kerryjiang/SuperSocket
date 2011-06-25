@@ -255,10 +255,27 @@ namespace SuperSocket.SocketEngine
 
         public override void ReceiveData(Stream storeSteram, int length)
         {
+            int leftRead = length;
+
+            if (m_ReadBufferLeft > 0)
+            {
+                if (m_ReadBufferLeft >= length)
+                {
+                    storeSteram.Write(m_ReadBuffer, m_ReadBufferTotal - m_ReadBufferLeft, length);
+                    m_ReadBufferLeft -= length;
+                    return;
+                }
+                else
+                {
+                    storeSteram.Write(m_ReadBuffer, m_ReadBufferTotal - m_ReadBufferLeft, m_ReadBufferLeft);
+                    m_ReadBufferLeft = 0;
+                    leftRead -= m_ReadBufferLeft;
+                }
+            }
+
             byte[] buffer = new byte[Client.ReceiveBufferSize];
 
             int thisRead = 0;
-            int leftRead = length;
             int shouldRead = 0;
 
             while (leftRead > 0)
@@ -280,11 +297,48 @@ namespace SuperSocket.SocketEngine
         }
 
         public override void ReceiveData(Stream storeSteram, byte[] endMark)
-        {
-            byte[] buffer = new byte[Client.ReceiveBufferSize];
+        {            
             byte[] lastData = new byte[endMark.Length];
             int lastDataSzie = 0;
 
+            if (m_ReadBufferLeft > 0)
+            {
+                var pos = m_ReadBufferTotal - m_ReadBufferLeft;
+                var result = m_ReadBuffer.SearchMark(pos, m_ReadBufferLeft, endMark);
+
+                var matched = false;
+                int writeLen;
+
+                if (result.HasValue && result.Value >= 0)
+                {
+                    writeLen = result.Value - pos + endMark.Length;
+                    matched = true;
+                }
+                else
+                {
+                    writeLen = m_ReadBufferLeft;
+                }
+
+                storeSteram.Write(m_ReadBuffer, pos, writeLen);
+
+                m_ReadBufferLeft = Math.Min(m_ReadBufferLeft - writeLen, 0);
+
+                if (matched)
+                    return;
+
+                if (writeLen >= endMark.Length)
+                {
+                    Array.Copy(m_ReadBuffer, pos + writeLen - endMark.Length, lastData, 0, endMark.Length);
+                    lastDataSzie = endMark.Length;
+                }
+                else
+                {
+                    Array.Copy(m_ReadBuffer, pos, lastData, 0, writeLen);
+                    lastDataSzie = writeLen;
+                }
+            }
+
+            byte[] buffer = new byte[Client.ReceiveBufferSize];
             int thisRead = 0;
 
             while (true)

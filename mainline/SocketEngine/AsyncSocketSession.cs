@@ -24,7 +24,11 @@ namespace SuperSocket.SocketEngine
     class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
-    {        
+    {
+
+        private int m_ConsumedDataSizeInCommand = 0;
+        private int m_CurrentParsedLeft = 0;
+
         public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
             : base(client, initialCommandReader)
         {
@@ -130,6 +134,8 @@ namespace SuperSocket.SocketEngine
 
                 TCommandInfo commandInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
 
+                m_CurrentParsedLeft = left;
+
                 if (IsClosed)
                     return;
 
@@ -146,6 +152,11 @@ namespace SuperSocket.SocketEngine
                     HandleExceptionalError(exc);
                 }
 
+                if (left > 0 && m_ConsumedDataSizeInCommand > 0)
+                    left = Math.Max(left - m_ConsumedDataSizeInCommand, 0);
+
+                m_ConsumedDataSizeInCommand = 0;
+                    
                 if (left <= 0)
                     break;
 
@@ -170,18 +181,22 @@ namespace SuperSocket.SocketEngine
         /// <param name="length">The length.</param>
         public override void ReceiveData(Stream storeSteram, int length)
         {
-            byte[] buffer = this.SocketAsyncProxy.SocketEventArgs.Buffer;
+            var e = this.SocketAsyncProxy.SocketEventArgs;
+
+            byte[] buffer = e.Buffer;
 
             int thisRead = 0;
             int leftRead = length;
             int shouldRead = 0;
 
-            var leftBuffer = CommandReader.GetLeftBuffer();
-
-            if (leftBuffer != null && leftBuffer.Length > 0)
+            if (m_CurrentParsedLeft > 0)
             {
-                storeSteram.Write(leftBuffer, 0, leftBuffer.Length);
-                leftRead -= leftBuffer.Length;
+                int pos = e.Offset + e.BytesTransferred - m_CurrentParsedLeft;
+                int writeLen = Math.Min(m_CurrentParsedLeft, length);
+
+                storeSteram.Write(e.Buffer, pos, writeLen);
+                leftRead -= writeLen;
+                m_ConsumedDataSizeInCommand = writeLen;
             }
 
             while (leftRead > 0)
@@ -200,7 +215,7 @@ namespace SuperSocket.SocketEngine
                 storeSteram.Write(buffer, 0, thisRead);
                 leftRead -= thisRead;
             }
-        }
+        } 
 
         /// <summary>
         /// Receives the data.
@@ -210,25 +225,48 @@ namespace SuperSocket.SocketEngine
         /// <param name="endMark">The end mark.</param>
         public override void ReceiveData(Stream storeSteram, byte[] endMark)
         {
-            byte[] buffer = this.SocketAsyncProxy.SocketEventArgs.Buffer;
+            var e = this.SocketAsyncProxy.SocketEventArgs;
+            byte[] buffer = e.Buffer;
             byte[] lastData = new byte[endMark.Length];
             int lastDataSzie = 0;
+            
+            if (m_CurrentParsedLeft > 0)
+            {
+                int pos = e.Offset + e.BytesTransferred - m_CurrentParsedLeft;
+                int writeLen;
+
+                var result = buffer.SearchMark(pos, m_CurrentParsedLeft, endMark);
+                var matched = false;
+
+                if (result.HasValue && result.Value >= 0)
+                {
+                    writeLen = result.Value - pos + endMark.Length;
+                    matched = true;
+                }
+                else//result.Value < 0
+                {
+                    writeLen = m_CurrentParsedLeft;
+                }
+
+                storeSteram.Write(e.Buffer, pos, writeLen);
+                m_ConsumedDataSizeInCommand = writeLen;
+
+                if (matched)
+                    return;
+
+                if (writeLen >= endMark.Length)
+                {
+                    Array.Copy(e.Buffer, pos + writeLen - endMark.Length, lastData, 0, endMark.Length);
+                    lastDataSzie = endMark.Length;
+                }
+                else
+                {
+                    Array.Copy(e.Buffer, pos, lastData, 0, writeLen);
+                    lastDataSzie = writeLen;
+                }
+            }
 
             int thisRead = 0;
-
-            //var commandBuffer = m_CommandReader.GetLeftBuffer();
-
-            //if (commandBuffer != null && commandBuffer.Count > 0)
-            //{
-            //    var result = commandBuffer.SearchMark(endMark);
-
-            //    if (!result.HasValue)
-            //    {
-            //        byte[] commandBufferData = commandBuffer.ToArray();
-            //        storeSteram.Write(commandBufferData, 0, commandBufferData.Length);
-            //        commandBuffer.Clear();
-            //    }
-            //}
 
             while (true)
             {
@@ -246,6 +284,6 @@ namespace SuperSocket.SocketEngine
                 if(DetectEndMark(buffer, thisRead, endMark, lastData, ref lastDataSzie))
                     return;
             }
-        }        
+        }
     }
 }
