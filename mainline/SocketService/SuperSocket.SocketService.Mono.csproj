@@ -106,10 +106,6 @@
     <Content Include="Config\log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="..\Solution Items\log4net.unix.config">
-      <Link>Config\log4net.unix.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
@@ -159,6 +155,7 @@
     <None Include="..\Solution Items\Net40\App.config">
       <Link>App.config</Link>
     </None>
+    <None Include="Config\log4net.unix.config" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Config\" />
