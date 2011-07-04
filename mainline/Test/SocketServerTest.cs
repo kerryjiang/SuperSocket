@@ -646,7 +646,7 @@ namespace SuperSocket.Test
                     socketStream.Flush();
                     socketStream.Flush();
 
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
 
                     socketStream.Write(data, 0, data.Length);
                     socketStream.Flush();
@@ -696,7 +696,7 @@ namespace SuperSocket.Test
                     socketStream.Write(cmdData, 0, cmdData.Length);
                     socketStream.Flush();
                     
-                    Thread.Sleep(1000);
+                    //Thread.Sleep(1000);
 
                     socketStream.Write(data, 0, data.Length);
                     socketStream.Flush();
