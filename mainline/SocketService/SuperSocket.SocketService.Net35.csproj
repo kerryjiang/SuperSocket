@@ -128,6 +128,9 @@
     <None Include="..\Solution Items\Net35\App.config">
       <Link>App.config</Link>
     </None>
+    <Content Include="Config\log4net.unix.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net35.csproj">
