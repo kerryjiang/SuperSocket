@@ -1,0 +1,12 @@
+﻿using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyVersion("{build.version}.0")]
+[assembly: AssemblyFileVersion("{build.version}.0")]
+[assembly: AssemblyInformationalVersion("{build.version}.{head.revision}")]
+[assembly: AssemblyCompany("SuperSocket")]
+[assembly: AssemblyProduct("SuperSocket")]
+[assembly: AssemblyCopyright("Copyright © supersocket.codeplex.com 2011")]
+[assembly: AssemblyTrademark("")]
+[assembly: AssemblyCulture("")]
