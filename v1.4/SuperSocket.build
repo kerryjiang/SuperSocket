@@ -1,0 +1,134 @@
+<?xml version="1.0" ?>
+<project name="SuperSocket" default="buildDebug40" xmlns="http://nant.sf.net/schemas/nant.xsd">
+	<property name="working.dir" value="${project::get-base-directory()}" />
+	<property name="build.dir" value="${project::get-base-directory()}\build" />
+	<property name="output.dir" value="${project::get-base-directory()}\..\..\Publish\SuperSocket" />
+	<property name="web.dir" value="${working.dir}\web" />
+	<property name="framework.dir" value="${environment::get-variable('windir')}\Microsoft.Net\Framework"/>
+	<property name="framework.version" value="v4.0.30319"/>
+	<property name="msbuild.exe" value="${framework.dir}\${framework.version}\msbuild.exe"/>
+	<property name="aspnet.compiler.exe" value="${framework.dir}\${framework.version}\aspnet_compiler.exe"/>
+	<property name="program.files" value="D:"/>
+	<property name="svn.exe" value="${program.files}\SlikSvn\bin\svn.exe" unless="${property::exists('svn.exe')}" />
+	<property name="xbuild.exe" value="D:\Mono-2.10.1\lib\mono\4.0\xbuild.exe"/>
+	<property name="buildConfiguration" value="Debug" />
+	<property name="build.version" value="1.4.1" />
+	
+	<target name="getHeadRevision" description="Get Head Revision">
+		<exec program="${svn.exe}" commandline="info -r HEAD" output="rootinfo.txt" />
+		<foreach item="Line" in="rootinfo.txt" property="infoline">
+			<property name="head.revision" value="${string::substring(infoline,10,string::get-length(infoline) - 10)}"
+				if="${string::starts-with(infoline,'Revision: ')}" />
+		</foreach>
+		<call target="updateVersion"/>
+	</target>
+	
+	<target name="updateVersion" description="update version number in GlobalAssembly.cs">
+		<copy file="Solution Items\GlobalAssemblyInfo.cs" tofile="Solution Items\GlobalAssemblyInfo.cs.bak" overwrite="true" />
+		<copy file="Solution Items\GlobalAssemblyInfo.txt" tofile="Solution Items\GlobalAssemblyInfo.cs" overwrite="true">
+			<filterchain>
+				<replacestring from="{build.version}" to="${build.version}" ignorecase="true" />
+				<replacestring from="{head.revision}" to="${head.revision}" ignorecase="true" />
+			</filterchain>
+		</copy>
+	</target>
+	
+	<target name="restoreTempChange" description="restore temporary changes">
+		<copy file="Solution Items\GlobalAssemblyInfo.cs.bak" tofile="Solution Items\GlobalAssemblyInfo.cs" overwrite="true" />
+		<delete file="Solution Items\GlobalAssemblyInfo.cs.bak" />
+	</target>
+
+	<target name="clean" description="Delete Automated Build artifacts">
+		<delete>
+			<fileset>
+				<include name="**/bin/**" />
+			</fileset>
+		</delete>
+	</target>
+	
+	<target name="buildProject">
+		<call target="clean"/>
+		<exec program="${msbuild.exe}"
+			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${head.revision}\${net.version}\${buildConfiguration}"
+			failonerror="true" verbose="false" />
+	</target>
+	
+	<target name="buildMonoProject">
+		<call target="clean"/>
+		<exec program="${xbuild.exe}"
+			commandline="${project.file} /p:Configuration=${buildConfiguration} /t:Rebuild /p:OutputPath=${output.dir}\${head.revision}\${net.version}\${buildConfiguration}"
+			failonerror="true" verbose="false" />
+	</target>
+	
+	<target name="buildDebug40">
+		<property name="buildConfiguration" value="Debug" />
+		<property name="net.version" value="Net40" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.csproj" />
+		<call target="buildProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildRelease40">
+		<property name="buildConfiguration" value="Release" />
+		<property name="net.version" value="Net40" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.csproj" />
+		<call target="buildProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildDebug35">
+		<property name="buildConfiguration" value="Debug" />
+		<property name="net.version" value="Net35" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.Net35.csproj" />
+		<call target="buildProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.Net35.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildRelease35">
+		<property name="buildConfiguration" value="Release" />
+		<property name="net.version" value="Net35" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.Net35.csproj" />
+		<call target="buildProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.Net35.csproj" />
+		<call target="buildProject"/>
+	</target>
+	
+	<target name="buildMonoDebug">
+		<property name="buildConfiguration" value="Debug" />
+		<property name="net.version" value="Mono-Net40" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.Mono.csproj" />
+		<call target="buildMonoProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.Mono.csproj" />
+		<call target="buildMonoProject"/>
+	</target>
+	
+	<target name="buildMonoRelease">
+		<property name="buildConfiguration" value="Release" />
+		<property name="net.version" value="Mono-Net40" />
+		<property name="project.file" value="SocketService\SuperSocket.SocketService.Mono.csproj" />
+		<call target="buildMonoProject"/>
+		<property name="project.file" value="Facility\SuperSocket.Facility.Mono.csproj" />
+		<call target="buildMonoProject"/>
+	</target>
+	
+	<target name="createReleasePackage">		
+		<zip zipfile="${output.dir}\${head.revision}\SuperSocket.zip">
+			<fileset>
+				<include name="**/*" />
+				<exclude name="**/obj/**" />
+				<exclude name="**/bin/**" />
+				<exclude name="**/.svn/**" />
+				<exclude name="**/rootinfo.txt" />
+				<exclude name="**/*.build" />
+				<exclude name="Solution Items\GlobalAssemblyInfo.txt" />
+				<exclude name="Solution Items\GlobalAssemblyInfo.cs.bak" />
+			</fileset>
+		</zip>
+		<call target="restoreTempChange" />
+	</target>
+	
+</project>
+
