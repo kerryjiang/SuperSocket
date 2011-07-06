@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SuperSocket.SocketBase</RootNamespace>
+    <AssemblyName>SuperSocket.SocketBase</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="AppServer.cs" />
+    <Compile Include="AppServerBase.cs" />
+    <Compile Include="AppSession.cs" />
+    <Compile Include="CommandFilterAttribute.cs" />
+    <Compile Include="CommandHandler.cs" />
+    <Compile Include="Command\BinaryCommandInfo.cs" />
+    <Compile Include="Command\CommandBase.cs" />
+    <Compile Include="Command\CommandInfo.cs" />
+    <Compile Include="Command\ICommand.cs" />
+    <Compile Include="Command\ICommandInfo.cs" />
+    <Compile Include="Command\ICommandLoader.cs" />
+    <Compile Include="Command\ReflectCommandLoader.cs" />
+    <Compile Include="Command\StringCommandBase.cs" />
+    <Compile Include="Command\StringCommandInfo.cs" />
+    <Compile Include="CommanFilterFactory.cs" />
+    <Compile Include="Config\CertificateConfig.cs" />
+    <Compile Include="Config\ICertificateConfig.cs" />
+    <Compile Include="Config\IConfig.cs" />
+    <Compile Include="Config\IConnectionFilterConfig.cs" />
+    <Compile Include="Config\ICredentialConfig.cs" />
+    <Compile Include="Config\IRootConfig.cs" />
+    <Compile Include="Config\IServerConfig.cs" />
+    <Compile Include="Config\IServiceConfig.cs" />
+    <Compile Include="Config\RootConfig.cs" />
+    <Compile Include="Config\ServerConfig.cs" />
+    <Compile Include="ConsoleHostInfo.cs" />
+    <Compile Include="SessionStatus.cs" />
+    <Compile Include="IAppServer.cs" />
+    <Compile Include="IAppSession.cs" />
+    <Compile Include="ICommandSource.cs" />
+    <Compile Include="IConnectionFilter.cs" />
+    <Compile Include="ISessionBase.cs" />
+    <Compile Include="ISocketServer.cs" />
+    <Compile Include="ISocketServerFactory.cs" />
+    <Compile Include="ISocketSession.cs" />
+    <Compile Include="LoggerExtension.cs" />
+    <Compile Include="LoggingMode.cs" />
+    <Compile Include="PerformanceData.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol\BasicCommandParser.cs" />
+    <Compile Include="Protocol\CommandLineProtocol.cs" />
+    <Compile Include="Protocol\CommandReaderBase.cs" />
+    <Compile Include="Protocol\ICommandParser.cs" />
+    <Compile Include="Protocol\ICommandReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Protocol\ICustomProtocol.cs" />
+    <Compile Include="Protocol\TerminatorCommandReader.cs" />
+    <Compile Include="ProviderBase.cs" />
+    <Compile Include="Security\Certificate.cs" />
+    <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="SocketMode.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\SuperSocket.Common.csproj">
+      <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
+      <Name>SuperSocket.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
