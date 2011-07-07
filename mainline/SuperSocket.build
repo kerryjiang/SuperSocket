@@ -12,7 +12,7 @@
 	<property name="svn.exe" value="${program.files}\SlikSvn\bin\svn.exe" unless="${property::exists('svn.exe')}" />
 	<property name="xbuild.exe" value="D:\Mono-2.10.1\lib\mono\4.0\xbuild.exe"/>
 	<property name="buildConfiguration" value="Debug" />
-	<property name="build.version" value="1.4.1" />
+	<property name="build.version" value="1.5.0" />
 	
 	<target name="getHeadRevision" description="Get Head Revision">
 		<exec program="${svn.exe}" commandline="info -r HEAD" output="rootinfo.txt" />
