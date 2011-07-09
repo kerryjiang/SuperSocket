@@ -82,7 +82,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                Client.Send(data);
+                Client.SendData(data);
             }
             catch (Exception)
             {
@@ -100,7 +100,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                Client.Send(data);
+                Client.SendData(data);
             }
             catch (Exception)
             {
