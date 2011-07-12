@@ -32,7 +32,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Scripting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\Reference\DLR\Net20\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Reference\DLR\Net20\Microsoft.Scripting.dll</HintPath>
     </Reference>

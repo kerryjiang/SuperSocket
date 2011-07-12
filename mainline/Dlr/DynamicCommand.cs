@@ -30,7 +30,7 @@ namespace SuperSocket.Dlr
             var scriptScode = scriptEngine.GetScope(filePath);
 
             Action<TAppSession, TCommandInfo> dynamicMethod;
-            if (scriptScode != null || !scriptScode.TryGetVariable<Action<TAppSession, TCommandInfo>>("ExecuteCommand", out dynamicMethod))
+            if (scriptScode == null || !scriptScode.TryGetVariable<Action<TAppSession, TCommandInfo>>("ExecuteCommand", out dynamicMethod))
                 throw new Exception("Failed to find a command execution method in file: " + filePath);
 
             m_DynamicExecuteCommand = dynamicMethod;
