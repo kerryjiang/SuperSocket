@@ -13,8 +13,8 @@ namespace SuperSocket.SocketBase.Config
         public ServerConfig()
         {
             Security = "None";
-			MaxConnectionNumber = 100;
-			Mode = SocketMode.Async;
+            MaxConnectionNumber = 100;
+            Mode = SocketMode.Async;
             MaxCommandLength = 1024;
             KeepAliveTime = 10 * 60;// 10 minutes
             KeepAliveInterval = 60;// 60 seconds
@@ -103,6 +103,14 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the keep alive interval, in seconds.
         /// </summary>
         public int KeepAliveInterval { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether [enable dynamic command](support commands written in IronPython).
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
+        /// </value>
+        public bool EnableDynamicCommand { get; set; }
 
         #endregion
     }

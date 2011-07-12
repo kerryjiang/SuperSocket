@@ -7,25 +7,38 @@ using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public class ReflectCommandLoader<TCommand> : ICommandLoader<TCommand>
-        where TCommand : class
+    public class ReflectCommandLoader : ICommandLoader
     {
-        private Assembly[] m_CommandAssemblies;
-
-        public ReflectCommandLoader(IEnumerable<Assembly> assemblies)
-        {
-            m_CommandAssemblies = assemblies.Where(a => a != null).ToArray();
-        }
-
         #region ICommandLoader Members
 
-        public IEnumerable<TCommand> LoadCommands()
+        public IEnumerable<ICommand<TAppSession, TCommandInfo>> LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer)
+            where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+            where TCommandInfo : ICommandInfo
         {
-            var commands = new List<TCommand>();
+            var commandAssemblies = new List<Assembly> { appServer.GetType().Assembly };
 
-            foreach (var assembly in m_CommandAssemblies)
+            string commandAssembly = appServer.Config.Options.GetValue("commandAssembly");
+
+            if (!string.IsNullOrEmpty(commandAssembly))
             {
-                commands.AddRange(assembly.GetImplementedObjectsByInterface<TCommand>());
+                try
+                {
+                    var definedAssemblies = AssemblyUtil.GetAssembliesFromString(commandAssembly);
+
+                    if (definedAssemblies.Any())
+                        commandAssemblies.AddRange(definedAssemblies);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception("Failed to load defined command assemblies!", e);
+                }
+            }
+
+            var commands = new List<ICommand<TAppSession, TCommandInfo>>();
+
+            foreach (var assembly in commandAssemblies)
+            {
+                commands.AddRange(assembly.GetImplementedObjectsByInterface<ICommand<TAppSession, TCommandInfo>>());
             }
 
             return commands;

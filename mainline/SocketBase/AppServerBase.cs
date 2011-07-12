@@ -16,6 +16,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
 using System.Reflection;
+using System.IO;
 
 namespace SuperSocket.SocketBase
 {
@@ -36,6 +37,8 @@ namespace SuperSocket.SocketBase
         public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
 
         public ServiceCredentials ServerCredentials { get; set; }
+
+        private List<ICommandLoader> m_CommandLoaders;
 
         private Dictionary<string, ICommand<TAppSession, TCommandInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TCommandInfo>>(StringComparer.OrdinalIgnoreCase);
 
@@ -68,44 +71,39 @@ namespace SuperSocket.SocketBase
         public AppServerBase(ICustomProtocol<TCommandInfo> protocol)
         {
             this.Protocol = protocol;
-        }   
+        }
 
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
         {
-            var commandAssemblies = new List<Assembly> { typeof(TAppSession).Assembly };
-
-            string commandAssembly = Config.Options.GetValue("commandAssembly");
-
-            if (!string.IsNullOrEmpty(commandAssembly))
+            foreach(var loader in m_CommandLoaders)
             {
+                IEnumerable<ICommand<TAppSession, TCommandInfo>> commands;
+
                 try
                 {
-                    var definedAssemblies = AssemblyUtil.GetAssembliesFromString(commandAssembly);
-
-                    if (definedAssemblies.Any())
-                        commandAssemblies.AddRange(definedAssemblies);
+                    commands = loader.LoadCommands<TAppSession, TCommandInfo>(this);
                 }
-                catch (Exception e)
+                catch(Exception e)
                 {
-                    Logger.LogError("Failed to load defined command assemblies!", e);
-                    return false;
-                }
-            }
-
-            var commandLoader = new ReflectCommandLoader<ICommand<TAppSession, TCommandInfo>>(commandAssemblies);
-
-            foreach (var command in commandLoader.LoadCommands())
-            {
-                Logger.LogDebug(string.Format("Command found: {0} - {1}", command.Name, command.GetType().AssemblyQualifiedName));
-                if (commandDict.ContainsKey(command.Name))
-                {
-                    Logger.LogError("Duplicated name command has been found! Command name: " + command.Name);
+                    LogUtil.LogError("Failed to load command by " + loader.GetType().ToString() + "!", e);
                     return false;
                 }
 
-                commandDict.Add(command.Name, command);
+                if(commands == null)
+                    continue;
+
+                foreach(var cmd in commands)
+                {
+                    if (commandDict.ContainsKey(cmd.Name))
+                    {
+                        Logger.LogError("Duplicated name command has been found! Command name: " + cmd.Name);
+                        return false;
+                    }
+
+                    commandDict.Add(cmd.Name, cmd);
+                }
             }
-            
+
             SetupCommandFilters(commandDict.Values);
 
             return true;
@@ -158,6 +156,24 @@ namespace SuperSocket.SocketBase
 
             if (!SetupProtocol(config, protocol))
                 return false;
+
+            m_CommandLoaders = new List<ICommandLoader>
+            {
+                new ReflectCommandLoader()
+            };
+
+            if (Config.EnableDynamicCommand)
+            {
+                ICommandLoader dynamicCommandLoader;
+
+                if (!AssemblyUtil.TryCreateInstance<ICommandLoader>("SuperSocket.Dlr.DynamicCommandLoader, SuperSocket.Dlr", out dynamicCommandLoader))
+                {
+                    Logger.LogError("The file SuperSocket.Dlr is required for dynamic command support!");
+                    return false;
+                }
+
+                m_CommandLoaders.Add(dynamicCommandLoader);
+            }
 
             if (!SetupCommands(m_CommandDict))
                 return false;

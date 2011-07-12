@@ -214,5 +214,20 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["keepAliveInterval"];
             }
         }
+
+        /// <summary>
+        /// Gets a value indicating whether [enable dynamic command](support commands written in IronPython).
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("enableDynamicCommand", IsRequired = false, DefaultValue = false)]
+        public bool EnableDynamicCommand
+        {
+            get
+            {
+                return (bool)this["enableDynamicCommand"];
+            }
+        }
     }
 }

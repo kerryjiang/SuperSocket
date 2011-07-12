@@ -110,5 +110,14 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the keep alive interval, in seconds.
         /// </summary>
         int KeepAliveInterval { get; }
+
+
+        /// <summary>
+        /// Gets a value indicating whether [enable dynamic command](support commands written in IronPython).
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
+        /// </value>
+        bool EnableDynamicCommand { get; }
     }
 }

@@ -5,9 +5,10 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public interface ICommandLoader<TCommandInfo>
-        where TCommandInfo : class
+    public interface ICommandLoader
     {
-        IEnumerable<TCommandInfo> LoadCommands();
+        IEnumerable<ICommand<TAppSession, TCommandInfo>> LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer)
+            where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+            where TCommandInfo : ICommandInfo;
     }
 }
