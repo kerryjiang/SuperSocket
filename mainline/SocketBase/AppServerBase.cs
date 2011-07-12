@@ -65,7 +65,7 @@ namespace SuperSocket.SocketBase
 
         public AppServerBase()
         {
-            
+
         }
 
         public AppServerBase(ICustomProtocol<TCommandInfo> protocol)
@@ -75,7 +75,7 @@ namespace SuperSocket.SocketBase
 
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
         {
-            foreach(var loader in m_CommandLoaders)
+            foreach (var loader in m_CommandLoaders)
             {
                 IEnumerable<ICommand<TAppSession, TCommandInfo>> commands;
 
@@ -83,16 +83,16 @@ namespace SuperSocket.SocketBase
                 {
                     commands = loader.LoadCommands<TAppSession, TCommandInfo>(this);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     LogUtil.LogError("Failed to load command by " + loader.GetType().ToString() + "!", e);
                     return false;
                 }
 
-                if(commands == null)
+                if (commands == null)
                     continue;
 
-                foreach(var cmd in commands)
+                foreach (var cmd in commands)
                 {
                     if (commandDict.ContainsKey(cmd.Name))
                     {
@@ -401,13 +401,13 @@ namespace SuperSocket.SocketBase
             add { m_CommandHandler += value; }
             remove { m_CommandHandler -= value; }
         }
-        
+
         private void ExecuteCommandFilters(List<CommandFilterAttribute> filters, TAppSession session, ICommand command, Action<CommandFilterAttribute, TAppSession, ICommand> filterAction)
         {
             if (filters == null || filters.Count <= 0)
                 return;
 
-            for(var i = 0; i < filters.Count; i++)
+            for (var i = 0; i < filters.Count; i++)
             {
                 var filter = filters[i];
                 filterAction(filter, session, command);
@@ -428,7 +428,7 @@ namespace SuperSocket.SocketBase
                 {
                     List<CommandFilterAttribute> commandFilters;
                     m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
-                        
+
                     session.CurrentCommand = commandInfo.Key;
 
                     ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
@@ -441,7 +441,7 @@ namespace SuperSocket.SocketBase
 
                         ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
                     }
-                    
+
                     session.PrevCommand = commandInfo.Key;
 
                     if (Config.LogCommand)
@@ -473,34 +473,34 @@ namespace SuperSocket.SocketBase
             get { return m_ConnectionFilters; }
             set
             {
-                if(m_ConnectionFilters == null)
+                if (m_ConnectionFilters == null)
                     m_ConnectionFilters = new List<IConnectionFilter>();
-                
+
                 m_ConnectionFilters.AddRange(value);
             }
         }
-        
+
         private bool ExecuteConnectionFilters(IPEndPoint remoteAddress)
         {
-            if(m_ConnectionFilters == null)
+            if (m_ConnectionFilters == null)
                 return true;
-            
-            for(var i = 0; i < m_ConnectionFilters.Count; i++)
+
+            for (var i = 0; i < m_ConnectionFilters.Count; i++)
             {
                 var currentFilter = m_ConnectionFilters[i];
-                if(!currentFilter.AllowConnect(remoteAddress))
+                if (!currentFilter.AllowConnect(remoteAddress))
                 {
                     Logger.LogInfo(string.Format("A connection from {0} has been refused by filter {1}!", remoteAddress, currentFilter.Name));
-                    return false;	
+                    return false;
                 }
             }
-            
+
             return true;
         }
-        
+
         public virtual TAppSession CreateAppSession(ISocketSession socketSession)
         {
-            if(!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
+            if (!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
                 return NullAppSession;
 
             TAppSession appSession = new TAppSession();
