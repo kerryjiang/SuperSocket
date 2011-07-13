@@ -30,7 +30,8 @@ namespace SuperSocket.Dlr
             var scriptScope = scriptEngine.CreateScope();
 
             var scriptSource = scriptEngine.CreateScriptSourceFromFile(filePath);
-            scriptSource.Execute(scriptScope);
+            var compiledCode = scriptSource.Compile();
+            compiledCode.Execute(scriptScope);
 
             Action<TAppSession, TCommandInfo> dynamicMethod;
             if (!scriptScope.TryGetVariable<Action<TAppSession, TCommandInfo>>("execute", out dynamicMethod))
