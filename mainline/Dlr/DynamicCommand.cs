@@ -27,10 +27,13 @@ namespace SuperSocket.Dlr
             FilePath = filePath;
             Name = Path.GetFileNameWithoutExtension(filePath);
             var scriptEngine = m_ScriptRuntime.GetEngineByFileExtension(Path.GetExtension(filePath));
-            var scriptScode = scriptEngine.GetScope(filePath);
+            var scriptScope = scriptEngine.CreateScope();
+
+            var scriptSource = scriptEngine.CreateScriptSourceFromFile(filePath);
+            scriptSource.Execute(scriptScope);
 
             Action<TAppSession, TCommandInfo> dynamicMethod;
-            if (scriptScode == null || !scriptScode.TryGetVariable<Action<TAppSession, TCommandInfo>>("ExecuteCommand", out dynamicMethod))
+            if (!scriptScope.TryGetVariable<Action<TAppSession, TCommandInfo>>("execute", out dynamicMethod))
                 throw new Exception("Failed to find a command execution method in file: " + filePath);
 
             m_DynamicExecuteCommand = dynamicMethod;
