@@ -7,19 +7,38 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using System.Threading;
 using SuperSocket.Common;
+using Microsoft.Scripting.Hosting;
 
 namespace SuperSocket.Dlr
 {
     public class DynamicCommandLoader : ICommandLoader
     {
+        private static ScriptRuntime m_ScriptRuntime;
+
+        private static HashSet<string> m_CommandExtensions;
+
         private static Timer m_CommandDirCheckingTimer;
 
         private static readonly int m_CommandDirCheckingInterval = 1000 * 60 * 5;// 5 minutes
 
         static DynamicCommandLoader()
         {
+            m_ScriptRuntime = ScriptRuntime.CreateFromConfiguration();
+
+            List<string> fileExtensions = new List<string>();
+
+            foreach (var fxts in m_ScriptRuntime.Setup.LanguageSetups.Select(s => s.FileExtensions))
+                fileExtensions.AddRange(fxts);
+
+            m_CommandExtensions = new HashSet<string>(fileExtensions, StringComparer.OrdinalIgnoreCase);
+
             m_ServerCommandStateLib = new Dictionary<string, ServerCommandState>(StringComparer.OrdinalIgnoreCase);
             m_CommandDirCheckingTimer = new Timer(OnCommandDirCheckingTimerCallback, null, m_CommandDirCheckingInterval, m_CommandDirCheckingInterval);
+        }
+
+        static IEnumerable<string> GetCommandFiles(string path, SearchOption option)
+        {
+            return Directory.GetFiles(path, "*.*", option).Where(f => m_CommandExtensions.Contains(Path.GetExtension(f)));
         }
 
         private static void OnCommandDirCheckingTimerCallback(object state)
@@ -29,7 +48,7 @@ namespace SuperSocket.Dlr
             try
             {
                 var commandDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Command");
-                var commonCommands = Directory.GetFiles(commandDir);
+                var commonCommands = GetCommandFiles(commandDir, SearchOption.TopDirectoryOnly);
 
                 foreach (var name in m_ServerCommandStateLib.Keys)
                 {
@@ -45,7 +64,7 @@ namespace SuperSocket.Dlr
 
                     if (Directory.Exists(serverCommandDir))
                     {
-                        serverCommands.AddRange(Directory.GetFiles(serverCommandDir));
+                        serverCommands.AddRange(GetCommandFiles(serverCommandDir, SearchOption.TopDirectoryOnly));
                     }
 
                     List<CommandUpdateInfo<CommandFileInfo>> updatedCommands = new List<CommandUpdateInfo<CommandFileInfo>>();
@@ -175,11 +194,11 @@ namespace SuperSocket.Dlr
 
             List<string> commandFiles = new List<string>();
 
-            commandFiles.AddRange(Directory.GetFiles(commandDir, "*.py", SearchOption.TopDirectoryOnly));
+            commandFiles.AddRange(GetCommandFiles(commandDir, SearchOption.TopDirectoryOnly));
 
             if (Directory.Exists(serverCommandDir))
             {
-                commandFiles.AddRange(Directory.GetFiles(serverCommandDir, "*.py", SearchOption.TopDirectoryOnly));
+                commandFiles.AddRange(GetCommandFiles(serverCommandDir, SearchOption.TopDirectoryOnly));
             }
 
             if (!commandFiles.Any())
@@ -192,7 +211,7 @@ namespace SuperSocket.Dlr
                 try
                 {
                     var lastUpdatedTime = File.GetLastWriteTime(file);
-                    command = new DynamicCommand<TAppSession, TCommandInfo>(file, lastUpdatedTime);
+                    command = new DynamicCommand<TAppSession, TCommandInfo>(m_ScriptRuntime, file, lastUpdatedTime);
                     serverCommandState.Commands.Add(new CommandFileInfo
                         {
                             FilePath = file,
@@ -230,7 +249,7 @@ namespace SuperSocket.Dlr
 
                 try
                 {
-                    var command = new DynamicCommand<TAppSession, TCommandInfo>(c.Command.FilePath, c.Command.LastUpdatedTime);
+                    var command = new DynamicCommand<TAppSession, TCommandInfo>(m_ScriptRuntime, c.Command.FilePath, c.Command.LastUpdatedTime);
 
                     return new CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>
                     {

@@ -13,22 +13,15 @@ namespace SuperSocket.Dlr
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
-        private static ScriptRuntime m_ScriptRuntime;
-
         private Action<TAppSession, TCommandInfo> m_DynamicExecuteCommand;
 
-        static DynamicCommand()
-        {
-            m_ScriptRuntime = ScriptRuntime.CreateFromConfiguration();
-        }
-
-        public DynamicCommand(string filePath, DateTime lastUpdatedTime)
+        public DynamicCommand(ScriptRuntime scriptRuntime, string filePath, DateTime lastUpdatedTime)
         {
             FilePath = filePath;
             LastUpdatedTime = lastUpdatedTime;
 
             Name = Path.GetFileNameWithoutExtension(filePath);
-            var scriptEngine = m_ScriptRuntime.GetEngineByFileExtension(Path.GetExtension(filePath));
+            var scriptEngine = scriptRuntime.GetEngineByFileExtension(Path.GetExtension(filePath));
             var scriptScope = scriptEngine.CreateScope();
 
             var scriptSource = scriptEngine.CreateScriptSourceFromFile(filePath);
