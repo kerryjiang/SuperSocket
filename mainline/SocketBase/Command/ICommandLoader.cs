@@ -7,7 +7,7 @@ namespace SuperSocket.SocketBase.Command
 {
     public interface ICommandLoader
     {
-        IEnumerable<ICommand<TAppSession, TCommandInfo>> LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer)
+        bool LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer, Func<ICommand<TAppSession, TCommandInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>>> commandUpdater)
             where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
             where TCommandInfo : ICommandInfo;
     }

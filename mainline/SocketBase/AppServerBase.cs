@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
@@ -15,8 +17,6 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
-using System.Reflection;
-using System.IO;
 
 namespace SuperSocket.SocketBase
 {
@@ -77,30 +77,60 @@ namespace SuperSocket.SocketBase
         {
             foreach (var loader in m_CommandLoaders)
             {
-                IEnumerable<ICommand<TAppSession, TCommandInfo>> commands;
-
                 try
                 {
-                    commands = loader.LoadCommands<TAppSession, TCommandInfo>(this);
+                    var ret = loader.LoadCommands<TAppSession, TCommandInfo>(this, c =>
+                    {
+                        if (commandDict.ContainsKey(c.Name))
+                        {
+                            Logger.LogError("Duplicated name command has been found! Command name: " + c.Name);
+                            return false;
+                        }
+
+                        commandDict.Add(c.Name, c);
+                        return true;
+                    }, u =>
+                    {
+                        var workingDict = m_CommandDict.Values.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+                        var updatedCommands = 0;
+
+                        foreach (var c in u)
+                        {
+                            if (c == null)
+                                continue;
+
+                            if (c.UpdateAction == CommandUpdateAction.Remove)
+                            {
+                                workingDict.Remove(c.Command.Name);
+                                Logger.LogInfo(string.Format("The command '{0}' has been removed from this server!", c.Command.Name));
+                            }
+                            else if (c.UpdateAction == CommandUpdateAction.Add)
+                            {
+                                workingDict.Add(c.Command.Name, c.Command);
+                                Logger.LogInfo(string.Format("The command '{0}' has been added into this server!", c.Command.Name));
+                            }
+                            else
+                            {
+                                workingDict[c.Command.Name] = c.Command;
+                                Logger.LogInfo(string.Format("The command '{0}' has been updated!", c.Command.Name));
+                            }
+
+                            updatedCommands++;
+                        }
+
+                        if (updatedCommands > 0)
+                        {
+                            Interlocked.Exchange<Dictionary<string, ICommand<TAppSession, TCommandInfo>>>(ref m_CommandDict, workingDict);
+                        }
+                    });
+
+                    if (!ret)
+                        return false;
                 }
                 catch (Exception e)
                 {
                     LogUtil.LogError("Failed to load command by " + loader.GetType().ToString() + "!", e);
                     return false;
-                }
-
-                if (commands == null)
-                    continue;
-
-                foreach (var cmd in commands)
-                {
-                    if (commandDict.ContainsKey(cmd.Name))
-                    {
-                        Logger.LogError("Duplicated name command has been found! Command name: " + cmd.Name);
-                        return false;
-                    }
-
-                    commandDict.Add(cmd.Name, cmd);
                 }
             }
 

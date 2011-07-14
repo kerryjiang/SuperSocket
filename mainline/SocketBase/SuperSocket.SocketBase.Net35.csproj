@@ -57,6 +57,7 @@
     <Compile Include="Command\BinaryCommandInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandInfo.cs" />
+    <Compile Include="Command\CommandUpdateInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandInfo.cs" />
     <Compile Include="Command\ICommandLoader.cs" />

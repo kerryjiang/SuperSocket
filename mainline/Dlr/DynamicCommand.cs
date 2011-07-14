@@ -22,9 +22,11 @@ namespace SuperSocket.Dlr
             m_ScriptRuntime = ScriptRuntime.CreateFromConfiguration();
         }
 
-        public DynamicCommand(string filePath)
+        public DynamicCommand(string filePath, DateTime lastUpdatedTime)
         {
             FilePath = filePath;
+            LastUpdatedTime = lastUpdatedTime;
+
             Name = Path.GetFileNameWithoutExtension(filePath);
             var scriptEngine = m_ScriptRuntime.GetEngineByFileExtension(Path.GetExtension(filePath));
             var scriptScope = scriptEngine.CreateScope();
@@ -50,6 +52,8 @@ namespace SuperSocket.Dlr
         #endregion
 
         public string FilePath { get; private set; }
+
+        public DateTime LastUpdatedTime { get; private set; }
 
         #region ICommand Members
 

@@ -17,4 +17,21 @@ namespace SuperSocket.SocketBase.Command
     {
         void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
     }
+
+    public class MockupCommand<TAppSession, TCommandInfo> : ICommand<TAppSession, TCommandInfo>
+        where TCommandInfo : ICommandInfo
+        where TAppSession : IAppSession<TCommandInfo>
+    {
+        public MockupCommand(string name)
+        {
+            Name = name;
+        }
+
+        public void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
+        {
+
+        }
+
+        public string Name { get; private set; }
+    }
 }

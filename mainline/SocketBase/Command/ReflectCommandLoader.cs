@@ -11,7 +11,7 @@ namespace SuperSocket.SocketBase.Command
     {
         #region ICommandLoader Members
 
-        public IEnumerable<ICommand<TAppSession, TCommandInfo>> LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer)
+        public bool LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer, Func<ICommand<TAppSession, TCommandInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>>> commandUpdater)
             where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
             where TCommandInfo : ICommandInfo
         {
@@ -34,14 +34,16 @@ namespace SuperSocket.SocketBase.Command
                 }
             }
 
-            var commands = new List<ICommand<TAppSession, TCommandInfo>>();
-
             foreach (var assembly in commandAssemblies)
             {
-                commands.AddRange(assembly.GetImplementedObjectsByInterface<ICommand<TAppSession, TCommandInfo>>());
+                foreach (var c in assembly.GetImplementedObjectsByInterface<ICommand<TAppSession, TCommandInfo>>())
+                {
+                    if (!commandRegister(c))
+                        return false;
+                }
             }
 
-            return commands;
+            return true;
         }
 
         #endregion
