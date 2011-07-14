@@ -35,7 +35,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleAppServer", "Multip
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr", "..\Dlr\SuperSocket.Dlr.csproj", "{55BAA051-CE62-4D4A-81B6-68B042CC78E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronPythonServer", "IronPythonServer\IronPythonServer.csproj", "{9510FE4C-52ED-419F-B32D-61F18C487A64}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronSocketServer", "IronSocketServer\IronSocketServer.csproj", "{9510FE4C-52ED-419F-B32D-61F18C487A64}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
