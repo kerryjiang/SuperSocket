@@ -11,9 +11,43 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
 using System.IO;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test
 {
+    public class MyUdpCommand : UdpCommandInfo
+    {
+        public MyUdpCommand(string key, string sessionKey)
+            : base(key, sessionKey)
+        {
+
+        }
+
+        public string Value { get; set; }
+
+        public byte[] ToData()
+        {
+            List<byte> data = new List<byte>();
+
+            data.AddRange(Encoding.ASCII.GetBytes(Key));
+            data.AddRange(Encoding.ASCII.GetBytes(SessionKey));
+
+            int expectedLen = 32 + 4;
+
+            if (data.Count < expectedLen)
+            {
+                for (var i = 0; i < expectedLen - data.Count; i++)
+                {
+                    data.Add(0x00);
+                }
+            }
+
+            data.AddRange(Encoding.UTF8.GetBytes(Value));
+
+            return data.ToArray();
+        }
+    }
+
     [TestFixture]
     public class UdpSocketServerTest
     {
@@ -122,6 +156,12 @@ namespace SuperSocket.Test
                     Assert.AreEqual(command, echoMessage);
                 }
             }
+        }
+
+        [Test, Timeout(5000)]
+        public void TestUdpCommand()
+        {
+            
         }
 
         [Test]

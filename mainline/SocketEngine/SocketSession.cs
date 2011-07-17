@@ -45,7 +45,7 @@ namespace SuperSocket.SocketEngine
 
             Client = client;
             LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
-            RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;            
+            RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
         }
 
         public SocketSession(ICommandReader<TCommandInfo> commandReader)

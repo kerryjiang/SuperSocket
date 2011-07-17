@@ -57,6 +57,7 @@
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandInfo.cs" />
     <Compile Include="Command\ICommandLoader.cs" />
+    <Compile Include="Command\UdpCommandInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="Command\StringCommandInfo.cs" />
