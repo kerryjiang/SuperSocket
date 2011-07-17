@@ -49,8 +49,14 @@ namespace SuperSocket.SocketEngine
 #else
             client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
 #endif
+
+
             client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+            //Aviram
+            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontFragment, false);
+            client.UseOnlyOverlappedIO = true;
+            //Aviram
 
             TAppSession appSession = this.AppServer.CreateAppSession(session);
 
