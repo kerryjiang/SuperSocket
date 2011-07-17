@@ -54,7 +54,7 @@ namespace SuperSocket.SocketEngine
             client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
             //Aviram
-            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontFragment, false);
+            client.DontFragment = false;
             client.UseOnlyOverlappedIO = true;
             //Aviram
 
