@@ -28,11 +28,17 @@ namespace SuperSocket.SocketEngine
 
         private int m_ConsumedDataSizeInCommand = 0;
         private int m_CurrentParsedLeft = 0;
+        
+        //Aviram
+        private AsyncSocketSender _ass;
+        //Aviram
 
         public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
             : base(client, initialCommandReader)
         {
-
+            //Aviram
+            _ass = new AsyncSocketSender(client);
+            //Aviram
         }
 
         ILogger IAsyncSocketSession.Logger
@@ -80,14 +86,16 @@ namespace SuperSocket.SocketEngine
             if (IsClosed)
                 return;
 
-            try
-            {
-                Client.SendData(data);
-            }
-            catch (Exception)
-            {
-                Close(CloseReason.SocketError);
-            }
+            SendResponse(data);
+
+            //try
+            //{
+            //    Client.Send(data);
+            //}
+            //catch (Exception)
+            //{
+            //    Close(CloseReason.SocketError);
+            //}
         }
 
         public override void SendResponse(byte[] data)
@@ -100,7 +108,10 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                Client.SendData(data);
+                //Aviram
+                //Client.Send(data);
+                _ass.Send(data, 0, data.Length);
+                //Aviram
             }
             catch (Exception)
             {
