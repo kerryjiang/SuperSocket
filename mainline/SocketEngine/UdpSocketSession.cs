@@ -31,7 +31,7 @@ namespace SuperSocket.SocketEngine
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
-            IdentityKey = IdentityKey;
+            IdentityKey = identifyKey;
         }
 
         public override IPEndPoint LocalEndPoint
