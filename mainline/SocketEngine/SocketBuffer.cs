@@ -8,18 +8,18 @@ namespace SuperSocket.SocketEngine
 {
     public class SocketBuffer
     {
-        private object mLocker = new object();
-        private Int32 mPageSize = 1024;
-        private Int32 mReadCursor = 0;
-        private Int32 mWriteCursor = 0;
-        private Int32 mLength = 0;
+        private object m_Locker = new object();
+        private Int32 m_PageSize = 1024;
+        private Int32 m_ReadCursor = 0;
+        private Int32 m_WriteCursor = 0;
+        private Int32 m_Length = 0;
         private List<byte[]> mPages = new List<byte[]>();
 
 
         /// <summary>Returns the length of valid content.</summary>
         public int Length
         {// No need to lock this field. It's updated when locked whenever this SocketBuffer changes.
-            get { return mLength; }
+            get { return m_Length; }
         }
 
         /// <summary>Creates new SocketBuffer object.</summary>
@@ -37,7 +37,7 @@ namespace SuperSocket.SocketEngine
                 {
                     throw new ArgumentOutOfRangeException("Page size must be greater then 0");
                 }
-                mPageSize = pageSize;
+                m_PageSize = pageSize;
             }
             catch (Exception)
             {
@@ -53,7 +53,7 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
                     if (data == null || length == 0)
                     {
@@ -62,19 +62,19 @@ namespace SuperSocket.SocketEngine
                     int leftToWrite = length;
                     while (leftToWrite != 0)
                     {
-                        int currentPageIndex = mWriteCursor / mPageSize;
+                        int currentPageIndex = m_WriteCursor / m_PageSize;
                         if (currentPageIndex >= mPages.Count)
                         {
                             AddPage();
                         }
                         byte[] currentPage = mPages[currentPageIndex];
-                        int spaceInPage = mPageSize - (mWriteCursor % mPageSize);
+                        int spaceInPage = m_PageSize - (m_WriteCursor % m_PageSize);
                         int toWrite = Math.Min(leftToWrite, spaceInPage);
-                        Array.Copy(data, start, currentPage, (mWriteCursor % mPageSize), toWrite);
+                        Array.Copy(data, start, currentPage, (m_WriteCursor % m_PageSize), toWrite);
                         leftToWrite -= toWrite;
-                        mWriteCursor += toWrite;
+                        m_WriteCursor += toWrite;
                         start += toWrite;
-                        mLength = mWriteCursor - mReadCursor;
+                        m_Length = m_WriteCursor - m_ReadCursor;
                     }
                 }
             }
@@ -103,7 +103,7 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
                     byte[] result = Peek(size);
                     Discard(size);
@@ -123,7 +123,7 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
                     byte[] result = Peek(startIndex, size);
                     Discard(startIndex, size);
@@ -142,14 +142,14 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
                     if (size > Length)
                     {
                         throw new ArgumentOutOfRangeException("Size is larger then buffer content");
                     }
-                    mReadCursor += size;
-                    mLength = mWriteCursor - mReadCursor;
+                    m_ReadCursor += size;
+                    m_Length = m_WriteCursor - m_ReadCursor;
                     Purge();
                 }
             }
@@ -166,14 +166,14 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
                     if ((startIndex + size) > Length)
                     {
                         throw new ArgumentOutOfRangeException("Size is larger then buffer content");
                     }
-                    mReadCursor += startIndex + size;
-                    mLength = mWriteCursor - mReadCursor;
+                    m_ReadCursor += startIndex + size;
+                    m_Length = m_WriteCursor - m_ReadCursor;
                     Purge();
                 }
             }
@@ -191,22 +191,22 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
                     if (size > Length)
                     {
                         throw new ArgumentOutOfRangeException("Size is larger then buffer content");
                     }
                     byte[] result = new byte[size];
-                    int readCursor = mReadCursor;
+                    int readCursor = m_ReadCursor;
                     int leftToRead = size;
                     while (leftToRead != 0)
                     {
-                        int currentPageIndex = readCursor / mPageSize;
+                        int currentPageIndex = readCursor / m_PageSize;
                         byte[] currentPage = mPages[currentPageIndex];
-                        int spaceInPage = mPageSize - (readCursor % mPageSize);
+                        int spaceInPage = m_PageSize - (readCursor % m_PageSize);
                         int toRead = Math.Min(leftToRead, spaceInPage);
-                        Array.Copy(currentPage, (readCursor % mPageSize), result, result.Length - leftToRead, toRead);
+                        Array.Copy(currentPage, (readCursor % m_PageSize), result, result.Length - leftToRead, toRead);
                         leftToRead -= toRead;
                         readCursor += toRead;
                     }
@@ -228,22 +228,22 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
                     if (size > Length)
                     {
                         throw new ArgumentOutOfRangeException("Size is larger then buffer content");
                     }
                     byte[] result = new byte[size];
-                    int readCursor = mReadCursor + offset;
+                    int readCursor = m_ReadCursor + offset;
                     int leftToRead = size;
                     while (leftToRead != 0)
                     {
-                        int currentPageIndex = readCursor / mPageSize;
+                        int currentPageIndex = readCursor / m_PageSize;
                         byte[] currentPage = mPages[currentPageIndex];
-                        int spaceInPage = mPageSize - (readCursor % mPageSize);
+                        int spaceInPage = m_PageSize - (readCursor % m_PageSize);
                         int toRead = Math.Min(leftToRead, spaceInPage);
-                        Array.Copy(currentPage, (readCursor % mPageSize), result, result.Length - leftToRead, toRead);
+                        Array.Copy(currentPage, (readCursor % m_PageSize), result, result.Length - leftToRead, toRead);
                         leftToRead -= toRead;
                         readCursor += toRead;
                     }
@@ -261,11 +261,11 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
-                    mReadCursor = 0;
-                    mWriteCursor = 0;
-                    mLength = 0;
+                    m_ReadCursor = 0;
+                    m_WriteCursor = 0;
+                    m_Length = 0;
                     mPages.Clear();
                 }
             }
@@ -279,9 +279,9 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
-                    mPages.Add(new byte[mPageSize]);
+                    mPages.Add(new byte[m_PageSize]);
                 }
             }
             catch (Exception)
@@ -294,16 +294,16 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
-                    int readPageIndex = mReadCursor / mPageSize;
+                    int readPageIndex = m_ReadCursor / m_PageSize;
                     while (readPageIndex > 0)
                     {
                         mPages.RemoveAt(0);
-                        mReadCursor -= mPageSize;
-                        mWriteCursor -= mPageSize;
-                        mLength = mWriteCursor - mReadCursor;
-                        readPageIndex = mReadCursor / mPageSize;
+                        m_ReadCursor -= m_PageSize;
+                        m_WriteCursor -= m_PageSize;
+                        m_Length = m_WriteCursor - m_ReadCursor;
+                        readPageIndex = m_ReadCursor / m_PageSize;
                     }
                 }
             }
