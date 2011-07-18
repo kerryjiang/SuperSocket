@@ -29,12 +29,12 @@ namespace SuperSocket.SocketEngine
         private int m_ConsumedDataSizeInCommand = 0;
         private int m_CurrentParsedLeft = 0;
         
-        private AsyncSocketSender m_ass;
+        private AsyncSocketSender m_AsyncSender;
 
         public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
             : base(client, initialCommandReader)
         {
-            m_ass = new AsyncSocketSender(client);
+            m_AsyncSender = new AsyncSocketSender(client);
         }
 
         ILogger IAsyncSocketSession.Logger
@@ -83,15 +83,6 @@ namespace SuperSocket.SocketEngine
                 return;
 
             SendResponse(data);
-
-            //try
-            //{
-            //    Client.Send(data);
-            //}
-            //catch (Exception)
-            //{
-            //    Close(CloseReason.SocketError);
-            //}
         }
 
         public override void SendResponse(byte[] data)
@@ -104,7 +95,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                m_ass.Send(data, 0, data.Length);
+                m_AsyncSender.Send(data, 0, data.Length);
             }
             catch (Exception)
             {

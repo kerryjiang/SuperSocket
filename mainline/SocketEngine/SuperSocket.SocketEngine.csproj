@@ -75,7 +75,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AsyncSocketSender.cs" />
+    <Compile Include="AsyncSocket\AsyncSocketSender.cs" />
     <Compile Include="AsyncSocketServer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -97,7 +97,7 @@
     <Compile Include="Configuration\ServiceCollection.cs" />
     <Compile Include="Configuration\SocketServiceConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocketBuffer.cs" />
+    <Compile Include="AsyncSocket\SocketBuffer.cs" />
     <Compile Include="SocketManagerPasswordValidator.cs" />
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerManager.Performance.cs" />

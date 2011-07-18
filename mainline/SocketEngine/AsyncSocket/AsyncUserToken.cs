@@ -4,7 +4,7 @@ using System.Text;
 using System.Net.Sockets;
 using SuperSocket.SocketBase;
 
-namespace SuperSocket.SocketEngine
+namespace SuperSocket.SocketEngine.AsyncSocket
 {
 
     /// <summary>

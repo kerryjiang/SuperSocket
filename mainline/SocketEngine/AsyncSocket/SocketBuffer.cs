@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 
-namespace SuperSocket.SocketEngine
+namespace SuperSocket.SocketEngine.AsyncSocket
 {
     public class SocketBuffer
     {
@@ -313,20 +313,4 @@ namespace SuperSocket.SocketEngine
             }
         }
     }
-    //class Program
-    //{
-    //    static void Main(string[] args)
-    //    {
-    //        SocketBuffer f = new SocketBuffer();
-
-    //        byte[] buffer = new byte[1100];
-    //        for( int i = 0; i < buffer.Length; ++i )
-    //        {
-    //            buffer[i] = (byte)i;
-    //        }
-    //        f.Write(buffer, 0, buffer.Length);
-    //        System.Diagnostics.Debug.Write("SocketBuffer.SocketBuffer == " + f.Length);
-    //        
-    //    }   byte[] result2 = f.Read(900, 200);
-    //}
 }
