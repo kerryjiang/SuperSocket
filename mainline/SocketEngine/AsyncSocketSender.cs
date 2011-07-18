@@ -21,15 +21,15 @@ namespace SuperSocket.SocketEngine
 
         #region Fields
 
-        private System.Net.Sockets.Socket mSocket;
-        private SocketBuffer mSocketBuffer;
-        private byte[] mWorkBuffer;
-        private int mToSend = 0;
-        private AsyncCallback mCallback;
-        private object mLocker = new object();
+        private System.Net.Sockets.Socket m_Socket;
+        private SocketBuffer m_SocketBuffer;
+        private byte[] m_WorkBuffer;
+        private int m_ToSend = 0;
+        private AsyncCallback m_Callback;
+        private object m_Locker = new object();
 
-        private System.Threading.ReaderWriterLockSlim mReaderWriterLocker = new System.Threading.ReaderWriterLockSlim(System.Threading.LockRecursionPolicy.SupportsRecursion);
-        private DateTime mLastSendTime = DateTime.MaxValue;
+        private System.Threading.ReaderWriterLockSlim m_ReaderWriterLocker = new System.Threading.ReaderWriterLockSlim(System.Threading.LockRecursionPolicy.SupportsRecursion);
+        private DateTime m_LastSendTime = DateTime.MaxValue;
 
         #endregion Fields
 
@@ -37,9 +37,9 @@ namespace SuperSocket.SocketEngine
 
         public AsyncSocketSender(System.Net.Sockets.Socket socket)
         {
-            mSocket = socket;
-            mCallback = new AsyncCallback(this.Callback);
-            mSocketBuffer = new SocketBuffer();
+            m_Socket = socket;
+            m_Callback = new AsyncCallback(this.Callback);
+            m_SocketBuffer = new SocketBuffer();
         }
 
         #endregion Constructors
@@ -50,26 +50,26 @@ namespace SuperSocket.SocketEngine
         {
             get
             {
-                mReaderWriterLocker.EnterReadLock();
+                m_ReaderWriterLocker.EnterReadLock();
                 try
                 {
-                    return mLastSendTime;
+                    return m_LastSendTime;
                 }
                 finally
                 {
-                    mReaderWriterLocker.ExitReadLock();
+                    m_ReaderWriterLocker.ExitReadLock();
                 }
             }
             set
             {
-                mReaderWriterLocker.EnterWriteLock();
+                m_ReaderWriterLocker.EnterWriteLock();
                 try
                 {
-                    mLastSendTime = value;
+                    m_LastSendTime = value;
                 }
                 finally
                 {
-                    mReaderWriterLocker.ExitWriteLock();
+                    m_ReaderWriterLocker.ExitWriteLock();
                 }
             }
         }
@@ -78,9 +78,9 @@ namespace SuperSocket.SocketEngine
         {
             get
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
-                    return mSocketBuffer.Length;
+                    return m_SocketBuffer.Length;
                 }
             }
         }
@@ -91,9 +91,9 @@ namespace SuperSocket.SocketEngine
 
         public void Send(byte[] buffer, int start, int length)
         {
-            lock (mLocker)
+            lock (m_Locker)
             {
-                mSocketBuffer.Write(buffer, start, length);
+                m_SocketBuffer.Write(buffer, start, length);
                 Send();
             }
         }
@@ -106,9 +106,9 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                lock (mLocker)
+                lock (m_Locker)
                 {
-                    int sent = mSocket.EndSend(result);
+                    int sent = m_Socket.EndSend(result);
                     if (sent == 0)
                     {
                         if (OnSocketClosed != null)
@@ -118,11 +118,11 @@ namespace SuperSocket.SocketEngine
                         return;
                     }
                     LastSendTime = DateTime.Now;
-                    mToSend -= sent;
-                    if (mToSend > 0)
+                    m_ToSend -= sent;
+                    if (m_ToSend > 0)
                     {
-                        mSocket.BeginSend(mWorkBuffer, mWorkBuffer.Length - mToSend, mToSend,
-                                          System.Net.Sockets.SocketFlags.None, mCallback, null);
+                        m_Socket.BeginSend(m_WorkBuffer, m_WorkBuffer.Length - m_ToSend, m_ToSend,
+                                          System.Net.Sockets.SocketFlags.None, m_Callback, null);
                     }
                     else
                     {
@@ -148,17 +148,17 @@ namespace SuperSocket.SocketEngine
 
         private void Send()
         {
-            lock (mLocker)
+            lock (m_Locker)
             {
-                if (mToSend > 0)
-                {//Still sending bytes from mWorkBuffer. So do NOT overwrite it before being fully sent!!!
+                if (m_ToSend > 0)
+                {//Still sending bytes from m_WorkBuffer. So do NOT overwrite it before being fully sent!!!
                     return;// The data will not be sent now, it will be sent by Callback...
                 }
-                mWorkBuffer = mSocketBuffer.Read(Math.Min(mSocketBuffer.Length, 16348));
-                mToSend = mWorkBuffer.Length;
-                if (mToSend > 0)
+                m_WorkBuffer = m_SocketBuffer.Read(Math.Min(m_SocketBuffer.Length, 16348));
+                m_ToSend = m_WorkBuffer.Length;
+                if (m_ToSend > 0)
                 {
-                    mSocket.BeginSend(mWorkBuffer, 0, mToSend, System.Net.Sockets.SocketFlags.None, mCallback, null);
+                    m_Socket.BeginSend(m_WorkBuffer, 0, m_ToSend, System.Net.Sockets.SocketFlags.None, m_Callback, null);
                 }
             }
         }
