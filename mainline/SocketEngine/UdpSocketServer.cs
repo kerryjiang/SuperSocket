@@ -260,6 +260,12 @@ namespace SuperSocket.SocketEngine
                 socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 socketSession.Start();
             }
+            else
+            {
+                var socketSession = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
+                //Client remote endpoint may change, so update session to ensure the server can find client correctly
+                socketSession.UpdateRemoteEndPoint(remoteEndPoint);
+            }
 
             Async.Run(() => appSession.ExecuteCommand(appSession, commandInfo));
         }

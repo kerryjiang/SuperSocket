@@ -39,6 +39,15 @@ namespace SuperSocket.SocketEngine
             get { return (IPEndPoint)m_ServerSocket.LocalEndPoint; }
         }
 
+        /// <summary>
+        /// Updates the remote end point of the client.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote end point.</param>
+        internal void UpdateRemoteEndPoint(IPEndPoint remoteEndPoint)
+        {
+            this.RemoteEndPoint = remoteEndPoint;
+        }
+
         public override void Start()
         {
 
