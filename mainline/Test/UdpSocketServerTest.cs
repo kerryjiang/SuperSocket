@@ -12,12 +12,13 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
 using System.IO;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.Test.Udp;
 
 namespace SuperSocket.Test
 {
-    public class MyUdpCommand : UdpCommandInfo
+    public class MyUdpCommandInfo : UdpCommandInfo
     {
-        public MyUdpCommand(string key, string sessionKey)
+        public MyUdpCommandInfo(string key, string sessionKey)
             : base(key, sessionKey)
         {
 
@@ -32,7 +33,7 @@ namespace SuperSocket.Test
             data.AddRange(Encoding.ASCII.GetBytes(Key));
             data.AddRange(Encoding.ASCII.GetBytes(SessionKey));
 
-            int expectedLen = 32 + 4;
+            int expectedLen = 36 + 4;
 
             if (data.Count < expectedLen)
             {
@@ -161,7 +162,45 @@ namespace SuperSocket.Test
         [Test, Timeout(5000)]
         public void TestUdpCommand()
         {
-            
+            var testServer = new UdpAppServer();
+            testServer.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
+
+            testServer.Start();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+                Random rd = new Random(1);
+
+                StringBuilder sb = new StringBuilder();
+
+                var sessionKey = Guid.NewGuid().ToString();
+
+                for (int i = 0; i < 100; i++)
+                {
+                    sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+                    string command = sb.ToString();
+
+                    Console.WriteLine("Client prepare sent:" + command);
+
+                    var cmdInfo = new MyUdpCommandInfo("SESS", sessionKey);
+                    cmdInfo.Value = command;
+
+                    socket.SendTo(cmdInfo.ToData(), serverAddress);
+
+                    Console.WriteLine("Client sent:" + command);
+
+                    string[] res = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray()).Split(' ');
+
+                    Assert.AreEqual(sessionKey, res[0]);
+                    Assert.AreEqual(command, res[1]);
+                }
+            }
+
+            testServer.Stop();
         }
 
         [Test]
