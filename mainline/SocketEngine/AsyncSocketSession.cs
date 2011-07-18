@@ -29,16 +29,12 @@ namespace SuperSocket.SocketEngine
         private int m_ConsumedDataSizeInCommand = 0;
         private int m_CurrentParsedLeft = 0;
         
-        //Aviram
-        private AsyncSocketSender _ass;
-        //Aviram
+        private AsyncSocketSender m_ass;
 
         public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
             : base(client, initialCommandReader)
         {
-            //Aviram
-            _ass = new AsyncSocketSender(client);
-            //Aviram
+            m_ass = new AsyncSocketSender(client);
         }
 
         ILogger IAsyncSocketSession.Logger
@@ -108,10 +104,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                //Aviram
-                //Client.Send(data);
-                _ass.Send(data, 0, data.Length);
-                //Aviram
+                m_ass.Send(data, 0, data.Length);
             }
             catch (Exception)
             {
