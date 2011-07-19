@@ -85,12 +85,14 @@
     <Compile Include="AsyncSocketSession.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AsyncSocket\AsyncSocketSender.cs" />
     <Compile Include="AsyncSocket\AsyncUserToken.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AsyncSocket\SocketBuffer.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />
     <Compile Include="Configuration\CredentialConfig.cs" />
