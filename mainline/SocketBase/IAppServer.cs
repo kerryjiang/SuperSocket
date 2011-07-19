@@ -95,12 +95,13 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         TAppSession CreateAppSession(ISocketSession socketSession);
 
+
         /// <summary>
-        /// Gets the app session by indentity key from server's session container.
+        /// Gets the app session by ID.
         /// </summary>
-        /// <param name="identityKey">The identity key.</param>
+        /// <param name="identityKey">The session ID.</param>
         /// <returns></returns>
-        TAppSession GetAppSessionByIndentityKey(string identityKey);
+        TAppSession GetAppSessionByID(string sessionID);
 
         /// <summary>
         /// Gets the matched sessions from sessions snapshot.

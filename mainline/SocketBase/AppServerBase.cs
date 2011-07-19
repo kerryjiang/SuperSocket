@@ -545,7 +545,7 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public virtual TAppSession GetAppSessionByIndentityKey(string identityKey)
+        public virtual TAppSession GetAppSessionByID(string sessionID)
         {
             throw new NotSupportedException();
         }

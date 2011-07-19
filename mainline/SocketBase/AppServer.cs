@@ -90,7 +90,7 @@ namespace SuperSocket.SocketBase
             if (ReferenceEquals(NullAppSession, appSession))
                 return appSession;
 
-            if (m_SessionDict.TryAdd(appSession.IdentityKey, appSession))
+            if (m_SessionDict.TryAdd(appSession.SessionID, appSession))
             {
                 Logger.LogInfo(appSession, "New SocketSession was accepted!");
                 return appSession;
@@ -102,26 +102,25 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        public override TAppSession GetAppSessionByIndentityKey(string identityKey)
+        public override TAppSession GetAppSessionByID(string sessionID)
         {
-            if(string.IsNullOrEmpty(identityKey))
+            if (string.IsNullOrEmpty(sessionID))
                 return NullAppSession;
 
             TAppSession targetSession;
-            m_SessionDict.TryGetValue(identityKey, out targetSession);
+            m_SessionDict.TryGetValue(sessionID, out targetSession);
             return targetSession;
         }
 
         internal protected override void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
-            //the sender is a sessionID
-            string identityKey = e.IdentityKey;
+            string sessionID = e.SessionID;
 
-            if (string.IsNullOrEmpty(identityKey))
+            if (string.IsNullOrEmpty(sessionID))
                 return;
 
             TAppSession removedSession;
-            if (m_SessionDict.TryRemove(identityKey, out removedSession))
+            if (m_SessionDict.TryRemove(sessionID, out removedSession))
             {
                 removedSession.Status = SessionStatus.Disconnected;
                 Logger.LogInfo(removedSession, "This session was closed!");

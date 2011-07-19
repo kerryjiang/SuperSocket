@@ -38,7 +38,7 @@ namespace SuperSocket.SocketEngine
         protected readonly object SyncRoot = new object();
 
         public SocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
-            : this(commandReader)
+            : this(Guid.NewGuid().ToString(), commandReader)
         {
             if (client == null)
                 throw new ArgumentNullException("client");
@@ -48,8 +48,9 @@ namespace SuperSocket.SocketEngine
             RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
         }
 
-        public SocketSession(ICommandReader<TCommandInfo> commandReader)
+        public SocketSession(string sessionID, ICommandReader<TCommandInfo> commandReader)
         {
+            SessionID = sessionID;
             CommandReader = commandReader;
         }
 
@@ -60,41 +61,11 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
-        /// The session identity string
-        /// </summary>
-        private string m_SessionID = Guid.NewGuid().ToString();
-
-        /// <summary>
         /// Gets or sets the session ID.
         /// </summary>
         /// <value>The session ID.</value>
-        public string SessionID
-        {
-            get { return m_SessionID; }
-        }
+        public string SessionID { get; private set; }
 
-
-        private string m_IdentityKey;
-        /// <summary>
-        /// Gets or sets the IdentityKey, in some case we cannot use sessionID as key directly
-        /// Then we need to use indentity key
-        /// </summary>
-        /// <value>The IdentityKey.</value>
-        public string IdentityKey
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(m_IdentityKey))
-                    return m_SessionID;
-
-                return m_IdentityKey;
-            }
-
-            protected set
-            {
-                m_IdentityKey = value;
-            }
-        }      
 
         public IServerConfig Config { get; set; }
 
@@ -150,7 +121,7 @@ namespace SuperSocket.SocketEngine
             {
                 closedHandler(this, new SocketSessionClosedEventArgs
                     {
-                        IdentityKey = this.IdentityKey,
+                        SessionID = this.SessionID,
                         Reason = reason
                     });
             }

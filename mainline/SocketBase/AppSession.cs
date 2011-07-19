@@ -125,12 +125,6 @@ namespace SuperSocket.SocketBase
         public string SessionID { get; private set; }
 
         /// <summary>
-        /// Gets the identity key.
-        /// In most case, IdentityKey is same as SessionID
-        /// </summary>
-        public string IdentityKey { get; private set; }
-
-        /// <summary>
         /// Gets the socket session of the AppSession.
         /// </summary>
         public ISocketSession SocketSession { get; private set; }
@@ -162,7 +156,6 @@ namespace SuperSocket.SocketBase
             AppServer = appServer;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
-            IdentityKey = socketSession.IdentityKey;
             Status = SessionStatus.Healthy;
             OnInit();
         }

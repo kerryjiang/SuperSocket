@@ -33,7 +33,7 @@ namespace SuperSocket.SocketEngine
 
         private ICustomProtocol<TCommandInfo> m_Protocol;
 
-        private bool m_SessionKeyFromCommandInfo = false;
+        private bool m_SessionIDFromCommandInfo = false;
 
         private ICommandReader<TCommandInfo> m_UdpCommandInfoReader;
 
@@ -44,7 +44,7 @@ namespace SuperSocket.SocketEngine
 
             if (typeof(TCommandInfo).IsSubclassOf(typeof(UdpCommandInfo)))
             {
-                m_SessionKeyFromCommandInfo = true;
+                m_SessionIDFromCommandInfo = true;
                 m_UdpCommandInfoReader = m_Protocol.CreateCommandReader(this.AppServer);
             }
         }
@@ -180,7 +180,7 @@ namespace SuperSocket.SocketEngine
 
         private void ProcessReceivedData(IPEndPoint remoteEndPoint, byte[] receivedData)
         {
-            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(remoteEndPoint.ToString());
+            TAppSession appSession = AppServer.GetAppSessionByID(remoteEndPoint.ToString());
 
             if (appSession == null) //New session
             {
@@ -208,10 +208,10 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        private void ProcessReceivedDataWithSessionKey(IPEndPoint remoteEndPoint, byte[] receivedData)
+        private void ProcessReceivedDataWithSessionID(IPEndPoint remoteEndPoint, byte[] receivedData)
         {
             TCommandInfo commandInfo;
-            string sessionKey;
+            string sessionID;
 
             try
             {
@@ -232,13 +232,13 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                if (string.IsNullOrEmpty(udpCommandInfo.SessionKey))
+                if (string.IsNullOrEmpty(udpCommandInfo.SessionID))
                 {
                     AppServer.Logger.LogError("Failed to get session key from UDP package!");
                     return;
                 }
 
-                sessionKey = udpCommandInfo.SessionKey;
+                sessionID = udpCommandInfo.SessionID;
             }
             catch (Exception exc)
             {
@@ -246,11 +246,11 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(sessionKey);
+            TAppSession appSession = AppServer.GetAppSessionByID(sessionID);
 
             if (appSession == null)
             {
-                var socketSession = RegisterSession(new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, sessionKey));
+                var socketSession = RegisterSession(new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, sessionID));
                 if (socketSession == null)
                     return;
 
@@ -282,9 +282,9 @@ namespace SuperSocket.SocketEngine
             if (m_InvalidEndPoint.Equals(ipAddress.ToString()))
                 return;
 
-            if (m_SessionKeyFromCommandInfo)
+            if (m_SessionIDFromCommandInfo)
             {
-                ProcessReceivedDataWithSessionKey(ipAddress, receivedData);
+                ProcessReceivedDataWithSessionID(ipAddress, receivedData);
             }
             else
             {

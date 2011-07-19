@@ -12,28 +12,28 @@ namespace SuperSocket.SocketBase
 
         public static void LogError(this ILogger logger, ISessionBase session, Exception e)
         {
-            logger.LogError(string.Format(m_SessionInfoTemplate, session.IdentityKey, session.RemoteEndPoint), e);   
+            logger.LogError(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint), e);   
         }
 
         public static void LogError(this ILogger logger, ISessionBase session, string title, Exception e)
         {
-            logger.LogError(string.Format(m_SessionInfoTemplate, session.IdentityKey, session.RemoteEndPoint) + Environment.NewLine + title, e);
+            logger.LogError(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + title, e);
         }
 
         public static void LogError(this ILogger logger, ISessionBase session, string message)
         {
-            logger.LogError(string.Format(m_SessionInfoTemplate, session.IdentityKey, session.RemoteEndPoint));
+            logger.LogError(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint));
         }
 
         public static void LogInfo(this ILogger logger, ISessionBase session, string message)
         {
-            string info = string.Format(m_SessionInfoTemplate, session.IdentityKey, session.RemoteEndPoint) + Environment.NewLine + message;
+            string info = string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message;
             logger.LogInfo(info);
         }
 
         public static void LogDebug(this ILogger logger, ISessionBase session, string message)
         {
-            logger.LogDebug(string.Format(m_SessionInfoTemplate, session.IdentityKey, session.RemoteEndPoint) + Environment.NewLine + message);
+            logger.LogDebug(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message);
         }
     }
 }

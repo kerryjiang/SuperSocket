@@ -14,12 +14,6 @@ namespace SuperSocket.SocketBase
         string SessionID { get; }
 
         /// <summary>
-        /// Gets the identity key.
-        /// In most case, IdentityKey is same as SessionID
-        /// </summary>
-        string IdentityKey { get; }
-
-        /// <summary>
         /// Gets the remote endpoint.
         /// </summary>
         IPEndPoint RemoteEndPoint { get; }

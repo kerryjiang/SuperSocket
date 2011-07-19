@@ -18,8 +18,8 @@ namespace SuperSocket.Test
 {
     public class MyUdpCommandInfo : UdpCommandInfo
     {
-        public MyUdpCommandInfo(string key, string sessionKey)
-            : base(key, sessionKey)
+        public MyUdpCommandInfo(string key, string sessionID)
+            : base(key, sessionID)
         {
 
         }
@@ -31,7 +31,7 @@ namespace SuperSocket.Test
             List<byte> data = new List<byte>();
 
             data.AddRange(Encoding.ASCII.GetBytes(Key));
-            data.AddRange(Encoding.ASCII.GetBytes(SessionKey));
+            data.AddRange(Encoding.ASCII.GetBytes(SessionID));
 
             int expectedLen = 36 + 4;
 
@@ -177,7 +177,7 @@ namespace SuperSocket.Test
 
                 StringBuilder sb = new StringBuilder();
 
-                var sessionKey = Guid.NewGuid().ToString();
+                var sessionID = Guid.NewGuid().ToString();
 
                 for (int i = 0; i < 100; i++)
                 {
@@ -186,7 +186,7 @@ namespace SuperSocket.Test
 
                     Console.WriteLine("Client prepare sent:" + command);
 
-                    var cmdInfo = new MyUdpCommandInfo("SESS", sessionKey);
+                    var cmdInfo = new MyUdpCommandInfo("SESS", sessionID);
                     cmdInfo.Value = command;
 
                     socket.SendTo(cmdInfo.ToData(), serverAddress);
@@ -195,7 +195,7 @@ namespace SuperSocket.Test
 
                     string[] res = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray()).Split(' ');
 
-                    Assert.AreEqual(sessionKey, res[0]);
+                    Assert.AreEqual(sessionID, res[0]);
                     Assert.AreEqual(command, res[1]);
                 }
             }

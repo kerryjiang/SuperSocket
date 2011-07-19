@@ -19,19 +19,17 @@ namespace SuperSocket.SocketEngine
         private Socket m_ServerSocket;
 
         public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TCommandInfo> commandReader)
-            : base(commandReader)
+            : base(remoteEndPoint.ToString(), commandReader)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
-            IdentityKey = remoteEndPoint.ToString();
         }
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, string identifyKey)
-            : base(null)
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, string sessionID)
+            : base(sessionID, null)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
-            IdentityKey = identifyKey;
         }
 
         public override IPEndPoint LocalEndPoint

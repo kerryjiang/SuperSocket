@@ -7,14 +7,14 @@ namespace SuperSocket.SocketBase.Command
 {
     public abstract class UdpCommandInfo : ICommandInfo
     {
-        public UdpCommandInfo(string key, string sessionKey)
+        public UdpCommandInfo(string key, string sessionID)
         {
             Key = key;
-            SessionKey = sessionKey;
+            SessionID = sessionID;
         }
 
         public string Key { get; private set; }
 
-        public string SessionKey { get; private set; }
+        public string SessionID { get; private set; }
     }
 }

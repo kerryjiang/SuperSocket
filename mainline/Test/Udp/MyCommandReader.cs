@@ -24,11 +24,11 @@ namespace SuperSocket.Test.Udp
                 return null;
 
             var key = Encoding.ASCII.GetString(readBuffer, offset, 4);
-            var sessionKey = Encoding.ASCII.GetString(readBuffer, offset + 4, 36);
+            var sessionID = Encoding.ASCII.GetString(readBuffer, offset + 4, 36);
 
             var data = Encoding.UTF8.GetString(readBuffer, offset + 40, length - 40);
 
-            return new MyUdpCommandInfo(key, sessionKey) { Value = data };
+            return new MyUdpCommandInfo(key, sessionID) { Value = data };
         }
 
         public int LeftBufferSize

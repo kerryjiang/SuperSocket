@@ -45,13 +45,14 @@ namespace SuperSocket.SocketBase
 
     public class SocketSessionClosedEventArgs : EventArgs
     {
+
         /// <summary>
-        /// Gets or sets the identity key of the closed session.
+        /// Gets or sets the session ID.
         /// </summary>
         /// <value>
-        /// The identity key.
+        /// The session ID.
         /// </value>
-        public string IdentityKey { get; set; }
+        public string SessionID { get; set; }
 
         /// <summary>
         /// Gets or sets the reason.
