@@ -111,6 +111,8 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AsyncSocket\AsyncSocketSender.cs" />
+    <Compile Include="AsyncSocket\SocketBuffer.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">
