@@ -50,6 +50,9 @@ namespace SuperSocket.Facility.PolicyServer
                 return false;
             }
 
+            if (!Path.IsPathRooted(m_PolicyFile))
+                m_PolicyFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, m_PolicyFile);
+
             if (!File.Exists(m_PolicyFile))
             {
                 Logger.LogError("The specified policyFile doesn't exist! " + m_PolicyFile);
