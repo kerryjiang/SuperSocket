@@ -4,34 +4,58 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using SuperSocket.SocketBase.Command;
+using System.Collections.Specialized;
+using System.Net;
 
 namespace SuperSocket.ClientEngine
 {
-    public class SocketSession<TCommandInfo>
+    class TcpClientSession<TCommandInfo> : ClientSession<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
-        private Socket m_Socket;
-
         private SocketAsyncEventArgs m_ReceiveEventArgs;
 
         private byte[] m_ReceiveBuffer;
 
-        private IClientCommandReader<TCommandInfo> m_CommandReader;
-
-        public SocketSession(Socket socket, int receiveBufferSize, IClientCommandReader<TCommandInfo> commandReader)
+        public TcpClientSession()
         {
-            m_Socket = socket;
+
+        }
+
+        public override void Initialize(IClientCommandReader<TCommandInfo> commandReader, NameValueCollection settings)
+        {
+            base.Initialize(commandReader, settings);
+
+            int receiveBufferSize = 1024;
             m_ReceiveEventArgs = new SocketAsyncEventArgs();
             m_ReceiveEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(m_ReceiveEventArgs_Completed);
             m_ReceiveBuffer = new byte[receiveBufferSize];
             m_ReceiveEventArgs.SetBuffer(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
-            m_CommandReader = commandReader;
+        }
 
-            StartReceive();
+        public override void Connect(IPEndPoint remoteEndPoint)
+        {
+            if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_ReceiveEventArgs))
+                ProcessAccept(m_ReceiveEventArgs);
+        }
+
+        private void ProcessAccept(SocketAsyncEventArgs e)
+        {
+            Client = e.ConnectSocket;
+        }
+
+        public override void Close()
+        {
+            EnsureSocketClosed();
         }
 
         void m_ReceiveEventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
+            if (e.LastOperation == SocketAsyncOperation.Connect)
+            {
+                ProcessAccept(e);
+                return;
+            }
+
             ProcessReceive(e);
         }
 
@@ -57,7 +81,7 @@ namespace SuperSocket.ClientEngine
             {
                 int left;
 
-                var commandInfo = m_CommandReader.GetCommandInfo(e.Buffer, offset, length, out left);
+                var commandInfo = CommandReader.GetCommandInfo(e.Buffer, offset, length, out left);
 
                 if (commandInfo != null)
                 {
@@ -83,12 +107,21 @@ namespace SuperSocket.ClientEngine
 
         void EnsureSocketClosed()
         {
+            if (Client != null)
+            {
+                if (Client.Connected)
+                {
+                    Client.Shutdown(SocketShutdown.Both);
+                    Client.Close();
+                }
 
+                Client = null;
+            }
         }
 
         public void StartReceive()
         {
-            if (!m_Socket.ReceiveAsync(m_ReceiveEventArgs))
+            if (!Client.ReceiveAsync(m_ReceiveEventArgs))
                 ProcessReceive(m_ReceiveEventArgs);
         }
 
@@ -96,32 +129,13 @@ namespace SuperSocket.ClientEngine
         {
             try
             {
-                m_Socket.Send(data, offset, length, SocketFlags.None);
+                Client.Send(data, offset, length, SocketFlags.None);
             }
             catch (Exception)
             {
                 EnsureSocketClosed();
                 OnClosed();
             }
-        }
-
-        private EventHandler m_Closed;
-
-        public event EventHandler Closed
-        {
-            add { m_Closed += value; }
-            remove { m_Closed -= value; }
-        }
-
-        private void OnClosed()
-        {
-            m_ReceiveBuffer = null;
-            m_ReceiveEventArgs = null;
-
-            var handler = m_Closed;
-
-            if (handler != null)
-                handler(this, EventArgs.Empty);
         }
     }
 }
