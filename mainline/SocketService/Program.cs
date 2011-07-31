@@ -20,6 +20,12 @@ namespace SuperSocket.SocketService
         {
             LogUtil.Setup();
 
+            if (!Environment.UserInteractive)
+            {
+                RunAsService();
+                return;
+            }
+
             if (args != null && args.Length > 0)
             {
                 if (args[0].Equals("-i", StringComparison.OrdinalIgnoreCase))
@@ -32,22 +38,16 @@ namespace SuperSocket.SocketService
                     SelfInstaller.UninstallMe();
                     return;
                 }
-                else if (args[0].Equals("-c", StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine("Press any key to start server!");
-                    Console.ReadKey();
-                    Console.WriteLine();
-                    RunAsConsole();
-                }
-                else
-                {
-                    Console.WriteLine(args[0]);
-                }
+
+                Console.WriteLine("Invalid argument!");
+                return;
             }
-            else
-            {
-                RunAsService();
-            }
+
+            Console.WriteLine("Press any key to start server!");
+            Console.ReadKey();
+            Console.WriteLine();
+            RunAsConsole();
+            Console.ReadKey();
         }
 
         static void RunAsConsole()
