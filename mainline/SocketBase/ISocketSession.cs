@@ -89,6 +89,12 @@ namespace SuperSocket.SocketBase
         void SendResponse(byte[] data);
 
         /// <summary>
+        /// Sends the binary data to client.
+        /// </summary>
+        /// <param name="data">The binary data should be sent to client.</param>
+        void SendResponse(byte[] data, Int32 offset, Int32 length);
+
+        /// <summary>
         /// Receives the data of specific length from socket.
         /// </summary>
         /// <param name="storeSteram">The store steram.</param>

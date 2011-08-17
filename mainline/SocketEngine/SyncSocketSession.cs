@@ -119,6 +119,19 @@ namespace SuperSocket.SocketEngine
             }
         }
 
+        public override void SendResponse(byte[] data, int offset, int length)
+        {
+            try
+            {
+                byte[] sendbuffer = new byte[length];
+                Array.Copy(data, offset, sendbuffer, 0, length);
+                SendResponse(sendbuffer);
+            }
+            catch (Exception)
+            {
+                Close(CloseReason.SocketError);
+            }
+        }
         public override void ApplySecureProtocol()
         {
             InitStream();

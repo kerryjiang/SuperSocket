@@ -140,6 +140,8 @@ namespace SuperSocket.SocketEngine
         public abstract void SendResponse(string message);
 
         public abstract void SendResponse(byte[] data);
+        
+        public abstract void SendResponse(byte[] data, int offset, int length);
 
         public abstract void ApplySecureProtocol();
 
