@@ -107,9 +107,7 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                byte[] sendbuffer = new byte[length];
-                Array.Copy(data, offset, sendbuffer, 0, length);
-                SendResponse(sendbuffer);
+                m_AsyncSender.Send(data, offset, length);
             }
             catch (Exception)
             {
