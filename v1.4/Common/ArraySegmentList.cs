@@ -169,6 +169,8 @@ namespace SuperSocket.Common
         public void RemoveSegmentAt(int index)
         {
             var removedSegment = m_Segments[index];
+            int removedLen = removedSegment.To - removedSegment.From + 1;
+
             m_Segments.RemoveAt(index);
 
             m_PrevSegment = null;
@@ -178,12 +180,12 @@ namespace SuperSocket.Common
             {
                 for (int i = index; i < m_Segments.Count; i++)
                 {
-                    m_Segments[i].From -= removedSegment.Segment.Count;
-                    m_Segments[i].To -= removedSegment.Segment.Count;
+                    m_Segments[i].From -= removedLen;
+                    m_Segments[i].To -= removedLen;
                 }
             }
 
-            m_Count -= removedSegment.Segment.Count;
+            m_Count -= removedLen;
         }
 
         public void AddSegment(ArraySegment<T> segment)
@@ -230,6 +232,28 @@ namespace SuperSocket.Common
             }
 
             return result;
+        }
+
+        public void TrimEnd(int trimSize)
+        {
+            if (trimSize <= 0)
+                return;
+
+            int expectedTo = this.Count - trimSize - 1;
+
+            for (int i = m_Segments.Count - 1; i >= 0; i--)
+            {
+                var s = m_Segments[i];
+
+                if (s.From <= expectedTo && expectedTo < s.To)
+                {
+                    s.To = expectedTo;
+                    m_Count -= trimSize;
+                    return;
+                }
+
+                RemoveSegmentAt(i);
+            }
         }
     }
 }

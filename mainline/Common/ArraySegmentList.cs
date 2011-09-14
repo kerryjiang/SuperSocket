@@ -231,5 +231,27 @@ namespace SuperSocket.Common
 
             return result;
         }
+
+        public void TrimEnd(int trimSize)
+        {
+            if (trimSize <= 0)
+                return;
+
+            int expectedTo = this.Count - trimSize - 1;
+
+            for (int i = m_Segments.Count - 1; i >= 0; i--)
+            {
+                var s = m_Segments[i];
+
+                if (s.From <= expectedTo && expectedTo < s.To)
+                {
+                    s.To = expectedTo;
+                    m_Count -= trimSize;
+                    return;
+                }
+
+                RemoveSegmentAt(i);
+            }
+        }
     }
 }
