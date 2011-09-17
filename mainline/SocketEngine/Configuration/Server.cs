@@ -171,6 +171,18 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets a value indicating whether [disable session snapshot]
+        /// </summary>
+        [ConfigurationProperty("disableSessionSnapshot", IsRequired = false, DefaultValue = false)]
+        public bool DisableSessionSnapshot
+        {
+            get
+            {
+                return (bool)this["disableSessionSnapshot"];
+            }
+        }
+
+        /// <summary>
         /// Gets the interval to taking snapshot for all live sessions.
         /// </summary>
         [ConfigurationProperty("sessionSnapshotInterval", IsRequired = false, DefaultValue = 5)]

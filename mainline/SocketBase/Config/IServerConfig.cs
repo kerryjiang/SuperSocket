@@ -87,6 +87,13 @@ namespace SuperSocket.SocketBase.Config
 
 
         /// <summary>
+        /// Gets a value indicating whether [disable session snapshot].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [disable session snapshot]; otherwise, <c>false</c>.
+        /// </value>
+        bool DisableSessionSnapshot { get; }
+        /// <summary>
         /// Gets the interval to taking snapshot for all live sessions.
         /// </summary>
         int SessionSnapshotInterval { get; }

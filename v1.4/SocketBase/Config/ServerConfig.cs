@@ -13,8 +13,8 @@ namespace SuperSocket.SocketBase.Config
         public ServerConfig()
         {
             Security = "None";
-			MaxConnectionNumber = 100;
-			Mode = SocketMode.Async;
+            MaxConnectionNumber = 100;
+            Mode = SocketMode.Async;
             MaxCommandLength = 1024;
             KeepAliveTime = 10 * 60;// 10 minutes
             KeepAliveInterval = 60;// 60 seconds
@@ -90,8 +90,16 @@ namespace SuperSocket.SocketBase.Config
 
         public int MaxCommandLength { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether [disable session snapshot].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [disable session snapshot]; otherwise, <c>false</c>.
+        /// </value>
+        public bool DisableSessionSnapshot { get; set; }
+
         public int SessionSnapshotInterval { get; set; }
-        
+
         public string ConnectionFilters { get; set; }
 
         /// <summary>

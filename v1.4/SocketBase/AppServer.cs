@@ -73,7 +73,8 @@ namespace SuperSocket.SocketBase
             if (!base.Start())
                 return false;
 
-            StartSessionSnapshotTimer();
+            if (!Config.DisableSessionSnapshot)
+                StartSessionSnapshotTimer();
 
             if (Config.ClearIdleSession)
                 StartClearSessionTimer();
@@ -147,6 +148,17 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        private KeyValuePair<string, TAppSession>[] SessionSource
+        {
+            get
+            {
+                if (Config.DisableSessionSnapshot)
+                    return m_SessionDict.ToArray();
+                else
+                    return m_SessionsSnapshot;
+            }
+        }
+
         #region Clear idle sessions
 
         private System.Threading.Timer m_ClearIdleSessionTimer = null;
@@ -166,7 +178,7 @@ namespace SuperSocket.SocketBase
                     DateTime now = DateTime.Now;
                     DateTime timeOut = now.AddSeconds(0 - Config.IdleSessionTimeOut);
 
-                    var timeOutSessions = m_SessionsSnapshot.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
+                    var timeOutSessions = SessionSource.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                         {
                             Logger.LogInfo(s, string.Format("The socket session has been closed for {0} timeout, last active time: {1}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.LastActiveTime));
@@ -218,7 +230,7 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         public override IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
         {
-            return m_SessionsSnapshot.Select(p => p.Value).Where(critera);
+            return SessionSource.Select(p => p.Value).Where(critera);
         }
 
         /// <summary>
@@ -227,7 +239,7 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         public override IEnumerable<TAppSession> GetAllSessions()
         {
-            return m_SessionsSnapshot.Select(p => p.Value);
+            return SessionSource.Select(p => p.Value);
         }
 
         #endregion
