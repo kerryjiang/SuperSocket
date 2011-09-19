@@ -26,6 +26,13 @@ namespace SuperSocket.SocketEngine
             IdentityKey = remoteEndPoint.ToString();
         }
 
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, string sessionKey)
+            : base(sessionKey, null)
+        {
+            m_ServerSocket = serverSocket;
+            RemoteEndPoint = remoteEndPoint;
+        }
+
         public override IPEndPoint LocalEndPoint
         {
             get { return (IPEndPoint)m_ServerSocket.LocalEndPoint; }

@@ -33,10 +33,20 @@ namespace SuperSocket.SocketEngine
 
         private ICustomProtocol<TCommandInfo> m_Protocol;
 
+        private bool m_SessionKeyFromCommandInfo = false;
+
+        private ICommandReader<TCommandInfo> m_UdpCommandInfoReader;
+
         public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
             : base(appServer, localEndPoint)
         {
             m_Protocol = protocol;
+
+            if (typeof(TCommandInfo).IsSubclassOf(typeof(UdpCommandInfo)))
+            {
+                m_SessionKeyFromCommandInfo = true;
+                m_UdpCommandInfoReader = m_Protocol.CreateCommandReader(this.AppServer);
+            }
         }
 
         public override bool Start()
@@ -157,16 +167,107 @@ namespace SuperSocket.SocketEngine
             IsRunning = false;
         }
 
-        protected UdpSocketSession<TAppSession, TCommandInfo> RegisterSession(IPEndPoint remoteEndPoint)
+        protected UdpSocketSession<TAppSession, TCommandInfo> RegisterSession(UdpSocketSession<TAppSession, TCommandInfo> socketSession)
         {
-            var session = new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, m_Protocol.CreateCommandReader(AppServer));
-            TAppSession appSession = this.AppServer.CreateAppSession(session);
+            TAppSession appSession = this.AppServer.CreateAppSession(socketSession);
 
             if (appSession == null)
                 return null;
 
-            session.Initialize(this.AppServer, appSession);
-            return session;
+            socketSession.Initialize(this.AppServer, appSession);
+            return socketSession;
+        }
+
+        private void ProcessReceivedData(IPEndPoint remoteEndPoint, byte[] receivedData)
+        {
+            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(remoteEndPoint.ToString());
+
+            if (appSession == null) //New session
+            {
+                if (m_LiveConnectionCount >= AppServer.Config.MaxConnectionNumber)
+                {
+                    AppServer.Logger.LogError(string.Format("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
+                        remoteEndPoint.ToString(), AppServer.Config.MaxConnectionNumber));
+                    return;
+                }
+
+                var session = RegisterSession(new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, m_Protocol.CreateCommandReader(AppServer)));
+
+                if (session == null)
+                    return;
+
+                Interlocked.Increment(ref m_LiveConnectionCount);
+                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                session.Start();
+                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
+            }
+            else //Existing session
+            {
+                var session = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
+                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
+            }
+        }
+
+        private void ProcessReceivedDataWithSessionKey(IPEndPoint remoteEndPoint, byte[] receivedData)
+        {
+            TCommandInfo commandInfo;
+            string sessionKey;
+
+            try
+            {
+                int left;
+                commandInfo = m_UdpCommandInfoReader.FindCommandInfo(null, receivedData, 0, receivedData.Length, false, out left);
+
+                var udpCommandInfo = commandInfo as UdpCommandInfo;
+
+                if (left > 0)
+                {
+                    AppServer.Logger.LogError("The output parameter left must be zero in this case!");
+                    return;
+                }
+
+                if (udpCommandInfo == null)
+                {
+                    AppServer.Logger.LogError("Invalid UDP package format!");
+                    return;
+                }
+
+                if (string.IsNullOrEmpty(udpCommandInfo.SessionKey))
+                {
+                    AppServer.Logger.LogError("Failed to get session key from UDP package!");
+                    return;
+                }
+
+                sessionKey = udpCommandInfo.SessionKey;
+            }
+            catch (Exception exc)
+            {
+                AppServer.Logger.LogError("Failed to parse UDP package!", exc);
+                return;
+            }
+
+            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(sessionKey);
+
+            if (appSession == null)
+            {
+                var socketSession = RegisterSession(new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, sessionKey));
+                if (socketSession == null)
+                    return;
+
+                appSession = socketSession.AppSession;
+
+                Interlocked.Increment(ref m_LiveConnectionCount);
+                socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                socketSession.Start();
+            }
+            else
+            {
+                var socketSession = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
+                //Client remote endpoint may change, so update session to ensure the server can find client correctly
+                socketSession.UpdateRemoteEndPoint(remoteEndPoint);
+            }
+
+            Async.Run(() => appSession.ExecuteCommand(appSession, commandInfo));
         }
 
         private void OnSocketReceived(SocketAsyncEventArgs e)
@@ -181,31 +282,13 @@ namespace SuperSocket.SocketEngine
             if (m_InvalidEndPoint.Equals(ipAddress.ToString()))
                 return;
 
-            TAppSession appSession = AppServer.GetAppSessionByIndentityKey(ipAddress.ToString());
-
-            if (appSession == null) //New session
+            if (m_SessionKeyFromCommandInfo)
             {
-                if (m_LiveConnectionCount >= AppServer.Config.MaxConnectionNumber)
-                {
-                    AppServer.Logger.LogError(string.Format("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
-                        ipAddress.ToString(), AppServer.Config.MaxConnectionNumber));
-                    return;
-                }
-
-                var session = RegisterSession(ipAddress);
-
-                if (session == null)
-                    return;
-
-                Interlocked.Increment(ref m_LiveConnectionCount);
-                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-                session.Start();
-                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
+                ProcessReceivedDataWithSessionKey(ipAddress, receivedData);
             }
-            else //Existing session
+            else
             {
-                var session = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
-                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
+                ProcessReceivedData(ipAddress, receivedData);
             }
         }
 

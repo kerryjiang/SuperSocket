@@ -45,7 +45,13 @@ namespace SuperSocket.SocketEngine
 
             Client = client;
             LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
-            RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;            
+            RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
+        }
+
+        public SocketSession(string sessionKey, ICommandReader<TCommandInfo> commandReader)
+        {
+            this.IdentityKey = sessionKey;
+            CommandReader = commandReader;
         }
 
         public SocketSession(ICommandReader<TCommandInfo> commandReader)
@@ -102,6 +108,15 @@ namespace SuperSocket.SocketEngine
         /// Starts this session.
         /// </summary>
         public abstract void Start();
+
+        /// <summary>
+        /// Updates the remote end point of the client.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote end point.</param>
+        internal void UpdateRemoteEndPoint(IPEndPoint remoteEndPoint)
+        {
+            this.RemoteEndPoint = remoteEndPoint;
+        }
 
         protected virtual void ExecuteCommand(TCommandInfo commandInfo)
         {
