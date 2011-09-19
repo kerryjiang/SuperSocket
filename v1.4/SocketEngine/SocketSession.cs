@@ -170,6 +170,8 @@ namespace SuperSocket.SocketEngine
 
         public abstract void SendResponse(byte[] data);
 
+        public abstract void SendResponse(byte[] data, int offset, int length);
+
         public abstract void ApplySecureProtocol();
 
         public abstract void ReceiveData(Stream storeSteram, int length);

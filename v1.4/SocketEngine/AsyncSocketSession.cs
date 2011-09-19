@@ -92,15 +92,17 @@ namespace SuperSocket.SocketEngine
 
         public override void SendResponse(byte[] data)
         {
-            if(data == null || data.Length <= 0)
-                return;
+            SendResponse(data, 0, data.Length);
+        }
 
+        public override void SendResponse(byte[] data, int offset, int length)
+        {
             if (IsClosed)
                 return;
 
             try
             {
-                Client.SendData(data);
+                Client.SendData(data, offset, length);
             }
             catch (Exception)
             {

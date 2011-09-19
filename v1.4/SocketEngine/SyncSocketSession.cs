@@ -239,12 +239,14 @@ namespace SuperSocket.SocketEngine
 
         public override void SendResponse(byte[] data)
         {
-            if (data == null || data.Length <= 0)
-                return;
+            SendResponse(data, 0, data.Length);
+        }
 
+        public override void SendResponse(byte[] data, int offset, int length)
+        {
             try
             {
-                m_Stream.Write(data, 0, data.Length);
+                m_Stream.Write(data, offset, length);
                 m_Stream.Flush();
             }
             catch (Exception e)

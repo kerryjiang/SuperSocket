@@ -74,6 +74,11 @@ namespace SuperSocket.SocketEngine
             m_ServerSocket.SendTo(data, RemoteEndPoint);
         }
 
+        public override void SendResponse(byte[] data, int offset, int length)
+        {
+            m_ServerSocket.SendTo(data, offset, length, SocketFlags.None, RemoteEndPoint);
+        }
+
         public override void ApplySecureProtocol()
         {
             throw new NotSupportedException();
