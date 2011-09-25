@@ -22,7 +22,7 @@ namespace SuperSocket.SocketBase
 
         public static void LogError(this ILogger logger, ISessionBase session, string message)
         {
-            logger.LogError(string.Format(m_SessionInfoTemplate, session.IdentityKey, session.RemoteEndPoint));
+            logger.LogError(string.Format(m_SessionInfoTemplate, session.IdentityKey, session.RemoteEndPoint) + Environment.NewLine + message);
         }
 
         public static void LogInfo(this ILogger logger, ISessionBase session, string message)
