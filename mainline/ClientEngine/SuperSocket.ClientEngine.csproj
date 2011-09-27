@@ -44,6 +44,9 @@
     <Compile Include="..\Common\ArraySegmentList.cs">
       <Link>ArraySegmentList.cs</Link>
     </Compile>
+    <Compile Include="..\Common\AssemblyUtil.cs">
+      <Link>AssemblyUtil.cs</Link>
+    </Compile>
     <Compile Include="..\Common\BinaryUtil.cs">
       <Link>BinaryUtil.cs</Link>
     </Compile>
@@ -66,10 +69,19 @@
       <Link>SocketBuffer.cs</Link>
     </Compile>
     <Compile Include="ClientSession.cs" />
+    <Compile Include="DelegateCommand.cs" />
     <Compile Include="IClientCommandReader.cs" />
     <Compile Include="IClientSession.cs" />
+    <Compile Include="ICommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SocketEx.cs" />
     <Compile Include="TcpClientSession.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\SuperSocket.Common.csproj">
+      <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
+      <Name>SuperSocket.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

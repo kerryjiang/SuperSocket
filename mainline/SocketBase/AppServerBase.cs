@@ -195,10 +195,11 @@ namespace SuperSocket.SocketBase
             if (Config.EnableDynamicCommand)
             {
                 ICommandLoader dynamicCommandLoader;
+                Exception exception;
 
-                if (!AssemblyUtil.TryCreateInstance<ICommandLoader>("SuperSocket.Dlr.DynamicCommandLoader, SuperSocket.Dlr", out dynamicCommandLoader))
+                if (!AssemblyUtil.TryCreateInstance<ICommandLoader>("SuperSocket.Dlr.DynamicCommandLoader, SuperSocket.Dlr", out dynamicCommandLoader, out exception))
                 {
-                    Logger.LogError("The file SuperSocket.Dlr is required for dynamic command support!");
+                    Logger.LogError("The file SuperSocket.Dlr is required for dynamic command support!", exception);
                     return false;
                 }
 
@@ -227,9 +228,11 @@ namespace SuperSocket.SocketBase
                 if (!string.IsNullOrEmpty(config.Protocol))
                 {
                     ICustomProtocol<TCommandInfo> configuredProtocol;
-                    if (!AssemblyUtil.TryCreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol, out configuredProtocol))
+                    Exception exception;
+
+                    if (!AssemblyUtil.TryCreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol, out configuredProtocol, out exception))
                     {
-                        Logger.LogError("Invalid configured protocol " + config.Protocol + ".");
+                        Logger.LogError("Invalid configured protocol " + config.Protocol + ".", exception);
                         return false;
                     }
                     Protocol = configuredProtocol;

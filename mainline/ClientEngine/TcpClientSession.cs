@@ -6,11 +6,13 @@ using System.Net.Sockets;
 using SuperSocket.SocketBase.Command;
 using System.Collections.Specialized;
 using System.Net;
+using System.Reflection;
 
 namespace SuperSocket.ClientEngine
 {
-    class TcpClientSession<TCommandInfo> : ClientSession<TCommandInfo>
+    public class TcpClientSession<TCommandInfo, TContext> : ClientSession<TCommandInfo, TContext>
         where TCommandInfo : ICommandInfo
+        where TContext : class
     {
         private SocketAsyncEventArgs m_ReceiveEventArgs;
 
@@ -21,9 +23,9 @@ namespace SuperSocket.ClientEngine
 
         }
 
-        public override void Initialize(IClientCommandReader<TCommandInfo> commandReader, NameValueCollection settings)
+        public override void Initialize(NameValueCollection settings, IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies)
         {
-            base.Initialize(commandReader, settings);
+            base.Initialize(settings, commandReader, commandAssemblies);
 
             int receiveBufferSize = 1024;
             m_ReceiveEventArgs = new SocketAsyncEventArgs();
@@ -70,6 +72,7 @@ namespace SuperSocket.ClientEngine
 
             if (e.BytesTransferred == 0)
             {
+                EnsureSocketClosed();
                 OnClosed();
                 return;
             }
@@ -100,10 +103,6 @@ namespace SuperSocket.ClientEngine
             StartReceive();
         }
 
-        private void ExecuteCommand(TCommandInfo commandInfo)
-        {
-            
-        }
 
         void EnsureSocketClosed()
         {
@@ -119,17 +118,17 @@ namespace SuperSocket.ClientEngine
             }
         }
 
-        public void StartReceive()
+        void StartReceive()
         {
             if (!Client.ReceiveAsync(m_ReceiveEventArgs))
                 ProcessReceive(m_ReceiveEventArgs);
         }
 
-        public void Send(byte[] data, int offset, int length)
+        public override void Send(byte[] data, int offset, int length)
         {
             try
             {
-                Client.Send(data, offset, length, SocketFlags.None);
+                Client.SendData(data, offset, length);
             }
             catch (Exception)
             {
