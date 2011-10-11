@@ -241,5 +241,15 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (bool)this["enableDynamicCommand"];
             }
         }
+
+        public TConfig GetChildConfig<TConfig>(string childConfigName)
+        {
+            var childConfig = this[childConfigName];
+
+            if(childConfig == null)
+                return default(TConfig);
+
+            return (TConfig)childConfig;
+        }
     }
 }

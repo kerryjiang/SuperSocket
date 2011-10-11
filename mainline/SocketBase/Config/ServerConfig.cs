@@ -120,6 +120,12 @@ namespace SuperSocket.SocketBase.Config
         /// </value>
         public bool EnableDynamicCommand { get; set; }
 
+
+        public virtual TConfig GetChildConfig<TConfig>(string childConfigName)
+        {
+            return default(TConfig);
+        }
+
         #endregion
     }
 }

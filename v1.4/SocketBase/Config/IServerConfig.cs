@@ -117,5 +117,9 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the keep alive interval, in seconds.
         /// </summary>
         int KeepAliveInterval { get; }
+
+
+
+        TConfig GetChildConfig<TConfig>(string childConfigName);
     }
 }

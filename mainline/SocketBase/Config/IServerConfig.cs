@@ -126,5 +126,9 @@ namespace SuperSocket.SocketBase.Config
         /// 	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
         /// </value>
         bool EnableDynamicCommand { get; }
+
+
+
+        TConfig GetChildConfig<TConfig>(string childConfigName);
     }
 }

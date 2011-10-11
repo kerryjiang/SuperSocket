@@ -112,6 +112,11 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public int KeepAliveInterval { get; set; }
 
+        public virtual TConfig GetChildConfig<TConfig>(string childConfigName)
+        {
+            return default(TConfig);
+        }
+
         #endregion
     }
 }

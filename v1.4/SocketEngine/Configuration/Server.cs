@@ -226,5 +226,16 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["keepAliveInterval"];
             }
         }
+
+
+        public TConfig GetChildConfig<TConfig>(string childConfigName)
+        {
+            var childConfig = this[childConfigName];
+
+            if(childConfig == null)
+                return default(TConfig);
+
+            return (TConfig)childConfig;
+        }
     }
 }
