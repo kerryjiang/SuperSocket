@@ -12,10 +12,16 @@ namespace SuperSocket.Common
     {
         public static bool TryCreateInstance<T>(string type, out T result)
         {
+            Exception e;
+            return TryCreateInstance<T>(type, out result, out e);
+        }
+
+        public static bool TryCreateInstance<T>(string type, out T result, out Exception e)
+        {
             Type instanceType = null;
             result = default(T);
 
-            if (!TryGetType(type, out instanceType))
+            if (!TryGetType(type, out instanceType, out e))
                 return false;
 
             try
@@ -24,23 +30,31 @@ namespace SuperSocket.Common
                 result = (T)instance;
                 return true;
             }
-            catch (Exception e)
+            catch (Exception exc)
             {
-                LogUtil.LogError("TryCreateInstance" , e);
+                e = exc;
                 return false;
             }
         }
 
         public static bool TryGetType(string type, out Type result)
         {
+            Exception e;
+            return TryGetType(type, out result, out e);
+        }
+
+        public static bool TryGetType(string type, out Type result, out Exception e)
+        {
+            e = null;
+
             try
             {
                 result = Type.GetType(type, true);
                 return true;
             }
-            catch (Exception e)
+            catch (Exception exc)
             {
-                LogUtil.LogError(e);
+                e = exc;
                 result = null;
                 return false;
             }

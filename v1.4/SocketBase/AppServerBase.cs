@@ -181,9 +181,10 @@ namespace SuperSocket.SocketBase
                 if (!string.IsNullOrEmpty(config.Protocol))
                 {
                     ICustomProtocol<TCommandInfo> configuredProtocol;
-                    if (!AssemblyUtil.TryCreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol, out configuredProtocol))
+                    Exception exception;
+                    if (!AssemblyUtil.TryCreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol, out configuredProtocol, out exception))
                     {
-                        Logger.LogError("Invalid configured protocol " + config.Protocol + ".");
+                        Logger.LogError("Invalid configured protocol " + config.Protocol + ".", exception);
                         return false;
                     }
                     Protocol = configuredProtocol;

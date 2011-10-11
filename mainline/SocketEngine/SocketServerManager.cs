@@ -56,10 +56,11 @@ namespace SuperSocket.SocketEngine
                     continue;
                 
                 Type serviceType;
+                Exception exception;
 
-                if (!AssemblyUtil.TryGetType(service.Type, out serviceType))
+                if (!AssemblyUtil.TryGetType(service.Type, out serviceType, out exception))
                 {
-                    LogUtil.LogError("Failed to initialize service " + service.Name + "!");
+                    LogUtil.LogError("Failed to initialize service " + service.Name + "!", exception);
                     return false;
                 }
 
@@ -72,10 +73,10 @@ namespace SuperSocket.SocketEngine
             foreach (var filter in config.ConnectionFilters)
             {                
                 Type filterType;
-
-                if (!AssemblyUtil.TryGetType(filter.Type, out filterType))
+                Exception exception;
+                if (!AssemblyUtil.TryGetType(filter.Type, out filterType, out exception))
                 {
-                    LogUtil.LogError("Failed to initialize connection filter " + filter.Name + "!");
+                    LogUtil.LogError("Failed to initialize connection filter " + filter.Name + "!", exception);
                     return false;
                 }
                 
