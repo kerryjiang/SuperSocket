@@ -18,6 +18,11 @@ namespace SuperSocket.Common
 
         public static bool TryCreateInstance<T>(string type, out T result, out Exception e)
         {
+            return TryCreateInstance<T>(type, new object[0], out result, out e);
+        }
+
+        public static bool TryCreateInstance<T>(string type, object[] parameters, out T result, out Exception e)
+        {
             Type instanceType = null;
             result = default(T);
 
@@ -26,7 +31,7 @@ namespace SuperSocket.Common
 
             try
             {
-                object instance = Activator.CreateInstance(instanceType);
+                object instance = Activator.CreateInstance(instanceType, parameters);
                 result = (T)instance;
                 return true;
             }
