@@ -1,12 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Configuration;
+using System.IO;
 using System.Security.Authentication;
 using System.Text;
+using System.Xml;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using System.Collections.Specialized;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
@@ -243,13 +245,19 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         public TConfig GetChildConfig<TConfig>(string childConfigName)
+            where TConfig : ConfigurationElement, new()
         {
-            var childConfig = this[childConfigName];
+            var childConfig = this.OptionElements.GetValue(childConfigName, string.Empty);
 
-            if(childConfig == null)
+            if (string.IsNullOrEmpty(childConfig))
                 return default(TConfig);
 
-            return (TConfig)childConfig;
+            XmlReader reader = new XmlTextReader(new StringReader(childConfig));
+
+            var config = new TConfig();
+            config.Deserialize(reader);
+
+            return config;
         }
     }
 }

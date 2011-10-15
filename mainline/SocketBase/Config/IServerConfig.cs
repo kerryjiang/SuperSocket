@@ -129,6 +129,7 @@ namespace SuperSocket.SocketBase.Config
 
 
 
-        TConfig GetChildConfig<TConfig>(string childConfigName);
+        TConfig GetChildConfig<TConfig>(string childConfigName)
+            where TConfig : ConfigurationElement, new();
     }
 }

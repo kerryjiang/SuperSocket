@@ -41,6 +41,7 @@
       <HintPath>..\Reference\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -75,6 +76,11 @@
     <Compile Include="TestServer.cs" />
     <Compile Include="TestSession.cs" />
     <Compile Include="UdpSocketServerTest.cs" />
+    <Compile Include="Udp\MyCommandReader.cs" />
+    <Compile Include="Udp\MyUdpProtocol.cs" />
+    <Compile Include="Udp\SESS.cs" />
+    <Compile Include="Udp\UdpAppServer.cs" />
+    <Compile Include="Udp\UdpTestSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\TestFile.txt" />

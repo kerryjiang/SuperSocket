@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Security.Authentication;
-using System.Collections.Specialized;
+using System.Text;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -120,6 +121,7 @@ namespace SuperSocket.SocketBase.Config
 
 
 
-        TConfig GetChildConfig<TConfig>(string childConfigName);
+        TConfig GetChildConfig<TConfig>(string childConfigName)
+            where TConfig : ConfigurationElement, new();
     }
 }

@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Security.Authentication;
 using System.Text;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -113,6 +114,7 @@ namespace SuperSocket.SocketBase.Config
         public int KeepAliveInterval { get; set; }
 
         public virtual TConfig GetChildConfig<TConfig>(string childConfigName)
+            where TConfig : ConfigurationElement, new()
         {
             return default(TConfig);
         }
