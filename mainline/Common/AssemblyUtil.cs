@@ -4,7 +4,11 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Linq;
+
+#if SILVERLIGHT
+#else
 using System.Runtime.Serialization.Formatters.Binary;
+#endif
 
 namespace SuperSocket.Common
 {
@@ -97,6 +101,8 @@ namespace SuperSocket.Common
             return result;
         }
 
+#if SILVERLIGHT
+#else
         public static T BinaryClone<T>(this T target)
         {
             BinaryFormatter formatter = new BinaryFormatter();
@@ -107,6 +113,7 @@ namespace SuperSocket.Common
                 return (T)formatter.Deserialize(ms);
             }
         }
+#endif
 
         private static object[] m_EmptyObjectArray = new object[] { };
 

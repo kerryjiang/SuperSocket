@@ -124,17 +124,54 @@ namespace SuperSocket.ClientEngine
                 ProcessReceive(m_ReceiveEventArgs);
         }
 
+        private ConcurrentQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentQueue<ArraySegment<byte>>();
+
+        private volatile bool m_IsSending = false;
+
         public override void Send(byte[] data, int offset, int length)
         {
-            try
+            m_SendingQueue.Enqueue(new ArraySegment<byte>(data, offset, length));
+
+            if (!m_IsSending)
             {
-                Client.SendData(data, offset, length);
+                DequeueSend();
             }
-            catch (Exception)
+        }
+
+        private void DequeueSend()
+        {
+            m_IsSending = true;
+            ArraySegment<byte> segment;
+
+            if (!m_SendingQueue.TryDequeue(out segment))
             {
+                m_IsSending = false;
+                return;
+            }
+
+            var args = new SocketAsyncEventArgs();
+
+            args.SetBuffer(segment.Array, segment.Offset, segment.Count);
+            args.Completed += new EventHandler<SocketAsyncEventArgs>(Sending_Completed);
+        }
+
+        void Sending_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            if (e.LastOperation != SocketAsyncOperation.Send)
+            {
+                m_IsSending = false;
+                return;
+            }
+
+            if (e.SocketError != SocketError.Success || e.BytesTransferred == 0)
+            {
+                m_IsSending = false;
                 EnsureSocketClosed();
                 OnClosed();
+                return;
             }
+
+            DequeueSend();
         }
     }
 }
