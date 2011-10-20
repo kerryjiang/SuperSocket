@@ -68,6 +68,9 @@
     <Compile Include="..\SocketEngine\AsyncSocket\SocketBuffer.cs">
       <Link>SocketBuffer.cs</Link>
     </Compile>
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ClientSession.cs" />
     <Compile Include="ConcurrentQueue.cs" />
     <Compile Include="DelegateCommand.cs" />
