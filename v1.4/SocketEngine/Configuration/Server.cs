@@ -229,6 +229,12 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the child config.
+        /// </summary>
+        /// <typeparam name="TConfig">The type of the config.</typeparam>
+        /// <param name="childConfigName">Name of the child config.</param>
+        /// <returns></returns>
         public TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new()
         {
@@ -237,9 +243,15 @@ namespace SuperSocket.SocketEngine.Configuration
             if (string.IsNullOrEmpty(childConfig))
                 return default(TConfig);
 
+            var checkConfig = childConfig.Replace("\r\n", string.Empty).Trim();
+
+            if (string.IsNullOrEmpty(checkConfig))
+                return default(TConfig);
+
             XmlReader reader = new XmlTextReader(new StringReader(childConfig));
 
             var config = new TConfig();
+
             config.Deserialize(reader);
 
             return config;
