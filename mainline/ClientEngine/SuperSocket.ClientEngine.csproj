@@ -62,9 +62,6 @@
     <Compile Include="..\SocketBase\Command\StringCommandInfo.cs">
       <Link>StringCommandInfo.cs</Link>
     </Compile>
-    <Compile Include="..\SocketEngine\AsyncSocket\AsyncSocketSender.cs">
-      <Link>AsyncSocketSender.cs</Link>
-    </Compile>
     <Compile Include="..\SocketEngine\AsyncSocket\SocketBuffer.cs">
       <Link>SocketBuffer.cs</Link>
     </Compile>
@@ -78,7 +75,6 @@
     <Compile Include="IClientSession.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocketEx.cs" />
     <Compile Include="TcpClientSession.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
