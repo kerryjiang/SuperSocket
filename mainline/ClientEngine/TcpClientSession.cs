@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using SuperSocket.SocketBase.Command;
 using System.Collections.Specialized;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Text;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.ClientEngine
 {
