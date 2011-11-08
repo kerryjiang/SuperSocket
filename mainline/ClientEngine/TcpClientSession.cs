@@ -18,15 +18,27 @@ namespace SuperSocket.ClientEngine
 
         private byte[] m_ReceiveBuffer;
 
-        public TcpClientSession()
+        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader)
+            : this(commandReader, null, null)
         {
 
         }
 
-        public override void Initialize(NameValueCollection settings, IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies)
+        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader, EndPoint remoteEndPoint)
+            : this(commandReader, null, remoteEndPoint)
         {
-            base.Initialize(settings, commandReader, commandAssemblies);
 
+        }
+
+        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies)
+            :  this(commandReader, commandAssemblies, null)
+        {
+
+        }
+
+        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies, EndPoint remoteEndPoint)
+            : base(commandReader, commandAssemblies, remoteEndPoint)
+        {
             int receiveBufferSize = 1024;
             m_ReceiveEventArgs = new SocketAsyncEventArgs();
             m_ReceiveEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(m_ReceiveEventArgs_Completed);
@@ -34,8 +46,9 @@ namespace SuperSocket.ClientEngine
             m_ReceiveEventArgs.SetBuffer(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
         }
 
-        public override void Connect(IPEndPoint remoteEndPoint)
+        public override void Connect()
         {
+            m_ReceiveEventArgs.RemoteEndPoint = RemoteEndPoint;
             if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_ReceiveEventArgs))
                 ProcessAccept(m_ReceiveEventArgs);
         }

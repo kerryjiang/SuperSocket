@@ -21,18 +21,38 @@ namespace SuperSocket.ClientEngine
 
         public TContext Context { get; set; }
 
+        protected EndPoint RemoteEndPoint { get; set; }
+
         private Dictionary<string, ICommand<TCommandInfo, TContext>> m_CommandDict
             = new Dictionary<string, ICommand<TCommandInfo, TContext>>(StringComparer.OrdinalIgnoreCase);
 
-        public virtual void Initialize(NameValueCollection settings, IClientCommandReader<TCommandInfo> commandReader)
+        public ClientSession(IClientCommandReader<TCommandInfo> commandReader)
+            : this(commandReader, null, null)
         {
-            Initialize(settings, commandReader, null);
+
         }
 
-        public virtual void Initialize(NameValueCollection settings, IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies)
+        public ClientSession(IClientCommandReader<TCommandInfo> commandReader, EndPoint remoteEndPoint)
+            : this(commandReader, null, remoteEndPoint)
         {
+
+        }
+
+        public ClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies)
+            : this(commandReader, commandAssemblies, null)
+        {
+
+        }
+
+        public ClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies, EndPoint remoteEndPoint)
+        {
+            if (remoteEndPoint != null)
+                RemoteEndPoint = remoteEndPoint;
+
             CommandReader = commandReader;
-            SetupAssemblyCommands(commandAssemblies);
+
+            if (commandAssemblies != null)
+                SetupAssemblyCommands(commandAssemblies);
         }
 
         private void SetupAssemblyCommands(IEnumerable<Assembly> assemblies)
@@ -61,7 +81,7 @@ namespace SuperSocket.ClientEngine
             }
         }
 
-        public abstract void Connect(IPEndPoint remoteEndPoint);
+        public abstract void Connect();
 
         public abstract void Send(byte[] data, int offset, int length);
 
