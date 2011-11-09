@@ -81,7 +81,12 @@ namespace SuperSocket.ClientEngine
             }
         }
 
-        public abstract void Connect();
+        void IClientSession.Connect()
+        {
+            Connect();
+        }
+
+        protected abstract void Connect();
 
         public abstract void Send(byte[] data, int offset, int length);
 

@@ -9,17 +9,20 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.ClientEngine
 {
-    public interface IClientSession<TCommandInfo, TContext>
-        where TCommandInfo : ICommandInfo
-        where TContext : class
+    public interface IClientSession
     {
-        void RegisterCommandHandler(string name, Action<IClientSession<TCommandInfo, TContext>, TCommandInfo> execution);
-
         void Connect();
 
         void Send(byte[] data, int offset, int length);
 
         void Close();
+    }
+
+    public interface IClientSession<TCommandInfo, TContext> : IClientSession
+        where TCommandInfo : ICommandInfo
+        where TContext : class
+    {
+        void RegisterCommandHandler(string name, Action<IClientSession<TCommandInfo, TContext>, TCommandInfo> execution);
 
         TContext Context { get; set; }
     }

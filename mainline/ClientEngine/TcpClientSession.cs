@@ -46,7 +46,7 @@ namespace SuperSocket.ClientEngine
             m_ReceiveEventArgs.SetBuffer(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
         }
 
-        public override void Connect()
+        protected override void Connect()
         {
             m_ReceiveEventArgs.RemoteEndPoint = RemoteEndPoint;
             if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_ReceiveEventArgs))
