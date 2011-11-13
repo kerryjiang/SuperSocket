@@ -56,6 +56,12 @@ namespace SuperSocket.ClientEngine
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
             Client = e.ConnectSocket;
+            OnConnected();
+        }
+
+        protected virtual void OnConnected()
+        {
+
         }
 
         public override void Close()
