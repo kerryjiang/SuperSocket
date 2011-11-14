@@ -88,6 +88,8 @@
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AsyncStreamSocketServer.cs" />
+    <Compile Include="AsyncStreamSocketSession.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />
     <Compile Include="Configuration\CredentialConfig.cs" />
