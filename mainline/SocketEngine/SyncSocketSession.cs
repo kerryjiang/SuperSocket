@@ -131,6 +131,7 @@ namespace SuperSocket.SocketEngine
                 Close(CloseReason.SocketError);
             }
         }
+
         public override void ApplySecureProtocol()
         {
             InitStream();
