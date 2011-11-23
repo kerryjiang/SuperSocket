@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Net.Security;
+using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using System.Net.Sockets;
 using SuperSocket.SocketBase.Protocol;
-using System.IO;
-using System.Security.Authentication;
-using System.Net.Security;
 
 namespace SuperSocket.SocketEngine
 {
@@ -66,7 +66,7 @@ namespace SuperSocket.SocketEngine
 
                     while (thisLeft > 0)
                     {
-                        TCommandInfo commandInfo = FindCommand(m_ReadBuffer, thisRead - thisLeft - 1, thisLeft, false, out thisLeft);
+                        TCommandInfo commandInfo = FindCommand(m_ReadBuffer, thisRead - thisLeft, thisLeft, false, out thisLeft);
 
                         if (commandInfo != null)
                         {
