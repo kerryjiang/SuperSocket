@@ -623,7 +623,7 @@ namespace SuperSocket.Test
         //}
 
         [Test, Repeat(3)]
-        public void TestReceiveInLength()
+        public virtual void TestReceiveInLength()
         {
             StartServer();
 
@@ -674,7 +674,7 @@ namespace SuperSocket.Test
         }
 
         [Test, Repeat(3)]
-        public void TestReceiveByMark()
+        public virtual void TestReceiveByMark()
         {
             StartServer();
 

@@ -61,12 +61,14 @@ namespace SuperSocket.SocketEngine
                 {
                     AppSession.Status = SessionStatus.Healthy;
 
-                    int thisLeft;
+                    int thisLeft, thisLength;
+                    thisLength = thisRead;
                     thisLeft = thisRead;
 
                     while (thisLeft > 0)
                     {
-                        TCommandInfo commandInfo = FindCommand(m_ReadBuffer, thisRead - thisLeft, thisLeft, false, out thisLeft);
+                        TCommandInfo commandInfo = FindCommand(m_ReadBuffer, thisRead - thisLength, thisLength, true, out thisLeft);
+                        thisLength = thisLeft;
 
                         if (commandInfo != null)
                         {
@@ -77,10 +79,10 @@ namespace SuperSocket.SocketEngine
                                 Close(CloseReason.ServerClosing);
                                 return;
                             }
-
-                            m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
                         }
                     }
+
+                    m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
                 }
             }
             catch (ObjectDisposedException)
