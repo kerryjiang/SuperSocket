@@ -24,6 +24,9 @@ namespace SuperSocket.SocketEngine
             
         }
 
+        /// <summary>
+        /// Starts this session communication.
+        /// </summary>
         public override void Start()
         {
             //Hasn't started, but already closed
@@ -35,7 +38,12 @@ namespace SuperSocket.SocketEngine
             try
             {
                 SecureProtocol = AppServer.BasicSecurity;
-                InitStream();
+
+                var asyncResult = BeginInitStream(OnBeginInitStreamOnSessionStarted);
+
+                //If the operation is synchronous
+                if (asyncResult == null)
+                    OnSessionStarting();
             }
             catch (Exception e)
             {
@@ -43,10 +51,12 @@ namespace SuperSocket.SocketEngine
                 Close(CloseReason.SocketError);
                 return;
             }
+        }
 
-            StartSession();
-
+        private void OnSessionStarting()
+        {
             m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
+            StartSession();
         }
 
         private void OnStreamEndRead(IAsyncResult result)
@@ -125,26 +135,54 @@ namespace SuperSocket.SocketEngine
 
         private Stream m_Stream;
 
-        private void InitStream()
+        private IAsyncResult BeginInitStream(AsyncCallback asyncCallback)
         {
+            IAsyncResult result = null;
+
             switch (SecureProtocol)
             {
                 case (SslProtocols.Default):
                 case (SslProtocols.Tls):
                 case (SslProtocols.Ssl3):
                     SslStream sslStream = new SslStream(new NetworkStream(Client), false);
-                    sslStream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, false);
-                    m_Stream = sslStream;
+                    result = sslStream.BeginAuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, false, asyncCallback, sslStream);
                     break;
                 case (SslProtocols.Ssl2):
                     SslStream ssl2Stream = new SslStream(new NetworkStream(Client), false);
-                    ssl2Stream.AuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Ssl2, false);
-                    m_Stream = ssl2Stream;
+                    result = ssl2Stream.BeginAuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
                     break;
                 default:
                     m_Stream = new NetworkStream(Client);
                     break;
             }
+
+            return result;
+        }
+
+        private void OnBeginInitStreamOnSessionStarted(IAsyncResult result)
+        {
+            OnBeginInitStream(result);
+
+            if (m_Stream != null)
+                OnSessionStarting();
+        }
+
+        private void OnBeginInitStream(IAsyncResult result)
+        {
+            var sslStream = result.AsyncState as SslStream;
+
+            try
+            {
+                sslStream.EndAuthenticateAsServer(result);
+            }
+            catch (Exception e)
+            {
+                AppSession.Logger.LogError(e);
+                this.Close(CloseReason.SocketError);
+                return;
+            }
+
+            m_Stream = sslStream;
         }
 
         public override void SendResponse(string message)
@@ -173,7 +211,10 @@ namespace SuperSocket.SocketEngine
 
         public override void ApplySecureProtocol()
         {
-            InitStream();
+            var asyncResult = BeginInitStream(OnBeginInitStream);
+
+            if (asyncResult != null)
+                asyncResult.AsyncWaitHandle.WaitOne();
         }
 
         public override void ReceiveData(Stream storeSteram, int length)

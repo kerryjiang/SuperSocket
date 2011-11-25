@@ -45,8 +45,8 @@ namespace SuperSocket.SocketEngine
         public override void Start()
         {
             SocketAsyncProxy.Initialize(Client, this);
-            StartSession();
             StartReceive(SocketAsyncProxy.SocketEventArgs);
+            StartSession();
         }
 
         private void StartReceive(SocketAsyncEventArgs e)
