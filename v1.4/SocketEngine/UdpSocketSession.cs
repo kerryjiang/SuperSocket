@@ -40,7 +40,7 @@ namespace SuperSocket.SocketEngine
 
         public override void Start()
         {
-
+            StartSession();
         }
 
         internal void ProcessData(byte[] data)
