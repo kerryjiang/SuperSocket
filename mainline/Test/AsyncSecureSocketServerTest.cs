@@ -66,14 +66,14 @@ namespace SuperSocket.Test
             return true;
         }
 
-        public override void TestReceiveByMark()
-        {
-            //base.TestReceiveByMark();
-        }
+        //public override void TestReceiveByMark()
+        //{
+        //    //base.TestReceiveByMark();
+        //}
 
-        public override void TestReceiveInLength()
-        {
-            //base.TestReceiveInLength();
-        }
+        //public override void TestReceiveInLength()
+        //{
+        //    //base.TestReceiveInLength();
+        //}
     }
 }

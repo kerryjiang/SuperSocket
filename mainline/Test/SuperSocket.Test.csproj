@@ -59,8 +59,12 @@
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
-    <Compile Include="Command\RECEL.cs" />
-    <Compile Include="Command\RECEM.cs" />
+    <Compile Include="Command\RECEL.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Command\RECEM.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Common\ArraySegmentTest.cs" />
     <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />

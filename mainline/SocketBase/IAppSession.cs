@@ -7,6 +7,7 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
@@ -111,6 +112,14 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="cmdInfo">The command info.</param>
         void HandleUnknownCommand(TCommandInfo cmdInfo);
+
+        /// <summary>
+        /// Gets or sets the next command reader for next round receiving.
+        /// </summary>
+        /// <value>
+        /// The next command reader.
+        /// </value>
+        ICommandReader<TCommandInfo> NextCommandReader { get; set; }
     }
 
     public interface IAppSession<TAppSession, TCommandInfo> : IAppSession<TCommandInfo>

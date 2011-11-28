@@ -95,20 +95,6 @@ namespace SuperSocket.SocketBase
         void SendResponse(byte[] data, Int32 offset, Int32 length);
 
         /// <summary>
-        /// Receives the data of specific length from socket.
-        /// </summary>
-        /// <param name="storeSteram">The store steram.</param>
-        /// <param name="length">The length.</param>
-        void ReceiveData(Stream storeSteram, int length);
-
-        /// <summary>
-        /// Receives data from socket until find a binary mark.
-        /// </summary>
-        /// <param name="storeSteram">The store steram.</param>
-        /// <param name="endMark">The end mark.</param>
-        void ReceiveData(Stream storeSteram, byte[] endMark);
-
-        /// <summary>
         /// Applies the secure protocol.
         /// </summary>
         void ApplySecureProtocol();

@@ -105,15 +105,5 @@ namespace SuperSocket.SocketEngine
         {
             throw new NotSupportedException();
         }
-
-        public override void ReceiveData(Stream storeSteram, int length)
-        {
-            throw new NotSupportedException();
-        }
-
-        public override void ReceiveData(Stream storeSteram, byte[] endMark)
-        {
-            throw new NotSupportedException();
-        }
     }
 }

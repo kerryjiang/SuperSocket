@@ -216,15 +216,5 @@ namespace SuperSocket.SocketEngine
             if (asyncResult != null)
                 asyncResult.AsyncWaitHandle.WaitOne();
         }
-
-        public override void ReceiveData(Stream storeSteram, int length)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void ReceiveData(Stream storeSteram, byte[] endMark)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

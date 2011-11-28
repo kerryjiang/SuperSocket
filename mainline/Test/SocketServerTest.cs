@@ -673,55 +673,55 @@ namespace SuperSocket.Test
             }            
         }
 
-        [Test, Repeat(3)]
-        public virtual void TestReceiveByMark()
-        {
-            StartServer();
+        //[Test, Repeat(3)]
+        //public virtual void TestReceiveByMark()
+        //{
+        //    StartServer();
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+        //    EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            using (Socket socket = CreateClientSocket())
-            {
-                socket.Connect(serverAddress);
-                Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                {
-                    reader.ReadLine();
+        //    using (Socket socket = CreateClientSocket())
+        //    {
+        //        socket.Connect(serverAddress);
+        //        Stream socketStream = GetSocketStream(socket);
+        //        using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+        //        {
+        //            reader.ReadLine();
 
-                    Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
-                    byte[] data = ReadStreamToBytes(testStream, Encoding.ASCII.GetBytes(string.Format("{0}.{0}", Environment.NewLine)));
+        //            Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
+        //            byte[] data = ReadStreamToBytes(testStream, Encoding.ASCII.GetBytes(string.Format("{0}.{0}", Environment.NewLine)));
 
-                    byte[] cmdData = Encoding.Default.GetBytes("RECEM" + Environment.NewLine);
+        //            byte[] cmdData = Encoding.Default.GetBytes("RECEM" + Environment.NewLine);
 
-                    socketStream.Write(cmdData, 0, cmdData.Length);
-                    socketStream.Flush();
+        //            socketStream.Write(cmdData, 0, cmdData.Length);
+        //            socketStream.Flush();
                     
-                    //Thread.Sleep(1000);
+        //            //Thread.Sleep(1000);
 
-                    socketStream.Write(data, 0, data.Length);
-                    socketStream.Flush();
+        //            socketStream.Write(data, 0, data.Length);
+        //            socketStream.Flush();
 
-                    Thread.Sleep(1000);
+        //            Thread.Sleep(1000);
 
-                    MemoryStream ms = new MemoryStream();
+        //            MemoryStream ms = new MemoryStream();
 
-                    while (true)
-                    {
-                        string received = reader.ReadLine();
+        //            while (true)
+        //            {
+        //                string received = reader.ReadLine();
 
-                        received += Environment.NewLine;
-                        byte[] temp = Encoding.Default.GetBytes(received);
-                        ms.Write(temp, 0, temp.Length);
+        //                received += Environment.NewLine;
+        //                byte[] temp = Encoding.Default.GetBytes(received);
+        //                ms.Write(temp, 0, temp.Length);
 
-                        if (reader.Peek() < 0)
-                            break;
-                    }
+        //                if (reader.Peek() < 0)
+        //                    break;
+        //            }
 
-                    byte[] receivedData = ms.ToArray();
-                    Assert.AreEqual(data, receivedData);
-                }
-            }
-        }
+        //            byte[] receivedData = ms.ToArray();
+        //            Assert.AreEqual(data, receivedData);
+        //        }
+        //    }
+        //}
 
         private byte[] ReadStreamToBytes(Stream stream)
         {
