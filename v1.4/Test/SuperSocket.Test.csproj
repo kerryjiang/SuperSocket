@@ -55,6 +55,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AsyncSecureSocketServerTest.cs" />
     <Compile Include="AsyncSocketServerTest.cs" />
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Command\NUM.cs" />

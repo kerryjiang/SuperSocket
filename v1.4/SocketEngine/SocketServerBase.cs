@@ -11,12 +11,15 @@ using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class SocketServerBase<TSocketSession, TAppSession> : ISocketServer, IDisposable
+    abstract class SocketServerBase<TSocketSession, TAppSession, TCommandInfo> : ISocketServer, IDisposable
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>
+        where TCommandInfo : ICommandInfo
     {
         protected object SyncRoot = new object();
 
@@ -24,16 +27,19 @@ namespace SuperSocket.SocketEngine
 
         public IAppServer<TAppSession> AppServer { get; private set; }
 
+        protected ICustomProtocol<TCommandInfo> Protocol { get; private set; }
+
         public bool IsRunning { get; protected set; }
 
         protected bool IsStopped { get; set; }
 
         private ManualResetEvent m_ServerStartupEvent = new ManualResetEvent(false);
 
-        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
+        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
         {
             AppServer = appServer;
             EndPoint = localEndPoint;
+            Protocol = protocol;
             IsRunning = false;
         }
 

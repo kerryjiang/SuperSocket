@@ -37,7 +37,10 @@ namespace SuperSocket.SocketEngine
                 case(SocketMode.Sync):
                     return new SyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
                 case(SocketMode.Async):
-                    return new AsyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
+                    if (string.IsNullOrEmpty(config.Security))
+                        return new AsyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
+                    else
+                        return new AsyncStreamSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
                 default:
                     throw new NotSupportedException("Unsupported SocketMode:" + config.Mode);
             }

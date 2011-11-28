@@ -232,13 +232,6 @@ namespace SuperSocket.SocketBase
 
                 if (configProtocol != SslProtocols.None)
                 {
-                    //SSL/TLS is only supported in Sync mode
-                    if (config.Mode != SocketMode.Sync)
-                    {
-                        Logger.LogError("You cannot enable SSL/TLS security for your current SocketMode, it only can be used in Sync mode!");
-                        return false;
-                    }
-
                     if (config.Certificate == null || !config.Certificate.IsEnabled)
                     {
                         Logger.LogError("There is no certificate defined and enabled!");

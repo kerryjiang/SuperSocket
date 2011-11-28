@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Net.Sockets;
-using SuperSocket.Common;
 using System.Net;
-using SuperSocket.SocketBase;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Text;
+using SuperSocket.Common;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    class TcpSocketServerBase<TSocketSession, TAppSession> : SocketServerBase<TSocketSession, TAppSession>
+    class TcpSocketServerBase<TSocketSession, TAppSession, TCommandInfo> : SocketServerBase<TSocketSession, TAppSession, TCommandInfo>
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>
+        where TCommandInfo : ICommandInfo
     {
         private byte[] m_KeepAliveOptionValues;
 
-        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint)
-            : base(appServer, localEndPoint)
+        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+            : base(appServer, localEndPoint, protocol)
         {
             uint dummy = 0;
             m_KeepAliveOptionValues = new byte[Marshal.SizeOf(dummy) * 3];

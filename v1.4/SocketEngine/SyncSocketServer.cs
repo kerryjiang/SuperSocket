@@ -22,17 +22,15 @@ namespace SuperSocket.SocketEngine
     /// The core socket server which can run any SocketSession
     /// </summary>
     /// <typeparam name="T">The typeof the SocketSession</typeparam>
-    class SyncSocketServer<TAppSession, TCommandInfo> : TcpSocketServerBase<SyncSocketSession<TAppSession, TCommandInfo>, TAppSession>
+    class SyncSocketServer<TAppSession, TCommandInfo> : TcpSocketServerBase<SyncSocketSession<TAppSession, TCommandInfo>, TAppSession, TCommandInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
         public SyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
-            : base(appServer, localEndPoint)
+            : base(appServer, localEndPoint, protocol)
         {
-            m_Protocol = protocol;
-        }
 
-        private ICustomProtocol<TCommandInfo> m_Protocol;
+        }
 
         private Socket m_ListenSocket = null;
 
@@ -134,7 +132,7 @@ namespace SuperSocket.SocketEngine
 
                 try
                 {
-                    session = RegisterSession(client, new SyncSocketSession<TAppSession, TCommandInfo>(client, m_Protocol.CreateCommandReader(AppServer)));
+                    session = RegisterSession(client, new SyncSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
                 }
                 catch (Exception e)
                 {
