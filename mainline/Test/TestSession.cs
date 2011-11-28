@@ -14,7 +14,8 @@ namespace SuperSocket.Test
 
         public override void StartSession()
         {
- 	         SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
+            if(AppServer.Config.Mode != SocketMode.Udp)
+ 	            SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
         }
 
         public override void HandleExceptionalError(Exception e)
