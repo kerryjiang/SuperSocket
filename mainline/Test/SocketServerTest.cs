@@ -520,7 +520,7 @@ namespace SuperSocket.Test
             using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
             using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
             {
-                string welcomeString = reader.ReadLine();
+                reader.ReadLine();
             }
 
             Assert.AreEqual(1, ServerX.SessionCount);
@@ -544,7 +544,7 @@ namespace SuperSocket.Test
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
-                    string welcomeString = reader.ReadLine();
+                    reader.ReadLine();
                     string param = Guid.NewGuid().ToString();
                     writer.WriteLine("325 " + param);
                     writer.Flush();
@@ -573,7 +573,7 @@ namespace SuperSocket.Test
                 using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
                 using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
                 {
-                    string welcomeString = reader.ReadLine();
+                    reader.ReadLine();
                     string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
                     writer.WriteLine("ECHO:" + command);
                     writer.Flush();

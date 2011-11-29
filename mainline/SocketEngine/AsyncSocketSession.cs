@@ -24,11 +24,7 @@ namespace SuperSocket.SocketEngine
     class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
-    {
-
-        private int m_ConsumedDataSizeInCommand = 0;
-        private int m_CurrentParsedLeft = 0;
-        
+    {        
         private AsyncSocketSender m_AsyncSender;
 
         public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
@@ -141,8 +137,6 @@ namespace SuperSocket.SocketEngine
 
                 TCommandInfo commandInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
 
-                m_CurrentParsedLeft = left;
-
                 if (IsClosed)
                     return;
 
@@ -158,11 +152,6 @@ namespace SuperSocket.SocketEngine
                     AppServer.Logger.LogError(this, exc);
                     HandleExceptionalError(exc);
                 }
-
-                if (left > 0 && m_ConsumedDataSizeInCommand > 0)
-                    left = Math.Max(left - m_ConsumedDataSizeInCommand, 0);
-
-                m_ConsumedDataSizeInCommand = 0;
                     
                 if (left <= 0)
                     break;
