@@ -299,7 +299,14 @@ namespace SuperSocket.SocketEngine
 
             if (m_ListenSocket != null)
             {
-                m_ListenSocket.Shutdown(SocketShutdown.Both);
+                try
+                {
+                    m_ListenSocket.Shutdown(SocketShutdown.Both);
+                }
+                catch
+                {
+                }
+
                 m_ListenSocket.Close();
                 m_ListenSocket = null;
             }
