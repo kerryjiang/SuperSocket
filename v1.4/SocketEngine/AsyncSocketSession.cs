@@ -25,10 +25,6 @@ namespace SuperSocket.SocketEngine
         where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
         where TCommandInfo : ICommandInfo
     {
-
-        private int m_ConsumedDataSizeInCommand = 0;
-        private int m_CurrentParsedLeft = 0;
-
         public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
             : base(client, initialCommandReader)
         {
@@ -135,9 +131,7 @@ namespace SuperSocket.SocketEngine
                 int left;
 
                 TCommandInfo commandInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
-
-                m_CurrentParsedLeft = left;
-
+                
                 if (IsClosed)
                     return;
 
@@ -154,11 +148,6 @@ namespace SuperSocket.SocketEngine
                     HandleExceptionalError(exc);
                 }
 
-                if (left > 0 && m_ConsumedDataSizeInCommand > 0)
-                    left = Math.Max(left - m_ConsumedDataSizeInCommand, 0);
-
-                m_ConsumedDataSizeInCommand = 0;
-                    
                 if (left <= 0)
                     break;
 
@@ -173,119 +162,6 @@ namespace SuperSocket.SocketEngine
         public override void ApplySecureProtocol()
         {
             //TODO: Implement async socket SSL/TLS encryption
-        }
-
-        /// <summary>
-        /// Receives the data.
-        /// Process data synchronously, because command execution is waiting the received data
-        /// </summary>
-        /// <param name="storeSteram">The store steram.</param>
-        /// <param name="length">The length.</param>
-        public override void ReceiveData(Stream storeSteram, int length)
-        {
-            var e = this.SocketAsyncProxy.SocketEventArgs;
-
-            byte[] buffer = e.Buffer;
-
-            int thisRead = 0;
-            int leftRead = length;
-            int shouldRead = 0;
-
-            if (m_CurrentParsedLeft > 0)
-            {
-                int pos = e.Offset + e.BytesTransferred - m_CurrentParsedLeft;
-                int writeLen = Math.Min(m_CurrentParsedLeft, length);
-
-                storeSteram.Write(e.Buffer, pos, writeLen);
-                leftRead -= writeLen;
-                m_ConsumedDataSizeInCommand = writeLen;
-            }
-
-            while (leftRead > 0)
-            {
-                shouldRead = Math.Min(buffer.Length, leftRead);
-                thisRead = Client.Receive(buffer, 0, shouldRead, SocketFlags.None);
-                AppSession.LastActiveTime = DateTime.Now;
-
-                if (thisRead <= 0)
-                {
-                    //Slow speed? Wait a moment
-                    Thread.Sleep(100);
-                    continue;
-                }
-
-                storeSteram.Write(buffer, 0, thisRead);
-                leftRead -= thisRead;
-            }
-        } 
-
-        /// <summary>
-        /// Receives the data.
-        /// Process data synchronously, because command execution is waiting the received data
-        /// </summary>
-        /// <param name="storeSteram">The store steram.</param>
-        /// <param name="endMark">The end mark.</param>
-        public override void ReceiveData(Stream storeSteram, byte[] endMark)
-        {
-            var e = this.SocketAsyncProxy.SocketEventArgs;
-            byte[] buffer = e.Buffer;
-            byte[] lastData = new byte[endMark.Length];
-            int lastDataSzie = 0;
-            
-            if (m_CurrentParsedLeft > 0)
-            {
-                int pos = e.Offset + e.BytesTransferred - m_CurrentParsedLeft;
-                int writeLen;
-
-                var result = buffer.SearchMark(pos, m_CurrentParsedLeft, endMark);
-                var matched = false;
-
-                if (result.HasValue && result.Value >= 0)
-                {
-                    writeLen = result.Value - pos + endMark.Length;
-                    matched = true;
-                }
-                else//result.Value < 0
-                {
-                    writeLen = m_CurrentParsedLeft;
-                }
-
-                storeSteram.Write(e.Buffer, pos, writeLen);
-                m_ConsumedDataSizeInCommand = writeLen;
-
-                if (matched)
-                    return;
-
-                if (writeLen >= endMark.Length)
-                {
-                    Array.Copy(e.Buffer, pos + writeLen - endMark.Length, lastData, 0, endMark.Length);
-                    lastDataSzie = endMark.Length;
-                }
-                else
-                {
-                    Array.Copy(e.Buffer, pos, lastData, 0, writeLen);
-                    lastDataSzie = writeLen;
-                }
-            }
-
-            int thisRead = 0;
-
-            while (true)
-            {
-                thisRead = Client.Receive(buffer, 0, buffer.Length, SocketFlags.None);
-                AppSession.LastActiveTime = DateTime.Now;
-
-                if (thisRead <= 0)
-                {
-                    Thread.Sleep(100);
-                    continue;
-                }
-
-                storeSteram.Write(buffer, 0, thisRead);
-
-                if(DetectEndMark(buffer, thisRead, endMark, lastData, ref lastDataSzie))
-                    return;
-            }
         }
     }
 }

@@ -17,16 +17,14 @@ namespace SuperSocket.Test.Common
 
             int offset = 1024 * 1024 * 5;
             int length = 1024 * 1024 * 5;
-
-            byte[] target;
-
+            
             Stopwatch watch = new Stopwatch();
 
             watch.Start();
 
             for (int i = 0; i < 100; i++)
             {
-                target = source.Skip(offset).Take(length).ToArray();
+                source.Skip(offset).Take(length).ToArray();
                 Console.WriteLine(i);
             }
 

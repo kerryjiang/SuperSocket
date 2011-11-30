@@ -41,27 +41,29 @@ namespace SuperSocket.Test.Common
                     new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
                     new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
                 });
+            
+            char currentChar = ' ';
 
             Assert.Throws<IndexOutOfRangeException>(delegate
             {
-                char currentChar = source[-1];
+                currentChar = source[-1];
             });
 
             Assert.Throws<IndexOutOfRangeException>(delegate
             {
-                char currentChar = source[10];
-            });
-
-            source.RemoveSegmentAt(0);
-            Assert.Throws<IndexOutOfRangeException>(delegate
-            {
-                char currentChar = source[4];
+                currentChar = source[10];
             });
 
             source.RemoveSegmentAt(0);
             Assert.Throws<IndexOutOfRangeException>(delegate
             {
-                char currentChar = source[0];
+                currentChar = source[4];
+            });
+
+            source.RemoveSegmentAt(0);
+            Assert.Throws<IndexOutOfRangeException>(delegate
+            {
+                currentChar = source[0];
             });
 
             source.AddSegment(new ArraySegment<char>("I love you,".ToCharArray(), 0, 5));
@@ -69,8 +71,10 @@ namespace SuperSocket.Test.Common
 
             Assert.Throws<IndexOutOfRangeException>(delegate
             {
-                char currentChar = source[10];
+                currentChar = source[10];
             });
+            
+            Console.Write(currentChar);
         }
 
         [Test]

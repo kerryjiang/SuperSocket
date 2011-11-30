@@ -13,12 +13,12 @@ namespace SuperSocket.Test.Command
     {
         public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
-            int length = int.Parse(commandData[0]);
-
-            MemoryStream ms = new MemoryStream();
-            session.SocketSession.ReceiveData(ms, length);
-            byte[] data = ms.ToArray();
-            session.SocketSession.SendResponse(data);
+//            int length = int.Parse(commandData[0]);
+//
+//            MemoryStream ms = new MemoryStream();
+//            session.SocketSession.ReceiveData(ms, length);
+//            byte[] data = ms.ToArray();
+//            session.SocketSession.SendResponse(data);
         }
     }
 }

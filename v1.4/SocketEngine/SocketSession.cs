@@ -189,10 +189,6 @@ namespace SuperSocket.SocketEngine
 
         public abstract void ApplySecureProtocol();
 
-        public abstract void ReceiveData(Stream storeSteram, int length);
-
-        public abstract void ReceiveData(Stream storeSteram, byte[] endMark);
-
         public Stream GetUnderlyStream()
         {
             return new NetworkStream(Client);
@@ -245,46 +241,6 @@ namespace SuperSocket.SocketEngine
                 m_IsClosed = true;
                 OnClose(reason);
             }
-        }
-
-        protected bool DetectEndMark(byte[] buffer, int thisRead, byte[] endMark, byte[] lastData, ref int lastDataSzie)
-        {
-            if (thisRead >= endMark.Length)
-            {
-                if (buffer.EndsWith(0, thisRead, endMark))
-                    return true;
-
-                Array.Copy(buffer, thisRead - endMark.Length - 1, lastData, 0, endMark.Length);
-                lastDataSzie = endMark.Length;
-            }
-            else
-            {
-                if (lastDataSzie + thisRead < lastData.Length)
-                {
-                    Array.Copy(buffer, 0, lastData, lastDataSzie, thisRead);
-                    lastDataSzie = lastDataSzie + thisRead;
-                }
-                else
-                {
-                    var source = new ArraySegmentList<byte>(new List<ArraySegment<byte>>
-                            {
-                                new ArraySegment<byte>(lastData, 0, lastDataSzie),
-                                new ArraySegment<byte>(buffer, 0, thisRead)
-                            });
-
-                    if (source.EndsWith(endMark))
-                        return true;
-
-                    for (int i = 0; i < endMark.Length; i++)
-                    {
-                        lastData[i] = source[source.Count - endMark.Length + i];
-                    }
-
-                    lastDataSzie = endMark.Length;
-                }
-            }
-
-            return false;
         }
     }
 }
