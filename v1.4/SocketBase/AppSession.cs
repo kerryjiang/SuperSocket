@@ -4,9 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.Common;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
@@ -142,6 +143,14 @@ namespace SuperSocket.SocketBase
         {
             get { return AppServer.Config; }
         }
+        
+        /// <summary>
+        /// Gets or sets the next command reader.
+        /// </summary>
+        /// <value>
+        /// The next command reader.
+        /// </value>
+        ICommandReader<TCommandInfo> IAppSession<TCommandInfo>.NextCommandReader { get; set; }
 
         #endregion
 
@@ -255,6 +264,15 @@ namespace SuperSocket.SocketBase
         public virtual void SendResponse(byte[] data)
         {
             SocketSession.SendResponse(data);
+        }
+        
+        /// <summary>
+        /// Sets the next command reader for next round receiving.
+        /// </summary>
+        /// <param name="nextCommandReader">The next command reader.</param>
+        public void SetNextCommandReader(ICommandReader<TCommandInfo> nextCommandReader)
+        {
+            ((IAppSession<TCommandInfo>)this).NextCommandReader = nextCommandReader;
         }
     }
 

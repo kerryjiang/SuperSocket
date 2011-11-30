@@ -121,6 +121,12 @@ namespace SuperSocket.SocketEngine
         protected virtual void ExecuteCommand(TCommandInfo commandInfo)
         {
             AppSession.ExecuteCommand(AppSession, commandInfo);
+            
+            if(AppSession.NextCommandReader != null)
+            {
+                CommandReader = AppSession.NextCommandReader;
+                AppSession.NextCommandReader = null;
+            }
         }
 
         protected internal TCommandInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
