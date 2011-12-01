@@ -622,56 +622,56 @@ namespace SuperSocket.Test
         //    ServerZ.Stop();
         //}
 
-        [Test, Repeat(3)]
-        public virtual void TestReceiveInLength()
-        {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
-
-            using (Socket socket = CreateClientSocket())
-            {
-                socket.Connect(serverAddress);
-                Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                {
-                    reader.ReadLine();
-
-                    Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
-                    byte[] data = ReadStreamToBytes(testStream);
-
-                    byte[] cmdData = Encoding.Default.GetBytes("RECEL " + data.Length + Environment.NewLine);
-
-                    socketStream.Write(cmdData, 0, cmdData.Length);
-                    socketStream.Flush();
-                    socketStream.Flush();
-
-                    //Thread.Sleep(1000);
-
-                    socketStream.Write(data, 0, data.Length);
-                    socketStream.Flush();
-
-                    Thread.Sleep(1000);
-
-                    MemoryStream ms = new MemoryStream();
-
-                    while (true)
-                    {
-                        string received = reader.ReadLine();
-
-                        received += Environment.NewLine;
-                        byte[] temp = Encoding.Default.GetBytes(received);
-                        ms.Write(temp, 0, temp.Length);
-
-                        if (reader.Peek() < 0)
-                            break;
-                    }
-
-                    byte[] receivedData = ms.ToArray();
-                    Assert.AreEqual(data, receivedData);
-                }
-            }            
-        }
+//        [Test, Repeat(3)]
+//        public virtual void TestReceiveInLength()
+//        {
+//            StartServer();
+//
+//            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+//
+//            using (Socket socket = CreateClientSocket())
+//            {
+//                socket.Connect(serverAddress);
+//                Stream socketStream = GetSocketStream(socket);
+//                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+//                {
+//                    reader.ReadLine();
+//
+//                    Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
+//                    byte[] data = ReadStreamToBytes(testStream);
+//
+//                    byte[] cmdData = Encoding.Default.GetBytes("RECEL " + data.Length + Environment.NewLine);
+//
+//                    socketStream.Write(cmdData, 0, cmdData.Length);
+//                    socketStream.Flush();
+//                    socketStream.Flush();
+//
+//                    //Thread.Sleep(1000);
+//
+//                    socketStream.Write(data, 0, data.Length);
+//                    socketStream.Flush();
+//
+//                    Thread.Sleep(1000);
+//
+//                    MemoryStream ms = new MemoryStream();
+//
+//                    while (true)
+//                    {
+//                        string received = reader.ReadLine();
+//
+//                        received += Environment.NewLine;
+//                        byte[] temp = Encoding.Default.GetBytes(received);
+//                        ms.Write(temp, 0, temp.Length);
+//
+//                        if (reader.Peek() < 0)
+//                            break;
+//                    }
+//
+//                    byte[] receivedData = ms.ToArray();
+//                    Assert.AreEqual(data, receivedData);
+//                }
+//            }            
+//        }
 
         //[Test, Repeat(3)]
         //public virtual void TestReceiveByMark()
