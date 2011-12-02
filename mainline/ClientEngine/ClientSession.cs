@@ -6,8 +6,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-using SuperSocket.Common;
-using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.ClientEngine
 {
