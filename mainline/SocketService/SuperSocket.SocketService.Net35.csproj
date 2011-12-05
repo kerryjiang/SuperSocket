@@ -117,17 +117,13 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\log4net.config">
+    <Content Include="..\Solution Items\log4net.config">
+      <Link>Config\log4net.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\Solution Items\Net35\App.config">
       <Link>App.config</Link>
     </None>
-    <Content Include="Config\log4net.unix.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net35.csproj">
@@ -143,6 +139,7 @@
       <Name>SuperSocket.SocketEngine.Net35</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
