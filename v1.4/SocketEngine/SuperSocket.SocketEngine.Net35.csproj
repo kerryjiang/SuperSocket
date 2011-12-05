@@ -37,7 +37,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\bin\Net35\Release\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -47,7 +47,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\bin\Net35\Debug\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -91,6 +91,8 @@
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="AsyncStreamSocketServer.cs" />
+    <Compile Include="AsyncStreamSocketSession.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />
     <Compile Include="Configuration\CredentialConfig.cs" />

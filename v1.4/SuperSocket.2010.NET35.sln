@@ -14,6 +14,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{310FD673-1D6B-41B3-9BFF-8E0F984B524C}"
 	ProjectSection(SolutionItems) = preProject
 		Solution Items\GlobalAssemblyInfo.cs = Solution Items\GlobalAssemblyInfo.cs
+		Solution Items\log4net.config = Solution Items\log4net.config
+		Solution Items\log4net.unix.config = Solution Items\log4net.unix.config
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net40", "Net40", "{09AA86CA-0CF7-48CE-891C-F64BFD544AD4}"
