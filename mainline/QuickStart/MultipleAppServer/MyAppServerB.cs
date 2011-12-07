@@ -10,7 +10,7 @@ namespace SuperSocket.QuickStart.MultipleAppServer
     {
         public void DispatchMessage(string sessionKey, string message)
         {
-            var session = GetAppSessionByIndentityKey(sessionKey);
+            var session = GetAppSessionByID(sessionKey);
             if (session == null)
                 return;
 
