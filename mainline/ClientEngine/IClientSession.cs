@@ -16,13 +16,4 @@ namespace SuperSocket.ClientEngine
 
         void Close();
     }
-
-    public interface IClientSession<TCommandInfo, TContext> : IClientSession
-        where TCommandInfo : ICommandInfo
-        where TContext : class
-    {
-        void RegisterCommandHandler(string name, Action<IClientSession<TCommandInfo, TContext>, TCommandInfo> execution);
-
-        TContext Context { get; set; }
-    }
 }

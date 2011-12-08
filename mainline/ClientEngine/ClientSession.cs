@@ -9,74 +9,23 @@ using System.Text;
 
 namespace SuperSocket.ClientEngine
 {
-    public abstract class ClientSession<TCommandInfo, TContext> : IClientSession<TCommandInfo, TContext>
-        where TCommandInfo : ICommandInfo
-        where TContext : class
+    public abstract class ClientSession : IClientSession
     {
         protected Socket Client { get; set; }
 
-        protected IClientCommandReader<TCommandInfo> CommandReader { get; private set; }
-
-        public TContext Context { get; set; }
-
         protected EndPoint RemoteEndPoint { get; set; }
 
-        private Dictionary<string, ICommand<TCommandInfo, TContext>> m_CommandDict
-            = new Dictionary<string, ICommand<TCommandInfo, TContext>>(StringComparer.OrdinalIgnoreCase);
-
-        public ClientSession(IClientCommandReader<TCommandInfo> commandReader)
-            : this(commandReader, null, null)
+        public ClientSession()
         {
 
         }
 
-        public ClientSession(IClientCommandReader<TCommandInfo> commandReader, EndPoint remoteEndPoint)
-            : this(commandReader, null, remoteEndPoint)
+        public ClientSession(EndPoint remoteEndPoint)
         {
+            if (remoteEndPoint == null)
+                throw new ArgumentNullException("remoteEndPoint");
 
-        }
-
-        public ClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies)
-            : this(commandReader, commandAssemblies, null)
-        {
-
-        }
-
-        public ClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies, EndPoint remoteEndPoint)
-        {
-            if (remoteEndPoint != null)
-                RemoteEndPoint = remoteEndPoint;
-
-            CommandReader = commandReader;
-
-            if (commandAssemblies != null)
-                SetupAssemblyCommands(commandAssemblies);
-        }
-
-        private void SetupAssemblyCommands(IEnumerable<Assembly> assemblies)
-        {
-            foreach (var assembly in assemblies)
-            {
-                foreach (var c in assembly.GetImplementedObjectsByInterface<ICommand<TCommandInfo, TContext>>())
-                {
-                    m_CommandDict.Add(c.Name, c);
-                }
-            }
-        }
-
-        public void RegisterCommandHandler(string name, Action<IClientSession<TCommandInfo, TContext>, TCommandInfo> execution)
-        {
-            m_CommandDict.Add(name, new DelegateCommand<TCommandInfo, TContext>(name, execution));
-        }
-
-        protected void ExecuteCommand(TCommandInfo commandInfo)
-        {
-            ICommand<TCommandInfo, TContext> command;
-
-            if (m_CommandDict.TryGetValue(commandInfo.Key, out command))
-            {
-                command.ExecuteCommand(this, commandInfo);
-            }
+            RemoteEndPoint = remoteEndPoint;
         }
 
         void IClientSession.Connect()
@@ -98,7 +47,7 @@ namespace SuperSocket.ClientEngine
             remove { m_Closed -= value; }
         }
 
-        protected void OnClosed()
+        protected virtual void OnClosed()
         {
             var handler = m_Closed;
 

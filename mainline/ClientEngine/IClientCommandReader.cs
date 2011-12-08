@@ -9,5 +9,7 @@ namespace SuperSocket.ClientEngine
         where TCommandInfo : ICommandInfo
     {
         TCommandInfo GetCommandInfo(byte[] readBuffer, int offset, int length, out int left);
+
+        IClientCommandReader<TCommandInfo> NextCommandReader { get; }
     }
 }

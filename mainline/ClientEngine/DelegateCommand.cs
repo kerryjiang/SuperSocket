@@ -5,19 +5,19 @@ using System.Text;
 
 namespace SuperSocket.ClientEngine
 {
-    class DelegateCommand<TCommandInfo, TContext> : ICommand<TCommandInfo, TContext>
+    class DelegateCommand<TClientSession, TCommandInfo> : ICommand<TClientSession, TCommandInfo>
+        where TClientSession : IClientSession
         where TCommandInfo : ICommandInfo
-        where TContext : class
     {
-        private Action<IClientSession<TCommandInfo, TContext>, TCommandInfo> m_Execution;
+        private Action<TClientSession, TCommandInfo> m_Execution;
 
-        public DelegateCommand(string name, Action<IClientSession<TCommandInfo, TContext>, TCommandInfo> execution)
+        public DelegateCommand(string name, Action<TClientSession, TCommandInfo> execution)
         {
             Name = name;
             m_Execution = execution;
         }
 
-        public void ExecuteCommand(IClientSession<TCommandInfo, TContext> session, TCommandInfo commandInfo)
+        public void ExecuteCommand(TClientSession session, TCommandInfo commandInfo)
         {
             m_Execution(session, commandInfo);
         }

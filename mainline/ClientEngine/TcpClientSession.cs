@@ -9,53 +9,64 @@ using System.Text;
 
 namespace SuperSocket.ClientEngine
 {
-    public class TcpClientSession<TCommandInfo, TContext> : ClientSession<TCommandInfo, TContext>
-        where TCommandInfo : ICommandInfo
-        where TContext : class
+    public abstract class TcpClientSession : ClientSession
     {
-        private SocketAsyncEventArgs m_ReceiveEventArgs;
+        private SocketAsyncEventArgs m_SocketEventArgs;
 
         private byte[] m_ReceiveBuffer;
 
-        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader)
-            : this(commandReader, null, null)
+        public TcpClientSession()
+            : base()
         {
-
+            Init();
         }
 
-        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader, EndPoint remoteEndPoint)
-            : this(commandReader, null, remoteEndPoint)
+        public TcpClientSession(EndPoint remoteEndPoint)
+            : base(remoteEndPoint)
         {
-
+            Init();
         }
 
-        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies)
-            :  this(commandReader, commandAssemblies, null)
+        private void Init()
         {
-
+            m_SocketEventArgs = new SocketAsyncEventArgs();
+            m_SocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(m_SocketEventArgs_Completed);
         }
 
-        public TcpClientSession(IClientCommandReader<TCommandInfo> commandReader, IEnumerable<Assembly> commandAssemblies, EndPoint remoteEndPoint)
-            : base(commandReader, commandAssemblies, remoteEndPoint)
+        void m_SocketEventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
-            int receiveBufferSize = 1024;
-            m_ReceiveEventArgs = new SocketAsyncEventArgs();
-            m_ReceiveEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(m_ReceiveEventArgs_Completed);
-            m_ReceiveBuffer = new byte[receiveBufferSize];
-            m_ReceiveEventArgs.SetBuffer(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
+            if (e.LastOperation == SocketAsyncOperation.Connect)
+            {
+                ProcessAccept(e);
+                return;
+            }
+
+            ProcessReceive(e);
         }
 
         protected override void Connect()
         {
-            m_ReceiveEventArgs.RemoteEndPoint = RemoteEndPoint;
-            if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_ReceiveEventArgs))
-                ProcessAccept(m_ReceiveEventArgs);
+            m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
+            if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs))
+                ProcessAccept(m_SocketEventArgs);
         }
 
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
             Client = e.ConnectSocket;
+
+            int receiveBufferSize = 1024;
+            m_ReceiveBuffer = new byte[receiveBufferSize];
+            m_SocketEventArgs.SetBuffer(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
+
+            StartReceive();
             OnConnected();
+        }
+
+        private void BeginReceive()
+        {
+            if (!Client.ReceiveAsync(m_SocketEventArgs))
+                ProcessReceive(m_SocketEventArgs);
         }
 
         protected virtual void OnConnected()
@@ -95,32 +106,11 @@ namespace SuperSocket.ClientEngine
                 return;
             }
 
-            int offset = e.Offset;
-            int length = e.BytesTransferred;
-
-            while (true)
-            {
-                int left;
-
-                var commandInfo = CommandReader.GetCommandInfo(e.Buffer, offset, length, out left);
-
-                if (commandInfo != null)
-                {
-                    ExecuteCommand(commandInfo);
-
-                    if (left <= 0)
-                        break;
-
-                    offset = e.Offset + e.BytesTransferred - left;
-                    continue;
-                }
-
-                break;
-            }
-
+            OnDataReceived(e.Buffer, e.Offset, e.BytesTransferred);
             StartReceive();
         }
 
+        protected abstract void OnDataReceived(byte[] data, int offset, int length);
 
         void EnsureSocketClosed()
         {
@@ -128,8 +118,15 @@ namespace SuperSocket.ClientEngine
             {
                 if (Client.Connected)
                 {
-                    Client.Shutdown(SocketShutdown.Both);
-                    Client.Close();
+                    try
+                    {
+                        Client.Shutdown(SocketShutdown.Both);
+                        Client.Close();
+                    }
+                    catch
+                    {
+
+                    }
                 }
 
                 Client = null;
@@ -138,8 +135,20 @@ namespace SuperSocket.ClientEngine
 
         void StartReceive()
         {
-            if (!Client.ReceiveAsync(m_ReceiveEventArgs))
-                ProcessReceive(m_ReceiveEventArgs);
+            bool async;
+
+            try
+            {
+                async = Client.ReceiveAsync(m_SocketEventArgs);
+            }
+            catch
+            {
+                EnsureSocketClosed();
+                return;
+            }
+
+            if (!async)
+                ProcessReceive(m_SocketEventArgs);
         }
 
         private ConcurrentQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentQueue<ArraySegment<byte>>();
@@ -171,6 +180,21 @@ namespace SuperSocket.ClientEngine
 
             args.SetBuffer(segment.Array, segment.Offset, segment.Count);
             args.Completed += new EventHandler<SocketAsyncEventArgs>(Sending_Completed);
+
+            bool async;
+
+            try
+            {
+                async = Client.SendAsync(args);
+            }
+            catch
+            {
+                EnsureSocketClosed();
+                return;
+            }
+
+            if (!async)
+                Sending_Completed(Client, args);
         }
 
         void Sending_Completed(object sender, SocketAsyncEventArgs e)

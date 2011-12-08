@@ -10,17 +10,9 @@ namespace SuperSocket.ClientEngine
         string Name { get; }
     }
 
-    public interface ICommand<TCommandInfo, TContext> : ICommand
+    public interface ICommand<TSession, TCommandInfo> : ICommand
+        where TSession : IClientSession
         where TCommandInfo : ICommandInfo
-        where TContext : class
-    {
-        void ExecuteCommand(IClientSession<TCommandInfo, TContext> session, TCommandInfo commandInfo);
-    }
-
-    public interface ICommand<TSession, TCommandInfo, TContext> : ICommand
-        where TSession : IClientSession<TCommandInfo, TContext>
-        where TCommandInfo : ICommandInfo
-        where TContext : class
     {
         void ExecuteCommand(TSession session, TCommandInfo commandInfo);
     }
