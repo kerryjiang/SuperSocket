@@ -27,7 +27,7 @@ namespace SuperSocket.Test
                     MaxConnectionNumber = 100,
                     Mode = SocketMode.Sync,
                     Name = "Sync Secure Test Socket Server",
-                    Port = 100,
+                    Port = 1025,
                     ClearIdleSession = true,
                     ClearIdleSessionInterval = 1,
                     IdleSessionTimeOut = 5,
