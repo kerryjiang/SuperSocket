@@ -55,6 +55,7 @@ namespace SuperSocket.Test
         private TestServer m_Server;
         private IServerConfig m_Config;
         private IRootConfig m_RootConfig;
+        private Encoding m_Encoding;
 
         protected IServerConfig DefaultServerConfig
         {
@@ -82,6 +83,8 @@ namespace SuperSocket.Test
             {
                 LoggingMode = LoggingMode.Console
             };
+            
+            m_Encoding = new System.Text.UTF8Encoding();
         }
 
         [TestFixtureSetUp]
@@ -150,9 +153,9 @@ namespace SuperSocket.Test
                     sb.Append(chars[rd.Next(0, chars.Length - 1)]);
                     string command = sb.ToString();
                     Console.WriteLine("Client prepare sent:" + command);
-                    socket.SendTo(Encoding.UTF8.GetBytes("ECHO " + command + "\r\n"), serverAddress);
+                    socket.SendTo(m_Encoding.GetBytes("ECHO " + command + Environment.NewLine), serverAddress);
                     Console.WriteLine("Client sent:" + command);
-                    string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                     Console.WriteLine("C:" + echoMessage);
                     Assert.AreEqual(command, echoMessage);
                 }
@@ -193,7 +196,7 @@ namespace SuperSocket.Test
 
                     Console.WriteLine("Client sent:" + command);
 
-                    string[] res = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray()).Split(' ');
+                    string[] res = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray()).Split(' ');
 
                     Assert.AreEqual(sessionID, res[0]);
                     Assert.AreEqual(command, res[1]);
@@ -232,12 +235,12 @@ namespace SuperSocket.Test
                         sbCombile.AppendLine("ECHO " + command);
                     }
 
-                    socket.SendTo(Encoding.UTF8.GetBytes(sbCombile.ToString()), serverAddress);                    
+                    socket.SendTo(m_Encoding.GetBytes(sbCombile.ToString()), serverAddress);                    
 
                     for (int i = 0; i < 5; i++)
                     {
                         byte[] receivedData = ReceiveMessage(socket, serverAddress).ToArray();
-                        string receivedContent = Encoding.UTF8.GetString(receivedData);
+                        string receivedContent = m_Encoding.GetString(receivedData);
                         StringReader reader = new StringReader(receivedContent);
                         string line = reader.ReadLine();
                         Assert.AreEqual(source[i], line);
@@ -274,13 +277,13 @@ namespace SuperSocket.Test
         //        {
         //            int readLen = rd.Next(1, commandSource.Count);
         //            Console.WriteLine(commandSource.Take(readLen).ToArray());
-        //            socket.SendTo(Encoding.UTF8.GetBytes(commandSource.Take(readLen).ToArray()), serverAddress);
+        //            socket.SendTo(m_Encoding.GetBytes(commandSource.Take(readLen).ToArray()), serverAddress);
         //            commandSource.RemoveRange(0, readLen);
         //        }
 
-        //        socket.SendTo(Encoding.UTF8.GetBytes("\r\n"), serverAddress);
+        //        socket.SendTo(m_Encoding.GetBytes(Environment.NewLine), serverAddress);
 
-        //        string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+        //        string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
         //        Console.WriteLine("C:" + echoMessage);
         //        Assert.AreEqual(command, echoMessage);
         //    }
@@ -302,8 +305,8 @@ namespace SuperSocket.Test
                 {
                     sb.Append(chars[rd.Next(0, chars.Length - 1)]);
                     string command = sb.ToString();
-                    socket.SendTo(Encoding.UTF8.GetBytes("ECHO " + command + "\r\n"), serverAddress);
-                    string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    socket.SendTo(m_Encoding.GetBytes("ECHO " + command + Environment.NewLine), serverAddress);
+                    string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                     Assert.AreEqual(command, echoMessage);
                     if (!string.Equals(command, echoMessage))
                         return false;
@@ -354,8 +357,8 @@ namespace SuperSocket.Test
                 {
                     string commandName = Guid.NewGuid().ToString().Substring(0, 3);
                     string command = commandName + " " + DateTime.Now;
-                    socket.SendTo(Encoding.UTF8.GetBytes(command + "\r\n"), serverAddress);
-                    string line = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    socket.SendTo(m_Encoding.GetBytes(command + Environment.NewLine), serverAddress);
+                    string line = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                     Console.WriteLine(line);
                     Assert.AreEqual(string.Format(TestSession.UnknownCommandMessageFormat, commandName), line);
                 }
@@ -373,8 +376,8 @@ namespace SuperSocket.Test
             {
                 string param = Guid.NewGuid().ToString();
                 string command = "325 " + param + Environment.NewLine;
-                socket.SendTo(Encoding.UTF8.GetBytes(command), serverAddress);
-                string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                socket.SendTo(m_Encoding.GetBytes(command), serverAddress);
+                string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                 Console.WriteLine("C:" + echoMessage);
                 Assert.AreEqual(string.Format(SuperSocket.Test.Command.NUM.ReplyFormat, param), echoMessage);
             }
@@ -395,8 +398,8 @@ namespace SuperSocket.Test
                 using (Socket socket = CreateClientSocket())
                 {
                     string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
-                    socket.SendTo(Encoding.UTF8.GetBytes("ECHO:" + command + Environment.NewLine), serverAddress);
-                    string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    socket.SendTo(m_Encoding.GetBytes("ECHO:" + command + Environment.NewLine), serverAddress);
+                    string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                     Assert.AreEqual(command, echoMessage);
                 }
             }
@@ -426,13 +429,13 @@ namespace SuperSocket.Test
         //        using (Socket socket = CreateClientSocket())
         //        {
         //            string[] arrParam = new string[] { "A1", "A2", "A4", "B2", "A6", "E5" };
-        //            socket.SendTo(Encoding.UTF8.GetBytes("PARA:" + string.Join(",", arrParam) + Environment.NewLine), serverAddress);
+        //            socket.SendTo(m_Encoding.GetBytes("PARA:" + string.Join(",", arrParam) + Environment.NewLine), serverAddress);
 
         //            List<string> received = new List<string>();
 
         //            foreach (var p in arrParam)
         //            {
-        //                string r = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+        //                string r = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
         //                Console.WriteLine("C: " + r);
         //                received.Add(r);
         //            }
@@ -479,17 +482,17 @@ namespace SuperSocket.Test
                 for (int i = 0; i < maxConnectionNumber; i++)
                 {
                     Socket socket = CreateClientSocket();
-                    socket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString() + Environment.NewLine), serverAddress);
-                    Console.WriteLine("C: " + Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray()));
+                    socket.SendTo(m_Encoding.GetBytes(Guid.NewGuid().ToString() + Environment.NewLine), serverAddress);
+                    Console.WriteLine("C: " + m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray()));
                     sockets.Add(socket);
                 }
 
                 using (Socket trySocket = CreateClientSocket())
                 {
-                    trySocket.SendTo(Encoding.UTF8.GetBytes(Guid.NewGuid().ToString() + Environment.NewLine), serverAddress);
+                    trySocket.SendTo(m_Encoding.GetBytes(Guid.NewGuid().ToString() + Environment.NewLine), serverAddress);
                     Thread thread = new Thread(new ThreadStart(() =>
                         {
-                            Console.WriteLine("C: " + Encoding.UTF8.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
+                            Console.WriteLine("C: " + m_Encoding.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
                         }));
                     thread.Start();
                     if (thread.Join(500))
@@ -535,8 +538,8 @@ namespace SuperSocket.Test
             {
                 string param = Guid.NewGuid().ToString();
                 string command = "325 " + param + Environment.NewLine;
-                socket.SendTo(Encoding.UTF8.GetBytes(command), serverAddress);
-                string echoMessage = Encoding.UTF8.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                socket.SendTo(m_Encoding.GetBytes(command), serverAddress);
+                string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
                 Console.WriteLine("C:" + echoMessage);
             }
 

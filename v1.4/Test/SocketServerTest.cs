@@ -22,6 +22,8 @@ namespace SuperSocket.Test
         private readonly IServerConfig m_Config;
 
         private IRootConfig m_RootConfig;
+        
+        private Encoding m_Encoding;
 
         public SocketServerTest()
         {
@@ -34,6 +36,8 @@ namespace SuperSocket.Test
                 MinWorkingThreads = 5,
                 MinCompletionPortThreads = 5
             };
+            
+            m_Encoding = new UTF8Encoding();
         }
 
         private TestServer GetServerByIndex(int index)
@@ -182,8 +186,8 @@ namespace SuperSocket.Test
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
                     Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, m_Config.Name), welcomeString);
@@ -223,7 +227,7 @@ namespace SuperSocket.Test
                     Socket socket = CreateClientSocket();
                     socket.Connect(serverAddress);
                     Stream socketStream = GetSocketStream(socket);
-                    StreamReader reader = new StreamReader(socketStream, Encoding.Default, true);
+                    StreamReader reader = new StreamReader(socketStream, m_Encoding, true);
                     reader.ReadLine();
                     sockets.Add(socket);
                 }
@@ -236,7 +240,7 @@ namespace SuperSocket.Test
                         var innerSocketStream = new NetworkStream(trySocket);
                         innerSocketStream.ReadTimeout = 500;
 
-                        using (StreamReader tryReader = new StreamReader(innerSocketStream, Encoding.Default, true))
+                        using (StreamReader tryReader = new StreamReader(innerSocketStream, m_Encoding, true))
                         {
                             string welcome = tryReader.ReadLine();
                             Console.WriteLine(welcome);
@@ -280,8 +284,8 @@ namespace SuperSocket.Test
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
 
@@ -310,8 +314,8 @@ namespace SuperSocket.Test
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
 
@@ -349,8 +353,8 @@ namespace SuperSocket.Test
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
 
@@ -398,8 +402,8 @@ namespace SuperSocket.Test
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
 
@@ -447,8 +451,8 @@ namespace SuperSocket.Test
             Socket socket = CreateClientSocket();
             socket.Connect(serverAddress);
             Stream socketStream = GetSocketStream(socket);
-            using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-            using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+            using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+            using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
             {
                 string welcomeString = reader.ReadLine();
                 Console.WriteLine(welcomeString);
@@ -517,8 +521,8 @@ namespace SuperSocket.Test
             Socket socket = CreateClientSocket();
             socket.Connect(serverAddress);
             Stream socketStream = GetSocketStream(socket);
-            using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-            using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+            using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+            using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
             {
                 reader.ReadLine();
             }
@@ -541,8 +545,8 @@ namespace SuperSocket.Test
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
                     string param = Guid.NewGuid().ToString();
@@ -570,8 +574,8 @@ namespace SuperSocket.Test
             {
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
                     string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
@@ -598,8 +602,8 @@ namespace SuperSocket.Test
         //    {
         //        socket.Connect(serverAddress);
         //        Stream socketStream = GetSocketStream(socket);
-        //        using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
-        //        using (StreamWriter writer = new StreamWriter(socketStream, Encoding.Default, 1024 * 8))
+        //        using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+        //        using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
         //        {
         //            reader.ReadLine();
         //            string[] arrParam = new string[] { "A1", "A2", "A4", "B2", "A6", "E5" };
@@ -633,14 +637,14 @@ namespace SuperSocket.Test
 //            {
 //                socket.Connect(serverAddress);
 //                Stream socketStream = GetSocketStream(socket);
-//                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+//                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
 //                {
 //                    reader.ReadLine();
 //
 //                    Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
 //                    byte[] data = ReadStreamToBytes(testStream);
 //
-//                    byte[] cmdData = Encoding.Default.GetBytes("RECEL " + data.Length + Environment.NewLine);
+//                    byte[] cmdData = m_Encoding.GetBytes("RECEL " + data.Length + Environment.NewLine);
 //
 //                    socketStream.Write(cmdData, 0, cmdData.Length);
 //                    socketStream.Flush();
@@ -660,7 +664,7 @@ namespace SuperSocket.Test
 //                        string received = reader.ReadLine();
 //
 //                        received += Environment.NewLine;
-//                        byte[] temp = Encoding.Default.GetBytes(received);
+//                        byte[] temp = m_Encoding.GetBytes(received);
 //                        ms.Write(temp, 0, temp.Length);
 //
 //                        if (reader.Peek() < 0)
@@ -684,14 +688,14 @@ namespace SuperSocket.Test
 //            {
 //                socket.Connect(serverAddress);
 //                Stream socketStream = GetSocketStream(socket);
-//                using (StreamReader reader = new StreamReader(socketStream, Encoding.Default, true))
+//                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
 //                {
 //                    reader.ReadLine();
 //
 //                    Stream testStream = this.GetType().Assembly.GetManifestResourceStream("SuperSocket.Test.Resources.TestFile.txt");
 //                    byte[] data = ReadStreamToBytes(testStream, Encoding.ASCII.GetBytes(string.Format("{0}.{0}", Environment.NewLine)));
 //
-//                    byte[] cmdData = Encoding.Default.GetBytes("RECEM" + Environment.NewLine);
+//                    byte[] cmdData = m_Encoding.GetBytes("RECEM" + Environment.NewLine);
 //
 //                    socketStream.Write(cmdData, 0, cmdData.Length);
 //                    socketStream.Flush();
@@ -710,7 +714,7 @@ namespace SuperSocket.Test
 //                        string received = reader.ReadLine();
 //
 //                        received += Environment.NewLine;
-//                        byte[] temp = Encoding.Default.GetBytes(received);
+//                        byte[] temp = m_Encoding.GetBytes(received);
 //                        ms.Write(temp, 0, temp.Length);
 //
 //                        if (reader.Peek() < 0)
