@@ -10,7 +10,7 @@ namespace SuperSocket.SocketEngine.Configuration
     {
         #region ICertificateConfig Members
 
-        [ConfigurationProperty("filePath", IsRequired = true)]
+        [ConfigurationProperty("filePath", IsRequired = false)]
         public string FilePath
         {
             get
@@ -19,7 +19,7 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        [ConfigurationProperty("password", IsRequired = true)]
+        [ConfigurationProperty("password", IsRequired = false)]
         public string Password
         {
             get
@@ -28,7 +28,25 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        [ConfigurationProperty("isEnabled", IsRequired = false, DefaultValue = false)]
+        [ConfigurationProperty("storeName", IsRequired = false)]
+        public string StoreName
+        {
+            get
+            {
+                return this["storeName"] as string;
+            }
+        }
+
+        [ConfigurationProperty("thumbprint", IsRequired = false)]
+        public string Thumbprint
+        {
+            get
+            {
+                return this["thumbprint"] as string;
+            }
+        }
+
+        [ConfigurationProperty("isEnabled", IsRequired = false, DefaultValue = true)]
         public bool IsEnabled
         {
             get

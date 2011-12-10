@@ -11,5 +11,9 @@ namespace SuperSocket.SocketBase.Config
         string FilePath { get; }
 
         string Password { get; }
+
+        string StoreName { get; }
+
+        string Thumbprint { get; }
     }
 }

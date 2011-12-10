@@ -343,6 +343,12 @@ namespace SuperSocket.SocketBase
         {
             try
             {
+                if (config.Certificate.IsEnabled && string.IsNullOrEmpty(config.Certificate.FilePath) && string.IsNullOrEmpty(config.Certificate.Thumbprint))
+                {
+                    Logger.LogError("Failed to initialize certificate! The attributes 'filePath' or 'thumbprint' is required!");
+                    return false;
+                }
+
                 Certificate = CertificateManager.Initialize(config.Certificate);
                 return true;
             }

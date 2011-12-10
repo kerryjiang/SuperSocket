@@ -14,17 +14,37 @@ namespace SuperSocket.SocketBase.Security
     {
         internal static X509Certificate Initialize(ICertificateConfig cerConfig)
         {
-            //To keep compatible with website hosting
-            string filePath;
+            if (!string.IsNullOrEmpty(cerConfig.FilePath))
+            {
+                //To keep compatible with website hosting
+                string filePath;
 
-            if (Path.IsPathRooted(cerConfig.FilePath))
-                filePath = cerConfig.FilePath;
+                if (Path.IsPathRooted(cerConfig.FilePath))
+                    filePath = cerConfig.FilePath;
+                else
+                {
+                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cerConfig.FilePath);
+                }
+
+                return new X509Certificate2(filePath, cerConfig.Password);
+            }
             else
             {
-                filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cerConfig.FilePath);
-            }
+                var storeName = cerConfig.StoreName;
+                if (string.IsNullOrEmpty(storeName))
+                    storeName = "Root";
 
-            return new X509Certificate2(filePath, cerConfig.Password);
+                var store = new X509Store(storeName);
+
+                store.Open(OpenFlags.ReadOnly);
+
+                var cert = store.Certificates.OfType<X509Certificate2>().Where(c =>
+                    c.Thumbprint.Equals(cerConfig.Thumbprint, StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+
+                store.Close();
+
+                return cert;
+            }
         }
 
         internal static void CreateCertificate(string commonName, ICertificateConfig cerConfig)
