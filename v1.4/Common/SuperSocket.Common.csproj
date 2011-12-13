@@ -93,6 +93,7 @@
     <Compile Include="LogUtil.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalResources.cs" />
     <Compile Include="SocketEx.cs" />
