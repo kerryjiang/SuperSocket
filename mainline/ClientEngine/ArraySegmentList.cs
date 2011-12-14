@@ -6,6 +6,7 @@ using System.Text;
 namespace SuperSocket.ClientEngine
 {
     class ArraySegmentInfo<T>
+        where T : IEquatable<T>
     {
         public ArraySegment<T> Segment { get; set; }
         public int From { get; set; }
@@ -13,6 +14,7 @@ namespace SuperSocket.ClientEngine
     }
 
     public class ArraySegmentList<T> : IList<T>
+        where T : IEquatable<T>
     {
         private IList<ArraySegmentInfo<T>> m_Segments;
         private ArraySegmentInfo<T> m_PrevSegment;

@@ -6,6 +6,7 @@ using System.Text;
 namespace SuperSocket.Common
 {
     class ArraySegmentInfo<T>
+        where T : IEquatable<T>
     {
         public ArraySegment<T> Segment { get; set; }
         public int From { get; set; }
@@ -13,6 +14,7 @@ namespace SuperSocket.Common
     }
 
     public class ArraySegmentList<T> : IList<T>
+        where T : IEquatable<T>
     {
         private IList<ArraySegmentInfo<T>> m_Segments;
         private ArraySegmentInfo<T> m_PrevSegment;
@@ -85,7 +87,8 @@ namespace SuperSocket.Common
                 {
                     if (index >= m_PrevSegment.From && index <= m_PrevSegment.To)
                     {
-                        return m_PrevSegment.Segment.Array[m_PrevSegment.Segment.Offset + index - m_PrevSegment.From];
+                        var prevSegInfo = m_PrevSegment.Segment;
+                        return prevSegInfo.Array[prevSegInfo.Offset + index - m_PrevSegment.From];
                     }
                 }
 
@@ -95,7 +98,8 @@ namespace SuperSocket.Common
                     if (index >= segment.From && index <= segment.To)
                     {
                         m_PrevSegment = segment;
-                        return segment.Segment.Array[segment.Segment.Offset + index - segment.From];
+                        var currentSegInfo = segment.Segment;
+                        return currentSegInfo.Array[currentSegInfo.Offset + index - segment.From];
                     }
                 }
 

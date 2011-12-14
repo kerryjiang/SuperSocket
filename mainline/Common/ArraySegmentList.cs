@@ -6,6 +6,7 @@ using System.Text;
 namespace SuperSocket.Common
 {
     class ArraySegmentInfo<T>
+        where T : IEquatable<T>
     {
         public ArraySegment<T> Segment { get; set; }
         public int From { get; set; }
@@ -13,6 +14,7 @@ namespace SuperSocket.Common
     }
 
     public class ArraySegmentList<T> : IList<T>
+        where T : IEquatable<T>
     {
         private IList<ArraySegmentInfo<T>> m_Segments;
         private ArraySegmentInfo<T> m_PrevSegment;
@@ -85,7 +87,8 @@ namespace SuperSocket.Common
                 {
                     if (index >= m_PrevSegment.From && index <= m_PrevSegment.To)
                     {
-                        return m_PrevSegment.Segment.Array[m_PrevSegment.Segment.Offset + index - m_PrevSegment.From];
+                        var prevSegmentInfo = m_PrevSegment.Segment;
+                        return prevSegmentInfo.Array[prevSegmentInfo.Offset + index - m_PrevSegment.From];
                     }
                 }
 
@@ -95,7 +98,8 @@ namespace SuperSocket.Common
                     if (index >= segment.From && index <= segment.To)
                     {
                         m_PrevSegment = segment;
-                        return segment.Segment.Array[segment.Segment.Offset + index - segment.From];
+                        var currentSegmentInfo = segment.Segment;
+                        return currentSegmentInfo.Array[currentSegmentInfo.Offset + index - segment.From];
                     }
                 }
 
@@ -168,7 +172,7 @@ namespace SuperSocket.Common
 
         public void RemoveSegmentAt(int index)
         {
-            var removedSegment = m_Segments[index];
+            var removedSegment = m_Segments[index].Segment;
             m_Segments.RemoveAt(index);
 
             m_PrevSegment = null;
@@ -178,12 +182,12 @@ namespace SuperSocket.Common
             {
                 for (int i = index; i < m_Segments.Count; i++)
                 {
-                    m_Segments[i].From -= removedSegment.Segment.Count;
-                    m_Segments[i].To -= removedSegment.Segment.Count;
+                    m_Segments[i].From -= removedSegment.Count;
+                    m_Segments[i].To -= removedSegment.Count;
                 }
             }
 
-            m_Count -= removedSegment.Segment.Count;
+            m_Count -= removedSegment.Count;
         }
 
         public void AddSegment(ArraySegment<T> segment)

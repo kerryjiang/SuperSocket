@@ -59,7 +59,7 @@ namespace SuperSocket.Common
                     return pos;
 
                 //Reset next round read pos
-                pos += matchCount;
+                pos += 1;
                 //clear matched chars count
                 matchCount = 0;
             }

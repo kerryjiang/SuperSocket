@@ -20,6 +20,19 @@ namespace SuperSocket.Test.Common
         }
 
         [Test]
+        public void SearchMarkFake()
+        {
+            byte[] bytes = { 0x17, 0x17, 0x17, 0x17, 0x18 };
+            byte[] mark = { 0x17, 0x17, 0x17, 0x18 };
+
+            var actual = BinaryUtil.SearchMark(bytes, mark);
+
+            var expected = 1;
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [Test]
         public void SearchMarkBegin()
         {
             byte[] source = Encoding.ASCII.GetBytes("I love you so much!");
