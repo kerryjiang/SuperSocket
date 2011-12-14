@@ -34,6 +34,11 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         private static bool m_Initialized = false;
 
+        static SocketServerManager()
+        {
+            Platform.Initialize();
+        }
+
         /// <summary>
         /// Initializes SuperSocket with the specified config.
         /// </summary>

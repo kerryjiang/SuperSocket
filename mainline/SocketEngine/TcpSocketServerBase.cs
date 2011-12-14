@@ -47,12 +47,10 @@ namespace SuperSocket.SocketEngine
             if (AppServer.Config.SendBufferSize > 0)
                 client.SendBufferSize = AppServer.Config.SendBufferSize;
 
-#if MONO
-            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-#else
-            client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
-#endif
-
+            if(!Platform.SupportSocketIOControlByCodeEnum)
+                client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            else
+                client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
 
             client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
