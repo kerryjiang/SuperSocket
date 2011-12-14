@@ -113,5 +113,29 @@ namespace SuperSocket.ClientEngine
             Array.Copy(source, offset, target, 0, length);
             return target;
         }
+
+        private static Random m_Random = new Random();
+
+        public static T[] RandomOrder<T>(this T[] source)
+        {
+            var n = source.Length / 2;
+
+            for (var i = 0; i < n; i++)
+            {
+                var x = m_Random.Next(0, source.Length - 1);
+                var y = m_Random.Next(0, source.Length - 1);
+
+                if (x == y)
+                    continue;
+
+                var t = source[y];
+
+                //swap position
+                source[y] = source[x];
+                source[x] = t;
+            }
+
+            return source;
+        }
     }
 }
