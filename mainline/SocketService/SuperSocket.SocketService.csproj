@@ -140,6 +140,7 @@
     <Content Include="..\Solution Items\log4net.unix.config">
       <Link>Config\log4net.unix.config</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
     <None Include="..\Solution Items\Net40\App.config">
       <Link>App.config</Link>

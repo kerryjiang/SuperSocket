@@ -46,7 +46,7 @@ namespace SuperSocket.ClientEngine
 
         protected override void Connect()
         {
-            var client = new Socket(RemoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             
             m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
             m_SocketEventArgs.UserToken = client;
