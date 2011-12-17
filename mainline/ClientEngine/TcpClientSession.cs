@@ -48,8 +48,6 @@ namespace SuperSocket.ClientEngine
         {
             m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
 
-            Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs);
-
             if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs))
                 ProcessAccept(m_SocketEventArgs);
         }
