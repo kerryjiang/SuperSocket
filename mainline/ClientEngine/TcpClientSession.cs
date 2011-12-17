@@ -46,19 +46,17 @@ namespace SuperSocket.ClientEngine
 
         protected override void Connect()
         {
-            var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            
             m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
-            m_SocketEventArgs.UserToken = client;
-            
-            if(!client.ConnectAsync(m_SocketEventArgs))
+
+            Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs);
+
+            if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs))
                 ProcessAccept(m_SocketEventArgs);
         }
 
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
-            Client = e.UserToken as Socket;
-            e.UserToken = null;
+            Client = e.ConnectSocket;
             
             int receiveBufferSize = 1024;
             m_ReceiveBuffer = new byte[receiveBufferSize];
