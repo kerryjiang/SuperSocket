@@ -106,5 +106,45 @@ namespace SuperSocket.Test.Common
             Assert.AreEqual(true, source.EndsWith(markA));
             Assert.AreEqual(false, source.EndsWith(markB));
         }
+
+        /// <summary>
+        /// Tests the encoder.
+        /// </summary>
+        [Test]
+        public void TestEncoder()
+        {
+            var decoder = Encoding.UTF8.GetDecoder();
+
+            string message = "江振宇";
+
+            byte[] source = Encoding.UTF8.GetBytes(message);
+
+            Assert.AreEqual(9, source.Length);
+
+            char[] dest = new char[3];
+
+            byte[] partA = new byte[2];
+
+            Array.Copy(source, 0, partA, 0, 2);
+
+            byte[] partB = new byte[source.Length - 2];
+
+            Array.Copy(source, 2, partB, 0, partB.Length);
+
+            int bytesUsed, charsUsed;
+            bool completed;
+
+            int totalChars = 0;
+
+            decoder.Convert(partA, 0, partA.Length, dest, 0, dest.Length, false, out bytesUsed, out charsUsed, out completed);
+            Console.WriteLine(charsUsed);
+            totalChars += charsUsed;
+            decoder.Convert(partB, 0, partB.Length, dest, charsUsed, dest.Length - charsUsed, true, out bytesUsed, out charsUsed, out completed);
+            Console.WriteLine(charsUsed);
+            totalChars += charsUsed;
+
+            Assert.AreEqual(message, new string(dest, 0, totalChars));
+
+        }
     }
 }

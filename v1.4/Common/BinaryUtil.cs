@@ -21,32 +21,37 @@ namespace SuperSocket.Common
 
         public static int? SearchMark<T>(this IList<T> source, T[] mark)
         {
-            return SearchMark(source, 0, source.Count, mark);
-        }  
+            return SearchMark(source, 0, source.Count, mark, 0);
+        }
 
         public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark)
         {
+            return SearchMark(source, offset, length, mark, 0);
+        }
+
+        public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark, int matched)
+        {
             int pos = offset;
             int endOffset = offset + length - 1;
-            int matchCount = 0;
+            int matchCount = matched;
 
             while (true)
             {
-                pos = source.IndexOf(mark[0], pos, length - pos + offset);
+                pos = source.IndexOf(mark[matchCount], pos, length - pos + offset);
 
                 if (pos < 0)
                     return null;
 
-                matchCount = 1;
+                matchCount += 1;
 
-                for (int i = 1; i < mark.Length; i++)
+                for (int i = matchCount; i < mark.Length; i++)
                 {
                     int checkPos = pos + i;
 
                     if (checkPos > endOffset)
                     {
                         //found end, return matched chars count
-                        return (0 - i);
+                        return (0 - matchCount);
                     }
 
                     if (!source[checkPos].Equals(mark[i]))
@@ -114,5 +119,57 @@ namespace SuperSocket.Common
             Array.Copy(source, offset, target, 0, length);
             return target;
         }
+
+        public static int GetTotalCount(this List<ArraySegment<byte>> arraySegments)
+        {
+            if (arraySegments == null || arraySegments.Count <= 0)
+                return 0;
+
+            int total = 0;
+
+            for (int i = 0; i < arraySegments.Count; i++)
+            {
+                total += arraySegments[i].Count;
+            }
+
+            return total;
+        }
+
+        public static string Decode(this List<ArraySegment<byte>> arraySegments, Encoding encoding)
+        {
+            if (arraySegments == null || arraySegments.Count <= 0)
+                return string.Empty;
+
+            int total = 0;
+
+            for (int i = 0; i < arraySegments.Count; i++)
+            {
+                total += arraySegments[i].Count;
+            }
+
+            var charsBuffer = new char[encoding.GetMaxCharCount(arraySegments.GetTotalCount())];
+
+            int bytesUsed, charsUsed;
+            bool completed;
+            int totalChars = 0;
+
+            int lastSegIndex = arraySegments.Count - 1;
+            var flush = false;
+
+            var decoder = encoding.GetDecoder();
+
+            for (var i = 0; i < arraySegments.Count; i++)
+            {
+                var segment = arraySegments[i];
+
+                if (i == lastSegIndex)
+                    flush = true;
+
+                decoder.Convert(segment.Array, segment.Offset, segment.Count, charsBuffer, totalChars, charsBuffer.Length - totalChars, flush, out bytesUsed, out charsUsed, out completed);
+                totalChars += charsUsed;
+            }
+
+            return new string(charsBuffer, 0, totalChars);
+       }
     }
 }

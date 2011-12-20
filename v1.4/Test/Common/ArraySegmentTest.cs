@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using SuperSocket.Common;
+using System.Diagnostics;
 
 namespace SuperSocket.Test.Common
 {
@@ -88,6 +89,11 @@ namespace SuperSocket.Test.Common
 
             char[] exptected = "I lovHell".ToCharArray();
 
+            for (int i = source.Count - 1; i >= 0; i--)
+            {
+                Assert.AreEqual(exptected[i], source[i]);
+            }
+
             for (int i = 0; i < source.Count; i++)
             {
                 Assert.AreEqual(exptected[i], source[i]);
@@ -103,6 +109,64 @@ namespace SuperSocket.Test.Common
             {
                 Assert.AreEqual(exptected[i], source[i], i + " is expected!");
             }
+        }
+
+        [Test]
+        public void TestIndexAccess2()
+        {
+            ArraySegmentList<char> sourceA = new ArraySegmentList<char>();
+            List<char> sourceB = new List<char>();
+
+            char[] element = null;
+
+            for (var i = 0; i < 100; i++)
+            {
+                element = Guid.NewGuid().ToString().ToCharArray();
+                sourceA.AddSegment(new ArraySegment<char>(element));
+                sourceB.AddRange(element);
+            }
+
+            Random rd = new Random();
+
+            for (int i = 0; i < 1000; i++)
+            {
+                int index = rd.Next(0, sourceA.Count - 1);
+                Assert.AreEqual(sourceB[index], sourceA[index]);
+            }
+
+            int testCount = 10000;
+
+            GC.Collect();
+
+            Stopwatch watch = new Stopwatch();
+
+            watch.Start();
+
+            for (var i = 0; i < testCount; i++)
+            {
+                int index = rd.Next(0, sourceA.Count - 1);
+                var tt = sourceA[index];
+            }
+
+            watch.Stop();
+
+            Console.WriteLine(watch.ElapsedMilliseconds);
+
+            watch.Reset();
+
+            GC.Collect();
+
+            watch.Start();
+
+            for (var i = 0; i < testCount; i++)
+            {
+                int index = rd.Next(0, sourceA.Count - 1);
+                var tt = sourceB[index];
+            }
+
+            watch.Stop();
+
+            Console.WriteLine(watch.ElapsedMilliseconds);
         }
 
         [Test]
@@ -145,6 +209,8 @@ namespace SuperSocket.Test.Common
             char[] exptected = "I lovHell".ToCharArray();
 
             Assert.AreEqual(exptected, source.ToArrayData());
+            Assert.AreEqual("He", new string(source.ToArrayData(5, 2)));
+            Assert.AreEqual("ovHe", new string(source.ToArrayData(3, 4)));
         }
 
         [Test]
@@ -189,6 +255,56 @@ namespace SuperSocket.Test.Common
             {
                 Assert.AreEqual(exptected[i], source[i]);
             }
+        }
+
+        [Test]
+        public void TestSearchPerformance()
+        {
+            ArraySegmentList<char> sourceA = new ArraySegmentList<char>();
+            List<char> sourceB = new List<char>();
+
+            char[] element = null;
+
+            for (var i = 0; i < 100; i++)
+            {
+                element = Guid.NewGuid().ToString().ToCharArray();
+                sourceA.AddSegment(new ArraySegment<char>(element));
+                sourceB.AddRange(element);
+            }
+
+            char[] mark = element.Take(4).ToArray();
+
+            int testCount = 1000;
+
+            GC.Collect();
+
+            Stopwatch watch = new Stopwatch();
+
+            watch.Start();
+
+            for (var i = 0; i < testCount; i++)
+            {
+                sourceA.SearchMark(mark);
+            }
+
+            watch.Stop();
+            
+            Console.WriteLine(watch.ElapsedMilliseconds);
+
+            watch.Reset();
+
+            GC.Collect();
+
+            watch.Start();
+
+            for (var i = 0; i < testCount; i++)
+            {
+                sourceB.SearchMark(mark);
+            }
+
+            watch.Stop();
+
+            Console.WriteLine(watch.ElapsedMilliseconds);
         }
     }
 }

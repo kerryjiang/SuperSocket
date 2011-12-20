@@ -8,24 +8,11 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase.Protocol
 {
-    public enum SearhTokenStatus
+    public class TerminatorCommandReader : BaseCommandReader<StringCommandInfo>
     {
-        None,
-        Found,
-        FoundStart
-    }
-
-    public class SearhTokenResult
-    {
-        public SearhTokenStatus Status { get; set; }
-        public int Value { get; set; }
-    }
-
-    public class TerminatorCommandReader : CommandReaderBase<StringCommandInfo>
-    {
-        public byte[] Terminator { get; private set; }
         protected Encoding Encoding { get; private set; }
         private ICommandParser m_CommandParser;
+        private SearchMarkState<byte> m_SearchState;
 
         public TerminatorCommandReader(IAppServer appServer)
             : base(appServer)
@@ -33,17 +20,17 @@ namespace SuperSocket.SocketBase.Protocol
 
         }
 
-        public TerminatorCommandReader(CommandReaderBase<StringCommandInfo> previousCommandReader)
+        public TerminatorCommandReader(BaseCommandReader<StringCommandInfo> previousCommandReader)
             : base(previousCommandReader)
         {
 
         }
 
-        public TerminatorCommandReader(IAppServer appServer, Encoding encoding, string terminator, ICommandParser commandParser)
+        public TerminatorCommandReader(IAppServer appServer, Encoding encoding, byte[] terminator, ICommandParser commandParser)
             : this(appServer)
         {
             Encoding = encoding;
-            Terminator = encoding.GetBytes(terminator);
+            m_SearchState = new SearchMarkState<byte> { Mark = terminator };
             m_CommandParser = commandParser;
         }
 
@@ -61,44 +48,40 @@ namespace SuperSocket.SocketBase.Protocol
 
         protected bool FindCommandInfoDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command, out int left)
         {
-            left = 0;
-            ArraySegment<byte> currentSegment;
+            left = 0;            
 
-            if (isReusableBuffer)
-            {
-                //Next received data also will be saved in this buffer, so we should create a new byte[] to persistent current received data
-                currentSegment = new ArraySegment<byte>(readBuffer.CloneRange(offset, length));
-            }
-            else
-            {
-                currentSegment = new ArraySegment<byte>(readBuffer, offset, length);
-            }
-
-            BufferSegments.AddSegment(currentSegment);
-
-            int? result = BufferSegments.SearchMark(Terminator);
+            int? result = readBuffer.SearchMark(offset, length, m_SearchState.Mark, m_SearchState.Matched);
 
             if (!result.HasValue)
             {
                 command = string.Empty;
+                m_SearchState.Matched = 0;
+                this.AddArraySegment(readBuffer, offset, length, isReusableBuffer);
                 return false;
             }
 
             if (result.Value < 0)
             {
                 command = string.Empty;
+                m_SearchState.Matched = 0 - result.Value;
+                this.AddArraySegment(readBuffer, offset, length, isReusableBuffer);
                 return false;
             }
 
-            int findLen = result.Value + Terminator.Length;
-            int total = BufferSegments.Count;
-            command = Encoding.GetString(BufferSegments.ToArrayData(0, result.Value));
+            int findLen = result.Value - offset;
+
+            if (findLen > 0)
+                this.AddArraySegment(readBuffer, offset, findLen, false);
+
+            command = this.BufferSegments.Decode(Encoding);
 
             ClearBufferSegments();
 
-            if (findLen < total)
+            int thisMatched = findLen + (m_SearchState.Mark.Length - m_SearchState.Matched);
+
+            if (thisMatched < length)
             {
-                left = total - findLen;
+                left = length - thisMatched;
             }
 
             return true;

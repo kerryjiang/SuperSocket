@@ -18,6 +18,7 @@ namespace SuperSocket.Common
     {
         private IList<ArraySegmentInfo<T>> m_Segments;
         private ArraySegmentInfo<T> m_PrevSegment;
+        private int m_PrevSegmentIndex;
 
         private int m_Count;
 
@@ -57,10 +58,20 @@ namespace SuperSocket.Common
 
         public int IndexOf(T item)
         {
-            for (int i = 0; i < Count; i++)
+            int index = 0;
+
+            for (int i = 0; i < m_Segments.Count; i++)
             {
-                if (this[i].Equals(item))
-                    return i;
+                var currentSegment = m_Segments[i].Segment;
+                int offset = currentSegment.Offset;
+
+                for (int j = 0; j < currentSegment.Count; j++)
+                {
+                    if (currentSegment.Array[j + offset].Equals(item))
+                        return index;
+
+                    index++;
+                }
             }
 
             return -1;
@@ -83,31 +94,149 @@ namespace SuperSocket.Common
                 if (index < 0 || index > Count - 1)
                     throw new IndexOutOfRangeException();
 
+                if (index == 0)
+                {
+                    m_PrevSegment = m_Segments[0];
+                    m_PrevSegmentIndex = 0;
+                    var seg = m_PrevSegment.Segment;
+                    return seg.Array[seg.Offset];
+                }
+
+                int compareValue = 0;
+
                 if (m_PrevSegment != null)
                 {
-                    if (index >= m_PrevSegment.From && index <= m_PrevSegment.To)
+                    if (index >= m_PrevSegment.From)
                     {
-                        var prevSegInfo = m_PrevSegment.Segment;
-                        return prevSegInfo.Array[prevSegInfo.Offset + index - m_PrevSegment.From];
+                        if (index <= m_PrevSegment.To)
+                        {
+                            var prevSegInfo = m_PrevSegment.Segment;
+                            return prevSegInfo.Array[prevSegInfo.Offset + index - m_PrevSegment.From];
+                        }
+                        else
+                        {
+                            compareValue = 1;
+                        }
+                    }
+                    else
+                    {
+                        compareValue = -1;
                     }
                 }
 
-                for (int i = 0; i < m_Segments.Count; i++)
+                int from, to;
+
+                if (compareValue != 0)
                 {
-                    var segment = m_Segments[i];
+                    from = m_PrevSegmentIndex + compareValue;
+
+                    var segment = m_Segments[from];
                     if (index >= segment.From && index <= segment.To)
                     {
                         m_PrevSegment = segment;
+                        m_PrevSegmentIndex = from;
                         var currentSegInfo = segment.Segment;
                         return currentSegInfo.Array[currentSegInfo.Offset + index - segment.From];
                     }
+
+                    if (compareValue > 0)
+                    {
+                        from++;
+                        to = m_Segments.Count - 1;
+                    }
+                    else
+                    {
+                        var tmp = from - 1;
+                        from = 0;
+                        to = tmp;
+                    }
+                }
+                else
+                {
+                    from = 0;
+                    to = m_Segments.Count - 1;
                 }
 
+                int segmentIndex;
+
+                var result = QuickSearchSegment(from, to, index, out segmentIndex);
+
+                if (result != null)
+                {
+                    m_PrevSegment = result;
+                    m_PrevSegmentIndex = segmentIndex;
+                    var currentSegment = result.Segment;
+                    return currentSegment.Array[currentSegment.Offset + index - result.From];
+                }
+
+                m_PrevSegment = null;
                 throw new IndexOutOfRangeException();
             }
             set
             {
                 throw new NotSupportedException();
+            }
+        }
+
+        private ArraySegmentInfo<T> QuickSearchSegment(int from, int to, int index, out int segmentIndex)
+        {
+            ArraySegmentInfo<T> segment;
+            segmentIndex = -1;
+
+            int diff = to - from;            
+
+            if (diff == 0)
+            {
+                segment = m_Segments[from];
+
+                if (index >= segment.From && index <= segment.To)
+                {
+                    segmentIndex = from;
+                    return segment;
+                }
+
+                return null;
+            }
+            else if (diff == 1)
+            {
+                segment = m_Segments[from];
+
+                if (index >= segment.From && index <= segment.To)
+                {
+                    segmentIndex = from;
+                    return segment;
+                }
+
+                segment = m_Segments[to];
+
+                if (index >= segment.From && index <= segment.To)
+                {
+                    segmentIndex = to;
+                    return segment;
+                }
+
+                return null;
+            }
+
+            int middle = from + diff / 2;
+
+            segment = m_Segments[middle];
+
+            if (index >= segment.From)
+            {
+                if (index <= segment.To)
+                {
+                    segmentIndex = middle;
+                    return segment;
+                }
+                else
+                {
+                    return QuickSearchSegment(middle + 1, to, index, out segmentIndex);
+                }
+            }
+            else
+            {
+                return QuickSearchSegment(from, middle - 1, index, out segmentIndex);
             }
         }
 
@@ -229,10 +358,30 @@ namespace SuperSocket.Common
         public T[] ToArrayData(int startIndex, int length)
         {
             var result = new T[length];
+            int from = 0, len = 0, total = 0;
 
-            for (var i = 0; i < length; i++)
+            var startSegmentIndex = 0;
+
+            if (startIndex != 0)
             {
-                result[i] = this[startIndex + i];
+                var startSegment = QuickSearchSegment(0, m_Segments.Count, startIndex, out startSegmentIndex);
+                from = startIndex - startSegment.From;
+                if (startSegment == null)
+                    throw new IndexOutOfRangeException();
+            }            
+
+            for (var i = startSegmentIndex; i < m_Segments.Count; i++)
+            {
+                var currentSegmentInfo = m_Segments[i];
+                var currentSegment = currentSegmentInfo.Segment;
+                len = Math.Min(currentSegment.Count - from, length - total);
+                Array.Copy(currentSegment.Array, currentSegment.Offset + from, result, total, len);
+                total += len;
+
+                if (total >= length)
+                    break;
+
+                from = 0;
             }
 
             return result;
@@ -258,6 +407,33 @@ namespace SuperSocket.Common
 
                 RemoveSegmentAt(i);
             }
+        }
+
+        public int SearchLastSegment(SearchMarkState<T> state)
+        {
+            if(m_Segments.Count <= 0)
+                return -1;
+
+            var lastSegmentInfo = m_Segments[m_Segments.Count - 1];
+
+            if (lastSegmentInfo == null)
+                return -1;
+
+            var lastSegment = lastSegmentInfo.Segment;
+
+            var result = lastSegment.Array.SearchMark(lastSegment.Offset, lastSegment.Count, state.Mark);
+
+            if (!result.HasValue)
+                return -1;
+
+            if (result.Value > 0)
+            {
+                state.Matched = 0;
+                return result.Value - lastSegment.Offset + lastSegmentInfo.From;
+            }
+
+            state.Matched = 0 - result.Value;
+            return -1;
         }
     }
 }
