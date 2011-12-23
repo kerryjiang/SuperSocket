@@ -24,6 +24,10 @@ namespace SuperSocket.SocketService
             serviceInstaller.StartType = ServiceStartMode.Automatic;
             serviceInstaller.ServiceName = ConfigurationManager.AppSettings["ServiceName"];
 
+            var serviceDescription = ConfigurationManager.AppSettings["ServiceDescription"];
+            if (!string.IsNullOrEmpty(serviceDescription))
+                serviceInstaller.Description = serviceDescription;
+
             var servicesDependedOn = new List<string> { "tcpip" };
             var servicesDependedOnConfig = ConfigurationManager.AppSettings["ServicesDependedOn"];
 
