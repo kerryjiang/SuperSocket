@@ -5,34 +5,27 @@ using System.Text;
 
 namespace SuperSocket.Common
 {
-    class ArraySegmentInfo<T>
-        where T : IEquatable<T>
-    {
-        public ArraySegment<T> Segment { get; set; }
-        public int From { get; set; }
-        public int To { get; set; }
-    }
-
     public class ArraySegmentList<T> : IList<T>
         where T : IEquatable<T>
     {
-        private IList<ArraySegmentInfo<T>> m_Segments;
-        private ArraySegmentInfo<T> m_PrevSegment;
+        private IList<ArraySegmentEx<T>> m_Segments;
+
+        internal IList<ArraySegmentEx<T>> Segments
+        {
+            get { return m_Segments; }
+        }
+
+        private ArraySegmentEx<T> m_PrevSegment;
         private int m_PrevSegmentIndex;
 
         private int m_Count;
 
         public ArraySegmentList()
         {
-            m_Segments = new List<ArraySegmentInfo<T>>();
+            m_Segments = new List<ArraySegmentEx<T>>();
         }
 
-        public ArraySegmentList(IList<ArraySegment<T>> segments) : this()
-        {
-            CalculateSegmentsInfo(segments);
-        }
-
-        private void CalculateSegmentsInfo(IList<ArraySegment<T>> segments)
+        private void CalculateSegmentsInfo(IList<ArraySegmentEx<T>> segments)
         {
             int total = 0;
 
@@ -41,12 +34,10 @@ namespace SuperSocket.Common
                 if (segment.Count <= 0)
                     continue;
 
-                m_Segments.Add(new ArraySegmentInfo<T>
-                    {
-                        Segment = segment,
-                        From = total,
-                        To = total + segment.Count - 1
-                    });
+                segment.From = total;
+                segment.To = total + segment.Count - 1;
+
+                m_Segments.Add(segment);
 
                 total += segment.Count;
             }
@@ -62,7 +53,7 @@ namespace SuperSocket.Common
 
             for (int i = 0; i < m_Segments.Count; i++)
             {
-                var currentSegment = m_Segments[i].Segment;
+                var currentSegment = m_Segments[i];
                 int offset = currentSegment.Offset;
 
                 for (int j = 0; j < currentSegment.Count; j++)
@@ -98,8 +89,7 @@ namespace SuperSocket.Common
                 {
                     m_PrevSegment = m_Segments[0];
                     m_PrevSegmentIndex = 0;
-                    var seg = m_PrevSegment.Segment;
-                    return seg.Array[seg.Offset];
+                    return m_PrevSegment.Array[m_PrevSegment.Offset];
                 }
 
                 int compareValue = 0;
@@ -110,8 +100,7 @@ namespace SuperSocket.Common
                     {
                         if (index <= m_PrevSegment.To)
                         {
-                            var prevSegInfo = m_PrevSegment.Segment;
-                            return prevSegInfo.Array[prevSegInfo.Offset + index - m_PrevSegment.From];
+                            return m_PrevSegment.Array[m_PrevSegment.Offset + index - m_PrevSegment.From];
                         }
                         else
                         {
@@ -135,8 +124,7 @@ namespace SuperSocket.Common
                     {
                         m_PrevSegment = segment;
                         m_PrevSegmentIndex = from;
-                        var currentSegInfo = segment.Segment;
-                        return currentSegInfo.Array[currentSegInfo.Offset + index - segment.From];
+                        return segment.Array[segment.Offset + index - segment.From];
                     }
 
                     if (compareValue > 0)
@@ -157,7 +145,7 @@ namespace SuperSocket.Common
                     to = m_Segments.Count - 1;
                 }
 
-                int segmentIndex;
+                int segmentIndex = -1;
 
                 var result = QuickSearchSegment(from, to, index, out segmentIndex);
 
@@ -165,8 +153,7 @@ namespace SuperSocket.Common
                 {
                     m_PrevSegment = result;
                     m_PrevSegmentIndex = segmentIndex;
-                    var currentSegment = result.Segment;
-                    return currentSegment.Array[currentSegment.Offset + index - result.From];
+                    return result.Array[result.Offset + index - result.From];
                 }
 
                 m_PrevSegment = null;
@@ -178,12 +165,12 @@ namespace SuperSocket.Common
             }
         }
 
-        private ArraySegmentInfo<T> QuickSearchSegment(int from, int to, int index, out int segmentIndex)
+        private ArraySegmentEx<T> QuickSearchSegment(int from, int to, int index, out int segmentIndex)
         {
-            ArraySegmentInfo<T> segment;
+            ArraySegmentEx<T> segment;
             segmentIndex = -1;
 
-            int diff = to - from;            
+            int diff = to - from;
 
             if (diff == 0)
             {
@@ -321,21 +308,30 @@ namespace SuperSocket.Common
             m_Count -= removedLen;
         }
 
-        public void AddSegment(ArraySegment<T> segment)
+        public void AddSegment(T[] array, int offset, int length)
         {
-            if (segment.Count <= 0)
+            AddSegment(array, offset, length, false);
+        }
+
+        public void AddSegment(T[] array, int offset, int length, bool toBeCopied)
+        {
+            if (length <= 0)
                 return;
 
             var currentTotal = m_Count;
 
-            m_Segments.Add(new ArraySegmentInfo<T>
-            {
-                Segment = segment,
-                From = currentTotal,
-                To = currentTotal + segment.Count - 1
-            });
+            ArraySegmentEx<T> segment = null;
 
+            if (!toBeCopied)
+                segment = new ArraySegmentEx<T>(array, offset, length);
+            else
+                segment = new ArraySegmentEx<T>(array.CloneRange(offset, length), 0, length);
+
+            segment.From = currentTotal;
             m_Count = currentTotal + segment.Count;
+            segment.To = m_Count - 1;
+
+            m_Segments.Add(segment);
         }
 
         public int SegmentCount
@@ -372,8 +368,7 @@ namespace SuperSocket.Common
 
             for (var i = startSegmentIndex; i < m_Segments.Count; i++)
             {
-                var currentSegmentInfo = m_Segments[i];
-                var currentSegment = currentSegmentInfo.Segment;
+                var currentSegment = m_Segments[i];
                 len = Math.Min(currentSegment.Count - from, length - total);
                 Array.Copy(currentSegment.Array, currentSegment.Offset + from, result, total, len);
                 total += len;
@@ -414,12 +409,10 @@ namespace SuperSocket.Common
             if(m_Segments.Count <= 0)
                 return -1;
 
-            var lastSegmentInfo = m_Segments[m_Segments.Count - 1];
+            var lastSegment = m_Segments[m_Segments.Count - 1];
 
-            if (lastSegmentInfo == null)
+            if (lastSegment == null)
                 return -1;
-
-            var lastSegment = lastSegmentInfo.Segment;
 
             var result = lastSegment.Array.SearchMark(lastSegment.Offset, lastSegment.Count, state.Mark);
 
@@ -429,11 +422,74 @@ namespace SuperSocket.Common
             if (result.Value > 0)
             {
                 state.Matched = 0;
-                return result.Value - lastSegment.Offset + lastSegmentInfo.From;
+                return result.Value - lastSegment.Offset + lastSegment.From;
             }
 
             state.Matched = 0 - result.Value;
             return -1;
+        }
+
+        public int CopyTo(T[] to)
+        {
+            int length = Math.Min(m_Count, to.Length);
+
+            int copied = 0;
+            int thisCopied = 0;
+
+            for (var i = 0; i < this.m_Segments.Count; i++)
+            {
+                var segment = m_Segments[i];
+                thisCopied = Math.Min(segment.Count, length - copied);
+                Array.Copy(segment.Array, segment.Offset, to, copied, thisCopied);
+                copied += thisCopied;
+
+                if (copied >= length)
+                    break;
+            }
+
+            return copied;
+        }
+    }
+
+    public class ArraySegmentList : ArraySegmentList<byte>
+    {
+        public string Decode(Encoding encoding)
+        {
+            var arraySegments = Segments;
+
+            if (arraySegments == null || arraySegments.Count <= 0)
+                return string.Empty;
+
+            int total = 0;
+
+            for (int i = 0; i < arraySegments.Count; i++)
+            {
+                total += arraySegments[i].Count;
+            }
+
+            var charsBuffer = new char[encoding.GetMaxCharCount(this.Count)];
+
+            int bytesUsed, charsUsed;
+            bool completed;
+            int totalChars = 0;
+
+            int lastSegIndex = arraySegments.Count - 1;
+            var flush = false;
+
+            var decoder = encoding.GetDecoder();
+
+            for (var i = 0; i < arraySegments.Count; i++)
+            {
+                var segment = arraySegments[i];
+
+                if (i == lastSegIndex)
+                    flush = true;
+
+                decoder.Convert(segment.Array, segment.Offset, segment.Count, charsBuffer, totalChars, charsBuffer.Length - totalChars, flush, out bytesUsed, out charsUsed, out completed);
+                totalChars += charsUsed;
+            }
+
+            return new string(charsBuffer, 0, totalChars);
         }
     }
 }

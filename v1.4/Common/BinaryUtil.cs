@@ -70,6 +70,27 @@ namespace SuperSocket.Common
             }
         }
 
+        public static int SearchMark<T>(this IList<T> source, int offset, int length, SearchMarkState<T> searchState)
+            where T : IEquatable<T>
+        {
+            int? result = source.SearchMark(offset, length, searchState.Mark, searchState.Matched);
+
+            if (!result.HasValue)
+            {
+                searchState.Matched = 0;
+                return -1;
+            }
+
+            if (result.Value < 0)
+            {
+                searchState.Matched = 0 - result.Value;
+                return -1;
+            }
+
+            searchState.Matched = 0;
+            return result.Value;
+        }
+
         public static int StartsWith<T>(this IList<T> source, T[] mark)
         {
             return source.StartsWith(0, source.Count, mark);
@@ -119,57 +140,5 @@ namespace SuperSocket.Common
             Array.Copy(source, offset, target, 0, length);
             return target;
         }
-
-        public static int GetTotalCount(this List<ArraySegment<byte>> arraySegments)
-        {
-            if (arraySegments == null || arraySegments.Count <= 0)
-                return 0;
-
-            int total = 0;
-
-            for (int i = 0; i < arraySegments.Count; i++)
-            {
-                total += arraySegments[i].Count;
-            }
-
-            return total;
-        }
-
-        public static string Decode(this List<ArraySegment<byte>> arraySegments, Encoding encoding)
-        {
-            if (arraySegments == null || arraySegments.Count <= 0)
-                return string.Empty;
-
-            int total = 0;
-
-            for (int i = 0; i < arraySegments.Count; i++)
-            {
-                total += arraySegments[i].Count;
-            }
-
-            var charsBuffer = new char[encoding.GetMaxCharCount(arraySegments.GetTotalCount())];
-
-            int bytesUsed, charsUsed;
-            bool completed;
-            int totalChars = 0;
-
-            int lastSegIndex = arraySegments.Count - 1;
-            var flush = false;
-
-            var decoder = encoding.GetDecoder();
-
-            for (var i = 0; i < arraySegments.Count; i++)
-            {
-                var segment = arraySegments[i];
-
-                if (i == lastSegIndex)
-                    flush = true;
-
-                decoder.Convert(segment.Array, segment.Offset, segment.Count, charsBuffer, totalChars, charsBuffer.Length - totalChars, flush, out bytesUsed, out charsUsed, out completed);
-                totalChars += charsUsed;
-            }
-
-            return new string(charsBuffer, 0, totalChars);
-       }
     }
 }

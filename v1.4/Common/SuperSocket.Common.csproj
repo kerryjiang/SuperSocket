@@ -69,6 +69,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ArraySegmentEx.cs" />
     <Compile Include="ArraySegmentList.cs">
       <SubType>Code</SubType>
     </Compile>

@@ -71,7 +71,6 @@
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="ConsoleHostInfo.cs" />
-    <Compile Include="Protocol\BaseCommandReader.cs" />
     <Compile Include="SessionStatus.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />

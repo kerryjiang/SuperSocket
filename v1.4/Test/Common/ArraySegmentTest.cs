@@ -14,11 +14,10 @@ namespace SuperSocket.Test.Common
         [Test]
         public void TestCount()
         {
-            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
-                {
-                    new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
-                    new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
-                });
+            ArraySegmentList<char> source = new ArraySegmentList<char>();
+
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             Assert.AreEqual(9, source.Count);
 
@@ -28,8 +27,8 @@ namespace SuperSocket.Test.Common
             source.RemoveSegmentAt(0);
             Assert.AreEqual(0, source.Count);
 
-            source.AddSegment(new ArraySegment<char>("I love you,".ToCharArray(), 0, 5));
-            source.AddSegment(new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4));
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             Assert.AreEqual(9, source.Count);
         }
@@ -37,11 +36,10 @@ namespace SuperSocket.Test.Common
         [Test]
         public void TestOutOfIndex()
         {
-            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
-                {
-                    new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
-                    new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
-                });
+            ArraySegmentList<char> source = new ArraySegmentList<char>();
+
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
             
             char currentChar = ' ';
 
@@ -67,8 +65,8 @@ namespace SuperSocket.Test.Common
                 currentChar = source[0];
             });
 
-            source.AddSegment(new ArraySegment<char>("I love you,".ToCharArray(), 0, 5));
-            source.AddSegment(new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4));
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             Assert.Throws<IndexOutOfRangeException>(delegate
             {
@@ -81,11 +79,10 @@ namespace SuperSocket.Test.Common
         [Test]
         public void TestIndexAccess()
         {
-            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
-                {
-                    new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
-                    new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
-                });
+            ArraySegmentList<char> source = new ArraySegmentList<char>();
+
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             char[] exptected = "I lovHell".ToCharArray();
 
@@ -100,10 +97,10 @@ namespace SuperSocket.Test.Common
             }
 
             source.RemoveSegmentAt(0);
-            source.RemoveSegmentAt(0);           
+            source.RemoveSegmentAt(0);
 
-            source.AddSegment(new ArraySegment<char>("I love you,".ToCharArray(), 0, 5));
-            source.AddSegment(new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4));
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             for (int i = 0; i < source.Count; i++)
             {
@@ -122,7 +119,7 @@ namespace SuperSocket.Test.Common
             for (var i = 0; i < 100; i++)
             {
                 element = Guid.NewGuid().ToString().ToCharArray();
-                sourceA.AddSegment(new ArraySegment<char>(element));
+                sourceA.AddSegment(element, 0, element.Length);
                 sourceB.AddRange(element);
             }
 
@@ -172,11 +169,10 @@ namespace SuperSocket.Test.Common
         [Test]
         public void TestIndexOf()
         {
-            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
-                {
-                    new ArraySegment<char>("I love you,".ToCharArray(), 3, 7),
-                    new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
-                });
+            ArraySegmentList<char> source = new ArraySegmentList<char>();
+
+            source.AddSegment("I love you,".ToCharArray(), 3, 7);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             //string exptected = "ove youHell";
             Assert.AreEqual(-1, source.IndexOf('I'));
@@ -188,11 +184,10 @@ namespace SuperSocket.Test.Common
         [Test]
         public void TestEndsWith()
         {
-            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
-                {
-                    new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
-                    new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
-                });
+            ArraySegmentList<char> source = new ArraySegmentList<char>();
+
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             Assert.AreEqual(true, source.EndsWith("Hell".ToCharArray()));
         }
@@ -200,11 +195,10 @@ namespace SuperSocket.Test.Common
         [Test]
         public void TestToArray()
         {
-            ArraySegmentList<char> source = new ArraySegmentList<char>(new List<ArraySegment<char>>
-                {
-                    new ArraySegment<char>("I love you,".ToCharArray(), 0, 5),
-                    new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4)
-                });
+            ArraySegmentList<char> source = new ArraySegmentList<char>();
+
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
 
             char[] exptected = "I lovHell".ToCharArray();
 
@@ -217,8 +211,10 @@ namespace SuperSocket.Test.Common
         public void TestRemoveSegment()
         {
             ArraySegmentList<char> source = new ArraySegmentList<char>();
-            source.AddSegment(new ArraySegment<char>("I love you,".ToCharArray(), 0, 5));
-            source.AddSegment(new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4));
+
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
+
             Assert.AreEqual(9, source.Count);
             Assert.AreEqual(2, source.SegmentCount);
 
@@ -241,11 +237,11 @@ namespace SuperSocket.Test.Common
 
             Assert.AreEqual(0, source.Count);
 
-            source.AddSegment(new ArraySegment<char>("I love you,".ToCharArray(), 0, 5));
+            source.AddSegment("I love you,".ToCharArray(), 0, 5);
             Assert.AreEqual(5, source.Count);
             Assert.AreEqual(1, source.SegmentCount);
-            
-            source.AddSegment(new ArraySegment<char>("Hello world!".ToCharArray(), 0, 4));
+
+            source.AddSegment("Hello world!".ToCharArray(), 0, 4);
             Assert.AreEqual(9, source.Count);
             Assert.AreEqual(2, source.SegmentCount);
 
@@ -268,7 +264,7 @@ namespace SuperSocket.Test.Common
             for (var i = 0; i < 100; i++)
             {
                 element = Guid.NewGuid().ToString().ToCharArray();
-                sourceA.AddSegment(new ArraySegment<char>(element));
+                sourceA.AddSegment(element, 0, element.Length);
                 sourceB.AddRange(element);
             }
 

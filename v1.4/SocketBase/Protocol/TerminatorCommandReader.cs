@@ -8,7 +8,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase.Protocol
 {
-    public class TerminatorCommandReader : BaseCommandReader<StringCommandInfo>
+    public class TerminatorCommandReader : CommandReaderBase<StringCommandInfo>
     {
         protected Encoding Encoding { get; private set; }
         private ICommandParser m_CommandParser;
@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase.Protocol
 
         }
 
-        public TerminatorCommandReader(BaseCommandReader<StringCommandInfo> previousCommandReader)
+        public TerminatorCommandReader(CommandReaderBase<StringCommandInfo> previousCommandReader)
             : base(previousCommandReader)
         {
 
@@ -50,25 +50,16 @@ namespace SuperSocket.SocketBase.Protocol
         {
             left = 0;            
 
-            int? result = readBuffer.SearchMark(offset, length, m_SearchState.Mark, m_SearchState.Matched);
+            int result = readBuffer.SearchMark(offset, length, m_SearchState);
 
-            if (!result.HasValue)
+            if (result < 0)
             {
                 command = string.Empty;
-                m_SearchState.Matched = 0;
                 this.AddArraySegment(readBuffer, offset, length, isReusableBuffer);
                 return false;
             }
 
-            if (result.Value < 0)
-            {
-                command = string.Empty;
-                m_SearchState.Matched = 0 - result.Value;
-                this.AddArraySegment(readBuffer, offset, length, isReusableBuffer);
-                return false;
-            }
-
-            int findLen = result.Value - offset;
+            int findLen = result - offset;
 
             if (findLen > 0)
                 this.AddArraySegment(readBuffer, offset, findLen, false);
