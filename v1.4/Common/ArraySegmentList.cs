@@ -82,90 +82,126 @@ namespace SuperSocket.Common
         {
             get
             {
-                if (index < 0 || index > Count - 1)
+                ArraySegmentEx<T> segment;
+
+                var internalIndex = GetElementInternalIndex(index, out segment);
+                
+                if(internalIndex < 0)
                     throw new IndexOutOfRangeException();
 
-                if (index == 0)
-                {
-                    m_PrevSegment = m_Segments[0];
-                    m_PrevSegmentIndex = 0;
-                    return m_PrevSegment.Array[m_PrevSegment.Offset];
-                }
+                return segment.Array[internalIndex];
+            }
+            set
+            {
+                ArraySegmentEx<T> segment;
 
-                int compareValue = 0;
+                var internalIndex = GetElementInternalIndex(index, out segment);
 
-                if (m_PrevSegment != null)
+                if (internalIndex < 0)
+                    throw new IndexOutOfRangeException();
+
+                segment.Array[internalIndex] = value;
+            }
+        }
+
+        private int GetElementInternalIndex(int index, out ArraySegmentEx<T> segment)
+        {
+            segment = null;
+
+            if (index < 0 || index > Count - 1)
+                return -1;
+
+            if (index == 0)
+            {
+                m_PrevSegment = m_Segments[0];
+                m_PrevSegmentIndex = 0;
+                segment = m_PrevSegment;
+                return m_PrevSegment.Offset;
+            }
+
+            int compareValue = 0;
+
+            if (m_PrevSegment != null)
+            {
+                if (index >= m_PrevSegment.From)
                 {
-                    if (index >= m_PrevSegment.From)
+                    if (index <= m_PrevSegment.To)
                     {
-                        if (index <= m_PrevSegment.To)
-                        {
-                            return m_PrevSegment.Array[m_PrevSegment.Offset + index - m_PrevSegment.From];
-                        }
-                        else
-                        {
-                            compareValue = 1;
-                        }
+                        segment = m_PrevSegment;
+                        return m_PrevSegment.Offset + index - m_PrevSegment.From;
                     }
                     else
                     {
-                        compareValue = -1;
-                    }
-                }
-
-                int from, to;
-
-                if (compareValue != 0)
-                {
-                    from = m_PrevSegmentIndex + compareValue;
-
-                    var segment = m_Segments[from];
-                    if (index >= segment.From && index <= segment.To)
-                    {
-                        m_PrevSegment = segment;
-                        m_PrevSegmentIndex = from;
-                        return segment.Array[segment.Offset + index - segment.From];
-                    }
-
-                    if (compareValue > 0)
-                    {
-                        from++;
-                        to = m_Segments.Count - 1;
-                    }
-                    else
-                    {
-                        var tmp = from - 1;
-                        from = 0;
-                        to = tmp;
+                        compareValue = 1;
                     }
                 }
                 else
                 {
-                    from = 0;
+                    compareValue = -1;
+                }
+            }
+
+            int from, to;
+
+            if (compareValue != 0)
+            {
+                from = m_PrevSegmentIndex + compareValue;
+
+                var trySegment = m_Segments[from];
+
+                if (index >= trySegment.From && index <= trySegment.To)
+                {
+                    segment = trySegment;
+                    return trySegment.Offset + index - trySegment.From;
+                }
+
+                from += compareValue;
+
+                var currentSegment = m_Segments[from];
+                if (index >= currentSegment.From && index <= currentSegment.To)
+                {
+                    m_PrevSegment = currentSegment;
+                    m_PrevSegmentIndex = from;
+                    segment = currentSegment;
+                    return currentSegment.Offset + index - currentSegment.From;
+                }
+
+                if (compareValue > 0)
+                {
+                    from++;
                     to = m_Segments.Count - 1;
                 }
-
-                int segmentIndex = -1;
-
-                var result = QuickSearchSegment(from, to, index, out segmentIndex);
-
-                if (result != null)
+                else
                 {
-                    m_PrevSegment = result;
-                    m_PrevSegmentIndex = segmentIndex;
-                    return result.Array[result.Offset + index - result.From];
+                    var tmp = from - 1;
+                    from = 0;
+                    to = tmp;
                 }
-
-                m_PrevSegment = null;
-                throw new IndexOutOfRangeException();
             }
-            set
+            else
             {
-                throw new NotSupportedException();
+                from = 0;
+                to = m_Segments.Count - 1;
             }
+
+            int segmentIndex = -1;
+
+            var result = QuickSearchSegment(from, to, index, out segmentIndex);
+
+            if (result != null)
+            {
+                m_PrevSegment = result;
+                m_PrevSegmentIndex = segmentIndex;
+                segment = m_PrevSegment;
+                return result.Offset + index - result.From;
+            }
+
+            m_PrevSegment = null;
+
+            return -1;
         }
 
-        private ArraySegmentEx<T> QuickSearchSegment(int from, int to, int index, out int segmentIndex)
+        internal ArraySegmentEx<T> QuickSearchSegment(int from, int to, int index, out int segmentIndex)
         {
             ArraySegmentEx<T> segment;
             segmentIndex = -1;
@@ -360,11 +396,11 @@ namespace SuperSocket.Common
 
             if (startIndex != 0)
             {
-                var startSegment = QuickSearchSegment(0, m_Segments.Count, startIndex, out startSegmentIndex);
+                var startSegment = QuickSearchSegment(0, m_Segments.Count - 1, startIndex, out startSegmentIndex);
                 from = startIndex - startSegment.From;
                 if (startSegment == null)
                     throw new IndexOutOfRangeException();
-            }            
+            }
 
             for (var i = startSegmentIndex; i < m_Segments.Count; i++)
             {
@@ -490,6 +526,40 @@ namespace SuperSocket.Common
             }
 
             return new string(charsBuffer, 0, totalChars);
+        }
+
+        public void DecodeMask(byte[] mask, int offset, int length)
+        {
+            var startSegmentIndex = 0;
+            var startSegment = QuickSearchSegment(0, Segments.Count - 1, offset, out startSegmentIndex);
+
+            var shouldDecode = Math.Min(length, startSegment.Count - offset + startSegment.From);
+            var from = offset - startSegment.From + startSegment.Offset;
+
+            var index = 0;
+
+            for (var i = from; i < from + shouldDecode; i++)
+            {
+                startSegment.Array[i] = (byte)(startSegment.Array[i] ^ mask[index % 4]);
+            }
+
+            if (index >= length)
+                return;
+
+            for (var i = startSegmentIndex + 1; i < SegmentCount; i++)
+            {
+                var segment = Segments[i];
+
+                shouldDecode = Math.Min(length - index, segment.Count);
+
+                for (var j = segment.Offset; j < segment.Offset + shouldDecode; j++)
+                {
+                    segment.Array[j] = (byte)(segment.Array[j] ^ mask[index++ % 4]);
+                }
+
+                if (index >= length)
+                    return;
+            }
         }
     }
 }

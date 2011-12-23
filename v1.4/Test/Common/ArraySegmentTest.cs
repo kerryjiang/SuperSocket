@@ -302,5 +302,78 @@ namespace SuperSocket.Test.Common
 
             Console.WriteLine(watch.ElapsedMilliseconds);
         }
+
+
+        [Test]
+        public void TestDecodeMaskPerformance()
+        {
+            ArraySegmentList source = new ArraySegmentList();
+
+            for (var i = 0; i < 100; i++)
+            {
+                var element = Encoding.UTF8.GetBytes(Guid.NewGuid().ToString());
+                source.AddSegment(element, 0, element.Length);
+            }
+
+            byte[] mask = new byte[] { source[5], source[100], source[150], source[200] };
+
+            int testCount = 1000;
+
+            GC.Collect();
+
+            Stopwatch watch = new Stopwatch();
+
+            watch.Start();
+
+            for (var i = 0; i < testCount; i++)
+            {
+                source.DecodeMask(mask, 100, source.Count - 100);
+            }
+
+            watch.Stop();
+
+            Console.WriteLine(watch.ElapsedMilliseconds);
+
+            watch.Reset();
+
+            GC.Collect();
+
+            watch.Start();
+
+            for (var i = 0; i < testCount; i++)
+            {
+                var data = source.ToArrayData(100, source.Count - 100);
+                DecodeMask(data, mask, 0, data.Length);
+            }
+
+            watch.Stop();
+
+            Console.WriteLine(watch.ElapsedMilliseconds);
+
+            watch.Reset();
+
+            GC.Collect();
+
+            watch.Start();
+
+            for (var i = 0; i < testCount; i++)
+            {
+                DecodeMask(source, mask, 100, source.Count - 100);
+            }
+
+            watch.Stop();
+
+            Console.WriteLine(watch.ElapsedMilliseconds);
+        }
+
+        private void DecodeMask(IList<byte> data, byte[] mask, int offset, int length)
+        {
+            var index = 0;
+
+            for (var i = offset; i < length; i++)
+            {
+                data[i] = (byte)(data[i] ^ mask[index++ % 4]);
+            }
+        }
     }
 }
