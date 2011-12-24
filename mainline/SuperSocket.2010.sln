@@ -38,6 +38,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ClientEngine", "ClientEngin
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.Silverlight", "ClientEngine\SuperSocket.ClientEngine.Silverlight.csproj", "{32BFC017-D04F-48BD-8B9E-726B042430DF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.Mono", "ClientEngine\SuperSocket.ClientEngine.Mono.csproj", "{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -80,6 +82,10 @@ Global
 		{32BFC017-D04F-48BD-8B9E-726B042430DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32BFC017-D04F-48BD-8B9E-726B042430DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32BFC017-D04F-48BD-8B9E-726B042430DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -89,5 +95,6 @@ Global
 		{ACCCC9EB-6386-44DC-8147-D69751FC6D93} = {BEAF6CBD-16DD-456B-A889-421E0DFAB783}
 		{1BC7E184-8225-425A-900E-9FEA38865E20} = {2740AE22-1054-477D-BA24-EC1EC11FE0A4}
 		{32BFC017-D04F-48BD-8B9E-726B042430DF} = {2740AE22-1054-477D-BA24-EC1EC11FE0A4}
+		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4} = {2740AE22-1054-477D-BA24-EC1EC11FE0A4}
 	EndGlobalSection
 EndGlobal
