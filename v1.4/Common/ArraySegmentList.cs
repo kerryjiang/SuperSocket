@@ -284,7 +284,7 @@ namespace SuperSocket.Common
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            throw new NotSupportedException();
+            CopyTo(array, 0, arrayIndex, Math.Min(array.Length, this.Count - arrayIndex));
         }
 
         public int Count
@@ -467,16 +467,40 @@ namespace SuperSocket.Common
 
         public int CopyTo(T[] to)
         {
-            int length = Math.Min(m_Count, to.Length);
+            return CopyTo(to, 0, 0, Math.Min(m_Count, to.Length));
+        }
 
+        public int CopyTo(T[] to, int srcIndex, int toIndex, int length)
+        {
             int copied = 0;
             int thisCopied = 0;
 
-            for (var i = 0; i < this.m_Segments.Count; i++)
+            int offsetSegmentIndex;
+            ArraySegmentEx<T> offsetSegment;
+
+            if (srcIndex > 0)
+                offsetSegment = QuickSearchSegment(0, m_Segments.Count - 1, srcIndex, out offsetSegmentIndex);
+            else
+            {
+                offsetSegment = m_Segments[0];
+                offsetSegmentIndex = 0;
+            }
+
+            int thisOffset = srcIndex - offsetSegment.From + offsetSegment.Offset;
+            thisCopied = Math.Min(offsetSegment.Count - thisOffset + offsetSegment.Offset, length - copied);
+
+            Array.Copy(offsetSegment.Array, thisOffset, to, copied + toIndex, thisCopied);
+
+            copied += thisCopied;
+
+            if (copied >= length)
+                return copied;
+
+            for (var i = offsetSegmentIndex + 1; i < this.m_Segments.Count; i++)
             {
                 var segment = m_Segments[i];
                 thisCopied = Math.Min(segment.Count, length - copied);
-                Array.Copy(segment.Array, segment.Offset, to, copied, thisCopied);
+                Array.Copy(segment.Array, segment.Offset, to, copied + toIndex, thisCopied);
                 copied += thisCopied;
 
                 if (copied >= length)
@@ -491,22 +515,21 @@ namespace SuperSocket.Common
     {
         public string Decode(Encoding encoding)
         {
+            return Decode(encoding, 0, Count);
+        }
+
+        public string Decode(Encoding encoding, int offset, int length)
+        {
             var arraySegments = Segments;
 
             if (arraySegments == null || arraySegments.Count <= 0)
                 return string.Empty;
 
-            int total = 0;
-
-            for (int i = 0; i < arraySegments.Count; i++)
-            {
-                total += arraySegments[i].Count;
-            }
-
             var charsBuffer = new char[encoding.GetMaxCharCount(this.Count)];
 
             int bytesUsed, charsUsed;
             bool completed;
+            int totalBytes = 0;
             int totalChars = 0;
 
             int lastSegIndex = arraySegments.Count - 1;
@@ -514,15 +537,35 @@ namespace SuperSocket.Common
 
             var decoder = encoding.GetDecoder();
 
-            for (var i = 0; i < arraySegments.Count; i++)
+            int startSegmentIndex = 0;
+
+            if (offset > 0)
+            {
+                QuickSearchSegment(0, arraySegments.Count - 1, offset, out startSegmentIndex);
+            }
+
+            for (var i = startSegmentIndex; i < arraySegments.Count; i++)
             {
                 var segment = arraySegments[i];
 
                 if (i == lastSegIndex)
                     flush = true;
 
-                decoder.Convert(segment.Array, segment.Offset, segment.Count, charsBuffer, totalChars, charsBuffer.Length - totalChars, flush, out bytesUsed, out charsUsed, out completed);
+                int decodeOffset = segment.Offset;
+                int toBeDecoded = Math.Min(length - totalBytes, segment.Count);
+
+                if (i == startSegmentIndex && offset > 0)
+                {
+                    decodeOffset = offset - segment.From + segment.Offset;
+                    toBeDecoded = Math.Min(segment.Count - offset + segment.From, toBeDecoded);
+                }
+
+                decoder.Convert(segment.Array, decodeOffset, toBeDecoded, charsBuffer, totalChars, charsBuffer.Length - totalChars, flush, out bytesUsed, out charsUsed, out completed);
                 totalChars += charsUsed;
+                totalBytes += bytesUsed;
+
+                if (totalBytes >= length)
+                    break;
             }
 
             return new string(charsBuffer, 0, totalChars);

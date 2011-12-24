@@ -303,6 +303,44 @@ namespace SuperSocket.Test.Common
             Console.WriteLine(watch.ElapsedMilliseconds);
         }
 
+        [Test, Repeat(10)]
+        public void TestDecode()
+        {
+            ArraySegmentList source = new ArraySegmentList();
+
+            StringBuilder sb = new StringBuilder();
+
+            List<int> countArray = new List<int>();
+
+            int from, to;
+
+            Random rd = new Random();
+
+            from = rd.Next(0, 19);
+            to = rd.Next(from + 1, 20);
+
+            for (var i = 0; i < 20; i++)
+            {
+                var line = Guid.NewGuid().ToString();
+                var element = Encoding.UTF8.GetBytes(line);
+
+                if (i >= from && i <= to)
+                {
+                    countArray.Add(source.Count);
+                    Console.WriteLine(source.Count);
+                    sb.Append(line);
+                    source.AddSegment(element, 0, element.Length);
+                    countArray.Add(source.Count);
+                    Console.WriteLine(source.Count);
+                }
+                else
+                {
+                    source.AddSegment(element, 0, element.Length);
+                }
+            }
+
+            Assert.AreEqual(sb.ToString(), source.Decode(Encoding.UTF8, countArray[0], countArray[countArray.Count - 1] - countArray[0]));
+        }
 
         [Test]
         public void TestDecodeMaskPerformance()
