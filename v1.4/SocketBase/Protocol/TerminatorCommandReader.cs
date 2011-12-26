@@ -30,7 +30,7 @@ namespace SuperSocket.SocketBase.Protocol
             : this(appServer)
         {
             Encoding = encoding;
-            m_SearchState = new SearchMarkState<byte> { Mark = terminator };
+            m_SearchState = new SearchMarkState<byte>(terminator);
             m_CommandParser = commandParser;
         }
 

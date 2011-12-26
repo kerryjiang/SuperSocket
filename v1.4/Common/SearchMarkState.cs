@@ -8,7 +8,12 @@ namespace SuperSocket.Common
     public class SearchMarkState<T>
         where T : IEquatable<T>
     {
-        public T[] Mark { get; set; }
+        public SearchMarkState(T[] mark)
+        {
+            Mark = mark;
+        }
+
+        public T[] Mark { get; private set; }
 
         public int Matched { get; set; }
     }
