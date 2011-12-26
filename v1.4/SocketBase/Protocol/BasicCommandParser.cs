@@ -11,7 +11,7 @@ namespace SuperSocket.SocketBase.Command
     public class BasicCommandParser : ICommandParser
     {
         private string m_Spliter;
-        private string m_ParameterSpliter;
+        private string[] m_ParameterSpliters;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BasicCommandParser"/> class.
@@ -28,7 +28,7 @@ namespace SuperSocket.SocketBase.Command
         public BasicCommandParser(string spliter, string parameterSpliter)
         {
             m_Spliter = spliter;
-            m_ParameterSpliter = parameterSpliter;
+            m_ParameterSpliters = new string[] { parameterSpliter };
         }
 
         #region ICommandParser Members
@@ -56,7 +56,7 @@ namespace SuperSocket.SocketBase.Command
             }
 
             return new StringCommandInfo(name, param,
-                param.Split(new string[] { m_ParameterSpliter }, StringSplitOptions.RemoveEmptyEntries));
+                param.Split(m_ParameterSpliters, StringSplitOptions.RemoveEmptyEntries));
         }
 
         #endregion

@@ -55,7 +55,12 @@ namespace SuperSocket.SocketBase
     public abstract class AppServer<TAppSession, TCommandInfo> : AppServerBase<TAppSession, TCommandInfo>, IPerformanceDataSource
         where TCommandInfo : ICommandInfo
         where TAppSession : IAppSession<TAppSession, TCommandInfo>, new()
-    {        
+    {
+
+        private bool m_DisableSessionSnapshot;
+
+        private int m_IdleSessionTimeOut;
+
         public AppServer()
             : base()
         {
@@ -73,13 +78,20 @@ namespace SuperSocket.SocketBase
             if (!base.Start())
                 return false;
 
-            if (!Config.DisableSessionSnapshot)
+            if (!m_DisableSessionSnapshot)
                 StartSessionSnapshotTimer();
 
             if (Config.ClearIdleSession)
                 StartClearSessionTimer();
 
             return true;
+        }
+
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol)
+        {
+            m_DisableSessionSnapshot = config.DisableSessionSnapshot;
+            m_IdleSessionTimeOut = config.IdleSessionTimeOut;
+            return base.Setup(rootConfig, config, socketServerFactory, protocol);
         }
 
         private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
@@ -152,7 +164,7 @@ namespace SuperSocket.SocketBase
         {
             get
             {
-                if (Config.DisableSessionSnapshot)
+                if (m_DisableSessionSnapshot)
                     return m_SessionDict.ToArray();
                 else
                     return m_SessionsSnapshot;
@@ -176,7 +188,7 @@ namespace SuperSocket.SocketBase
                 try
                 {
                     DateTime now = DateTime.Now;
-                    DateTime timeOut = now.AddSeconds(0 - Config.IdleSessionTimeOut);
+                    DateTime timeOut = now.AddSeconds(0 - m_IdleSessionTimeOut);
 
                     var timeOutSessions = SessionSource.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>

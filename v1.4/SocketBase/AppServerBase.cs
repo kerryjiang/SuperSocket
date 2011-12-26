@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
@@ -15,7 +16,6 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
-using System.Reflection;
 
 namespace SuperSocket.SocketBase
 {
@@ -54,6 +54,8 @@ namespace SuperSocket.SocketBase
         private Dictionary<string, List<CommandFilterAttribute>> m_CommandFilterDict;
 
         private long m_TotalHandledCommands = 0;
+
+        private bool m_LogCommand = false;
 
         protected long TotalHandledCommands
         {
@@ -145,6 +147,8 @@ namespace SuperSocket.SocketBase
                 throw new ArgumentNullException("config");
 
             Config = config;
+            Name = config.Name;
+            m_LogCommand = config.LogCommand;
 
             m_SocketServerFactory = socketServerFactory;
 
@@ -306,10 +310,7 @@ namespace SuperSocket.SocketBase
         }
 
 
-        public string Name
-        {
-            get { return Config.Name; }
-        }
+        public string Name { get; private set; }
 
         private ISocketServer m_SocketServer;
 
@@ -422,7 +423,7 @@ namespace SuperSocket.SocketBase
                     
                     session.PrevCommand = commandInfo.Key;
 
-                    if (Config.LogCommand)
+                    if (m_LogCommand)
                         Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
                 }
                 else
@@ -439,7 +440,7 @@ namespace SuperSocket.SocketBase
                 session.PrevCommand = commandInfo.Key;
                 session.LastActiveTime = DateTime.Now;
 
-                if (Config.LogCommand)
+                if (m_LogCommand)
                     Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
             }
 
