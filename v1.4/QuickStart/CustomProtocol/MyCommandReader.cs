@@ -11,10 +11,18 @@ namespace SuperSocket.QuickStart.CustomProtocol
 {
     class MyCommandReader : CommandReaderBase<BinaryCommandInfo>
     {
+        private readonly MyCommandDataReader m_PreparedDataReader = new MyCommandDataReader();
+
         public MyCommandReader(IAppServer appServer)
             : base(appServer)
         {
 
+        }
+
+        private MyCommandDataReader GetMyCommandDataReader(string commandName, int dataLength)
+        {
+            m_PreparedDataReader.Initialize(commandName, dataLength, this);
+            return m_PreparedDataReader;
         }
 
         /// <summary>
@@ -42,10 +50,9 @@ namespace SuperSocket.QuickStart.CustomProtocol
             }
 
             AddArraySegment(readBuffer, offset, leftLength, isReusableBuffer);
-            byte[] source = BufferSegments.ToArrayData();
 
-            string commandName = Encoding.ASCII.GetString(source, 0, 4);
-            int commandDataLength = Convert.ToInt32(Encoding.ASCII.GetString(source, 5, 4).TrimStart('0'));
+            string commandName = BufferSegments.Decode(Encoding.ASCII, 0, 4);
+            int commandDataLength = Convert.ToInt32(BufferSegments.Decode(Encoding.ASCII, 5, 4).TrimStart('0'));
 
             if (length > leftLength)
             {
@@ -65,15 +72,17 @@ namespace SuperSocket.QuickStart.CustomProtocol
                 }
                 else// if (leftDataLength < commandDataLength)
                 {
-                    //Save left data
+                    //Clear previous cached header data
+                    BufferSegments.ClearSegements();
+                    //Save left data part
                     AddArraySegment(readBuffer, offset + leftLength, length - leftLength, isReusableBuffer);
-                    NextCommandReader = new MyCommandDataReader(commandName, commandDataLength, this);
+                    NextCommandReader = GetMyCommandDataReader(commandName, commandDataLength);
                     return null;
                 }
             }
             else
             {
-                NextCommandReader = new MyCommandDataReader(commandName, commandDataLength, this);
+                NextCommandReader = GetMyCommandDataReader(commandName, commandDataLength);
                 return null;
             }
         }

@@ -15,7 +15,7 @@ namespace SuperSocket.SocketBase.Protocol
     public abstract class CommandReaderBase<TCommandInfo> : ICommandReader<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
-        private readonly ArraySegmentList m_BufferSegments;
+        private ArraySegmentList m_BufferSegments;
 
         /// <summary>
         /// Gets the buffer segments which can help you parse your commands conviniently.
@@ -25,7 +25,7 @@ namespace SuperSocket.SocketBase.Protocol
             get { return m_BufferSegments; }
         }
 
-        private CommandReaderBase()
+        public CommandReaderBase()
         {
 
         }
@@ -45,6 +45,16 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="previousCommandReader">The previous command reader.</param>
         public CommandReaderBase(CommandReaderBase<TCommandInfo> previousCommandReader)
+        {
+            AppServer = previousCommandReader.AppServer;
+            m_BufferSegments = previousCommandReader.BufferSegments;
+        }
+
+        /// <summary>
+        /// Initializes the instance with the specified previous command reader.
+        /// </summary>
+        /// <param name="previousCommandReader">The previous command reader.</param>
+        protected void Initialize(CommandReaderBase<TCommandInfo> previousCommandReader)
         {
             AppServer = previousCommandReader.AppServer;
             m_BufferSegments = previousCommandReader.BufferSegments;
