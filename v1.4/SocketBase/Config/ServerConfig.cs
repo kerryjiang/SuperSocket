@@ -19,6 +19,7 @@ namespace SuperSocket.SocketBase.Config
             MaxCommandLength = 1024;
             KeepAliveTime = 10 * 60;// 10 minutes
             KeepAliveInterval = 60;// 60 seconds
+            ListenBacklog = 100;
         }
 
         #region IServerConfig Members
@@ -112,6 +113,12 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the keep alive interval, in seconds.
         /// </summary>
         public int KeepAliveInterval { get; set; }
+
+        /// <summary>
+        /// Gets the backlog size of socket listening.
+        /// </summary>
+        public int ListenBacklog { get; set; }
+
 
         public virtual TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new()

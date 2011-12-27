@@ -120,6 +120,11 @@ namespace SuperSocket.SocketBase.Config
         int KeepAliveInterval { get; }
 
 
+        /// <summary>
+        /// Gets the backlog size of socket listening.
+        /// </summary>
+        int ListenBacklog { get; }
+
 
         TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new();
