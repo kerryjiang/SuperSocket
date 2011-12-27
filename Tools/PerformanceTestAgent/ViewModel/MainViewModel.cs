@@ -19,7 +19,11 @@ namespace PerformanceTestAgent.ViewModel
         private Socket[] m_Sockets;
         private ConcurrentQueue<Socket> m_SocketQueue;
         private ConcurrentStack<SocketAsyncEventArgs> m_SocketReceivePool;
-        private BufferManager m_BufferManager;
+        private ConcurrentStack<SocketAsyncEventArgs> m_SocketSendPool;
+        private BufferManager m_SendingBufferManager;
+        private BufferManager m_ReceivingBufferManager;
+        private int m_SendingBufferSize = 512;
+        private int m_ReceivingBufferSize = 512;
 
         public MainViewModel()
         {
@@ -118,57 +122,152 @@ namespace PerformanceTestAgent.ViewModel
         {
             m_Sockets = new Socket[m_ConnectionCount.Value];
             m_SocketQueue = new ConcurrentQueue<Socket>();
-            int bufferSize = 1024;
-            m_BufferManager = new BufferManager(bufferSize * m_ConnectionCount.Value, bufferSize);
-            m_BufferManager.InitBuffer();
+            m_ReceivingBufferManager = new BufferManager(m_ReceivingBufferSize * m_ConnectionCount.Value, m_ReceivingBufferSize);
+            m_ReceivingBufferManager.InitBuffer();
 
-            var socketEventList = new List<SocketAsyncEventArgs>(m_ConnectionCount.Value);
+            var socketReceiveEventList = new List<SocketAsyncEventArgs>(m_ConnectionCount.Value);
 
             for (int i = 0; i < m_ConnectionCount.Value; i++)
             {
                 var socketEventArgs = new SocketAsyncEventArgs();
-                socketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(socketEventArgs_Completed);
-                m_BufferManager.SetBuffer(socketEventArgs);
-                socketEventList.Add(socketEventArgs);
+                socketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(socketReceiveEventArgs_Completed);
+                m_ReceivingBufferManager.SetBuffer(socketEventArgs);
+                socketReceiveEventList.Add(socketEventArgs);
             }
 
-            m_SocketReceivePool = new ConcurrentStack<SocketAsyncEventArgs>(socketEventList);
+            m_SocketReceivePool = new ConcurrentStack<SocketAsyncEventArgs>(socketReceiveEventList);
+
+            m_SendingBufferManager = new BufferManager(m_SendingBufferSize * m_ConnectionCount.Value, m_SendingBufferSize);
+            m_SendingBufferManager.InitBuffer();
+
+            var socketSendEventList = new List<SocketAsyncEventArgs>(m_ConnectionCount.Value);
+
+            for (int i = 0; i < m_ConnectionCount.Value; i++)
+            {
+                var socketEventArgs = new SocketAsyncEventArgs();
+                socketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(socketSendEventArgs_Completed);
+                m_SendingBufferManager.SetBuffer(socketEventArgs);
+                socketSendEventList.Add(socketEventArgs);
+            }
+
+            m_SocketSendPool = new ConcurrentStack<SocketAsyncEventArgs>(socketSendEventList);
 
             var ipAddress = IPAddress.Parse(m_TargetServer);
             var endPoint = new IPEndPoint(ipAddress, m_Port.Value);
 
+            Task.Factory.StartNew(StartConnect, endPoint, TaskCreationOptions.LongRunning);
+            Task.Factory.StartNew(ProcessSendWorker, TaskCreationOptions.LongRunning);
+
             IsRunning = true;
+        }
+
+        void StartConnect(object state)
+        {
+            var endPoint = (IPEndPoint)state;
 
             for (int i = 0; i < m_Sockets.Length; i++)
             {
-                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                m_Sockets[i] = socket;
-                string connectedMessage = string.Format("Socket {0} is connected!" + Environment.NewLine, i);
-                Task.Factory.StartNew(() =>
-                    {
-                        socket.Connect(endPoint);
-                        m_SocketQueue.Enqueue(socket);
-                        OnContentAppend(connectedMessage);
-                    }).ContinueWith(t =>
-                    {
-                        if (t.Exception != null)
-                        {
-                            var innerException = t.Exception.InnerException;
-                            if (innerException != null)
-                                OnContentAppend(innerException.Message + Environment.NewLine + innerException.StackTrace + Environment.NewLine);
-                        }
-                    }, TaskContinuationOptions.OnlyOnFaulted);
-            }
+                var connectSocketEventArgs = new SocketAsyncEventArgs();
+                connectSocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(connectSocketEventArgs_Completed);
+                connectSocketEventArgs.RemoteEndPoint = endPoint;
+                connectSocketEventArgs.UserToken = i;
 
-            Task.Factory.StartNew(() => ProcessSendWorker(), TaskCreationOptions.LongRunning);
+                if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, connectSocketEventArgs))
+                    ProcessConnect(connectSocketEventArgs);
+            }
         }
 
-        private void socketEventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        void connectSocketEventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
-            if (e.LastOperation != SocketAsyncOperation.Receive)
+            ProcessConnect(e);
+        }
+
+        void ProcessConnect(SocketAsyncEventArgs e)
+        {
+            if (e.SocketError == SocketError.Success)
+            {
+                var socketIndex = (int)e.UserToken;
+                m_Sockets[socketIndex] = e.ConnectSocket;
+                m_SocketQueue.Enqueue(e.ConnectSocket);
+                string connectedMessage = string.Format("Socket {0} is connected!" + Environment.NewLine, socketIndex);
+                OnContentAppend(connectedMessage);
+            }
+            else
+            {
+                OnContentAppend(e.SocketError + Environment.NewLine);
+            }
+        }
+
+        private void socketReceiveEventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            ProcessReceive(e);
+        }
+
+        private void socketSendEventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        {
+            ProcessSend(e);
+        }
+
+        private void ProcessSend(SocketAsyncEventArgs e)
+        {
+            if (e.SocketError != SocketError.Success || e.BytesTransferred == 0)
+            {
+                e.UserToken = null;
+                m_SocketSendPool.Push(e);
+                OnContentAppend("The connection was dropped!" + Environment.NewLine);
+                return;
+            }
+
+            var sendingState = e.UserToken as SendingState;
+
+            if (!sendingState.IsCompleted)
+            {
+                int encodedLen = sendingState.Encode(e.Buffer, e.Offset, m_SendingBufferSize);
+                e.SetBuffer(e.Offset, encodedLen);
+
+                if (!sendingState.Socket.SendAsync(e))
+                {
+                    ProcessSend(e);
+                    return;
+                }
+            }
+
+            e.UserToken = null;
+
+            m_SocketSendPool.Push(e);
+
+            if (!m_IsWaitResponse)
+            {
+                m_SocketQueue.Enqueue(sendingState.Socket);
+                sendingState.Clear();
+                sendingState = null;
+                return;
+            }
+
+            SocketAsyncEventArgs receivingEventArgs;
+            if (!m_SocketReceivePool.TryPop(out receivingEventArgs))
+            {
+                if (m_IsStopped)
+                    return;
+
+                Thread.Sleep(200);
+            }
+
+            if (m_IsStopped)
                 return;
 
-            ProcessReceive(e);
+            receivingEventArgs.UserToken = new ReceivingState
+            {
+                RequireLength = sendingState.ExpectedReceiveLength,
+                Socket = sendingState.Socket
+            };
+
+
+            if (!sendingState.Socket.ReceiveAsync(receivingEventArgs))
+                ProcessReceive(receivingEventArgs);
+
+            sendingState.Clear();
+            sendingState = null;
         }
 
         private void ProcessReceive(SocketAsyncEventArgs e)
@@ -180,7 +279,7 @@ namespace PerformanceTestAgent.ViewModel
                 return;
             }
 
-            var token = e.UserToken as AsyncUserToken;
+            var token = e.UserToken as ReceivingState;
             token.ReceivedLength += e.BytesTransferred;
             if (token.ReceivedLength >= token.RequireLength)
             {
@@ -201,94 +300,56 @@ namespace PerformanceTestAgent.ViewModel
 
         private void ProcessSendWorker()
         {
-            if (m_IsWaitResponse)
+            int sendTimes = 0;
+
+            while (!m_IsStopped)
             {
-                int sendTimes = 0;
+                Socket socket;
 
-                while (!m_IsStopped)
+                if (m_SocketQueue.TryDequeue(out socket))
                 {
-                    Socket socket;
+                    Task.Factory.StartNew(() => StartSend(socket));
+                    sendTimes++;
 
-                    if (m_SocketQueue.TryDequeue(out socket))
-                    {
-                        Task.Factory.StartNew(() => StartSendThenWait(socket));
-                        sendTimes++;
-
-                        if (sendTimes % 100 == 0)
-                        {
-                            Thread.Sleep(1);
-                            sendTimes = 0;
-                        }
-                    }
-                    else
+                    if (sendTimes % 100 == 0)
                     {
                         Thread.Sleep(1);
+                        sendTimes = 0;
                     }
                 }
-            }
-            else
-            {
-                while (!IsStopped)
+                else
                 {
-                    for (var i = 0; i < m_Sockets.Length; i++)
-                    {
-                        StartSend(m_Sockets[i]);
-
-                        if (IsStopped)
-                        {
-                            IsRunning = false;
-                            return;
-                        }
-                    }
-
-                    Thread.Sleep(100);
+                    Thread.Sleep(1);
                 }
             }
 
             IsRunning = false;
         }
 
-        private byte[] m_SendData = Encoding.ASCII.GetBytes("TEST " + Guid.NewGuid() + Environment.NewLine);
-
         private void StartSend(Socket socket)
-        {
-            try
-            {
-                socket.Send(m_SendData);
-            }
-            catch
-            {
-                OnContentAppend("The connection was dropped!" + Environment.NewLine);
-                return;
-            }
-        }
-
-        private void StartSendThenWait(Socket socket)
         {
             string message = Guid.NewGuid() + Environment.NewLine;
 
-            try
+            SocketAsyncEventArgs sendingArgs;
+
+            while (!m_SocketSendPool.TryPop(out sendingArgs))
             {
-                socket.Send(Encoding.ASCII.GetBytes("TEST " + message));
+                if (m_IsStopped)
+                    return;
+
+                Thread.Sleep(200);
             }
-            catch
-            {
-                OnContentAppend("The connection was dropped!" + Environment.NewLine);
+
+            if (m_IsStopped)
                 return;
-            }
 
-            SocketAsyncEventArgs e;
-            if (m_SocketReceivePool.TryPop(out e))
-            {
-                e.UserToken = new AsyncUserToken
-                {
-                    RequireLength = Encoding.ASCII.GetByteCount(message),
-                    Socket = socket
-                };
+            var state = new SendingState(socket, "ECHO " + message, Encoding.UTF8, Encoding.UTF8.GetByteCount(message));
+            var encodedLen = state.Encode(sendingArgs.Buffer, sendingArgs.Offset, m_SendingBufferSize);
+            sendingArgs.SetBuffer(sendingArgs.Offset, encodedLen);
+            sendingArgs.UserToken = state;
 
-                if (!socket.ReceiveAsync(e))
-                    ProcessReceive(e);
-            }
+            if (!socket.SendAsync(sendingArgs))
+                ProcessSend(sendingArgs);
         }
 
         private bool CanExecuteStart()

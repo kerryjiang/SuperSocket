@@ -6,7 +6,7 @@ using System.Net.Sockets;
 
 namespace PerformanceTestAgent.ViewModel
 {
-    public class AsyncUserToken
+    public class ReceivingState
     {
         public Socket Socket { get; set; }
         public int RequireLength { get; set; }
