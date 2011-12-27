@@ -29,8 +29,6 @@ namespace SuperSocket.SocketBase
 
         public IServerConfig Config { get; private set; }
 
-        protected virtual ConsoleHostInfo ConsoleHostInfo { get { return null; } }
-
         public virtual X509Certificate Certificate { get; protected set; }
 
         public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
