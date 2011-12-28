@@ -18,6 +18,7 @@ namespace SuperSocket.SocketBase.Config
             MaxCommandLength = 1024;
             KeepAliveTime = 10 * 60;// 10 minutes
             KeepAliveInterval = 60;// 60 seconds
+            ListenBacklog = 100;
         }
 
         #region IServerConfig Members
@@ -119,6 +120,11 @@ namespace SuperSocket.SocketBase.Config
         /// 	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
         /// </value>
         public bool EnableDynamicCommand { get; set; }
+
+        /// <summary>
+        /// Gets the backlog size of socket listening.
+        /// </summary>
+        public int ListenBacklog { get; set; }
 
 
         public virtual TConfig GetChildConfig<TConfig>(string childConfigName)

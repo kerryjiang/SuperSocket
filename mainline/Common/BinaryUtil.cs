@@ -9,6 +9,7 @@ namespace SuperSocket.Common
     public static class BinaryUtil
     {
         public static int IndexOf<T>(this IList<T> source, T target, int pos, int length)
+            where T : IEquatable<T>
         {
             for (int i = pos; i < pos + length; i++)
             {
@@ -20,33 +21,41 @@ namespace SuperSocket.Common
         }
 
         public static int? SearchMark<T>(this IList<T> source, T[] mark)
+            where T : IEquatable<T>
         {
-            return SearchMark(source, 0, source.Count, mark);
-        }  
+            return SearchMark(source, 0, source.Count, mark, 0);
+        }
 
         public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark)
+            where T : IEquatable<T>
+        {
+            return SearchMark(source, offset, length, mark, 0);
+        }
+
+        public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark, int matched)
+            where T : IEquatable<T>
         {
             int pos = offset;
             int endOffset = offset + length - 1;
-            int matchCount = 0;
+            int matchCount = matched;
 
             while (true)
             {
-                pos = source.IndexOf(mark[0], pos, length - pos + offset);
+                pos = source.IndexOf(mark[matchCount], pos, length - pos + offset);
 
                 if (pos < 0)
                     return null;
 
-                matchCount = 1;
+                matchCount += 1;
 
-                for (int i = 1; i < mark.Length; i++)
+                for (int i = matchCount; i < mark.Length; i++)
                 {
                     int checkPos = pos + i;
 
                     if (checkPos > endOffset)
                     {
                         //found end, return matched chars count
-                        return (0 - i);
+                        return (0 - matchCount);
                     }
 
                     if (!source[checkPos].Equals(mark[i]))
@@ -65,13 +74,36 @@ namespace SuperSocket.Common
             }
         }
 
+        public static int SearchMark<T>(this IList<T> source, int offset, int length, SearchMarkState<T> searchState)
+            where T : IEquatable<T>
+        {
+            int? result = source.SearchMark(offset, length, searchState.Mark, searchState.Matched);
+
+            if (!result.HasValue)
+            {
+                searchState.Matched = 0;
+                return -1;
+            }
+
+            if (result.Value < 0)
+            {
+                searchState.Matched = 0 - result.Value;
+                return -1;
+            }
+
+            searchState.Matched = 0;
+            return result.Value;
+        }
+
         public static int StartsWith<T>(this IList<T> source, T[] mark)
+            where T : IEquatable<T>
         {
             return source.StartsWith(0, source.Count, mark);
         }
 
         public static int StartsWith<T>(this IList<T> source, int offset, int length, T[] mark)
-        {            
+            where T : IEquatable<T>
+        {
             int pos = offset;
             int endOffset = offset + length - 1;
 
@@ -90,11 +122,13 @@ namespace SuperSocket.Common
         }
 
         public static bool EndsWith<T>(this IList<T> source, T[] mark)
+            where T : IEquatable<T>
         {
             return source.EndsWith(0, source.Count, mark);
         }
 
         public static bool EndsWith<T>(this IList<T> source, int offset, int length, T[] mark)
+            where T : IEquatable<T>
         {
             if (mark.Length > length)
                 return false;

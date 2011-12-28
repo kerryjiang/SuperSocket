@@ -245,6 +245,18 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets the backlog size of socket listening.
+        /// </summary>
+        [ConfigurationProperty("listenBacklog", IsRequired = false, DefaultValue = 100)]
+        public int ListenBacklog
+        {
+            get
+            {
+                return (int)this["listenBacklog"];
+            }
+        }
+
+        /// <summary>
         /// Gets the child config.
         /// </summary>
         /// <typeparam name="TConfig">The type of the config.</typeparam>

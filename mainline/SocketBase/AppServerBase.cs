@@ -30,8 +30,6 @@ namespace SuperSocket.SocketBase
 
         public IServerConfig Config { get; private set; }
 
-        protected virtual ConsoleHostInfo ConsoleHostInfo { get { return null; } }
-
         public virtual X509Certificate Certificate { get; protected set; }
 
         public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
@@ -171,6 +169,14 @@ namespace SuperSocket.SocketBase
 
             if (config == null)
                 throw new ArgumentNullException("config");
+
+            if (!(config is ServerConfig))
+            {
+                //Use config plain model directly to avoid extra object casting in runtime
+                var newConfig = new ServerConfig();
+                config.CopyPropertiesTo(newConfig);
+                config = newConfig;
+            }
 
             Config = config;
 

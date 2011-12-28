@@ -17,35 +17,46 @@ namespace SuperSocket.SocketEngine
         where TSocketSession : ISocketSession<TAppSession>
         where TCommandInfo : ICommandInfo
     {
-        private byte[] m_KeepAliveOptionValues;
+        private readonly byte[] m_KeepAliveOptionValues;
+        private readonly int m_ReadTimeOut;
+        private readonly int m_SendTimeOut;
+        private readonly int m_ReceiveBufferSize;
+        private readonly int m_SendBufferSize;
 
         public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
             : base(appServer, localEndPoint, protocol)
         {
+            var config = appServer.Config;
+
             uint dummy = 0;
             m_KeepAliveOptionValues = new byte[Marshal.SizeOf(dummy) * 3];
             //whether enable KeepAlive
             BitConverter.GetBytes((uint)1).CopyTo(m_KeepAliveOptionValues, 0);
             //how long will start first keep alive
-            BitConverter.GetBytes((uint)(appServer.Config.KeepAliveTime * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy));
+            BitConverter.GetBytes((uint)(config.KeepAliveTime * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy));
             //keep alive interval
-            BitConverter.GetBytes((uint)(appServer.Config.KeepAliveInterval * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy) * 2);
+            BitConverter.GetBytes((uint)(config.KeepAliveInterval * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy) * 2);
+
+            m_ReadTimeOut = config.ReadTimeOut;
+            m_SendTimeOut = config.SendTimeOut;
+            m_ReceiveBufferSize = config.ReceiveBufferSize;
+            m_SendBufferSize = config.SendBufferSize;
         }
 
         protected TSocketSession RegisterSession(Socket client, TSocketSession session)
         {
             //load socket setting
-            if (AppServer.Config.ReadTimeOut > 0)
-                client.ReceiveTimeout = AppServer.Config.ReadTimeOut;
+            if (m_ReadTimeOut > 0)
+                client.ReceiveTimeout = m_ReadTimeOut;
 
-            if (AppServer.Config.SendTimeOut > 0)
-                client.SendTimeout = AppServer.Config.SendTimeOut;
+            if (m_SendTimeOut > 0)
+                client.SendTimeout = m_SendTimeOut;
 
-            if (AppServer.Config.ReceiveBufferSize > 0)
-                client.ReceiveBufferSize = AppServer.Config.ReceiveBufferSize;
+            if (m_ReceiveBufferSize > 0)
+                client.ReceiveBufferSize = m_ReceiveBufferSize;
 
-            if (AppServer.Config.SendBufferSize > 0)
-                client.SendBufferSize = AppServer.Config.SendBufferSize;
+            if (m_SendBufferSize > 0)
+                client.SendBufferSize = m_SendBufferSize;
 
             if(!Platform.SupportSocketIOControlByCodeEnum)
                 client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);

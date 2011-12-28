@@ -15,17 +15,17 @@ namespace SuperSocket.SocketBase.Protocol
     public abstract class CommandReaderBase<TCommandInfo> : ICommandReader<TCommandInfo>
         where TCommandInfo : ICommandInfo
     {
-        private readonly ArraySegmentList<byte> m_BufferSegments;
+        private ArraySegmentList m_BufferSegments;
 
         /// <summary>
         /// Gets the buffer segments which can help you parse your commands conviniently.
         /// </summary>
-        protected ArraySegmentList<byte> BufferSegments
+        protected ArraySegmentList BufferSegments
         {
             get { return m_BufferSegments; }
         }
 
-        private CommandReaderBase()
+        public CommandReaderBase()
         {
 
         }
@@ -37,7 +37,7 @@ namespace SuperSocket.SocketBase.Protocol
         public CommandReaderBase(IAppServer appServer)
         {
             AppServer = appServer;
-            m_BufferSegments = new ArraySegmentList<byte>();
+            m_BufferSegments = new ArraySegmentList();
         }
 
         /// <summary>
@@ -45,6 +45,16 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="previousCommandReader">The previous command reader.</param>
         public CommandReaderBase(CommandReaderBase<TCommandInfo> previousCommandReader)
+        {
+            AppServer = previousCommandReader.AppServer;
+            m_BufferSegments = previousCommandReader.BufferSegments;
+        }
+
+        /// <summary>
+        /// Initializes the instance with the specified previous command reader.
+        /// </summary>
+        /// <param name="previousCommandReader">The previous command reader.</param>
+        protected void Initialize(CommandReaderBase<TCommandInfo> previousCommandReader)
         {
             AppServer = previousCommandReader.AppServer;
             m_BufferSegments = previousCommandReader.BufferSegments;
@@ -69,27 +79,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns>
         /// return the found commandInfo, return null if found nothing
         /// </returns>
-        public virtual TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
-        {
-            left = 0;
-            return FindCommandInfo(session, readBuffer, offset, length, isReusableBuffer);
-        }
-
-        /// <summary>
-        /// Finds the command info from current received read buffer.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="readBuffer">The read buffer.</param>
-        /// <param name="offset">The offset of the received data in readBuffer.</param>
-        /// <param name="length">The length the received data.</param>
-        /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
-        /// <returns>
-        /// return the found commandInfo, return null if found nothing
-        /// </returns>
-        public virtual TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer)
-        {
-            return default(TCommandInfo);
-        }
+        public abstract TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
 
         /// <summary>
         /// Gets the left buffer.
@@ -131,10 +121,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         protected void AddArraySegment(byte[] buffer, int offset, int length, bool isReusableBuffer)
         {
-            if (isReusableBuffer)
-                BufferSegments.AddSegment(new ArraySegment<byte>(buffer.CloneRange(offset, length)));
-            else
-                BufferSegments.AddSegment(new ArraySegment<byte>(buffer, offset, length));
+            m_BufferSegments.AddSegment(buffer, offset, length, isReusableBuffer);
         }
 
         /// <summary>
@@ -142,7 +129,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         protected void ClearBufferSegments()
         {
-            BufferSegments.ClearSegements();
+            m_BufferSegments.ClearSegements();
         }
     }
 }

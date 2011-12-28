@@ -22,62 +22,102 @@ namespace SuperSocket.QuickStart.GPSSocketServer
         private static byte[] m_StartMark = new byte[] { 0x68, 0x68 };
         private static byte[] m_EndMark = new byte[] { 0x0d, 0x0a };
 
+        private SearchMarkState<byte> m_StartSearchState;
+        private SearchMarkState<byte> m_EndSearchState;
+
         private bool m_FoundStart = false;
-        private int m_StartPos = -1;
 
         public GPSCommandReader(IAppServer appServer)
             : base(appServer)
         {
-            
+            m_StartSearchState = new SearchMarkState<byte>(m_StartMark);
+            m_EndSearchState = new SearchMarkState<byte>(m_EndMark);
         }
 
         public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
 
-            int lastSegmentOffset = BufferSegments.Count;
-            int searchEndMarkLength = length;
-
-            this.AddArraySegment(readBuffer, offset, length, isReusableBuffer);
-
             if (!m_FoundStart)
             {
-                var pos = BufferSegments.SearchMark(lastSegmentOffset, length, m_StartMark);
-                
-                if (!pos.HasValue || pos.Value < 0)
+                var pos = readBuffer.SearchMark(offset, length, m_StartSearchState);
+
+                //Don't cache invalid data
+                if (pos < 0)
                     return null;
 
                 //Found start mark
-                m_StartPos = pos.Value;
                 m_FoundStart = true;
 
-                lastSegmentOffset = pos.Value + 2;
+                int searchEndMarkOffset = pos + m_StartMark.Length;
 
                 //The end mark could not exist in this round received data
-                if (lastSegmentOffset + 2 > BufferSegments.Count)
+                if (offset + length <= searchEndMarkOffset)
+                {
+                    AddArraySegment(m_StartMark, 0, m_StartMark.Length, false);
                     return null;
+                }
 
-                searchEndMarkLength = BufferSegments.Count - lastSegmentOffset;
+                int searchEndMarkLength = offset + length - searchEndMarkOffset;
+
+                var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
+
+                if (endPos < 0)
+                {
+                    AddArraySegment(readBuffer, pos, length + offset - pos, isReusableBuffer);
+                    return null;
+                }
+
+                int parsedLen = endPos - pos + m_EndMark.Length;
+                left = length - parsedLen;
+
+                var commandInfo = CreateCommandInfo(readBuffer.CloneRange(pos, parsedLen));
+
+                ResetState();
+
+                return commandInfo;
             }
+            else
+            {
+                var endPos = readBuffer.SearchMark(offset, length, m_EndSearchState);
+                //Haven't found end mark
+                if (endPos < 0)
+                {
+                    AddArraySegment(readBuffer, offset, length, isReusableBuffer);
+                    return null;
+                }
 
-            var endPos = BufferSegments.SearchMark(lastSegmentOffset, searchEndMarkLength, m_EndMark);
-            //Haven't found end mark
-            if (!endPos.HasValue || endPos.Value < 0)
-                return null;
+                //Found end mark
+                int parsedLen = endPos - offset + m_EndMark.Length;
+                left = length - parsedLen;
 
-            //Found end mark
-            left = BufferSegments.Count - endPos.Value - 2;
+                byte[] commandData = new byte[BufferSegments.Count + parsedLen];
 
-            var commandData = BufferSegments.ToArrayData(m_StartPos, endPos.Value - m_StartPos + 2);
-            var commandInfo = new BinaryCommandInfo(BitConverter.ToString(commandData, 15, 1), commandData);
+                if (BufferSegments.Count > 0)
+                    BufferSegments.CopyTo(commandData, 0, 0, BufferSegments.Count);
 
-            //Reset state
+                Array.Copy(readBuffer, offset, commandData, BufferSegments.Count, parsedLen);
+
+                var commandInfo = CreateCommandInfo(commandData);
+
+                ResetState();
+
+                return commandInfo;
+            }
+        }
+
+        private void ResetState()
+        {
+            m_StartSearchState.Matched = 0;
+            m_EndSearchState.Matched = 0;
             m_FoundStart = false;
-            m_StartPos = -1;
 
-            BufferSegments.ClearSegements();
+            ClearBufferSegments();
+        }
 
-            return commandInfo;
+        private BinaryCommandInfo CreateCommandInfo(byte[] data)
+        {
+            return new BinaryCommandInfo(BitConverter.ToString(data, 15, 1), data);
         }
     }
 }

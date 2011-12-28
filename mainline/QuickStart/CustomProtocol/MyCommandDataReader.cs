@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
@@ -14,11 +14,12 @@ namespace SuperSocket.QuickStart.CustomProtocol
 
         private string m_CommandName;
 
-        public MyCommandDataReader(string commandName, int length, CommandReaderBase<BinaryCommandInfo> previousCommandReader)
-            : base(previousCommandReader)
+        internal void Initialize(string commandName, int length, CommandReaderBase<BinaryCommandInfo> previousCommandReader)
         {
             m_Length = length;
             m_CommandName = commandName;
+
+            base.Initialize(previousCommandReader);
         }
 
         public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)

@@ -127,6 +127,10 @@ namespace SuperSocket.SocketBase.Config
         /// </value>
         bool EnableDynamicCommand { get; }
 
+        /// <summary>
+        /// Gets the backlog size of socket listening.
+        /// </summary>
+        int ListenBacklog { get; }
 
 
         TConfig GetChildConfig<TConfig>(string childConfigName)

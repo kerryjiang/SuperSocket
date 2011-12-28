@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Net.Sockets;
 using System.IO;
+using System.Linq;
+using System.Net.Sockets;
+using System.Text;
 using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase.Protocol
@@ -16,6 +16,8 @@ namespace SuperSocket.SocketBase.Protocol
         private ICommandParser m_CommandParser;
 
         private Encoding m_Encoding;
+
+        private byte[] m_LineTerminator;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandLineProtocol"/> class.
@@ -62,6 +64,7 @@ namespace SuperSocket.SocketBase.Protocol
                 throw new ArgumentNullException("encoding");
 
             m_Encoding = encoding;
+            m_LineTerminator = m_Encoding.GetBytes(Environment.NewLine);
         }
 
         /// <summary>
@@ -71,7 +74,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns></returns>
         public ICommandReader<StringCommandInfo> CreateCommandReader(IAppServer appServer)
         {
-            return new TerminatorCommandReader(appServer, m_Encoding, Environment.NewLine, m_CommandParser);
+            return new TerminatorCommandReader(appServer, m_Encoding, m_LineTerminator, m_CommandParser);
         }
     }
 }

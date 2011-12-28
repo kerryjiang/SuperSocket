@@ -63,7 +63,7 @@ namespace SuperSocket.SocketEngine
             try
             {
                 m_ListenSocket.Bind(this.EndPoint);
-                m_ListenSocket.Listen(100);
+                m_ListenSocket.Listen(this.AppServer.Config.ListenBacklog);
 
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
