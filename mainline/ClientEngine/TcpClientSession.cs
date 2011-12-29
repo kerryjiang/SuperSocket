@@ -179,6 +179,17 @@ namespace SuperSocket.ClientEngine
             }
         }
 
+        public override void Send(IList<ArraySegment<byte>> segments)
+        {
+            for (var i = 0; i < segments.Count; i++)
+                m_SendingQueue.Enqueue(segments[i]);
+
+            if (!m_IsSending)
+            {
+                DequeueSend();
+            }
+        }
+
         private void DequeueSend()
         {
             m_IsSending = true;

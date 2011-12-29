@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Collections.Specialized;
 
 namespace SuperSocket.ClientEngine
 {
@@ -170,6 +171,27 @@ namespace SuperSocket.ClientEngine
             }
 
             return source;
+        }
+
+        public static string GetValue(this NameValueCollection collection, string key)
+        {
+            return GetValue(collection, key, string.Empty);
+        }
+
+        public static string GetValue(this NameValueCollection collection, string key, string defaultValue)
+        {
+            if (string.IsNullOrEmpty(key))
+                throw new ArgumentNullException("key");
+
+            if (collection == null)
+                return defaultValue;
+
+            var e = collection[key];
+
+            if (e == null)
+                return defaultValue;
+
+            return e;
         }
     }
 }

@@ -12,6 +12,12 @@ namespace SuperSocket.ClientEngine
             {
                 return base[index].Value;
             }
+
+            set
+            {
+                var oldKey = base[index].Key;
+                base[index] = new KeyValuePair<string, string>(oldKey, value);
+            }
         }
 
         public string this[string name]
@@ -19,6 +25,19 @@ namespace SuperSocket.ClientEngine
             get
             {
                 return this.SingleOrDefault(kv => kv.Key.Equals(name)).Value;
+            }
+            set
+            {
+                for (var i = 0; i < this.Count; i++)
+                {
+                    if (name.Equals(this[i], StringComparison.OrdinalIgnoreCase))
+                    {
+                        this.RemoveAt(i);
+                        break;
+                    }
+                }
+
+                this.Add(new KeyValuePair<string, string>(name, value));
             }
         }
 

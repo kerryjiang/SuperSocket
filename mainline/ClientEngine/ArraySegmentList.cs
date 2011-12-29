@@ -520,6 +520,9 @@ namespace SuperSocket.ClientEngine
 
         public string Decode(Encoding encoding, int offset, int length)
         {
+            if (length == 0)
+                return string.Empty;
+
             var arraySegments = Segments;
 
             if (arraySegments == null || arraySegments.Count <= 0)

@@ -37,6 +37,8 @@ namespace SuperSocket.ClientEngine
 
         public abstract void Send(byte[] data, int offset, int length);
 
+        public abstract void Send(IList<ArraySegment<byte>> segments);
+
         public abstract void Close();
 
         private EventHandler m_Closed;

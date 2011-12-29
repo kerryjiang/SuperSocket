@@ -14,6 +14,8 @@ namespace SuperSocket.ClientEngine
 
         void Send(byte[] data, int offset, int length);
 
+        void Send(IList<ArraySegment<byte>> segments);
+
         void Close();
     }
 }
