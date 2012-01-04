@@ -41,7 +41,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -103,11 +103,9 @@
     <Compile Include="SocketManagerPasswordValidator.cs" />
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerManager.Performance.cs" />
-    <Compile Include="SyncSocketServer.cs" />
     <Compile Include="SocketServerBase.cs" />
     <Compile Include="SocketServerManager.cs" />
     <Compile Include="SocketSession.cs" />
-    <Compile Include="SyncSocketSession.cs" />
     <Compile Include="TcpSocketServerBase.cs" />
     <Compile Include="UdpSocketServer.cs">
       <SubType>Code</SubType>

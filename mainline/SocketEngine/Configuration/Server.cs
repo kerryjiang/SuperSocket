@@ -38,7 +38,7 @@ namespace SuperSocket.SocketEngine.Configuration
             get { return (int)this["port"]; }
         }
 
-        [ConfigurationProperty("mode", IsRequired = false, DefaultValue = "Sync")]
+        [ConfigurationProperty("mode", IsRequired = false, DefaultValue = "Tcp")]
         public SocketMode Mode
         {
             get { return (SocketMode)this["mode"]; }

@@ -36,8 +36,7 @@ namespace SuperSocket.SocketEngine
             {
                 case(SocketMode.Udp):
                     return new UdpSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
-                case(SocketMode.Sync):
-                    return new SyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
+                case(SocketMode.Tcp):
                 case(SocketMode.Async):
                     if (string.IsNullOrEmpty(config.Security) || config.Security.Equals(m_SecurityNone, StringComparison.OrdinalIgnoreCase))
                         return new AsyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);

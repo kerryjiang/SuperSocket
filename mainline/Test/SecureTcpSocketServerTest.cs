@@ -14,7 +14,7 @@ using System.Security.Authentication;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class SecureSocketServerTest : SocketServerTest
+    public class SecureTcpSocketServerTest : SocketServerTest
     {
         protected override IServerConfig DefaultServerConfig
         {
@@ -25,8 +25,8 @@ namespace SuperSocket.Test
                     Ip = "Any",
                     LogCommand = true,
                     MaxConnectionNumber = 100,
-                    Mode = SocketMode.Sync,
-                    Name = "Sync Secure Test Socket Server",
+                    Mode = SocketMode.Tcp,
+                    Name = "Secure Test Socket Server",
                     Port = 2012,
                     ClearIdleSession = true,
                     ClearIdleSessionInterval = 1,

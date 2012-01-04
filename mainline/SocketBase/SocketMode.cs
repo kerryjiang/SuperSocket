@@ -7,8 +7,9 @@ namespace SuperSocket.SocketBase
 {
     public enum SocketMode
     {
-        Sync,
+        [Obsolete("Please use SocketMode.Tcp instead", false)]
         Async,
+        Tcp,
         Udp
     }
 }

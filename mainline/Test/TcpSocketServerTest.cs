@@ -9,7 +9,7 @@ using SuperSocket.SocketBase.Config;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class AsyncSocketServerTest : SocketServerTest
+    public class TcpSocketServerTest : SocketServerTest
     {
         protected override IServerConfig DefaultServerConfig
         {
@@ -20,7 +20,7 @@ namespace SuperSocket.Test
                         Ip = "Any",
                         LogCommand = true,
                         MaxConnectionNumber = 100,
-                        Mode = SocketMode.Async,
+                        Mode = SocketMode.Tcp,
                         Name = "Async Test Socket Server",
                         Port = 2012,
                         ClearIdleSession = true,
