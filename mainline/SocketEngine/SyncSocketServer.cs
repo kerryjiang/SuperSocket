@@ -59,7 +59,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 return false;
             }
         }        
@@ -81,7 +81,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 OnStartupFinished();
                 return;
             }
@@ -124,7 +124,8 @@ namespace SuperSocket.SocketEngine
                             break;
                     }
 
-                    AppServer.Logger.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
                     break;
                 }
 
@@ -136,7 +137,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.LogError(e);
+                    AppServer.Logger.Error(e);
                     continue;
                 }
 
@@ -149,7 +150,7 @@ namespace SuperSocket.SocketEngine
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 
                 //Start run session asynchronous
-                Async.Run(() => session.Start(), TaskCreationOptions.LongRunning, (x) => AppServer.Logger.LogError(session, x));
+                Async.Run(() => session.Start(), TaskCreationOptions.LongRunning, (x) => AppServer.Logger.Error(session, x));
             }
 
             IsRunning = false;

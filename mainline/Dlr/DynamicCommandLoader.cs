@@ -8,6 +8,7 @@ using SuperSocket.SocketBase.Command;
 using System.Threading;
 using SuperSocket.Common;
 using Microsoft.Scripting.Hosting;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.Dlr
 {
@@ -141,7 +142,10 @@ namespace SuperSocket.Dlr
             }
             catch (Exception e)
             {
-                LogUtil.LogError(e);
+                var globalLog = LogFactoryProvider.GlobalLog;
+
+                if (globalLog.IsErrorEnabled)
+                    globalLog.Error(e);
             }
             finally
             {
@@ -259,7 +263,8 @@ namespace SuperSocket.Dlr
                 }
                 catch (Exception e)
                 {
-                    appServer.Logger.LogError("Failed to load command file: " + c.Command.FilePath + "!", e);
+                    if (appServer.Logger.IsErrorEnabled)
+                        appServer.Logger.Error("Failed to load command file: " + c.Command.FilePath + "!", e);
                     return null;
                 }
             });

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
@@ -101,7 +102,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the logger assosiated with this session.
         /// </summary>
-        ILogger Logger { get; }
+        ILog Logger { get; }
     }
 
     public interface IAppSession<TCommandInfo> : IAppSession

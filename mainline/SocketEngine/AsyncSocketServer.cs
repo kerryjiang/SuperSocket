@@ -59,7 +59,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.LogError("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
+                    AppServer.Logger.Error("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
                     return false;
                 }
 
@@ -92,7 +92,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 return false;
             }
         }
@@ -111,7 +111,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 OnStartupFinished();
                 return;
             }
@@ -150,7 +150,8 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.LogError("Failed to accept new tcp client in async server!", e);
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("Failed to accept new tcp client in async server!", e);
                     break;
                 }
 
@@ -180,7 +181,8 @@ namespace SuperSocket.SocketEngine
                 SocketAsyncEventArgsProxy socketEventArgsProxy;
                 if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
                 {
-                    AppServer.Logger.LogError("There is no enough buffer block to arrange to new accepted client!");
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("There is no enough buffer block to arrange to new accepted client!");
                     return;
                 }
 

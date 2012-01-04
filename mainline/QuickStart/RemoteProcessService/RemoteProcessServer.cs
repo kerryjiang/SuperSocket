@@ -106,13 +106,14 @@ namespace SuperSocket.QuickStart.RemoteProcessService
                         }
                         catch (Exception e)
                         {
-                            Logger.LogError("Failed to kill the process " + p.ProcessName, e);
+                            if(Logger.IsErrorEnabled)
+                                Logger.Error("Failed to kill the process " + p.ProcessName, e);
                         }
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e);
+                    Logger.Error(e);
                 }
                 finally
                 {

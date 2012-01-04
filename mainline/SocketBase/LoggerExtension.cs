@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketBase
 {
@@ -10,30 +11,43 @@ namespace SuperSocket.SocketBase
     {
         private readonly static string m_SessionInfoTemplate = "Session: {0}/{1}";
 
-        public static void LogError(this ILogger logger, ISessionBase session, Exception e)
+        public static void Error(this ILog logger, ISessionBase session, Exception e)
         {
-            logger.LogError(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint), e);   
+            logger.Error(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint), e);
         }
 
-        public static void LogError(this ILogger logger, ISessionBase session, string title, Exception e)
+        public static void Error(this ILog logger, ISessionBase session, string title, Exception e)
         {
-            logger.LogError(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + title, e);
+            logger.Error(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + title, e);
         }
 
-        public static void LogError(this ILogger logger, ISessionBase session, string message)
+        public static void Error(this ILog logger, ISessionBase session, string message)
         {
-            logger.LogError(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message);
+            logger.Error(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message);
         }
 
-        public static void LogInfo(this ILogger logger, ISessionBase session, string message)
+        public static void Info(this ILog logger, ISessionBase session, string message)
         {
             string info = string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message;
-            logger.LogInfo(info);
+            logger.Info(info);
         }
 
-        public static void LogDebug(this ILogger logger, ISessionBase session, string message)
+        public static void Debug(this ILog logger, ISessionBase session, string message)
         {
-            logger.LogDebug(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message);
+            if (!logger.IsDebugEnabled)
+                return;
+
+            logger.Debug(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message);
+        }
+
+        private const string m_PerfLogName = "Perf";
+
+        public static void Perf(this IAppServer appServer, string message)
+        {
+            var perfLog = LogFactoryProvider.LogFactory.GetLog(m_PerfLogName);
+
+            if (perfLog != null && perfLog.IsInfoEnabled)
+                perfLog.Info(message);
         }
     }
 }

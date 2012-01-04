@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel.Description;
 using System.Text;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 
@@ -13,7 +14,7 @@ namespace SuperSocket.SocketBase
 {
     public interface ILoggerProvider
     {
-        ILogger Logger { get; }
+        ILog Logger { get; }
     }
 
     public interface IPerformanceDataSource

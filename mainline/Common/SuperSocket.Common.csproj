@@ -81,19 +81,16 @@
     <Compile Include="BufferManager.cs" />
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="ConfigurationExtension.cs" />
-    <Compile Include="ConsoleLogger.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="DictionaryExtension.cs" />
-    <Compile Include="DynamicLog4NetLogger.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="GlobalResourceManager.cs" />
-    <Compile Include="ILogger.cs" />
-    <Compile Include="Log4NetLogger.cs" />
-    <Compile Include="LoggerBase.cs" />
-    <Compile Include="LogUtil.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Logging\ConsoleLog.cs" />
+    <Compile Include="Logging\ConsoleLogFactory.cs" />
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\ILogFactory.cs" />
+    <Compile Include="Logging\Log4NetLog.cs" />
+    <Compile Include="Logging\Log4NetLogFactory.cs" />
+    <Compile Include="Logging\LogFactoryProvider.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalResources.cs" />

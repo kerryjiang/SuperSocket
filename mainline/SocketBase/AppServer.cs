@@ -93,12 +93,14 @@ namespace SuperSocket.SocketBase
 
             if (m_SessionDict.TryAdd(appSession.SessionID, appSession))
             {
-                Logger.LogInfo(appSession, "New SocketSession was accepted!");
+                if(!Logger.IsInfoEnabled)
+                    Logger.Info(appSession, "New SocketSession was accepted!");
                 return appSession;
             }
             else
             {
-                Logger.LogError(appSession, "SocketSession was refused because the session's IdentityKey already exists!");
+                if(Logger.IsErrorEnabled)
+                    Logger.Error(appSession, "SocketSession was refused because the session's IdentityKey already exists!");
                 return NullAppSession;
             }
         }
@@ -124,13 +126,16 @@ namespace SuperSocket.SocketBase
             if (m_SessionDict.TryRemove(sessionID, out removedSession))
             {
                 removedSession.Status = SessionStatus.Disconnected;
-                Logger.LogInfo(removedSession, "This session was closed!");
+                if(Logger.IsInfoEnabled)
+                    Logger.Info(removedSession, "This session was closed!");
+
                 Async.Run(() => OnAppSessionClosed(this, new AppSessionClosedEventArgs<TAppSession>(removedSession, e.Reason)),
-                    exc => Logger.LogError(exc));
+                    exc => Logger.Error(exc));
             }
             else
             {
-                Logger.LogError(removedSession, "Failed to remove this session, Because it haven't been in session container!");
+                if (Logger.IsErrorEnabled)
+                    Logger.Error(removedSession, "Failed to remove this session, Because it haven't been in session container!");
             }
         }
 
@@ -169,13 +174,15 @@ namespace SuperSocket.SocketBase
                     var timeOutSessions = SessionSource.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                         {
-                            Logger.LogInfo(s, string.Format("The socket session has been closed for {0} timeout, last active time: {1}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.LastActiveTime));
+                            if (Logger.IsInfoEnabled)
+                                Logger.Info(s, string.Format("The socket session has been closed for {0} timeout, last active time: {1}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.LastActiveTime));
                             s.Close(CloseReason.TimeOut);
                         });
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError("Clear idle session error!", e);
+                    if(Logger.IsErrorEnabled)
+                        Logger.Error("Clear idle session error!", e);
                 }
                 finally
                 {
@@ -256,7 +263,7 @@ namespace SuperSocket.SocketBase
                 });
 
             //User can process the performance data by self
-            Async.Run(() => OnPerformanceDataCollected(globalPerfData, m_PerformanceData), e => Logger.LogError(e));
+            Async.Run(() => OnPerformanceDataCollected(globalPerfData, m_PerformanceData), e => Logger.Error(e));
 
             return m_PerformanceData;
         }

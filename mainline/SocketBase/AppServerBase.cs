@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
@@ -46,7 +47,7 @@ namespace SuperSocket.SocketBase
 
         protected IRootConfig RootConfig { get; private set; }
 
-        public ILogger Logger { get; private set; }
+        public ILog Logger { get; private set; }
 
         private static bool m_ThreadPoolConfigured = false;
 
@@ -81,7 +82,8 @@ namespace SuperSocket.SocketBase
                     {
                         if (commandDict.ContainsKey(c.Name))
                         {
-                            Logger.LogError("Duplicated name command has been found! Command name: " + c.Name);
+                            if (Logger.IsErrorEnabled)
+                                Logger.Error("Duplicated name command has been found! Command name: " + c.Name);
                             return false;
                         }
 
@@ -100,17 +102,20 @@ namespace SuperSocket.SocketBase
                             if (c.UpdateAction == CommandUpdateAction.Remove)
                             {
                                 workingDict.Remove(c.Command.Name);
-                                Logger.LogInfo(string.Format("The command '{0}' has been removed from this server!", c.Command.Name));
+                                if (Logger.IsInfoEnabled)
+                                    Logger.InfoFormat("The command '{0}' has been removed from this server!", c.Command.Name);
                             }
                             else if (c.UpdateAction == CommandUpdateAction.Add)
                             {
                                 workingDict.Add(c.Command.Name, c.Command);
-                                Logger.LogInfo(string.Format("The command '{0}' has been added into this server!", c.Command.Name));
+                                if (Logger.IsInfoEnabled)
+                                    Logger.InfoFormat("The command '{0}' has been added into this server!", c.Command.Name);
                             }
                             else
                             {
                                 workingDict[c.Command.Name] = c.Command;
-                                Logger.LogInfo(string.Format("The command '{0}' has been updated!", c.Command.Name));
+                                if (Logger.IsInfoEnabled)
+                                    Logger.InfoFormat("The command '{0}' has been updated!", c.Command.Name);
                             }
 
                             updatedCommands++;
@@ -127,7 +132,8 @@ namespace SuperSocket.SocketBase
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError("Failed to load command by " + loader.GetType().ToString() + "!", e);
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("Failed to load command by " + loader.GetType().ToString() + "!", e);
                     return false;
                 }
             }
@@ -186,7 +192,9 @@ namespace SuperSocket.SocketBase
 
             if (!SetupLocalEndpoint(config))
             {
-                Logger.LogError("Invalid config ip/port");
+                if(Logger.IsErrorEnabled)
+                    Logger.Error("Invalid config ip/port");
+
                 return false;
             }
 
@@ -201,11 +209,16 @@ namespace SuperSocket.SocketBase
             if (Config.EnableDynamicCommand)
             {
                 ICommandLoader dynamicCommandLoader;
-                Exception exception;
 
-                if (!AssemblyUtil.TryCreateInstance<ICommandLoader>("SuperSocket.Dlr.DynamicCommandLoader, SuperSocket.Dlr", out dynamicCommandLoader, out exception))
+                try
                 {
-                    Logger.LogError("The file SuperSocket.Dlr is required for dynamic command support!", exception);
+                    dynamicCommandLoader = AssemblyUtil.CreateInstance<ICommandLoader>("SuperSocket.Dlr.DynamicCommandLoader, SuperSocket.Dlr");
+                }
+                catch (Exception e)
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("The file SuperSocket.Dlr is required for dynamic command support!", e);
+
                     return false;
                 }
 
@@ -234,13 +247,19 @@ namespace SuperSocket.SocketBase
                 if (!string.IsNullOrEmpty(config.Protocol))
                 {
                     ICustomProtocol<TCommandInfo> configuredProtocol;
-                    Exception exception;
 
-                    if (!AssemblyUtil.TryCreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol, out configuredProtocol, out exception))
+                    try
                     {
-                        Logger.LogError("Invalid configured protocol " + config.Protocol + ".", exception);
+                        configuredProtocol = AssemblyUtil.CreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol);
+                    }
+                    catch(Exception e)
+                    {
+                        if (Logger.IsErrorEnabled)
+                            Logger.Error(string.Format("Invalid configured protocol {0}.", config.Protocol), e);
+
                         return false;
                     }
+
                     Protocol = configuredProtocol;
                 }
             }
@@ -248,7 +267,9 @@ namespace SuperSocket.SocketBase
             //If there is no defined protocol, use CommandLineProtocol as default
             if (Protocol == null)
             {
-                Logger.LogError("Protocol hasn't been set!");
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Protocol hasn't been set!");
+
                 return false;
             }
 
@@ -257,20 +278,7 @@ namespace SuperSocket.SocketBase
 
         private void SetupLogger()
         {
-            switch (RootConfig.LoggingMode)
-            {
-                case (LoggingMode.IndependantFile):
-                    Logger = new DynamicLog4NetLogger(Config.Name);
-                    break;
-
-                case (LoggingMode.Console):
-                    Logger = new ConsoleLogger(Config.Name);
-                    break;
-
-                default:
-                    Logger = new Log4NetLogger(Config.Name);
-                    break;
-            }
+            Logger = LogFactoryProvider.LogFactory.GetLog(this.Name);
         }
 
         private bool SetupSecurity(IServerConfig config)
@@ -280,7 +288,9 @@ namespace SuperSocket.SocketBase
                 SslProtocols configProtocol;
                 if (!config.Security.TryParseEnum<SslProtocols>(true, out configProtocol))
                 {
-                    Logger.LogError(string.Format("Failed to parse '{0}' to SslProtocol!", config.Security));
+                    if (Logger.IsErrorEnabled)
+                        Logger.ErrorFormat("Failed to parse '{0}' to SslProtocol!", config.Security);
+
                     return false;
                 }
 
@@ -288,7 +298,8 @@ namespace SuperSocket.SocketBase
                 {
                     if (config.Certificate == null || !config.Certificate.IsEnabled)
                     {
-                        Logger.LogError("There is no certificate defined and enabled!");
+                        if (Logger.IsErrorEnabled)
+                            Logger.Error("There is no certificate defined and enabled!");
                         return false;
                     }
 
@@ -315,7 +326,9 @@ namespace SuperSocket.SocketBase
             }
             catch (Exception e)
             {
-                Logger.LogError(e);
+                if (Logger.IsErrorEnabled)
+                    Logger.Error(e);
+
                 return false;
             }
         }
@@ -337,7 +350,9 @@ namespace SuperSocket.SocketBase
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e);
+                    if(Logger.IsErrorEnabled)
+                        Logger.Error(e);
+
                     return false;
                 }
             }
@@ -351,7 +366,9 @@ namespace SuperSocket.SocketBase
             {
                 if (config.Certificate.IsEnabled && string.IsNullOrEmpty(config.Certificate.FilePath) && string.IsNullOrEmpty(config.Certificate.Thumbprint))
                 {
-                    Logger.LogError("Failed to initialize certificate! The attributes 'filePath' or 'thumbprint' is required!");
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("Failed to initialize certificate! The attributes 'filePath' or 'thumbprint' is required!");
+
                     return false;
                 }
 
@@ -360,7 +377,9 @@ namespace SuperSocket.SocketBase
             }
             catch (Exception e)
             {
-                Logger.LogError("Failed to initialize certificate!", e);
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Failed to initialize certificate!", e);
+
                 return false;
             }
         }
@@ -377,7 +396,9 @@ namespace SuperSocket.SocketBase
         {
             if (this.IsRunning)
             {
-                Logger.LogError("This socket server is running already, you needn't start it.");
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("This socket server is running already, you needn't start it.");
+
                 return false;
             }
 
@@ -482,8 +503,8 @@ namespace SuperSocket.SocketBase
 
                     session.PrevCommand = commandInfo.Key;
 
-                    if (Config.LogCommand)
-                        Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
+                    if (Config.LogCommand && Logger.IsInfoEnabled)
+                        Logger.Info(session, string.Format("Command - {0}", commandInfo.Key));
                 }
                 else
                 {
@@ -499,8 +520,8 @@ namespace SuperSocket.SocketBase
                 session.PrevCommand = commandInfo.Key;
                 session.LastActiveTime = DateTime.Now;
 
-                if (Config.LogCommand)
-                    Logger.LogInfo(session, string.Format("Command - {0}", commandInfo.Key));
+                if (Config.LogCommand && Logger.IsInfoEnabled)
+                    Logger.Info(session, string.Format("Command - {0}", commandInfo.Key));
             }
 
             Interlocked.Increment(ref m_TotalHandledCommands);
@@ -528,7 +549,8 @@ namespace SuperSocket.SocketBase
                 var currentFilter = m_ConnectionFilters[i];
                 if (!currentFilter.AllowConnect(remoteAddress))
                 {
-                    Logger.LogInfo(string.Format("A connection from {0} has been refused by filter {1}!", remoteAddress, currentFilter.Name));
+                    if (Logger.IsInfoEnabled)
+                        Logger.InfoFormat("A connection from {0} has been refused by filter {1}!", remoteAddress, currentFilter.Name);
                     return false;
                 }
             }

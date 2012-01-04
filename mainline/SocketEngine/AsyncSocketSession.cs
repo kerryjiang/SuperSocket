@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
@@ -18,7 +19,7 @@ namespace SuperSocket.SocketEngine
     {
         SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
         void ProcessReceive(SocketAsyncEventArgs e);
-        ILogger Logger { get; }
+        ILog Logger { get; }
     }
 
     class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
@@ -33,7 +34,7 @@ namespace SuperSocket.SocketEngine
             m_AsyncSender = new AsyncSocketSender(client);
         }
 
-        ILogger IAsyncSocketSession.Logger
+        ILog IAsyncSocketSession.Logger
         {
             get { return AppServer.Logger; }
         }
@@ -149,7 +150,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception exc)
                 {
-                    AppServer.Logger.LogError(this, exc);
+                    AppServer.Logger.Error(this, exc);
                     HandleExceptionalError(exc);
                 }
                     

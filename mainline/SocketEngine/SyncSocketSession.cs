@@ -48,7 +48,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -78,7 +78,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.LogError(this, e);
+                    AppServer.Logger.Error(this, e);
                     HandleExceptionalError(e);
                 }
             }
@@ -202,13 +202,13 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                AppServer.Logger.LogError(this, ioe);
+                AppServer.Logger.Error(this, ioe);
                 this.Close(CloseReason.SocketError);
                 return false;
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(this, e);
+                AppServer.Logger.Error(this, e);
                 this.Close(CloseReason.Unknown);
                 return false;
             }
@@ -245,7 +245,7 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                AppServer.Logger.LogError(this, e);
+                AppServer.Logger.Error(this, e);
                 this.Close(CloseReason.Unknown);
             }
         }
@@ -262,7 +262,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(this, e);
+                AppServer.Logger.Error(this, e);
                 this.Close(CloseReason.SocketError);
             }
         }

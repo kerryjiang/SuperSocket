@@ -6,6 +6,7 @@ using System.Threading;
 using System.Diagnostics;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
@@ -20,6 +21,7 @@ namespace SuperSocket.SocketEngine
         private static DateTime m_PrevCheckingTime = DateTime.MinValue;
         private static double m_CpuUsgae = 0;
         private static readonly long m_MbUnit = 1024 * 1024;
+        private static ILog m_PerfLog = LogFactoryProvider.LogFactory.GetLog("Perf");
 
 
         private static void OnPerformanceTimerCallback(object state)
@@ -39,8 +41,8 @@ namespace SuperSocket.SocketEngine
                 VirtualMemorySize = process.VirtualMemorySize64
             };
 
-            LogUtil.LogPerf(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet / m_MbUnit, globalPerfData.VirtualMemorySize / m_MbUnit, globalPerfData.TotalThreadCount));
-            LogUtil.LogPerf(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads));
+            m_PerfLog.InfoFormat("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet / m_MbUnit, globalPerfData.VirtualMemorySize / m_MbUnit, globalPerfData.TotalThreadCount);
+            m_PerfLog.InfoFormat("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads);
             
             m_ServerList.ForEach(s =>
                 {
@@ -48,10 +50,10 @@ namespace SuperSocket.SocketEngine
                     if (perfSource != null)
                     {
                         var perfData = perfSource.CollectPerformanceData(globalPerfData);
-                        s.Logger.LogPerf(string.Format("Total connections: {0}, total handled commands: {1}, command handling speed: {2}/s",
+                        m_PerfLog.InfoFormat("Total connections: {0}, total handled commands: {1}, command handling speed: {2}/s",
                             perfData.CurrentRecord.TotalConnections,
                             perfData.CurrentRecord.TotalHandledCommands,
-                            (perfData.CurrentRecord.TotalHandledCommands - perfData.PreviousRecord.TotalHandledCommands) / perfData.CurrentRecord.RecordSpan));
+                            (perfData.CurrentRecord.TotalHandledCommands - perfData.PreviousRecord.TotalHandledCommands) / perfData.CurrentRecord.RecordSpan);
                     }
                 });
         }

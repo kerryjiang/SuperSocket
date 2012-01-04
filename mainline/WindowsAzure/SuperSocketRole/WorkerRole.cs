@@ -32,7 +32,6 @@ namespace SuperSocket.SuperSocketRole
 
         public override bool OnStart()
         {
-            LogUtil.Setup();
             // Set the maximum number of concurrent connections 
             ServicePointManager.DefaultConnectionLimit = 100;
 

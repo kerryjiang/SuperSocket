@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.Common
 {
@@ -30,7 +31,7 @@ namespace SuperSocket.Common
                     if (exceptionHandler != null)
                         exceptionHandler(t.Exception);
                     else
-                        LogUtil.LogError(t.Exception);
+                        LogFactoryProvider.GlobalLog.Error(t.Exception);
                 }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
@@ -56,7 +57,7 @@ namespace SuperSocket.Common
                 if (exceptionHandler != null)
                     exceptionHandler(t.Exception);
                 else
-                    LogUtil.LogError(t.Exception);
+                    LogFactoryProvider.GlobalLog.Error(t.Exception);
             }, TaskContinuationOptions.OnlyOnFaulted);
         }
     }

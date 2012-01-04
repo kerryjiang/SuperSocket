@@ -90,7 +90,6 @@ namespace SuperSocket.Test
         [TestFixtureSetUp]
         public void Setup()
         {
-            LogUtil.Setup(new ConsoleLogger());
 
             m_Server = new TestServer();
             m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);

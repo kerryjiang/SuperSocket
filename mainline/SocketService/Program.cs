@@ -18,8 +18,6 @@ namespace SuperSocket.SocketService
         /// </summary>
         static void Main(string[] args)
         {
-            LogUtil.Setup();
-
             if (!Environment.UserInteractive)
             {
                 RunAsService();

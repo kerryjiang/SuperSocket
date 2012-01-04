@@ -1,11 +1,12 @@
 using System;
 using System.Net.Sockets;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.Common
 {
     public static class SocketEx
     {
-        public static void SafeCloseClientSocket(this Socket client, ILogger logger)
+        public static void SafeCloseClientSocket(this Socket client, ILog logger)
         {
             if(client == null)
                 return;
@@ -23,7 +24,7 @@ namespace SuperSocket.Common
             catch(Exception e)
             {
                 if(logger != null)
-                    logger.LogError(e);
+                    logger.Error(e);
             }
             
             try
@@ -36,7 +37,7 @@ namespace SuperSocket.Common
             catch(Exception e)
             {
                 if(logger != null)
-                    logger.LogError(e);
+                    logger.Error(e);
             }
         }
         

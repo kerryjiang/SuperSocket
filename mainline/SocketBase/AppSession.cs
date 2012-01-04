@@ -4,9 +4,10 @@ using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.Common;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
@@ -102,7 +103,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the logger.
         /// </summary>
-        public ILogger Logger
+        public ILog Logger
         {
             get { return AppServer.Logger; }
         }
@@ -191,7 +192,7 @@ namespace SuperSocket.SocketBase
         /// <param name="e">The e.</param>
         public virtual void HandleExceptionalError(Exception e)
         {
-            Logger.LogError(e);
+            Logger.Error(e);
         }
 
         /// <summary>

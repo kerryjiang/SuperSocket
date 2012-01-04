@@ -34,7 +34,7 @@ namespace SuperSocket.SocketEngine.AsyncSocket
             if (e.LastOperation == SocketAsyncOperation.Receive)
             {
                 Async.Run(() => socketSession.ProcessReceive(e),
-                    exc => socketSession.Logger.LogError(socketSession as ISessionBase, exc));
+                    exc => socketSession.Logger.Error(socketSession as ISessionBase, exc));
             }
             else
             {

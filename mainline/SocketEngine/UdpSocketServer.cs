@@ -68,7 +68,8 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.LogError("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
                     return false;
                 }
 
@@ -89,7 +90,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 return false;
             }
         }
@@ -113,7 +114,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 OnStartupFinished();
                 return;
             }
@@ -127,7 +128,7 @@ namespace SuperSocket.SocketEngine
             while (!IsStopped)
             {
                 try
-                {                    
+                {
                     socketAsyncEventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
                     willRaiseEvent = m_ListenSocket.ReceiveFromAsync(socketAsyncEventArgs);
                 }
@@ -150,12 +151,13 @@ namespace SuperSocket.SocketEngine
                             break;
                     }
 
-                    AppServer.Logger.LogError("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("Socket Listener stopped unexpectly, Socket Address:" + EndPoint.Address.ToString() + ":" + EndPoint.Port, e);
                     break;
                 }
 
                 if (!willRaiseEvent)
-                    Async.Run(() => OnSocketReceived(socketAsyncEventArgs), (x) => AppServer.Logger.LogError(x));
+                    Async.Run(() => OnSocketReceived(socketAsyncEventArgs), (x) => AppServer.Logger.Error(x));
 
                 m_UdpClientConnected.WaitOne();
             }
@@ -182,8 +184,9 @@ namespace SuperSocket.SocketEngine
             {
                 if (m_LiveConnectionCount >= AppServer.Config.MaxConnectionNumber)
                 {
-                    AppServer.Logger.LogError(string.Format("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
-                        remoteEndPoint.ToString(), AppServer.Config.MaxConnectionNumber));
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.ErrorFormat("Cannot accept a new UDP connection from {0}, the max connection number {1} has been exceed!",
+                        remoteEndPoint.ToString(), AppServer.Config.MaxConnectionNumber);
                     return;
                 }
 
@@ -195,12 +198,12 @@ namespace SuperSocket.SocketEngine
                 Interlocked.Increment(ref m_LiveConnectionCount);
                 session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                 session.Start();
-                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
+                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.Error(x));
             }
             else //Existing session
             {
                 var session = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
-                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.LogError(x));
+                Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.Error(x));
             }
         }
 
@@ -218,19 +221,22 @@ namespace SuperSocket.SocketEngine
 
                 if (left > 0)
                 {
-                    AppServer.Logger.LogError("The output parameter left must be zero in this case!");
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("The output parameter left must be zero in this case!");
                     return;
                 }
 
                 if (udpCommandInfo == null)
                 {
-                    AppServer.Logger.LogError("Invalid UDP package format!");
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("Invalid UDP package format!");
                     return;
                 }
 
                 if (string.IsNullOrEmpty(udpCommandInfo.SessionID))
                 {
-                    AppServer.Logger.LogError("Failed to get session key from UDP package!");
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("Failed to get session key from UDP package!");
                     return;
                 }
 
@@ -238,7 +244,8 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception exc)
             {
-                AppServer.Logger.LogError("Failed to parse UDP package!", exc);
+                if (AppServer.Logger.IsErrorEnabled)
+                    AppServer.Logger.Error("Failed to parse UDP package!", exc);
                 return;
             }
 

@@ -94,8 +94,8 @@ namespace SuperSocket.SocketEngine
                 int leftBufferCount = CommandReader.LeftBufferSize;
                 if (leftBufferCount >= AppServer.Config.MaxCommandLength)
                 {
-                    AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
-                        AppServer.Config.MaxCommandLength, leftBufferCount));
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.ErrorFormat("Max command length: {0}, current processed length: {1}", AppServer.Config.MaxCommandLength, leftBufferCount);
                     Close(CloseReason.ServerClosing);
                     return m_NullCommandInfo;
                 }

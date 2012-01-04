@@ -14,59 +14,24 @@ namespace SuperSocket.Common
 {
     public static class AssemblyUtil
     {
-        public static bool TryCreateInstance<T>(string type, out T result)
+        public static T CreateInstance<T>(string type)
         {
-            Exception e;
-            return TryCreateInstance<T>(type, out result, out e);
+            return CreateInstance<T>(type, new object[0]);
         }
 
-        public static bool TryCreateInstance<T>(string type, out T result, out Exception e)
-        {
-            return TryCreateInstance<T>(type, new object[0], out result, out e);
-        }
-
-        public static bool TryCreateInstance<T>(string type, object[] parameters, out T result, out Exception e)
+        public static T CreateInstance<T>(string type, object[] parameters)
         {
             Type instanceType = null;
-            result = default(T);
+            var result = default(T);
 
-            if (!TryGetType(type, out instanceType, out e))
-                return false;
+            instanceType = Type.GetType(type, true);
 
-            try
-            {
-                object instance = Activator.CreateInstance(instanceType, parameters);
-                result = (T)instance;
-                return true;
-            }
-            catch (Exception exc)
-            {
-                e = exc;
-                return false;
-            }
-        }
+            if (instanceType == null)
+                throw new Exception(string.Format("The type '{0}' was not found!", type));
 
-        public static bool TryGetType(string type, out Type result)
-        {
-            Exception e;
-            return TryGetType(type, out result, out e);
-        }
-
-        public static bool TryGetType(string type, out Type result, out Exception e)
-        {
-            e = null;
-
-            try
-            {
-                result = Type.GetType(type, true);
-                return true;
-            }
-            catch (Exception exc)
-            {
-                e = exc;
-                result = null;
-                return false;
-            }
+            object instance = Activator.CreateInstance(instanceType, parameters);
+            result = (T)instance;
+            return result;
         }
 
         public static IEnumerable<Type> GetImplementTypes<TBaseType>(this Assembly assembly)

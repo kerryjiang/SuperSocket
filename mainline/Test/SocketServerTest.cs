@@ -11,6 +11,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
+using SuperSocket.Common.Logging;
 
 
 namespace SuperSocket.Test
@@ -80,8 +81,6 @@ namespace SuperSocket.Test
         [TestFixtureSetUp]
         public void Setup()
         {
-            LogUtil.Setup(new ConsoleLogger());
-
             if (m_Servers.ContainsKey(m_Config))
                 return;
 

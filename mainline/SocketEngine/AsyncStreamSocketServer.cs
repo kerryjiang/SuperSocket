@@ -51,7 +51,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 return false;
             }
         }
@@ -70,7 +70,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.LogError(e);
+                AppServer.Logger.Error(e);
                 OnStartupFinished();
                 return;
             }
@@ -109,7 +109,8 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.LogError("Failed to accept new tcp client in async server!", e);
+                    if (AppServer.Logger.IsErrorEnabled)
+                        AppServer.Logger.Error("Failed to accept new tcp client in async server!", e);
                     break;
                 }
 

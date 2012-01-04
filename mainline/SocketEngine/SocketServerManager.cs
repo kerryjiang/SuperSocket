@@ -13,6 +13,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
@@ -28,6 +29,8 @@ namespace SuperSocket.SocketEngine
         private static Dictionary<string, IConnectionFilter> m_ConnectionFilterDict;
 
         private static IConfig m_Config;
+
+        private static ILog m_GlobalLog;
 
         /// <summary>
         /// Indicate whether the server has been initialized
@@ -45,12 +48,16 @@ namespace SuperSocket.SocketEngine
         /// <param name="config">The config.</param>
         /// <param name="serverConfigResolver">The server config resolver.</param>
         /// <returns></returns>
-        public static bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver)
+        public static bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver, ILogFactory logFactory)
         {
             if (m_Initialized)
                 throw new Exception("The server had been initialized already, you cannot initialize it again!");
 
-            m_Config = config;            
+            m_Config = config;
+
+            LogFactoryProvider.Initialize(logFactory);
+
+            m_GlobalLog = LogFactoryProvider.GlobalLog;
 
             //Initialize services
             m_ServiceDict = new Dictionary<string, Type>(config.Services.Count(), StringComparer.OrdinalIgnoreCase);
@@ -61,11 +68,18 @@ namespace SuperSocket.SocketEngine
                     continue;
                 
                 Type serviceType;
-                Exception exception;
 
-                if (!AssemblyUtil.TryGetType(service.Type, out serviceType, out exception))
+                try
                 {
-                    LogUtil.LogError("Failed to initialize service " + service.Name + "!", exception);
+                    serviceType = Type.GetType(service.Type, true);
+
+                    if (serviceType == null)
+                        throw new Exception(string.Format("Failed to get type {0}.", service.Type));
+                }
+                catch(Exception e)
+                {
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error("Failed to initialize service " + service.Name + "!", e);
                     return false;
                 }
 
@@ -78,13 +92,21 @@ namespace SuperSocket.SocketEngine
             foreach (var filter in config.ConnectionFilters)
             {                
                 Type filterType;
-                Exception exception;
-                if (!AssemblyUtil.TryGetType(filter.Type, out filterType, out exception))
+
+                try
                 {
-                    LogUtil.LogError("Failed to initialize connection filter " + filter.Name + "!", exception);
+                    filterType = Type.GetType(filter.Type, true);
+
+                    if (filterType == null)
+                        throw new Exception(string.Format("Failed to get type {0}.", filter.Type));
+                }
+                catch (Exception e)
+                {
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error("Failed to initialize filter " + filter.Name + "!", e);
                     return false;
                 }
-                
+
                 IConnectionFilter filterInstance;
                 
                 try
@@ -96,7 +118,8 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    LogUtil.LogError(string.Format("Failed to initialize filter instance {0}!", filter.Name), e);
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error(string.Format("Failed to initialize filter instance {0}!", filter.Name), e);
                     return false;
                 }
                 
@@ -109,13 +132,15 @@ namespace SuperSocket.SocketEngine
             {
                 if (string.IsNullOrEmpty(serverConfig.Name))
                 {
-                    LogUtil.LogError("The name attribute of server node is required!");
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error("The name attribute of server node is required!");
                     return false;
                 }
 
                 if (!InitializeServer(serverConfigResolver(serverConfig)))
                 {
-                    LogUtil.LogError("Failed to initialize server " + serverConfig.Name + "!");
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error("Failed to initialize server " + serverConfig.Name + "!");
                     return false;
                 }
             }
@@ -123,6 +148,11 @@ namespace SuperSocket.SocketEngine
             m_Initialized = true;
 
             return true;
+        }
+
+        public static bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver)
+        {
+            return Initialize(config, serverConfigResolver, new Log4NetLogFactory());
         }
 
         /// <summary>
@@ -133,6 +163,16 @@ namespace SuperSocket.SocketEngine
         public static bool Initialize(IConfig config)
         {
             return Initialize(config, c => c);
+        }
+
+        /// <summary>
+        /// Initializes SuperSocket with the specified config.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <returns></returns>
+        public static bool Initialize(IConfig config, ILogFactory logFactory)
+        {
+            return Initialize(config, c => c, logFactory);
         }
 
         /// <summary>
@@ -157,7 +197,8 @@ namespace SuperSocket.SocketEngine
 
             if (!m_ServiceDict.TryGetValue(serverConfig.ServiceName, out serviceType))
             {
-                LogUtil.LogError(string.Format("The service {0} cannot be found in configuration!", serverConfig.ServiceName));
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.ErrorFormat("The service {0} cannot be found in configuration!", serverConfig.ServiceName);
                 return false;
             }
 
@@ -169,13 +210,15 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                LogUtil.LogError("Failed to create server instance!", e);
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error("Failed to create server instance!", e);
                 return false;
             }
 
             if (!server.Setup(m_Config, serverConfig, SocketServerFactory.Instance))
             {
-                LogUtil.LogError("Failed to setup server instance!");
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error("Failed to setup server instance!");
                 return false;
             }
             
@@ -192,7 +235,8 @@ namespace SuperSocket.SocketEngine
                         IConnectionFilter currentFilter;
                         if(!m_ConnectionFilterDict.TryGetValue(f, out currentFilter))
                         {
-                            LogUtil.LogError(string.Format("Failed to find a connection filter '{0}'!", f)); 
+                            if (m_GlobalLog.IsErrorEnabled)
+                                m_GlobalLog.ErrorFormat("Failed to find a connection filter '{0}'!", f); 
                             return false;
                         }
                         filterInstances.Add(currentFilter);
@@ -210,7 +254,8 @@ namespace SuperSocket.SocketEngine
         {
             if (!m_Initialized)
             {
-                LogUtil.LogError("You cannot invoke method Start() before initializing!");
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error("You cannot invoke method Start() before initializing!");
                 return false;
             }
 
@@ -218,11 +263,13 @@ namespace SuperSocket.SocketEngine
             {
                 if (!server.Start())
                 {
-                    LogUtil.LogError("Failed to start " + server.Name + " server!");
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error("Failed to start " + server.Name + " server!");
                 }
                 else
                 {
-                    LogUtil.LogInfo(server.Name + " has been started");
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error(server.Name + " has been started");
                 }
             }
 
@@ -239,7 +286,8 @@ namespace SuperSocket.SocketEngine
             foreach (var server in m_ServerList)
             {
                 server.Stop();
-                LogUtil.LogInfo(server.Name + " has been stopped");
+                if (m_GlobalLog.IsInfoEnabled)
+                    m_GlobalLog.Info(server.Name + " has been stopped");
             }
 
             StopPerformanceLog();
