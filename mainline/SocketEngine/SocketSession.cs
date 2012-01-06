@@ -18,26 +18,26 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    abstract class SocketSession<TAppSession, TCommandInfo> : ISocketSession<TAppSession>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    abstract class SocketSession<TAppSession, TRequestInfo> : ISocketSession<TAppSession>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
         public IAppServer<TAppSession> AppServer { get; private set; }
 
-        protected ICommandReader<TCommandInfo> CommandReader { get; private set; }
+        protected ICommandReader<TRequestInfo> CommandReader { get; private set; }
 
-        private static readonly TCommandInfo m_NullCommandInfo = default(TCommandInfo);
+        private static readonly TRequestInfo m_NullRequestInfo = default(TRequestInfo);
 
-        protected TCommandInfo NullCommandInfo
+        protected TRequestInfo NullRequestInfo
         {
-            get { return m_NullCommandInfo; }
+            get { return m_NullRequestInfo; }
         }
 
         public TAppSession AppSession { get; private set; }
 
         protected readonly object SyncRoot = new object();
 
-        public SocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
+        public SocketSession(Socket client, ICommandReader<TRequestInfo> commandReader)
             : this(Guid.NewGuid().ToString(), commandReader)
         {
             if (client == null)
@@ -48,7 +48,7 @@ namespace SuperSocket.SocketEngine
             RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
         }
 
-        public SocketSession(string sessionID, ICommandReader<TCommandInfo> commandReader)
+        public SocketSession(string sessionID, ICommandReader<TRequestInfo> commandReader)
         {
             SessionID = sessionID;
             CommandReader = commandReader;
@@ -74,9 +74,9 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public abstract void Start();
 
-        protected virtual void ExecuteCommand(TCommandInfo commandInfo)
+        protected virtual void ExecuteCommand(TRequestInfo requestInfo)
         {
-            AppSession.ExecuteCommand(AppSession, commandInfo);
+            AppSession.ExecuteCommand(AppSession, requestInfo);
 
             if(AppSession.NextCommandReader != null)
             {
@@ -85,11 +85,11 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected internal TCommandInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        protected internal TRequestInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
-            var commandInfo = CommandReader.FindCommandInfo(AppSession, readBuffer, offset, length, isReusableBuffer, out left);
+            var requestInfo = CommandReader.FindRequestInfo(AppSession, readBuffer, offset, length, isReusableBuffer, out left);
 
-            if (commandInfo == null)
+            if (requestInfo == null)
             {
                 int leftBufferCount = CommandReader.LeftBufferSize;
                 if (leftBufferCount >= AppServer.Config.MaxCommandLength)
@@ -97,7 +97,7 @@ namespace SuperSocket.SocketEngine
                     if (AppServer.Logger.IsErrorEnabled)
                         AppServer.Logger.ErrorFormat("Max command length: {0}, current processed length: {1}", AppServer.Config.MaxCommandLength, leftBufferCount);
                     Close(CloseReason.ServerClosing);
-                    return m_NullCommandInfo;
+                    return m_NullRequestInfo;
                 }
             }
 
@@ -105,7 +105,7 @@ namespace SuperSocket.SocketEngine
             if (CommandReader.NextCommandReader != null)
                 CommandReader = CommandReader.NextCommandReader;
 
-            return commandInfo;
+            return requestInfo;
         }
 
         /// <summary>

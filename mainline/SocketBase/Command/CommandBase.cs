@@ -5,14 +5,14 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public abstract class CommandBase<TAppSession, TCommandInfo> : ICommand<TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    public abstract class CommandBase<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
 
-        #region ICommand<TAppSession,TCommandInfo> Members
+        #region ICommand<TAppSession,TRequestInfo> Members
 
-        public abstract void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
+        public abstract void ExecuteCommand(TAppSession session, TRequestInfo requestInfo);
 
         #endregion
 

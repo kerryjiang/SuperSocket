@@ -6,7 +6,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.GPSSocketServer.Command
 {
-    public class Position : CommandBase<GPSSession, BinaryCommandInfo>
+    public class Position : CommandBase<GPSSession, BinaryRequestInfo>
     {
         public override string Name
         {
@@ -16,7 +16,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
             }
         }
 
-        public override void ExecuteCommand(GPSSession session, BinaryCommandInfo commandInfo)
+        public override void ExecuteCommand(GPSSession session, BinaryRequestInfo requestInfo)
         {
             //The logic of saving GPS position data
             session.SendResponse(session.AppServer.DefaultResponse);

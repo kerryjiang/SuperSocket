@@ -11,23 +11,23 @@ namespace SuperSocket.SocketBase.Command
         string Name { get; }
     }
 
-    public interface ICommand<TAppSession, TCommandInfo> : ICommand
-        where TCommandInfo : ICommandInfo
-        where TAppSession : IAppSession<TCommandInfo>
+    public interface ICommand<TAppSession, TRequestInfo> : ICommand
+        where TRequestInfo : IRequestInfo
+        where TAppSession : IAppSession<TRequestInfo>
     {
-        void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
+        void ExecuteCommand(TAppSession session, TRequestInfo requestInfo);
     }
 
-    public class MockupCommand<TAppSession, TCommandInfo> : ICommand<TAppSession, TCommandInfo>
-        where TCommandInfo : ICommandInfo
-        where TAppSession : IAppSession<TCommandInfo>
+    public class MockupCommand<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>
+        where TRequestInfo : IRequestInfo
+        where TAppSession : IAppSession<TRequestInfo>
     {
         public MockupCommand(string name)
         {
             Name = name;
         }
 
-        public void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
+        public void ExecuteCommand(TAppSession session, TRequestInfo requestInfo)
         {
 
         }

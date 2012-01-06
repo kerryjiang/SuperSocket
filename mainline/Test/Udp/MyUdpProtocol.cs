@@ -7,9 +7,9 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Test.Udp
 {
-    class MyUdpProtocol : ICustomProtocol<MyUdpCommandInfo>
+    class MyUdpProtocol : ICustomProtocol<MyUdpRequestInfo>
     {
-        public ICommandReader<MyUdpCommandInfo> CreateCommandReader(IAppServer appServer)
+        public ICommandReader<MyUdpRequestInfo> CreateCommandReader(IAppServer appServer)
         {
             return new MyCommandReader(appServer);
         }

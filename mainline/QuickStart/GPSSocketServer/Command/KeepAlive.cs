@@ -6,7 +6,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.GPSSocketServer.Command
 {
-    public class KeepAlive : CommandBase<GPSSession, BinaryCommandInfo>
+    public class KeepAlive : CommandBase<GPSSession, BinaryRequestInfo>
     {
         public override string Name
         {
@@ -16,7 +16,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
             }
         }
 
-        public override void ExecuteCommand(GPSSession session, BinaryCommandInfo commandInfo)
+        public override void ExecuteCommand(GPSSession session, BinaryRequestInfo requestInfo)
         {
             //You can do nothing, after this command is executed, the LastActiveTime of this session will be updated
             session.SendResponse(session.AppServer.DefaultResponse);

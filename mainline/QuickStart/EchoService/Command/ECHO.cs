@@ -10,9 +10,9 @@ namespace SuperSocket.QuickStart.EchoService.Command
     {
         #region CommandBase<EchoSession> Members
 
-        public override void ExecuteCommand(EchoSession session, StringCommandInfo commandInfo)
+        public override void ExecuteCommand(EchoSession session, StringRequestInfo requestInfo)
         {
-            session.SendResponse(commandInfo.Data);
+            session.SendResponse(requestInfo.Data);
         }
 
         #endregion

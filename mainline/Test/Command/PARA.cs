@@ -8,7 +8,7 @@ namespace SuperSocket.Test.Command
 {
     public class PARA : StringCommandBase<TestSession>
     {
-        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
         {
             foreach (var p in commandData.Parameters)
             {

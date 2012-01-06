@@ -10,7 +10,7 @@ namespace SuperSocket.Test
     {
         #region ICommandParser Members
 
-        public StringCommandInfo ParseCommand(string command)
+        public StringRequestInfo ParseCommand(string command)
         {
             int pos = command.IndexOf(':');
 
@@ -19,7 +19,7 @@ namespace SuperSocket.Test
 
             string param = command.Substring(pos + 1);
 
-            return new StringCommandInfo(command.Substring(0, pos), param,
+            return new StringRequestInfo(command.Substring(0, pos), param,
                 param.Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries));
         }
 

@@ -8,7 +8,7 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    public class PolicySession : AppSession<PolicySession, BinaryCommandInfo>
+    public class PolicySession : AppSession<PolicySession, BinaryRequestInfo>
     {
 
     }

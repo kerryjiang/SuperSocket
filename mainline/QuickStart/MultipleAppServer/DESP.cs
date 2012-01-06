@@ -9,9 +9,9 @@ namespace SuperSocket.QuickStart.MultipleAppServer
 {
     public class DESP : StringCommandBase
     {
-        public override void ExecuteCommand(AppSession session, StringCommandInfo commandInfo)
+        public override void ExecuteCommand(AppSession session, StringRequestInfo requestInfo)
         {
-            ((MyAppServerA)session.AppServer).DespatchMessage(commandInfo[0], commandInfo[1]);
+            ((MyAppServerA)session.AppServer).DespatchMessage(requestInfo[0], requestInfo[1]);
         }
     }
 }

@@ -11,9 +11,9 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// The main interface you must implement for parsing received data in custom protocol
     /// </summary>
-    /// <typeparam name="TCommandInfo">The type of the command info.</typeparam>
-    public interface ICommandReader<TCommandInfo>
-        where TCommandInfo : ICommandInfo
+    /// <typeparam name="TRequestInfo">The type of the command info.</typeparam>
+    public interface ICommandReader<TRequestInfo>
+        where TRequestInfo : IRequestInfo
     {
         /// <summary>
         /// Gets the current app server.
@@ -21,7 +21,7 @@ namespace SuperSocket.SocketBase.Protocol
         IAppServer AppServer { get; }
 
         /// <summary>
-        /// Finds the command info from current received read buffer.
+        /// Finds the request info from current received read buffer.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
@@ -30,9 +30,9 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         /// <param name="left">The size of left data which has not been parsed by this commandReader.</param>
         /// <returns>
-        /// return the found commandInfo, return null if found nothing
+        /// return the found requestInfo, return null if found nothing
         /// </returns>
-        TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
+        TRequestInfo FindRequestInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
 
         /// <summary>
         /// Gets the size of the left buffer.
@@ -45,6 +45,6 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Gets the command reader which will be used for next round receiving.
         /// </summary>
-        ICommandReader<TCommandInfo> NextCommandReader { get; }
+        ICommandReader<TRequestInfo> NextCommandReader { get; }
     }
 }

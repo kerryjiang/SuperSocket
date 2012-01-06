@@ -8,7 +8,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    public class FixSizeCommandProtocol : ICustomProtocol<BinaryCommandInfo>
+    public class FixSizeCommandProtocol : ICustomProtocol<BinaryRequestInfo>
     {
         public int FixCommandSize { get; private set; }
 
@@ -17,7 +17,7 @@ namespace SuperSocket.Facility.PolicyServer
             FixCommandSize = fixCommandSize;
         }
 
-        public ICommandReader<BinaryCommandInfo> CreateCommandReader(IAppServer appServer)
+        public ICommandReader<BinaryRequestInfo> CreateCommandReader(IAppServer appServer)
         {
             return new FixSizeCommandReader(appServer, FixCommandSize);
         }

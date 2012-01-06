@@ -105,14 +105,14 @@ namespace SuperSocket.SocketBase
         ILog Logger { get; }
     }
 
-    public interface IAppSession<TCommandInfo> : IAppSession
-        where TCommandInfo : ICommandInfo
+    public interface IAppSession<TRequestInfo> : IAppSession
+        where TRequestInfo : IRequestInfo
     {
         /// <summary>
         /// Handles the unknown command.
         /// </summary>
-        /// <param name="cmdInfo">The command info.</param>
-        void HandleUnknownCommand(TCommandInfo cmdInfo);
+        /// <param name="cmdInfo">The request info.</param>
+        void HandleUnknownCommand(TRequestInfo cmdInfo);
 
         /// <summary>
         /// Gets or sets the next command reader for next round receiving.
@@ -120,26 +120,26 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The next command reader.
         /// </value>
-        ICommandReader<TCommandInfo> NextCommandReader { get; set; }
+        ICommandReader<TRequestInfo> NextCommandReader { get; set; }
     }
 
-    public interface IAppSession<TAppSession, TCommandInfo> : IAppSession<TCommandInfo>
-        where TCommandInfo : ICommandInfo
-        where TAppSession : IAppSession, IAppSession<TCommandInfo>, new()
+    public interface IAppSession<TAppSession, TRequestInfo> : IAppSession<TRequestInfo>
+        where TRequestInfo : IRequestInfo
+        where TAppSession : IAppSession, IAppSession<TRequestInfo>, new()
     {
         /// <summary>
         /// Initializes the specified session.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="socketSession">The socket session.</param>
-        void Initialize(IAppServer<TAppSession, TCommandInfo> server, ISocketSession socketSession);
+        void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession);
 
         /// <summary>
         /// Executes the command.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="cmdInfo">The command info.</param>
-        void ExecuteCommand(TAppSession session, TCommandInfo cmdInfo);
+        /// <param name="cmdInfo">The request info.</param>
+        void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo);
     }
 
     public class AppSessionClosedEventArgs<TAppSession> : EventArgs

@@ -5,8 +5,8 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public abstract class StringCommandBase<TAppSession> : CommandBase<TAppSession, StringCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
+    public abstract class StringCommandBase<TAppSession> : CommandBase<TAppSession, StringRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
     {
 
     }

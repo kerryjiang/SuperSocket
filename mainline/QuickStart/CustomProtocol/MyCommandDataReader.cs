@@ -8,13 +8,13 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
-    class MyCommandDataReader : CommandReaderBase<BinaryCommandInfo>
+    class MyCommandDataReader : CommandReaderBase<BinaryRequestInfo>
     {
         private int m_Length;
 
         private string m_CommandName;
 
-        internal void Initialize(string commandName, int length, CommandReaderBase<BinaryCommandInfo> previousCommandReader)
+        internal void Initialize(string commandName, int length, CommandReaderBase<BinaryRequestInfo> previousCommandReader)
         {
             m_Length = length;
             m_CommandName = commandName;
@@ -22,7 +22,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
             base.Initialize(previousCommandReader);
         }
 
-        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public override BinaryRequestInfo FindRequestInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
 
@@ -33,12 +33,12 @@ namespace SuperSocket.QuickStart.CustomProtocol
             if (length >= leftLength)
             {
                 NextCommandReader = new MyCommandReader(AppServer);
-                var commandInfo = new BinaryCommandInfo(m_CommandName, BufferSegments.ToArrayData(0, m_Length));
+                var requestInfo = new BinaryRequestInfo(m_CommandName, BufferSegments.ToArrayData(0, m_Length));
 
                 if (length > leftLength)
                     left = length - leftLength;
 
-                return commandInfo;
+                return requestInfo;
             }
             else
             {

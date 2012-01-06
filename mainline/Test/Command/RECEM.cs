@@ -9,7 +9,7 @@ namespace SuperSocket.Test.Command
 {
     public class RECEM : StringCommandBase<TestSession>
     {
-        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
         {
             //byte[] mark = Encoding.ASCII.GetBytes(string.Format("{0}.{0}", Environment.NewLine));
             //MemoryStream ms = new MemoryStream();

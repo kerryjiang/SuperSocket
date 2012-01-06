@@ -16,10 +16,10 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class SocketServerBase<TSocketSession, TAppSession, TCommandInfo> : ISocketServer, IDisposable
+    abstract class SocketServerBase<TSocketSession, TAppSession, TRequestInfo> : ISocketServer, IDisposable
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>
-        where TCommandInfo : ICommandInfo
+        where TRequestInfo : IRequestInfo
     {
         protected object SyncRoot = new object();
 
@@ -27,7 +27,7 @@ namespace SuperSocket.SocketEngine
 
         public IAppServer<TAppSession> AppServer { get; private set; }
 
-        protected ICustomProtocol<TCommandInfo> Protocol { get; private set; }
+        protected ICustomProtocol<TRequestInfo> Protocol { get; private set; }
 
         public bool IsRunning { get; protected set; }
 
@@ -35,7 +35,7 @@ namespace SuperSocket.SocketEngine
 
         private ManualResetEvent m_ServerStartupEvent = new ManualResetEvent(false);
 
-        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
         {
             AppServer = appServer;
             EndPoint = localEndPoint;

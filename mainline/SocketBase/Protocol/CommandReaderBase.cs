@@ -11,9 +11,9 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// The base class for command reader
     /// </summary>
-    /// <typeparam name="TCommandInfo">The type of the command info.</typeparam>
-    public abstract class CommandReaderBase<TCommandInfo> : ICommandReader<TCommandInfo>
-        where TCommandInfo : ICommandInfo
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
+    public abstract class CommandReaderBase<TRequestInfo> : ICommandReader<TRequestInfo>
+        where TRequestInfo : IRequestInfo
     {
         private ArraySegmentList m_BufferSegments;
 
@@ -31,7 +31,7 @@ namespace SuperSocket.SocketBase.Protocol
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandReaderBase&lt;TCommandInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="CommandReaderBase&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="appServer">The app server.</param>
         public CommandReaderBase(IAppServer appServer)
@@ -41,10 +41,10 @@ namespace SuperSocket.SocketBase.Protocol
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandReaderBase&lt;TCommandInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="CommandReaderBase&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="previousCommandReader">The previous command reader.</param>
-        public CommandReaderBase(CommandReaderBase<TCommandInfo> previousCommandReader)
+        public CommandReaderBase(CommandReaderBase<TRequestInfo> previousCommandReader)
         {
             AppServer = previousCommandReader.AppServer;
             m_BufferSegments = previousCommandReader.BufferSegments;
@@ -54,13 +54,13 @@ namespace SuperSocket.SocketBase.Protocol
         /// Initializes the instance with the specified previous command reader.
         /// </summary>
         /// <param name="previousCommandReader">The previous command reader.</param>
-        protected void Initialize(CommandReaderBase<TCommandInfo> previousCommandReader)
+        protected void Initialize(CommandReaderBase<TRequestInfo> previousCommandReader)
         {
             AppServer = previousCommandReader.AppServer;
             m_BufferSegments = previousCommandReader.BufferSegments;
         }
 
-        #region ICommandReader<TCommandInfo> Members
+        #region ICommandReader<TRequestInfo> Members
 
         /// <summary>
         /// Gets the app server.
@@ -68,7 +68,7 @@ namespace SuperSocket.SocketBase.Protocol
         public IAppServer AppServer { get; private set; }
 
         /// <summary>
-        /// Finds the command info from current received read buffer.
+        /// Finds the request info from current received read buffer.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
@@ -77,9 +77,9 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         /// <param name="left">The size of left data which has not been parsed by this commandReader.</param>
         /// <returns>
-        /// return the found commandInfo, return null if found nothing
+        /// return the found requestInfo, return null if found nothing
         /// </returns>
-        public abstract TCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
+        public abstract TRequestInfo FindRequestInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left);
 
         /// <summary>
         /// Gets the left buffer.
@@ -108,7 +108,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <value>
         /// The next command reader.
         /// </value>
-        public ICommandReader<TCommandInfo> NextCommandReader { get; protected set; }
+        public ICommandReader<TRequestInfo> NextCommandReader { get; protected set; }
 
         #endregion
 

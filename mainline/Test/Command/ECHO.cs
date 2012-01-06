@@ -8,7 +8,7 @@ namespace SuperSocket.Test.Command
 {
     public class ECHO : StringCommandBase<TestSession>
     {
-        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
         {
             Console.WriteLine("R:" + commandData.Data);
             session.SendResponse(commandData.Data);

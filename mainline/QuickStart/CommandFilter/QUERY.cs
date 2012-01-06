@@ -10,7 +10,7 @@ namespace SuperSocket.QuickStart.CommandFilter
     [LogTimeCommandFilter]
     public class QUERY : StringCommandBase
     {
-        public override void ExecuteCommand(AppSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(AppSession session, StringRequestInfo commandData)
         {
             //Your code
         }

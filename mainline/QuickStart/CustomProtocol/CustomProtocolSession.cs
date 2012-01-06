@@ -7,7 +7,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
-    public class CustomProtocolSession : AppSession<CustomProtocolSession, BinaryCommandInfo>
+    public class CustomProtocolSession : AppSession<CustomProtocolSession, BinaryRequestInfo>
     {
         public override void HandleExceptionalError(Exception e)
         {

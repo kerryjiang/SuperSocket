@@ -13,14 +13,14 @@ namespace SuperSocket.QuickStart.CustomCommandParser
     {
         #region ICommandParser Members
 
-        public StringCommandInfo ParseCommand(string command)
+        public StringRequestInfo ParseCommand(string command)
         {
             if(!command.StartsWith("CMD:"))
                 return null;
 
             command = command.Substring(4);
             string[] data = command.Split(' ');
-            return new StringCommandInfo(data[0], data[1],
+            return new StringRequestInfo(data[0], data[1],
                 Encoding.ASCII.GetString(Convert.FromBase64String(data[1])).Split(new string[] { " " }, StringSplitOptions.RemoveEmptyEntries));
         }
 

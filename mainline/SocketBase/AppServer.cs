@@ -29,15 +29,15 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public AppServer(ICustomProtocol<StringCommandInfo> protocol)
+        public AppServer(ICustomProtocol<StringRequestInfo> protocol)
             : base(protocol)
         {
 
         }
     }
 
-    public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
+    public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
     {
         public AppServer()
             : base(new CommandLineProtocol())
@@ -45,16 +45,16 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public AppServer(ICustomProtocol<StringCommandInfo> protocol)
+        public AppServer(ICustomProtocol<StringRequestInfo> protocol)
             : base(protocol)
         {
 
         }
     }
 
-    public abstract class AppServer<TAppSession, TCommandInfo> : AppServerBase<TAppSession, TCommandInfo>, IPerformanceDataSource
-        where TCommandInfo : ICommandInfo
-        where TAppSession : IAppSession<TAppSession, TCommandInfo>, new()
+    public abstract class AppServer<TAppSession, TRequestInfo> : AppServerBase<TAppSession, TRequestInfo>, IPerformanceDataSource
+        where TRequestInfo : IRequestInfo
+        where TAppSession : IAppSession<TAppSession, TRequestInfo>, new()
     {        
         public AppServer()
             : base()
@@ -62,7 +62,7 @@ namespace SuperSocket.SocketBase
             
         }
 
-        protected AppServer(ICustomProtocol<TCommandInfo> protocol)
+        protected AppServer(ICustomProtocol<TRequestInfo> protocol)
             : base(protocol)
         {
    

@@ -6,6 +6,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
+#if !SILVERLIGHT
+using System.Collections.Concurrent;
+#endif
 
 namespace SuperSocket.ClientEngine
 {

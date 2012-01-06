@@ -12,11 +12,11 @@ using SuperSocket.Common;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncStreamSocketServer<TAppSession, TCommandInfo> : TcpSocketServerBase<AsyncStreamSocketSession<TAppSession, TCommandInfo>, TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    class AsyncStreamSocketServer<TAppSession, TRequestInfo> : TcpSocketServerBase<AsyncStreamSocketSession<TAppSession, TRequestInfo>, TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
-        public AsyncStreamSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+        public AsyncStreamSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
             : base(appServer, localEndPoint, protocol)
         {
             
@@ -135,7 +135,7 @@ namespace SuperSocket.SocketEngine
                 var client = e.AcceptSocket;
                 m_TcpClientConnected.Set();
 
-                var session = RegisterSession(client, new AsyncStreamSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
+                var session = RegisterSession(client, new AsyncStreamSocketSession<TAppSession, TRequestInfo>(client, Protocol.CreateCommandReader(AppServer)));
 
                 if (session != null)
                 {

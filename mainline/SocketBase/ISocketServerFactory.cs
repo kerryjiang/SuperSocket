@@ -15,14 +15,14 @@ namespace SuperSocket.SocketBase
         /// Creates the socket server.
         /// </summary>
         /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-        /// <typeparam name="TCommandInfo">The type of the command info.</typeparam>
+        /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
         /// <param name="appServer">The app server.</param>
         /// <param name="localEndPoint">The local endpoint.</param>
         /// <param name="config">The config.</param>
         /// <param name="protocol">The protocol.</param>
         /// <returns></returns>
-        ISocketServer CreateSocketServer<TAppSession, TCommandInfo>(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IServerConfig config, ICustomProtocol<TCommandInfo> protocol)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-            where TCommandInfo : ICommandInfo;
+        ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IServerConfig config, ICustomProtocol<TRequestInfo> protocol)
+            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+            where TRequestInfo : IRequestInfo;
     }
 }

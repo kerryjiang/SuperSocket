@@ -15,11 +15,11 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncSocketServer<TAppSession, TCommandInfo> : TcpSocketServerBase<AsyncSocketSession<TAppSession, TCommandInfo>, TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    class AsyncSocketServer<TAppSession, TRequestInfo> : TcpSocketServerBase<AsyncSocketSession<TAppSession, TRequestInfo>, TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
-        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
             : base(appServer, localEndPoint, protocol)
         {
 
@@ -186,7 +186,7 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
+                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TRequestInfo>(client, Protocol.CreateCommandReader(AppServer)));
                 
                 if (session != null)
                 {

@@ -15,7 +15,7 @@ namespace SuperSocket.SocketBase.Command
         /// Parses the command.
         /// </summary>
         /// <param name="command">The command line.</param>
-        /// <returns>return the parsed StringCommandInfo</returns>
-        StringCommandInfo ParseCommand(string command);
+        /// <returns>return the parsed StringRequestInfo</returns>
+        StringRequestInfo ParseCommand(string command);
     }
 }

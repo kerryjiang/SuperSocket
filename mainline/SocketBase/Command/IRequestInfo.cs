@@ -5,13 +5,13 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public interface ICommandInfo
+    public interface IRequestInfo
     {
         string Key { get; }
     }
 
-    public interface ICommandInfo<TCommandData> : ICommandInfo
+    public interface IRequestInfo<TRequestData> : IRequestInfo
     {
-        TCommandData Data { get; }
+        TRequestData Data { get; }
     }
 }

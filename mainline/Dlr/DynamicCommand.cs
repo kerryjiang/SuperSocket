@@ -9,11 +9,11 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Dlr
 {
-    class DynamicCommand<TAppSession, TCommandInfo> : ICommand<TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    class DynamicCommand<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
-        private Action<TAppSession, TCommandInfo> m_DynamicExecuteCommand;
+        private Action<TAppSession, TRequestInfo> m_DynamicExecuteCommand;
 
         public DynamicCommand(ScriptRuntime scriptRuntime, string filePath, DateTime lastUpdatedTime)
         {
@@ -28,18 +28,18 @@ namespace SuperSocket.Dlr
             var compiledCode = scriptSource.Compile();
             compiledCode.Execute(scriptScope);
 
-            Action<TAppSession, TCommandInfo> dynamicMethod;
-            if (!scriptScope.TryGetVariable<Action<TAppSession, TCommandInfo>>("execute", out dynamicMethod))
+            Action<TAppSession, TRequestInfo> dynamicMethod;
+            if (!scriptScope.TryGetVariable<Action<TAppSession, TRequestInfo>>("execute", out dynamicMethod))
                 throw new Exception("Failed to find a command execution method in file: " + filePath);
 
             m_DynamicExecuteCommand = dynamicMethod;
         }
 
-        #region ICommand<TAppSession,TCommandInfo> Members
+        #region ICommand<TAppSession,TRequestInfo> Members
 
-        public virtual void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
+        public virtual void ExecuteCommand(TAppSession session, TRequestInfo requestInfo)
         {
-            m_DynamicExecuteCommand(session, commandInfo);
+            m_DynamicExecuteCommand(session, requestInfo);
         }
 
         #endregion

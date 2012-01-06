@@ -5,9 +5,9 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public class StringCommandInfo : CommandInfo<string>
+    public class StringRequestInfo : RequestInfo<string>
     {
-        public StringCommandInfo(string key, string data, string[] parameters)
+        public StringRequestInfo(string key, string data, string[] parameters)
             : base(key, data)
         {
             Parameters = parameters;

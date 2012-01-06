@@ -16,9 +16,9 @@ using SuperSocket.Test.Udp;
 
 namespace SuperSocket.Test
 {
-    public class MyUdpCommandInfo : UdpCommandInfo
+    public class MyUdpRequestInfo : UdpRequestInfo
     {
-        public MyUdpCommandInfo(string key, string sessionID)
+        public MyUdpRequestInfo(string key, string sessionID)
             : base(key, sessionID)
         {
 
@@ -188,7 +188,7 @@ namespace SuperSocket.Test
 
                     Console.WriteLine("Client prepare sent:" + command);
 
-                    var cmdInfo = new MyUdpCommandInfo("SESS", sessionID);
+                    var cmdInfo = new MyUdpRequestInfo("SESS", sessionID);
                     cmdInfo.Value = command;
 
                     socket.SendTo(cmdInfo.ToData(), serverAddress);

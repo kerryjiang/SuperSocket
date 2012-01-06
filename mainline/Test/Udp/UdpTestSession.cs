@@ -6,7 +6,7 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Test.Udp
 {
-    public class UdpTestSession : AppSession<UdpTestSession, MyUdpCommandInfo>
+    public class UdpTestSession : AppSession<UdpTestSession, MyUdpRequestInfo>
     {
 
     }

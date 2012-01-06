@@ -13,9 +13,9 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketServer<TAppSession, TCommandInfo> : SocketServerBase<UdpSocketSession<TAppSession, TCommandInfo>, TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    class UdpSocketServer<TAppSession, TRequestInfo> : SocketServerBase<UdpSocketSession<TAppSession, TRequestInfo>, TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
         private Socket m_ListenSocket = null;
 
@@ -31,17 +31,17 @@ namespace SuperSocket.SocketEngine
 
         private const string m_InvalidEndPoint = "0.0.0.0:0";
 
-        private bool m_SessionIDFromCommandInfo = false;
+        private bool m_SessionIDFromRequestInfo = false;
 
-        private ICommandReader<TCommandInfo> m_UdpCommandInfoReader;
+        private ICommandReader<TRequestInfo> m_UdpRequestInfoReader;
 
-        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
             : base(appServer, localEndPoint, protocol)
         {
-            if (typeof(TCommandInfo).IsSubclassOf(typeof(UdpCommandInfo)))
+            if (typeof(TRequestInfo).IsSubclassOf(typeof(UdpRequestInfo)))
             {
-                m_SessionIDFromCommandInfo = true;
-                m_UdpCommandInfoReader = Protocol.CreateCommandReader(this.AppServer);
+                m_SessionIDFromRequestInfo = true;
+                m_UdpRequestInfoReader = Protocol.CreateCommandReader(this.AppServer);
             }
         }
 
@@ -165,7 +165,7 @@ namespace SuperSocket.SocketEngine
             IsRunning = false;
         }
 
-        protected UdpSocketSession<TAppSession, TCommandInfo> RegisterSession(UdpSocketSession<TAppSession, TCommandInfo> socketSession)
+        protected UdpSocketSession<TAppSession, TRequestInfo> RegisterSession(UdpSocketSession<TAppSession, TRequestInfo> socketSession)
         {
             TAppSession appSession = this.AppServer.CreateAppSession(socketSession);
 
@@ -190,7 +190,7 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                var session = RegisterSession(new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, Protocol.CreateCommandReader(AppServer)));
+                var session = RegisterSession(new UdpSocketSession<TAppSession, TRequestInfo>(m_ListenSocket, remoteEndPoint, Protocol.CreateCommandReader(AppServer)));
 
                 if (session == null)
                     return;
@@ -202,22 +202,22 @@ namespace SuperSocket.SocketEngine
             }
             else //Existing session
             {
-                var session = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
+                var session = appSession.SocketSession as UdpSocketSession<TAppSession, TRequestInfo>;
                 Async.Run(() => session.ProcessData(receivedData), (x) => AppServer.Logger.Error(x));
             }
         }
 
         private void ProcessReceivedDataWithSessionID(IPEndPoint remoteEndPoint, byte[] receivedData)
         {
-            TCommandInfo commandInfo;
+            TRequestInfo requestInfo;
             string sessionID;
 
             try
             {
                 int left;
-                commandInfo = m_UdpCommandInfoReader.FindCommandInfo(null, receivedData, 0, receivedData.Length, false, out left);
+                requestInfo = m_UdpRequestInfoReader.FindRequestInfo(null, receivedData, 0, receivedData.Length, false, out left);
 
-                var udpCommandInfo = commandInfo as UdpCommandInfo;
+                var udpRequestInfo = requestInfo as UdpRequestInfo;
 
                 if (left > 0)
                 {
@@ -226,21 +226,21 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                if (udpCommandInfo == null)
+                if (udpRequestInfo == null)
                 {
                     if (AppServer.Logger.IsErrorEnabled)
                         AppServer.Logger.Error("Invalid UDP package format!");
                     return;
                 }
 
-                if (string.IsNullOrEmpty(udpCommandInfo.SessionID))
+                if (string.IsNullOrEmpty(udpRequestInfo.SessionID))
                 {
                     if (AppServer.Logger.IsErrorEnabled)
                         AppServer.Logger.Error("Failed to get session key from UDP package!");
                     return;
                 }
 
-                sessionID = udpCommandInfo.SessionID;
+                sessionID = udpRequestInfo.SessionID;
             }
             catch (Exception exc)
             {
@@ -253,7 +253,7 @@ namespace SuperSocket.SocketEngine
 
             if (appSession == null)
             {
-                var socketSession = RegisterSession(new UdpSocketSession<TAppSession, TCommandInfo>(m_ListenSocket, remoteEndPoint, sessionID));
+                var socketSession = RegisterSession(new UdpSocketSession<TAppSession, TRequestInfo>(m_ListenSocket, remoteEndPoint, sessionID));
                 if (socketSession == null)
                     return;
 
@@ -265,12 +265,12 @@ namespace SuperSocket.SocketEngine
             }
             else
             {
-                var socketSession = appSession.SocketSession as UdpSocketSession<TAppSession, TCommandInfo>;
+                var socketSession = appSession.SocketSession as UdpSocketSession<TAppSession, TRequestInfo>;
                 //Client remote endpoint may change, so update session to ensure the server can find client correctly
                 socketSession.UpdateRemoteEndPoint(remoteEndPoint);
             }
 
-            Async.Run(() => appSession.ExecuteCommand(appSession, commandInfo));
+            Async.Run(() => appSession.ExecuteCommand(appSession, requestInfo));
         }
 
         private void OnSocketReceived(SocketAsyncEventArgs e)
@@ -285,7 +285,7 @@ namespace SuperSocket.SocketEngine
             if (m_InvalidEndPoint.Equals(ipAddress.ToString()))
                 return;
 
-            if (m_SessionIDFromCommandInfo)
+            if (m_SessionIDFromRequestInfo)
             {
                 ProcessReceivedDataWithSessionID(ipAddress, receivedData);
             }

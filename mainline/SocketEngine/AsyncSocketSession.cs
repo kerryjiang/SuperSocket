@@ -22,13 +22,13 @@ namespace SuperSocket.SocketEngine
         ILog Logger { get; }
     }
 
-    class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    class AsyncSocketSession<TAppSession, TRequestInfo> : SocketSession<TAppSession, TRequestInfo>, IAsyncSocketSession
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {        
         private AsyncSocketSender m_AsyncSender;
 
-        public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
+        public AsyncSocketSession(Socket client, ICommandReader<TRequestInfo> initialCommandReader)
             : base(client, initialCommandReader)
         {
             m_AsyncSender = new AsyncSocketSender(client);
@@ -136,17 +136,17 @@ namespace SuperSocket.SocketEngine
             {
                 int left;
 
-                TCommandInfo commandInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
+                TRequestInfo requestInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
 
                 if (IsClosed)
                     return;
 
-                if (commandInfo == null)
+                if (requestInfo == null)
                     break;
 
                 try
                 {
-                    ExecuteCommand(commandInfo);
+                    ExecuteCommand(requestInfo);
                 }
                 catch (Exception exc)
                 {

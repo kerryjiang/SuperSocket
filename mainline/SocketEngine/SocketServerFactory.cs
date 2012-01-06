@@ -25,9 +25,9 @@ namespace SuperSocket.SocketEngine
 
         #region ISocketServerFactory Members
 
-        public ISocketServer CreateSocketServer<TAppSession, TCommandInfo>(IAppServer<TAppSession> appServer, System.Net.IPEndPoint localEndPoint, SocketBase.Config.IServerConfig config, ICustomProtocol<TCommandInfo> protocol)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-            where TCommandInfo : SocketBase.Command.ICommandInfo
+        public ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, System.Net.IPEndPoint localEndPoint, SocketBase.Config.IServerConfig config, ICustomProtocol<TRequestInfo> protocol)
+            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+            where TRequestInfo : SocketBase.Command.IRequestInfo
         {
             if (protocol == null)
                 throw new ArgumentNullException("protocol");
@@ -35,13 +35,13 @@ namespace SuperSocket.SocketEngine
             switch(config.Mode)
             {
                 case(SocketMode.Udp):
-                    return new UdpSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
+                    return new UdpSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, protocol);
                 case(SocketMode.Tcp):
                 case(SocketMode.Async):
                     if (string.IsNullOrEmpty(config.Security) || config.Security.Equals(m_SecurityNone, StringComparison.OrdinalIgnoreCase))
-                        return new AsyncSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
+                        return new AsyncSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, protocol);
                     else
-                        return new AsyncStreamSocketServer<TAppSession, TCommandInfo>(appServer, localEndPoint, protocol);
+                        return new AsyncStreamSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, protocol);
                 default:
                     throw new NotSupportedException("Unsupported SocketMode:" + config.Mode);
             }

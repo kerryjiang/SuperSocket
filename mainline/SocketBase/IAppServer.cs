@@ -123,15 +123,15 @@ namespace SuperSocket.SocketBase
         int SessionCount { get; }
     }
 
-    public interface IAppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession>, ICommandSource<ICommand<TAppSession, TCommandInfo>>
-        where TCommandInfo : ICommandInfo
-        where TAppSession : IAppSession<TCommandInfo>
+    public interface IAppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession>, ICommandSource<ICommand<TAppSession, TRequestInfo>>
+        where TRequestInfo : IRequestInfo
+        where TAppSession : IAppSession<TRequestInfo>
     {
         /// <summary>
         /// Executes the command.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="commandInfo">The command info.</param>
-        void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
+        /// <param name="requestInfo">The request info.</param>
+        void ExecuteCommand(TAppSession session, TRequestInfo requestInfo);
     }
 }

@@ -6,9 +6,9 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.QuickStart.CustomProtocol.Command
 {
-    public class ECHO : CommandBase<CustomProtocolSession, BinaryCommandInfo>
+    public class ECHO : CommandBase<CustomProtocolSession, BinaryRequestInfo>
     {
-        public override void ExecuteCommand(CustomProtocolSession session, BinaryCommandInfo commandInfo)
+        public override void ExecuteCommand(CustomProtocolSession session, BinaryRequestInfo commandInfo)
         {
             session.SendResponse(Encoding.ASCII.GetString(commandInfo.Data) + Environment.NewLine);
         }

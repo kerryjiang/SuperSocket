@@ -8,7 +8,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser.Command
 {
     public class ECHO : StringCommandBase<YourSession>
     {
-        public override void ExecuteCommand(YourSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(YourSession session, StringRequestInfo commandData)
         {
             foreach (var p in commandData.Parameters)
             {

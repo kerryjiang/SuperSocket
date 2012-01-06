@@ -8,7 +8,7 @@ namespace SuperSocket.QuickStart.BroadcastService.Command
 {
     public class CONN : StringCommandBase<BroadcastSession>
     {
-        public override void ExecuteCommand(BroadcastSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(BroadcastSession session, StringRequestInfo commandData)
         {
             session.DeviceNumber = commandData[0];
             session.AppServer.RegisterNewSession(session);

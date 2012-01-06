@@ -8,7 +8,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase.Protocol
 {
-    public class TerminatorCommandReader : CommandReaderBase<StringCommandInfo>
+    public class TerminatorCommandReader : CommandReaderBase<StringRequestInfo>
     {
         protected Encoding Encoding { get; private set; }
         private ICommandParser m_CommandParser;
@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase.Protocol
 
         }
 
-        public TerminatorCommandReader(CommandReaderBase<StringCommandInfo> previousCommandReader)
+        public TerminatorCommandReader(CommandReaderBase<StringRequestInfo> previousCommandReader)
             : base(previousCommandReader)
         {
 
@@ -34,19 +34,19 @@ namespace SuperSocket.SocketBase.Protocol
             m_CommandParser = commandParser;
         }
 
-        public override StringCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public override StringRequestInfo FindRequestInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             NextCommandReader = this;
 
             string command;
 
-            if (!FindCommandInfoDirectly(readBuffer, offset, length, isReusableBuffer, out command, out left))
+            if (!FindrequestInfoDirectly(readBuffer, offset, length, isReusableBuffer, out command, out left))
                 return null;
 
             return m_CommandParser.ParseCommand(command);
         }
 
-        protected bool FindCommandInfoDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command, out int left)
+        protected bool FindrequestInfoDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command, out int left)
         {
             left = 0;
 

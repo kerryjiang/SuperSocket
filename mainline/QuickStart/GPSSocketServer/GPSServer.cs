@@ -7,7 +7,7 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.GPSSocketServer
 {
-    public class GPSServer : AppServer<GPSSession, BinaryCommandInfo>
+    public class GPSServer : AppServer<GPSSession, BinaryRequestInfo>
     {
         public GPSServer()
             : base(new GPSCustomProtocol())

@@ -52,9 +52,9 @@
     <Compile Include="BinaryUtil.cs" />
     <Compile Include="ClientSession.cs" />
     <Compile Include="CommandInfo.cs" />
-    <Compile Include="ConcurrentQueue.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="IClientCommandReader.cs" />
+    <Compile Include="IClientFactory.cs" />
     <Compile Include="IClientSession.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandInfo.cs" />

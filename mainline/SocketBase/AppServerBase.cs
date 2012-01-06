@@ -21,9 +21,9 @@ using SuperSocket.SocketBase.Security;
 
 namespace SuperSocket.SocketBase
 {
-    public abstract class AppServerBase<TAppSession, TCommandInfo> : IAppServer<TAppSession, TCommandInfo>
-        where TCommandInfo : ICommandInfo
-        where TAppSession : IAppSession<TAppSession, TCommandInfo>, new()
+    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>
+        where TRequestInfo : IRequestInfo
+        where TAppSession : IAppSession<TAppSession, TRequestInfo>, new()
     {
         protected readonly TAppSession NullAppSession = default(TAppSession);
 
@@ -33,13 +33,13 @@ namespace SuperSocket.SocketBase
 
         public virtual X509Certificate Certificate { get; protected set; }
 
-        public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
+        public virtual ICustomProtocol<TRequestInfo> Protocol { get; protected set; }
 
         public ServiceCredentials ServerCredentials { get; set; }
 
         private List<ICommandLoader> m_CommandLoaders;
 
-        private Dictionary<string, ICommand<TAppSession, TCommandInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TCommandInfo>>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, ICommand<TAppSession, TRequestInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TRequestInfo>>(StringComparer.OrdinalIgnoreCase);
 
         private ISocketServerFactory m_SocketServerFactory;
 
@@ -67,18 +67,18 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public AppServerBase(ICustomProtocol<TCommandInfo> protocol)
+        public AppServerBase(ICustomProtocol<TRequestInfo> protocol)
         {
             this.Protocol = protocol;
         }
 
-        protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TCommandInfo>> commandDict)
+        protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TRequestInfo>> commandDict)
         {
             foreach (var loader in m_CommandLoaders)
             {
                 try
                 {
-                    var ret = loader.LoadCommands<TAppSession, TCommandInfo>(this, c =>
+                    var ret = loader.LoadCommands<TAppSession, TRequestInfo>(this, c =>
                     {
                         if (commandDict.ContainsKey(c.Name))
                         {
@@ -123,7 +123,7 @@ namespace SuperSocket.SocketBase
 
                         if (updatedCommands > 0)
                         {
-                            Interlocked.Exchange<Dictionary<string, ICommand<TAppSession, TCommandInfo>>>(ref m_CommandDict, workingDict);
+                            Interlocked.Exchange<Dictionary<string, ICommand<TAppSession, TRequestInfo>>>(ref m_CommandDict, workingDict);
                         }
                     });
 
@@ -143,7 +143,7 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        private void SetupCommandFilters(IEnumerable<ICommand<TAppSession, TCommandInfo>> commands)
+        private void SetupCommandFilters(IEnumerable<ICommand<TAppSession, TRequestInfo>> commands)
         {
             m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
         }
@@ -153,7 +153,7 @@ namespace SuperSocket.SocketBase
             return Setup(rootConfig, config, socketServerFactory, null);
         }
 
-        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol)
+        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TRequestInfo> protocol)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -234,7 +234,7 @@ namespace SuperSocket.SocketBase
             return SetupSocketServer();
         }
 
-        private bool SetupProtocol(IServerConfig config, ICustomProtocol<TCommandInfo> protocol)
+        private bool SetupProtocol(IServerConfig config, ICustomProtocol<TRequestInfo> protocol)
         {
             //The protocol passed by programming has higher priority, then by config
             if (protocol != null)
@@ -246,11 +246,11 @@ namespace SuperSocket.SocketBase
                 //There is a protocol configuration existing
                 if (!string.IsNullOrEmpty(config.Protocol))
                 {
-                    ICustomProtocol<TCommandInfo> configuredProtocol;
+                    ICustomProtocol<TRequestInfo> configuredProtocol;
 
                     try
                     {
-                        configuredProtocol = AssemblyUtil.CreateInstance<ICustomProtocol<TCommandInfo>>(config.Protocol);
+                        configuredProtocol = AssemblyUtil.CreateInstance<ICustomProtocol<TRequestInfo>>(config.Protocol);
                     }
                     catch(Exception e)
                     {
@@ -321,7 +321,7 @@ namespace SuperSocket.SocketBase
         {
             try
             {
-                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TAppSession, TCommandInfo>(this, m_LocalEndPoint, Config, Protocol);
+                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TAppSession, TRequestInfo>(this, m_LocalEndPoint, Config, Protocol);
                 return m_SocketServer != null;
             }
             catch (Exception e)
@@ -443,9 +443,9 @@ namespace SuperSocket.SocketBase
             get { return true; }
         }
 
-        public ICommand<TAppSession, TCommandInfo> GetCommandByName(string commandName)
+        public ICommand<TAppSession, TRequestInfo> GetCommandByName(string commandName)
         {
-            ICommand<TAppSession, TCommandInfo> command;
+            ICommand<TAppSession, TRequestInfo> command;
 
             if (m_CommandDict.TryGetValue(commandName, out command))
                 return command;
@@ -453,9 +453,9 @@ namespace SuperSocket.SocketBase
                 return null;
         }
 
-        private CommandHandler<TAppSession, TCommandInfo> m_CommandHandler;
+        private CommandHandler<TAppSession, TRequestInfo> m_CommandHandler;
 
-        protected event CommandHandler<TAppSession, TCommandInfo> CommandHandler
+        protected event CommandHandler<TAppSession, TRequestInfo> CommandHandler
         {
             add { m_CommandHandler += value; }
             remove { m_CommandHandler -= value; }
@@ -477,18 +477,18 @@ namespace SuperSocket.SocketBase
 
         private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutedAction = (f, s, c) => f.OnCommandExecuted(s, c);
 
-        public virtual void ExecuteCommand(TAppSession session, TCommandInfo commandInfo)
+        public virtual void ExecuteCommand(TAppSession session, TRequestInfo requestInfo)
         {
             if (m_CommandHandler == null)
             {
-                var command = GetCommandByName(commandInfo.Key);
+                var command = GetCommandByName(requestInfo.Key);
 
                 if (command != null)
                 {
                     List<CommandFilterAttribute> commandFilters;
                     m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
 
-                    session.CurrentCommand = commandInfo.Key;
+                    session.CurrentCommand = requestInfo.Key;
 
                     ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
 
@@ -496,32 +496,32 @@ namespace SuperSocket.SocketBase
                     //so detect whether session is connected before execute command
                     if (session.Status != SessionStatus.Disconnected)
                     {
-                        command.ExecuteCommand(session, commandInfo);
+                        command.ExecuteCommand(session, requestInfo);
 
                         ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
                     }
 
-                    session.PrevCommand = commandInfo.Key;
+                    session.PrevCommand = requestInfo.Key;
 
                     if (Config.LogCommand && Logger.IsInfoEnabled)
-                        Logger.Info(session, string.Format("Command - {0}", commandInfo.Key));
+                        Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
                 }
                 else
                 {
-                    session.HandleUnknownCommand(commandInfo);
+                    session.HandleUnknownCommand(requestInfo);
                 }
 
                 session.LastActiveTime = DateTime.Now;
             }
             else
             {
-                session.CurrentCommand = commandInfo.Key;
-                m_CommandHandler(session, commandInfo);
-                session.PrevCommand = commandInfo.Key;
+                session.CurrentCommand = requestInfo.Key;
+                m_CommandHandler(session, requestInfo);
+                session.PrevCommand = requestInfo.Key;
                 session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand && Logger.IsInfoEnabled)
-                    Logger.Info(session, string.Format("Command - {0}", commandInfo.Key));
+                    Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
             }
 
             Interlocked.Increment(ref m_TotalHandledCommands);

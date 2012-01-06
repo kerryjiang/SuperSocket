@@ -12,13 +12,13 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncStreamSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    class AsyncStreamSocketSession<TAppSession, TRequestInfo> : SocketSession<TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
         private byte[] m_ReadBuffer;
 
-        public AsyncStreamSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
+        public AsyncStreamSocketSession(Socket client, ICommandReader<TRequestInfo> initialCommandReader)
             : base(client, initialCommandReader)
         {
             
@@ -77,12 +77,12 @@ namespace SuperSocket.SocketEngine
 
                     while (thisLeft > 0)
                     {
-                        TCommandInfo commandInfo = FindCommand(m_ReadBuffer, thisRead - thisLength, thisLength, true, out thisLeft);
+                        TRequestInfo requestInfo = FindCommand(m_ReadBuffer, thisRead - thisLength, thisLength, true, out thisLeft);
                         thisLength = thisLeft;
 
-                        if (commandInfo != null)
+                        if (requestInfo != null)
                         {
-                            ExecuteCommand(commandInfo);
+                            ExecuteCommand(requestInfo);
 
                             if (Client == null && !IsClosed)
                             {

@@ -5,16 +5,16 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    public abstract class UdpCommandInfo : ICommandInfo
+    public class RequestInfo<TRequestData> : IRequestInfo<TRequestData>
     {
-        public UdpCommandInfo(string key, string sessionID)
+        protected RequestInfo(string key, TRequestData data)
         {
             Key = key;
-            SessionID = sessionID;
+            Data = data;
         }
 
         public string Key { get; private set; }
 
-        public string SessionID { get; private set; }
+        public TRequestData Data { get; private set; }
     }
 }

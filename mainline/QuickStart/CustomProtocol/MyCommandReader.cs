@@ -9,7 +9,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
-    class MyCommandReader : CommandReaderBase<BinaryCommandInfo>
+    class MyCommandReader : CommandReaderBase<BinaryRequestInfo>
     {
         private readonly MyCommandDataReader m_PreparedDataReader = new MyCommandDataReader();
 
@@ -26,7 +26,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
         }
 
         /// <summary>
-        /// Finds the command.
+        /// Finds the request info.
         /// "SEND 0008 xg^89W(v"
         /// Read 10 chars as command name and command data length
         /// </summary>
@@ -36,7 +36,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
         /// <param name="length">The length.</param>
         /// <param name="isReusableBuffer">if set to <c>true</c> [is reusable buffer].</param>
         /// <returns></returns>
-        public override BinaryCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public override BinaryRequestInfo FindRequestInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
 
@@ -62,13 +62,13 @@ namespace SuperSocket.QuickStart.CustomProtocol
                     byte[] commandData = readBuffer.CloneRange(offset + leftLength, commandDataLength);
                     BufferSegments.ClearSegements();
                     NextCommandReader = this;
-                    var commandInfo = new BinaryCommandInfo(commandName, commandData);
+                    var requestInfo = new BinaryRequestInfo(commandName, commandData);
 
-                    //The next commandInfo is comming
+                    //The next requestInfo is comming
                     if (leftDataLength > commandDataLength)
                         left = leftDataLength - commandDataLength;
 
-                    return commandInfo;
+                    return requestInfo;
                 }
                 else// if (leftDataLength < commandDataLength)
                 {

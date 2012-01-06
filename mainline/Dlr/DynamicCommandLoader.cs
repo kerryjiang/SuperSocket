@@ -173,9 +173,9 @@ namespace SuperSocket.Dlr
 
         private static Dictionary<string, ServerCommandState> m_ServerCommandStateLib;
 
-        public bool LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer, Func<ICommand<TAppSession, TCommandInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>>> commandUpdater)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-            where TCommandInfo : ICommandInfo
+        public bool LoadCommands<TAppSession, TRequestInfo>(IAppServer appServer, Func<ICommand<TAppSession, TRequestInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>>> commandUpdater)
+            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+            where TRequestInfo : IRequestInfo
         {
             if (m_ServerCommandStateLib.ContainsKey(appServer.Name))
                 throw new Exception("This server's commands have been loaded already!");
@@ -184,7 +184,7 @@ namespace SuperSocket.Dlr
             {
                 CommandUpdater = (o) =>
                 {
-                    commandUpdater(UpdateCommands<TAppSession, TCommandInfo>(appServer, o));
+                    commandUpdater(UpdateCommands<TAppSession, TRequestInfo>(appServer, o));
                 },
                 Commands = new List<CommandFileInfo>()
             };
@@ -210,12 +210,12 @@ namespace SuperSocket.Dlr
 
             foreach (var file in commandFiles)
             {
-                DynamicCommand<TAppSession, TCommandInfo> command;
+                DynamicCommand<TAppSession, TRequestInfo> command;
 
                 try
                 {
                     var lastUpdatedTime = File.GetLastWriteTime(file);
-                    command = new DynamicCommand<TAppSession, TCommandInfo>(m_ScriptRuntime, file, lastUpdatedTime);
+                    command = new DynamicCommand<TAppSession, TRequestInfo>(m_ScriptRuntime, file, lastUpdatedTime);
                     serverCommandState.Commands.Add(new CommandFileInfo
                         {
                             FilePath = file,
@@ -236,26 +236,26 @@ namespace SuperSocket.Dlr
             return true;
         }
 
-        private IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>> UpdateCommands<TAppSession, TCommandInfo>(IAppServer appServer, IEnumerable<CommandUpdateInfo<CommandFileInfo>> updatedCommands)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-            where TCommandInfo : ICommandInfo
+        private IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>> UpdateCommands<TAppSession, TRequestInfo>(IAppServer appServer, IEnumerable<CommandUpdateInfo<CommandFileInfo>> updatedCommands)
+            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+            where TRequestInfo : IRequestInfo
         {
             return updatedCommands.Select(c =>
             {
                 if (c.UpdateAction == CommandUpdateAction.Remove)
                 {
-                    return new CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>
+                    return new CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>
                     {
-                        Command = new MockupCommand<TAppSession, TCommandInfo>(Path.GetFileNameWithoutExtension(c.Command.FilePath)),
+                        Command = new MockupCommand<TAppSession, TRequestInfo>(Path.GetFileNameWithoutExtension(c.Command.FilePath)),
                         UpdateAction = c.UpdateAction
                     };
                 }
 
                 try
                 {
-                    var command = new DynamicCommand<TAppSession, TCommandInfo>(m_ScriptRuntime, c.Command.FilePath, c.Command.LastUpdatedTime);
+                    var command = new DynamicCommand<TAppSession, TRequestInfo>(m_ScriptRuntime, c.Command.FilePath, c.Command.LastUpdatedTime);
 
-                    return new CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>
+                    return new CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>
                     {
                         Command = command,
                         UpdateAction = c.UpdateAction

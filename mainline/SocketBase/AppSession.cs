@@ -12,16 +12,16 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
-    public abstract class AppSession<TAppSession, TCommandInfo> : IAppSession, IAppSession<TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
         #region Attributes
 
         /// <summary>
         /// Gets the app server.
         /// </summary>
-        public virtual IAppServer<TAppSession, TCommandInfo> AppServer { get; private set; }
+        public virtual IAppServer<TAppSession, TRequestInfo> AppServer { get; private set; }
 
         /// <summary>
         /// Gets or sets the charset which is used for transfering text message.
@@ -145,7 +145,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The next command reader.
         /// </value>
-        ICommandReader<TCommandInfo> IAppSession<TCommandInfo>.NextCommandReader { get; set; }
+        ICommandReader<TRequestInfo> IAppSession<TRequestInfo>.NextCommandReader { get; set; }
 
         #endregion
 
@@ -161,7 +161,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
-        public virtual void Initialize(IAppServer<TAppSession, TCommandInfo> appServer, ISocketSession socketSession)
+        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession)
         {
             AppServer = appServer;
             SocketSession = socketSession;
@@ -200,7 +200,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="cmdInfo">The CMD info.</param>
-        public void ExecuteCommand(TAppSession session, TCommandInfo cmdInfo)
+        public void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo)
         {
             AppServer.ExecuteCommand(session, cmdInfo);
         }
@@ -209,7 +209,7 @@ namespace SuperSocket.SocketBase
         /// Handles the unknown command.
         /// </summary>
         /// <param name="cmdInfo">The CMD info.</param>
-        public virtual void HandleUnknownCommand(TCommandInfo cmdInfo)
+        public virtual void HandleUnknownCommand(TRequestInfo cmdInfo)
         {
             SendResponse("Unknown command: " + cmdInfo.Key);
         }
@@ -264,14 +264,14 @@ namespace SuperSocket.SocketBase
         /// Sets the next command reader for next round receiving.
         /// </summary>
         /// <param name="nextCommandReader">The next command reader.</param>
-        public void SetNextCommandReader(ICommandReader<TCommandInfo> nextCommandReader)
+        public void SetNextCommandReader(ICommandReader<TRequestInfo> nextCommandReader)
         {
-            ((IAppSession<TCommandInfo>)this).NextCommandReader = nextCommandReader;
+            ((IAppSession<TRequestInfo>)this).NextCommandReader = nextCommandReader;
         }
     }
 
-    public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
+    public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
     {
 
         private bool m_AppendNewLineForResponse = false;

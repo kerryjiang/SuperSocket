@@ -7,7 +7,7 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Test.Udp
 {
-    class MyCommandReader : ICommandReader<MyUdpCommandInfo>
+    class MyCommandReader : ICommandReader<MyUdpRequestInfo>
     {
         public MyCommandReader(IAppServer appServer)
         {
@@ -16,7 +16,7 @@ namespace SuperSocket.Test.Udp
 
         public IAppServer AppServer { get; protected set; }
 
-        public MyUdpCommandInfo FindCommandInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        public MyUdpRequestInfo FindRequestInfo(IAppSession session, byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
             left = 0;
 
@@ -28,7 +28,7 @@ namespace SuperSocket.Test.Udp
 
             var data = Encoding.UTF8.GetString(readBuffer, offset + 40, length - 40);
 
-            return new MyUdpCommandInfo(key, sessionID) { Value = data };
+            return new MyUdpRequestInfo(key, sessionID) { Value = data };
         }
 
         public int LeftBufferSize
@@ -36,7 +36,7 @@ namespace SuperSocket.Test.Udp
             get { return 0; }
         }
 
-        public ICommandReader<MyUdpCommandInfo> NextCommandReader
+        public ICommandReader<MyUdpRequestInfo> NextCommandReader
         {
             get { return this; }
         }

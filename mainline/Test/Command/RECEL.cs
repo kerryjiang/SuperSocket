@@ -11,7 +11,7 @@ namespace SuperSocket.Test.Command
 {
     public class RECEL : StringCommandBase<TestSession>
     {
-        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
         {
             //int length = int.Parse(commandData[0]);
 

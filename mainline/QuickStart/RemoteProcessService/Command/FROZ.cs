@@ -10,7 +10,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        public override void ExecuteCommand(RemoteProcessSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo commandData)
         {
             var server = session.AppServer;
 

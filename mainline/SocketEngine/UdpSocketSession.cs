@@ -12,13 +12,13 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo
+    class UdpSocketSession<TAppSession, TRequestInfo> : SocketSession<TAppSession, TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo
     {
         private Socket m_ServerSocket;
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TCommandInfo> commandReader)
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TRequestInfo> commandReader)
             : base(remoteEndPoint.ToString(), commandReader)
         {
             m_ServerSocket = serverSocket;
@@ -65,12 +65,12 @@ namespace SuperSocket.SocketEngine
         {
             int left;
 
-            TCommandInfo commandInfo = FindCommand(data, offset, length, isReusableBuffer, out left);
+            TRequestInfo requestInfo = FindCommand(data, offset, length, isReusableBuffer, out left);
 
-            if (commandInfo == null)
+            if (requestInfo == null)
                 return;
 
-            ExecuteCommand(commandInfo);
+            ExecuteCommand(requestInfo);
 
             if (left > 0)
             {

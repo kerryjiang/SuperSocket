@@ -8,7 +8,7 @@ namespace SuperSocket.QuickStart.BroadcastService.Command
 {
     public class BROA : StringCommandBase<BroadcastSession>
     {
-        public override void ExecuteCommand(BroadcastSession session, StringCommandInfo commandData)
+        public override void ExecuteCommand(BroadcastSession session, StringRequestInfo commandData)
         {
             string message = commandData.Data;
             session.AppServer.BroadcastMessage(session, message);

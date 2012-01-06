@@ -64,7 +64,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 
         private Timer m_MonitorTimer;
 
-        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<StringCommandInfo> protocol)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<StringRequestInfo> protocol)
         {
             if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
                 return false;

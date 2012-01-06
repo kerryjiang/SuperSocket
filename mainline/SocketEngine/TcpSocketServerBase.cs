@@ -12,10 +12,10 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    class TcpSocketServerBase<TSocketSession, TAppSession, TCommandInfo> : SocketServerBase<TSocketSession, TAppSession, TCommandInfo>
+    class TcpSocketServerBase<TSocketSession, TAppSession, TRequestInfo> : SocketServerBase<TSocketSession, TAppSession, TRequestInfo>
         where TAppSession : IAppSession, new()
         where TSocketSession : ISocketSession<TAppSession>
-        where TCommandInfo : ICommandInfo
+        where TRequestInfo : IRequestInfo
     {
         private readonly byte[] m_KeepAliveOptionValues;
         private readonly int m_ReadTimeOut;
@@ -23,7 +23,7 @@ namespace SuperSocket.SocketEngine
         private readonly int m_ReceiveBufferSize;
         private readonly int m_SendBufferSize;
 
-        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
             : base(appServer, localEndPoint, protocol)
         {
             var config = appServer.Config;

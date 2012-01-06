@@ -6,7 +6,7 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
-    public delegate void CommandHandler<TAppSession, TCommandInfo>(TAppSession session, TCommandInfo commandInfo)
-        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-        where TCommandInfo : ICommandInfo;
+    public delegate void CommandHandler<TAppSession, TRequestInfo>(TAppSession session, TRequestInfo requestInfo)
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : IRequestInfo;
 }

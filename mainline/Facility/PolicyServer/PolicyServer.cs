@@ -16,7 +16,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    public abstract class PolicyServer : AppServer<PolicySession, BinaryCommandInfo>
+    public abstract class PolicyServer : AppServer<PolicySession, BinaryRequestInfo>
     {
         private string m_PolicyFile;
         private string m_PolicyRequest = "<policy-file-request/>";
@@ -29,7 +29,7 @@ namespace SuperSocket.Facility.PolicyServer
 
         }
 
-        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<BinaryCommandInfo> protocol)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<BinaryRequestInfo> protocol)
         {
             var policyRequest = config.Options.GetValue("policyRequest");
             if (!string.IsNullOrEmpty(policyRequest))
@@ -63,7 +63,7 @@ namespace SuperSocket.Facility.PolicyServer
 
             PolicyResponse = SetupPolicyResponse(File.ReadAllBytes(m_PolicyFile));
             
-            this.CommandHandler += new CommandHandler<PolicySession, BinaryCommandInfo>(PolicyServer_CommandHandler);
+            this.CommandHandler += new CommandHandler<PolicySession, BinaryRequestInfo>(PolicyServer_CommandHandler);
 
             return true;
         }
@@ -78,9 +78,9 @@ namespace SuperSocket.Facility.PolicyServer
             return PolicyResponse;
         }
 
-        void PolicyServer_CommandHandler(PolicySession session, BinaryCommandInfo commandInfo)
+        void PolicyServer_CommandHandler(PolicySession session, BinaryRequestInfo requestInfo)
         {
-            ProcessRequest(session, commandInfo.Data);
+            ProcessRequest(session, requestInfo.Data);
         }
 
         protected virtual void ProcessRequest(PolicySession session, byte[] data)

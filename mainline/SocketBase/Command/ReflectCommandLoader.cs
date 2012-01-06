@@ -11,9 +11,9 @@ namespace SuperSocket.SocketBase.Command
     {
         #region ICommandLoader Members
 
-        public bool LoadCommands<TAppSession, TCommandInfo>(IAppServer appServer, Func<ICommand<TAppSession, TCommandInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TCommandInfo>>>> commandUpdater)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
-            where TCommandInfo : ICommandInfo
+        public bool LoadCommands<TAppSession, TRequestInfo>(IAppServer appServer, Func<ICommand<TAppSession, TRequestInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>>> commandUpdater)
+            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+            where TRequestInfo : IRequestInfo
         {
             var commandAssemblies = new List<Assembly> { appServer.GetType().Assembly };
 
@@ -36,7 +36,7 @@ namespace SuperSocket.SocketBase.Command
 
             foreach (var assembly in commandAssemblies)
             {
-                foreach (var c in assembly.GetImplementedObjectsByInterface<ICommand<TAppSession, TCommandInfo>>())
+                foreach (var c in assembly.GetImplementedObjectsByInterface<ICommand<TAppSession, TRequestInfo>>())
                 {
                     if (!commandRegister(c))
                         return false;

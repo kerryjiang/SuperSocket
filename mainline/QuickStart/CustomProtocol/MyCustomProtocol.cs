@@ -16,11 +16,11 @@ namespace SuperSocket.QuickStart.CustomProtocol
     /// "0008" is command data length, which also is 4 chars
     /// "xg^89W(v" is the command data whose lenght is 8
     /// </summary>
-    class MyCustomProtocol : ICustomProtocol<BinaryCommandInfo>
+    class MyCustomProtocol : ICustomProtocol<BinaryRequestInfo>
     {
-        #region ICustomProtocol<BinaryCommandInfo> Members
+        #region ICustomProtocol<BinaryRequestInfo> Members
 
-        public ICommandReader<BinaryCommandInfo> CreateCommandReader(IAppServer appServer)
+        public ICommandReader<BinaryRequestInfo> CreateCommandReader(IAppServer appServer)
         {
             return new MyCommandReader(appServer);
         }

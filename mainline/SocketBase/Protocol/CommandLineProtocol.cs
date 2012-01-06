@@ -11,7 +11,7 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// It is the custom protocol implementation for command line style protocol
     /// </summary>
-    public class CommandLineProtocol : ICustomProtocol<StringCommandInfo>
+    public class CommandLineProtocol : ICustomProtocol<StringRequestInfo>
     {
         private ICommandParser m_CommandParser;
 
@@ -72,7 +72,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        public ICommandReader<StringCommandInfo> CreateCommandReader(IAppServer appServer)
+        public ICommandReader<StringRequestInfo> CreateCommandReader(IAppServer appServer)
         {
             return new TerminatorCommandReader(appServer, m_Encoding, m_LineTerminator, m_CommandParser);
         }

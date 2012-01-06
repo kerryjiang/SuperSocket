@@ -8,9 +8,9 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.GPSSocketServer
 {
-    class GPSCustomProtocol : ICustomProtocol<BinaryCommandInfo>
+    class GPSCustomProtocol : ICustomProtocol<BinaryRequestInfo>
     {
-        public ICommandReader<BinaryCommandInfo> CreateCommandReader(IAppServer appServer)
+        public ICommandReader<BinaryRequestInfo> CreateCommandReader(IAppServer appServer)
         {
             return new GPSCommandReader(appServer);
         }
