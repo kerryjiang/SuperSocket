@@ -12,8 +12,7 @@
     <AssemblyName>SuperSocket.ClientEngine</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -37,14 +36,10 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
-    </Compile>
     <Compile Include="ArraySegmentEx.cs" />
     <Compile Include="ArraySegmentList.cs" />
     <Compile Include="AssemblyUtil.cs" />
@@ -52,6 +47,8 @@
     <Compile Include="BinaryUtil.cs" />
     <Compile Include="ClientSession.cs" />
     <Compile Include="CommandInfo.cs" />
+    <Compile Include="ConcurrentQueue.cs" />
+    <Compile Include="ConnectStateToken.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="IClientCommandReader.cs" />
     <Compile Include="IClientFactory.cs" />
@@ -59,6 +56,7 @@
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.Net40.cs" />
     <Compile Include="SearchMarkState.cs" />
     <Compile Include="StringCommandInfo.cs" />
     <Compile Include="TcpClientSession.cs" />

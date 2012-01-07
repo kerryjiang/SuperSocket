@@ -6,9 +6,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
-#if !SILVERLIGHT
-using System.Collections.Concurrent;
-#endif
 
 namespace SuperSocket.ClientEngine
 {
@@ -50,27 +47,105 @@ namespace SuperSocket.ClientEngine
         protected override void Connect()
         {
 
+#if SILVERLIGHT
             m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
 
-#if !MONO
             if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs))
                 ProcessAccept(m_SocketEventArgs);
 #else
-            var socket = new Socket(RemoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            m_SocketEventArgs.UserToken = socket;
+            if (RemoteEndPoint is IPEndPoint)
+            {
+                m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
 
-            if (!socket.ConnectAsync(m_SocketEventArgs))
-                ProcessAccept(m_SocketEventArgs);
+                var ipEndPoint = RemoteEndPoint as IPEndPoint;
+                var socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                m_SocketEventArgs.UserToken = new ConnectStateToken
+                    {
+                        Addresses = new IPAddress[] { ipEndPoint.Address },
+                        Port = ipEndPoint.Port,
+                        CurrentConnectIndex = 0,
+                        Socket = socket
+                    };
+
+                if (!socket.ConnectAsync(m_SocketEventArgs))
+                    ProcessAccept(m_SocketEventArgs);
+            }
+            else if (RemoteEndPoint is DnsEndPoint)
+            {
+                var dnsEndPoint = RemoteEndPoint as DnsEndPoint;
+                Dns.BeginGetHostAddresses(dnsEndPoint.Host, OnGetHostAddresses,
+                    new ConnectStateToken
+                    {
+                        Port = dnsEndPoint.Port
+                    });
+            }
 #endif
         }
 
+#if !SILVERLIGHT
+        private void OnGetHostAddresses(IAsyncResult state)
+        {
+            IPAddress[] addresses = Dns.EndGetHostAddresses(state);
+
+            var connectState = state.AsyncState as ConnectStateToken;
+
+            connectState.Addresses = addresses;
+
+            var ipEndPoint = new IPEndPoint(addresses[0], connectState.Port);
+            m_SocketEventArgs.RemoteEndPoint = ipEndPoint;
+
+            var socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            connectState.Socket = socket;
+
+            m_SocketEventArgs.UserToken = connectState;
+
+            if (!socket.ConnectAsync(m_SocketEventArgs))
+                ProcessAccept(m_SocketEventArgs);
+        }
+#endif
+
         private void ProcessAccept(SocketAsyncEventArgs e)
         {
-#if MONO
-            Client = e.UserToken as Socket;
-            e.UserToken = null;
-#else
+#if SILVERLIGHT
+            if (e.SocketError != SocketError.Success)
+                throw new SocketException((int)e.SocketError);
+
             Client = e.ConnectSocket;
+#else
+            var connectState = e.UserToken as ConnectStateToken;
+
+            if (e.SocketError != SocketError.Success)
+            {
+                if (e.SocketError == SocketError.HostUnreachable)
+                {
+                    if (connectState.Addresses.Length > (connectState.CurrentConnectIndex + 1))
+                    {
+                        var currentConnectIndex = connectState.CurrentConnectIndex + 1;
+                        var currentIpAddress = connectState.Addresses[currentConnectIndex];
+
+                        e.RemoteEndPoint = new IPEndPoint(currentIpAddress, connectState.Port);
+                        connectState.CurrentConnectIndex = currentConnectIndex;
+
+                        var socket = new Socket(currentIpAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                        connectState.Socket = socket;
+
+                        if (!socket.ConnectAsync(m_SocketEventArgs))
+                            ProcessAccept(m_SocketEventArgs);
+
+                        return;
+                    }
+                    else
+                    {
+                        throw new SocketException((int)SocketError.HostUnreachable);
+                    }
+                }
+
+                throw new SocketException((int)e.SocketError);
+            }
+
+            Client = connectState.Socket;
+            e.UserToken = null;
 #endif
             int receiveBufferSize = 1024;
             m_ReceiveBuffer = new byte[receiveBufferSize];

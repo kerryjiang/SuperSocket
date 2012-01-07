@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.Si
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.Mono", "ClientEngine\SuperSocket.ClientEngine.Mono.csproj", "{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.Net35", "ClientEngine\SuperSocket.ClientEngine.Net35.csproj", "{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38A87958-2343-4F0C-BAED-A16B5F0DC5A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
