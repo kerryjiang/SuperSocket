@@ -51,7 +51,6 @@
     <Compile Include="ConnectStateToken.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="IClientCommandReader.cs" />
-    <Compile Include="IClientFactory.cs" />
     <Compile Include="IClientSession.cs" />
     <Compile Include="ICommand.cs" />
     <Compile Include="ICommandInfo.cs" />

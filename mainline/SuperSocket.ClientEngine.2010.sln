@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.Mo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.Net35", "ClientEngine\SuperSocket.ClientEngine.Net35.csproj", "{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ClientEngine.WindowsPhone", "ClientEngine\SuperSocket.ClientEngine.WindowsPhone.csproj", "{1A2A873C-97D6-49D7-9BF8-0741903BD20E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,6 +33,10 @@ Global
 		{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF0D8BF2-54B9-4E4D-AFC0-88DD82DEB897}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1A2A873C-97D6-49D7-9BF8-0741903BD20E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1A2A873C-97D6-49D7-9BF8-0741903BD20E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1A2A873C-97D6-49D7-9BF8-0741903BD20E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1A2A873C-97D6-49D7-9BF8-0741903BD20E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
