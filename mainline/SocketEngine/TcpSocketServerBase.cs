@@ -23,8 +23,8 @@ namespace SuperSocket.SocketEngine
         private readonly int m_ReceiveBufferSize;
         private readonly int m_SendBufferSize;
 
-        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
-            : base(appServer, localEndPoint, protocol)
+        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+            : base(appServer, localEndPoint, requestFilterFactory)
         {
             var config = appServer.Config;
 

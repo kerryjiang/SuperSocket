@@ -9,6 +9,7 @@ using SuperSocket.Common;
 using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {

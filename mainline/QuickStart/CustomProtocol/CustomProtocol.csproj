@@ -48,9 +48,8 @@
     <Compile Include="CustomProtocolServer.cs" />
     <Compile Include="CustomProtocolServerTest.cs" />
     <Compile Include="CustomProtocolSession.cs" />
-    <Compile Include="MyCommandDataReader.cs" />
-    <Compile Include="MyCommandReader.cs" />
-    <Compile Include="MyCustomProtocol.cs" />
+    <Compile Include="MyDataRequestFilter.cs" />
+    <Compile Include="MyRequestFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

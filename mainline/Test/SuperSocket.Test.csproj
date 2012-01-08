@@ -78,8 +78,7 @@
     <Compile Include="TestSession.cs" />
     <Compile Include="Udp\SESS.cs" />
     <Compile Include="UdpSocketServerTest.cs" />
-    <Compile Include="Udp\MyCommandReader.cs" />
-    <Compile Include="Udp\MyUdpProtocol.cs" />
+    <Compile Include="Udp\MyRequestFilter.cs" />
     <Compile Include="Udp\UdpAppServer.cs" />
     <Compile Include="Udp\UdpTestSession.cs" />
   </ItemGroup>

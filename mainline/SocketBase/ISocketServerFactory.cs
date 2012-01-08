@@ -11,17 +11,7 @@ namespace SuperSocket.SocketBase
 {
     public interface ISocketServerFactory
     {
-        /// <summary>
-        /// Creates the socket server.
-        /// </summary>
-        /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-        /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-        /// <param name="appServer">The app server.</param>
-        /// <param name="localEndPoint">The local endpoint.</param>
-        /// <param name="config">The config.</param>
-        /// <param name="protocol">The protocol.</param>
-        /// <returns></returns>
-        ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IServerConfig config, ICustomProtocol<TRequestInfo> protocol)
+        ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
             where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
             where TRequestInfo : IRequestInfo;
     }

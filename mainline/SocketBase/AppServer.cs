@@ -29,8 +29,8 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public AppServer(ICustomProtocol<StringRequestInfo> protocol)
-            : base(protocol)
+        public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
+            : base(requestFilterFactory)
         {
 
         }
@@ -40,13 +40,13 @@ namespace SuperSocket.SocketBase
         where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
     {
         public AppServer()
-            : base(new CommandLineProtocol())
+            : base(new CommandLineRequestFilterFactory())
         {
 
         }
 
-        public AppServer(ICustomProtocol<StringRequestInfo> protocol)
-            : base(protocol)
+        public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
+            : base(requestFilterFactory)
         {
 
         }
@@ -62,7 +62,7 @@ namespace SuperSocket.SocketBase
             
         }
 
-        protected AppServer(ICustomProtocol<TRequestInfo> protocol)
+        protected AppServer(IRequestFilterFactory<TRequestInfo> protocol)
             : base(protocol)
         {
    

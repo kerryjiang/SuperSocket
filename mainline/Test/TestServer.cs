@@ -16,8 +16,8 @@ namespace SuperSocket.Test
 
         }
 
-        public TestServer(ICommandParser commandParser)
-            : base(new CommandLineProtocol(commandParser))
+        public TestServer(IRequestInfoParser<StringRequestInfo> requestInfoParser)
+            : base(new CommandLineRequestFilterFactory(Encoding.UTF8, requestInfoParser))
         {
             
         }

@@ -145,7 +145,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The next command reader.
         /// </value>
-        ICommandReader<TRequestInfo> IAppSession<TRequestInfo>.NextCommandReader { get; set; }
+        IRequestFilter<TRequestInfo> IAppSession<TRequestInfo>.NextRequestFilter { get; set; }
 
         #endregion
 
@@ -261,12 +261,12 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Sets the next command reader for next round receiving.
+        /// Sets the next request filter.
         /// </summary>
-        /// <param name="nextCommandReader">The next command reader.</param>
-        public void SetNextCommandReader(ICommandReader<TRequestInfo> nextCommandReader)
+        /// <param name="nextRequestFilter">The next request filter.</param>
+        public void SetNextRequestFilter(IRequestFilter<TRequestInfo> nextRequestFilter)
         {
-            ((IAppSession<TRequestInfo>)this).NextCommandReader = nextCommandReader;
+            ((IAppSession<TRequestInfo>)this).NextRequestFilter = nextRequestFilter;
         }
     }
 

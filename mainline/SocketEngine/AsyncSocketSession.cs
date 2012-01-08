@@ -28,8 +28,8 @@ namespace SuperSocket.SocketEngine
     {        
         private AsyncSocketSender m_AsyncSender;
 
-        public AsyncSocketSession(Socket client, ICommandReader<TRequestInfo> initialCommandReader)
-            : base(client, initialCommandReader)
+        public AsyncSocketSession(Socket client, IRequestFilter<TRequestInfo> initialRequestFilter)
+            : base(client, initialRequestFilter)
         {
             m_AsyncSender = new AsyncSocketSender(client);
         }

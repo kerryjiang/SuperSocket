@@ -9,6 +9,7 @@ using SuperSocket.SocketBase;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
@@ -22,17 +23,19 @@ namespace SuperSocket.QuickStart.CustomProtocol
         [TestFixtureSetUp]
         public void Setup()
         {
+            LogFactoryProvider.Initialize(new ConsoleLogFactory());
+
             m_Config = new ServerConfig
                 {
                     Port = 911,
                     Ip = "Any",
                     MaxConnectionNumber = 1000,
-                    Mode = SocketMode.Async,
+                    Mode = SocketMode.Tcp,
                     Name = "CustomProtocolServer"
                 };
 
             m_Server = new CustomProtocolServer();
-            m_Server.Setup(new RootConfig { LoggingMode = LoggingMode.Console },
+            m_Server.Setup(new RootConfig(),
                 m_Config,
                 SocketServerFactory.Instance);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -8,10 +9,10 @@ using System.Threading;
 using NUnit.Framework;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketEngine;
-using System.IO;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketEngine;
 using SuperSocket.Test.Udp;
 
 namespace SuperSocket.Test
@@ -79,11 +80,7 @@ namespace SuperSocket.Test
         public UdpSocketServerTest()
         {
             m_Config = DefaultServerConfig;
-            m_RootConfig = new RootConfig
-            {
-                LoggingMode = LoggingMode.Console
-            };
-            
+            m_RootConfig = new RootConfig();
             m_Encoding = new System.Text.UTF8Encoding();
         }
 

@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.Scripting.Hosting;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Dlr
 {

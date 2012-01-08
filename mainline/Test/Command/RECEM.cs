@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Command
 {

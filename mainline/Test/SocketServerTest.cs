@@ -31,7 +31,6 @@ namespace SuperSocket.Test
             m_Config = DefaultServerConfig;
             m_RootConfig = new RootConfig
             {
-                LoggingMode = LoggingMode.Console,
                 MaxWorkingThreads = 500,
                 MaxCompletionPortThreads = 500,
                 MinWorkingThreads = 5,

@@ -27,7 +27,7 @@ namespace SuperSocket.SocketEngine
 
         public IAppServer<TAppSession> AppServer { get; private set; }
 
-        protected ICustomProtocol<TRequestInfo> Protocol { get; private set; }
+        protected IRequestFilterFactory<TRequestInfo> RequestFilterFactory { get; private set; }
 
         public bool IsRunning { get; protected set; }
 
@@ -35,11 +35,11 @@ namespace SuperSocket.SocketEngine
 
         private ManualResetEvent m_ServerStartupEvent = new ManualResetEvent(false);
 
-        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
+        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
             AppServer = appServer;
             EndPoint = localEndPoint;
-            Protocol = protocol;
+            RequestFilterFactory = requestFilterFactory;
             IsRunning = false;
         }
 

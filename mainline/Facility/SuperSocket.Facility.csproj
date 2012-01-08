@@ -44,8 +44,8 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="PolicyServer\FixSizeCommandProtocol.cs" />
-    <Compile Include="PolicyServer\FixSizeCommandReader.cs" />
+    <Compile Include="PolicyServer\FixSizeRequestFilterFactory.cs" />
+    <Compile Include="PolicyServer\FixSizeRequestFilter.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
     <Compile Include="PolicyServer\PolicyServer.cs" />
     <Compile Include="PolicyServer\PolicySession.cs" />

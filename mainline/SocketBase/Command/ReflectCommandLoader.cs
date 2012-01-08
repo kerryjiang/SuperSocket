@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using SuperSocket.Common;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase.Command
 {

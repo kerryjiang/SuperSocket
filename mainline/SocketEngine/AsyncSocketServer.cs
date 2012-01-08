@@ -19,8 +19,8 @@ namespace SuperSocket.SocketEngine
         where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
         where TRequestInfo : IRequestInfo
     {
-        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
-            : base(appServer, localEndPoint, protocol)
+        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+            : base(appServer, localEndPoint, requestFilterFactory)
         {
 
         }
@@ -186,7 +186,7 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TRequestInfo>(client, Protocol.CreateCommandReader(AppServer)));
+                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TRequestInfo>(client, this.RequestFilterFactory.CreateFilter(AppServer)));
                 
                 if (session != null)
                 {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
@@ -17,7 +18,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
     class CustomProtocolServer : AppServer<CustomProtocolSession, BinaryRequestInfo>
     {
         public CustomProtocolServer()
-            : base(new MyCustomProtocol())
+            : base(new DefaultRequestFilterFactory<MyRequestFilter, BinaryRequestInfo>())
         {
 
         }

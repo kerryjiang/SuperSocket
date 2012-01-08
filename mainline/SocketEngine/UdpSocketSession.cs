@@ -18,8 +18,8 @@ namespace SuperSocket.SocketEngine
     {
         private Socket m_ServerSocket;
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TRequestInfo> commandReader)
-            : base(remoteEndPoint.ToString(), commandReader)
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, IRequestFilter<TRequestInfo> requestFilter)
+            : base(remoteEndPoint.ToString(), requestFilter)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;

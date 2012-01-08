@@ -115,12 +115,12 @@ namespace SuperSocket.SocketBase
         void HandleUnknownCommand(TRequestInfo cmdInfo);
 
         /// <summary>
-        /// Gets or sets the next command reader for next round receiving.
+        /// Gets or sets the next request filter.
         /// </summary>
         /// <value>
-        /// The next command reader.
+        /// The next request filter.
         /// </value>
-        ICommandReader<TRequestInfo> NextCommandReader { get; set; }
+        IRequestFilter<TRequestInfo> NextRequestFilter { get; set; }
     }
 
     public interface IAppSession<TAppSession, TRequestInfo> : IAppSession<TRequestInfo>

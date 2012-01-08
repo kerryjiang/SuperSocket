@@ -33,7 +33,7 @@ namespace SuperSocket.SocketBase
 
         public virtual X509Certificate Certificate { get; protected set; }
 
-        public virtual ICustomProtocol<TRequestInfo> Protocol { get; protected set; }
+        public virtual IRequestFilterFactory<TRequestInfo> RequestFilterFactory { get; protected set; }
 
         public ServiceCredentials ServerCredentials { get; set; }
 
@@ -67,9 +67,9 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public AppServerBase(ICustomProtocol<TRequestInfo> protocol)
+        public AppServerBase(IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
-            this.Protocol = protocol;
+            this.RequestFilterFactory = requestFilterFactory;
         }
 
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TRequestInfo>> commandDict)
@@ -153,7 +153,7 @@ namespace SuperSocket.SocketBase
             return Setup(rootConfig, config, socketServerFactory, null);
         }
 
-        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TRequestInfo> protocol)
+        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -198,7 +198,7 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
-            if (!SetupProtocol(config, protocol))
+            if (!SetupRequestFilterFactory(config, requestFilterFactory))
                 return false;
 
             m_CommandLoaders = new List<ICommandLoader>
@@ -234,23 +234,23 @@ namespace SuperSocket.SocketBase
             return SetupSocketServer();
         }
 
-        private bool SetupProtocol(IServerConfig config, ICustomProtocol<TRequestInfo> protocol)
+        private bool SetupRequestFilterFactory(IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
             //The protocol passed by programming has higher priority, then by config
-            if (protocol != null)
+            if (requestFilterFactory != null)
             {
-                Protocol = protocol;
+                this.RequestFilterFactory = requestFilterFactory;
             }
             else
             {
                 //There is a protocol configuration existing
                 if (!string.IsNullOrEmpty(config.Protocol))
                 {
-                    ICustomProtocol<TRequestInfo> configuredProtocol;
+                    IRequestFilterFactory<TRequestInfo> configuredRequestFilterFactory;
 
                     try
                     {
-                        configuredProtocol = AssemblyUtil.CreateInstance<ICustomProtocol<TRequestInfo>>(config.Protocol);
+                        configuredRequestFilterFactory = AssemblyUtil.CreateInstance<IRequestFilterFactory<TRequestInfo>>(config.Protocol);
                     }
                     catch(Exception e)
                     {
@@ -260,12 +260,12 @@ namespace SuperSocket.SocketBase
                         return false;
                     }
 
-                    Protocol = configuredProtocol;
+                    this.RequestFilterFactory = configuredRequestFilterFactory;
                 }
             }
 
             //If there is no defined protocol, use CommandLineProtocol as default
-            if (Protocol == null)
+            if (RequestFilterFactory == null)
             {
                 if (Logger.IsErrorEnabled)
                     Logger.Error("Protocol hasn't been set!");
@@ -321,7 +321,7 @@ namespace SuperSocket.SocketBase
         {
             try
             {
-                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TAppSession, TRequestInfo>(this, m_LocalEndPoint, Config, Protocol);
+                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TAppSession, TRequestInfo>(this, m_LocalEndPoint, Config, RequestFilterFactory);
                 return m_SocketServer != null;
             }
             catch (Exception e)

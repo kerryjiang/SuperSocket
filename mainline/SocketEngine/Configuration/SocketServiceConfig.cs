@@ -45,15 +45,6 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        [ConfigurationProperty("loggingMode", IsRequired = false, DefaultValue = "ShareFile")]
-        public LoggingMode LoggingMode
-        {
-            get
-            {
-                return (LoggingMode)this["loggingMode"];
-            }
-        }
-
         [ConfigurationProperty("maxWorkingThreads", IsRequired = false, DefaultValue = -1)]
         public int MaxWorkingThreads
         {

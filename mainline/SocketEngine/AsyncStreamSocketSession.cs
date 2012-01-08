@@ -18,8 +18,8 @@ namespace SuperSocket.SocketEngine
     {
         private byte[] m_ReadBuffer;
 
-        public AsyncStreamSocketSession(Socket client, ICommandReader<TRequestInfo> initialCommandReader)
-            : base(client, initialCommandReader)
+        public AsyncStreamSocketSession(Socket client, IRequestFilter<TRequestInfo> initialRequestFilter)
+            : base(client, initialRequestFilter)
         {
             
         }

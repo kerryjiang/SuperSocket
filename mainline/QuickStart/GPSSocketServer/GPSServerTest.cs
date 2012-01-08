@@ -9,6 +9,7 @@ using SuperSocket.SocketEngine;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.QuickStart.GPSSocketServer
 {
@@ -21,17 +22,19 @@ namespace SuperSocket.QuickStart.GPSSocketServer
         [TestFixtureSetUp]
         public void Setup()
         {
+            LogFactoryProvider.Initialize(new ConsoleLogFactory());
+
             m_Config = new ServerConfig
             {
                 Port = 555,
                 Ip = "Any",
                 MaxConnectionNumber = 10,
-                Mode = SocketMode.Async,
+                Mode = SocketMode.Tcp,
                 Name = "GPSServer"
             };
 
             m_Server = new GPSServer();
-            m_Server.Setup(new RootConfig { LoggingMode = LoggingMode.Console },
+            m_Server.Setup(new RootConfig(),
                 m_Config,
                 SocketServerFactory.Instance);
         }

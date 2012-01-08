@@ -29,7 +29,7 @@ namespace SuperSocket.Facility.PolicyServer
 
         }
 
-        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<BinaryRequestInfo> protocol)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<BinaryRequestInfo> requestFilterFactory)
         {
             var policyRequest = config.Options.GetValue("policyRequest");
             if (!string.IsNullOrEmpty(policyRequest))
@@ -37,9 +37,9 @@ namespace SuperSocket.Facility.PolicyServer
 
             m_ExpectedReceivedLength = Encoding.UTF8.GetByteCount(m_PolicyRequest);
 
-            this.Protocol = new FixSizeCommandProtocol(m_ExpectedReceivedLength);
+            requestFilterFactory = new FixSizeRequestFilterFactory(m_ExpectedReceivedLength);
 
-            if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
+            if (!base.Setup(rootConfig, config, socketServerFactory, requestFilterFactory))
                 return false;
 
             m_PolicyFile = config.Options.GetValue("policyFile");

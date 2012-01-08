@@ -24,7 +24,7 @@ namespace SuperSocket.SocketEngine
     {
         public IAppServer<TAppSession> AppServer { get; private set; }
 
-        protected ICommandReader<TRequestInfo> CommandReader { get; private set; }
+        protected IRequestFilter<TRequestInfo> RequestFilter { get; private set; }
 
         private static readonly TRequestInfo m_NullRequestInfo = default(TRequestInfo);
 
@@ -37,8 +37,8 @@ namespace SuperSocket.SocketEngine
 
         protected readonly object SyncRoot = new object();
 
-        public SocketSession(Socket client, ICommandReader<TRequestInfo> commandReader)
-            : this(Guid.NewGuid().ToString(), commandReader)
+        public SocketSession(Socket client, IRequestFilter<TRequestInfo> requestFilter)
+            : this(Guid.NewGuid().ToString(), requestFilter)
         {
             if (client == null)
                 throw new ArgumentNullException("client");
@@ -48,10 +48,10 @@ namespace SuperSocket.SocketEngine
             RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
         }
 
-        public SocketSession(string sessionID, ICommandReader<TRequestInfo> commandReader)
+        public SocketSession(string sessionID, IRequestFilter<TRequestInfo> requestFilter)
         {
             SessionID = sessionID;
-            CommandReader = commandReader;
+            RequestFilter = requestFilter;
         }
 
         public virtual void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession)
@@ -78,20 +78,20 @@ namespace SuperSocket.SocketEngine
         {
             AppSession.ExecuteCommand(AppSession, requestInfo);
 
-            if(AppSession.NextCommandReader != null)
+            if(AppSession.NextRequestFilter != null)
             {
-                CommandReader = AppSession.NextCommandReader;
-                AppSession.NextCommandReader = null;
+                RequestFilter = AppSession.NextRequestFilter;
+                AppSession.NextRequestFilter = null;
             }
         }
 
         protected internal TRequestInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
         {
-            var requestInfo = CommandReader.FindRequestInfo(AppSession, readBuffer, offset, length, isReusableBuffer, out left);
+            var requestInfo = RequestFilter.Filter(AppSession, readBuffer, offset, length, isReusableBuffer, out left);
 
             if (requestInfo == null)
             {
-                int leftBufferCount = CommandReader.LeftBufferSize;
+                int leftBufferCount = RequestFilter.LeftBufferSize;
                 if (leftBufferCount >= AppServer.Config.MaxCommandLength)
                 {
                     if (AppServer.Logger.IsErrorEnabled)
@@ -101,9 +101,9 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            //If next command reader wasn't set, still use current command reader in next round received data processing
-            if (CommandReader.NextCommandReader != null)
-                CommandReader = CommandReader.NextCommandReader;
+            //If next request filter wasn't set, still use current request filter in next round received data processing
+            if (RequestFilter.NextRequestFilter != null)
+                RequestFilter = RequestFilter.NextRequestFilter;
 
             return requestInfo;
         }

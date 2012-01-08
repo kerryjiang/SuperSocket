@@ -25,23 +25,23 @@ namespace SuperSocket.SocketEngine
 
         #region ISocketServerFactory Members
 
-        public ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, System.Net.IPEndPoint localEndPoint, SocketBase.Config.IServerConfig config, ICustomProtocol<TRequestInfo> protocol)
+        public ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, System.Net.IPEndPoint localEndPoint, SocketBase.Config.IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
             where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-            where TRequestInfo : SocketBase.Command.IRequestInfo
+            where TRequestInfo : IRequestInfo
         {
-            if (protocol == null)
-                throw new ArgumentNullException("protocol");
+            if (requestFilterFactory == null)
+                throw new ArgumentNullException("requestFilterFactory");
 
             switch(config.Mode)
             {
                 case(SocketMode.Udp):
-                    return new UdpSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, protocol);
+                    return new UdpSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, requestFilterFactory);
                 case(SocketMode.Tcp):
                 case(SocketMode.Async):
                     if (string.IsNullOrEmpty(config.Security) || config.Security.Equals(m_SecurityNone, StringComparison.OrdinalIgnoreCase))
-                        return new AsyncSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, protocol);
+                        return new AsyncSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, requestFilterFactory);
                     else
-                        return new AsyncStreamSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, protocol);
+                        return new AsyncStreamSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, requestFilterFactory);
                 default:
                     throw new NotSupportedException("Unsupported SocketMode:" + config.Mode);
             }

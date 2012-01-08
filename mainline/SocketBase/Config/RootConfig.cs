@@ -25,8 +25,6 @@ namespace SuperSocket.SocketBase.Config
 
         public ICredentialConfig CredentialConfig { get; set; }
 
-        public LoggingMode LoggingMode { get; set; }
-
         public int MaxWorkingThreads { get; set; }
 
         public int MinWorkingThreads { get; set; }

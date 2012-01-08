@@ -33,15 +33,15 @@ namespace SuperSocket.SocketEngine
 
         private bool m_SessionIDFromRequestInfo = false;
 
-        private ICommandReader<TRequestInfo> m_UdpRequestInfoReader;
+        private IRequestFilter<TRequestInfo> m_UdpRequestFilter;
 
-        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TRequestInfo> protocol)
-            : base(appServer, localEndPoint, protocol)
+        public UdpSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+            : base(appServer, localEndPoint, requestFilterFactory)
         {
             if (typeof(TRequestInfo).IsSubclassOf(typeof(UdpRequestInfo)))
             {
                 m_SessionIDFromRequestInfo = true;
-                m_UdpRequestInfoReader = Protocol.CreateCommandReader(this.AppServer);
+                m_UdpRequestFilter = requestFilterFactory.CreateFilter(this.AppServer);
             }
         }
 
@@ -190,7 +190,7 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                var session = RegisterSession(new UdpSocketSession<TAppSession, TRequestInfo>(m_ListenSocket, remoteEndPoint, Protocol.CreateCommandReader(AppServer)));
+                var session = RegisterSession(new UdpSocketSession<TAppSession, TRequestInfo>(m_ListenSocket, remoteEndPoint, this.RequestFilterFactory.CreateFilter(AppServer)));
 
                 if (session == null)
                     return;
@@ -215,7 +215,7 @@ namespace SuperSocket.SocketEngine
             try
             {
                 int left;
-                requestInfo = m_UdpRequestInfoReader.FindRequestInfo(null, receivedData, 0, receivedData.Length, false, out left);
+                requestInfo = this.m_UdpRequestFilter.Filter(null, receivedData, 0, receivedData.Length, false, out left);
 
                 var udpRequestInfo = requestInfo as UdpRequestInfo;
 
