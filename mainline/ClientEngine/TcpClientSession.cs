@@ -254,17 +254,21 @@ namespace SuperSocket.ClientEngine
                 ProcessReceive(m_SocketEventArgs);
         }
 
+        private void DetectConnected()
+        {
+            if (Client != null)
+                return;
+
+            throw new Exception("The socket is not connected!", new SocketException((int)SocketError.NotConnected));
+        }
+
         private ConcurrentQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentQueue<ArraySegment<byte>>();
 
         private volatile bool m_IsSending = false;
 
         public override void Send(byte[] data, int offset, int length)
         {
-            if (this.Client == null)
-            {
-                OnError(new SocketException((int)SocketError.NotConnected));
-                return;
-            }
+            DetectConnected();
 
             m_SendingQueue.Enqueue(new ArraySegment<byte>(data, offset, length));
 
@@ -276,11 +280,7 @@ namespace SuperSocket.ClientEngine
 
         public override void Send(IList<ArraySegment<byte>> segments)
         {
-            if (this.Client == null)
-            {
-                OnError(new SocketException((int)SocketError.NotConnected));
-                return;
-            }
+            DetectConnected();
 
             for (var i = 0; i < segments.Count; i++)
                 m_SendingQueue.Enqueue(segments[i]);
