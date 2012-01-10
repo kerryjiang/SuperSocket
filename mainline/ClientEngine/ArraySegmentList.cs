@@ -576,6 +576,7 @@ namespace SuperSocket.ClientEngine
 
         public void DecodeMask(byte[] mask, int offset, int length)
         {
+            var maskLen = mask.Length;
             var startSegmentIndex = 0;
             var startSegment = QuickSearchSegment(0, Segments.Count - 1, offset, out startSegmentIndex);
 
@@ -586,7 +587,7 @@ namespace SuperSocket.ClientEngine
 
             for (var i = from; i < from + shouldDecode; i++)
             {
-                startSegment.Array[i] = (byte)(startSegment.Array[i] ^ mask[index % 4]);
+                startSegment.Array[i] = (byte)(startSegment.Array[i] ^ mask[index++ % maskLen]);
             }
 
             if (index >= length)
@@ -600,7 +601,7 @@ namespace SuperSocket.ClientEngine
 
                 for (var j = segment.Offset; j < segment.Offset + shouldDecode; j++)
                 {
-                    segment.Array[j] = (byte)(segment.Array[j] ^ mask[index++ % 4]);
+                    segment.Array[j] = (byte)(segment.Array[j] ^ mask[index++ % maskLen]);
                 }
 
                 if (index >= length)

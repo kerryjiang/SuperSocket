@@ -37,7 +37,7 @@ namespace SuperSocket.ClientEngine
         {
             if (e.LastOperation == SocketAsyncOperation.Connect)
             {
-                ProcessAccept(e);
+                ProcessConnect(e);
                 return;
             }
 
@@ -51,7 +51,7 @@ namespace SuperSocket.ClientEngine
             m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
 
             if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs))
-                ProcessAccept(m_SocketEventArgs);
+                ProcessConnect(m_SocketEventArgs);
 #else
             if (RemoteEndPoint is IPEndPoint)
             {
@@ -68,7 +68,7 @@ namespace SuperSocket.ClientEngine
                     };
 
                 if (!socket.ConnectAsync(m_SocketEventArgs))
-                    ProcessAccept(m_SocketEventArgs);
+                    ProcessConnect(m_SocketEventArgs);
             }
             else if (RemoteEndPoint is DnsEndPoint)
             {
@@ -89,6 +89,12 @@ namespace SuperSocket.ClientEngine
 
             var connectState = state.AsyncState as ConnectStateToken;
 
+            if(!Socket.OSSupportsIPv6)
+                addresses = addresses.Where(a => a.AddressFamily == AddressFamily.InterNetwork).ToArray();
+
+            if (addresses.Length <= 0)
+                return;
+
             connectState.Addresses = addresses;
 
             var ipEndPoint = new IPEndPoint(addresses[0], connectState.Port);
@@ -101,15 +107,18 @@ namespace SuperSocket.ClientEngine
             m_SocketEventArgs.UserToken = connectState;
 
             if (!socket.ConnectAsync(m_SocketEventArgs))
-                ProcessAccept(m_SocketEventArgs);
+                ProcessConnect(m_SocketEventArgs);
         }
 #endif
 
-        private void ProcessAccept(SocketAsyncEventArgs e)
+        private void ProcessConnect(SocketAsyncEventArgs e)
         {
 #if SILVERLIGHT
             if (e.SocketError != SocketError.Success)
-                throw new SocketException((int)e.SocketError);
+            {
+                OnError(new SocketException((int)e.SocketError));
+                return;
+            }
 
             Client = e.ConnectSocket;
 #else
@@ -117,31 +126,31 @@ namespace SuperSocket.ClientEngine
 
             if (e.SocketError != SocketError.Success)
             {
-                if (e.SocketError == SocketError.HostUnreachable)
+                if (e.SocketError != SocketError.HostUnreachable)
                 {
-                    if (connectState.Addresses.Length > (connectState.CurrentConnectIndex + 1))
-                    {
-                        var currentConnectIndex = connectState.CurrentConnectIndex + 1;
-                        var currentIpAddress = connectState.Addresses[currentConnectIndex];
-
-                        e.RemoteEndPoint = new IPEndPoint(currentIpAddress, connectState.Port);
-                        connectState.CurrentConnectIndex = currentConnectIndex;
-
-                        var socket = new Socket(currentIpAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                        connectState.Socket = socket;
-
-                        if (!socket.ConnectAsync(m_SocketEventArgs))
-                            ProcessAccept(m_SocketEventArgs);
-
-                        return;
-                    }
-                    else
-                    {
-                        throw new SocketException((int)SocketError.HostUnreachable);
-                    }
+                    OnError(new SocketException((int)e.SocketError));
+                    return;
                 }
 
-                throw new SocketException((int)e.SocketError);
+                if (connectState.Addresses.Length <= (connectState.CurrentConnectIndex + 1))
+                {
+                    OnError(new SocketException((int)SocketError.HostUnreachable));
+                    return;
+                }
+
+                var currentConnectIndex = connectState.CurrentConnectIndex + 1;
+                var currentIpAddress = connectState.Addresses[currentConnectIndex];
+
+                e.RemoteEndPoint = new IPEndPoint(currentIpAddress, connectState.Port);
+                connectState.CurrentConnectIndex = currentConnectIndex;
+
+                var socket = new Socket(currentIpAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                connectState.Socket = socket;
+
+                if (!socket.ConnectAsync(m_SocketEventArgs))
+                    ProcessConnect(m_SocketEventArgs);
+
+                return;
             }
 
             Client = connectState.Socket;
@@ -175,7 +184,7 @@ namespace SuperSocket.ClientEngine
         {
             if (e.LastOperation == SocketAsyncOperation.Connect)
             {
-                ProcessAccept(e);
+                ProcessConnect(e);
                 return;
             }
 
@@ -188,6 +197,7 @@ namespace SuperSocket.ClientEngine
             {
                 EnsureSocketClosed();
                 OnClosed();
+                OnError(new SocketException((int)e.SocketError));
                 return;
             }
 
@@ -233,9 +243,10 @@ namespace SuperSocket.ClientEngine
             {
                 async = Client.ReceiveAsync(m_SocketEventArgs);
             }
-            catch
+            catch(Exception e)
             {
                 EnsureSocketClosed();
+                OnError(e);
                 return;
             }
 
@@ -249,6 +260,12 @@ namespace SuperSocket.ClientEngine
 
         public override void Send(byte[] data, int offset, int length)
         {
+            if (this.Client == null)
+            {
+                OnError(new SocketException((int)SocketError.NotConnected));
+                return;
+            }
+
             m_SendingQueue.Enqueue(new ArraySegment<byte>(data, offset, length));
 
             if (!m_IsSending)
@@ -259,6 +276,12 @@ namespace SuperSocket.ClientEngine
 
         public override void Send(IList<ArraySegment<byte>> segments)
         {
+            if (this.Client == null)
+            {
+                OnError(new SocketException((int)SocketError.NotConnected));
+                return;
+            }
+
             for (var i = 0; i < segments.Count; i++)
                 m_SendingQueue.Enqueue(segments[i]);
 
@@ -290,9 +313,10 @@ namespace SuperSocket.ClientEngine
             {
                 async = Client.SendAsync(args);
             }
-            catch
+            catch(Exception e)
             {
                 EnsureSocketClosed();
+                OnError(e);
                 return;
             }
 
@@ -313,6 +337,10 @@ namespace SuperSocket.ClientEngine
                 m_IsSending = false;
                 EnsureSocketClosed();
                 OnClosed();
+
+                if (e.SocketError != SocketError.Success)
+                    OnError(new SocketException((int)e.SocketError));
+
                 return;
             }
 

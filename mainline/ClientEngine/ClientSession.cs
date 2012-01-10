@@ -56,5 +56,21 @@ namespace SuperSocket.ClientEngine
             if (handler != null)
                 handler(this, EventArgs.Empty);
         }
+
+        private EventHandler<ErrorEventArgs> m_Error;
+
+        public event EventHandler<ErrorEventArgs> Error
+        {
+            add { m_Error += value; }
+            remove { m_Error -= value; }
+        }
+
+        protected virtual void OnError(Exception e)
+        {
+            if (m_Error == null)
+                return;
+
+            m_Error(this, new ErrorEventArgs(e));
+        }
     }
 }

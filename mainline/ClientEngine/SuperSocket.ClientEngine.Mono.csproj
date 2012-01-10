@@ -52,6 +52,7 @@
     <Compile Include="ConcurrentQueue.cs" />
     <Compile Include="ConnectStateToken.cs" />
     <Compile Include="DelegateCommand.cs" />
+    <Compile Include="ErrorEventArgs.cs" />
     <Compile Include="IClientCommandReader.cs" />
     <Compile Include="IClientSession.cs" />
     <Compile Include="ICommand.cs" />
