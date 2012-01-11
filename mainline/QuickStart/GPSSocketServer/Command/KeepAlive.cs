@@ -20,7 +20,8 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
         public override void ExecuteCommand(GPSSession session, BinaryRequestInfo requestInfo)
         {
             //You can do nothing, after this command is executed, the LastActiveTime of this session will be updated
-            session.SendResponse(session.AppServer.DefaultResponse);
+            var response = session.AppServer.DefaultResponse;
+            session.SendResponse(response, 0, response.Length);
         }
     }
 }

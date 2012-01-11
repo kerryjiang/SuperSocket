@@ -255,9 +255,11 @@ namespace SuperSocket.SocketBase
         /// Sends the response.
         /// </summary>
         /// <param name="data">The data which will be sent.</param>
-        public virtual void SendResponse(byte[] data)
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        public virtual void SendResponse(byte[] data, int offset, int length)
         {
-            SocketSession.SendResponse(data);
+            SocketSession.SendResponse(data, offset, length);
         }
 
         /// <summary>

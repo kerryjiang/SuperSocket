@@ -93,7 +93,8 @@ namespace SuperSocket.Facility.PolicyServer
                 return;
             }
 
-            session.SendResponse(GetPolicyFileResponse(session.RemoteEndPoint));
+            var response = GetPolicyFileResponse(session.RemoteEndPoint);
+            session.SendResponse(response, 0, response.Length);
         }
     }
 }

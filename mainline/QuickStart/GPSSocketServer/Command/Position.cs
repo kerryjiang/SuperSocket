@@ -20,7 +20,8 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
         public override void ExecuteCommand(GPSSession session, BinaryRequestInfo requestInfo)
         {
             //The logic of saving GPS position data
-            session.SendResponse(session.AppServer.DefaultResponse);
+            var response = session.AppServer.DefaultResponse;
+            session.SendResponse(response, 0, response.Length); ;
         }
     }
 }
