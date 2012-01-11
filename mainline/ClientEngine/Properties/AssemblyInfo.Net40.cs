@@ -2,7 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("SuperSocket.ClientEngine for .NET 4.0")]
+[assembly: AssemblyTitle("SuperSocket.ClientEngine for .NET 4.0/Mono 2.10+")]
 [assembly: AssemblyDescription("SuperSocket.ClientEngine")]
 [assembly: AssemblyConfiguration("")]
 [assembly: ComVisible(false)]

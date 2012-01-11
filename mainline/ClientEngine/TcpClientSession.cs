@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -46,7 +45,6 @@ namespace SuperSocket.ClientEngine
 
         protected override void Connect()
         {
-
 #if SILVERLIGHT
             m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
 
