@@ -175,7 +175,8 @@ namespace SuperSocket.ClientEngine
 
         public override void Close()
         {
-            EnsureSocketClosed();
+            if(EnsureSocketClosed())
+                OnClosed();
         }
 
         void m_ReceiveEventArgs_Completed(object sender, SocketAsyncEventArgs e)
@@ -193,16 +194,16 @@ namespace SuperSocket.ClientEngine
         {
             if (e.SocketError != SocketError.Success)
             {
-                EnsureSocketClosed();
-                OnClosed();
+                if(EnsureSocketClosed())
+                    OnClosed();
                 OnError(new SocketException((int)e.SocketError));
                 return;
             }
 
             if (e.BytesTransferred == 0)
             {
-                EnsureSocketClosed();
-                OnClosed();
+                if(EnsureSocketClosed())
+                    OnClosed();
                 return;
             }
 
@@ -212,25 +213,26 @@ namespace SuperSocket.ClientEngine
 
         protected abstract void OnDataReceived(byte[] data, int offset, int length);
 
-        void EnsureSocketClosed()
+        bool EnsureSocketClosed()
         {
-            if (Client != null)
+            if (Client == null)
+                return false;
+
+            if (Client.Connected)
             {
-                if (Client.Connected)
+                try
                 {
-                    try
-                    {
-                        Client.Shutdown(SocketShutdown.Both);
-                        Client.Close();
-                    }
-                    catch
-                    {
-
-                    }
+                    Client.Shutdown(SocketShutdown.Both);
+                    Client.Close();
                 }
+                catch
+                {
 
-                Client = null;
+                }
             }
+
+            Client = null;
+            return true;
         }
 
         void StartReceive()
@@ -243,8 +245,8 @@ namespace SuperSocket.ClientEngine
             }
             catch(Exception e)
             {
-                EnsureSocketClosed();
-                OnError(e);
+                if(EnsureSocketClosed())
+                    OnError(e);
                 return;
             }
 
@@ -313,8 +315,8 @@ namespace SuperSocket.ClientEngine
             }
             catch(Exception e)
             {
-                EnsureSocketClosed();
-                OnError(e);
+                if(EnsureSocketClosed())
+                    OnError(e);
                 return;
             }
 
@@ -333,8 +335,8 @@ namespace SuperSocket.ClientEngine
             if (e.SocketError != SocketError.Success || e.BytesTransferred == 0)
             {
                 m_IsSending = false;
-                EnsureSocketClosed();
-                OnClosed();
+                if(EnsureSocketClosed())
+                    OnClosed();
 
                 if (e.SocketError != SocketError.Success)
                     OnError(new SocketException((int)e.SocketError));
