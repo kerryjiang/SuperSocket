@@ -28,9 +28,18 @@ namespace SuperSocket.ClientEngine
 
         protected override void StartReceive(SocketAsyncEventArgs e)
         {
-            var stream = new NetworkStream(Client);
-            var sslStream = new SslStream(stream, false, ValidateRemoteCertificate);
-            sslStream.BeginAuthenticateAsClient(HostName, OnAuthenticated, sslStream);
+            try
+            {
+                var sslStream = new SslStream(new NetworkStream(Client), false, ValidateRemoteCertificate);
+                sslStream.BeginAuthenticateAsClient(HostName, OnAuthenticated, sslStream);
+            }
+            catch (Exception exc)
+            {
+                OnError(exc);
+
+                if (EnsureSocketClosed())
+                    OnClosed();
+            }
         }
 
         private void OnAuthenticated(IAsyncResult result)
@@ -52,7 +61,7 @@ namespace SuperSocket.ClientEngine
             OnConnected();
 
             m_ReceiveBuffer = new byte[1024];
-            m_SslStream.BeginRead(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length, OnDataRead, m_SslStream);
+            BeginRead();
         }
 
         private void OnDataRead(IAsyncResult result)
@@ -70,10 +79,35 @@ namespace SuperSocket.ClientEngine
 
                 if(EnsureSocketClosed())
                     OnClosed();
+
+                return;
+            }
+
+            if (length == 0)
+            {
+                if (EnsureSocketClosed())
+                    OnClosed();
+
+                return;
             }
 
             OnDataReceived(m_ReceiveBuffer, 0, length);
-            m_SslStream.BeginRead(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length, OnDataRead, m_SslStream);
+            BeginRead();
+        }
+
+        void BeginRead()
+        {
+            try
+            {
+                m_SslStream.BeginRead(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length, OnDataRead, m_SslStream);
+            }
+            catch (Exception e)
+            {
+                OnError(e);
+
+                if (EnsureSocketClosed())
+                    OnClosed();
+            }
         }
 
         private bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -89,7 +123,17 @@ namespace SuperSocket.ClientEngine
 
         protected override void SendInternal(ArraySegment<byte> segment)
         {
-            m_SslStream.BeginWrite(segment.Array, segment.Offset, segment.Count, OnWriteComplete, m_SslStream);
+            try
+            {
+                m_SslStream.BeginWrite(segment.Array, segment.Offset, segment.Count, OnWriteComplete, m_SslStream);
+            }
+            catch (Exception e)
+            {
+                OnError(e);
+
+                if (EnsureSocketClosed())
+                    OnClosed();
+            }
         }
 
         private void OnWriteComplete(IAsyncResult result)
@@ -112,7 +156,20 @@ namespace SuperSocket.ClientEngine
                 return;
             }
 
-            DequeueSend();
+            if (!DequeueSend())
+            {
+                try
+                {
+                    m_SslStream.Flush();
+                }
+                catch (Exception e)
+                {
+                    OnError(e);
+
+                    if (EnsureSocketClosed())
+                        OnClosed();
+                }
+            }
         }
     }
 }

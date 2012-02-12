@@ -208,7 +208,7 @@ namespace SuperSocket.ClientEngine
             }
         }
 
-        protected void DequeueSend()
+        protected bool DequeueSend()
         {
             IsSending = true;
             ArraySegment<byte> segment;
@@ -216,10 +216,11 @@ namespace SuperSocket.ClientEngine
             if (!m_SendingQueue.TryDequeue(out segment))
             {
                 IsSending = false;
-                return;
+                return false;
             }
 
             SendInternal(segment);
+            return true;
         }
 
         protected abstract void SendInternal(ArraySegment<byte> segment);
