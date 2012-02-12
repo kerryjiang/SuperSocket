@@ -3,78 +3,66 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Reflection;
 using System.Text;
 
 namespace SuperSocket.ClientEngine
 {
     public abstract class TcpClientSession : ClientSession
     {
-        private SocketAsyncEventArgs m_SocketEventArgs;
-
-        private byte[] m_ReceiveBuffer;
+        protected string HostName { get; private set; }
 
         public TcpClientSession()
             : base()
         {
-            Init();
         }
 
         public TcpClientSession(EndPoint remoteEndPoint)
             : base(remoteEndPoint)
         {
-            Init();
         }
 
-        private void Init()
-        {
-            m_SocketEventArgs = new SocketAsyncEventArgs();
-            m_SocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(m_SocketEventArgs_Completed);
-        }
+        protected abstract void SocketEventArgsCompleted(object sender, SocketAsyncEventArgs e);
 
-        void m_SocketEventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        public override void Connect()
         {
-            if (e.LastOperation == SocketAsyncOperation.Connect)
-            {
-                ProcessConnect(e);
-                return;
-            }
+            var socketEventArgs = new SocketAsyncEventArgs();
+            socketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(SocketEventArgsCompleted);
 
-            ProcessReceive(e);
-        }
-
-        protected override void Connect()
-        {
 #if SILVERLIGHT
-            m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
+            socketEventArgs.RemoteEndPoint = RemoteEndPoint;
 
-            if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, m_SocketEventArgs))
-                ProcessConnect(m_SocketEventArgs);
+            if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, socketEventArgs))
+                ProcessConnect(socketEventArgs);
 #else
             if (RemoteEndPoint is IPEndPoint)
             {
-                m_SocketEventArgs.RemoteEndPoint = RemoteEndPoint;
+                socketEventArgs.RemoteEndPoint = RemoteEndPoint;
 
                 var ipEndPoint = RemoteEndPoint as IPEndPoint;
-                var socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                m_SocketEventArgs.UserToken = new ConnectStateToken
-                    {
-                        Addresses = new IPAddress[] { ipEndPoint.Address },
-                        Port = ipEndPoint.Port,
-                        CurrentConnectIndex = 0,
-                        Socket = socket
-                    };
+                HostName = ipEndPoint.Address.ToString();
 
-                if (!socket.ConnectAsync(m_SocketEventArgs))
-                    ProcessConnect(m_SocketEventArgs);
+                var socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                socketEventArgs.UserToken = new ConnectStateToken
+                {
+                    Addresses = new IPAddress[] { ipEndPoint.Address },
+                    Port = ipEndPoint.Port,
+                    CurrentConnectIndex = 0,
+                    Socket = socket,
+                    SocketEventArgs = socketEventArgs
+                };
+
+                if (!socket.ConnectAsync(socketEventArgs))
+                    ProcessConnect(socketEventArgs);
             }
             else if (RemoteEndPoint is DnsEndPoint)
             {
                 var dnsEndPoint = RemoteEndPoint as DnsEndPoint;
+                HostName = dnsEndPoint.Host;
                 Dns.BeginGetHostAddresses(dnsEndPoint.Host, OnGetHostAddresses,
                     new ConnectStateToken
                     {
-                        Port = dnsEndPoint.Port
+                        Port = dnsEndPoint.Port,
+                        SocketEventArgs = socketEventArgs
                     });
             }
 #endif
@@ -87,29 +75,31 @@ namespace SuperSocket.ClientEngine
 
             var connectState = state.AsyncState as ConnectStateToken;
 
-            if(!Socket.OSSupportsIPv6)
+            if (!Socket.OSSupportsIPv6)
                 addresses = addresses.Where(a => a.AddressFamily == AddressFamily.InterNetwork).ToArray();
 
             if (addresses.Length <= 0)
                 return;
 
+            var socketEventArgs = connectState.SocketEventArgs;
+
             connectState.Addresses = addresses;
 
             var ipEndPoint = new IPEndPoint(addresses[0], connectState.Port);
-            m_SocketEventArgs.RemoteEndPoint = ipEndPoint;
+            socketEventArgs.RemoteEndPoint = ipEndPoint;
 
             var socket = new Socket(ipEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             connectState.Socket = socket;
 
-            m_SocketEventArgs.UserToken = connectState;
+            socketEventArgs.UserToken = connectState;
 
-            if (!socket.ConnectAsync(m_SocketEventArgs))
-                ProcessConnect(m_SocketEventArgs);
+            if (!socket.ConnectAsync(socketEventArgs))
+                ProcessConnect(socketEventArgs);
         }
 #endif
 
-        private void ProcessConnect(SocketAsyncEventArgs e)
+        protected void ProcessConnect(SocketAsyncEventArgs e)
         {
 #if SILVERLIGHT
             if (e.SocketError != SocketError.Success)
@@ -145,8 +135,8 @@ namespace SuperSocket.ClientEngine
                 var socket = new Socket(currentIpAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 connectState.Socket = socket;
 
-                if (!socket.ConnectAsync(m_SocketEventArgs))
-                    ProcessConnect(m_SocketEventArgs);
+                if (!socket.ConnectAsync(e))
+                    ProcessConnect(e);
 
                 return;
             }
@@ -154,66 +144,12 @@ namespace SuperSocket.ClientEngine
             Client = connectState.Socket;
             e.UserToken = null;
 #endif
-            int receiveBufferSize = 1024;
-            m_ReceiveBuffer = new byte[receiveBufferSize];
-            m_SocketEventArgs.SetBuffer(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
-
-            StartReceive();
-            OnConnected();
+            StartReceive(e);
         }
 
-        private void BeginReceive()
-        {
-            if (!Client.ReceiveAsync(m_SocketEventArgs))
-                ProcessReceive(m_SocketEventArgs);
-        }
+        protected abstract void StartReceive(SocketAsyncEventArgs e);
 
-        protected virtual void OnConnected()
-        {
-
-        }
-
-        public override void Close()
-        {
-            if(EnsureSocketClosed())
-                OnClosed();
-        }
-
-        void m_ReceiveEventArgs_Completed(object sender, SocketAsyncEventArgs e)
-        {
-            if (e.LastOperation == SocketAsyncOperation.Connect)
-            {
-                ProcessConnect(e);
-                return;
-            }
-
-            ProcessReceive(e);
-        }
-
-        private void ProcessReceive(SocketAsyncEventArgs e)
-        {
-            if (e.SocketError != SocketError.Success)
-            {
-                if(EnsureSocketClosed())
-                    OnClosed();
-                OnError(new SocketException((int)e.SocketError));
-                return;
-            }
-
-            if (e.BytesTransferred == 0)
-            {
-                if(EnsureSocketClosed())
-                    OnClosed();
-                return;
-            }
-
-            OnDataReceived(e.Buffer, e.Offset, e.BytesTransferred);
-            StartReceive();
-        }
-
-        protected abstract void OnDataReceived(byte[] data, int offset, int length);
-
-        bool EnsureSocketClosed()
+        protected bool EnsureSocketClosed()
         {
             if (Client == null)
                 return false;
@@ -235,25 +171,6 @@ namespace SuperSocket.ClientEngine
             return true;
         }
 
-        void StartReceive()
-        {
-            bool async;
-
-            try
-            {
-                async = Client.ReceiveAsync(m_SocketEventArgs);
-            }
-            catch(Exception e)
-            {
-                if(EnsureSocketClosed())
-                    OnError(e);
-                return;
-            }
-
-            if (!async)
-                ProcessReceive(m_SocketEventArgs);
-        }
-
         private void DetectConnected()
         {
             if (Client != null)
@@ -264,7 +181,7 @@ namespace SuperSocket.ClientEngine
 
         private ConcurrentQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentQueue<ArraySegment<byte>>();
 
-        private volatile bool m_IsSending = false;
+        protected volatile bool IsSending = false;
 
         public override void Send(byte[] data, int offset, int length)
         {
@@ -272,7 +189,7 @@ namespace SuperSocket.ClientEngine
 
             m_SendingQueue.Enqueue(new ArraySegment<byte>(data, offset, length));
 
-            if (!m_IsSending)
+            if (!IsSending)
             {
                 DequeueSend();
             }
@@ -285,66 +202,32 @@ namespace SuperSocket.ClientEngine
             for (var i = 0; i < segments.Count; i++)
                 m_SendingQueue.Enqueue(segments[i]);
 
-            if (!m_IsSending)
+            if (!IsSending)
             {
                 DequeueSend();
             }
         }
 
-        private void DequeueSend()
+        protected void DequeueSend()
         {
-            m_IsSending = true;
+            IsSending = true;
             ArraySegment<byte> segment;
 
             if (!m_SendingQueue.TryDequeue(out segment))
             {
-                m_IsSending = false;
+                IsSending = false;
                 return;
             }
 
-            var args = new SocketAsyncEventArgs();
-
-            args.SetBuffer(segment.Array, segment.Offset, segment.Count);
-            args.Completed += new EventHandler<SocketAsyncEventArgs>(Sending_Completed);
-
-            bool async;
-
-            try
-            {
-                async = Client.SendAsync(args);
-            }
-            catch(Exception e)
-            {
-                if(EnsureSocketClosed())
-                    OnError(e);
-                return;
-            }
-
-            if (!async)
-                Sending_Completed(Client, args);
+            SendInternal(segment);
         }
 
-        void Sending_Completed(object sender, SocketAsyncEventArgs e)
+        protected abstract void SendInternal(ArraySegment<byte> segment);
+
+        public override void Close()
         {
-            if (e.LastOperation != SocketAsyncOperation.Send)
-            {
-                m_IsSending = false;
-                return;
-            }
-
-            if (e.SocketError != SocketError.Success || e.BytesTransferred == 0)
-            {
-                m_IsSending = false;
-                if(EnsureSocketClosed())
-                    OnClosed();
-
-                if (e.SocketError != SocketError.Success)
-                    OnError(new SocketException((int)e.SocketError));
-
-                return;
-            }
-
-            DequeueSend();
+            if (EnsureSocketClosed())
+                OnClosed();
         }
     }
 }

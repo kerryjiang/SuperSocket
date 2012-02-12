@@ -50,6 +50,7 @@
     <Compile Include="ArraySegmentEx.cs" />
     <Compile Include="ArraySegmentList.cs" />
     <Compile Include="AssemblyUtil.cs" />
+    <Compile Include="AsyncTcpSession.cs" />
     <Compile Include="BinaryCommandInfo.cs" />
     <Compile Include="BinaryUtil.cs" />
     <Compile Include="ClientSession.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="ConcurrentQueue.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DataEventArgs.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="ErrorEventArgs.cs" />
     <Compile Include="IClientCommandReader.cs" />

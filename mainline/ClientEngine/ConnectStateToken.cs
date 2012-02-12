@@ -16,5 +16,7 @@ namespace SuperSocket.ClientEngine
         public int Port { get; set; }
 
         public Socket Socket { get; set; }
+
+        public SocketAsyncEventArgs SocketEventArgs { get; set; }
     }
 }

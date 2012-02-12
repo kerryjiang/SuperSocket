@@ -16,5 +16,13 @@ namespace SuperSocket.ClientEngine
         void Send(IList<ArraySegment<byte>> segments);
 
         void Close();
+
+        event EventHandler Connected;
+
+        event EventHandler Closed;
+
+        event EventHandler<ErrorEventArgs> Error;
+
+        event EventHandler<DataEventArgs> DataReceived;
     }
 }
