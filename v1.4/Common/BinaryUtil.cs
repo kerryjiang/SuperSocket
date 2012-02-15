@@ -39,6 +39,23 @@ namespace SuperSocket.Common
             int endOffset = offset + length - 1;
             int matchCount = matched;
 
+            if (matched > 0)
+            {
+                for (int i = matchCount; i < mark.Length; i++)
+                {
+                    if (!source[pos++].Equals(mark[i]))
+                        break;
+
+                    matchCount++;
+                }
+
+                if (matchCount == mark.Length)
+                    return 0;
+
+                pos = offset;
+                matchCount = 0;
+            }
+
             while (true)
             {
                 pos = source.IndexOf(mark[matchCount], pos, length - pos + offset);
