@@ -29,9 +29,9 @@ namespace SuperSocket.Common
             return Task.Factory.StartNew(task, taskOption).ContinueWith(t =>
                 {
                     if (exceptionHandler != null)
-                        exceptionHandler(t.Exception);
+                        exceptionHandler(t.Exception.InnerException);
                     else
-                        LogFactoryProvider.GlobalLog.Error(t.Exception);
+                        LogFactoryProvider.GlobalLog.Error(t.Exception.InnerException);
                 }, TaskContinuationOptions.OnlyOnFaulted);
         }
 
@@ -55,9 +55,9 @@ namespace SuperSocket.Common
             return Task.Factory.StartNew(task, state, taskOption).ContinueWith(t =>
             {
                 if (exceptionHandler != null)
-                    exceptionHandler(t.Exception);
+                    exceptionHandler(t.Exception.InnerException);
                 else
-                    LogFactoryProvider.GlobalLog.Error(t.Exception);
+                    LogFactoryProvider.GlobalLog.Error(t.Exception.InnerException);
             }, TaskContinuationOptions.OnlyOnFaulted);
         }
     }
