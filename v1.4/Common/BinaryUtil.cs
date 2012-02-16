@@ -47,6 +47,14 @@ namespace SuperSocket.Common
                         break;
 
                     matchCount++;
+
+                    if (pos > endOffset)
+                    {
+                        if (matchCount == mark.Length)
+                            return 0;
+                        else
+                            return (0 - matchCount);
+                    }
                 }
 
                 if (matchCount == mark.Length)
