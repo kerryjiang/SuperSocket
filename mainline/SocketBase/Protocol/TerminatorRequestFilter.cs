@@ -21,6 +21,8 @@ namespace SuperSocket.SocketBase.Protocol
         {
             left = 0;
 
+            int prevMatched = m_SearchState.Matched;
+
             int result = readBuffer.SearchMark(offset, length, m_SearchState);
 
             if (result < 0)
@@ -32,18 +34,19 @@ namespace SuperSocket.SocketBase.Protocol
             int findLen = result - offset;
 
             if (findLen > 0)
+            {
                 this.AddArraySegment(readBuffer, offset, findLen, false);
+            }
+            else if (prevMatched > 0)
+            {
+                BufferSegments.TrimEnd(prevMatched);
+            }
 
             var requestInfo = Resolve(BufferSegments);
 
             ClearBufferSegments();
 
-            int thisMatched = findLen + (m_SearchState.Mark.Length - m_SearchState.Matched);
-
-            if (thisMatched < length)
-            {
-                left = length - thisMatched;
-            }
+            left = length - findLen - (m_SearchState.Mark.Length - prevMatched);
 
             return requestInfo;
         }

@@ -48,7 +48,9 @@ namespace SuperSocket.SocketBase.Protocol
 
         protected bool FindCommandInfoDirectly(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out string command, out int left)
         {
-            left = 0;            
+            left = 0;
+
+            int prevMatched = m_SearchState.Matched;
 
             int result = readBuffer.SearchMark(offset, length, m_SearchState);
 
@@ -61,20 +63,26 @@ namespace SuperSocket.SocketBase.Protocol
 
             int findLen = result - offset;
 
-            if (findLen > 0)
-                this.AddArraySegment(readBuffer, offset, findLen, false);
-
-            command = this.BufferSegments.Decode(Encoding);
+            if (this.BufferSegments.Count > 0)
+            {
+                if (findLen > 0)
+                {
+                    this.AddArraySegment(readBuffer, offset, findLen, false);
+                    command = this.BufferSegments.Decode(Encoding);
+                }
+                else
+                {
+                    command = this.BufferSegments.Decode(Encoding, 0, this.BufferSegments.Count - prevMatched);
+                }
+            }
+            else
+            {
+                command = Encoding.GetString(readBuffer, offset, findLen);
+            }
 
             ClearBufferSegments();
 
-            int thisMatched = findLen + (m_SearchState.Mark.Length - m_SearchState.Matched);
-
-            if (thisMatched < length)
-            {
-                left = length - thisMatched;
-            }
-
+            left = length - findLen - (m_SearchState.Mark.Length - prevMatched);
             return true;
         }
     }

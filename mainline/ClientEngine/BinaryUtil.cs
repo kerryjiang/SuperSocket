@@ -53,14 +53,14 @@ namespace SuperSocket.ClientEngine
                     if (pos > endOffset)
                     {
                         if (matchCount == mark.Length)
-                            return 0;
+                            return offset;
                         else
                             return (0 - matchCount);
                     }
                 }
 
                 if (matchCount == mark.Length)
-                    return 0;
+                    return offset;
 
                 pos = offset;
                 matchCount = 0;
