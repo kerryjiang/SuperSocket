@@ -37,6 +37,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -67,6 +68,9 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="CommandHandler.cs" />
+    <Compile Include="Config\IListenerConfig.cs" />
+    <Compile Include="Config\ListenerConfig.cs" />
+    <Compile Include="ListenerInfo.cs" />
     <Compile Include="Protocol\BinaryRequestInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />

@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Config;
+using System.Net;
 
 namespace SuperSocket.SocketEngine
 {
@@ -25,8 +27,7 @@ namespace SuperSocket.SocketEngine
 
         #region ISocketServerFactory Members
 
-        public ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, System.Net.IPEndPoint localEndPoint, SocketBase.Config.IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        public ISocketServer CreateSocketServer<TRequestInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
             where TRequestInfo : IRequestInfo
         {
             if (requestFilterFactory == null)
@@ -34,14 +35,11 @@ namespace SuperSocket.SocketEngine
 
             switch(config.Mode)
             {
-                case(SocketMode.Udp):
-                    return new UdpSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, requestFilterFactory);
                 case(SocketMode.Tcp):
-                case(SocketMode.Async):
                     if (string.IsNullOrEmpty(config.Security) || config.Security.Equals(m_SecurityNone, StringComparison.OrdinalIgnoreCase))
-                        return new AsyncSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, requestFilterFactory);
+                        return new AsyncSocketServer(appServer, listeners);
                     else
-                        return new AsyncStreamSocketServer<TAppSession, TRequestInfo>(appServer, localEndPoint, requestFilterFactory);
+                        return new AsyncStreamSocketServer(appServer, listeners);
                 default:
                     throw new NotSupportedException("Unsupported SocketMode:" + config.Mode);
             }

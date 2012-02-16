@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser
             SendResponse("Welcome");   
         }
 
-        public override void HandleExceptionalError(Exception e)
+        public override void HandleException(Exception e)
         {
             
         }

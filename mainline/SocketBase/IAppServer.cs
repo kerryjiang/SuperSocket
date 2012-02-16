@@ -75,11 +75,7 @@ namespace SuperSocket.SocketBase
         /// Gets the server's config.
         /// </summary>
         IServerConfig Config { get; }
-    }
 
-    public interface IAppServer<TAppSession> : IAppServer
-        where TAppSession : IAppSession
-    {
         /// <summary>
         /// Gets the certificate of current server.
         /// </summary>
@@ -91,20 +87,29 @@ namespace SuperSocket.SocketBase
         SslProtocols BasicSecurity { get; }
 
         /// <summary>
-        /// Creates a new app session by a socket session.
+        /// Gets the total session count.
+        /// </summary>
+        int SessionCount { get; }
+
+
+        /// <summary>
+        /// Creates the app session.
         /// </summary>
         /// <param name="socketSession">The socket session.</param>
         /// <returns></returns>
-        TAppSession CreateAppSession(ISocketSession socketSession);
-
+        IAppSession CreateAppSession(ISocketSession socketSession);
 
         /// <summary>
         /// Gets the app session by ID.
         /// </summary>
         /// <param name="identityKey">The session ID.</param>
         /// <returns></returns>
-        TAppSession GetAppSessionByID(string sessionID);
+        IAppSession GetAppSessionByID(string sessionID);
+    }
 
+    public interface IAppServer<TAppSession> : IAppServer
+        where TAppSession : IAppSession
+    {
         /// <summary>
         /// Gets the matched sessions from sessions snapshot.
         /// </summary>
@@ -117,14 +122,9 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <returns></returns>
         IEnumerable<TAppSession> GetAllSessions();
-
-        /// <summary>
-        /// Gets the total session count.
-        /// </summary>
-        int SessionCount { get; }
     }
 
-    public interface IAppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession>, ICommandSource<ICommand<TAppSession, TRequestInfo>>
+    public interface IAppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession>
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession<TRequestInfo>
     {
@@ -133,6 +133,6 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
-        void ExecuteCommand(TAppSession session, TRequestInfo requestInfo);
+        void ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo);
     }
 }

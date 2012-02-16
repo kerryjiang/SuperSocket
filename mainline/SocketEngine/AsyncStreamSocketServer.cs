@@ -12,23 +12,15 @@ using SuperSocket.Common;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncStreamSocketServer<TAppSession, TRequestInfo> : TcpSocketServerBase<AsyncStreamSocketSession<TAppSession, TRequestInfo>, TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    class AsyncStreamSocketServer : TcpSocketServerBase
     {
-        public AsyncStreamSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
-            : base(appServer, localEndPoint, requestFilterFactory)
+        public AsyncStreamSocketServer(IAppServer appServer, ListenerInfo[] listeners)
+            : base(appServer, listeners)
         {
             
         }
 
-        private Semaphore m_MaxConnectionSemaphore;
-
-        private Socket m_ListenSocket = null;
-
-        private Thread m_ListenThread = null;
-
-        private AutoResetEvent m_TcpClientConnected;
+        private int m_CurrentConnectionCount;
 
         public override bool Start()
         {
@@ -37,17 +29,8 @@ namespace SuperSocket.SocketEngine
                 if (!base.Start())
                     return false;
 
-                m_TcpClientConnected = new AutoResetEvent(false);
-
-                if (m_ListenSocket == null)
-                {
-                    m_ListenThread = new Thread(StartListen);
-                    m_ListenThread.Start();
-                }
-
-                WaitForStartupFinished();
-
-                return IsRunning;
+                IsRunning = true;
+                return true;
             }
             catch (Exception e)
             {
@@ -56,119 +39,38 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        private void StartListen()
+
+        protected override void AcceptNewClient(ISocketListener listener, Socket client)
         {
-            m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
-            try
+            if(Interlocked.Increment(ref m_CurrentConnectionCount) > AppServer.Config.MaxConnectionNumber)
             {
-                m_ListenSocket.Bind(this.EndPoint);
-                m_ListenSocket.Listen(this.AppServer.Config.ListenBacklog);
-
-                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-            }
-            catch (Exception e)
-            {
-                AppServer.Logger.Error(e);
-                OnStartupFinished();
+                Interlocked.Decrement(ref m_CurrentConnectionCount);
+                Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
                 return;
             }
 
-            m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
+            var session = RegisterSession(client, new AsyncStreamSocketSession(client));
 
-            SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
-            acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
-
-            IsRunning = true;
-
-            OnStartupFinished();
-
-            while (!IsStopped)
+            if (session == null)
             {
-                m_MaxConnectionSemaphore.WaitOne();
-
-                if (IsStopped)
-                    break;
-
-                acceptEventArg.AcceptSocket = null;
-
-                bool willRaiseEvent = true;
-
-                try
-                {
-                    willRaiseEvent = m_ListenSocket.AcceptAsync(acceptEventArg);
-                }
-                catch (ObjectDisposedException)//listener has been stopped
-                {
-                    break;
-                }
-                catch (NullReferenceException)
-                {
-                    break;
-                }
-                catch (Exception e)
-                {
-                    if (AppServer.Logger.IsErrorEnabled)
-                        AppServer.Logger.Error("Failed to accept new tcp client in async server!", e);
-                    break;
-                }
-
-                if (!willRaiseEvent)
-                    AceptNewClient(acceptEventArg);
-
-                m_TcpClientConnected.WaitOne();
+                Interlocked.Decrement(ref m_CurrentConnectionCount);
+                Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                return;
             }
 
-            IsRunning = false;
-        }
-
-        void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
-        {
-            AceptNewClient(e);
-        }
-
-        void AceptNewClient(SocketAsyncEventArgs e)
-        {
-            if (e.SocketError == SocketError.Success)
-            {
-                var client = e.AcceptSocket;
-                m_TcpClientConnected.Set();
-
-                var session = RegisterSession(client, new AsyncStreamSocketSession<TAppSession, TRequestInfo>(client, this.RequestFilterFactory.CreateFilter(AppServer)));
-
-                if (session != null)
-                {
-                    session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-                    session.Start();
-                }
-                else
-                {
-                    Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
-                }
-            }
-            else
-            {
-                m_TcpClientConnected.Set();
-            }
+            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+            Async.Run(() => session.Start());
         }
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
-            m_MaxConnectionSemaphore.Release();
+            Interlocked.Decrement(ref m_CurrentConnectionCount);
         }
 
         public override void Stop()
         {
             base.Stop();
-
-            if (m_ListenSocket != null)
-            {
-                m_ListenSocket.Close();
-                m_ListenSocket = null;
-            }
-
-            VerifySocketServerRunning(false);
+            IsRunning = false;
         }
 
         protected override void Dispose(bool disposing)
@@ -177,9 +79,6 @@ namespace SuperSocket.SocketEngine
             {
                 if (IsRunning)
                     Stop();
-
-                m_TcpClientConnected.Close();
-                m_MaxConnectionSemaphore.Close();
             }
 
             base.Dispose(disposing);

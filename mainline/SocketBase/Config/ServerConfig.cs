@@ -133,6 +133,11 @@ namespace SuperSocket.SocketBase.Config
             return default(TConfig);
         }
 
+        /// <summary>
+        /// Gets and sets the listeners' configuration.
+        /// </summary>
+        public IEnumerable<IListenerConfig> Listeners { get; set; }
+
         #endregion
     }
 }

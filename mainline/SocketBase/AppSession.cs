@@ -14,14 +14,22 @@ namespace SuperSocket.SocketBase
 {
     public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+        where TRequestInfo : class, IRequestInfo
     {
         #region Attributes
 
         /// <summary>
-        /// Gets the app server.
+        /// Gets the app server instance assosiated with the session.
         /// </summary>
         public virtual IAppServer<TAppSession, TRequestInfo> AppServer { get; private set; }
+
+        /// <summary>
+        /// Gets the app server instance assosiated with the session.
+        /// </summary>
+        IAppServer IAppSession.AppServer
+        {
+            get { return this.AppServer; }
+        }
 
         /// <summary>
         /// Gets or sets the charset which is used for transfering text message.
@@ -140,12 +148,12 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Gets or sets the next command reader.
+        /// Gets or sets the m_ request filter.
         /// </summary>
         /// <value>
-        /// The next command reader.
+        /// The m_ request filter.
         /// </value>
-        IRequestFilter<TRequestInfo> IAppSession<TRequestInfo>.NextRequestFilter { get; set; }
+        IRequestFilter<TRequestInfo> m_RequestFilter { get; set; }
 
         #endregion
 
@@ -156,17 +164,20 @@ namespace SuperSocket.SocketBase
             this.Charset = Encoding.UTF8;
         }
 
+
         /// <summary>
         /// Initializes the specified app session by AppServer and SocketSession.
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
-        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession)
+        /// <param name="requestFilter">The request filter.</param>
+        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter)
         {
             AppServer = appServer;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             Status = SessionStatus.Healthy;
+            m_RequestFilter = requestFilter;
             OnInit();
         }
 
@@ -190,7 +201,7 @@ namespace SuperSocket.SocketBase
         /// Handles the exceptional error.
         /// </summary>
         /// <param name="e">The e.</param>
-        public virtual void HandleExceptionalError(Exception e)
+        public virtual void HandleException(Exception e)
         {
             Logger.Error(e);
         }
@@ -206,12 +217,12 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Handles the unknown command.
+        /// Handles the unknown request.
         /// </summary>
-        /// <param name="cmdInfo">The CMD info.</param>
-        public virtual void HandleUnknownCommand(TRequestInfo cmdInfo)
+        /// <param name="requestInfo">The request info.</param>
+        public virtual void HandleUnknownRequest(TRequestInfo requestInfo)
         {
-            SendResponse("Unknown command: " + cmdInfo.Key);
+            SendResponse("Unknown request: " + requestInfo.Key);
         }
 
         /// <summary>
@@ -238,7 +249,8 @@ namespace SuperSocket.SocketBase
         /// <param name="message">The message which will be sent.</param>
         public virtual void SendResponse(string message)
         {
-            SocketSession.SendResponse(message);
+            var data = this.Charset.GetBytes(message);
+            SocketSession.SendResponse(data, 0, data.Length);
         }
 
         /// <summary>
@@ -248,7 +260,7 @@ namespace SuperSocket.SocketBase
         /// <param name="paramValues">The parameter values.</param>
         public virtual void SendResponse(string message, params object[] paramValues)
         {
-            SocketSession.SendResponse(string.Format(message, paramValues));
+            SendResponse(string.Format(message, paramValues));
         }
 
         /// <summary>
@@ -263,12 +275,74 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Sets the next request filter.
+        /// Sets the next request filter which will be used when next data block received
         /// </summary>
         /// <param name="nextRequestFilter">The next request filter.</param>
-        public void SetNextRequestFilter(IRequestFilter<TRequestInfo> nextRequestFilter)
+        protected void SetNextRequestFilter(IRequestFilter<TRequestInfo> nextRequestFilter)
         {
-            ((IAppSession<TRequestInfo>)this).NextRequestFilter = nextRequestFilter;
+            m_RequestFilter = nextRequestFilter;
+        }
+
+        /// <summary>
+        /// Filters the request.
+        /// </summary>
+        /// <param name="readBuffer">The read buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
+        /// <param name="left">The left, the size of the data which has not been processed</param>
+        /// <returns></returns>
+        TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        {
+            var requestInfo = m_RequestFilter.Filter(this, readBuffer, offset, length, toBeCopied, out left);
+
+            if (requestInfo == null)
+            {
+                int leftBufferCount = m_RequestFilter.LeftBufferSize;
+                if (leftBufferCount >= AppServer.Config.MaxCommandLength)
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.ErrorFormat("Max command length: {0}, current processed length: {1}", AppServer.Config.MaxCommandLength, leftBufferCount);
+                    Close(CloseReason.ServerClosing);
+                    return null;
+                }
+            }
+
+            //If next request filter wasn't set, still use current request filter in next round received data processing
+            if (m_RequestFilter.NextRequestFilter != null)
+                m_RequestFilter = m_RequestFilter.NextRequestFilter;
+
+            return requestInfo;
+        }
+
+        /// <summary>
+        /// Processes the request data.
+        /// </summary>
+        /// <param name="readBuffer">The read buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
+        void IAppSession.ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied)
+        {
+            while (true)
+            {
+                int left;
+
+                var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out left);
+
+                if (requestInfo == null)
+                    return;
+
+                AppServer.ExecuteCommand(this, requestInfo);
+
+                if (left <= 0)
+                    return;
+
+                offset = offset + length - left;
+                length = left;
+
+                continue;
+            }
         }
     }
 

@@ -12,21 +12,19 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketSession<TAppSession, TRequestInfo> : SocketSession<TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    class UdpSocketSession : SocketSession
     {
         private Socket m_ServerSocket;
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, IRequestFilter<TRequestInfo> requestFilter)
-            : base(remoteEndPoint.ToString(), requestFilter)
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint)
+            : base(remoteEndPoint.ToString())
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
         }
 
         public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, string sessionID)
-            : base(sessionID, null)
+            : base(sessionID)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
@@ -61,38 +59,16 @@ namespace SuperSocket.SocketEngine
             ProcessData(data, offset, length, false);
         }
 
-        void ProcessData(byte[] data, int offset, int length, bool isReusableBuffer)
+        void ProcessData(byte[] data, int offset, int length, bool toBeCopied)
         {
-            int left;
-
-            TRequestInfo requestInfo = FindCommand(data, offset, length, isReusableBuffer, out left);
-
-            if (requestInfo == null)
-                return;
-
-            ExecuteCommand(requestInfo);
-
-            if (left > 0)
-            {
-                ProcessData(data, offset + length - left, left, true);
-            }
-        }
-
-        public override void SendResponse(string message)
-        {
-            byte[] data = AppSession.Charset.GetBytes(message);
-            m_ServerSocket.SendTo(data, RemoteEndPoint);
-        }
-
-        public override void SendResponse(byte[] data)
-        {
-            m_ServerSocket.SendTo(data, RemoteEndPoint);
+            AppSession.ProcessRequest(data, offset, length, toBeCopied);
         }
 
         public override void SendResponse(byte[] data, int offset, int length)
         {
             try
             {
+                //TODO: change to async sending
                 m_ServerSocket.SendTo(data, offset, length, SocketFlags.None, RemoteEndPoint);
             }
             catch (Exception)

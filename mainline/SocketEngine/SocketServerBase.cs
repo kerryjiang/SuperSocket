@@ -16,66 +16,34 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class SocketServerBase<TSocketSession, TAppSession, TRequestInfo> : ISocketServer, IDisposable
-        where TAppSession : IAppSession, new()
-        where TSocketSession : ISocketSession<TAppSession>
-        where TRequestInfo : IRequestInfo
+    abstract class SocketServerBase : ISocketServer, IDisposable
     {
         protected object SyncRoot = new object();
 
-        public IPEndPoint EndPoint { get; private set; }
-
-        public IAppServer<TAppSession> AppServer { get; private set; }
-
-        protected IRequestFilterFactory<TRequestInfo> RequestFilterFactory { get; private set; }
+        public IAppServer AppServer { get; private set; }
 
         public bool IsRunning { get; protected set; }
+
+        protected ListenerInfo[] ListenerInfos { get; private set; }
+
+        protected List<ISocketListener> Listeners { get; private set; }
 
         protected bool IsStopped { get; set; }
 
         private ManualResetEvent m_ServerStartupEvent = new ManualResetEvent(false);
 
-        public SocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+        public SocketServerBase(IAppServer appServer, ListenerInfo[] listeners)
         {
             AppServer = appServer;
-            EndPoint = localEndPoint;
-            RequestFilterFactory = requestFilterFactory;
             IsRunning = false;
+            ListenerInfos = listeners;
+            Listeners = new List<ISocketListener>(listeners.Length);
         }
 
         public virtual bool Start()
         {
             IsStopped = false;
-            m_ServerStartupEvent.Reset();
             return true;
-        }
-
-        protected void WaitForStartupFinished()
-        {
-            m_ServerStartupEvent.WaitOne();
-        }
-
-        protected void OnStartupFinished()
-        {
-            m_ServerStartupEvent.Set();
-        }        
-
-        protected bool VerifySocketServerRunning(bool isRunning)
-        {
-            //waiting 10 seconds
-            int steps = 10 * 10;
-
-            while (steps > 0)
-            {
-                Thread.Sleep(100);
-
-                if (IsRunning == isRunning)
-                    return true;
-
-                steps--;
-            }
-
-            return false;
         }
 
         public virtual void Stop()

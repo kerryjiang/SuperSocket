@@ -15,37 +15,22 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncSocketServer<TAppSession, TRequestInfo> : TcpSocketServerBase<AsyncSocketSession<TAppSession, TRequestInfo>, TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    class AsyncSocketServer : TcpSocketServerBase
     {
-        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
-            : base(appServer, localEndPoint, requestFilterFactory)
+        public AsyncSocketServer(IAppServer appServer, ListenerInfo[] listeners)
+            : base(appServer, listeners)
         {
 
         }
-
-        private AutoResetEvent m_TcpClientConnected;
 
         private BufferManager m_BufferManager;
 
         private ConcurrentStack<SocketAsyncEventArgsProxy> m_ReadWritePool;
 
-        private Semaphore m_MaxConnectionSemaphore;
-
-        private Socket m_ListenSocket = null;
-
-        private Thread m_ListenThread = null;
-
         public override bool Start()
         {
             try
             {
-                if (!base.Start())
-                    return false;
-
-                m_TcpClientConnected = new AutoResetEvent(false);
-
                 int bufferSize = AppServer.Config.ReceiveBufferSize;
 
                 if (bufferSize <= 0)
@@ -80,15 +65,11 @@ namespace SuperSocket.SocketEngine
 
                 m_ReadWritePool = new ConcurrentStack<SocketAsyncEventArgsProxy>(socketArgsProxyList);
 
-                if (m_ListenSocket == null)
-                {
-                    m_ListenThread = new Thread(StartListen);
-                    m_ListenThread.Start();
-                }
+                if (!base.Start())
+                    return false;
 
-                WaitForStartupFinished();
-
-                return IsRunning;
+                IsRunning = true;
+                return true;
             }
             catch (Exception e)
             {
@@ -97,118 +78,37 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        private void StartListen()
+        protected override void AcceptNewClient(ISocketListener listener, Socket client)
         {
-            m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            if (IsStopped)
+                return;
 
-            try
+            //Get the socket for the accepted client connection and put it into the 
+            //ReadEventArg object user token
+            SocketAsyncEventArgsProxy socketEventArgsProxy;
+            if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
             {
-                m_ListenSocket.Bind(this.EndPoint);
-                m_ListenSocket.Listen(this.AppServer.Config.ListenBacklog);
-
-                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-            }
-            catch (Exception e)
-            {
-                AppServer.Logger.Error(e);
-                OnStartupFinished();
+                Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                if (AppServer.Logger.IsErrorEnabled)
+                    AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
                 return;
             }
 
-            m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
+            var session = RegisterSession(client, new AsyncSocketSession(client));
 
-            SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
-            acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
-
-            IsRunning = true;
-
-            OnStartupFinished();
-
-            while (!IsStopped)
+            if (session == null)
             {
-                m_MaxConnectionSemaphore.WaitOne();
-
-                if (IsStopped)
-                    break;
-
-                acceptEventArg.AcceptSocket = null;
-
-                bool willRaiseEvent = true;
-
-                try
-                {
-                    willRaiseEvent = m_ListenSocket.AcceptAsync(acceptEventArg);
-                }
-                catch (ObjectDisposedException)//listener has been stopped
-                {
-                    break;
-                }
-                catch (NullReferenceException)
-                {
-                    break;
-                }
-                catch (Exception e)
-                {
-                    if (AppServer.Logger.IsErrorEnabled)
-                        AppServer.Logger.Error("Failed to accept new tcp client in async server!", e);
-                    break;
-                }
-
-                if (!willRaiseEvent)
-                    AceptNewClient(acceptEventArg);
-
-                m_TcpClientConnected.WaitOne();
+                this.m_ReadWritePool.Push(socketEventArgsProxy);
+                Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
             }
 
-            IsRunning = false;
-        }
-
-        void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
-        {
-            AceptNewClient(e);
-        }
-
-        void AceptNewClient(SocketAsyncEventArgs e)
-        {            
-            if (e.SocketError == SocketError.Success)
-            {
-                var client = e.AcceptSocket;
-                m_TcpClientConnected.Set();
-
-                //Get the socket for the accepted client connection and put it into the 
-                //ReadEventArg object user token
-                SocketAsyncEventArgsProxy socketEventArgsProxy;
-                if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
-                {
-                    if (AppServer.Logger.IsErrorEnabled)
-                        AppServer.Logger.Error("There is no enough buffer block to arrange to new accepted client!");
-                    return;
-                }
-
-                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TRequestInfo>(client, this.RequestFilterFactory.CreateFilter(AppServer)));
-                
-                if (session != null)
-                {
-                    session.SocketAsyncProxy = socketEventArgsProxy;
-                    session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-                    session.Start();
-                }
-                else
-                {
-                    Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
-                }
-            }
-            else
-            {
-                m_TcpClientConnected.Set();
-            }
+            ((IAsyncSocketSession)session).SocketAsyncProxy = socketEventArgsProxy;
+            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+            Async.Run(() => session.Start());
         }
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
-            m_MaxConnectionSemaphore.Release();
-
             IAsyncSocketSession socketSession = sender as IAsyncSocketSession;
             if (socketSession != null && this.m_ReadWritePool != null)
                 this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
@@ -218,19 +118,13 @@ namespace SuperSocket.SocketEngine
         {
             base.Stop();
 
-            if (m_ListenSocket != null)
-            {
-                m_ListenSocket.Close();
-                m_ListenSocket = null;
-            }
-
             if (m_ReadWritePool != null)
                 m_ReadWritePool = null;
 
             if (m_BufferManager != null)
                 m_BufferManager = null;
 
-            VerifySocketServerRunning(false);
+            IsRunning = false;
         }
 
         protected override void Dispose(bool disposing)
@@ -239,9 +133,6 @@ namespace SuperSocket.SocketEngine
             {
                 if (IsRunning)
                     Stop();
-
-                m_TcpClientConnected.Close();
-                m_MaxConnectionSemaphore.Close();
             }
 
             base.Dispose(disposing);

@@ -22,21 +22,19 @@ namespace SuperSocket.SocketEngine
         ILog Logger { get; }
     }
 
-    class AsyncSocketSession<TAppSession, TRequestInfo> : SocketSession<TAppSession, TRequestInfo>, IAsyncSocketSession
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    class AsyncSocketSession : SocketSession, IAsyncSocketSession
     {        
         private AsyncSocketSender m_AsyncSender;
 
-        public AsyncSocketSession(Socket client, IRequestFilter<TRequestInfo> initialRequestFilter)
-            : base(client, initialRequestFilter)
+        public AsyncSocketSession(Socket client)
+            : base(client)
         {
             m_AsyncSender = new AsyncSocketSender(client);
         }
 
         ILog IAsyncSocketSession.Logger
         {
-            get { return AppServer.Logger; }
+            get { return AppSession.Logger; }
         }
 
         public override void Start()
@@ -66,37 +64,6 @@ namespace SuperSocket.SocketEngine
             if (!willRaiseEvent)
             {
                 ProcessReceive(e);
-            }
-        }
-
-        public override void SendResponse(string message)
-        {
-            if (IsClosed)
-                return;
-
-            byte[] data = AppSession.Charset.GetBytes(message);
-
-            if (IsClosed)
-                return;
-
-            SendResponse(data);
-        }
-
-        public override void SendResponse(byte[] data)
-        {
-            if(data == null || data.Length <= 0)
-                return;
-
-            if (IsClosed)
-                return;
-
-            try
-            {
-                m_AsyncSender.Send(data, 0, data.Length);
-            }
-            catch (Exception)
-            {
-                Close(CloseReason.SocketError);
             }
         }
 
@@ -132,34 +99,7 @@ namespace SuperSocket.SocketEngine
             int bytesTransferred = e.BytesTransferred;
             int offset = e.Offset;
 
-            while (bytesTransferred > 0)
-            {
-                int left;
-
-                TRequestInfo requestInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
-
-                if (IsClosed)
-                    return;
-
-                if (requestInfo == null)
-                    break;
-
-                try
-                {
-                    ExecuteCommand(requestInfo);
-                }
-                catch (Exception exc)
-                {
-                    AppServer.Logger.Error(this, exc);
-                    HandleExceptionalError(exc);
-                }
-                    
-                if (left <= 0)
-                    break;
-
-                bytesTransferred = left;
-                offset = e.Offset + e.BytesTransferred - left;
-            }
+            this.AppSession.ProcessRequest(e.Buffer, e.Offset, e.BytesTransferred, true);
 
             //read the next block of data sent from the client
             StartReceive(e);

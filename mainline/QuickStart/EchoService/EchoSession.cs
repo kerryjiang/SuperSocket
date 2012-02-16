@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.EchoService
             SendResponse("Welcome to EchoServer!");
         }
 
-        public override void HandleExceptionalError(Exception e)
+        public override void HandleException(Exception e)
         {
             SendResponse("Server side error occurred!");
         }

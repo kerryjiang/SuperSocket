@@ -18,6 +18,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
+using System.Runtime.InteropServices;
 
 namespace SuperSocket.SocketBase
 {
@@ -68,6 +69,10 @@ namespace SuperSocket.SocketBase
    
         }
 
+        /// <summary>
+        /// Starts this AppServer instance.
+        /// </summary>
+        /// <returns></returns>
         public override bool Start()
         {
             if (!base.Start())
@@ -83,13 +88,20 @@ namespace SuperSocket.SocketBase
         }
 
         private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-                       
-        public override TAppSession CreateAppSession(ISocketSession socketSession)
-        {
-            var appSession = base.CreateAppSession(socketSession);
 
-            if (ReferenceEquals(NullAppSession, appSession))
-                return appSession;
+        /// <summary>
+        /// Creates the app session base one socketSession.
+        /// </summary>
+        /// <param name="socketSession">The socket session.</param>
+        /// <returns></returns>
+        public override IAppSession CreateAppSession(ISocketSession socketSession)
+        {
+            var baseAppSession = base.CreateAppSession(socketSession);
+
+            if (baseAppSession == null)
+                return null;
+
+            var appSession = (TAppSession)baseAppSession;
 
             if (m_SessionDict.TryAdd(appSession.SessionID, appSession))
             {
@@ -105,7 +117,17 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        public override TAppSession GetAppSessionByID(string sessionID)
+        protected override IAppSession GetAppSessionByIDInternal(string sessionID)
+        {
+            return GetAppSessionByID(sessionID);
+        }
+
+        /// <summary>
+        /// Gets the app session by ID.
+        /// </summary>
+        /// <param name="sessionID">The session ID.</param>
+        /// <returns></returns>
+        public TAppSession GetAppSessionByID(string sessionID)
         {
             if (string.IsNullOrEmpty(sessionID))
                 return NullAppSession;
@@ -115,6 +137,11 @@ namespace SuperSocket.SocketBase
             return targetSession;
         }
 
+        /// <summary>
+        /// Called when [socket session closed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SuperSocket.SocketBase.SocketSessionClosedEventArgs"/> instance containing the event data.</param>
         internal protected override void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
             string sessionID = e.SessionID;
@@ -139,11 +166,19 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        /// <summary>
+        /// Called when [app session closed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SuperSocket.SocketBase.AppSessionClosedEventArgs&lt;TAppSession&gt;"/> instance containing the event data.</param>
         protected virtual void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<TAppSession> e)
         {
 
         }
 
+        /// <summary>
+        /// Gets the total session count.
+        /// </summary>
         public override int SessionCount
         {
             get
@@ -162,6 +197,10 @@ namespace SuperSocket.SocketBase
             m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
         }
 
+        /// <summary>
+        /// Clears the idle session.
+        /// </summary>
+        /// <param name="state">The state.</param>
         private void ClearIdleSession(object state)
         {
             if (Monitor.TryEnter(state))

@@ -66,6 +66,12 @@ namespace SuperSocket.SocketBase
     public interface ISocketSession : ISessionBase
     {
         /// <summary>
+        /// Initializes the specified app session.
+        /// </summary>
+        /// <param name="appSession">The app session.</param>
+        void Initialize(IAppSession appSession);
+
+        /// <summary>
         /// Starts this instance.
         /// </summary>
         void Start();
@@ -77,22 +83,10 @@ namespace SuperSocket.SocketBase
         void Close(CloseReason reason);
 
         /// <summary>
-        /// Sends the message to client.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        void SendResponse(string message);
-
-        /// <summary>
         /// Sends the binary data to client.
         /// </summary>
         /// <param name="data">The binary data should be sent to client.</param>
-        void SendResponse(byte[] data);
-
-        /// <summary>
-        /// Sends the binary data to client.
-        /// </summary>
-        /// <param name="data">The binary data should be sent to client.</param>
-        void SendResponse(byte[] data, Int32 offset, Int32 length);
+        void SendResponse(byte[] data, int offset, int length);
 
         /// <summary>
         /// Applies the secure protocol.
@@ -103,12 +97,6 @@ namespace SuperSocket.SocketBase
         /// Gets the client socket.
         /// </summary>
         Socket Client { get; }
-
-        /// <summary>
-        /// Gets the underly stream of the socket connection, only supported in Sync mode.
-        /// </summary>
-        /// <returns></returns>
-        Stream GetUnderlyStream();
 
         /// <summary>
         /// Gets the local listening endpoint.
@@ -127,16 +115,7 @@ namespace SuperSocket.SocketBase
         /// Occurs when [closed].
         /// </summary>
         event EventHandler<SocketSessionClosedEventArgs> Closed;
-    }
 
-    public interface ISocketSession<TAppSession> : ISocketSession
-        where TAppSession : IAppSession, new()
-    {
-        /// <summary>
-        /// Initializes the specified socket session by AppServer and AppSession.
-        /// </summary>
-        /// <param name="appServer">The app server.</param>
-        /// <param name="appSession">The app session.</param>
-        void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession);
+        IAppSession AppSession { get; }
     }
 }

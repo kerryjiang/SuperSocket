@@ -12,14 +12,12 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncStreamSocketSession<TAppSession, TRequestInfo> : SocketSession<TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    class AsyncStreamSocketSession : SocketSession
     {
         private byte[] m_ReadBuffer;
 
-        public AsyncStreamSocketSession(Socket client, IRequestFilter<TRequestInfo> initialRequestFilter)
-            : base(client, initialRequestFilter)
+        public AsyncStreamSocketSession(Socket client)
+            : base(client)
         {
             
         }
@@ -37,7 +35,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                SecureProtocol = AppServer.BasicSecurity;
+                SecureProtocol = AppSession.AppServer.BasicSecurity;
 
                 var asyncResult = BeginInitStream(OnBeginInitStreamOnSessionStarted);
 
@@ -47,7 +45,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppServer.Logger.Error(e);
+                AppSession.Logger.Error(e);
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -69,28 +67,7 @@ namespace SuperSocket.SocketEngine
 
                 if (thisRead > 0)
                 {
-                    AppSession.Status = SessionStatus.Healthy;
-
-                    int thisLeft, thisLength;
-                    thisLength = thisRead;
-                    thisLeft = thisRead;
-
-                    while (thisLeft > 0)
-                    {
-                        TRequestInfo requestInfo = FindCommand(m_ReadBuffer, thisRead - thisLength, thisLength, true, out thisLeft);
-                        thisLength = thisLeft;
-
-                        if (requestInfo != null)
-                        {
-                            ExecuteCommand(requestInfo);
-
-                            if (Client == null && !IsClosed)
-                            {
-                                Close(CloseReason.ServerClosing);
-                                return;
-                            }
-                        }
-                    }
+                    AppSession.ProcessRequest(m_ReadBuffer, 0, thisRead, true);
 
                     m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
                 }
@@ -121,13 +98,13 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                AppServer.Logger.Error(this, ioe);
+                AppSession.Logger.Error(this, ioe);
                 this.Close(CloseReason.SocketError);
                 return;
             }
             catch (Exception e)
             {
-                AppServer.Logger.Error(this, e);
+                AppSession.Logger.Error(this, e);
                 this.Close(CloseReason.Unknown);
                 return;
             }
@@ -145,11 +122,11 @@ namespace SuperSocket.SocketEngine
                 case (SslProtocols.Tls):
                 case (SslProtocols.Ssl3):
                     SslStream sslStream = new SslStream(new NetworkStream(Client), false);
-                    result = sslStream.BeginAuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, false, asyncCallback, sslStream);
+                    result = sslStream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, false, SslProtocols.Default, false, asyncCallback, sslStream);
                     break;
                 case (SslProtocols.Ssl2):
                     SslStream ssl2Stream = new SslStream(new NetworkStream(Client), false);
-                    result = ssl2Stream.BeginAuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
+                    result = ssl2Stream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, false, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
                     break;
                 default:
                     m_Stream = new NetworkStream(Client);
@@ -183,17 +160,6 @@ namespace SuperSocket.SocketEngine
             }
 
             m_Stream = sslStream;
-        }
-
-        public override void SendResponse(string message)
-        {
-            byte[] data = AppSession.Charset.GetBytes(message);
-            SendResponse(data, 0, data.Length);
-        }
-
-        public override void SendResponse(byte[] data)
-        {
-            SendResponse(data, 0, data.Length);
         }
 
         public override void SendResponse(byte[] data, int offset, int length)

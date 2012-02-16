@@ -256,6 +256,24 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+
+        [ConfigurationProperty("listeners", IsRequired = false)]
+        public ListenerConfigCollection Listeners
+        {
+            get
+            {
+                return this["listeners"] as ListenerConfigCollection;
+            }
+        }
+
+        IEnumerable<IListenerConfig> IServerConfig.Listeners
+        {
+            get
+            {
+                return this.Listeners;
+            }
+        }
+
         /// <summary>
         /// Gets the child config.
         /// </summary>

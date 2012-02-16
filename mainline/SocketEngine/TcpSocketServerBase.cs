@@ -9,13 +9,11 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
-    class TcpSocketServerBase<TSocketSession, TAppSession, TRequestInfo> : SocketServerBase<TSocketSession, TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, new()
-        where TSocketSession : ISocketSession<TAppSession>
-        where TRequestInfo : IRequestInfo
+    abstract class TcpSocketServerBase : SocketServerBase
     {
         private readonly byte[] m_KeepAliveOptionValues;
         private readonly int m_ReadTimeOut;
@@ -23,8 +21,8 @@ namespace SuperSocket.SocketEngine
         private readonly int m_ReceiveBufferSize;
         private readonly int m_SendBufferSize;
 
-        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
-            : base(appServer, localEndPoint, requestFilterFactory)
+        public TcpSocketServerBase(IAppServer appServer, ListenerInfo[] listeners)
+            : base(appServer, listeners)
         {
             var config = appServer.Config;
 
@@ -43,7 +41,7 @@ namespace SuperSocket.SocketEngine
             m_SendBufferSize = config.SendBufferSize;
         }
 
-        protected TSocketSession RegisterSession(Socket client, TSocketSession session)
+        protected ISocketSession RegisterSession(Socket client, ISocketSession session)
         {
             //load socket setting
             if (m_ReadTimeOut > 0)
@@ -68,14 +66,80 @@ namespace SuperSocket.SocketEngine
             client.DontFragment = false;
             client.UseOnlyOverlappedIO = true;
 
-            TAppSession appSession = this.AppServer.CreateAppSession(session);
+            IAppSession appSession = this.AppServer.CreateAppSession(session);
 
             if (appSession == null)
-                return default(TSocketSession);
+                return null;
 
-            session.Initialize(this.AppServer, appSession);
+            session.Initialize(appSession);
 
             return session;
+        }
+
+        public override bool Start()
+        {
+            if (!base.Start())
+                return false;
+
+            ILog log = AppServer.Logger;
+
+            for (var i = 0; i < ListenerInfos.Length; i++)
+            {
+                var listener = CreateListener(ListenerInfos[i]);
+                listener.Error += new ErrorHandler(listener_Error);
+                listener.NewClientAccepted += new NewClientAcceptHandler(AcceptNewClient);
+
+                if (listener.Start())
+                {
+                    Listeners.Add(listener);
+
+                    if (log.IsDebugEnabled)
+                    {
+                        log.DebugFormat("Listener ({0}) was started", listener.EndPoint);
+                    }
+                }
+                else //If one listener failed to start, stop started listeners
+                {
+                    if (log.IsDebugEnabled)
+                    {
+                        log.DebugFormat("Listener ({0}) failed to start", listener.EndPoint);
+                    }
+
+                    for (var j = 0; j < Listeners.Count; j++)
+                    {
+                        Listeners[j].Stop();
+                    }
+
+                    Listeners.Clear();
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        protected abstract void AcceptNewClient(ISocketListener listener, Socket client);
+
+        void listener_Error(ISocketListener listener, Exception e)
+        {
+            this.AppServer.Logger.Error(string.Format("Listener ({0}) error", listener.EndPoint), e);
+        }
+
+        protected virtual ISocketListener CreateListener(ListenerInfo listenerInfo)
+        {
+            return new TcpAsyncSocketListener(listenerInfo.EndPoint, listenerInfo.BackLog);
+        }
+
+        public override void Stop()
+        {
+            base.Stop();
+
+            for (var i = 0; i < Listeners.Count; i++)
+            {
+                Listeners[i].Stop();
+            }
+
+            Listeners.Clear();
         }
     }
 }

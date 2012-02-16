@@ -25,7 +25,7 @@ namespace SuperSocket.Test
                     Ip = "Any",
                     LogCommand = true,
                     MaxConnectionNumber = 100,
-                    Mode = SocketMode.Async,
+                    Mode = SocketMode.Tcp,
                     Name = "Async Secure Test Socket Server",
                     Port = 2012,
                     ClearIdleSession = true,

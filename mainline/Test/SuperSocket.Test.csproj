@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -76,11 +77,6 @@
     <Compile Include="TestCommandParser.cs" />
     <Compile Include="TestServer.cs" />
     <Compile Include="TestSession.cs" />
-    <Compile Include="Udp\SESS.cs" />
-    <Compile Include="UdpSocketServerTest.cs" />
-    <Compile Include="Udp\MyRequestFilter.cs" />
-    <Compile Include="Udp\UdpAppServer.cs" />
-    <Compile Include="Udp\UdpTestSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\TestFile.txt" />

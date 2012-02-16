@@ -11,8 +11,7 @@ namespace SuperSocket.SocketBase
 {
     public interface ISocketServerFactory
     {
-        ISocketServer CreateSocketServer<TAppSession, TRequestInfo>(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        ISocketServer CreateSocketServer<TRequestInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
             where TRequestInfo : IRequestInfo;
     }
 }

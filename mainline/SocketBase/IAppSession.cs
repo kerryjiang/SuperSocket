@@ -15,6 +15,10 @@ namespace SuperSocket.SocketBase
     public interface IAppSession : ISessionBase
     {
         /// <summary>
+        /// Gets the app server.
+        /// </summary>
+        IAppServer AppServer { get; }
+        /// <summary>
         /// Gets the socket session of the AppSession.
         /// </summary>
         ISocketSession SocketSession { get; }
@@ -59,15 +63,10 @@ namespace SuperSocket.SocketBase
         void Close(CloseReason reason);
 
         /// <summary>
-        /// Starts the session.
-        /// </summary>
-        void StartSession();
-
-        /// <summary>
         /// Handles the exceptional error.
         /// </summary>
         /// <param name="e">The e.</param>
-        void HandleExceptionalError(Exception e);
+        void HandleException(Exception e);
 
         /// <summary>
         /// Gets or sets the status of session.
@@ -103,24 +102,32 @@ namespace SuperSocket.SocketBase
         /// Gets the logger assosiated with this session.
         /// </summary>
         ILog Logger { get; }
+
+        /// <summary>
+        /// Processes the request.
+        /// </summary>
+        /// <param name="readBuffer">The read buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
+        /// <param name="left">The left.</param>
+        /// <returns></returns>
+        void ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied);
+
+        /// <summary>
+        /// Starts the session.
+        /// </summary>
+        void StartSession();
     }
 
     public interface IAppSession<TRequestInfo> : IAppSession
         where TRequestInfo : IRequestInfo
     {
         /// <summary>
-        /// Handles the unknown command.
+        /// Handles the unknown request.
         /// </summary>
-        /// <param name="cmdInfo">The request info.</param>
-        void HandleUnknownCommand(TRequestInfo cmdInfo);
-
-        /// <summary>
-        /// Gets or sets the next request filter.
-        /// </summary>
-        /// <value>
-        /// The next request filter.
-        /// </value>
-        IRequestFilter<TRequestInfo> NextRequestFilter { get; set; }
+        /// <param name="requestInfo">The request info.</param>
+        void HandleUnknownRequest(TRequestInfo requestInfo);
     }
 
     public interface IAppSession<TAppSession, TRequestInfo> : IAppSession<TRequestInfo>
@@ -132,7 +139,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="socketSession">The socket session.</param>
-        void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession);
+        void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter);
 
         /// <summary>
         /// Executes the command.

@@ -135,5 +135,11 @@ namespace SuperSocket.SocketBase.Config
 
         TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new();
+
+
+        /// <summary>
+        /// Gets the listeners' configuration.
+        /// </summary>
+        IEnumerable<IListenerConfig> Listeners { get; }
     }
 }

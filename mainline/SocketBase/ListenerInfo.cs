@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net;
 
 namespace SuperSocket.SocketBase
 {
-    public enum SocketMode
+    public class ListenerInfo
     {
-        Tcp,
-        Udp
+        public IPEndPoint EndPoint { get; set; }
+
+        public int BackLog { get; set; }
     }
 }

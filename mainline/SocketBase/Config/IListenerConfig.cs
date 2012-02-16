@@ -1,0 +1,25 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace SuperSocket.SocketBase.Config
+{
+    public interface IListenerConfig
+    {
+        /// <summary>
+        /// Gets the ip of listener
+        /// </summary>
+        string Ip { get; }
+
+        /// <summary>
+        /// Gets the port of listener
+        /// </summary>
+        int Port { get; }
+
+        /// <summary>
+        /// Gets the backlog.
+        /// </summary>
+        int Backlog { get; }
+    }
+}

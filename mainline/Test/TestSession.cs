@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test
@@ -16,15 +15,15 @@ namespace SuperSocket.Test
         public override void StartSession()
         {
             if(AppServer.Config.Mode != SocketMode.Udp)
- 	            SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
+                SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
         }
 
-        public override void HandleExceptionalError(Exception e)
+        public override void HandleException(Exception e)
         {
             
         }
 
-        public override void HandleUnknownCommand(StringRequestInfo cmdInfo)
+        public override void HandleUnknownRequest(StringRequestInfo cmdInfo)
         {
             SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.Key));
         }

@@ -21,13 +21,13 @@ using SuperSocket.SocketBase.Security;
 
 namespace SuperSocket.SocketBase
 {
-    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>
+    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession<TAppSession, TRequestInfo>, new()
     {
         protected readonly TAppSession NullAppSession = default(TAppSession);
 
-        private IPEndPoint m_LocalEndPoint;
+        private ListenerInfo[] m_Listeners;
 
         public IServerConfig Config { get; private set; }
 
@@ -72,6 +72,11 @@ namespace SuperSocket.SocketBase
             this.RequestFilterFactory = requestFilterFactory;
         }
 
+        /// <summary>
+        /// Setups the command into command dictionary
+        /// </summary>
+        /// <param name="commandDict">The command dict.</param>
+        /// <returns></returns>
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TRequestInfo>> commandDict)
         {
             foreach (var loader in m_CommandLoaders)
@@ -143,16 +148,35 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
+        /// <summary>
+        /// Setups the command filters.
+        /// </summary>
+        /// <param name="commands">The commands.</param>
         private void SetupCommandFilters(IEnumerable<ICommand<TAppSession, TRequestInfo>> commands)
         {
             m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
         }
 
+        /// <summary>
+        /// Setups the appServer instance
+        /// </summary>
+        /// <param name="rootConfig">The SuperSocket root config.</param>
+        /// <param name="config">The socket server instance config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <returns></returns>
         public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
             return Setup(rootConfig, config, socketServerFactory, null);
         }
 
+        /// <summary>
+        /// Setups the appServer instance
+        /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        /// <param name="config">The socket server instance config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <returns></returns>
         public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
             if (rootConfig == null)
@@ -190,7 +214,7 @@ namespace SuperSocket.SocketBase
 
             SetupLogger();
 
-            if (!SetupLocalEndpoint(config))
+            if (!SetupListeners(config))
             {
                 if(Logger.IsErrorEnabled)
                     Logger.Error("Invalid config ip/port");
@@ -281,6 +305,11 @@ namespace SuperSocket.SocketBase
             Logger = LogFactoryProvider.LogFactory.GetLog(this.Name);
         }
 
+        /// <summary>
+        /// Setups the security option of socket communications.
+        /// </summary>
+        /// <param name="config">The config of the server instance.</param>
+        /// <returns></returns>
         private bool SetupSecurity(IServerConfig config)
         {
             if (!string.IsNullOrEmpty(config.Security))
@@ -317,11 +346,15 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
+        /// <summary>
+        /// Setups the socket server.instance
+        /// </summary>
+        /// <returns></returns>
         private bool SetupSocketServer()
         {
             try
             {
-                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TAppSession, TRequestInfo>(this, m_LocalEndPoint, Config, RequestFilterFactory);
+                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TRequestInfo>(this, m_Listeners, Config, RequestFilterFactory);
                 return m_SocketServer != null;
             }
             catch (Exception e)
@@ -333,33 +366,93 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        private bool SetupLocalEndpoint(IServerConfig config)
+        private IPAddress ParseIPAddress(string ip)
         {
-            if (config.Port > 0)
-            {
-                try
-                {
-                    if (string.IsNullOrEmpty(config.Ip) || "Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.Any, config.Port);
-                    else if ("IPv6Any".Equals(config.Ip, StringComparison.OrdinalIgnoreCase))
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.IPv6Any, config.Port);
-                    else
-                        m_LocalEndPoint = new IPEndPoint(IPAddress.Parse(config.Ip), config.Port);
-
-                    return true;
-                }
-                catch (Exception e)
-                {
-                    if(Logger.IsErrorEnabled)
-                        Logger.Error(e);
-
-                    return false;
-                }
-            }
-
-            return false;
+            if (string.IsNullOrEmpty(ip) || "Any".Equals(ip, StringComparison.OrdinalIgnoreCase))
+                return IPAddress.Any;
+            else if ("IPv6Any".Equals(ip, StringComparison.OrdinalIgnoreCase))
+                return IPAddress.IPv6Any;
+            else
+               return IPAddress.Parse(ip);
         }
 
+        /// <summary>
+        /// Setups the listeners base on server configuration
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <returns></returns>
+        private bool SetupListeners(IServerConfig config)
+        {
+            var listeners = new List<ListenerInfo>();
+
+            try
+            {
+                if (config.Port > 0)
+                {
+                    listeners.Add(new ListenerInfo
+                    {
+                        EndPoint = new IPEndPoint(ParseIPAddress(config.Ip), config.Port),
+                        BackLog = config.ListenBacklog
+                    });
+                }
+                else
+                {
+                    if (!string.IsNullOrEmpty(config.Ip))
+                    {
+                        if (Logger.IsErrorEnabled)
+                            Logger.Error("Ip is required in config!");
+
+                        return false;
+                    }
+                }
+
+                //There are listener defined
+                if (config.Listeners != null && config.Listeners.Any())
+                {
+                    //But ip and port were configured in server node
+                    //We don't allow this case
+                    if (listeners.Count > 0)
+                    {
+                        if (Logger.IsErrorEnabled)
+                            Logger.Error("If you configured Ip and Port in server node, you cannot defined listeners any more!");
+
+                        return false;
+                    }
+
+                    foreach (var l in config.Listeners)
+                    {
+                        listeners.Add(new ListenerInfo
+                        {
+                            EndPoint = new IPEndPoint(ParseIPAddress(l.Ip), l.Port),
+                            BackLog = l.Backlog
+                        });
+                    }
+                }
+
+                if (!listeners.Any())
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("No listener defined!");
+                }
+
+                m_Listeners = listeners.ToArray();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error(e);
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Setups the TLS/SSL certificate.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <returns></returns>
         private bool SetupCertificate(IServerConfig config)
         {
             try
@@ -392,6 +485,12 @@ namespace SuperSocket.SocketBase
 
         private ISocketServer m_SocketServer;
 
+        /// <summary>
+        /// Starts this server instance.
+        /// </summary>
+        /// <returns>
+        /// return true if start successfull, else false
+        /// </returns>
         public virtual bool Start()
         {
             if (this.IsRunning)
@@ -443,6 +542,11 @@ namespace SuperSocket.SocketBase
             get { return true; }
         }
 
+        /// <summary>
+        /// Gets command by command name.
+        /// </summary>
+        /// <param name="commandName">Name of the command.</param>
+        /// <returns></returns>
         public ICommand<TAppSession, TRequestInfo> GetCommandByName(string commandName)
         {
             ICommand<TAppSession, TRequestInfo> command;
@@ -455,12 +559,22 @@ namespace SuperSocket.SocketBase
 
         private CommandHandler<TAppSession, TRequestInfo> m_CommandHandler;
 
+        /// <summary>
+        /// Occurs when a full request item received.
+        /// </summary>
         protected event CommandHandler<TAppSession, TRequestInfo> CommandHandler
         {
             add { m_CommandHandler += value; }
             remove { m_CommandHandler -= value; }
         }
 
+        /// <summary>
+        /// Executes the command filters.
+        /// </summary>
+        /// <param name="filters">The filters.</param>
+        /// <param name="session">The session.</param>
+        /// <param name="command">The command.</param>
+        /// <param name="filterAction">The filter action.</param>
         private void ExecuteCommandFilters(List<CommandFilterAttribute> filters, TAppSession session, ICommand command, Action<CommandFilterAttribute, TAppSession, ICommand> filterAction)
         {
             if (filters == null || filters.Count <= 0)
@@ -477,8 +591,15 @@ namespace SuperSocket.SocketBase
 
         private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutedAction = (f, s, c) => f.OnCommandExecuted(s, c);
 
-        public virtual void ExecuteCommand(TAppSession session, TRequestInfo requestInfo)
+        /// <summary>
+        /// Executes the command for the session.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="requestInfo">The request info.</param>
+        public virtual void ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo)
         {
+            var currentSession = (TAppSession)session;
+
             if (m_CommandHandler == null)
             {
                 var command = GetCommandByName(requestInfo.Key);
@@ -488,45 +609,51 @@ namespace SuperSocket.SocketBase
                     List<CommandFilterAttribute> commandFilters;
                     m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
 
-                    session.CurrentCommand = requestInfo.Key;
+                    currentSession.CurrentCommand = requestInfo.Key;
 
-                    ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
+                    ExecuteCommandFilters(commandFilters, currentSession, command, m_CommandFilterExecutingAction);
 
                     //Command filter may close the session,
                     //so detect whether session is connected before execute command
                     if (session.Status != SessionStatus.Disconnected)
                     {
-                        command.ExecuteCommand(session, requestInfo);
+                        command.ExecuteCommand(currentSession, requestInfo);
 
-                        ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
+                        ExecuteCommandFilters(commandFilters, currentSession, command, m_CommandFilterExecutedAction);
                     }
 
-                    session.PrevCommand = requestInfo.Key;
+                    currentSession.PrevCommand = requestInfo.Key;
 
                     if (Config.LogCommand && Logger.IsInfoEnabled)
                         Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
                 }
                 else
                 {
-                    session.HandleUnknownCommand(requestInfo);
+                    currentSession.HandleUnknownRequest(requestInfo);
                 }
 
-                session.LastActiveTime = DateTime.Now;
+                currentSession.LastActiveTime = DateTime.Now;
             }
             else
             {
-                session.CurrentCommand = requestInfo.Key;
-                m_CommandHandler(session, requestInfo);
+                currentSession.CurrentCommand = requestInfo.Key;
+                m_CommandHandler(currentSession, requestInfo);
                 session.PrevCommand = requestInfo.Key;
-                session.LastActiveTime = DateTime.Now;
+                currentSession.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand && Logger.IsInfoEnabled)
-                    Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
+                    Logger.Info(currentSession, string.Format("Command - {0}", requestInfo.Key));
             }
 
             Interlocked.Increment(ref m_TotalHandledCommands);
         }
 
+        /// <summary>
+        /// Gets or sets the server's connection filter
+        /// </summary>
+        /// <value>
+        /// The server's connection filters
+        /// </value>
         public IEnumerable<IConnectionFilter> ConnectionFilters
         {
             get { return m_ConnectionFilters; }
@@ -539,6 +666,11 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        /// <summary>
+        /// Executes the connection filters.
+        /// </summary>
+        /// <param name="remoteAddress">The remote address.</param>
+        /// <returns></returns>
         private bool ExecuteConnectionFilters(IPEndPoint remoteAddress)
         {
             if (m_ConnectionFilters == null)
@@ -558,13 +690,18 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        public virtual TAppSession CreateAppSession(ISocketSession socketSession)
+        /// <summary>
+        /// Creates the app session.
+        /// </summary>
+        /// <param name="socketSession">The socket session.</param>
+        /// <returns></returns>
+        public virtual IAppSession CreateAppSession(ISocketSession socketSession)
         {
             if (!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
                 return NullAppSession;
 
-            TAppSession appSession = new TAppSession();
-            appSession.Initialize(this, socketSession);
+            var appSession = new TAppSession();
+            appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this));
             socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);
 
             return appSession;
@@ -575,9 +712,16 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public virtual TAppSession GetAppSessionByID(string sessionID)
+        protected abstract IAppSession GetAppSessionByIDInternal(string sessionID);
+
+        /// <summary>
+        /// Gets the app session by ID.
+        /// </summary>
+        /// <param name="sessionID"></param>
+        /// <returns></returns>
+        IAppSession IAppServer.GetAppSessionByID(string sessionID)
         {
-            throw new NotSupportedException();
+            return GetAppSessionByIDInternal(sessionID);
         }
 
         /// <summary>
@@ -597,6 +741,9 @@ namespace SuperSocket.SocketBase
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Gets the total session count.
+        /// </summary>
         public virtual int SessionCount
         {
             get

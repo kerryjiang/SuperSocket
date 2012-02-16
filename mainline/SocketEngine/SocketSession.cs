@@ -18,27 +18,14 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    abstract class SocketSession<TAppSession, TRequestInfo> : ISocketSession<TAppSession>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    abstract class SocketSession : ISocketSession
     {
-        public IAppServer<TAppSession> AppServer { get; private set; }
-
-        protected IRequestFilter<TRequestInfo> RequestFilter { get; private set; }
-
-        private static readonly TRequestInfo m_NullRequestInfo = default(TRequestInfo);
-
-        protected TRequestInfo NullRequestInfo
-        {
-            get { return m_NullRequestInfo; }
-        }
-
-        public TAppSession AppSession { get; private set; }
+        public IAppSession AppSession { get; private set; }
 
         protected readonly object SyncRoot = new object();
 
-        public SocketSession(Socket client, IRequestFilter<TRequestInfo> requestFilter)
-            : this(Guid.NewGuid().ToString(), requestFilter)
+        public SocketSession(Socket client)
+            : this(Guid.NewGuid().ToString())
         {
             if (client == null)
                 throw new ArgumentNullException("client");
@@ -48,15 +35,13 @@ namespace SuperSocket.SocketEngine
             RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
         }
 
-        public SocketSession(string sessionID, IRequestFilter<TRequestInfo> requestFilter)
+        public SocketSession(string sessionID)
         {
             SessionID = sessionID;
-            RequestFilter = requestFilter;
         }
 
-        public virtual void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession)
+        public virtual void Initialize(IAppSession appSession)
         {
-            AppServer = appServer;
             AppSession = appSession;
         }
 
@@ -74,46 +59,11 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public abstract void Start();
 
-        protected virtual void ExecuteCommand(TRequestInfo requestInfo)
-        {
-            AppSession.ExecuteCommand(AppSession, requestInfo);
-
-            if(AppSession.NextRequestFilter != null)
-            {
-                RequestFilter = AppSession.NextRequestFilter;
-                AppSession.NextRequestFilter = null;
-            }
-        }
-
-        protected internal TRequestInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
-        {
-            var requestInfo = RequestFilter.Filter(AppSession, readBuffer, offset, length, isReusableBuffer, out left);
-
-            if (requestInfo == null)
-            {
-                int leftBufferCount = RequestFilter.LeftBufferSize;
-                if (leftBufferCount >= AppServer.Config.MaxCommandLength)
-                {
-                    if (AppServer.Logger.IsErrorEnabled)
-                        AppServer.Logger.ErrorFormat("Max command length: {0}, current processed length: {1}", AppServer.Config.MaxCommandLength, leftBufferCount);
-                    Close(CloseReason.ServerClosing);
-                    return m_NullRequestInfo;
-                }
-            }
-
-            //If next request filter wasn't set, still use current request filter in next round received data processing
-            if (RequestFilter.NextRequestFilter != null)
-                RequestFilter = RequestFilter.NextRequestFilter;
-
-            return requestInfo;
-        }
-
         /// <summary>
         /// Says the welcome information when a client connectted.
         /// </summary>
         protected virtual void StartSession()
         {
-            AppSession.LastActiveTime = DateTime.Now;
             AppSession.StartSession();
         }
 
@@ -138,15 +88,6 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public event EventHandler<SocketSessionClosedEventArgs> Closed;
 
-        protected virtual void HandleExceptionalError(Exception e)
-        {
-            AppSession.HandleExceptionalError(e);
-        }
-
-        public abstract void SendResponse(string message);
-
-        public abstract void SendResponse(byte[] data);
-        
         public abstract void SendResponse(byte[] data, int offset, int length);
 
         public abstract void ApplySecureProtocol();
@@ -197,7 +138,7 @@ namespace SuperSocket.SocketEngine
                 if (Client == null && m_IsClosed)
                     return;
 
-                Client.SafeCloseClientSocket(AppServer.Logger);
+                Client.SafeCloseClientSocket(AppSession.Logger);
 
                 Client = null;
                 m_IsClosed = true;
