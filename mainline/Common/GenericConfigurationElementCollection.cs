@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 namespace SuperSocket.Common
 {
-    public class GenericConfigurationElementCollection<TConfigElement, TConfigInterface> : ConfigurationElementCollection, IEnumerable<TConfigInterface>
-        where TConfigElement : ConfigurationElementBase, TConfigInterface, new()
+    public class GenericConfigurationElementCollectionBase<TConfigElement, TConfigInterface> : ConfigurationElementCollection, IEnumerable<TConfigInterface>
+        where TConfigElement : ConfigurationElement, TConfigInterface, new()
     {
         public TConfigElement this[int index]
         {
@@ -22,21 +22,19 @@ namespace SuperSocket.Common
                 this.BaseAdd(index, value);
             }
         }
-        
-        #region implemented abstract members of System.Configuration.ConfigurationElementCollection
-        protected override ConfigurationElement CreateNewElement ()
+
+        protected override ConfigurationElement CreateNewElement()
         {
             return new TConfigElement();
         }
-         
+
         protected override object GetElementKey(ConfigurationElement element)
         {
-            return ((TConfigElement)element).Name;
-        }         
-        
-        #endregion
-        
+            throw new NotImplementedException();
+        }
+
         #region IEnumerable[T] implementation
+
         public new IEnumerator<TConfigInterface> GetEnumerator()
         {
             int count = base.Count;
@@ -46,7 +44,17 @@ namespace SuperSocket.Common
                 yield return (TConfigElement)base.BaseGet(i);
             }
         }
+
         #endregion
+    }
+
+    public class GenericConfigurationElementCollection<TConfigElement, TConfigInterface> : GenericConfigurationElementCollectionBase<TConfigElement, TConfigInterface>, IEnumerable<TConfigInterface>
+        where TConfigElement : ConfigurationElementBase, TConfigInterface, new()
+    {
+        protected override object GetElementKey(ConfigurationElement element)
+        {
+            return ((TConfigElement)element).Name;
+        }
     }
 }
 
