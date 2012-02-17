@@ -14,11 +14,6 @@ namespace SuperSocket.ClientEngine
 
         private byte[] m_ReceiveBuffer;
 
-        public AsyncTcpSession()
-            : base()
-        {
-        }
-
         public AsyncTcpSession(EndPoint remoteEndPoint)
             : base(remoteEndPoint)
         {

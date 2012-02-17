@@ -11,11 +11,6 @@ namespace SuperSocket.ClientEngine
     {
         protected string HostName { get; private set; }
 
-        public TcpClientSession()
-            : base()
-        {
-        }
-
         public TcpClientSession(EndPoint remoteEndPoint)
             : base(remoteEndPoint)
         {
@@ -144,6 +139,9 @@ namespace SuperSocket.ClientEngine
             Client = connectState.Socket;
             e.UserToken = null;
 #endif
+            //Set keep alive
+            Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+
             StartReceive(e);
         }
 
