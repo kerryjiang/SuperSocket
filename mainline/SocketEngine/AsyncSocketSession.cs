@@ -15,33 +15,38 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    interface IAsyncSocketSession
-    {
-        SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
-        void ProcessReceive(SocketAsyncEventArgs e);
-        ILog Logger { get; }
-    }
-
     class AsyncSocketSession : SocketSession, IAsyncSocketSession
     {        
         private AsyncSocketSender m_AsyncSender;
 
-        public AsyncSocketSession(Socket client)
+        private bool m_IsReset;
+
+        public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy)
+            : this(client, socketAsyncProxy, false)
+        {
+
+        }
+
+        public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
             : base(client)
         {
             m_AsyncSender = new AsyncSocketSender(client);
+            SocketAsyncProxy = socketAsyncProxy;
+            m_IsReset = isReset;
         }
 
-        ILog IAsyncSocketSession.Logger
+        ILog IAsyncSocketSessionBase.Logger
         {
             get { return AppSession.Logger; }
         }
 
         public override void Start()
         {
-            SocketAsyncProxy.Initialize(Client, this);
+            SocketAsyncProxy.Initialize(this);
             StartReceive(SocketAsyncProxy.SocketEventArgs);
-            StartSession();
+
+            if (!m_IsReset)
+                StartSession();
         }
 
         private void StartReceive(SocketAsyncEventArgs e)
@@ -79,7 +84,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
+        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
 
         public void ProcessReceive(SocketAsyncEventArgs e)
         {

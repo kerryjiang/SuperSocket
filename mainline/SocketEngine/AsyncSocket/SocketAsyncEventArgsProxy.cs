@@ -25,11 +25,10 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
         static void SocketEventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
-            var token = e.UserToken as AsyncUserToken;
-            var socketSession = token.SocketSession;
+            var socketSession = e.UserToken as IAsyncSocketSession;
 
             if (socketSession == null)
-                return;            
+                return;
 
             if (e.LastOperation == SocketAsyncOperation.Receive)
             {
@@ -42,18 +41,14 @@ namespace SuperSocket.SocketEngine.AsyncSocket
             }
         } 
 
-        public void Initialize(Socket socket, IAsyncSocketSession socketSession)
+        public void Initialize(IAsyncSocketSession socketSession)
         {
-            var token = SocketEventArgs.UserToken as AsyncUserToken;
-            token.Socket = socket;
-            token.SocketSession = socketSession;
+            SocketEventArgs.UserToken = socketSession;
         }
 
         public void Reset()
         {
-            var token = SocketEventArgs.UserToken as AsyncUserToken;
-            token.Socket = null;
-            token.SocketSession = null;
+            SocketEventArgs.UserToken = null;
         }
     }
 }

@@ -12,6 +12,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketEngine
 {
@@ -57,7 +58,6 @@ namespace SuperSocket.SocketEngine
                 {
                     //Pre-allocate a set of reusable SocketAsyncEventArgs
                     socketEventArg = new SocketAsyncEventArgs();
-                    socketEventArg.UserToken = new AsyncUserToken();
                     m_BufferManager.SetBuffer(socketEventArg);
 
                     socketArgsProxyList.Add(new SocketAsyncEventArgsProxy(socketEventArg));
@@ -94,48 +94,71 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            var session = RegisterSession(client, new AsyncSocketSession(client));
+            ISocketSession session;
+
+            var security = listener.Info.Security;
+
+            if (security == SslProtocols.None)
+                session = RegisterSession(client, new AsyncSocketSession(client, socketEventArgsProxy));
+            else
+                session = RegisterSession(client, new AsyncStreamSocketSession(client, security, socketEventArgsProxy));
 
             if (session == null)
             {
+                socketEventArgsProxy.Reset();
                 this.m_ReadWritePool.Push(socketEventArgsProxy);
                 Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
             }
 
-            ((IAsyncSocketSession)session).SocketAsyncProxy = socketEventArgsProxy;
             session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
             Async.Run(() => session.Start());
         }
 
+        public override void ResetSessionSecurity(IAppSession session, SslProtocols security)
+        {
+            ISocketSession socketSession;
+
+            var socketAsyncProxy = ((IAsyncSocketSessionBase)session.SocketSession).SocketAsyncProxy;
+
+            if (security == SslProtocols.None)
+                socketSession = new AsyncSocketSession(session.SocketSession.Client, socketAsyncProxy, true);
+            else
+                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, socketAsyncProxy, true);
+
+            socketSession.Initialize(session);
+            socketSession.Start();
+        }
+
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
-            IAsyncSocketSession socketSession = sender as IAsyncSocketSession;
+            IAsyncSocketSessionBase socketSession = sender as IAsyncSocketSessionBase;
             if (socketSession != null && this.m_ReadWritePool != null)
+            {
+                socketSession.SocketAsyncProxy.Reset();
                 this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
+            }
         }
 
         public override void Stop()
         {
-            base.Stop();
+            if (IsStopped)
+                return;
 
-            if (m_ReadWritePool != null)
-                m_ReadWritePool = null;
-
-            if (m_BufferManager != null)
-                m_BufferManager = null;
-
-            IsRunning = false;
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            lock (SyncRoot)
             {
-                if (IsRunning)
-                    Stop();
-            }
+                if (IsStopped)
+                    return;
 
-            base.Dispose(disposing);
+                base.Stop();
+
+                if (m_ReadWritePool != null)
+                    m_ReadWritePool = null;
+
+                if (m_BufferManager != null)
+                    m_BufferManager = null;
+
+                IsRunning = false;
+            }
         }
     }
 }

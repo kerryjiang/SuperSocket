@@ -27,6 +27,15 @@ namespace SuperSocket.SocketEngine.Configuration
         {
             get { return (int)this["backlog"]; }
         }
+
+        [ConfigurationProperty("security", IsRequired = false, DefaultValue = "None")]
+        public string Security
+        {
+            get
+            {
+                return (string)this["security"];
+            }
+        }
     }
 
     [ConfigurationCollection(typeof(Listener), AddItemName = "listener")]

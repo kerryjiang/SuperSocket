@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
+using System.Security.Authentication;
 using System.ServiceModel.Description;
 using System.Text;
 using System.Threading;
@@ -30,8 +31,6 @@ namespace SuperSocket.SocketEngine
 
         protected bool IsStopped { get; set; }
 
-        private ManualResetEvent m_ServerStartupEvent = new ManualResetEvent(false);
-
         public SocketServerBase(IAppServer appServer, ListenerInfo[] listeners)
         {
             AppServer = appServer;
@@ -39,6 +38,8 @@ namespace SuperSocket.SocketEngine
             ListenerInfos = listeners;
             Listeners = new List<ISocketListener>(listeners.Length);
         }
+
+        public abstract void ResetSessionSecurity(IAppSession session, SslProtocols security);
 
         public virtual bool Start()
         {
@@ -62,7 +63,10 @@ namespace SuperSocket.SocketEngine
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)
-                m_ServerStartupEvent.Close();
+            {
+                if (IsRunning)
+                    Stop();
+            }
         }
 
         #endregion

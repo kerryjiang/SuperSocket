@@ -214,6 +214,9 @@ namespace SuperSocket.SocketBase
 
             SetupLogger();
 
+            if (!SetupSecurity(config))
+                return false;
+
             if (!SetupListeners(config))
             {
                 if(Logger.IsErrorEnabled)
@@ -250,9 +253,6 @@ namespace SuperSocket.SocketBase
             }
 
             if (!SetupCommands(m_CommandDict))
-                return false;
-
-            if (!SetupSecurity(config))
                 return false;
 
             return SetupSocketServer();
@@ -392,7 +392,8 @@ namespace SuperSocket.SocketBase
                     listeners.Add(new ListenerInfo
                     {
                         EndPoint = new IPEndPoint(ParseIPAddress(config.Ip), config.Port),
-                        BackLog = config.ListenBacklog
+                        BackLog = config.ListenBacklog,
+                        Security = BasicSecurity
                     });
                 }
                 else
@@ -421,10 +422,32 @@ namespace SuperSocket.SocketBase
 
                     foreach (var l in config.Listeners)
                     {
+                        SslProtocols configProtocol;
+
+                        if (string.IsNullOrEmpty(l.Security) && BasicSecurity != SslProtocols.None)
+                        {
+                            configProtocol = BasicSecurity;
+                        }
+                        else if (!l.Security.TryParseEnum<SslProtocols>(true, out configProtocol))
+                        {
+                            if (Logger.IsErrorEnabled)
+                                Logger.ErrorFormat("Failed to parse '{0}' to SslProtocol!", config.Security);
+
+                            return false;
+                        }
+
+                        if (configProtocol != SslProtocols.None && (config.Certificate == null || !config.Certificate.IsEnabled))
+                        {
+                            if (Logger.IsErrorEnabled)
+                                Logger.Error("There is no certificate defined and enabled!");
+                            return false;
+                        }
+
                         listeners.Add(new ListenerInfo
                         {
                             EndPoint = new IPEndPoint(ParseIPAddress(l.Ip), l.Port),
-                            BackLog = l.Backlog
+                            BackLog = l.Backlog,
+                            Security = configProtocol
                         });
                     }
                 }
@@ -591,15 +614,8 @@ namespace SuperSocket.SocketBase
 
         private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutedAction = (f, s, c) => f.OnCommandExecuted(s, c);
 
-        /// <summary>
-        /// Executes the command for the session.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="requestInfo">The request info.</param>
-        public virtual void ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo)
+        protected virtual void ExecuteCommand(TAppSession session, TRequestInfo requestInfo)
         {
-            var currentSession = (TAppSession)session;
-
             if (m_CommandHandler == null)
             {
                 var command = GetCommandByName(requestInfo.Key);
@@ -609,43 +625,53 @@ namespace SuperSocket.SocketBase
                     List<CommandFilterAttribute> commandFilters;
                     m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
 
-                    currentSession.CurrentCommand = requestInfo.Key;
+                    session.CurrentCommand = requestInfo.Key;
 
-                    ExecuteCommandFilters(commandFilters, currentSession, command, m_CommandFilterExecutingAction);
+                    ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
 
                     //Command filter may close the session,
                     //so detect whether session is connected before execute command
                     if (session.Status != SessionStatus.Disconnected)
                     {
-                        command.ExecuteCommand(currentSession, requestInfo);
+                        command.ExecuteCommand(session, requestInfo);
 
-                        ExecuteCommandFilters(commandFilters, currentSession, command, m_CommandFilterExecutedAction);
+                        ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
                     }
 
-                    currentSession.PrevCommand = requestInfo.Key;
+                    session.PrevCommand = requestInfo.Key;
 
                     if (Config.LogCommand && Logger.IsInfoEnabled)
                         Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
                 }
                 else
                 {
-                    currentSession.HandleUnknownRequest(requestInfo);
+                    session.HandleUnknownRequest(requestInfo);
                 }
 
-                currentSession.LastActiveTime = DateTime.Now;
+                session.LastActiveTime = DateTime.Now;
             }
             else
             {
-                currentSession.CurrentCommand = requestInfo.Key;
-                m_CommandHandler(currentSession, requestInfo);
+                session.CurrentCommand = requestInfo.Key;
+                m_CommandHandler(session, requestInfo);
                 session.PrevCommand = requestInfo.Key;
-                currentSession.LastActiveTime = DateTime.Now;
+                session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand && Logger.IsInfoEnabled)
-                    Logger.Info(currentSession, string.Format("Command - {0}", requestInfo.Key));
+                    Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
             }
 
             Interlocked.Increment(ref m_TotalHandledCommands);
+        }
+
+        /// <summary>
+        /// Executes the command for the session.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="requestInfo">The request info.</param>
+        void IAppServer<TAppSession, TRequestInfo>.ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo)
+        {
+            this.ExecuteCommand((TAppSession)session, requestInfo);
         }
 
         /// <summary>

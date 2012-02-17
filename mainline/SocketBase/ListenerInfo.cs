@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Net;
+using System.Security.Authentication;
 
 namespace SuperSocket.SocketBase
 {
@@ -11,5 +12,7 @@ namespace SuperSocket.SocketBase
         public IPEndPoint EndPoint { get; set; }
 
         public int BackLog { get; set; }
+
+        public SslProtocols Security { get; set; }
     }
 }

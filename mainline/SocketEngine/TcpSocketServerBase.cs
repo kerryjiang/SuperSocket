@@ -127,7 +127,7 @@ namespace SuperSocket.SocketEngine
 
         protected virtual ISocketListener CreateListener(ListenerInfo listenerInfo)
         {
-            return new TcpAsyncSocketListener(listenerInfo.EndPoint, listenerInfo.BackLog);
+            return new TcpAsyncSocketListener(listenerInfo);
         }
 
         public override void Stop()

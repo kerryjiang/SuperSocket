@@ -36,10 +36,7 @@ namespace SuperSocket.SocketEngine
             switch(config.Mode)
             {
                 case(SocketMode.Tcp):
-                    if (string.IsNullOrEmpty(config.Security) || config.Security.Equals(m_SecurityNone, StringComparison.OrdinalIgnoreCase))
-                        return new AsyncSocketServer(appServer, listeners);
-                    else
-                        return new AsyncStreamSocketServer(appServer, listeners);
+                    return new AsyncSocketServer(appServer, listeners);
                 default:
                     throw new NotSupportedException("Unsupported SocketMode:" + config.Mode);
             }

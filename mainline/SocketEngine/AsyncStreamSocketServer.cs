@@ -39,7 +39,6 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-
         protected override void AcceptNewClient(ISocketListener listener, Socket client)
         {
             if(Interlocked.Increment(ref m_CurrentConnectionCount) > AppServer.Config.MaxConnectionNumber)
@@ -69,19 +68,17 @@ namespace SuperSocket.SocketEngine
 
         public override void Stop()
         {
-            base.Stop();
-            IsRunning = false;
-        }
+            if (IsStopped)
+                return;
 
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
+            lock (SyncRoot)
             {
-                if (IsRunning)
-                    Stop();
-            }
+                if (IsStopped)
+                    return;
 
-            base.Dispose(disposing);
+                base.Stop();
+                IsRunning = false;
+            }
         }
     }
 }

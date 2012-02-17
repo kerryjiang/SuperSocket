@@ -13,6 +13,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SuperSocketRole
 {
@@ -38,6 +39,8 @@ namespace SuperSocket.SuperSocketRole
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
+            LogFactoryProvider.Initialize();
+
             var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
 
             if (!SocketServerManager.Initialize(serverConfig, ResolveServerConfig))
@@ -60,16 +63,50 @@ namespace SuperSocket.SuperSocketRole
             var config = new ServerConfig();
             serverConfig.CopyPropertiesTo(config);
 
-            var instanceEndpoint = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[serverConfig.Name + "Endpoint"];
-            if (instanceEndpoint == null)
+            if (serverConfig.Port > 0)
             {
-                Trace.WriteLine(string.Format("Failed to find Input Endpoint configuration {0}!", serverConfig.Name + "Endpoint"), "Error");
-                return serverConfig;
+                var endPointKey = serverConfig.Name + "_" + serverConfig.Port;
+                var instanceEndpoint = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[endPointKey];
+                if (instanceEndpoint == null)
+                {
+                    Trace.WriteLine(string.Format("Failed to find Input Endpoint configuration {0}!", endPointKey), "Error");
+                    return serverConfig;
+                }
+
+                var ipEndpoint = instanceEndpoint.IPEndpoint;
+                config.Ip = ipEndpoint.Address.ToString();
+                config.Port = ipEndpoint.Port;
             }
 
-            var ipEndpoint = instanceEndpoint.IPEndpoint;
-            config.Ip = ipEndpoint.Address.ToString();
-            config.Port = ipEndpoint.Port;
+            if(config.Listeners != null && config.Listeners.Any())
+            {
+                var listeners = config.Listeners.ToArray();
+
+                var newListeners = new List<ListenerConfig>(listeners.Length);
+
+                for (var i = 0; i < listeners.Length; i++)
+                {
+                    var listener = listeners[i];
+
+                    var endPointKey = serverConfig.Name + "_" + listener.Port;
+                    var instanceEndpoint = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[endPointKey];
+                    if (instanceEndpoint == null)
+                    {
+                        Trace.WriteLine(string.Format("Failed to find Input Endpoint configuration {0}!", endPointKey), "Error");
+                        return serverConfig;
+                    }
+
+                    var newListener = new ListenerConfig();
+                    newListener.Ip = instanceEndpoint.IPEndpoint.Address.ToString();
+                    newListener.Port = instanceEndpoint.IPEndpoint.Port;
+                    newListener.Backlog = listener.Backlog;
+
+                    newListeners.Add(newListener);
+                }
+
+                config.Listeners = newListeners;
+            }
+
             return config;
         }
 

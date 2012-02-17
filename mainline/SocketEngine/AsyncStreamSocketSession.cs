@@ -9,17 +9,36 @@ using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketEngine.AsyncSocket;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncStreamSocketSession : SocketSession
+    class AsyncStreamSocketSession : SocketSession, IAsyncSocketSessionBase
     {
         private byte[] m_ReadBuffer;
+        private int m_Offset;
+        private int m_Length;
 
-        public AsyncStreamSocketSession(Socket client)
+        private bool m_IsReset;
+
+        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy)
+            : this(client, security, socketAsyncProxy, false)
+        {
+
+        }
+
+        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
             : base(client)
         {
-            
+            SecureProtocol = security;
+            SocketAsyncProxy = socketAsyncProxy;
+            SocketAsyncEventArgs e = socketAsyncProxy.SocketEventArgs;
+            m_ReadBuffer = e.Buffer;
+            m_Offset = e.Offset;
+            m_Length = e.Count;
+
+            m_IsReset = isReset;
         }
 
         /// <summary>
@@ -31,12 +50,8 @@ namespace SuperSocket.SocketEngine
             if (IsClosed)
                 return;
 
-            m_ReadBuffer = new byte[Client.ReceiveBufferSize];
-
             try
             {
-                SecureProtocol = AppSession.AppServer.BasicSecurity;
-
                 var asyncResult = BeginInitStream(OnBeginInitStreamOnSessionStarted);
 
                 //If the operation is synchronous
@@ -53,8 +68,10 @@ namespace SuperSocket.SocketEngine
 
         private void OnSessionStarting()
         {
-            m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
-            StartSession();
+            m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
+
+            if (!m_IsReset)
+                StartSession();
         }
 
         private void OnStreamEndRead(IAsyncResult result)
@@ -67,9 +84,9 @@ namespace SuperSocket.SocketEngine
 
                 if (thisRead > 0)
                 {
-                    AppSession.ProcessRequest(m_ReadBuffer, 0, thisRead, true);
+                    AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
 
-                    m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
+                    m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
                 }
             }
             catch (ObjectDisposedException)
@@ -181,6 +198,13 @@ namespace SuperSocket.SocketEngine
 
             if (asyncResult != null)
                 asyncResult.AsyncWaitHandle.WaitOne();
+        }
+
+        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
+
+        ILog IAsyncSocketSessionBase.Logger
+        {
+            get { return AppSession.Logger; }
         }
     }
 }

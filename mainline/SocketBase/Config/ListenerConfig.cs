@@ -27,5 +27,10 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the backlog.
         /// </summary>
         public int Backlog { get; set; }
+
+        /// <summary>
+        /// Gets/sets the security option, None/Default/Tls/Ssl/...
+        /// </summary>
+        public string Security { get; set; }
     }
 }

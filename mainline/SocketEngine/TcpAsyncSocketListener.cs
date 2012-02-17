@@ -15,19 +15,21 @@ namespace SuperSocket.SocketEngine
     /// </summary>
     class TcpAsyncSocketListener : ISocketListener
     {
-        /// <summary>
-        /// Gets the end point of the socket listening
-        /// </summary>
-        public IPEndPoint EndPoint { get; private set; }
+        public ListenerInfo Info { get; private set; }
+
+        public IPEndPoint EndPoint
+        {
+            get { return Info.EndPoint; }
+        }
 
         private int m_ListenBackLog;
 
         private Socket m_ListenSocket;
 
-        public TcpAsyncSocketListener(IPEndPoint endPoint, int listenBackLog)
+        public TcpAsyncSocketListener(ListenerInfo info)
         {
-            EndPoint = endPoint;
-            m_ListenBackLog = listenBackLog;
+            Info = info;
+            m_ListenBackLog = info.BackLog;
         }
 
         /// <summary>
@@ -36,11 +38,11 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public bool Start()
         {
-            m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            m_ListenSocket = new Socket(this.Info.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             try
             {
-                m_ListenSocket.Bind(this.EndPoint);
+                m_ListenSocket.Bind(this.Info.EndPoint);
                 m_ListenSocket.Listen(m_ListenBackLog);
 
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);

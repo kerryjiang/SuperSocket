@@ -75,6 +75,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="TcpAsyncSocketListener.cs" />
     <Compile Include="AsyncSocket\AsyncSocketSender.cs" />
     <Compile Include="AsyncSocketServer.cs">
@@ -83,13 +84,9 @@
     <Compile Include="AsyncSocketSession.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AsyncSocket\AsyncUserToken.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="AsyncStreamSocketServer.cs" />
     <Compile Include="AsyncStreamSocketSession.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />

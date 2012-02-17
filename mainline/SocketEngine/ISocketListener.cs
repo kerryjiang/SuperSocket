@@ -19,7 +19,12 @@ namespace SuperSocket.SocketEngine
     interface ISocketListener
     {
         /// <summary>
-        /// Gets the end point of the socket listening
+        /// Gets the info of listener
+        /// </summary>
+        ListenerInfo Info { get; }
+
+        /// <summary>
+        /// Gets the end point the listener is working on
         /// </summary>
         IPEndPoint EndPoint { get; }
 
