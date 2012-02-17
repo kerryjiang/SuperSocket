@@ -139,8 +139,11 @@ namespace SuperSocket.ClientEngine
             Client = connectState.Socket;
             e.UserToken = null;
 #endif
+
+#if !SILVERLIGHT
             //Set keep alive
             Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+#endif
 
             StartReceive(e);
         }
