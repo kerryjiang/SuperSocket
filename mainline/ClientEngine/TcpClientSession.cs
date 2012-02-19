@@ -11,9 +11,18 @@ namespace SuperSocket.ClientEngine
     {
         protected string HostName { get; private set; }
 
+        public virtual int ReceiveBufferSize { get; set; }
+
         public TcpClientSession(EndPoint remoteEndPoint)
+            : this(remoteEndPoint, 1024)
+        {
+
+        }
+
+        public TcpClientSession(EndPoint remoteEndPoint, int receiveBufferSize)
             : base(remoteEndPoint)
         {
+            ReceiveBufferSize = receiveBufferSize;
         }
 
         protected abstract void SocketEventArgsCompleted(object sender, SocketAsyncEventArgs e);

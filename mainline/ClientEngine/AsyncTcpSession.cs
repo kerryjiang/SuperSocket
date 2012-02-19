@@ -14,18 +14,32 @@ namespace SuperSocket.ClientEngine
 
         private byte[] m_ReceiveBuffer;
 
-        private int m_ReceiveBufferSize;
-
         public AsyncTcpSession(EndPoint remoteEndPoint)
-            : this(remoteEndPoint, 1024)
+            : base(remoteEndPoint)
         {
 
         }
 
         public AsyncTcpSession(EndPoint remoteEndPoint, int receiveBufferSize)
-            : base(remoteEndPoint)
+            : base(remoteEndPoint, receiveBufferSize)
         {
-            m_ReceiveBufferSize = receiveBufferSize;
+
+        }
+
+        public override int ReceiveBufferSize
+        {
+            get
+            {
+                return base.ReceiveBufferSize;
+            }
+
+            set
+            {
+                if (m_ReceiveBuffer != null)
+                    throw new Exception("ReceiveBufferSize cannot be set after the socket has been connected!");
+
+                base.ReceiveBufferSize = value;
+            }
         }
 
         protected override void SocketEventArgsCompleted(object sender, SocketAsyncEventArgs e)
@@ -43,7 +57,7 @@ namespace SuperSocket.ClientEngine
         {
             OnConnected();
 
-            m_ReceiveBuffer = new byte[m_ReceiveBufferSize];
+            m_ReceiveBuffer = new byte[ReceiveBufferSize];
             e.SetBuffer(m_ReceiveBuffer, 0, m_ReceiveBuffer.Length);
             m_SocketEventArgs = e;
 
