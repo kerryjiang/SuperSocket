@@ -72,6 +72,11 @@ namespace SuperSocket.ClientEngine
 
             if (!Socket.OSSupportsIPv6)
                 addresses = addresses.Where(a => a.AddressFamily == AddressFamily.InterNetwork).ToArray();
+            else
+            {
+                //IPv4 address in higher priority
+                addresses = addresses.OrderBy(a => a.AddressFamily == AddressFamily.InterNetwork ? 0 : 1).ToArray();
+            }
 
             if (addresses.Length <= 0)
                 return;
@@ -109,7 +114,7 @@ namespace SuperSocket.ClientEngine
 
             if (e.SocketError != SocketError.Success)
             {
-                if (e.SocketError != SocketError.HostUnreachable)
+                if (e.SocketError != SocketError.HostUnreachable && e.SocketError != SocketError.ConnectionRefused)
                 {
                     OnError(new SocketException((int)e.SocketError));
                     return;
