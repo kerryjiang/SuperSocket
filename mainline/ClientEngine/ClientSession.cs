@@ -104,5 +104,7 @@ namespace SuperSocket.ClientEngine
 
             m_DataReceived(this, m_DataArgs);
         }
+
+        public virtual int ReceiveBufferSize { get; set; }
     }
 }

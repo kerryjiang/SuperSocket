@@ -11,8 +11,6 @@ namespace SuperSocket.ClientEngine
     {
         protected string HostName { get; private set; }
 
-        public virtual int ReceiveBufferSize { get; set; }
-
         public TcpClientSession(EndPoint remoteEndPoint)
             : this(remoteEndPoint, 1024)
         {

@@ -9,6 +9,8 @@ namespace SuperSocket.ClientEngine
 {
     public interface IClientSession
     {
+        int ReceiveBufferSize { get; set; }
+
         void Connect();
 
         void Send(byte[] data, int offset, int length);
