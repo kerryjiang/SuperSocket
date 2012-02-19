@@ -15,10 +15,18 @@ namespace SuperSocket.ClientEngine
 
         private byte[] m_ReceiveBuffer;
 
+        private int m_ReceiveBufferSize;
+
         public SslStreamTcpSession(EndPoint remoteEndPoint)
-            : base(remoteEndPoint)
+            : this(remoteEndPoint, 1024)
         {
 
+        }
+
+        public SslStreamTcpSession(EndPoint remoteEndPoint, int receiveBufferSize)
+            : base(remoteEndPoint)
+        {
+            m_ReceiveBufferSize = receiveBufferSize;
         }
 
         protected override void SocketEventArgsCompleted(object sender, SocketAsyncEventArgs e)
@@ -60,7 +68,7 @@ namespace SuperSocket.ClientEngine
 
             OnConnected();
 
-            m_ReceiveBuffer = new byte[1024];
+            m_ReceiveBuffer = new byte[m_ReceiveBufferSize];
             BeginRead();
         }
 
