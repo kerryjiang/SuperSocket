@@ -7,6 +7,7 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
+using SuperSocket.Common.Logging;
 
 
 namespace SuperSocket.SocketService
@@ -18,6 +19,8 @@ namespace SuperSocket.SocketService
         /// </summary>
         static void Main(string[] args)
         {
+            LogFactoryProvider.Initialize();
+
             if (!Environment.UserInteractive)
             {
                 RunAsService();
