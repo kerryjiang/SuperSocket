@@ -158,17 +158,17 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets the max command length in bytes. Default value is 1024.
+        /// Gets the max allowed length of request.
         /// </summary>
         /// <value>
-        /// The length of the max command.
+        /// The max allowed length of request.
         /// </value>
-        [ConfigurationProperty("maxCommandLength", IsRequired = false, DefaultValue = 1024)]
-        public int MaxCommandLength
+        [ConfigurationProperty("maxRequestLength", IsRequired = false, DefaultValue = 1024)]
+        public int MaxRequestLength
         {
             get
             {
-                return (int)this["maxCommandLength"];
+                return (int)this["maxRequestLength"];
             }
         }
 

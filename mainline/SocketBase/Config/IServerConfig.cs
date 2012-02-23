@@ -78,12 +78,12 @@ namespace SuperSocket.SocketBase.Config
 
 
         /// <summary>
-        /// Gets the max command length.
+        /// Gets the length of the max request.
         /// </summary>
         /// <value>
-        /// The length of the max command.
+        /// The length of the max request.
         /// </value>
-        int MaxCommandLength { get; }
+        int MaxRequestLength { get; }
 
 
         /// <summary>

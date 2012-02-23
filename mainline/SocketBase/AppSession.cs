@@ -299,10 +299,10 @@ namespace SuperSocket.SocketBase
             if (requestInfo == null)
             {
                 int leftBufferCount = m_RequestFilter.LeftBufferSize;
-                if (leftBufferCount >= AppServer.Config.MaxCommandLength)
+                if (leftBufferCount >= AppServer.Config.MaxRequestLength)
                 {
                     if (Logger.IsErrorEnabled)
-                        Logger.ErrorFormat("Max command length: {0}, current processed length: {1}", AppServer.Config.MaxCommandLength, leftBufferCount);
+                        Logger.ErrorFormat("Max command length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, leftBufferCount);
                     Close(CloseReason.ServerClosing);
                     return null;
                 }

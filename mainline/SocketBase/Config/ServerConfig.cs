@@ -15,7 +15,7 @@ namespace SuperSocket.SocketBase.Config
             Security = "None";
             MaxConnectionNumber = 100;
             Mode = SocketMode.Tcp;
-            MaxCommandLength = 1024;
+            MaxRequestLength = 1024;
             KeepAliveTime = 10 * 60;// 10 minutes
             KeepAliveInterval = 60;// 60 seconds
             ListenBacklog = 100;
@@ -89,7 +89,13 @@ namespace SuperSocket.SocketBase.Config
 
         public string Security { get; set; }
 
-        public int MaxCommandLength { get; set; }
+        /// <summary>
+        /// Gets/sets the length of the max request.
+        /// </summary>
+        /// <value>
+        /// The length of the max request.
+        /// </value>
+        public int MaxRequestLength { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether [disable session snapshot].
