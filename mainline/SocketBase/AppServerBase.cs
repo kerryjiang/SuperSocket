@@ -733,6 +733,16 @@ namespace SuperSocket.SocketBase
             return appSession;
         }
 
+        /// <summary>
+        /// Resets the session's security protocol.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="security">The security protocol.</param>
+        public void ResetSessionSecurity(IAppSession session, SslProtocols security)
+        {
+            m_SocketServer.ResetSessionSecurity(session, security);
+        }
+
         internal protected virtual void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
 

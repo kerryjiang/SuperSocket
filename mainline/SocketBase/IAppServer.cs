@@ -105,6 +105,13 @@ namespace SuperSocket.SocketBase
         /// <param name="identityKey">The session ID.</param>
         /// <returns></returns>
         IAppSession GetAppSessionByID(string sessionID);
+
+        /// <summary>
+        /// Resets the session's security protocol.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="security">The security protocol.</param>
+        void ResetSessionSecurity(IAppSession session, SslProtocols security);
     }
 
     public interface IAppServer<TAppSession> : IAppServer
