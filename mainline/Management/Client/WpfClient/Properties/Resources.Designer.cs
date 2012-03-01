@@ -59,5 +59,12 @@ namespace SuperSocket.Management.Client.Properties {
                 resourceCulture = value;
             }
         }
+        
+        internal static System.Drawing.Icon Server {
+            get {
+                object obj = ResourceManager.GetObject("Server", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
+            }
+        }
     }
 }
