@@ -23,6 +23,16 @@ namespace SuperSocket.ClientEngine
             ReceiveBufferSize = receiveBufferSize;
         }
 
+#if SILVERLIGHT && !WINDOWS_PHONE
+        private SocketClientAccessPolicyProtocol m_ClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
+
+        public SocketClientAccessPolicyProtocol ClientAccessPolicyProtocol
+        {
+            get { return m_ClientAccessPolicyProtocol; }
+            set { m_ClientAccessPolicyProtocol = value; }
+        }
+#endif
+
         protected abstract void SocketEventArgsCompleted(object sender, SocketAsyncEventArgs e);
 
         public override void Connect()
@@ -32,6 +42,10 @@ namespace SuperSocket.ClientEngine
 
 #if SILVERLIGHT
             socketEventArgs.RemoteEndPoint = RemoteEndPoint;
+    //WindowsPhone doesn't have this property
+    #if !WINDOWS_PHONE
+            socketEventArgs.SocketClientAccessPolicyProtocol = ClientAccessPolicyProtocol;
+    #endif
 
             if (!Socket.ConnectAsync(SocketType.Stream, ProtocolType.Tcp, socketEventArgs))
                 ProcessConnect(socketEventArgs);
