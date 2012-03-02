@@ -3,6 +3,76 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SuperSocket Server Manager" Height="350" Width="525">
     <Grid>
-        
+        <Grid.Resources>
+            <Style TargetType="StackPanel" x:Key="ServerPanel">
+                <Setter Property="Background" Value="AliceBlue"></Setter>
+            </Style>
+            <Style TargetType="StackPanel" x:Key="InstancePanel">
+                <Setter Property="Background" Value="White"></Setter>
+            </Style>
+            <Style TargetType="Label" x:Key="ServerName">
+                <Setter Property="FontSize" Value="15"></Setter>
+                <Setter Property="FontWeight" Value="Bold"></Setter>
+                <Setter Property="Foreground" Value="DarkBlue"></Setter>
+                <Setter Property="Margin" Value="15,5,5,5"></Setter>
+            </Style>
+            <Style TargetType="Label" x:Key="InstanceName">
+                <Setter Property="FontSize" Value="12"></Setter>
+                <Setter Property="FontWeight" Value="Bold"></Setter>
+                <Setter Property="Foreground" Value="Gray"></Setter>
+                <Setter Property="Margin" Value="15,2,2,2"></Setter>
+            </Style>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300" MinWidth="150" ></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Background="#FF1E68B7">
+            <Label
+               FontSize="25"
+               FontWeight="Bold"
+               Margin="20, 30, 20, 30" Foreground="WhiteSmoke"
+               Content="SuperSocket Server Manager"></Label>
+            <Rectangle Fill="#FFDACEEC" Height="20"></Rectangle>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Grid.Column="0">
+            <StackPanel Background="Gainsboro" >
+                <Label Content="Servers" FontSize="18" FontWeight="Bold" Margin="10, 5, 5, 5"></Label>
+            </StackPanel>
+            <StackPanel Style="{StaticResource ServerPanel}">
+                <Label Content="ServerA" Style="{StaticResource ServerName}"></Label>
+                <StackPanel Style="{StaticResource InstancePanel}">
+                    <Label Content="Instance 1" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 2" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 3" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 4" Style="{StaticResource InstanceName}"></Label>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Style="{StaticResource ServerPanel}">
+                <Label Content="ServerB" Style="{StaticResource ServerName}"></Label>
+                <StackPanel Style="{StaticResource InstancePanel}">
+                    <Label Content="Instance 5" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 6" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 7" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 8" Style="{StaticResource InstanceName}"></Label>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Style="{StaticResource ServerPanel}">
+                <Label Content="ServerC" Style="{StaticResource ServerName}"></Label>
+                <StackPanel Style="{StaticResource InstancePanel}">
+                    <Label Content="Instance 9" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 10" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 11" Style="{StaticResource InstanceName}"></Label>
+                    <Label Content="Instance 12" Style="{StaticResource InstanceName}"></Label>
+                </StackPanel>
+            </StackPanel>
+        </StackPanel>
+        <GridSplitter Width="5" Grid.Row="1"></GridSplitter>
+        <TabControl VerticalAlignment="Stretch" Grid.Row="1" Grid.Column="1">
+        </TabControl>
     </Grid>
 </Window>
