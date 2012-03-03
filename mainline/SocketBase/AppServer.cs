@@ -298,7 +298,7 @@ namespace SuperSocket.SocketBase
             m_PerformanceData.PushRecord(new PerformanceRecord
                 {
                     TotalConnections = m_SessionDict.Count,
-                    TotalHandledCommands = TotalHandledCommands
+                    TotalHandledRequests = TotalHandledRequests
                 });
 
             //User can process the performance data by self

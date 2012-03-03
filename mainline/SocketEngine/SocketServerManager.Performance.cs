@@ -50,10 +50,10 @@ namespace SuperSocket.SocketEngine
                     if (perfSource != null)
                     {
                         var perfData = perfSource.CollectPerformanceData(globalPerfData);
-                        m_PerfLog.InfoFormat("Total connections: {0}, total handled commands: {1}, command handling speed: {2}/s",
+                        m_PerfLog.InfoFormat("Total connections: {0}, total handled requests: {1}, request handling speed: {2}/s",
                             perfData.CurrentRecord.TotalConnections,
-                            perfData.CurrentRecord.TotalHandledCommands,
-                            (perfData.CurrentRecord.TotalHandledCommands - perfData.PreviousRecord.TotalHandledCommands) / perfData.CurrentRecord.RecordSpan);
+                            perfData.CurrentRecord.TotalHandledRequests,
+                            (perfData.CurrentRecord.TotalHandledRequests - perfData.PreviousRecord.TotalHandledRequests) / perfData.CurrentRecord.RecordSpan);
                     }
                 });
         }

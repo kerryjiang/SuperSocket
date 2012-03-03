@@ -32,7 +32,7 @@ namespace SuperSocket.SocketBase
         }
 
         public int TotalConnections { get; set; }
-        public long TotalHandledCommands { get; set; }
+        public long TotalHandledRequests { get; set; }
         public DateTime RecordTime { get; private set; }
         public double RecordSpan { get; set; }
     }

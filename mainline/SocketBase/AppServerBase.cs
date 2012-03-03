@@ -55,11 +55,11 @@ namespace SuperSocket.SocketBase
 
         private Dictionary<string, List<CommandFilterAttribute>> m_CommandFilterDict;
 
-        private long m_TotalHandledCommands = 0;
+        private long m_TotalHandledRequests = 0;
 
-        protected long TotalHandledCommands
+        protected long TotalHandledRequests
         {
-            get { return m_TotalHandledCommands; }
+            get { return m_TotalHandledRequests; }
         }
 
         public AppServerBase()
@@ -661,7 +661,7 @@ namespace SuperSocket.SocketBase
                     Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
             }
 
-            Interlocked.Increment(ref m_TotalHandledCommands);
+            Interlocked.Increment(ref m_TotalHandledRequests);
         }
 
         /// <summary>
