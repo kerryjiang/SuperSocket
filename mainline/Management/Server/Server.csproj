@@ -47,6 +47,8 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Command\LOGIN.cs" />
+    <Compile Include="Command\START.cs" />
+    <Compile Include="Command\STOP.cs" />
     <Compile Include="ManagementServer.cs" />
     <Compile Include="ManagementSession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

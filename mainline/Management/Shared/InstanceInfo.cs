@@ -18,5 +18,7 @@ namespace SuperSocket.Management.Shared
         public int CurrentConnectionCount { get; set; }
 
         public ListenerInfo[] Listeners { get; set; }
+
+        public int RequestHandlingSpeed { get; set; }
     }
 }
