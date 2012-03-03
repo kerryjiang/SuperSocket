@@ -128,7 +128,7 @@ namespace SuperSocket.SocketEngine
 
             m_ServerList = new List<IAppServer>(config.Servers.Count());
             //Initialize servers
-            foreach (var serverConfig in config.Servers)
+            foreach (var serverConfig in config.Servers.OrderBy(s => s.StartupOrder))
             {
                 if (string.IsNullOrEmpty(serverConfig.Name))
                 {

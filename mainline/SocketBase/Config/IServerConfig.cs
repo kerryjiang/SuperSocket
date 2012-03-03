@@ -133,6 +133,12 @@ namespace SuperSocket.SocketBase.Config
         int ListenBacklog { get; }
 
 
+        /// <summary>
+        /// Gets the startup order of the server instance.
+        /// </summary>
+        int StartupOrder { get; }
+
+
         TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new();
 

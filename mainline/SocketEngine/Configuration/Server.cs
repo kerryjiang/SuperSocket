@@ -256,6 +256,14 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        [ConfigurationProperty("startupOrder", IsRequired = false, DefaultValue = 0)]
+        public int StartupOrder
+        {
+            get
+            {
+                return (int)this["startupOrder"];
+            }
+        }
 
         [ConfigurationProperty("listeners", IsRequired = false)]
         public ListenerConfigCollection Listeners
