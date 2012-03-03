@@ -22,7 +22,7 @@ namespace SuperSocket.Management.Client
     {
         private NotifyIcon m_NotifyIcon;
 
-        private bool m_QuitFromSystemTray = false;
+        private bool m_ForceQuit = false;
 
         public MainWindow()
         {
@@ -46,7 +46,7 @@ namespace SuperSocket.Management.Client
 
         void quitMenuItem_Click(object sender, EventArgs e)
         {
-            m_QuitFromSystemTray = true;
+            m_ForceQuit = true;
             this.Close();
         }
 
@@ -66,7 +66,7 @@ namespace SuperSocket.Management.Client
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
-            if (!m_QuitFromSystemTray)
+            if (!m_ForceQuit)
             {
                 e.Cancel = true;
                 this.Hide();
@@ -84,6 +84,12 @@ namespace SuperSocket.Management.Client
             }
 
             base.OnClosed(e);
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            m_ForceQuit = true;
+            this.Close();
         }
     }
 }

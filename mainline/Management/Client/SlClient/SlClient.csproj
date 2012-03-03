@@ -75,11 +75,11 @@
     <Compile Include="..\..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="..\..\Shared\InstanceInfo.cs">
+      <Link>Shared\InstanceInfo.cs</Link>
+    </Compile>
     <Compile Include="..\..\Shared\ListenerInfo.cs">
       <Link>Shared\ListenerInfo.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Shared\ServerInfo.cs">
-      <Link>Shared\ServerInfo.cs</Link>
     </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>

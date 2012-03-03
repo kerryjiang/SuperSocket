@@ -42,6 +42,7 @@
     <Reference Include="GalaSoft.MvvmLight.WPF4">
       <HintPath>..\..\Reference\GalaSoft.MvvmLight.WPF4.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationFramework.Aero" />
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -64,11 +65,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="CircularProgressBar.xaml.cs">
+      <DependentUpon>CircularProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Converter\ViewModelConverter.cs" />
+    <Compile Include="Messages.cs" />
+    <Compile Include="Model\InstanceModel.cs" />
+    <Compile Include="Model\ServerModel.cs" />
     <Compile Include="ServerEdit.xaml.cs">
       <DependentUpon>ServerEdit.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ServerList.xaml.cs">
+      <DependentUpon>ServerList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="InstanceGroupDescription.cs" />
+    <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
+    <Page Include="CircularProgressBar.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -85,6 +102,14 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ServerEdit.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ServerList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Default\Skin.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

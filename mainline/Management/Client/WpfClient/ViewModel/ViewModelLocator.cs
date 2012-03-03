@@ -49,7 +49,7 @@ namespace SuperSocket.Management.Client.ViewModel
     {
         static ViewModelLocator()
         {
-            //RegisterViewModelFactory<HomeViewModel>();
+            RegisterViewModelFactory<MainViewModel>();
             //RegisterViewModelFactory<MainViewModel>();
             //RegisterViewModelFactory<LoginViewModel>();
         }

@@ -6,6 +6,9 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes\Default\Skin.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
             <vm:ViewModelLocator x:Key="ViewModelLocator" />
             <cv:ViewModelConverter x:Key="ViewModelConverter" />
         </ResourceDictionary>
