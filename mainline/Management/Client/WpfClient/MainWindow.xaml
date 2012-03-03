@@ -14,7 +14,6 @@
                 <ContextMenu  x:Key="InstanceMenu" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
                     <MenuItem Header="Start" />
                     <MenuItem Header="Stop" />
-                    <MenuItem Header="Remove" />
                 </ContextMenu>
                 <Style x:Key="InstanceRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
                     <Setter Property="ContextMenu" Value="{StaticResource InstanceMenu}" />
