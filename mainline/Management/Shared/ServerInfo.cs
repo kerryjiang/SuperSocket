@@ -7,7 +7,7 @@ namespace SuperSocket.Management.Shared
 {
     public class ServerInfo
     {
-        public decimal CpuUsage { get; set; }
+        public double CpuUsage { get; set; }
 
         public int AvailableWorkingThreads { get; set; }
 

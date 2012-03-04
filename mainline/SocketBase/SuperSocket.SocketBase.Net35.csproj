@@ -83,6 +83,7 @@
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />
     <Compile Include="IConnectionFilter.cs" />
+    <Compile Include="IServerContainer.cs" />
     <Compile Include="ISessionBase.cs" />
     <Compile Include="ISocketServer.cs" />
     <Compile Include="ISocketServerFactory.cs" />
@@ -90,6 +91,8 @@
     <Compile Include="ListenerInfo.cs" />
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="PerformanceData.cs" />
+    <Compile Include="PerformanceDataInfo.cs" />
+    <Compile Include="PermformanceDataEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="Protocol\BinaryRequestInfo.cs" />
@@ -106,6 +109,7 @@
     <Compile Include="Protocol\UdpRequestInfo.cs" />
     <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="ServiceLocator.cs" />
     <Compile Include="SessionStatus.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>

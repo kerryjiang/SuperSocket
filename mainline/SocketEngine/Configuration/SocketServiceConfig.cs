@@ -36,15 +36,6 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        [ConfigurationProperty("credential", IsRequired = false)]
-        public CredentialConfig Credential
-        {
-            get
-            {
-                return this["credential"] as CredentialConfig;
-            }
-        }
-
         [ConfigurationProperty("maxWorkingThreads", IsRequired = false, DefaultValue = -1)]
         public int MaxWorkingThreads
         {
@@ -106,12 +97,7 @@ namespace SuperSocket.SocketEngine.Configuration
                 return this.ConnectionFilters;
             }
         }
-      
-        ICredentialConfig IRootConfig.CredentialConfig
-        {
-            get { return this.Credential; }
-        }
-        
+
         #endregion
     }
 }

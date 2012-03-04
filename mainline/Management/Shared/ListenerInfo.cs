@@ -8,7 +8,7 @@ namespace SuperSocket.Management.Shared
 {
     public class ListenerInfo
     {
-        public IPEndPoint EndPoint { get; set; }
+        public string EndPoint { get; set; }
 
         public int BackLog { get; set; }
 

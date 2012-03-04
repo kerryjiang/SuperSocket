@@ -23,8 +23,6 @@ namespace SuperSocket.SocketBase.Config
 
         #region IRootConfig Members
 
-        public ICredentialConfig CredentialConfig { get; set; }
-
         public int MaxWorkingThreads { get; set; }
 
         public int MinWorkingThreads { get; set; }

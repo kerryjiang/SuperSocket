@@ -67,6 +67,23 @@ namespace SuperSocket.SocketBase
         bool Start();
 
         /// <summary>
+        /// Gets the started time.
+        /// </summary>
+        /// <value>
+        /// The started time.
+        /// </value>
+        DateTime StartedTime { get; }
+
+
+        /// <summary>
+        /// Gets or sets the listeners.
+        /// </summary>
+        /// <value>
+        /// The listeners.
+        /// </value>
+        ListenerInfo[] Listeners { get; }
+
+        /// <summary>
         /// Stops this server instance.
         /// </summary>
         void Stop();
@@ -91,6 +108,13 @@ namespace SuperSocket.SocketBase
         /// </summary>
         int SessionCount { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is running.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
+        /// </value>
+        bool IsRunning { get; }
 
         /// <summary>
         /// Creates the app session.

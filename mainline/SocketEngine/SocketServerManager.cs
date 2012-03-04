@@ -32,6 +32,8 @@ namespace SuperSocket.SocketEngine
 
         private static ILog m_GlobalLog;
 
+        private static SuperSocketServerContainer m_ServerContainer;
+
         /// <summary>
         /// Indicate whether the server has been initialized
         /// </summary>
@@ -40,6 +42,8 @@ namespace SuperSocket.SocketEngine
         static SocketServerManager()
         {
             Platform.Initialize();
+            m_ServerContainer = new SuperSocketServerContainer();
+            ServiceLocator.RegisterService<IServerContainer>(m_ServerContainer);
         }
 
         /// <summary>
@@ -273,7 +277,8 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            StartPerformanceLog();
+            m_ServerContainer.LoadServers(m_ServerList);
+            m_ServerContainer.StartPerformanceLog();
 
             return true;
         }
@@ -290,7 +295,7 @@ namespace SuperSocket.SocketEngine
                     m_GlobalLog.Info(server.Name + " has been stopped");
             }
 
-            StopPerformanceLog();
+            m_ServerContainer.StopPerformanceLog();
         }
 
         public static IServiceConfig GetServiceConfig(string name)
@@ -305,10 +310,9 @@ namespace SuperSocket.SocketEngine
             return null;
         }
 
-
         public static IAppServer GetServerByName(string name)
         {
-            return m_ServerList.SingleOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            return m_ServerContainer.GetServerByName(name);
         }
     }
 }

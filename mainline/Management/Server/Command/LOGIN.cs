@@ -12,7 +12,7 @@ namespace SuperSocket.Management.Server.Command
     {
         protected override void ExecuteJsonCommand(ManagementSession session, LoginInfo commandInfo)
         {
-            
+            SendJsonResponse(session, new LoginResult { Result = true, ServerInfo = session.AppServer.CurrentServerInfo });
         }
     }
 }

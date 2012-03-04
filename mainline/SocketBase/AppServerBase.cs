@@ -27,8 +27,6 @@ namespace SuperSocket.SocketBase
     {
         protected readonly TAppSession NullAppSession = default(TAppSession);
 
-        private ListenerInfo[] m_Listeners;
-
         public IServerConfig Config { get; private set; }
 
         public virtual X509Certificate Certificate { get; protected set; }
@@ -61,6 +59,15 @@ namespace SuperSocket.SocketBase
         {
             get { return m_TotalHandledRequests; }
         }
+
+        private ListenerInfo[] m_Listeners;
+
+        public ListenerInfo[] Listeners
+        {
+            get { return m_Listeners; }
+        }
+
+        public DateTime StartedTime { get; private set; }
 
         public AppServerBase()
         {
@@ -527,6 +534,8 @@ namespace SuperSocket.SocketBase
             if (!m_SocketServer.Start())
                 return false;
 
+            StartedTime = DateTime.Now;
+
             OnStartup();
 
             return true;
@@ -786,6 +795,12 @@ namespace SuperSocket.SocketBase
             {
                 throw new NotSupportedException();
             }
+        }
+
+        protected T GetService<T>()
+            where T : class
+        {
+            return ServiceLocator.GetService<T>();
         }
 
         #region IDisposable Members

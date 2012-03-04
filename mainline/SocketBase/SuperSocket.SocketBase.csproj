@@ -76,7 +76,10 @@
     <Compile Include="CommandHandler.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
+    <Compile Include="IServerContainer.cs" />
     <Compile Include="ListenerInfo.cs" />
+    <Compile Include="PerformanceDataInfo.cs" />
+    <Compile Include="PermformanceDataEventArgs.cs" />
     <Compile Include="Protocol\BinaryRequestInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />
@@ -98,13 +101,13 @@
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IConfig.cs" />
     <Compile Include="Config\IConnectionFilterConfig.cs" />
-    <Compile Include="Config\ICredentialConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Protocol\IRequestFilter.cs" />
+    <Compile Include="ServiceLocator.cs" />
     <Compile Include="SessionStatus.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />

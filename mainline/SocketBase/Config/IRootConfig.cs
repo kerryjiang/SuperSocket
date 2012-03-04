@@ -7,8 +7,6 @@ namespace SuperSocket.SocketBase.Config
 {
     public interface IRootConfig
     {
-        ICredentialConfig CredentialConfig { get; }
-
         int MaxWorkingThreads { get; }
 
         int MinWorkingThreads { get; }

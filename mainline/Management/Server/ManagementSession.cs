@@ -9,6 +9,9 @@ namespace SuperSocket.Management.Server
 {
     public class ManagementSession : WebSocketSession<ManagementSession>
     {
-
+        public new ManagementServer AppServer
+        {
+            get { return (ManagementServer)base.AppServer; }
+        }
     }
 }
