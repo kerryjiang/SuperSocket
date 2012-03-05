@@ -111,6 +111,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Request Handling Speed (#/second)" Binding="{Binding Instance.RequestHandlingSpeed}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>
