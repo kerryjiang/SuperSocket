@@ -17,7 +17,13 @@ namespace SuperSocket.Facility.PolicyServer
             FixRequestSize = fixRequestSize;
         }
 
-        public IRequestFilter<BinaryRequestInfo> CreateFilter(IAppServer appServer)
+        /// <summary>
+        /// Creates the request filter.
+        /// </summary>
+        /// <param name="appServer">The app server.</param>
+        /// <param name="socketSession">The socket session.</param>
+        /// <returns>the new created request filer assosiated with this socketSession</returns>
+        public IRequestFilter<BinaryRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
         {
             return new FixSizeRequestFilter(FixRequestSize);
         }

@@ -736,7 +736,7 @@ namespace SuperSocket.SocketBase
                 return NullAppSession;
 
             var appSession = new TAppSession();
-            appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this));
+            appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this, socketSession));
             socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);
 
             return appSession;

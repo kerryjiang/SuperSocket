@@ -9,7 +9,13 @@ namespace SuperSocket.SocketBase.Protocol
         where TRequestInfo : IRequestInfo
         where TRequestFilter : IRequestFilter<TRequestInfo>, new()
     {
-        public IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer)
+        /// <summary>
+        /// Creates the request filter.
+        /// </summary>
+        /// <param name="appServer">The app server.</param>
+        /// <param name="socketSession">The socket session.</param>
+        /// <returns>the new created request filer assosiated with this socketSession</returns>
+        public IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
         {
             return new TRequestFilter();
         }
