@@ -9,32 +9,21 @@ using SuperSocket.Common;
 
 namespace SuperSocket.Management.Server.Command
 {
-    public class START : JsonSubCommand<ManagementSession, string>
+    public class START : AsyncJsonSubCommand<ManagementSession, string>
     {
-        protected override void ExecuteJsonCommand(ManagementSession session, string commandInfo)
+        protected override void ExecuteAsyncJsonCommand(ManagementSession session, string token, string commandInfo)
         {
             var server = session.AppServer.GetServerByName(commandInfo);
 
             if (server == null)
             {
-                SendJsonResponse(session, new StartResult { Result = false, Message = string.Format("The server instance \"{0}\" doesn't exist", commandInfo) });
+                SendJsonResponse(session, token, new StartResult { Result = false, Message = string.Format("The server instance \"{0}\" doesn't exist", commandInfo) });
                 return;
             }
 
-            Async.Run(StartServer, new { Session = session, Server = server, Token = session.CurrentToken });
-        }
-
-        private void StartServer(object state)
-        {
-            var param = (dynamic)state;
-
-            var session = param.Session;
-            var token = param.Token;
-            var server = param.Server;
-
             server.Start();
 
-            SendJsonResponseWithToken(session, token, new StartResult { Result = true, ServerInfo = session.AppServer.CurrentServerInfo });
+            SendJsonResponse(session, token, new StartResult { Result = true, ServerInfo = session.AppServer.CurrentServerInfo });
         }
     }
 }
