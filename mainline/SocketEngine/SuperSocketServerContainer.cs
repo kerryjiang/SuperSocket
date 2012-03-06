@@ -80,7 +80,7 @@ namespace SuperSocket.SocketEngine
         private DateTime m_PrevCheckingTime = DateTime.MinValue;
         private double m_CpuUsgae = 0;
         private readonly long m_MbUnit = 1024 * 1024;
-        private ILog m_PerfLog = LogFactoryProvider.LogFactory.GetLog("Perf");
+        private ILog m_PerfLog;
 
         private void OnPerformanceTimerCallback(object state)
         {
@@ -150,6 +150,7 @@ namespace SuperSocket.SocketEngine
 
         internal void StartPerformanceLog()
         {
+            m_PerfLog = LogFactoryProvider.LogFactory.GetLog("Perf");
             m_PerformanceTimer.Change(m_TimerInterval, m_TimerInterval);
             m_CpuUsageTimer.Change(m_CpuTimerInterval, m_CpuTimerInterval);
         }
