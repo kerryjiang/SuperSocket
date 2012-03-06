@@ -1,6 +1,7 @@
 ﻿<Window xmlns:my="clr-namespace:SuperSocket.Management.Client"  x:Class="SuperSocket.Management.Client.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:selector="clr-namespace:SuperSocket.Management.Client.Selector"
         Title="SuperSocket Server Manager" Height="350" Width="525"
         DataContext="{Binding ViewModelSource, Converter={StaticResource ViewModelConverter}, ConverterParameter=MainViewModel, Source={StaticResource ViewModelLocator}}">
     <Grid>
@@ -18,6 +19,10 @@
                 <Style x:Key="InstanceRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
                     <Setter Property="ContextMenu" Value="{StaticResource InstanceMenu}" />
                 </Style>
+                <Style x:Key="LoadingRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
+                    <Setter Property="Template" Value="{StaticResource LoadingRowTemplate}" />
+                </Style>
+                <selector:InstanceRowStyleSelector x:Key="ServerRowStyleSelector" NormalStyle="{StaticResource InstanceRowStyle}" LoadingStyle="{StaticResource LoadingRowStyle}"></selector:InstanceRowStyleSelector> 
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
@@ -50,7 +55,7 @@
         <DataGrid Grid.Row="1" ItemsSource="{Binding Source={StaticResource InstanceSource}}"
                   SelectionMode="Single"
                   VerticalAlignment="Stretch"
-                  RowStyle="{StaticResource InstanceRowStyle}"
+                  RowStyleSelector="{StaticResource ServerRowStyleSelector}"
                   SelectionUnit="FullRow"
                   AutoGenerateColumns="False" CanUserAddRows="False">
             <DataGrid.Resources>

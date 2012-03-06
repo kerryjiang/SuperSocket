@@ -1,6 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:this="clr-namespace:SuperSocket.Management.Client.Themes.Default">
     <!-- Theme -->
     <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="White" />
     <SolidColorBrush x:Key="ThemeForegroundBrush" Color="Black" />
@@ -190,6 +191,26 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <!--Loading row template-->
+    <ControlTemplate x:Key="LoadingRowTemplate" TargetType="{x:Type DataGridRow}">
+        <Border x:Name="DGR_Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="True">
+            <primitives:SelectiveScrollingGrid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <this:HorizonProgressBar Grid.Column="1" HorizontalAlignment="Left" Margin="20" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                <Rectangle Height="1" HorizontalAlignment="Stretch" 
+                    x:Name="BottomGridLine" 
+                    Fill="{StaticResource HorizontalVerticalGridLinesBrush}" 
+                    Grid.Row="1" />
+            </primitives:SelectiveScrollingGrid>
+        </Border>
+    </ControlTemplate>
     <!--DataGrid -->
     <Style TargetType='{x:Type DataGrid}'>
         <Setter Property='ScrollViewer.CanContentScroll' Value='False' />
@@ -214,7 +235,6 @@
         <Setter Property="EnableRowVirtualization" Value="True" />
         <Setter Property='RowDetailsVisibilityMode' Value='VisibleWhenSelected' />
         <Setter Property='CellStyle' Value='{StaticResource CellStyle}' />
-        <Setter Property='RowStyle' Value='{StaticResource RowStyle}' />
         <Setter Property='VerticalAlignment' Value='Center' />
         <Setter Property='FontFamily' Value='Verdana' />
         <Setter Property='FontSize' Value='11' />

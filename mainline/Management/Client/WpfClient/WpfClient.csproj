@@ -65,14 +65,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="CircularProgressBar.xaml.cs">
-      <DependentUpon>CircularProgressBar.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Converter\ViewModelConverter.cs" />
     <Compile Include="Messages.cs" />
     <Compile Include="Model\InstanceModel.cs" />
+    <Compile Include="Model\LoadingInstanceModel.cs" />
     <Compile Include="Model\ServerModel.cs" />
+    <Compile Include="Selector\InstanceRowStyleSelector.cs" />
     <Compile Include="ServerEdit.xaml.cs">
       <DependentUpon>ServerEdit.xaml</DependentUpon>
     </Compile>
@@ -80,12 +79,14 @@
       <DependentUpon>ServerList.xaml</DependentUpon>
     </Compile>
     <Compile Include="InstanceGroupDescription.cs" />
+    <Compile Include="Themes\Default\CircularProgressBar.xaml.cs">
+      <DependentUpon>CircularProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Themes\Default\HorizonProgressBar.xaml.cs">
+      <DependentUpon>HorizonProgressBar.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
-    <Page Include="CircularProgressBar.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -106,6 +107,14 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="ServerList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Default\CircularProgressBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Default\HorizonProgressBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -13,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Animation;
 
-namespace SuperSocket.Management.Client
+namespace SuperSocket.Management.Client.Themes.Default
 {
     /// <summary>
     /// Interaction logic for CircularProgressBar.xaml

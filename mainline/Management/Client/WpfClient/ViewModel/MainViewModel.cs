@@ -19,41 +19,12 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private void StartGetServers()
         {
-            var servers = new List<InstanceInfo>
-            {
-                new InstanceInfo
-                {
-                    Name = "EchoServer",
-                    MaxConnectionCount = 1000,
-                    CurrentConnectionCount = 10,
-                    IsRunning = false,
-                    StartedTime = DateTime.Now
-                },
-                new InstanceInfo
-                {
-                    Name = "SuperWebSocket",
-                    MaxConnectionCount = 1000,
-                    CurrentConnectionCount = 10,
-                    IsRunning = false,
-                    StartedTime = DateTime.Now
-                },
-                new InstanceInfo
-                {
-                    Name = "Policy Server",
-                    MaxConnectionCount = 1000,
-                    CurrentConnectionCount = 10,
-                    IsRunning = false,
-                    StartedTime = DateTime.Now
-                }
-            };
-
             var serverModel = new ServerModel { Name = "localhost" };
 
-            m_Instances = new ObservableCollection<InstanceModel>(servers.Select(s => new InstanceModel
-                {
-                    Server = serverModel,
-                    Instance = s
-                }));
+            m_Instances = new ObservableCollection<InstanceModel>(new List<InstanceModel> { new LoadingInstanceModel
+            {
+                Server = serverModel
+            } });
         }
 
         private ObservableCollection<InstanceModel> m_Instances;

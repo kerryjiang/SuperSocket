@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SuperSocket.Management.Client.CircularProgressBar"
+﻿<UserControl x:Class="SuperSocket.Management.Client.Themes.Default.CircularProgressBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -41,7 +41,7 @@
                         <Storyboard>
                             <DoubleAnimation Storyboard.TargetName="SpinnerRotate" 
                                  Storyboard.TargetProperty="(RotateTransform.Angle)" 
-                                 From="0" To="360" Duration="0:0:01" 
+                                 From="0" To="360" Duration="0:0:02" 
                                  RepeatBehavior="Forever" />
                         </Storyboard>
                     </BeginStoryboard>

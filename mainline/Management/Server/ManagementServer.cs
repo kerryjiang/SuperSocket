@@ -17,6 +17,8 @@ namespace SuperSocket.Management.Server
 
         private string m_ManagePassword;
 
+        private string m_ManageUser;
+
         public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<WebSocketRequestInfo> protocol)
         {
             if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
@@ -31,6 +33,16 @@ namespace SuperSocket.Management.Server
             }
 
             m_ManagePassword = password;
+
+            var user = config.Options.GetValue("manageUser");
+
+            if (string.IsNullOrEmpty(user))
+            {
+                Logger.Error("manageUser is required in configuration!");
+                return false;
+            }
+
+            m_ManageUser = user;
 
             return true;
         }
