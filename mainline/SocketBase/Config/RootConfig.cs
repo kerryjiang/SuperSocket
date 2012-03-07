@@ -19,17 +19,36 @@ namespace SuperSocket.SocketBase.Config
             ThreadPool.GetMinThreads(out minWorkingThread, out minCompletionPortThreads);
             MinWorkingThreads = minWorkingThread;
             MinCompletionPortThreads = minCompletionPortThreads;
+
+            PerformanceDataCollectInterval = 60;
         }
 
         #region IRootConfig Members
 
+        /// <summary>
+        /// Gets/Sets the max working threads.
+        /// </summary>
         public int MaxWorkingThreads { get; set; }
 
+        /// <summary>
+        /// Gets/sets the min working threads.
+        /// </summary>
         public int MinWorkingThreads { get; set; }
 
+        /// <summary>
+        /// Gets/sets the max completion port threads.
+        /// </summary>
         public int MaxCompletionPortThreads { get; set; }
 
+        /// <summary>
+        /// Gets/sets the min completion port threads.
+        /// </summary>
         public int MinCompletionPortThreads { get; set; }
+
+        /// <summary>
+        /// Gets/sets the performance data collect interval, in seconds.
+        /// </summary>
+        public int PerformanceDataCollectInterval { get; set; }
 
         #endregion
     }

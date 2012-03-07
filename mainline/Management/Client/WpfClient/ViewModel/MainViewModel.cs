@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
 using SuperSocket.Management.Shared;
-using SuperSocket.Management.Client.Model;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
@@ -19,17 +18,17 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private void StartGetServers()
         {
-            var serverModel = new ServerModel { Name = "localhost" };
+            var serverModel = new ServerViewModel { Name = "localhost" };
 
-            m_Instances = new ObservableCollection<InstanceModel>(new List<InstanceModel> { new LoadingInstanceModel
+            m_Instances = new ObservableCollection<InstanceRowViewModel>(new List<InstanceRowViewModel> { new LoadingInstanceRowViewModel
             {
                 Server = serverModel
             } });
         }
 
-        private ObservableCollection<InstanceModel> m_Instances;
+        private ObservableCollection<InstanceRowViewModel> m_Instances;
 
-        public ObservableCollection<InstanceModel> Instances
+        public ObservableCollection<InstanceRowViewModel> Instances
         {
             get { return m_Instances; }
             set

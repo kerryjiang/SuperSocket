@@ -42,8 +42,6 @@ namespace SuperSocket.SocketEngine
         static SocketServerManager()
         {
             Platform.Initialize();
-            m_ServerContainer = new SuperSocketServerContainer();
-            ServiceLocator.RegisterService<IServerContainer>(m_ServerContainer);
         }
 
         /// <summary>
@@ -62,6 +60,9 @@ namespace SuperSocket.SocketEngine
             LogFactoryProvider.Initialize(logFactory);
 
             m_GlobalLog = LogFactoryProvider.GlobalLog;
+
+            m_ServerContainer = new SuperSocketServerContainer(config);
+            ServiceLocator.RegisterService<IServerContainer>(m_ServerContainer);
 
             //Initialize services
             m_ServiceDict = new Dictionary<string, Type>(config.Services.Count(), StringComparer.OrdinalIgnoreCase);

@@ -6,6 +6,7 @@ using SuperSocket.SocketBase;
 using System.Threading;
 using SuperSocket.Common.Logging;
 using System.Diagnostics;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine
 {
@@ -15,8 +16,9 @@ namespace SuperSocket.SocketEngine
 
         private List<IAppServer> m_Servers;
 
-        public SuperSocketServerContainer()
+        public SuperSocketServerContainer(IRootConfig config)
         {
+            m_TimerInterval = config.PerformanceDataCollectInterval * 1000;
             m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
             m_CpuUsageTimer = new Timer(OnCpuUsageTimerCallback);
         }
@@ -74,7 +76,7 @@ namespace SuperSocket.SocketEngine
 
         private Timer m_PerformanceTimer;
         private Timer m_CpuUsageTimer;
-        private readonly int m_TimerInterval = 1000 * 60;//1 minute
+        private readonly int m_TimerInterval;
         private readonly int m_CpuTimerInterval = 1000;//1 second
         private double m_PrevTotalProcessorTime = 0;
         private DateTime m_PrevCheckingTime = DateTime.MinValue;

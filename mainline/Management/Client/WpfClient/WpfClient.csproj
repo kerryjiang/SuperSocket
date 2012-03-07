@@ -65,12 +65,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Config\ClientAppConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Converter\ViewModelConverter.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Messages.cs" />
-    <Compile Include="Model\InstanceModel.cs" />
-    <Compile Include="Model\LoadingInstanceModel.cs" />
-    <Compile Include="Model\ServerModel.cs" />
+    <Compile Include="ViewModel\InstanceRowViewModel.cs" />
+    <Compile Include="ViewModel\InstanceViewModel.cs" />
+    <Compile Include="ViewModel\LoadingInstanceRowViewModel.cs" />
     <Compile Include="Selector\InstanceRowStyleSelector.cs" />
     <Compile Include="ServerEdit.xaml.cs">
       <DependentUpon>ServerEdit.xaml</DependentUpon>
@@ -86,6 +88,7 @@
       <DependentUpon>HorizonProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\ServerViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

@@ -71,6 +71,18 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["minCompletionPortThreads"];
             }
         }
+
+        /// <summary>
+        /// Gets the performance data collect interval, in seconds.
+        /// </summary>
+        [ConfigurationProperty("performanceDataCollectInterval", IsRequired = false, DefaultValue = 60)]
+        public int PerformanceDataCollectInterval
+        {
+            get
+            {
+                return (int)this["performanceDataCollectInterval"];
+            }
+        }
         
         #region IConfig implementation
         

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using SuperSocket.Management.Client.Model;
+using SuperSocket.Management.Client.ViewModel;
 
 namespace SuperSocket.Management.Client.Selector
 {
@@ -16,7 +16,7 @@ namespace SuperSocket.Management.Client.Selector
 
         public override Style SelectStyle(object item, System.Windows.DependencyObject container)
         {
-            if (item is LoadingInstanceModel)
+            if (item is LoadingInstanceRowViewModel)
                 return LoadingStyle;
             else
                 return NormalStyle;

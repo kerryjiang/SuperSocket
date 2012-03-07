@@ -8,6 +8,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperWebSocket;
 using SuperSocket.Management.Shared;
+using Newtonsoft.Json;
 
 namespace SuperSocket.Management.Server
 {
@@ -18,6 +19,8 @@ namespace SuperSocket.Management.Server
         private string m_ManagePassword;
 
         private string m_ManageUser;
+
+        private string m_SecurityKey;
 
         public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<WebSocketRequestInfo> protocol)
         {
@@ -43,6 +46,16 @@ namespace SuperSocket.Management.Server
             }
 
             m_ManageUser = user;
+
+            var securityKey = config.Options.GetValue("securityKey");
+
+            if (string.IsNullOrEmpty(securityKey))
+            {
+                Logger.Error("securityKey is required in configuration!");
+                return false;
+            }
+
+            m_SecurityKey = securityKey;
 
             return true;
         }
@@ -95,6 +108,13 @@ namespace SuperSocket.Management.Server
             }
 
             CurrentServerInfo = m_ServerState.ToServerInfo();
+
+            var content = CommandName.Update + " " + JsonConvert.SerializeObject(CurrentServerInfo);
+
+            foreach (var s in GetAllSessions())
+            {
+                s.SendResponseAsync(content);
+            }
         }
 
         void m_ServerContainer_Loaded(object sender, EventArgs e)

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using SuperSocket.Management.Client.Model;
+using SuperSocket.Management.Client.ViewModel;
 
 namespace SuperSocket.Management.Client
 {
@@ -11,7 +11,7 @@ namespace SuperSocket.Management.Client
     {
         public override object GroupNameFromItem(object item, int level, System.Globalization.CultureInfo culture)
         {
-            var instance = item as InstanceModel;
+            var instance = item as InstanceRowViewModel;
             return instance.Server;
         }
     }
