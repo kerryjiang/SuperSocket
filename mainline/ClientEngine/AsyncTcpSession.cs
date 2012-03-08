@@ -11,6 +11,7 @@ namespace SuperSocket.ClientEngine
     public class AsyncTcpSession : TcpClientSession
     {
         private SocketAsyncEventArgs m_SocketEventArgs;
+        private SocketAsyncEventArgs m_SocketEventArgsSend;
 
         private byte[] m_ReceiveBuffer;
 
@@ -101,8 +102,10 @@ namespace SuperSocket.ClientEngine
             }
             catch(Exception e)
             {
-                if(EnsureSocketClosed())
+                if (EnsureSocketClosed())
+                {
                     OnError(e);
+                }
                 return;
             }
 
@@ -112,16 +115,19 @@ namespace SuperSocket.ClientEngine
 
         protected override void SendInternal(ArraySegment<byte> segment)
         {
-            var args = new SocketAsyncEventArgs();
+            if (m_SocketEventArgsSend == null)
+            {
+                m_SocketEventArgsSend = new SocketAsyncEventArgs();
+                m_SocketEventArgsSend.Completed += new EventHandler<SocketAsyncEventArgs>(Sending_Completed);
+            }
 
-            args.SetBuffer(segment.Array, segment.Offset, segment.Count);
-            args.Completed += new EventHandler<SocketAsyncEventArgs>(Sending_Completed);
+            m_SocketEventArgsSend.SetBuffer(segment.Array, segment.Offset, segment.Count);
 
             bool async;
 
             try
             {
-                async = Client.SendAsync(args);
+                async = Client.SendAsync(m_SocketEventArgsSend);
             }
             catch (Exception e)
             {
@@ -131,7 +137,7 @@ namespace SuperSocket.ClientEngine
             }
 
             if (!async)
-                Sending_Completed(Client, args);
+                Sending_Completed(Client, m_SocketEventArgsSend);
         }
 
         void Sending_Completed(object sender, SocketAsyncEventArgs e)
