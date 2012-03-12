@@ -56,7 +56,9 @@ namespace SuperSocket.Common
             if (OptionElements == null)
                 OptionElements = new NameValueCollection();
 
-            OptionElements.Add(elementName, reader.ReadInnerXml());
+            //Because ConfigurationElement.DeserializeElemenet() method only accept outerXml and in MS.NET, it accept innerXml,
+            //so there is a hack over here
+            OptionElements.Add(elementName, Platform.IsMono ? reader.ReadOuterXml() : reader.ReadInnerXml());
 
             return true;
         }

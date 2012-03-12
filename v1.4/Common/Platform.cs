@@ -18,6 +18,7 @@ namespace SuperSocket.Common
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.IOControl(IOControlCode.KeepAliveValues, null, null);
                 SupportSocketIOControlByCodeEnum = true;
+                IsMono = false;
             }
             catch (NotSupportedException)
             {
@@ -31,8 +32,13 @@ namespace SuperSocket.Common
             {
                 SupportSocketIOControlByCodeEnum = true;
             }
+
+            Type t = Type.GetType("Mono.Runtime");
+            IsMono = t != null;
         }
 
         public static bool SupportSocketIOControlByCodeEnum { get; private set; }
+
+        public static bool IsMono { get; private set; }
     }
 }

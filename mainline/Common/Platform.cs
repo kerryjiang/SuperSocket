@@ -31,8 +31,13 @@ namespace SuperSocket.Common
             {
                 SupportSocketIOControlByCodeEnum = true;
             }
+
+            Type t = Type.GetType("Mono.Runtime");
+            IsMono = t != null;
         }
 
         public static bool SupportSocketIOControlByCodeEnum { get; private set; }
+
+        public static bool IsMono { get; private set; }
     }
 }
