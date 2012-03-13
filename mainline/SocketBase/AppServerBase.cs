@@ -631,12 +631,15 @@ namespace SuperSocket.SocketBase
 
                 if (command != null)
                 {
-                    List<CommandFilterAttribute> commandFilters;
-                    m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
+                    List<CommandFilterAttribute> commandFilters = null;
+
+                    if (m_CommandFilterDict != null)
+                        m_CommandFilterDict.TryGetValue(command.Name, out commandFilters);
 
                     session.CurrentCommand = requestInfo.Key;
 
-                    ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
+                    if (commandFilters != null)
+                        ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
 
                     //Command filter may close the session,
                     //so detect whether session is connected before execute command
@@ -644,7 +647,8 @@ namespace SuperSocket.SocketBase
                     {
                         command.ExecuteCommand(session, requestInfo);
 
-                        ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
+                        if (commandFilters != null)
+                            ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
                     }
 
                     session.PrevCommand = requestInfo.Key;

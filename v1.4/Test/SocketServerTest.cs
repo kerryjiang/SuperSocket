@@ -83,9 +83,6 @@ namespace SuperSocket.Test
             var serverY = new TestServer(new TestCommandParser());
             serverY.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
-            //var serverZ = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
-            //serverZ.Setup(m_Config);
-
             m_Servers[m_Config] = new TestServer[]
             {
                 serverX,
@@ -122,7 +119,7 @@ namespace SuperSocket.Test
                 catch (Exception)
                 {
                     return false;
-                }                
+                }
             }
         }
 
@@ -149,12 +146,6 @@ namespace SuperSocket.Test
                 ServerY.Stop();
                 Console.WriteLine("Socket server Y has been stopped!");
             }
-
-            //if (ServerZ != null && ServerZ.IsRunning)
-            //{
-            //    ServerZ.Stop();
-            //    Console.WriteLine("Socket server Z has been stopped!");
-            //}
         }
 
         protected virtual Socket CreateClientSocket()
@@ -210,7 +201,7 @@ namespace SuperSocket.Test
 
             try
             {
-                server.Start();                
+                server.Start();
 
                 EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -227,7 +218,7 @@ namespace SuperSocket.Test
                 try
                 {
                     using (Socket trySocket = CreateClientSocket())
-                    {                        
+                    {
                         trySocket.Connect(serverAddress);
                         var innerSocketStream = new NetworkStream(trySocket);
                         innerSocketStream.ReadTimeout = 500;
@@ -317,7 +308,7 @@ namespace SuperSocket.Test
 
                     Random rd = new Random(1);
 
-                    StringBuilder sb = new StringBuilder();                   
+                    StringBuilder sb = new StringBuilder();
 
                     for (int i = 0; i < 100; i++)
                     {
@@ -409,7 +400,7 @@ namespace SuperSocket.Test
 
                     for (int i = 0; i < 50; i++)
                     {
-                        sb.Append(chars[rd.Next(0, chars.Length - 1)]);                        
+                        sb.Append(chars[rd.Next(0, chars.Length - 1)]);
                     }
 
                     string command = sb.ToString();
@@ -436,7 +427,7 @@ namespace SuperSocket.Test
             }
         }
 
-        private bool RunEchoMessage()
+        private bool RunEchoMessage(int runIndex)
         {
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -461,14 +452,12 @@ namespace SuperSocket.Test
                     string command = sb.ToString();
                     writer.WriteLine("ECHO " + command);
                     writer.Flush();
-                    string echoMessage = reader.ReadLine();                    
-                    Assert.AreEqual(command, echoMessage);
+                    string echoMessage = reader.ReadLine();
                     if (!string.Equals(command, echoMessage))
                     {
-                        Console.WriteLine(echoMessage);
                         return false;
                     }
-                    Thread.Sleep(100);
+                    Thread.Sleep(50);
                 }
             }
 
@@ -484,12 +473,11 @@ namespace SuperSocket.Test
 
             Semaphore semaphore = new Semaphore(0, concurrencyCount);
 
-            ManualResetEvent taskEvent = new ManualResetEvent(true);
+            bool[] resultArray = new bool[concurrencyCount];
 
             System.Threading.Tasks.Parallel.For(0, concurrencyCount, i =>
             {
-                if (!RunEchoMessage())
-                    taskEvent.Reset();
+                resultArray[i] = RunEchoMessage(i);
                 semaphore.Release();
             });
 
@@ -499,8 +487,17 @@ namespace SuperSocket.Test
                 Console.WriteLine("Got " + i);
             }
 
-            if (!taskEvent.WaitOne(1000))
-                Assert.Fail();
+            bool result = true;
+
+            for (var i = 0; i < concurrencyCount; i++)
+            {
+                Console.WriteLine(i + ":" + resultArray[i]);
+                if (!resultArray[i])
+                    result = false;
+            }
+
+            if(!result)
+                Assert.Fail("Concurrent Communications fault!");
         }
 
         [Test, Repeat(5)]
