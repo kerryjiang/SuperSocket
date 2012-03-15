@@ -94,11 +94,11 @@ namespace SuperSocket.ClientEngine
 
         void StartReceive()
         {
-            bool async;
+            bool raiseEvent;
 
             try
             {
-                async = Client.ReceiveAsync(m_SocketEventArgs);
+                raiseEvent = Client.ReceiveAsync(m_SocketEventArgs);
             }
             catch(Exception e)
             {
@@ -109,7 +109,7 @@ namespace SuperSocket.ClientEngine
                 return;
             }
 
-            if (!async)
+            if (!raiseEvent)
                 ProcessReceive(m_SocketEventArgs);
         }
 
@@ -123,11 +123,11 @@ namespace SuperSocket.ClientEngine
 
             m_SocketEventArgsSend.SetBuffer(segment.Array, segment.Offset, segment.Count);
 
-            bool async;
+            bool raiseEvent;
 
             try
             {
-                async = Client.SendAsync(m_SocketEventArgsSend);
+                raiseEvent = Client.SendAsync(m_SocketEventArgsSend);
             }
             catch (Exception e)
             {
@@ -136,7 +136,7 @@ namespace SuperSocket.ClientEngine
                 return;
             }
 
-            if (!async)
+            if (!raiseEvent)
                 Sending_Completed(Client, m_SocketEventArgsSend);
         }
 
