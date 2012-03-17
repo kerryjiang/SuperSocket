@@ -7,8 +7,14 @@ using SuperSocket.Management.Shared;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
-    public class InstanceViewModel : ViewModelBase
+    public class InstanceViewModel : InstanceViewModelBase
     {
+        public InstanceViewModel(ServerViewModel server)
+            : base(server)
+        {
+
+        }
+
         public string Name { get; set; }
 
         private bool m_IsRunning;

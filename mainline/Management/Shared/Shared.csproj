@@ -40,6 +40,7 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CommandName.cs" />
     <Compile Include="ListenerInfo.cs" />
     <Compile Include="LoginInfo.cs" />
     <Compile Include="LoginResult.cs" />

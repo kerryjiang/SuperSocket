@@ -69,10 +69,9 @@
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Converter\ViewModelConverter.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="InstanceGroupDescription.cs" />
     <Compile Include="Messages.cs" />
-    <Compile Include="ViewModel\InstanceRowViewModel.cs" />
     <Compile Include="ViewModel\InstanceViewModel.cs" />
-    <Compile Include="ViewModel\LoadingInstanceRowViewModel.cs" />
     <Compile Include="Selector\InstanceRowStyleSelector.cs" />
     <Compile Include="ServerEdit.xaml.cs">
       <DependentUpon>ServerEdit.xaml</DependentUpon>
@@ -80,13 +79,14 @@
     <Compile Include="ServerList.xaml.cs">
       <DependentUpon>ServerList.xaml</DependentUpon>
     </Compile>
-    <Compile Include="InstanceGroupDescription.cs" />
     <Compile Include="Themes\Default\CircularProgressBar.xaml.cs">
       <DependentUpon>CircularProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Themes\Default\HorizonProgressBar.xaml.cs">
       <DependentUpon>HorizonProgressBar.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ViewModel\InstanceViewModelBase.cs" />
+    <Compile Include="ViewModel\LoadingInstanceViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
     <Compile Include="ViewModel\ServerViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />

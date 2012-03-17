@@ -1,18 +1,92 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-using GalaSoft.MvvmLight;
 using System.Xml.Serialization;
+using GalaSoft.MvvmLight;
+using SuperSocket.ClientEngine;
 using SuperSocket.Management.Client.Config;
 using WebSocket4Net;
+using SuperSocket.Management.Shared;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
     public class ServerViewModel : ViewModelBase
     {
-        public ServerViewModel()
+        private List<InstanceViewModel> m_Instances = new List<InstanceViewModel>();
+
+        private ServerConfig m_ServerConfig;
+
+        private JsonWebSocket m_WebSocket;
+
+        public ServerViewModel(ServerConfig config)
         {
+            m_ServerConfig = config;
+            m_WebSocket = CreateWebSocket(config);
+        }
+
+        private JsonWebSocket CreateWebSocket(ServerConfig config)
+        {
+            var websocket = new JsonWebSocket(config.Uri, "ServerManager");
+            websocket.Opened += new EventHandler(m_WebSocket_Opened);
+            websocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(m_WebSocket_Error);
+            websocket.Closed += new EventHandler(m_WebSocket_Closed);
+            websocket.On<ServerInfo>(CommandName.Update, OnServerUpdated);
+            return websocket;
+        }
+
+        void m_WebSocket_Closed(object sender, EventArgs e)
+        {
+            Connected = false;
+            m_WebSocket = CreateWebSocket(m_ServerConfig);
+        }
+
+        void m_WebSocket_Error(object sender, ErrorEventArgs e)
+        {
+
+        }
+
+        void m_WebSocket_Opened(object sender, EventArgs e)
+        {
+            Connected = true;
+        }
+
+        private void OnServerUpdated(ServerInfo serverInfo)
+        {
+            this.AvailableCompletionPortThreads = serverInfo.AvailableCompletionPortThreads;
+            this.AvailableWorkingThreads = serverInfo.AvailableWorkingThreads;
+            this.CpuUsage = serverInfo.CpuUsage;
+            this.MaxCompletionPortThreads = serverInfo.MaxCompletionPortThreads;
+            this.MaxWorkingThreads = serverInfo.MaxWorkingThreads;
+            this.PhysicalMemoryUsage = serverInfo.PhysicalMemoryUsage;
+            this.TotalThreadCount = serverInfo.TotalThreadCount;
+            this.VirtualMemoryUsage = serverInfo.VirtualMemoryUsage;
+
+            foreach (var instance in serverInfo.Instances)
+            {
+                var targetInstance = m_Instances.FirstOrDefault(i => i.Name.Equals(instance.Name, StringComparison.OrdinalIgnoreCase));
+
+                var newFound = false;
+
+                if (targetInstance == null)
+                {
+                    targetInstance = new InstanceViewModel(this);
+                    newFound = true;
+                }
+
+                targetInstance.CurrentConnectionCount = instance.CurrentConnectionCount;
+                targetInstance.IsRunning = instance.IsRunning;
+                targetInstance.Listeners = instance.Listeners;
+                targetInstance.MaxConnectionCount = instance.MaxConnectionCount;
+                targetInstance.RequestHandlingSpeed = instance.RequestHandlingSpeed;
+                targetInstance.StartedTime = instance.StartedTime;
+
+                if (newFound)
+                {
+                    m_Instances.Add(targetInstance);
+                }
+            }
         }
 
         private string m_Name;
@@ -26,7 +100,6 @@ namespace SuperSocket.Management.Client.ViewModel
                 RaisePropertyChanged("Name");
             }
         }
-
 
         private bool m_Connected;
 

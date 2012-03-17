@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
 using SuperSocket.Management.Shared;
+using SuperSocket.Management.Client.Config;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
@@ -13,22 +15,36 @@ namespace SuperSocket.Management.Client.ViewModel
     {
         public MainViewModel()
         {
-            Task.Factory.StartNew(StartGetServers);
+            Task.Factory.StartNew((o) => StartGetServers((ClientAppConfig)o), App.ClientConfig);
+            MessengerInstance = Messenger.Default;
+            MessengerInstance.Register<InstanceViewModel>(this, OnNewInstanceFound);
         }
 
-        private void StartGetServers()
+        private void StartGetServers(ClientAppConfig appConfig)
         {
-            var serverModel = new ServerViewModel { Name = "localhost" };
+            m_Instances = new ObservableCollection<InstanceViewModelBase>();
 
-            m_Instances = new ObservableCollection<InstanceRowViewModel>(new List<InstanceRowViewModel> { new LoadingInstanceRowViewModel
+            foreach (var server in appConfig.Servers)
             {
-                Server = serverModel
-            } });
+                m_Instances.Add(new LoadingInstanceViewModel(new ServerViewModel(server)));
+            }
         }
 
-        private ObservableCollection<InstanceRowViewModel> m_Instances;
+        private void OnNewInstanceFound(InstanceViewModel instance)
+        {
+            m_Instances.Where(i => i.Server.Name.Equals(instance.Name, StringComparison.OrdinalIgnoreCase) && i is LoadingInstanceViewModel);
 
-        public ObservableCollection<InstanceRowViewModel> Instances
+            foreach (var loadingInstance in m_Instances)
+            {
+                m_Instances.Remove(loadingInstance);
+            }
+
+            m_Instances.Add(instance);
+        }
+
+        private ObservableCollection<InstanceViewModelBase> m_Instances;
+
+        public ObservableCollection<InstanceViewModelBase> Instances
         {
             get { return m_Instances; }
             set

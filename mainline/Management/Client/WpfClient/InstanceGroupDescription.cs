@@ -11,7 +11,7 @@ namespace SuperSocket.Management.Client
     {
         public override object GroupNameFromItem(object item, int level, System.Globalization.CultureInfo culture)
         {
-            var instance = item as InstanceRowViewModel;
+            var instance = item as InstanceViewModelBase;
             return instance.Server;
         }
     }

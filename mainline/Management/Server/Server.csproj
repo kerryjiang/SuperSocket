@@ -51,7 +51,6 @@
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="CommandName.cs" />
     <Compile Include="InstanceState.cs" />
     <Compile Include="ServerState.cs" />
     <Compile Include="Command\LOGIN.cs" />

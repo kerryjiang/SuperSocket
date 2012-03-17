@@ -16,7 +16,7 @@ namespace SuperSocket.Management.Client.Selector
 
         public override Style SelectStyle(object item, System.Windows.DependencyObject container)
         {
-            if (item is LoadingInstanceRowViewModel)
+            if (item is LoadingInstanceViewModel)
                 return LoadingStyle;
             else
                 return NormalStyle;
