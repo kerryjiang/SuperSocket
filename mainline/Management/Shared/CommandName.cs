@@ -7,6 +7,8 @@ namespace SuperSocket.Management.Shared
 {
     public class CommandName
     {
-        public const string Update = "UPDATE";
+        public const string UPDATE = "UPDATE";
+
+        public const string LOGIN = "LOGIN";
     }
 }

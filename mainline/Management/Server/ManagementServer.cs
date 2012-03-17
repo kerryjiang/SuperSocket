@@ -109,7 +109,7 @@ namespace SuperSocket.Management.Server
 
             CurrentServerInfo = m_ServerState.ToServerInfo();
 
-            var content = CommandName.Update + " " + JsonConvert.SerializeObject(CurrentServerInfo);
+            var content = CommandName.UPDATE + " " + JsonConvert.SerializeObject(CurrentServerInfo);
 
             foreach (var s in GetAllSessions())
             {

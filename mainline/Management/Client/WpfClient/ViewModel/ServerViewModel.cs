@@ -23,6 +23,7 @@ namespace SuperSocket.Management.Client.ViewModel
         public ServerViewModel(ServerConfig config)
         {
             m_ServerConfig = config;
+            Name = config.Name;
             m_WebSocket = CreateWebSocket(config);
         }
 
@@ -32,7 +33,8 @@ namespace SuperSocket.Management.Client.ViewModel
             websocket.Opened += new EventHandler(m_WebSocket_Opened);
             websocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(m_WebSocket_Error);
             websocket.Closed += new EventHandler(m_WebSocket_Closed);
-            websocket.On<ServerInfo>(CommandName.Update, OnServerUpdated);
+            websocket.On<ServerInfo>(CommandName.UPDATE, OnServerUpdated);
+            websocket.Open();
             return websocket;
         }
 
@@ -49,7 +51,17 @@ namespace SuperSocket.Management.Client.ViewModel
 
         void m_WebSocket_Opened(object sender, EventArgs e)
         {
+            var websocket = sender as JsonWebSocket;
+            websocket.Query<LoginResult>(CommandName.LOGIN, new LoginInfo { UserName = m_ServerConfig.UserName, Password = m_ServerConfig.Password }, OnServerLoggedIn);
+        }
+
+        private void OnServerLoggedIn(LoginResult result)
+        {
+            if (result.Result)
+                return;
+
             Connected = true;
+            OnServerUpdated(result.ServerInfo);
         }
 
         private void OnServerUpdated(ServerInfo serverInfo)
@@ -85,6 +97,7 @@ namespace SuperSocket.Management.Client.ViewModel
                 if (newFound)
                 {
                     m_Instances.Add(targetInstance);
+                    this.MessengerInstance.Send<InstanceViewModel>(targetInstance);
                 }
             }
         }

@@ -8,6 +8,7 @@ using GalaSoft.MvvmLight;
 using SuperSocket.Management.Shared;
 using SuperSocket.Management.Client.Config;
 using GalaSoft.MvvmLight.Messaging;
+using System.Windows.Threading;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
@@ -15,7 +16,7 @@ namespace SuperSocket.Management.Client.ViewModel
     {
         public MainViewModel()
         {
-            Task.Factory.StartNew((o) => StartGetServers((ClientAppConfig)o), App.ClientConfig);
+            StartGetServers(App.ClientConfig);
             MessengerInstance = Messenger.Default;
             MessengerInstance.Register<InstanceViewModel>(this, OnNewInstanceFound);
         }
@@ -32,14 +33,18 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private void OnNewInstanceFound(InstanceViewModel instance)
         {
-            m_Instances.Where(i => i.Server.Name.Equals(instance.Name, StringComparison.OrdinalIgnoreCase) && i is LoadingInstanceViewModel);
+            Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
+                {
+                    m_Instances.Where(i => i.Server.Name.Equals(instance.Name, StringComparison.OrdinalIgnoreCase) && i is LoadingInstanceViewModel);
 
-            foreach (var loadingInstance in m_Instances)
-            {
-                m_Instances.Remove(loadingInstance);
-            }
+                    foreach (var loadingInstance in m_Instances)
+                    {
+                        m_Instances.Remove(loadingInstance);
+                    }
 
-            m_Instances.Add(instance);
+                    m_Instances.Add(instance);
+                })
+            );
         }
 
         private ObservableCollection<InstanceViewModelBase> m_Instances;

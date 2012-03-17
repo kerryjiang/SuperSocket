@@ -9,19 +9,16 @@ namespace SuperSocket.Management.Client.Config
     [XmlType("Server")]
     public class ServerConfig
     {
-        [XmlAttribute]
+        [XmlAttribute("name")]
         public string Name { get; set; }
 
-        [XmlAttribute]
+        [XmlAttribute("uri")]
         public string Uri { get; set; }
 
-        [XmlAttribute]
+        [XmlAttribute("username")]
         public string UserName { get; set; }
 
-        [XmlAttribute]
+        [XmlAttribute("password")]
         public string Password { get; set; }
-
-        [XmlArray]
-        public string[] Instances { get; set; }
     }
 }
