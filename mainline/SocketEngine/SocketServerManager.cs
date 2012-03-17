@@ -274,7 +274,7 @@ namespace SuperSocket.SocketEngine
                 else
                 {
                     if (m_GlobalLog.IsErrorEnabled)
-                        m_GlobalLog.Error(server.Name + " has been started");
+                        m_GlobalLog.Info(server.Name + " has been started");
                 }
             }
 

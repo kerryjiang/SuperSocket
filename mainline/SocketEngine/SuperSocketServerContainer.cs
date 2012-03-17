@@ -107,9 +107,11 @@ namespace SuperSocket.SocketEngine
                 VirtualMemorySize = process.VirtualMemorySize64
             };
 
-            m_PerfLog.InfoFormat("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet / m_MbUnit, globalPerfData.VirtualMemorySize / m_MbUnit, globalPerfData.TotalThreadCount);
-            m_PerfLog.InfoFormat("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads);
-            m_PerfLog.InfoFormat("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData.MaxWorkingThreads, globalPerfData.MaxCompletionPortThreads);
+            var perfBuilder = new StringBuilder();
+
+            perfBuilder.AppendLine(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet / m_MbUnit, globalPerfData.VirtualMemorySize / m_MbUnit, globalPerfData.TotalThreadCount));
+            perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads));
+            perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData.MaxWorkingThreads, globalPerfData.MaxCompletionPortThreads));
 
             var instancesData = new List<PerformanceDataInfo>(m_Servers.Count);
 
@@ -122,12 +124,15 @@ namespace SuperSocket.SocketEngine
 
                     instancesData.Add(new PerformanceDataInfo { ServerName = s.Name, Data = perfData });
 
-                    m_PerfLog.InfoFormat("Total connections: {0}, total handled requests: {1}, request handling speed: {2}/s",
+                    perfBuilder.AppendLine(string.Format("{0} - Total connections: {1}, total handled requests: {2}, request handling speed: {3}/s",
+                        s.Name,
                         perfData.CurrentRecord.TotalConnections,
                         perfData.CurrentRecord.TotalHandledRequests,
-                        (perfData.CurrentRecord.TotalHandledRequests - perfData.PreviousRecord.TotalHandledRequests) / perfData.CurrentRecord.RecordSpan);
+                        (perfData.CurrentRecord.TotalHandledRequests - perfData.PreviousRecord.TotalHandledRequests) / perfData.CurrentRecord.RecordSpan));
                 }
             });
+
+            m_PerfLog.Info(perfBuilder.ToString());
 
             if (m_PerformanceDataCollected == null)
                 return;
@@ -152,7 +157,7 @@ namespace SuperSocket.SocketEngine
 
         internal void StartPerformanceLog()
         {
-            m_PerfLog = LogFactoryProvider.LogFactory.GetLog("Perf");
+            m_PerfLog = LogFactoryProvider.LogFactory.GetLog("performance");
             m_PerformanceTimer.Change(m_TimerInterval, m_TimerInterval);
             m_CpuUsageTimer.Change(m_CpuTimerInterval, m_CpuTimerInterval);
         }
