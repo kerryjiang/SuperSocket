@@ -69,24 +69,75 @@
                             <ControlTemplate TargetType="{x:Type GroupItem}">
                                 <StackPanel>
                                     <Grid>
-                                        <Rectangle Fill="{StaticResource HoverGradient}"></Rectangle>
-                                        <StackPanel Orientation="Horizontal">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle Grid.ColumnSpan="2" Fill="{StaticResource HoverGradient}"></Rectangle>
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
                                             <TextBlock Text="{Binding Name.Name, StringFormat='Server: {0}'}"
                                                    Margin="10,5,5,5"
                                                    FontWeight="Bold"
                                                    FontSize="15"/>
                                             <StackPanel Orientation="Horizontal" Margin="10 0 0 0" VerticalAlignment="Stretch" Name="ServerDetailPanel">
-                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:P0}'}" VerticalAlignment="Center" FontSize="11"/>
-                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.PhysicalMemoryUsage, StringFormat='Physical Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" VerticalAlignment="Center" FontSize="11"/>
-                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.VirtualMemoryUsage, StringFormat='Virtual Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" VerticalAlignment="Center" FontSize="11"/>
-                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.TotalThreadCount, StringFormat='Total Thread Count: {0}'}" VerticalAlignment="Center" FontSize="11"/>
-                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.AvailableWorkingThreads, StringFormat='Available Working Threads: {0}'}" VerticalAlignment="Center" FontSize="11"/>
-                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.AvailableCompletionPortThreads, StringFormat='Available Completion Port Threads: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                                <StackPanel.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Margin" Value="10 0 0 0"></Setter>
+                                                        <Setter Property="FontSize" Value="11"></Setter>
+                                                        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                                                    </Style>
+                                                </StackPanel.Resources>
+                                                <TextBlock Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:P0}'}" />
                                             </StackPanel>
                                         </StackPanel>
+                                        <ToggleButton Name="DetailToggleButton" Grid.Column="1" Content="Details" Style="{StaticResource MainMenuButton}"></ToggleButton>
                                     </Grid>
+                                    <Border BorderThickness="1" Margin="5" Visibility="{Binding ElementName=DetailToggleButton, Path=IsChecked, Converter={StaticResource VisibilityConverter}}">
+                                        <Border.BorderBrush>
+                                            <SolidColorBrush Color="{StaticResource ItemOver2}"></SolidColorBrush>
+                                        </Border.BorderBrush>
+                                        <Grid>
+                                            <Grid.Resources>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Margin" Value="10 0 0 0"></Setter>
+                                                    <Setter Property="FontSize" Value="11"></Setter>
+                                                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                                                </Style>
+                                            </Grid.Resources>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="25"></RowDefinition>
+                                                <RowDefinition Height="25"></RowDefinition>
+                                            </Grid.RowDefinitions>
+                                            <Rectangle Grid.ColumnSpan="5" Grid.RowSpan="3">
+                                                <Rectangle.Fill>
+                                                    <SolidColorBrush Color="{StaticResource ItemOver1}"></SolidColorBrush>
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:P0}'}" />
+                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Name.PhysicalMemoryUsage, StringFormat='Physical Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" />
+                                            <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding Name.VirtualMemoryUsage, StringFormat='Virtual Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" />
+                                            <TextBlock Grid.Column="3" Grid.Row="0" Text="{Binding Name.TotalThreadCount, StringFormat='Total Thread Count: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding Name.AvailableWorkingThreads, StringFormat='Available Working Threads: {0}'}" />
+                                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Name.AvailableCompletionPortThreads, StringFormat='Available Completion Port Threads: {0}'}" />
+                                            <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding Name.MaxWorkingThreads, StringFormat='Max Working Threads: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                            <TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding Name.MaxCompletionPortThreads, StringFormat='Max Completion Port Threads: {0}'}" />
+                                        </Grid>
+                                    </Border>
                                     <ItemsPresenter />
                                 </StackPanel>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Name.Connected}" Value="False">
+                                        <Setter Property="Visibility" Value="Collapsed" TargetName="ServerDetailPanel"></Setter>
+                                        <Setter Property="Visibility" Value="Collapsed" TargetName="DetailToggleButton"></Setter>
+                                    </DataTrigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Setter.Value>
                     </Setter>
@@ -117,7 +168,7 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Started Time" Binding="{Binding StartedTime}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Started Time" Binding="{Binding Path=StartedTime, StringFormat='MM/dd/yyyy HH:mm'}" IsReadOnly="True" />
                 <DataGridTemplateColumn Header="Connection Count" IsReadOnly="True" SortMemberPath="CurrentConnectionCount">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

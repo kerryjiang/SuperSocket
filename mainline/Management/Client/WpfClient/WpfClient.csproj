@@ -69,6 +69,7 @@
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Converter\BytesSizeConverter.cs" />
     <Compile Include="Converter\BytesSizeFormatProvider.cs" />
+    <Compile Include="Converter\VisibilityConverter.cs" />
     <Compile Include="Converter\ViewModelConverter.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="InstanceGroupDescription.cs" />

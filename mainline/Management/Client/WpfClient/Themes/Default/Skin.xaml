@@ -239,7 +239,7 @@
         <Setter Property='FontFamily' Value='Verdana' />
         <Setter Property='FontSize' Value='11' />
     </Style>
-    <Style TargetType="Button" x:Key="MainMenuButton">
+    <Style TargetType="ButtonBase" x:Key="MainMenuButton">
         <Setter Property="Height" Value="25"></Setter>
         <Setter Property="Padding" Value="5 2 5 2"></Setter>
         <Setter Property="Margin" Value="5 0 0 0"></Setter>

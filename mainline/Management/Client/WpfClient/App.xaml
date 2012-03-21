@@ -12,6 +12,7 @@
             <vm:ViewModelLocator x:Key="ViewModelLocator" />
             <cv:ViewModelConverter x:Key="ViewModelConverter" />
             <cv:BytesSizeConverter x:Key="BytesSizeConverter" />
+            <cv:VisibilityConverter x:Key="VisibilityConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>
