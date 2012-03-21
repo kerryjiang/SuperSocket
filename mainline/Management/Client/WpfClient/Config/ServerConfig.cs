@@ -12,8 +12,11 @@ namespace SuperSocket.Management.Client.Config
         [XmlAttribute("name")]
         public string Name { get; set; }
 
-        [XmlAttribute("uri")]
-        public string Uri { get; set; }
+        [XmlAttribute("host")]
+        public string Host { get; set; }
+
+        [XmlAttribute("port")]
+        public int Port { get; set; }
 
         [XmlAttribute("username")]
         public string UserName { get; set; }

@@ -11,6 +11,7 @@
             </ResourceDictionary.MergedDictionaries>
             <vm:ViewModelLocator x:Key="ViewModelLocator" />
             <cv:ViewModelConverter x:Key="ViewModelConverter" />
+            <cv:BytesSizeConverter x:Key="BytesSizeConverter" />
         </ResourceDictionary>
     </Application.Resources>
 </Application>

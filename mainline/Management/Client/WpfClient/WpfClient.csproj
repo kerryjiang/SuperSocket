@@ -67,10 +67,13 @@
     </ApplicationDefinition>
     <Compile Include="Config\ClientAppConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
+    <Compile Include="Converter\BytesSizeConverter.cs" />
+    <Compile Include="Converter\BytesSizeFormatProvider.cs" />
     <Compile Include="Converter\ViewModelConverter.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="InstanceGroupDescription.cs" />
     <Compile Include="Messages.cs" />
+    <Compile Include="ViewModel\InstanceState.cs" />
     <Compile Include="ViewModel\InstanceViewModel.cs" />
     <Compile Include="Selector\InstanceRowStyleSelector.cs" />
     <Compile Include="ServerEdit.xaml.cs">

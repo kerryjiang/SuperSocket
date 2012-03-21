@@ -10,5 +10,9 @@ namespace SuperSocket.Management.Shared
         public const string UPDATE = "UPDATE";
 
         public const string LOGIN = "LOGIN";
+
+        public const string START = "START";
+
+        public const string STOP = "STOP";
     }
 }

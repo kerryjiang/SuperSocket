@@ -9,54 +9,65 @@ using SuperSocket.Management.Shared;
 using SuperSocket.Management.Client.Config;
 using GalaSoft.MvvmLight.Messaging;
 using System.Windows.Threading;
+using System.Threading;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
     public class MainViewModel : ViewModelBase
     {
+        private List<ServerViewModel> m_Servers;
+
         public MainViewModel()
         {
+            Messenger.Default.Register<IEnumerable<InstanceViewModel>>(this, OnNewInstancesFound);
             StartGetServers(App.ClientConfig);
-            MessengerInstance = Messenger.Default;
-            MessengerInstance.Register<InstanceViewModel>(this, OnNewInstanceFound);
         }
 
         private void StartGetServers(ClientAppConfig appConfig)
         {
-            m_Instances = new ObservableCollection<InstanceViewModelBase>();
+            m_Servers = new List<ServerViewModel>();
 
-            foreach (var server in appConfig.Servers)
+            foreach (var serverConfig in appConfig.Servers)
             {
-                m_Instances.Add(new LoadingInstanceViewModel(new ServerViewModel(server)));
+                var server = new ServerViewModel(serverConfig);
+                m_Servers.Add(server);
             }
         }
 
-        private void OnNewInstanceFound(InstanceViewModel instance)
+        private void OnNewInstancesFound(IEnumerable<InstanceViewModel> instances)
         {
-            Dispatcher.CurrentDispatcher.BeginInvoke(new Action(() =>
-                {
-                    m_Instances.Where(i => i.Server.Name.Equals(instance.Name, StringComparison.OrdinalIgnoreCase) && i is LoadingInstanceViewModel);
+            Instances = null;
+        }
 
-                    foreach (var loadingInstance in m_Instances)
+        public List<InstanceViewModelBase> Instances
+        {
+            get
+            {
+                var instances = new List<InstanceViewModelBase>();
+
+                foreach (var server in m_Servers)
+                {
+                    if (!server.Instances.Any())
                     {
-                        m_Instances.Remove(loadingInstance);
+                        instances.Add(new LoadingInstanceViewModel(server));
+                        continue;
                     }
 
-                    m_Instances.Add(instance);
-                })
-            );
-        }
+                    instances.AddRange(server.Instances);
+                }
 
-        private ObservableCollection<InstanceViewModelBase> m_Instances;
-
-        public ObservableCollection<InstanceViewModelBase> Instances
-        {
-            get { return m_Instances; }
+                return instances;
+            }
             set
             {
-                m_Instances = value;
                 RaisePropertyChanged("Instances");
             }
+        }
+
+        public override void Cleanup()
+        {
+            Messenger.Default.Unregister<IEnumerable<InstanceViewModel>>(this, OnNewInstancesFound);
+            base.Cleanup();
         }
     }
 }

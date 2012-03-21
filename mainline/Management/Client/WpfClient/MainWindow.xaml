@@ -14,8 +14,8 @@
                     </CollectionViewSource.GroupDescriptions>
                 </CollectionViewSource>
                 <ContextMenu  x:Key="InstanceMenu" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
-                    <MenuItem Header="Start" />
-                    <MenuItem Header="Stop" />
+                    <MenuItem Header="Start" Command="{Binding StartCommand}" />
+                    <MenuItem Header="Stop" Command="{Binding StopCommand}" />
                 </ContextMenu>
                 <Style x:Key="InstanceRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
                     <Setter Property="ContextMenu" Value="{StaticResource InstanceMenu}" />
@@ -35,22 +35,25 @@
         </Grid.RowDefinitions>
         <Grid Grid.Row="0" Background="{DynamicResource TopGradient}">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="200"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
-                <RowDefinition Height="10"></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
             <Label Grid.Column="0" Grid.Row="0"
                    FontSize="25"
                    FontWeight="Bold"
                    Margin="20" Foreground="#FF255B7C" FontFamily="Verdana"
                    Content="SuperSocket Server Manager"></Label>
-            <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-                <Button Content="Exit" Style="{StaticResource MainMenuButton}" Click="Button_Click"></Button>
+            <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+                <Button Style="{StaticResource MainMenuButton}" Content="Manage Servers"></Button>
+                <Button Style="{StaticResource MainMenuButton}" Content="New Server"></Button>
+                <Button Style="{StaticResource MainMenuButton}" Content="Exit" Click="Button_Click"></Button>
             </StackPanel>
-            <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+            <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
                        Fill="#FFDACEEC" Height="10" VerticalAlignment="Bottom"></Rectangle>
         </Grid>
         <DataGrid Grid.Row="1" ItemsSource="{Binding Source={StaticResource InstanceSource}}"
@@ -67,10 +70,20 @@
                                 <StackPanel>
                                     <Grid>
                                         <Rectangle Fill="{StaticResource HoverGradient}"></Rectangle>
-                                        <TextBlock Text="{Binding Name.Name, StringFormat='Server: {0}'}"
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name.Name, StringFormat='Server: {0}'}"
                                                    Margin="10,5,5,5"
                                                    FontWeight="Bold"
                                                    FontSize="15"/>
+                                            <StackPanel Orientation="Horizontal" Margin="10 0 0 0" VerticalAlignment="Stretch" Name="ServerDetailPanel">
+                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:P0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.PhysicalMemoryUsage, StringFormat='Physical Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" VerticalAlignment="Center" FontSize="11"/>
+                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.VirtualMemoryUsage, StringFormat='Virtual Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" VerticalAlignment="Center" FontSize="11"/>
+                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.TotalThreadCount, StringFormat='Total Thread Count: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.AvailableWorkingThreads, StringFormat='Available Working Threads: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                                <TextBlock Margin="10 0 0 0" Text="{Binding Name.AvailableCompletionPortThreads, StringFormat='Available Completion Port Threads: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                            </StackPanel>
+                                        </StackPanel>
                                     </Grid>
                                     <ItemsPresenter />
                                 </StackPanel>
@@ -89,18 +102,23 @@
                 </GroupStyle>
             </DataGrid.GroupStyle>
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Name" IsReadOnly="True" SortMemberPath="Instance.Name">
+                <DataGridTemplateColumn Header="Name" IsReadOnly="True" SortMemberPath="Name">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Rectangle VerticalAlignment="Center" Margin="5" Width="10" Height="10" Fill="Green"></Rectangle>
-                                <TextBlock VerticalAlignment="Center" Text="{Binding Instance.Name}"></TextBlock>
+                                <Rectangle VerticalAlignment="Center" Name="StatusFlag" Margin="5" Width="10" Height="10" Fill="Green" />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}"></TextBlock>
                             </StackPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsRunning}" Value="False">
+                                    <Setter TargetName="StatusFlag"  Property="Fill" Value="Gray" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Started Time" Binding="{Binding Instance.StartedTime}" IsReadOnly="True" />
-                <DataGridTemplateColumn Header="Connection Count" IsReadOnly="True" SortMemberPath="Instance.CurrentConnectionCount">
+                <DataGridTextColumn Header="Started Time" Binding="{Binding StartedTime}" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="Connection Count" IsReadOnly="True" SortMemberPath="CurrentConnectionCount">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
@@ -108,8 +126,8 @@
                                     <TextBlock.Text>
                                         <MultiBinding>
                                           <MultiBinding.StringFormat>{0}/{1}</MultiBinding.StringFormat>
-                                          <Binding Path="Instance.CurrentConnectionCount" />
-                                          <Binding Path="Instance.MaxConnectionCount" />
+                                          <Binding Path="CurrentConnectionCount" />
+                                          <Binding Path="MaxConnectionCount" />
                                         </MultiBinding>
                                     </TextBlock.Text>
                                 </TextBlock>
@@ -117,7 +135,8 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Request Handling Speed (#/second)" Binding="{Binding Instance.RequestHandlingSpeed}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Request Handling Speed (#/second)" Binding="{Binding RequestHandlingSpeed}" IsReadOnly="True" />
+                <DataGridTextColumn Header="State" Binding="{Binding State}" IsReadOnly="True" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

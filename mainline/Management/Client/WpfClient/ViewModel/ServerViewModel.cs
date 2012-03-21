@@ -5,48 +5,78 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
 using SuperSocket.ClientEngine;
 using SuperSocket.Management.Client.Config;
-using WebSocket4Net;
 using SuperSocket.Management.Shared;
+using WebSocket4Net;
+using System.Threading;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
     public class ServerViewModel : ViewModelBase
     {
-        private List<InstanceViewModel> m_Instances = new List<InstanceViewModel>();
+        [XmlIgnore]
+        public List<InstanceViewModel> Instances { get; private set; }
 
         private ServerConfig m_ServerConfig;
 
         private JsonWebSocket m_WebSocket;
 
+        private Timer m_ReconnectTimer;
+
         public ServerViewModel(ServerConfig config)
         {
+            Instances = new List<InstanceViewModel>();
             m_ServerConfig = config;
             Name = config.Name;
             m_WebSocket = CreateWebSocket(config);
+            m_ReconnectTimer = new Timer(ReconnectTimerCallback, null, Timeout.Infinite, Timeout.Infinite);
         }
 
         private JsonWebSocket CreateWebSocket(ServerConfig config)
         {
-            var websocket = new JsonWebSocket(config.Uri, "ServerManager");
+            var websocket = new JsonWebSocket(string.Format("ws://{0}:{1}/", config.Host, config.Port), "ServerManager");
             websocket.Opened += new EventHandler(m_WebSocket_Opened);
             websocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(m_WebSocket_Error);
             websocket.Closed += new EventHandler(m_WebSocket_Closed);
             websocket.On<ServerInfo>(CommandName.UPDATE, OnServerUpdated);
             websocket.Open();
+
+            foreach (var instance in Instances)
+            {
+                instance.State = InstanceState.Connecting;
+            }
+
             return websocket;
         }
 
         void m_WebSocket_Closed(object sender, EventArgs e)
         {
             Connected = false;
+            m_WebSocket = null;
+
+            foreach (var instance in Instances)
+            {
+                instance.IsRunning = false;
+                instance.State = InstanceState.NotConnected;
+            }
+
+            m_ReconnectTimer.Change(2 * 1000 * 60, Timeout.Infinite);
+        }
+
+        private void ReconnectTimerCallback(object state)
+        {
+            //Already connected or started connecting
+            if (m_WebSocket != null)
+                return;
+
             m_WebSocket = CreateWebSocket(m_ServerConfig);
         }
 
         void m_WebSocket_Error(object sender, ErrorEventArgs e)
         {
-
+            Messenger.Default.Send<ErrorEventArgs>(e);
         }
 
         void m_WebSocket_Opened(object sender, EventArgs e)
@@ -57,7 +87,7 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private void OnServerLoggedIn(LoginResult result)
         {
-            if (result.Result)
+            if (!result.Result)
                 return;
 
             Connected = true;
@@ -66,6 +96,10 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private void OnServerUpdated(ServerInfo serverInfo)
         {
+            //The server doesn't have performance data yet
+            if (serverInfo == null)
+                return;
+
             this.AvailableCompletionPortThreads = serverInfo.AvailableCompletionPortThreads;
             this.AvailableWorkingThreads = serverInfo.AvailableWorkingThreads;
             this.CpuUsage = serverInfo.CpuUsage;
@@ -75,16 +109,19 @@ namespace SuperSocket.Management.Client.ViewModel
             this.TotalThreadCount = serverInfo.TotalThreadCount;
             this.VirtualMemoryUsage = serverInfo.VirtualMemoryUsage;
 
+            var newInstanceFound = false;
+
             foreach (var instance in serverInfo.Instances)
             {
-                var targetInstance = m_Instances.FirstOrDefault(i => i.Name.Equals(instance.Name, StringComparison.OrdinalIgnoreCase));
-
                 var newFound = false;
+
+                var targetInstance = Instances.FirstOrDefault(i => i.Name.Equals(instance.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (targetInstance == null)
                 {
-                    targetInstance = new InstanceViewModel(this);
+                    targetInstance = new InstanceViewModel(this, instance.Name);
                     newFound = true;
+                    newInstanceFound = true;
                 }
 
                 targetInstance.CurrentConnectionCount = instance.CurrentConnectionCount;
@@ -94,12 +131,19 @@ namespace SuperSocket.Management.Client.ViewModel
                 targetInstance.RequestHandlingSpeed = instance.RequestHandlingSpeed;
                 targetInstance.StartedTime = instance.StartedTime;
 
+                if (newFound || (targetInstance.State == InstanceState.NotConnected || targetInstance.State == InstanceState.Connecting))
+                {
+                    targetInstance.State = targetInstance.IsRunning ? InstanceState.Running : InstanceState.NotStarted;
+                }
+
                 if (newFound)
                 {
-                    m_Instances.Add(targetInstance);
-                    this.MessengerInstance.Send<InstanceViewModel>(targetInstance);
+                    Instances.Add(targetInstance);
                 }
             }
+
+            if (newInstanceFound)
+                Messenger.Default.Send<IEnumerable<InstanceViewModel>>(null);
         }
 
         private string m_Name;
@@ -234,6 +278,35 @@ namespace SuperSocket.Management.Client.ViewModel
         public override int GetHashCode()
         {
             return Name.GetHashCode();
+        }
+
+        internal string StartInstance(string instanceName, Action<string> tokenUpdater)
+        {
+            return m_WebSocket.Query<StartResult>(CommandName.START, instanceName, (t, r) =>
+                {
+                    OnServerUpdated(r.ServerInfo);
+                    tokenUpdater(t);
+                });
+        }
+
+        internal string StopInstance(string instanceName, Action<string> tokenUpdater)
+        {
+            return m_WebSocket.Query<StopResult>(CommandName.STOP, instanceName, (t, r) =>
+                {
+                    OnServerUpdated(r.ServerInfo);
+                    tokenUpdater(t);
+                });
+        }
+
+        public override void Cleanup()
+        {
+            if (m_ReconnectTimer != null)
+            {
+                m_ReconnectTimer.Dispose();
+                m_ReconnectTimer = null;
+            }
+
+            base.Cleanup();
         }
     }
 }

@@ -6,12 +6,15 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
+using System.Windows.Forms;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Windows.Forms;
+using System.Windows.Threading;
+using GalaSoft.MvvmLight.Messaging;
+using SuperSocket.ClientEngine;
 
 namespace SuperSocket.Management.Client
 {
@@ -27,6 +30,8 @@ namespace SuperSocket.Management.Client
         public MainWindow()
         {
             InitializeComponent();
+
+            Messenger.Default.Register<ErrorEventArgs>(this, OnError);
 
             m_NotifyIcon = new System.Windows.Forms.NotifyIcon();
             m_NotifyIcon.Text = "SuperSocket Server Manager";
@@ -88,8 +93,19 @@ namespace SuperSocket.Management.Client
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
+            if (System.Windows.MessageBox.Show(this, "Are you are you want to quit?", "Quit", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
+                return;
+
             m_ForceQuit = true;
             this.Close();
+        }
+
+        private void OnError(ErrorEventArgs e)
+        {
+            Dispatcher.Invoke(new Action<ErrorEventArgs>((i) =>
+                {
+                    System.Windows.MessageBox.Show(i.Exception.Message);
+                }), e);
         }
     }
 }

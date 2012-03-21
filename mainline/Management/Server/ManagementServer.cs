@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Newtonsoft.Json;
 using SuperSocket.Common;
+using SuperSocket.Management.Shared;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperWebSocket;
-using SuperSocket.Management.Shared;
-using Newtonsoft.Json;
+using SuperWebSocket.Protocol;
+using SuperWebSocket.SubProtocol;
 
 namespace SuperSocket.Management.Server
 {
@@ -22,7 +24,13 @@ namespace SuperSocket.Management.Server
 
         private string m_SecurityKey;
 
-        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<WebSocketRequestInfo> protocol)
+        public ManagementServer()
+            : base(new BasicSubProtocol<ManagementSession>("ServerManager"))
+        {
+
+        }
+
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<IWebSocketFragment> protocol)
         {
             if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
                 return false;
@@ -115,6 +123,12 @@ namespace SuperSocket.Management.Server
             {
                 s.SendResponseAsync(content);
             }
+        }
+
+        internal ServerInfo GetUpdatedCurrentServerInfo()
+        {
+            CurrentServerInfo = m_ServerState.ToServerInfo();
+            return CurrentServerInfo;
         }
 
         void m_ServerContainer_Loaded(object sender, EventArgs e)

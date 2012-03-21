@@ -23,7 +23,7 @@ namespace SuperSocket.Management.Server.Command
 
             server.Start();
 
-            SendJsonResponse(session, token, new StartResult { Result = true, ServerInfo = session.AppServer.CurrentServerInfo });
+            SendJsonResponse(session, token, new StartResult { Result = true, ServerInfo = session.AppServer.GetUpdatedCurrentServerInfo() });
         }
     }
 }
