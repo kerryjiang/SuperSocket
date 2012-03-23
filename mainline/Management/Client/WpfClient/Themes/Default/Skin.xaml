@@ -282,4 +282,17 @@
         <Setter Property="FontSize" Value="14"></Setter>
         <Setter Property="FontWeight" Value="Bold"></Setter>
     </Style>
+    <Style TargetType="TextBlock" x:Key="FormLabel">
+        <Setter Property="FontSize" Value="12"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Right"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="Margin" Value="0 0 10 0"></Setter>
+    </Style>
+    <Style TargetType="TextBoxBase" x:Key="FormTextInput">
+        <Setter Property="FontSize" Value="12"></Setter>
+        <Setter Property="Height" Value="22"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="Margin" Value="10 0 20 0"></Setter>
+    </Style>
 </ResourceDictionary>

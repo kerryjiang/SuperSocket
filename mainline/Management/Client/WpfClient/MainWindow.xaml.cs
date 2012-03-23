@@ -112,14 +112,22 @@ namespace SuperSocket.Management.Client
 
         private void OnNewServerMessage(NewServerMessage message)
         {
-            var window = new Window();
+            var window = new ChildWindow();
             window.Content = new NewEditServer();
             window.SizeToContent = SizeToContent.WidthAndHeight;
             window.Topmost = true;
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.ResizeMode = ResizeMode.NoResize;
             window.Title = "New Server";
+
+            Messenger.Default.Register<CloseNewServerMessage>(this, (m) =>
+                {
+                    window.DialogResult = false;
+                    window.Close();
+                });
+
             window.ShowDialog();
+            Messenger.Default.Unregister<CloseNewServerMessage>(this);
         }
     }
 }

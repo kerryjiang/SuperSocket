@@ -5,33 +5,47 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-             Width="600"
-             Height="400"
-             DataContext="{Binding ViewModelSource, Converter={StaticResource ViewModelConverter}, ConverterParameter=NewEditViewModel, Source={StaticResource ViewModelLocator}}">
+             Width="400"
+             Height="220"
+             DataContext="{Binding ViewModelSource, Converter={StaticResource ViewModelConverter}, ConverterParameter=NewServerViewModel, Source={StaticResource ViewModelLocator}}">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>
         <Rectangle Grid.Row="0" Fill="{StaticResource HoverGradient}"></Rectangle>
-        <Grid Grid.Row="0">
+        <TextBlock Grid.Row="0" Margin="10 5 5 5" Style="{StaticResource WindowsTitle}" Text="New Server"></TextBlock>
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.Resources>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource FormLabel}" />
+                <Style TargetType="TextBox" BasedOn="{StaticResource FormTextInput}" />
+            </Grid.Resources>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
-                <ColumnDefinition Width="*"></ColumnDefinition>
-                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+                <ColumnDefinition Width="7*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Margin="10 5 5 5" Style="{StaticResource WindowsTitle}" Text="New Server"></TextBlock>
-            <StackPanel Grid.Column="2" Margin="5" Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{StaticResource MainMenuButton}" Content="Save" Command="{Binding SaveCommand}"></Button>
-                <Button Style="{StaticResource MainMenuButton}" Content="New Server" Command="{Binding NewServerCommand}"></Button>
-                <Button Style="{StaticResource MainMenuButton}" Content="Close" Command="{Binding CloseCommand}"></Button>
-            </StackPanel>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Column="0" Grid.Row="0" Text="Name:"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="0"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="1" Text="Host:"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="1"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="2" Text="Port:"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="2"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="3" Text="User Name:"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="3"></TextBox>
+            <TextBlock Grid.Column="0" Grid.Row="4" Text="Password:"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="4"></TextBox>
         </Grid>
-        <DataGrid Grid.Row="1" ItemsSource="{Binding Source=Servers}"
-                  SelectionMode="Single"
-                  VerticalAlignment="Stretch"
-                  SelectionUnit="FullRow"
-                  AutoGenerateColumns="True" CanUserAddRows="False">
-        </DataGrid>
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Style="{StaticResource MainMenuButton}" Content="Save" Command="{Binding SaveCommand}"></Button>
+            <Button Style="{StaticResource MainMenuButton}" Content="Close" Command="{Binding CloseCommand}"></Button>
+        </StackPanel>
     </Grid>
 </UserControl>

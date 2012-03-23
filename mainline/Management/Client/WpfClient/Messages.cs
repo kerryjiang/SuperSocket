@@ -32,4 +32,8 @@ namespace SuperSocket.Management.Client
     class NewServerMessage : EmptyMessageBase<NewServerMessage>
     {
     }
+
+    class CloseNewServerMessage : EmptyMessageBase<CloseNewServerMessage>
+    {
+    }
 }

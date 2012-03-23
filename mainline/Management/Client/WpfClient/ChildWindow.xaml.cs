@@ -9,18 +9,16 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using GalaSoft.MvvmLight.Messaging;
 
 namespace SuperSocket.Management.Client
 {
     /// <summary>
-    /// Interaction logic for NewEditServer.xaml
+    /// Interaction logic for ChildWindow.xaml
     /// </summary>
-    public partial class NewEditServer : UserControl
+    public partial class ChildWindow : Window
     {
-        public NewEditServer()
+        public ChildWindow()
         {
             InitializeComponent();
         }
