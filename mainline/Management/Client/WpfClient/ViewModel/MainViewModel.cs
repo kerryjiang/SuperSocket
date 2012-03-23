@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using GalaSoft.MvvmLight;
-using SuperSocket.Management.Shared;
-using SuperSocket.Management.Client.Config;
-using GalaSoft.MvvmLight.Messaging;
-using System.Windows.Threading;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Threading;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Messaging;
+using SuperSocket.Management.Client.Config;
+using SuperSocket.Management.Shared;
+using GalaSoft.MvvmLight.Command;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
@@ -20,6 +21,10 @@ namespace SuperSocket.Management.Client.ViewModel
         public MainViewModel()
         {
             Messenger.Default.Register<IEnumerable<InstanceViewModel>>(this, OnNewInstancesFound);
+
+            ExitCommand = new RelayCommand<object>(ExecuteExitCommand);
+            NewServerCommand = new RelayCommand<object>(ExecuteNewServerCommand);
+
             StartGetServers(App.ClientConfig);
         }
 
@@ -62,6 +67,20 @@ namespace SuperSocket.Management.Client.ViewModel
             {
                 RaisePropertyChanged("Instances");
             }
+        }
+
+        public RelayCommand<object> ExitCommand { get; private set; }
+
+        private void ExecuteExitCommand(object target)
+        {
+            Messenger.Default.Send<ExitMessage>(ExitMessage.Empty);
+        }
+
+        public RelayCommand<object> NewServerCommand { get; private set; }
+
+        private void ExecuteNewServerCommand(object target)
+        {
+            Messenger.Default.Send<NewServerMessage>(NewServerMessage.Empty);
         }
 
         public override void Cleanup()

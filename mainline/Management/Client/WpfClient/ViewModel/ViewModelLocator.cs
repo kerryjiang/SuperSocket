@@ -50,6 +50,7 @@ namespace SuperSocket.Management.Client.ViewModel
         static ViewModelLocator()
         {
             RegisterViewModelFactory<MainViewModel>();
+            RegisterViewModelFactory<NewServerViewModel>();
         }
 
         private static void RegisterViewModelFactory<TViewModel>()

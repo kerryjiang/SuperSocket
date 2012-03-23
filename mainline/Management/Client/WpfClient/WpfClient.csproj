@@ -36,7 +36,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Server.ico</ApplicationIcon>
+    <ApplicationIcon>
+    </ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="GalaSoft.MvvmLight.WPF4">
@@ -74,15 +75,12 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="InstanceGroupDescription.cs" />
     <Compile Include="Messages.cs" />
+    <Compile Include="NewEditServer.xaml.cs">
+      <DependentUpon>NewEditServer.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ViewModel\InstanceState.cs" />
     <Compile Include="ViewModel\InstanceViewModel.cs" />
     <Compile Include="Selector\InstanceRowStyleSelector.cs" />
-    <Compile Include="ServerEdit.xaml.cs">
-      <DependentUpon>ServerEdit.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="ServerList.xaml.cs">
-      <DependentUpon>ServerList.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Themes\Default\CircularProgressBar.xaml.cs">
       <DependentUpon>CircularProgressBar.xaml</DependentUpon>
     </Compile>
@@ -92,6 +90,7 @@
     <Compile Include="ViewModel\InstanceViewModelBase.cs" />
     <Compile Include="ViewModel\LoadingInstanceViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
+    <Compile Include="ViewModel\NewServerViewModel.cs" />
     <Compile Include="ViewModel\ServerViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="MainWindow.xaml">
@@ -109,11 +108,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="ServerEdit.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="ServerList.xaml">
+    <Page Include="NewEditServer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -147,6 +142,7 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -161,9 +157,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Server.ico" />
+    <Resource Include="Resources\Server.ico" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Left.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

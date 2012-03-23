@@ -70,8 +70,7 @@
             </Setter.Value>
         </Setter>
         <Setter Property="IsSelected" 
-                Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGridRow}, Path=IsSelected, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}"
-                />
+                Value="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=DataGridRow}, Path=IsSelected, Mode=OneWayToSource, UpdateSourceTrigger=PropertyChanged}" />
     </Style>
     <!-- DataGridRow -->
     <Style x:Key="RowStyle" TargetType="{x:Type DataGridRow}">
@@ -243,5 +242,44 @@
         <Setter Property="Height" Value="25"></Setter>
         <Setter Property="Padding" Value="5 2 5 2"></Setter>
         <Setter Property="Margin" Value="5 0 0 0"></Setter>
+    </Style>
+    <Style TargetType="ToggleButton" x:Key="CollapseButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Image Name="ArrowImage" Width="16" Height="16" Source="..\..\Resources\Left.png">
+                        <Image.RenderTransform>
+                            <RotateTransform x:Name="CollapseRotate" Angle="0" CenterX="8" CenterY="9" />
+                        </Image.RenderTransform>
+                    </Image>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="ToggleButton.IsChecked" Value="True">
+                            <Trigger.EnterActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="CollapseRotate"
+                                                         Storyboard.TargetProperty="(RotateTransform.Angle)"
+                                                         From="0" To="-90" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.EnterActions>
+                            <Trigger.ExitActions>
+                                <BeginStoryboard>
+                                    <Storyboard>
+                                        <DoubleAnimation Duration="0" Storyboard.TargetName="CollapseRotate"
+                                                         Storyboard.TargetProperty="(RotateTransform.Angle)"
+                                                         From="-90" To="0" />
+                                    </Storyboard>
+                                </BeginStoryboard>
+                            </Trigger.ExitActions>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="TextBlock" x:Key="WindowsTitle">
+        <Setter Property="FontSize" Value="14"></Setter>
+        <Setter Property="FontWeight" Value="Bold"></Setter>
     </Style>
 </ResourceDictionary>

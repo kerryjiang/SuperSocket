@@ -32,6 +32,8 @@ namespace SuperSocket.Management.Client
             InitializeComponent();
 
             Messenger.Default.Register<ErrorEventArgs>(this, OnError);
+            Messenger.Default.Register<ExitMessage>(this, OnExitMessage);
+            Messenger.Default.Register<NewServerMessage>(this, OnNewServerMessage);
 
             m_NotifyIcon = new System.Windows.Forms.NotifyIcon();
             m_NotifyIcon.Text = "SuperSocket Server Manager";
@@ -91,7 +93,15 @@ namespace SuperSocket.Management.Client
             base.OnClosed(e);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void OnError(ErrorEventArgs e)
+        {
+            Dispatcher.Invoke(new Action<ErrorEventArgs>((i) =>
+                {
+                    System.Windows.MessageBox.Show(i.Exception.Message);
+                }), e);
+        }
+
+        private void OnExitMessage(ExitMessage message)
         {
             if (System.Windows.MessageBox.Show(this, "Are you are you want to quit?", "Quit", MessageBoxButton.YesNo) != MessageBoxResult.Yes)
                 return;
@@ -100,12 +110,16 @@ namespace SuperSocket.Management.Client
             this.Close();
         }
 
-        private void OnError(ErrorEventArgs e)
+        private void OnNewServerMessage(NewServerMessage message)
         {
-            Dispatcher.Invoke(new Action<ErrorEventArgs>((i) =>
-                {
-                    System.Windows.MessageBox.Show(i.Exception.Message);
-                }), e);
+            var window = new Window();
+            window.Content = new NewEditServer();
+            window.SizeToContent = SizeToContent.WidthAndHeight;
+            window.Topmost = true;
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            window.ResizeMode = ResizeMode.NoResize;
+            window.Title = "New Server";
+            window.ShowDialog();
         }
     }
 }

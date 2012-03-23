@@ -4,6 +4,7 @@
         xmlns:selector="clr-namespace:SuperSocket.Management.Client.Selector"
         xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
         Title="SuperSocket Server Manager" Height="350" Width="525"
+        Icon="Resources\Server.ico"
         DataContext="{Binding ViewModelSource, Converter={StaticResource ViewModelConverter}, ConverterParameter=MainViewModel, Source={StaticResource ViewModelLocator}}">
     <Grid>
         <Grid.Resources>
@@ -49,9 +50,8 @@
                    Margin="20" Foreground="#FF255B7C" FontFamily="Verdana"
                    Content="SuperSocket Server Manager"></Label>
             <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-                <Button Style="{StaticResource MainMenuButton}" Content="Manage Servers"></Button>
-                <Button Style="{StaticResource MainMenuButton}" Content="New Server"></Button>
-                <Button Style="{StaticResource MainMenuButton}" Content="Exit" Click="Button_Click"></Button>
+                <Button Style="{StaticResource MainMenuButton}" Content="New Server" Command="{Binding NewServerCommand}"></Button>
+                <Button Style="{StaticResource MainMenuButton}" Content="Exit" Command="{Binding ExitCommand}"></Button>
             </StackPanel>
             <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
                        Fill="#FFDACEEC" Height="10" VerticalAlignment="Bottom"></Rectangle>
@@ -90,7 +90,7 @@
                                                 <TextBlock Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:P0}'}" />
                                             </StackPanel>
                                         </StackPanel>
-                                        <ToggleButton Name="DetailToggleButton" Grid.Column="1" Content="Details" Style="{StaticResource MainMenuButton}"></ToggleButton>
+                                        <ToggleButton Name="DetailToggleButton" Margin="0 0 2 0" Grid.Column="1" Width="26" Style="{StaticResource CollapseButton}"></ToggleButton>
                                     </Grid>
                                     <Border BorderThickness="1" Margin="5" Visibility="{Binding ElementName=DetailToggleButton, Path=IsChecked, Converter={StaticResource VisibilityConverter}}">
                                         <Border.BorderBrush>
