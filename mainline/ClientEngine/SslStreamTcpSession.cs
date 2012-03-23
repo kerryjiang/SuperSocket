@@ -50,6 +50,14 @@ namespace SuperSocket.ClientEngine
             ProcessConnect(e);
         }
 
+        bool IsIgnorableException(Exception e)
+        {
+            if (e is System.ObjectDisposedException)
+                return true;
+
+            return false;
+        }
+
         protected override void StartReceive(SocketAsyncEventArgs e)
         {
             try
@@ -59,7 +67,8 @@ namespace SuperSocket.ClientEngine
             }
             catch (Exception exc)
             {
-                OnError(exc);
+                if (!IsIgnorableException(exc))
+                    OnError(exc);
 
                 if (EnsureSocketClosed())
                     OnClosed();
@@ -99,7 +108,8 @@ namespace SuperSocket.ClientEngine
             }
             catch (Exception e) 
             {
-                OnError(e);
+                if (!IsIgnorableException(e))
+                    OnError(e);
 
                 if(EnsureSocketClosed())
                     OnClosed();
@@ -127,7 +137,8 @@ namespace SuperSocket.ClientEngine
             }
             catch (Exception e)
             {
-                OnError(e);
+                if (!IsIgnorableException(e))
+                    OnError(e);
 
                 if (EnsureSocketClosed())
                     OnClosed();
@@ -197,7 +208,8 @@ namespace SuperSocket.ClientEngine
             }
             catch (Exception e)
             {
-                OnError(e);
+                if (!IsIgnorableException(e))
+                    OnError(e);
 
                 if (EnsureSocketClosed())
                     OnClosed();
@@ -216,7 +228,8 @@ namespace SuperSocket.ClientEngine
             {
                 IsSending = false;
 
-                OnError(e);
+                if (!IsIgnorableException(e))
+                    OnError(e);
 
                 if (EnsureSocketClosed())
                     OnClosed();
@@ -232,7 +245,8 @@ namespace SuperSocket.ClientEngine
                 }
                 catch (Exception e)
                 {
-                    OnError(e);
+                    if (!IsIgnorableException(e))
+                        OnError(e);
 
                     if (EnsureSocketClosed())
                         OnClosed();
