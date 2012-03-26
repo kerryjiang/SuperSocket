@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight.Messaging;
 using SuperSocket.ClientEngine;
+using SuperSocket.Management.Client.ViewModel;
 
 namespace SuperSocket.Management.Client
 {
@@ -34,6 +35,7 @@ namespace SuperSocket.Management.Client
             Messenger.Default.Register<ErrorEventArgs>(this, OnError);
             Messenger.Default.Register<ExitMessage>(this, OnExitMessage);
             Messenger.Default.Register<NewServerMessage>(this, OnNewServerMessage);
+            Messenger.Default.Register<ConfigCommandMessage>(this, OnConfigCommandMessage);
 
             m_NotifyIcon = new System.Windows.Forms.NotifyIcon();
             m_NotifyIcon.Text = "SuperSocket Server Manager";
@@ -113,7 +115,9 @@ namespace SuperSocket.Management.Client
         private void OnNewServerMessage(NewServerMessage message)
         {
             var window = new ChildWindow();
-            window.Content = new NewEditServer();
+            var contentControl = new NewEditServer();
+            contentControl.DataContext = new NewServerDetailViewModel();
+            window.Content = contentControl;
             window.SizeToContent = SizeToContent.WidthAndHeight;
             window.Topmost = true;
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
@@ -128,6 +132,28 @@ namespace SuperSocket.Management.Client
 
             window.ShowDialog();
             Messenger.Default.Unregister<CloseNewServerMessage>(this);
+        }
+
+        private void OnConfigCommandMessage(ConfigCommandMessage message)
+        {
+            var window = new ChildWindow();
+            var contentControl = new NewEditServer();
+            contentControl.DataContext = new EditServerDetailViewModel(message.Server);
+            window.Content = contentControl;
+            window.SizeToContent = SizeToContent.WidthAndHeight;
+            window.Topmost = true;
+            window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+            window.ResizeMode = ResizeMode.NoResize;
+            window.Title = "Edit Server";
+
+            Messenger.Default.Register<CloseEditServerMessage>(this, (m) =>
+            {
+                window.DialogResult = false;
+                window.Close();
+            });
+
+            window.ShowDialog();
+            Messenger.Default.Unregister<CloseEditServerMessage>(this);
         }
     }
 }

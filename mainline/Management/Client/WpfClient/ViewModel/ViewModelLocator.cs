@@ -6,42 +6,17 @@ using GalaSoft.MvvmLight;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
-    public interface IViewModelAccessor
+    public interface IViewModelFactory
     {
-        ViewModelBase GetViewModel();
-
-        void Clear();
+        ViewModelBase CreateViewModel();
     }
 
-    class DefaultViewModelAccessor<TViewModel> : IViewModelAccessor
+    class DefaultViewModelAccessor<TViewModel> : IViewModelFactory
         where TViewModel : ViewModelBase, new()
     {
-        private ViewModelBase m_CurrentViewModel;
-
-        public ViewModelBase GetViewModel()
+        public ViewModelBase CreateViewModel()
         {
-            if (m_CurrentViewModel == null)
-            {
-                lock (this)
-                {
-                    if (m_CurrentViewModel == null)
-                    {
-                        m_CurrentViewModel = new TViewModel();
-                    }
-                }
-            }
-
-            return m_CurrentViewModel;
-        }
-
-        public void Clear()
-        {
-            if (m_CurrentViewModel != null)
-            {
-                m_CurrentViewModel.Cleanup();
-                m_CurrentViewModel.Dispose();
-                m_CurrentViewModel = null;
-            }
+            return new TViewModel();
         }
     }
 
@@ -50,7 +25,6 @@ namespace SuperSocket.Management.Client.ViewModel
         static ViewModelLocator()
         {
             RegisterViewModelFactory<MainViewModel>();
-            RegisterViewModelFactory<NewServerViewModel>();
         }
 
         private static void RegisterViewModelFactory<TViewModel>()
@@ -60,36 +34,11 @@ namespace SuperSocket.Management.Client.ViewModel
             m_ViewModelSource.Add(type.Name, new DefaultViewModelAccessor<TViewModel>());
         }
 
-        private static Dictionary<string, IViewModelAccessor> m_ViewModelSource = new Dictionary<string, IViewModelAccessor>(StringComparer.OrdinalIgnoreCase);
+        private static Dictionary<string, IViewModelFactory> m_ViewModelSource = new Dictionary<string, IViewModelFactory>(StringComparer.OrdinalIgnoreCase);
 
-        public Dictionary<string, IViewModelAccessor> ViewModelSource
+        public Dictionary<string, IViewModelFactory> ViewModelSource
         {
             get { return m_ViewModelSource; }
-        }
-
-        public static void Dispose()
-        {
-            m_ViewModelSource.Values.ToList().ForEach(v => v.Clear());
-            m_ViewModelSource.Clear();
-        }
-
-        public static TViewModel GetViewModel<TViewModel>()
-            where TViewModel : ViewModelBase
-        {
-            IViewModelAccessor accessor;
-
-            if (!m_ViewModelSource.TryGetValue(typeof(TViewModel).Name, out accessor))
-                return default(TViewModel);
-
-            return (TViewModel)accessor.GetViewModel();
-        }
-
-        public static void RemoveViewModel<TViewModel>()
-        {
-            IViewModelAccessor accessor;
-
-            if (m_ViewModelSource.TryGetValue(typeof(TViewModel).Name, out accessor))
-                accessor.Clear();
         }
     }
 }

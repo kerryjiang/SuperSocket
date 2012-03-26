@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.Management.Client.Config;
+using SuperSocket.Management.Client.ViewModel;
 
 namespace SuperSocket.Management.Client
 {
@@ -35,5 +37,24 @@ namespace SuperSocket.Management.Client
 
     class CloseNewServerMessage : EmptyMessageBase<CloseNewServerMessage>
     {
+    }
+
+    class CloseEditServerMessage : EmptyMessageBase<CloseEditServerMessage>
+    {
+    }
+
+    class NewEditServerMessage
+    {
+        public string Message { get; set; }
+    }
+
+    class ConfigCommandMessage
+    {
+        public ConfigCommandMessage(ServerViewModel server)
+        {
+            Server = server;
+        }
+
+        public ServerViewModel Server { get; private set; }
     }
 }

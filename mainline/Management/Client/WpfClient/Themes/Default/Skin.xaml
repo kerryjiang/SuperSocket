@@ -2,7 +2,6 @@
                     xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:this="clr-namespace:SuperSocket.Management.Client.Themes.Default">
-    <!-- Theme -->
     <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="White" />
     <SolidColorBrush x:Key="ThemeForegroundBrush" Color="Black" />
     <Color x:Key="ItemOver1">#FFF4FAFD</Color>
@@ -199,10 +198,10 @@
                             SnapsToDevicePixels="True">
             <primitives:SelectiveScrollingGrid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <this:HorizonProgressBar Grid.Column="1" HorizontalAlignment="Left" Margin="20" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                <this:HorizonProgressBar Grid.Column="1" HorizontalAlignment="Left" Margin="20 20 0 20" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                 <Rectangle Height="1" HorizontalAlignment="Stretch" 
                     x:Name="BottomGridLine" 
                     Fill="{StaticResource HorizontalVerticalGridLinesBrush}" 
@@ -243,16 +242,45 @@
         <Setter Property="Padding" Value="5 2 5 2"></Setter>
         <Setter Property="Margin" Value="5 0 0 0"></Setter>
     </Style>
+    <Style TargetType="ButtonBase" x:Key="ImageMenuButton">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ButtonBase">
+                    <Border Name="Border" CornerRadius="2">
+                        <ContentPresenter Content="{TemplateBinding Content}" />
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="Border">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{StaticResource ItemOver2}"></SolidColorBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
     <Style TargetType="ToggleButton" x:Key="CollapseButton">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <Image Name="ArrowImage" Width="16" Height="16" Source="..\..\Resources\Left.png">
-                        <Image.RenderTransform>
-                            <RotateTransform x:Name="CollapseRotate" Angle="0" CenterX="8" CenterY="9" />
-                        </Image.RenderTransform>
-                    </Image>
+                    <Border Name="Border" CornerRadius="2">
+                        <Image Name="ArrowImage" Width="16" Height="16" Source="..\..\Resources\Left.png">
+                            <Image.RenderTransform>
+                                <RotateTransform x:Name="CollapseRotate" Angle="0" CenterX="8" CenterY="9" />
+                            </Image.RenderTransform>
+                        </Image>
+                    </Border>
                     <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Background" TargetName="Border">
+                                <Setter.Value>
+                                    <SolidColorBrush Color="{StaticResource ItemOver2}"></SolidColorBrush>
+                                </Setter.Value>
+                            </Setter>
+                        </Trigger>
                         <Trigger Property="ToggleButton.IsChecked" Value="True">
                             <Trigger.EnterActions>
                                 <BeginStoryboard>
@@ -289,6 +317,13 @@
         <Setter Property="Margin" Value="0 0 10 0"></Setter>
     </Style>
     <Style TargetType="TextBoxBase" x:Key="FormTextInput">
+        <Setter Property="FontSize" Value="12"></Setter>
+        <Setter Property="Height" Value="22"></Setter>
+        <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>
+        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+        <Setter Property="Margin" Value="10 0 20 0"></Setter>
+    </Style>
+    <Style TargetType="PasswordBox" x:Key="PasswordInput">
         <Setter Property="FontSize" Value="12"></Setter>
         <Setter Property="Height" Value="22"></Setter>
         <Setter Property="HorizontalAlignment" Value="Stretch"></Setter>

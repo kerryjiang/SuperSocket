@@ -16,13 +16,19 @@ using GalaSoft.MvvmLight.Messaging;
 namespace SuperSocket.Management.Client
 {
     /// <summary>
-    /// Interaction logic for NewEditServer.xaml
+    /// Interaction logic for NewServer.xaml
     /// </summary>
     public partial class NewEditServer : UserControl
     {
         public NewEditServer()
         {
             InitializeComponent();
+            Messenger.Default.Register<NewEditServerMessage>(this, OnNewEditServerMessage);
+        }
+
+        private void OnNewEditServerMessage(NewEditServerMessage message)
+        {
+            Dispatcher.Invoke((Action<Window, NewEditServerMessage>)((w, m) => MessageBox.Show(w, m.Message)), (Window)this.Parent, message);
         }
     }
 }

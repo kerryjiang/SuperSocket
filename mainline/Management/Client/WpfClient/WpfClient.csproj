@@ -81,6 +81,9 @@
     <Compile Include="NewEditServer.xaml.cs">
       <DependentUpon>NewEditServer.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ValidationRules\RequiredValidationRule.cs" />
+    <Compile Include="ViewModel\ConnectionState.cs" />
+    <Compile Include="ViewModel\EditServerDetailViewModel.cs" />
     <Compile Include="ViewModel\InstanceState.cs" />
     <Compile Include="ViewModel\InstanceViewModel.cs" />
     <Compile Include="Selector\InstanceRowStyleSelector.cs" />
@@ -93,7 +96,8 @@
     <Compile Include="ViewModel\InstanceViewModelBase.cs" />
     <Compile Include="ViewModel\LoadingInstanceViewModel.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />
-    <Compile Include="ViewModel\NewServerViewModel.cs" />
+    <Compile Include="ViewModel\NewServerDetailViewModel.cs" />
+    <Compile Include="ViewModel\ServerDetailViewModel.cs" />
     <Compile Include="ViewModel\ServerViewModel.cs" />
     <Compile Include="ViewModel\ViewModelLocator.cs" />
     <Page Include="ChildWindow.xaml">
@@ -168,6 +172,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Left.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Setting.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

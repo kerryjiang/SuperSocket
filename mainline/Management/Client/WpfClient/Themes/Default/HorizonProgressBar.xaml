@@ -7,7 +7,7 @@
              d:DesignHeight="300" d:DesignWidth="300">
     <Grid>
         <Canvas RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Center" 
-                VerticalAlignment="Center" Width="120" Height="120" >
+                VerticalAlignment="Center" Width="300" Height="22" >
             <Ellipse x:Name="FocusPoint" Width="21.835" Height="21.862" Canvas.Left="0" 
                      Canvas.Top="0" Stretch="Fill" Fill="Red" Opacity="1.0"/>
             <Ellipse Width="21.835" Height="21.862" Canvas.Left="0" 

@@ -41,31 +41,25 @@ namespace SuperSocket.Management.Client
             //MessageBox.Show(e.ExceptionObject.ToString());
         }
 
+        private const string m_ConfigFile = "Client.config";
+
         private void InitailizeConfig()
         {
-            var filePath = "Client.config";
-
-            if (!File.Exists(filePath))
+            if (!File.Exists(m_ConfigFile))
             {
                 var config = new ClientAppConfig();
-
-                config.Servers = new ServerConfig[]
-                {
-                    new ServerConfig
-                    {
-                        Name = "localhost"
-                    }
-                };
-
-                config.XmlSerialize(filePath);
-
+                config.Servers = new ServerConfig[0];
                 ClientConfig = config;
-
                 return;
             }
 
-            var configXml = File.ReadAllText(filePath, Encoding.UTF8);
+            var configXml = File.ReadAllText(m_ConfigFile, Encoding.UTF8);
             ClientConfig = configXml.XmlDeserialize<ClientAppConfig>();
+        }
+
+        internal static void SaveConfig()
+        {
+            ClientConfig.XmlSerialize(m_ConfigFile);
         }
     }
 }

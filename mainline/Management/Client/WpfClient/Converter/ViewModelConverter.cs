@@ -11,14 +11,14 @@ namespace SuperSocket.Management.Client.Converter
     {
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
-            var viewModelSource = value as Dictionary<string, IViewModelAccessor>;
+            var viewModelSource = value as Dictionary<string, IViewModelFactory>;
 
-            IViewModelAccessor viewModelAccessor;
+            IViewModelFactory viewModelFactory;
 
-            if (!viewModelSource.TryGetValue(parameter.ToString(), out viewModelAccessor))
+            if (!viewModelSource.TryGetValue(parameter.ToString(), out viewModelFactory))
                 throw new ArgumentException("parameter");
 
-            return viewModelAccessor.GetViewModel();
+            return viewModelFactory.CreateViewModel();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)

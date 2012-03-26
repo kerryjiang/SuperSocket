@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Xml.Serialization;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
@@ -10,7 +11,7 @@ using SuperSocket.ClientEngine;
 using SuperSocket.Management.Client.Config;
 using SuperSocket.Management.Shared;
 using WebSocket4Net;
-using System.Threading;
+using GalaSoft.MvvmLight.Command;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
@@ -20,6 +21,11 @@ namespace SuperSocket.Management.Client.ViewModel
         public List<InstanceViewModel> Instances { get; private set; }
 
         private ServerConfig m_ServerConfig;
+
+        internal ServerConfig Config
+        {
+            get { return m_ServerConfig; }
+        }
 
         private JsonWebSocket m_WebSocket;
 
@@ -32,6 +38,8 @@ namespace SuperSocket.Management.Client.ViewModel
             Name = config.Name;
             m_WebSocket = CreateWebSocket(config);
             m_ReconnectTimer = new Timer(ReconnectTimerCallback, null, Timeout.Infinite, Timeout.Infinite);
+
+            ConfigCommand = new RelayCommand<object>(ExecuteConfigCommand);
         }
 
         private JsonWebSocket CreateWebSocket(ServerConfig config)
@@ -42,6 +50,7 @@ namespace SuperSocket.Management.Client.ViewModel
             websocket.Closed += new EventHandler(m_WebSocket_Closed);
             websocket.On<ServerInfo>(CommandName.UPDATE, OnServerUpdated);
             websocket.Open();
+            State = ConnectionState.Connecting;
 
             foreach (var instance in Instances)
             {
@@ -53,7 +62,7 @@ namespace SuperSocket.Management.Client.ViewModel
 
         void m_WebSocket_Closed(object sender, EventArgs e)
         {
-            Connected = false;
+            State = ConnectionState.NotConnected;
             m_WebSocket = null;
 
             foreach (var instance in Instances)
@@ -62,7 +71,13 @@ namespace SuperSocket.Management.Client.ViewModel
                 instance.State = InstanceState.NotConnected;
             }
 
+            WaitingReconnect();
+        }
+
+        void WaitingReconnect()
+        {
             m_ReconnectTimer.Change(2 * 1000 * 60, Timeout.Infinite);
+            State = ConnectionState.WaitingReconnect;
         }
 
         private void ReconnectTimerCallback(object state)
@@ -76,7 +91,39 @@ namespace SuperSocket.Management.Client.ViewModel
 
         void m_WebSocket_Error(object sender, ErrorEventArgs e)
         {
+            if (State == ConnectionState.Connecting)
+            {
+                m_WebSocket = null;
+                WaitingReconnect();
+            }
+
             Messenger.Default.Send<ErrorEventArgs>(e);
+        }
+
+        internal void RefreshConfig()
+        {
+            this.Name = m_ServerConfig.Name;
+
+            if (m_WebSocket != null)
+            {
+                m_WebSocket.Closed -= m_WebSocket_Closed;
+                m_WebSocket.Closed += new EventHandler(m_WebSocketRefresh_Closed);
+                m_WebSocket.Close();
+            }
+        }
+
+        void m_WebSocketRefresh_Closed(object sender, EventArgs e)
+        {
+            State = ConnectionState.NotConnected;
+            m_WebSocket = null;
+
+            foreach (var instance in Instances)
+            {
+                instance.IsRunning = false;
+                instance.State = InstanceState.NotConnected;
+            }
+
+            m_WebSocket = CreateWebSocket(m_ServerConfig);
         }
 
         void m_WebSocket_Opened(object sender, EventArgs e)
@@ -90,7 +137,7 @@ namespace SuperSocket.Management.Client.ViewModel
             if (!result.Result)
                 return;
 
-            Connected = true;
+            State = ConnectionState.Connected;
             OnServerUpdated(result.ServerInfo);
         }
 
@@ -158,16 +205,16 @@ namespace SuperSocket.Management.Client.ViewModel
             }
         }
 
-        private bool m_Connected;
+        private ConnectionState m_State = ConnectionState.None;
 
         [XmlIgnore]
-        public bool Connected
+        public ConnectionState State
         {
-            get { return m_Connected; }
+            get { return m_State; }
             set
             {
-                m_Connected = value;
-                RaisePropertyChanged("Connected");
+                m_State = value;
+                RaisePropertyChanged("State");
             }
         }
 
@@ -307,6 +354,13 @@ namespace SuperSocket.Management.Client.ViewModel
             }
 
             base.Cleanup();
+        }
+
+        public RelayCommand<object> ConfigCommand { get; private set; }
+
+        private void ExecuteConfigCommand(object target)
+        {
+            Messenger.Default.Send<ConfigCommandMessage>(new ConfigCommandMessage(this));
         }
     }
 }

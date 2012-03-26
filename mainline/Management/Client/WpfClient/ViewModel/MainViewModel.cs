@@ -20,7 +20,11 @@ namespace SuperSocket.Management.Client.ViewModel
 
         public MainViewModel()
         {
+            if (IsInDesignMode)
+                return;
+
             Messenger.Default.Register<IEnumerable<InstanceViewModel>>(this, OnNewInstancesFound);
+            Messenger.Default.Register<ServerConfig>(this, OnNewServerCreated);
 
             ExitCommand = new RelayCommand<object>(ExecuteExitCommand);
             NewServerCommand = new RelayCommand<object>(ExecuteNewServerCommand);
@@ -37,6 +41,19 @@ namespace SuperSocket.Management.Client.ViewModel
                 var server = new ServerViewModel(serverConfig);
                 m_Servers.Add(server);
             }
+        }
+
+        private void OnNewServerCreated(ServerConfig server)
+        {
+            var servers = App.ClientConfig.Servers.ToList();
+            servers.Add(server);
+            App.ClientConfig.Servers = servers.ToArray();
+
+            var serverModel = new ServerViewModel(server);
+            m_Servers.Add(serverModel);
+            Instances = null;
+
+            App.SaveConfig();
         }
 
         private void OnNewInstancesFound(IEnumerable<InstanceViewModel> instances)
