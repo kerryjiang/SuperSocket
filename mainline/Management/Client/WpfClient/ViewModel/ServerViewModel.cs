@@ -22,6 +22,8 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private ServerConfig m_ServerConfig;
 
+        private bool m_ErrorPopped = false;
+
         internal ServerConfig Config
         {
             get { return m_ServerConfig; }
@@ -51,6 +53,7 @@ namespace SuperSocket.Management.Client.ViewModel
             websocket.On<ServerInfo>(CommandName.UPDATE, OnServerUpdated);
             websocket.Open();
             State = ConnectionState.Connecting;
+            m_ErrorPopped = false;
 
             foreach (var instance in Instances)
             {
@@ -97,7 +100,11 @@ namespace SuperSocket.Management.Client.ViewModel
                 WaitingReconnect();
             }
 
-            Messenger.Default.Send<ErrorEventArgs>(e);
+            if (!m_ErrorPopped)
+            {
+                m_ErrorPopped = true;
+                Messenger.Default.Send<ErrorEventArgs>(e);
+            }
         }
 
         internal void RefreshConfig()
