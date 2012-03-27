@@ -40,7 +40,8 @@ namespace SuperSocket.Management.Client.ViewModel
             var passwordBox = target as PasswordBox;
             server.Password = passwordBox.Password;
 
-            Messenger.Default.Send<ServerConfig>(server);
+            Messenger.Default.Send<CloseNewServerMessage>(CloseNewServerMessage.Empty);
+            Messenger.Default.Send<NewServerCreatedMessage>(new NewServerCreatedMessage(server));
         }
     }
 }

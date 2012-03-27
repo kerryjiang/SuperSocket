@@ -24,7 +24,8 @@ namespace SuperSocket.Management.Client.ViewModel
                 return;
 
             Messenger.Default.Register<IEnumerable<InstanceViewModel>>(this, OnNewInstancesFound);
-            Messenger.Default.Register<ServerConfig>(this, OnNewServerCreated);
+            Messenger.Default.Register<NewServerCreatedMessage>(this, OnNewServerCreated);
+            Messenger.Default.Register<ServerRemovedMessage>(this, OnServerRemovedMessage);
 
             ExitCommand = new RelayCommand<object>(ExecuteExitCommand);
             NewServerCommand = new RelayCommand<object>(ExecuteNewServerCommand);
@@ -43,14 +44,27 @@ namespace SuperSocket.Management.Client.ViewModel
             }
         }
 
-        private void OnNewServerCreated(ServerConfig server)
+        private void OnNewServerCreated(NewServerCreatedMessage message)
         {
             var servers = App.ClientConfig.Servers.ToList();
-            servers.Add(server);
+            servers.Add(message.Server);
             App.ClientConfig.Servers = servers.ToArray();
 
-            var serverModel = new ServerViewModel(server);
+            var serverModel = new ServerViewModel(message.Server);
             m_Servers.Add(serverModel);
+            Instances = null;
+
+            App.SaveConfig();
+        }
+
+        private void OnServerRemovedMessage(ServerRemovedMessage message)
+        {
+            var servers = App.ClientConfig.Servers.ToList();
+            servers.Remove(message.Server);
+            App.ClientConfig.Servers = servers.ToArray();
+
+            var server = m_Servers.FirstOrDefault(m => m.Config == message.Server);
+            m_Servers.Remove(server);
             Instances = null;
 
             App.SaveConfig();

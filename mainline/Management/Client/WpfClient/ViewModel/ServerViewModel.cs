@@ -119,6 +119,15 @@ namespace SuperSocket.Management.Client.ViewModel
             }
         }
 
+        internal void StopConnection()
+        {
+            if (m_WebSocket != null)
+            {
+                m_WebSocket.Closed -= m_WebSocket_Closed;
+                m_WebSocket.Close();
+            }
+        }
+
         void m_WebSocketRefresh_Closed(object sender, EventArgs e)
         {
             State = ConnectionState.NotConnected;

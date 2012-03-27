@@ -74,13 +74,22 @@
             <TextBlock Grid.Column="0" Grid.Row="4" Text="Password:"></TextBlock>
             <PasswordBox Grid.Column="1" Grid.Row="4" x:Name="PasswordTextBox" IsEnabled="{Binding PasswordBoxDefaultEnabled, Mode=OneTime}"></PasswordBox>
         </Grid>
-        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
-            <CheckBox Content="Change Password?" x:Name="ChangePasswordCheckBox" VerticalAlignment="Center"
-                      Visibility="{Binding IsEdit, Converter={StaticResource VisibilityConverter}}">
-            </CheckBox>
-            <Button Style="{StaticResource MainMenuButton}" Content="Save" Command="{Binding SaveCommand}" CommandParameter="{Binding ElementName=PasswordTextBox}" />
-            <Button Style="{StaticResource MainMenuButton}" Content="Close" Command="{Binding CloseCommand}" />
-            <StackPanel.Triggers>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0" HorizontalAlignment="Center" Orientation="Horizontal">
+                <CheckBox Content="Change Password?" x:Name="ChangePasswordCheckBox" VerticalAlignment="Center"
+                          Visibility="{Binding IsEdit, Converter={StaticResource VisibilityConverter}}">
+                </CheckBox>
+                <Button Style="{StaticResource MainMenuButton}" Content="Save" Command="{Binding SaveCommand}" CommandParameter="{Binding ElementName=PasswordTextBox}" />
+                <Button Style="{StaticResource MainMenuButton}" Content="Close" Command="{Binding CloseCommand}" />
+            </StackPanel>
+            <Button Grid.Column="1" Margin="5 0 25 0" Style="{StaticResource MainMenuButton}"
+                    Content="Remove" Command="{Binding RemoveCommand}"
+                    Visibility="{Binding Path=IsEdit, Converter={StaticResource VisibilityConverter}}" />
+            <Grid.Triggers>
                 <EventTrigger SourceName="ChangePasswordCheckBox" RoutedEvent="CheckBox.Checked">
                     <BeginStoryboard>
                         <Storyboard >
@@ -107,7 +116,7 @@
                         </Storyboard>
                     </BeginStoryboard>
                 </EventTrigger>
-            </StackPanel.Triggers>
-        </StackPanel>
+            </Grid.Triggers>
+        </Grid>
     </Grid>
 </UserControl>

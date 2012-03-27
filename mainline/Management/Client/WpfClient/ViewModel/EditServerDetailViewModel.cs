@@ -24,6 +24,7 @@ namespace SuperSocket.Management.Client.ViewModel
             this.UserName = server.Config.UserName;
 
             CloseCommand = new RelayCommand<object>((s) => Messenger.Default.Send<CloseEditServerMessage>(CloseEditServerMessage.Empty));
+            RemoveCommand = new RelayCommand<object>(ExecuteRemoveCommand);
         }
 
         protected override void ExecuteSaveCommand(object target)
@@ -43,6 +44,26 @@ namespace SuperSocket.Management.Client.ViewModel
             Messenger.Default.Send<CloseEditServerMessage>(CloseEditServerMessage.Empty);
 
             m_Server.RefreshConfig();
+        }
+
+        public RelayCommand<object> RemoveCommand { get; private set; }
+
+        private void ExecuteRemoveCommand(object target)
+        {
+            var dialogMessage = new DialogMessage(this, "Are you sure you want to remove this server?", (r) =>
+            {
+                if (r == System.Windows.MessageBoxResult.Yes)
+                {
+                    m_Server.StopConnection();
+                    Messenger.Default.Send<CloseEditServerMessage>(CloseEditServerMessage.Empty);
+                    Messenger.Default.Send<ServerRemovedMessage>(new ServerRemovedMessage(m_Server.Config));
+                }
+            });
+
+            dialogMessage.Button = System.Windows.MessageBoxButton.YesNo;
+            dialogMessage.Caption = "Remove";
+
+            Messenger.Default.Send<DialogMessage>(dialogMessage);
         }
     }
 }

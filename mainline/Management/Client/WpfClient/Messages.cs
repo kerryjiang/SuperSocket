@@ -57,4 +57,24 @@ namespace SuperSocket.Management.Client
 
         public ServerViewModel Server { get; private set; }
     }
+
+    class NewServerCreatedMessage
+    {
+        public NewServerCreatedMessage(ServerConfig server)
+        {
+            Server = server;
+        }
+
+        public ServerConfig Server { get; private set; }
+    }
+
+    class ServerRemovedMessage
+    {
+        public ServerRemovedMessage(ServerConfig server)
+        {
+            Server = server;
+        }
+
+        public ServerConfig Server { get; private set; }
+    }
 }
