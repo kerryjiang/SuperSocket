@@ -38,7 +38,7 @@ namespace SuperSocket.Management.Client.ViewModel
             server.UserName = UserName;
 
             var passwordBox = target as PasswordBox;
-            server.Password = passwordBox.Password;
+            server.Password = EncryptPassword(passwordBox.Password);
 
             Messenger.Default.Send<CloseNewServerMessage>(CloseNewServerMessage.Empty);
             Messenger.Default.Send<NewServerCreatedMessage>(new NewServerCreatedMessage(server));

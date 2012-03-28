@@ -11,6 +11,7 @@ using SuperSocket.SocketBase.Protocol;
 using SuperWebSocket;
 using SuperWebSocket.Protocol;
 using SuperWebSocket.SubProtocol;
+using SuperSocket.Management.Server.Config;
 
 namespace SuperSocket.Management.Server
 {
@@ -18,11 +19,7 @@ namespace SuperSocket.Management.Server
     {
         private IServerContainer m_ServerContainer;
 
-        private string m_ManagePassword;
-
-        private string m_ManageUser;
-
-        private string m_SecurityKey;
+        private Dictionary<string, UserConfig> m_UsersDict;
 
         public ManagementServer()
             : base(new BasicSubProtocol<ManagementSession>("ServerManager"))
@@ -35,35 +32,20 @@ namespace SuperSocket.Management.Server
             if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
                 return false;
 
-            var password = config.Options.GetValue("managePassword");
+            var users = config.GetChildConfig<UserConfigCollection>("users");
 
-            if (string.IsNullOrEmpty(password))
+            if (users == null || users.Count <= 0)
             {
-                Logger.Error("managePassword is required in configuration!");
+                Logger.Error("No user defined");
                 return false;
             }
 
-            m_ManagePassword = password;
+            m_UsersDict = new Dictionary<string, UserConfig>(StringComparer.OrdinalIgnoreCase);
 
-            var user = config.Options.GetValue("manageUser");
-
-            if (string.IsNullOrEmpty(user))
+            foreach (var u in users)
             {
-                Logger.Error("manageUser is required in configuration!");
-                return false;
+                m_UsersDict.Add(u.Name, u);
             }
-
-            m_ManageUser = user;
-
-            var securityKey = config.Options.GetValue("securityKey");
-
-            if (string.IsNullOrEmpty(securityKey))
-            {
-                Logger.Error("securityKey is required in configuration!");
-                return false;
-            }
-
-            m_SecurityKey = securityKey;
 
             return true;
         }
@@ -145,6 +127,13 @@ namespace SuperSocket.Management.Server
         internal IAppServer GetServerByName(string name)
         {
             return m_ServerContainer.GetServerByName(name);
+        }
+
+        internal UserConfig GetUserByName(string name)
+        {
+            UserConfig user;
+            m_UsersDict.TryGetValue(name, out user);
+            return user;
         }
     }
 }

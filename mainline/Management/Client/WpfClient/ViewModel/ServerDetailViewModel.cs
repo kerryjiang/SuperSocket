@@ -7,6 +7,7 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using SuperSocket.Management.Client.Config;
+using System.Security.Cryptography;
 
 namespace SuperSocket.Management.Client.ViewModel
 {
@@ -99,6 +100,11 @@ namespace SuperSocket.Management.Client.ViewModel
                 return false;
 
             return true;
+        }
+
+        protected string EncryptPassword(string password)
+        {
+            return Convert.ToBase64String(SHA1.Create().ComputeHash(Encoding.ASCII.GetBytes(password)));
         }
     }
 }

@@ -77,4 +77,14 @@ namespace SuperSocket.Management.Client
 
         public ServerConfig Server { get; private set; }
     }
+
+    class AlertMessage
+    {
+        public AlertMessage(string message)
+        {
+            Message = message;
+        }
+
+        public string Message { get; private set; }
+    }
 }

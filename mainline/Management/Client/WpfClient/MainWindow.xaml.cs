@@ -36,6 +36,7 @@ namespace SuperSocket.Management.Client
             Messenger.Default.Register<ExitMessage>(this, OnExitMessage);
             Messenger.Default.Register<NewServerMessage>(this, OnNewServerMessage);
             Messenger.Default.Register<ConfigCommandMessage>(this, OnConfigCommandMessage);
+            Messenger.Default.Register<AlertMessage>(this, HandleAlertMessage);
 
             m_NotifyIcon = new System.Windows.Forms.NotifyIcon();
             m_NotifyIcon.Text = "SuperSocket Server Manager";
@@ -154,6 +155,14 @@ namespace SuperSocket.Management.Client
 
             window.ShowDialog();
             Messenger.Default.Unregister<CloseEditServerMessage>(this);
+        }
+
+        private void HandleAlertMessage(AlertMessage message)
+        {
+            Dispatcher.Invoke((Action<AlertMessage>)((m) =>
+                {
+                    System.Windows.MessageBox.Show(m.Message);
+                }), message);
         }
     }
 }

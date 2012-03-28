@@ -65,15 +65,7 @@ namespace SuperSocket.Management.Client.ViewModel
 
         void m_WebSocket_Closed(object sender, EventArgs e)
         {
-            State = ConnectionState.NotConnected;
-            m_WebSocket = null;
-
-            foreach (var instance in Instances)
-            {
-                instance.IsRunning = false;
-                instance.State = InstanceState.NotConnected;
-            }
-
+            SetClosedStatus();
             WaitingReconnect();
         }
 
@@ -117,6 +109,10 @@ namespace SuperSocket.Management.Client.ViewModel
                 m_WebSocket.Closed += new EventHandler(m_WebSocketRefresh_Closed);
                 m_WebSocket.Close();
             }
+            else
+            {
+                m_WebSocket = CreateWebSocket(m_ServerConfig);
+            }
         }
 
         internal void StopConnection()
@@ -128,7 +124,7 @@ namespace SuperSocket.Management.Client.ViewModel
             }
         }
 
-        void m_WebSocketRefresh_Closed(object sender, EventArgs e)
+        void SetClosedStatus()
         {
             State = ConnectionState.NotConnected;
             m_WebSocket = null;
@@ -138,7 +134,11 @@ namespace SuperSocket.Management.Client.ViewModel
                 instance.IsRunning = false;
                 instance.State = InstanceState.NotConnected;
             }
+        }
 
+        void m_WebSocketRefresh_Closed(object sender, EventArgs e)
+        {
+            SetClosedStatus();
             m_WebSocket = CreateWebSocket(m_ServerConfig);
         }
 
@@ -150,8 +150,22 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private void OnServerLoggedIn(LoginResult result)
         {
+            //Login failed
             if (!result.Result)
+            {
+                if (m_WebSocket != null)
+                {
+                    m_WebSocket.Closed -= m_WebSocket_Closed;
+                    m_WebSocket.Closed += (s, e) =>
+                    {
+                        SetClosedStatus();
+                    };
+                    m_WebSocket.Close();
+                }
+
+                Messenger.Default.Send<AlertMessage>(new AlertMessage(this.Name + ": user name or password doesn't match"));
                 return;
+            }
 
             State = ConnectionState.Connected;
             OnServerUpdated(result.ServerInfo);
