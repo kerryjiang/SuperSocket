@@ -206,7 +206,6 @@ namespace SuperSocket.Management.Client.ViewModel
             this.MaxWorkingThreads = serverInfo.MaxWorkingThreads;
             this.PhysicalMemoryUsage = serverInfo.PhysicalMemoryUsage;
             this.TotalThreadCount = serverInfo.TotalThreadCount;
-            this.VirtualMemoryUsage = serverInfo.VirtualMemoryUsage;
 
             var newInstanceFound = false;
 

@@ -23,7 +23,6 @@ namespace SuperSocket.Management.Server
                 MaxCompletionPortThreads = GlobalPerformance.MaxCompletionPortThreads,
                 CpuUsage = GlobalPerformance.CpuUsage,
                 PhysicalMemoryUsage = GlobalPerformance.WorkingSet,
-                VirtualMemoryUsage = GlobalPerformance.VirtualMemorySize,
                 TotalThreadCount = GlobalPerformance.TotalThreadCount,
                 Instances = InstanceStates.Select(i => new InstanceInfo
                 {

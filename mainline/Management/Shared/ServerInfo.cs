@@ -19,8 +19,6 @@ namespace SuperSocket.Management.Shared
 
         public double PhysicalMemoryUsage { get; set; }
 
-        public double VirtualMemoryUsage { get; set; }
-
         public int TotalThreadCount { get; set; }
 
         public InstanceInfo[] Instances { get; set; }

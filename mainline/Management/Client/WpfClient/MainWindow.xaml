@@ -99,7 +99,7 @@
                                                         <Setter Property="VerticalAlignment" Value="Center"></Setter>
                                                     </Style>
                                                 </StackPanel.Resources>
-                                                <TextBlock Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:P0}'}" />
+                                                <TextBlock Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:f0} %'}" />
                                             </StackPanel>
                                         </StackPanel>
                                         <StackPanel Grid.Column="1" Orientation="Horizontal">
@@ -138,10 +138,9 @@
                                                     <SolidColorBrush Color="{StaticResource ItemOver1}"></SolidColorBrush>
                                                 </Rectangle.Fill>
                                             </Rectangle>
-                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:P0}'}" />
+                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:f0} %'}" />
                                             <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Name.PhysicalMemoryUsage, StringFormat='Physical Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" />
-                                            <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding Name.VirtualMemoryUsage, StringFormat='Virtual Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" />
-                                            <TextBlock Grid.Column="3" Grid.Row="0" Text="{Binding Name.TotalThreadCount, StringFormat='Total Thread Count: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                            <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding Name.TotalThreadCount, StringFormat='Total Thread Count: {0}'}" VerticalAlignment="Center" FontSize="11"/>
                                             <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding Name.AvailableWorkingThreads, StringFormat='Available Working Threads: {0}'}" />
                                             <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Name.AvailableCompletionPortThreads, StringFormat='Available Completion Port Threads: {0}'}" />
                                             <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding Name.MaxWorkingThreads, StringFormat='Max Working Threads: {0}'}" VerticalAlignment="Center" FontSize="11"/>
