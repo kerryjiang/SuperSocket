@@ -158,7 +158,7 @@ namespace SuperSocket.SocketEngine
         internal void StartPerformanceLog()
         {
             m_PerfLog = LogFactoryProvider.LogFactory.GetLog("performance");
-            m_PerformanceTimer.Change(m_TimerInterval, m_TimerInterval);
+            m_PerformanceTimer.Change(0, m_TimerInterval);
             m_CpuUsageTimer.Change(m_CpuTimerInterval, m_CpuTimerInterval);
         }
 
