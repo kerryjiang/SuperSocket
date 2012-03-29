@@ -20,7 +20,6 @@ namespace SuperSocket.SocketEngine
         {
             m_TimerInterval = config.PerformanceDataCollectInterval * 1000;
             m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
-            m_CpuUsageTimer = new Timer(OnCpuUsageTimerCallback);
         }
 
         public IEnumerable<IAppServer> GetAllServers()
@@ -75,19 +74,15 @@ namespace SuperSocket.SocketEngine
         }
 
         private Timer m_PerformanceTimer;
-        private Timer m_CpuUsageTimer;
         private readonly int m_TimerInterval;
-        private readonly int m_CpuTimerInterval = 1000;//1 second
-        private double m_PrevTotalProcessorTime = 0;
-        private DateTime m_PrevCheckingTime = DateTime.MinValue;
-        private double m_CpuUsgae = 0;
-        private readonly long m_MbUnit = 1024 * 1024;
         private ILog m_PerfLog;
+
+        private PerformanceCounter m_CpuUsagePC;
+        private PerformanceCounter m_ThreadCountPC;
+        private PerformanceCounter m_WorkingSetPC;
 
         private void OnPerformanceTimerCallback(object state)
         {
-            var process = Process.GetCurrentProcess();
-
             int availableWorkingThreads, availableCompletionPortThreads;
             ThreadPool.GetAvailableThreads(out availableWorkingThreads, out availableCompletionPortThreads);
 
@@ -101,15 +96,14 @@ namespace SuperSocket.SocketEngine
                 AvailableCompletionPortThreads = availableCompletionPortThreads,
                 MaxCompletionPortThreads = maxCompletionPortThreads,
                 MaxWorkingThreads = maxWorkingThreads,
-                CpuUsage = m_CpuUsgae,
-                TotalThreadCount = process.Threads.Count,
-                WorkingSet = process.WorkingSet64,
-                VirtualMemorySize = process.VirtualMemorySize64
+                CpuUsage = m_CpuUsagePC.NextValue(),
+                TotalThreadCount = (int)m_ThreadCountPC.NextValue(),
+                WorkingSet = (long)m_WorkingSetPC.NextValue()
             };
 
             var perfBuilder = new StringBuilder();
 
-            perfBuilder.AppendLine(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1}M, Virtual Memory Usage: {2}M, Total Thread Count: {3}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet / m_MbUnit, globalPerfData.VirtualMemorySize / m_MbUnit, globalPerfData.TotalThreadCount));
+            perfBuilder.AppendLine(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1:0N}, Total Thread Count: {2}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet, globalPerfData.TotalThreadCount));
             perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads));
             perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData.MaxWorkingThreads, globalPerfData.MaxCompletionPortThreads));
 
@@ -140,32 +134,21 @@ namespace SuperSocket.SocketEngine
             m_PerformanceDataCollected.BeginInvoke(this, new PermformanceDataEventArgs(globalPerfData, instancesData.ToArray()), null, null);
         }
 
-        private void OnCpuUsageTimerCallback(object state)
-        {
-            var process = Process.GetCurrentProcess();
-
-            if (m_PrevTotalProcessorTime == 0)
-                m_PrevCheckingTime = process.StartTime;
-
-            double currentProcessorTime = process.TotalProcessorTime.TotalMilliseconds;
-            DateTime currentCheckingTime = DateTime.Now;
-
-            m_CpuUsgae = (currentProcessorTime - m_PrevTotalProcessorTime) * 100 / (currentCheckingTime.Subtract(m_PrevCheckingTime).TotalMilliseconds * Environment.ProcessorCount);
-            m_PrevCheckingTime = currentCheckingTime;
-            m_PrevTotalProcessorTime = currentProcessorTime;
-        }
-
         internal void StartPerformanceLog()
         {
+            Process process = Process.GetCurrentProcess();
+
+            m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", process.ProcessName);
+            m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", process.ProcessName);
+            m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", process.ProcessName);
+
             m_PerfLog = LogFactoryProvider.LogFactory.GetLog("performance");
             m_PerformanceTimer.Change(0, m_TimerInterval);
-            m_CpuUsageTimer.Change(m_CpuTimerInterval, m_CpuTimerInterval);
         }
 
         internal void StopPerformanceLog()
         {
             m_PerformanceTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            m_CpuUsageTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
     }
 }

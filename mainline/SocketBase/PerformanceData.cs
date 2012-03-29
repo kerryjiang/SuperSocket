@@ -46,6 +46,5 @@ namespace SuperSocket.SocketBase
         public int TotalThreadCount { get; set; }
         public double CpuUsage { get; set; }
         public long WorkingSet { get; set; }
-        public long VirtualMemorySize { get; set; }
     }
 }
