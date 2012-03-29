@@ -12,6 +12,6 @@ namespace SuperSocket.Management.Client.ViewModel
         Running,
         Starting,
         Stopping,
-        NotConnected
+        NotConnected,
     }
 }

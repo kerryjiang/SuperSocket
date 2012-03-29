@@ -124,6 +124,14 @@ namespace SuperSocket.Management.Client.ViewModel
 
         public ListenerInfo[] Listeners { get; set; }
 
+        public string ListenersDescription
+        {
+            get
+            {
+                return string.Join(", ", Listeners.Select(l =>
+                    l.Security.Equals("None", StringComparison.OrdinalIgnoreCase) ? l.EndPoint : string.Format("[{0}]{1}", l.Security, l.EndPoint)).ToArray());
+            }
+        }
 
         private int m_RequestHandlingSpeed;
 

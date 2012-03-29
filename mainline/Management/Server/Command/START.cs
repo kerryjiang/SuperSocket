@@ -13,6 +13,12 @@ namespace SuperSocket.Management.Server.Command
     {
         protected override void ExecuteAsyncJsonCommand(ManagementSession session, string token, string commandInfo)
         {
+            if (!session.LoggedIn)
+            {
+                session.Close();
+                return;
+            }
+
             var server = session.AppServer.GetServerByName(commandInfo);
 
             if (server == null)

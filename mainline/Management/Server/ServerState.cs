@@ -32,7 +32,7 @@ namespace SuperSocket.Management.Server
                     {
                         BackLog = l.BackLog,
                         EndPoint = l.EndPoint.ToString(),
-                         Security = l.Security.ToString()
+                        Security = l.Security.ToString()
                     }).ToArray(),
                     Name = i.Instance.Name,
                     IsRunning = i.Instance.IsRunning,

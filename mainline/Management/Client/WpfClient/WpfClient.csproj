@@ -84,6 +84,7 @@
     <Compile Include="ValidationRules\RequiredValidationRule.cs" />
     <Compile Include="ViewModel\ConnectionState.cs" />
     <Compile Include="ViewModel\EditServerDetailViewModel.cs" />
+    <Compile Include="ViewModel\FaultInstanceViewModel.cs" />
     <Compile Include="ViewModel\InstanceState.cs" />
     <Compile Include="ViewModel\InstanceViewModel.cs" />
     <Compile Include="Selector\InstanceRowStyleSelector.cs" />

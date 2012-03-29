@@ -25,7 +25,13 @@
                 <Style x:Key="LoadingRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
                     <Setter Property="Template" Value="{StaticResource LoadingRowTemplate}" />
                 </Style>
-                <selector:InstanceRowStyleSelector x:Key="ServerRowStyleSelector" NormalStyle="{StaticResource InstanceRowStyle}" LoadingStyle="{StaticResource LoadingRowStyle}"></selector:InstanceRowStyleSelector> 
+                <Style x:Key="FaultRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
+                    <Setter Property="Template" Value="{StaticResource FaultRowTemplate}" />
+                </Style>
+                <selector:InstanceRowStyleSelector x:Key="ServerRowStyleSelector"
+                        NormalStyle="{StaticResource InstanceRowStyle}"
+                        LoadingStyle="{StaticResource LoadingRowStyle}"
+                        FaultStyle="{StaticResource FaultRowStyle}"></selector:InstanceRowStyleSelector> 
             </ResourceDictionary>
         </Grid.Resources>
         <Grid.ColumnDefinitions>
@@ -165,7 +171,7 @@
                 </GroupStyle>
             </DataGrid.GroupStyle>
             <DataGrid.Columns>
-                <DataGridTemplateColumn Header="Name" IsReadOnly="True" SortMemberPath="Name">
+                <DataGridTemplateColumn Header="Name" IsReadOnly="True" SortMemberPath="Name" Width="3*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
@@ -180,8 +186,8 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Started Time" Binding="{Binding Path=StartedTime, StringFormat='MM/dd/yyyy HH:mm'}" IsReadOnly="True" />
-                <DataGridTemplateColumn Header="Connection Count" IsReadOnly="True" SortMemberPath="CurrentConnectionCount">
+                <DataGridTextColumn Header="Started Time" Binding="{Binding Path=StartedTime, StringFormat='MM/dd/yyyy HH:mm'}" Width="2*" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="Connection Count" IsReadOnly="True" SortMemberPath="CurrentConnectionCount" Width="2*">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <StackPanel>
@@ -198,8 +204,9 @@
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-                <DataGridTextColumn Header="Request Handling Speed (#/second)" Binding="{Binding RequestHandlingSpeed}" IsReadOnly="True" />
-                <DataGridTextColumn Header="State" Binding="{Binding State}" IsReadOnly="True" />
+                <DataGridTextColumn Header="Request Handling Speed (#/second)" Binding="{Binding RequestHandlingSpeed}" Width="2*" IsReadOnly="True" />
+                <DataGridTextColumn Header="Listeners" Binding="{Binding ListenersDescription}" SortMemberPath="ListenersDescription" IsReadOnly="True" Width="3*" />
+                <DataGridTextColumn Header="State" Binding="{Binding State}" IsReadOnly="True" Width="1*" />
             </DataGrid.Columns>
         </DataGrid>
     </Grid>

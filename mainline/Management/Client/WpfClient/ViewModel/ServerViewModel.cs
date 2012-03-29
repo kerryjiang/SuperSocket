@@ -126,7 +126,12 @@ namespace SuperSocket.Management.Client.ViewModel
 
         void SetClosedStatus()
         {
-            State = ConnectionState.NotConnected;
+            SetClosedStatus(ConnectionState.NotConnected);
+        }
+
+        void SetClosedStatus(ConnectionState closeState)
+        {
+            State = closeState;
             m_WebSocket = null;
 
             foreach (var instance in Instances)
@@ -153,22 +158,39 @@ namespace SuperSocket.Management.Client.ViewModel
             //Login failed
             if (!result.Result)
             {
+                string faultMessage = this.Name + ": user name or password doesn't match";
+
                 if (m_WebSocket != null)
                 {
                     m_WebSocket.Closed -= m_WebSocket_Closed;
                     m_WebSocket.Closed += (s, e) =>
                     {
-                        SetClosedStatus();
+                        SetClosedStatus(ConnectionState.Fault);
+                        Description = faultMessage;
+                        Instances.Clear();
+                        Messenger.Default.Send<IEnumerable<InstanceViewModel>>(null);
                     };
                     m_WebSocket.Close();
                 }
-
-                Messenger.Default.Send<AlertMessage>(new AlertMessage(this.Name + ": user name or password doesn't match"));
+                
+                Messenger.Default.Send<AlertMessage>(new AlertMessage(faultMessage));
                 return;
             }
 
             State = ConnectionState.Connected;
             OnServerUpdated(result.ServerInfo);
+        }
+
+        private string m_Description;
+
+        public string Description
+        {
+            get { return m_Description; }
+            set
+            {
+                m_Description = value;
+                RaisePropertyChanged("Description");
+            }
         }
 
         private void OnServerUpdated(ServerInfo serverInfo)

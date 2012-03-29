@@ -209,6 +209,29 @@
             </primitives:SelectiveScrollingGrid>
         </Border>
     </ControlTemplate>
+    <!--Fault row template-->
+    <ControlTemplate x:Key="FaultRowTemplate" TargetType="{x:Type DataGridRow}">
+        <Border x:Name="DGR_Border"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            SnapsToDevicePixels="True">
+            <primitives:SelectiveScrollingGrid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Column="1" Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=DataContext.FaultDescription}"
+                           Foreground="Red"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Left" Margin="20 20 0 20" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                <Rectangle Height="1" HorizontalAlignment="Stretch" 
+                    x:Name="BottomGridLine" 
+                    Fill="{StaticResource HorizontalVerticalGridLinesBrush}" 
+                    Grid.Row="1" />
+            </primitives:SelectiveScrollingGrid>
+        </Border>
+    </ControlTemplate>
     <!--DataGrid -->
     <Style TargetType='{x:Type DataGrid}'>
         <Setter Property='ScrollViewer.CanContentScroll' Value='False' />

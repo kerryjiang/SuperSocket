@@ -83,13 +83,18 @@ namespace SuperSocket.Management.Client.ViewModel
 
                 foreach (var server in m_Servers)
                 {
-                    if (!server.Instances.Any())
+                    if (server.State == ConnectionState.Fault)
+                    {
+                        instances.Add(new FaultInstanceViewModel(server));
+                    }
+                    else if (server.Instances.Any())
+                    {
+                        instances.AddRange(server.Instances);
+                    }
+                    else
                     {
                         instances.Add(new LoadingInstanceViewModel(server));
-                        continue;
                     }
-
-                    instances.AddRange(server.Instances);
                 }
 
                 return instances;

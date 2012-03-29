@@ -13,5 +13,7 @@ namespace SuperSocket.Management.Server
         {
             get { return (ManagementServer)base.AppServer; }
         }
+
+        public bool LoggedIn { get; internal set; }
     }
 }

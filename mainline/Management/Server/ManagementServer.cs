@@ -101,7 +101,7 @@ namespace SuperSocket.Management.Server
 
             var content = CommandName.UPDATE + " " + JsonConvert.SerializeObject(CurrentServerInfo);
 
-            foreach (var s in GetAllSessions())
+            foreach (var s in GetSessions(s => s.LoggedIn))
             {
                 s.SendResponseAsync(content);
             }

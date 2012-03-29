@@ -21,6 +21,7 @@ namespace SuperSocket.Management.Server.Command
                 return;
             }
 
+            session.LoggedIn = true;
             SendJsonResponse(session, new LoginResult { Result = true, ServerInfo = session.AppServer.CurrentServerInfo });
         }
 

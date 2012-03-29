@@ -11,6 +11,7 @@ namespace SuperSocket.Management.Client.ViewModel
         Connecting,
         Connected,
         NotConnected,
-        WaitingReconnect
+        WaitingReconnect,
+        Fault
     }
 }
