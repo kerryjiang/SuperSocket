@@ -12,13 +12,29 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SuperSocket.Common
 {
+    /// <summary>
+    /// Assembly Util Class
+    /// </summary>
     public static class AssemblyUtil
     {
+        /// <summary>
+        /// Creates the instance from type name.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
         public static T CreateInstance<T>(string type)
         {
             return CreateInstance<T>(type, new object[0]);
         }
 
+        /// <summary>
+        /// Creates the instance from type name and parameters.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="type">The type.</param>
+        /// <param name="parameters">The parameters.</param>
+        /// <returns></returns>
         public static T CreateInstance<T>(string type, object[] parameters)
         {
             Type instanceType = null;
@@ -34,12 +50,24 @@ namespace SuperSocket.Common
             return result;
         }
 
+        /// <summary>
+        /// Gets the implement types from assembly.
+        /// </summary>
+        /// <typeparam name="TBaseType">The type of the base type.</typeparam>
+        /// <param name="assembly">The assembly.</param>
+        /// <returns></returns>
         public static IEnumerable<Type> GetImplementTypes<TBaseType>(this Assembly assembly)
         {
             return assembly.GetExportedTypes().Where(t =>
                 t.IsSubclassOf(typeof(TBaseType)) && t.IsClass && !t.IsAbstract);
         }
 
+        /// <summary>
+        /// Gets the implemented objects by interface from assembly.
+        /// </summary>
+        /// <typeparam name="TBaseInterface">The type of the base interface.</typeparam>
+        /// <param name="assembly">The assembly.</param>
+        /// <returns></returns>
         public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly)
             where TBaseInterface : class
         {
@@ -68,6 +96,12 @@ namespace SuperSocket.Common
 
 #if SILVERLIGHT
 #else
+        /// <summary>
+        /// Clone object in binary format.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="target">The target.</param>
+        /// <returns></returns>
         public static T BinaryClone<T>(this T target)
         {
             BinaryFormatter formatter = new BinaryFormatter();
@@ -82,6 +116,11 @@ namespace SuperSocket.Common
 
         private static object[] m_EmptyObjectArray = new object[] { };
 
+        /// <summary>
+        /// Copies the properties of one object to another object.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="target">The target.</param>
         public static void CopyPropertiesTo(this object source, object target)
         {
             PropertyInfo[] properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
@@ -102,6 +141,11 @@ namespace SuperSocket.Common
             }
         }
 
+        /// <summary>
+        /// Gets the assemblies from string.
+        /// </summary>
+        /// <param name="assemblyDef">The assembly def.</param>
+        /// <returns></returns>
         public static IEnumerable<Assembly> GetAssembliesFromString(string assemblyDef)
         {
             string[] assemblies = assemblyDef.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
