@@ -36,15 +36,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        [ConfigurationProperty("credential", IsRequired = false)]
-        public CredentialConfig Credential
-        {
-            get
-            {
-                return this["credential"] as CredentialConfig;
-            }
-        }
-
+        /// <summary>
+        /// Gets the logging mode.
+        /// </summary>
         [ConfigurationProperty("loggingMode", IsRequired = false, DefaultValue = "ShareFile")]
         public LoggingMode LoggingMode
         {
@@ -54,6 +48,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the max working threads.
+        /// </summary>
         [ConfigurationProperty("maxWorkingThreads", IsRequired = false, DefaultValue = -1)]
         public int MaxWorkingThreads
         {
@@ -63,6 +60,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the min working threads.
+        /// </summary>
         [ConfigurationProperty("minWorkingThreads", IsRequired = false, DefaultValue = -1)]
         public int MinWorkingThreads
         {
@@ -72,6 +72,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the max completion port threads.
+        /// </summary>
         [ConfigurationProperty("maxCompletionPortThreads", IsRequired = false, DefaultValue = -1)]
         public int MaxCompletionPortThreads
         {
@@ -81,12 +84,27 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the min completion port threads.
+        /// </summary>
         [ConfigurationProperty("minCompletionPortThreads", IsRequired = false, DefaultValue = -1)]
         public int MinCompletionPortThreads
         {
             get
             {
                 return (int)this["minCompletionPortThreads"];
+            }
+        }
+
+        /// <summary>
+        /// Gets the performance data collect interval, in seconds.
+        /// </summary>
+        [ConfigurationProperty("performanceDataCollectInterval", IsRequired = false, DefaultValue = 60)]
+        public int PerformanceDataCollectInterval
+        {
+            get
+            {
+                return (int)this["performanceDataCollectInterval"];
             }
         }
         
@@ -114,11 +132,6 @@ namespace SuperSocket.SocketEngine.Configuration
             {
                 return this.ConnectionFilters;
             }
-        }
-      
-        ICredentialConfig IRootConfig.CredentialConfig
-        {
-            get { return this.Credential; }
         }
         
         #endregion

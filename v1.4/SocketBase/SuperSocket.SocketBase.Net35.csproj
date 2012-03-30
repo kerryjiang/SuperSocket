@@ -75,7 +75,6 @@
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IConfig.cs" />
     <Compile Include="Config\IConnectionFilterConfig.cs" />
-    <Compile Include="Config\ICredentialConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\IServiceConfig.cs" />
@@ -91,7 +90,10 @@
     <Compile Include="ISocketSession.cs" />
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="LoggingMode.cs" />
+    <Compile Include="Messanger.cs" />
     <Compile Include="PerformanceData.cs" />
+    <Compile Include="PerformanceDataInfo.cs" />
+    <Compile Include="PermformanceDataEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicCommandParser.cs" />
     <Compile Include="Protocol\CommandLineProtocol.cs" />

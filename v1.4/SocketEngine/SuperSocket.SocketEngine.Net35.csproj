@@ -101,14 +101,12 @@
     <Compile Include="AsyncStreamSocketSession.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />
-    <Compile Include="Configuration\CredentialConfig.cs" />
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />
     <Compile Include="Configuration\Service.cs" />
     <Compile Include="Configuration\ServiceCollection.cs" />
     <Compile Include="Configuration\SocketServiceConfig.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocketManagerPasswordValidator.cs" />
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerManager.Performance.cs" />
     <Compile Include="SyncSocketServer.cs" />
