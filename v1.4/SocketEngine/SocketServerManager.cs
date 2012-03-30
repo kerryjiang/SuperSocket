@@ -227,7 +227,8 @@ namespace SuperSocket.SocketEngine
 
             Messanger.Send<List<IAppServer>>(m_ServerList);
 
-            StartPerformanceLog();
+            if(!m_Config.DisablePerformanceDataCollector)
+                StartPerformanceLog();
 
             return true;
         }

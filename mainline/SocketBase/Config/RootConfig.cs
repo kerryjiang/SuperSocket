@@ -51,7 +51,7 @@ namespace SuperSocket.SocketBase.Config
         public int PerformanceDataCollectInterval { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether [disable performance data collector].
+        /// Gets/sets a value indicating whether [disable performance data collector].
         /// </summary>
         /// <value>
         /// 	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.

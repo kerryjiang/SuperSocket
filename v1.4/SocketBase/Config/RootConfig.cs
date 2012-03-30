@@ -26,34 +26,42 @@ namespace SuperSocket.SocketBase.Config
         #region IRootConfig Members
 
         /// <summary>
-        /// Gets the logging mode.
+        /// Gets/sets the logging mode.
         /// </summary>
         public LoggingMode LoggingMode { get; set; }
 
         /// <summary>
-        /// Gets the max working threads.
+        /// Gets/sets the max working threads.
         /// </summary>
         public int MaxWorkingThreads { get; set; }
 
         /// <summary>
-        /// Gets the min working threads.
+        /// Gets/sets the min working threads.
         /// </summary>
         public int MinWorkingThreads { get; set; }
 
         /// <summary>
-        /// Gets the max completion port threads.
+        /// Gets/sets the max completion port threads.
         /// </summary>
         public int MaxCompletionPortThreads { get; set; }
 
         /// <summary>
-        /// Gets the min completion port threads.
+        /// Gets/sets the min completion port threads.
         /// </summary>
         public int MinCompletionPortThreads { get; set; }
 
         /// <summary>
-        /// Gets the performance data collect interval, in seconds.
+        /// Gets/sets the performance data collect interval, in seconds.
         /// </summary>
         public int PerformanceDataCollectInterval { get; set; }
+
+        /// <summary>
+        /// Gets/sets a value indicating whether [disable performance data collector].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.
+        /// </value>
+        public bool DisablePerformanceDataCollector { get; set; }
 
         #endregion
     }

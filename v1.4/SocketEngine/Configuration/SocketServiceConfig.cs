@@ -107,7 +107,22 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["performanceDataCollectInterval"];
             }
         }
-        
+
+        /// <summary>
+        /// Gets a value indicating whether [disable performance data collector].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("disablePerformanceDataCollector", IsRequired = false, DefaultValue = false)]
+        public bool DisablePerformanceDataCollector
+        {
+            get
+            {
+                return (bool)this["disablePerformanceDataCollector"];
+            }
+        }
+
         #region IConfig implementation
         
         IEnumerable<IServerConfig> IConfig.Servers
