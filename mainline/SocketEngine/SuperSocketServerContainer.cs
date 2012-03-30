@@ -149,6 +149,10 @@ namespace SuperSocket.SocketEngine
         internal void StopPerformanceLog()
         {
             m_PerformanceTimer.Change(Timeout.Infinite, Timeout.Infinite);
+
+            m_CpuUsagePC.Close();
+            m_ThreadCountPC.Close();
+            m_WorkingSetPC.Close();
         }
     }
 }
