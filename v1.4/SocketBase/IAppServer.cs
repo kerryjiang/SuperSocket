@@ -73,6 +73,19 @@ namespace SuperSocket.SocketBase
         /// Gets the server's config.
         /// </summary>
         IServerConfig Config { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this instance is running.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
+        /// </value>
+        bool IsRunning { get; }
+
+        /// <summary>
+        /// Gets the started time.
+        /// </summary>
+        DateTime StartedTime { get; }
     }
 
     public interface IAppServer<TAppSession> : IAppServer

@@ -15,6 +15,12 @@ namespace SuperSocket.SocketBase
             m_EventStore.TryAdd(typeof(T), (o) => handler((T)o));
         }
 
+        public static void UnRegister<T>()
+        {
+            Action<object> handler;
+            m_EventStore.TryRemove(typeof(T), out handler);
+        }
+
         public static void Send<T>(T message)
         {
             Action<object> handler;

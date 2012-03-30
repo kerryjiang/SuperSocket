@@ -225,6 +225,8 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
+            Messanger.Send<List<IAppServer>>(m_ServerList);
+
             StartPerformanceLog();
 
             return true;

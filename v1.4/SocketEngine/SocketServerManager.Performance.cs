@@ -24,10 +24,16 @@ namespace SuperSocket.SocketEngine
             int availableWorkingThreads, availableCompletionPortThreads;
             ThreadPool.GetAvailableThreads(out availableWorkingThreads, out availableCompletionPortThreads);
 
+            int maxWorkingThreads;
+            int maxCompletionPortThreads;
+            ThreadPool.GetMaxThreads(out maxWorkingThreads, out maxCompletionPortThreads);
+
             var globalPerfData = new GlobalPerformanceData
             {
                 AvailableWorkingThreads = availableWorkingThreads,
                 AvailableCompletionPortThreads = availableCompletionPortThreads,
+                MaxWorkingThreads = maxWorkingThreads,
+                MaxCompletionPortThreads = maxCompletionPortThreads,
                 CpuUsage = m_CpuUsagePC.NextValue(),
                 TotalThreadCount = (int)m_ThreadCountPC.NextValue(),
                 WorkingSet = (long)m_WorkingSetPC.NextValue()

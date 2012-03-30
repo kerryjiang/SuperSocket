@@ -43,6 +43,8 @@ namespace SuperSocket.SocketBase
 
         protected IRootConfig RootConfig { get; private set; }
 
+        public DateTime StartedTime { get; private set; }
+
         public ILogger Logger { get; private set; }
 
         private static bool m_ThreadPoolConfigured = false;
@@ -324,6 +326,8 @@ namespace SuperSocket.SocketBase
                 return false;
 
             OnStartup();
+
+            StartedTime = DateTime.Now;
 
             return true;
         }
