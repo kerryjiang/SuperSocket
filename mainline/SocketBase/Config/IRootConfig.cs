@@ -27,6 +27,15 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         int MinCompletionPortThreads { get; }
 
+
+        /// <summary>
+        /// Gets a value indicating whether [disable performance data collector].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.
+        /// </value>
+        bool DisablePerformanceDataCollector { get; }
+
         /// <summary>
         /// Gets the performance data collect interval, in seconds.
         /// </summary>

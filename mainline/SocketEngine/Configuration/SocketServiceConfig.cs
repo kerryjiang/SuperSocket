@@ -7,8 +7,14 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
+    /// <summary>
+    /// SuperSocket's root configuration node
+    /// </summary>
     public class SocketServiceConfig : ConfigurationSection, IConfig
     {
+        /// <summary>
+        /// Gets all the server configurations
+        /// </summary>
         [ConfigurationProperty("servers")]
         public ServerCollection Servers
         {
@@ -18,6 +24,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the service configurations
+        /// </summary>
         [ConfigurationProperty("services")]
         public ServiceCollection Services
         {
@@ -26,7 +35,10 @@ namespace SuperSocket.SocketEngine.Configuration
                 return this["services"] as ServiceCollection;
             }
         }
-        
+
+        /// <summary>
+        /// Gets all the connection filter configurations.
+        /// </summary>
         [ConfigurationProperty("connectionFilters", IsRequired = false)]
         public ConnectionFilterConfigCollection ConnectionFilters
         {
@@ -36,6 +48,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the max working threads.
+        /// </summary>
         [ConfigurationProperty("maxWorkingThreads", IsRequired = false, DefaultValue = -1)]
         public int MaxWorkingThreads
         {
@@ -45,6 +60,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the min working threads.
+        /// </summary>
         [ConfigurationProperty("minWorkingThreads", IsRequired = false, DefaultValue = -1)]
         public int MinWorkingThreads
         {
@@ -54,6 +72,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the max completion port threads.
+        /// </summary>
         [ConfigurationProperty("maxCompletionPortThreads", IsRequired = false, DefaultValue = -1)]
         public int MaxCompletionPortThreads
         {
@@ -63,6 +84,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the min completion port threads.
+        /// </summary>
         [ConfigurationProperty("minCompletionPortThreads", IsRequired = false, DefaultValue = -1)]
         public int MinCompletionPortThreads
         {
@@ -83,7 +107,22 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["performanceDataCollectInterval"];
             }
         }
-        
+
+        /// <summary>
+        /// Gets a value indicating whether [disable performance data collector].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("disablePerformanceDataCollector", IsRequired = false, DefaultValue = false)]
+        public bool DisablePerformanceDataCollector
+        {
+            get
+            {
+                return (bool)this["disablePerformanceDataCollector"];
+            }
+        }
+
         #region IConfig implementation
         
         IEnumerable<IServerConfig> IConfig.Servers

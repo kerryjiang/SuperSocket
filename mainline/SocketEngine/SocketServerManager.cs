@@ -279,7 +279,9 @@ namespace SuperSocket.SocketEngine
             }
 
             m_ServerContainer.LoadServers(m_ServerList);
-            m_ServerContainer.StartPerformanceLog();
+
+            if(!m_Config.DisablePerformanceDataCollector)
+                m_ServerContainer.StartPerformanceLog();
 
             return true;
         }
