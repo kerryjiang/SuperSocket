@@ -5,6 +5,11 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Protocol
 {
+    /// <summary>
+    /// DefaultRequestFilterFactory
+    /// </summary>
+    /// <typeparam name="TRequestFilter">The type of the request filter.</typeparam>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public class DefaultRequestFilterFactory<TRequestFilter, TRequestInfo> : IRequestFilterFactory<TRequestInfo>
         where TRequestInfo : IRequestInfo
         where TRequestFilter : IRequestFilter<TRequestInfo>, new()

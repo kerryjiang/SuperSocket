@@ -5,8 +5,17 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// Command filter factory
+    /// </summary>
     public static class CommandFilterFactory
     {
+        /// <summary>
+        /// Generates the command filter library.
+        /// </summary>
+        /// <param name="serverType">Type of the server.</param>
+        /// <param name="commands">The commands.</param>
+        /// <returns></returns>
         public static Dictionary<string, List<CommandFilterAttribute>> GenerateCommandFilterLibrary(Type serverType, IEnumerable<ICommand> commands)
         {
             var library = new Dictionary<string, List<CommandFilterAttribute>>(StringComparer.OrdinalIgnoreCase);
@@ -29,7 +38,12 @@ namespace SuperSocket.SocketBase
             
             return library;
         }
-        
+
+        /// <summary>
+        /// Gets the filter attributes.
+        /// </summary>
+        /// <param name="type">The type.</param>
+        /// <returns></returns>
         private static CommandFilterAttribute[] GetFilterAttributes(Type type)
         {
             var attrs = type.GetCustomAttributes(true);

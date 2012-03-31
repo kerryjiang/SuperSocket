@@ -12,6 +12,9 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// The basic interface for appSession
+    /// </summary>
     public interface IAppSession : ISessionBase
     {
         /// <summary>
@@ -110,8 +113,6 @@ namespace SuperSocket.SocketBase
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
-        /// <returns></returns>
         void ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied);
 
         /// <summary>
@@ -120,6 +121,10 @@ namespace SuperSocket.SocketBase
         void StartSession();
     }
 
+    /// <summary>
+    /// The interface for appSession
+    /// </summary>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public interface IAppSession<TRequestInfo> : IAppSession
         where TRequestInfo : IRequestInfo
     {
@@ -130,6 +135,11 @@ namespace SuperSocket.SocketBase
         void HandleUnknownRequest(TRequestInfo requestInfo);
     }
 
+    /// <summary>
+    /// The interface for appSession
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public interface IAppSession<TAppSession, TRequestInfo> : IAppSession<TRequestInfo>
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession, IAppSession<TRequestInfo>, new()
@@ -139,6 +149,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="socketSession">The socket session.</param>
+        /// <param name="requestFilter">The request filter.</param>
         void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter);
 
         /// <summary>
@@ -149,6 +160,10 @@ namespace SuperSocket.SocketBase
         void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo);
     }
 
+    /// <summary>
+    /// The app session closed event argument
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     public class AppSessionClosedEventArgs<TAppSession> : EventArgs
         where TAppSession : IAppSession, new()
     {
@@ -162,6 +177,11 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public CloseReason Reason { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppSessionClosedEventArgs&lt;TAppSession&gt;"/> class.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="reason">The reason.</param>
         public AppSessionClosedEventArgs(TAppSession session, CloseReason reason)
         {
             Session = session;

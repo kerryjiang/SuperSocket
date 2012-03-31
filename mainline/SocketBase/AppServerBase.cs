@@ -21,19 +21,37 @@ using SuperSocket.SocketBase.Security;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// AppServer base class
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession<TAppSession, TRequestInfo>, new()
     {
+        /// <summary>
+        /// Null appSession instance
+        /// </summary>
         protected readonly TAppSession NullAppSession = default(TAppSession);
 
+        /// <summary>
+        /// Gets the server's config.
+        /// </summary>
         public IServerConfig Config { get; private set; }
 
+        /// <summary>
+        /// Gets the certificate of current server.
+        /// </summary>
         public virtual X509Certificate Certificate { get; protected set; }
 
+        /// <summary>
+        /// Gets or sets the request filter factory.
+        /// </summary>
+        /// <value>
+        /// The request filter factory.
+        /// </value>
         public virtual IRequestFilterFactory<TRequestInfo> RequestFilterFactory { get; protected set; }
-
-        public ServiceCredentials ServerCredentials { get; set; }
 
         private List<ICommandLoader> m_CommandLoaders;
 
@@ -41,10 +59,19 @@ namespace SuperSocket.SocketBase
 
         private ISocketServerFactory m_SocketServerFactory;
 
+        /// <summary>
+        /// Gets the basic transfer layer security protocol.
+        /// </summary>
         public SslProtocols BasicSecurity { get; private set; }
 
+        /// <summary>
+        /// Gets the root config.
+        /// </summary>
         protected IRootConfig RootConfig { get; private set; }
 
+        /// <summary>
+        /// Gets the logger assosiated with this object.
+        /// </summary>
         public ILog Logger { get; private set; }
 
         private static bool m_ThreadPoolConfigured = false;
@@ -55,6 +82,9 @@ namespace SuperSocket.SocketBase
 
         private long m_TotalHandledRequests = 0;
 
+        /// <summary>
+        /// Gets the total handled requests number.
+        /// </summary>
         protected long TotalHandledRequests
         {
             get { return m_TotalHandledRequests; }
@@ -62,27 +92,47 @@ namespace SuperSocket.SocketBase
 
         private ListenerInfo[] m_Listeners;
 
+        /// <summary>
+        /// Gets or sets the listeners inforamtion.
+        /// </summary>
+        /// <value>
+        /// The listeners.
+        /// </value>
         public ListenerInfo[] Listeners
         {
             get { return m_Listeners; }
         }
 
+        /// <summary>
+        /// Gets the started time of this server instance.
+        /// </summary>
+        /// <value>
+        /// The started time.
+        /// </value>
         public DateTime StartedTime { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// </summary>
         public AppServerBase()
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// </summary>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
         public AppServerBase(IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
             this.RequestFilterFactory = requestFilterFactory;
         }
 
+
         /// <summary>
         /// Setups the command into command dictionary
         /// </summary>
-        /// <param name="commandDict">The command dict.</param>
+        /// <param name="commandDict">The target command dict.</param>
         /// <returns></returns>
         protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TRequestInfo>> commandDict)
         {
@@ -265,6 +315,12 @@ namespace SuperSocket.SocketBase
             return SetupSocketServer();
         }
 
+        /// <summary>
+        /// Setups the request filter factory.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <returns></returns>
         private bool SetupRequestFilterFactory(IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
             //The protocol passed by programming has higher priority, then by config
@@ -508,6 +564,9 @@ namespace SuperSocket.SocketBase
         }
 
 
+        /// <summary>
+        /// Gets the name of the server instance.
+        /// </summary>
         public string Name
         {
             get { return Config.Name; }
@@ -541,16 +600,25 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
+        /// <summary>
+        /// Called when [startup].
+        /// </summary>
         protected virtual void OnStartup()
         {
 
         }
 
+        /// <summary>
+        /// Called when [stopped].
+        /// </summary>
         protected virtual void OnStopped()
         {
 
         }
 
+        /// <summary>
+        /// Stops this server instance.
+        /// </summary>
         public virtual void Stop()
         {
             Dispose(true);
@@ -558,6 +626,12 @@ namespace SuperSocket.SocketBase
             OnStopped();
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is running.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
+        /// </value>
         public bool IsRunning
         {
             get
@@ -567,11 +641,6 @@ namespace SuperSocket.SocketBase
 
                 return m_SocketServer.IsRunning;
             }
-        }
-
-        public virtual bool IsReady
-        {
-            get { return true; }
         }
 
         /// <summary>
@@ -623,6 +692,11 @@ namespace SuperSocket.SocketBase
 
         private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutedAction = (f, s, c) => f.OnCommandExecuted(s, c);
 
+        /// <summary>
+        /// Executes the command.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="requestInfo">The request info.</param>
         protected virtual void ExecuteCommand(TAppSession session, TRequestInfo requestInfo)
         {
             if (m_CommandHandler == null)
@@ -756,11 +830,21 @@ namespace SuperSocket.SocketBase
             m_SocketServer.ResetSessionSecurity(session, security);
         }
 
+        /// <summary>
+        /// Called when [socket session closed].
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The <see cref="SuperSocket.SocketBase.SocketSessionClosedEventArgs"/> instance containing the event data.</param>
         internal protected virtual void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
 
         }
 
+        /// <summary>
+        /// Gets the app session by ID internal.
+        /// </summary>
+        /// <param name="sessionID">The session ID.</param>
+        /// <returns></returns>
         protected abstract IAppSession GetAppSessionByIDInternal(string sessionID);
 
         /// <summary>
@@ -801,6 +885,11 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        /// <summary>
+        /// Gets the service instance.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
         protected T GetService<T>()
             where T : class
         {
@@ -809,12 +898,19 @@ namespace SuperSocket.SocketBase
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (disposing)

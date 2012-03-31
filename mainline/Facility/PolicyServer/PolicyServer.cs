@@ -16,19 +16,36 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
+    /// <summary>
+    /// PolicyServer base class
+    /// </summary>
     public abstract class PolicyServer : AppServer<PolicySession, BinaryRequestInfo>
     {
         private string m_PolicyFile;
         private string m_PolicyRequest = "<policy-file-request/>";
+        /// <summary>
+        /// Gets the policy response.
+        /// </summary>
         protected byte[] PolicyResponse { get; private set; }
         private int m_ExpectedReceivedLength;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PolicyServer"/> class.
+        /// </summary>
         public PolicyServer()
             : base()
         {
 
         }
 
+        /// <summary>
+        /// Setups the specified root config.
+        /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        /// <param name="config">The config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <returns></returns>
         public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<BinaryRequestInfo> requestFilterFactory)
         {
             var policyRequest = config.Options.GetValue("policyRequest");
@@ -68,11 +85,21 @@ namespace SuperSocket.Facility.PolicyServer
             return true;
         }
 
+        /// <summary>
+        /// Setups the policy response.
+        /// </summary>
+        /// <param name="policyFileData">The policy file data.</param>
+        /// <returns></returns>
         protected virtual byte[] SetupPolicyResponse(byte[] policyFileData)
         {
             return policyFileData;
         }
 
+        /// <summary>
+        /// Gets the policy file response.
+        /// </summary>
+        /// <param name="clientEndPoint">The client end point.</param>
+        /// <returns></returns>
         protected virtual byte[] GetPolicyFileResponse(IPEndPoint clientEndPoint)
         {
             return PolicyResponse;
@@ -83,6 +110,11 @@ namespace SuperSocket.Facility.PolicyServer
             ProcessRequest(session, requestInfo.Data);
         }
 
+        /// <summary>
+        /// Processes the request.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="data">The data.</param>
         protected virtual void ProcessRequest(PolicySession session, byte[] data)
         {
             var request = Encoding.UTF8.GetString(data);

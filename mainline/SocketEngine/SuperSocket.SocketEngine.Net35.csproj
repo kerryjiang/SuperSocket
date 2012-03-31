@@ -41,8 +41,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <DocumentationFile>..\bin\Net35\Debug\SuperSocket.SocketEngine.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -52,6 +53,8 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>..\bin\Net35\Release\SuperSocket.SocketEngine.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -102,7 +105,6 @@
     <Compile Include="AsyncStreamSocketSession.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
     <Compile Include="Configuration\ConnectionFilterConfig.cs" />
-    <Compile Include="Configuration\CredentialConfig.cs" />
     <Compile Include="Configuration\Listener.cs" />
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />
@@ -112,7 +114,6 @@
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="ISocketListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocketManagerPasswordValidator.cs" />
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerBase.cs" />
     <Compile Include="SocketServerManager.cs" />

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
@@ -18,18 +19,27 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
-using System.Runtime.InteropServices;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// AppServer basic class
+    /// </summary>
     public abstract class AppServer : AppServer<AppSession>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServer"/> class.
+        /// </summary>
         public AppServer()
             : base()
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServer"/> class.
+        /// </summary>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
         public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
             : base(requestFilterFactory)
         {
@@ -37,15 +47,26 @@ namespace SuperSocket.SocketBase
         }
     }
 
+    /// <summary>
+    /// AppServer basic class
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringRequestInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
+        /// </summary>
         public AppServer()
             : base(new CommandLineRequestFilterFactory())
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
+        /// </summary>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
         public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
             : base(requestFilterFactory)
         {
@@ -53,16 +74,29 @@ namespace SuperSocket.SocketBase
         }
     }
 
+
+    /// <summary>
+    /// AppServer basic class
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public abstract class AppServer<TAppSession, TRequestInfo> : AppServerBase<TAppSession, TRequestInfo>, IPerformanceDataSource
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession<TAppSession, TRequestInfo>, new()
-    {        
+    {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// </summary>
         public AppServer()
             : base()
         {
             
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// </summary>
+        /// <param name="protocol">The protocol.</param>
         protected AppServer(IRequestFilterFactory<TRequestInfo> protocol)
             : base(protocol)
         {
@@ -117,6 +151,11 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        /// <summary>
+        /// Gets the app session by ID internal.
+        /// </summary>
+        /// <param name="sessionID">The session ID.</param>
+        /// <returns></returns>
         protected override IAppSession GetAppSessionByIDInternal(string sessionID)
         {
             return GetAppSessionByID(sessionID);
@@ -293,6 +332,11 @@ namespace SuperSocket.SocketBase
 
         private PerformanceData m_PerformanceData = new PerformanceData();
 
+        /// <summary>
+        /// Collects the performance data.
+        /// </summary>
+        /// <param name="globalPerfData">The global perf data.</param>
+        /// <returns></returns>
         public PerformanceData CollectPerformanceData(GlobalPerformanceData globalPerfData)
         {
             m_PerformanceData.PushRecord(new PerformanceRecord
@@ -307,7 +351,11 @@ namespace SuperSocket.SocketBase
             return m_PerformanceData;
         }
 
-        //User can override this method a get collected performance data
+        /// <summary>
+        /// Called when [performance data collected], you can override this method to get collected performance data
+        /// </summary>
+        /// <param name="globalPerfData">The global perf data.</param>
+        /// <param name="performanceData">The performance data.</param>
         protected virtual void OnPerformanceDataCollected(GlobalPerformanceData globalPerfData, PerformanceData performanceData)
         {
 
@@ -317,6 +365,10 @@ namespace SuperSocket.SocketBase
 
         #region IDisposable Members
 
+        /// <summary>
+        /// Releases unmanaged and - optionally - managed resources
+        /// </summary>
+        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);

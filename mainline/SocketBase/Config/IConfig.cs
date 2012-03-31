@@ -4,6 +4,9 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Config
 {
+    /// <summary>
+    /// Server configuration interface
+    /// </summary>
     public interface IConfig : IRootConfig
     {
         /// <summary>

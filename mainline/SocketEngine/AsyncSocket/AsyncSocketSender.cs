@@ -5,14 +5,32 @@ using System.Text;
 
 namespace SuperSocket.SocketEngine.AsyncSocket
 {
+    /// <summary>
+    /// Async socket sender
+    /// </summary>
     public class AsyncSocketSender
     {
         #region Events & Delegates
 
+        /// <summary>
+        /// The error delegate
+        /// </summary>
+        /// <param name="ex">The ex.</param>
         public delegate void EventError(Exception ex);
+
+        /// <summary>
+        /// Occurs when [on error].
+        /// </summary>
         public event EventError OnError;
 
+        /// <summary>
+        /// Socket closed event
+        /// </summary>
         public delegate void EventSocketClosed();
+
+        /// <summary>
+        /// Occurs when [on socket closed].
+        /// </summary>
         public event EventSocketClosed OnSocketClosed;
 
         #endregion Events & Delegates
@@ -33,6 +51,10 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
         #region Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncSocketSender"/> class.
+        /// </summary>
+        /// <param name="socket">The socket.</param>
         public AsyncSocketSender(System.Net.Sockets.Socket socket)
         {
             m_Socket = socket;
@@ -44,6 +66,12 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
         #region Properties
 
+        /// <summary>
+        /// Gets or sets the last send time.
+        /// </summary>
+        /// <value>
+        /// The last send time.
+        /// </value>
         public DateTime LastSendTime
         {
             get
@@ -72,6 +100,9 @@ namespace SuperSocket.SocketEngine.AsyncSocket
             }
         }
 
+        /// <summary>
+        /// Gets the bytes to send.
+        /// </summary>
         public Int32 BytesToSend
         {
             get
@@ -87,6 +118,12 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
         #region Public Methods
 
+        /// <summary>
+        /// Sends the specified buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="start">The start.</param>
+        /// <param name="length">The length.</param>
         public void Send(byte[] buffer, int start, int length)
         {
             lock (m_Locker)

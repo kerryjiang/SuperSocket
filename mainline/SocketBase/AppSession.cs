@@ -12,6 +12,11 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// AppSession base class
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
         where TRequestInfo : class, IRequestInfo
@@ -157,6 +162,9 @@ namespace SuperSocket.SocketBase
 
         #endregion
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// </summary>
         public AppSession()
         {
             this.StartTime = DateTime.Now;
@@ -346,23 +354,39 @@ namespace SuperSocket.SocketBase
         }
     }
 
+    /// <summary>
+    /// AppServer basic class for whose request infoe type is StringRequestInfo
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringRequestInfo>
         where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
     {
 
         private bool m_AppendNewLineForResponse = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession&gt;"/> class.
+        /// </summary>
         public AppSession()
             : this(true)
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession&gt;"/> class.
+        /// </summary>
+        /// <param name="appendNewLineForResponse">if set to <c>true</c> [append new line for response].</param>
         public AppSession(bool appendNewLineForResponse)
         {
             m_AppendNewLineForResponse = appendNewLineForResponse;
         }
 
+        /// <summary>
+        /// Processes the sending message.
+        /// </summary>
+        /// <param name="rawMessage">The raw message.</param>
+        /// <returns></returns>
         protected virtual string ProcessSendingMessage(string rawMessage)
         {
             if (!m_AppendNewLineForResponse)
@@ -377,17 +401,29 @@ namespace SuperSocket.SocketBase
                 return rawMessage;
         }
 
+        /// <summary>
+        /// Sends the response.
+        /// </summary>
+        /// <param name="message">The message.</param>
         public override void SendResponse(string message)
         {
             base.SendResponse(ProcessSendingMessage(message));
         }
 
+        /// <summary>
+        /// Sends the response.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <param name="paramValues">The param values.</param>
         public override void SendResponse(string message, params object[] paramValues)
         {
             base.SendResponse(ProcessSendingMessage(message), paramValues);
         }
     }
 
+    /// <summary>
+    /// AppServer basic class for whose request infoe type is StringRequestInfo
+    /// </summary>
     public class AppSession : AppSession<AppSession>
     {
 

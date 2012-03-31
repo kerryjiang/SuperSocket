@@ -5,8 +5,14 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Config
 {
+    /// <summary>
+    /// Listener configuration model
+    /// </summary>
     public class ListenerConfig : IListenerConfig
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ListenerConfig"/> class.
+        /// </summary>
         public ListenerConfig()
         {
             Backlog = 100;

@@ -13,11 +13,20 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// The interface for who provides logger
+    /// </summary>
     public interface ILoggerProvider
     {
+        /// <summary>
+        /// Gets the logger assosiated with this object.
+        /// </summary>
         ILog Logger { get; }
     }
 
+    /// <summary>
+    /// The interface for who will react with performance collecting
+    /// </summary>
     public interface IPerformanceDataSource
     {
         /// <summary>
@@ -28,20 +37,15 @@ namespace SuperSocket.SocketBase
         PerformanceData CollectPerformanceData(GlobalPerformanceData globalPerfData);
     }
 
+    /// <summary>
+    /// The interface for AppServer
+    /// </summary>
     public interface IAppServer : ILoggerProvider
     {
         /// <summary>
         /// Gets the name of the server instance.
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// Gets or sets the server credentials for client console
-        /// </summary>
-        /// <value>
-        /// The server credentials.
-        /// </value>
-        ServiceCredentials ServerCredentials { get; set; }
         
         /// <summary>
         /// Gets or sets the server's connection filter
@@ -126,7 +130,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the app session by ID.
         /// </summary>
-        /// <param name="identityKey">The session ID.</param>
+        /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
         IAppSession GetAppSessionByID(string sessionID);
 
@@ -138,6 +142,10 @@ namespace SuperSocket.SocketBase
         void ResetSessionSecurity(IAppSession session, SslProtocols security);
     }
 
+    /// <summary>
+    /// The interface for AppServer
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     public interface IAppServer<TAppSession> : IAppServer
         where TAppSession : IAppSession
     {
@@ -155,6 +163,11 @@ namespace SuperSocket.SocketBase
         IEnumerable<TAppSession> GetAllSessions();
     }
 
+    /// <summary>
+    /// The interface for AppServer
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public interface IAppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession>
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession<TRequestInfo>

@@ -6,6 +6,9 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine.AsyncSocket
 {
+    /// <summary>
+    /// Socket Buffer
+    /// </summary>
     public class SocketBuffer
     {
         private object m_Locker = new object();
@@ -220,9 +223,12 @@ namespace SuperSocket.SocketEngine.AsyncSocket
             }
         }
 
-        /// <summary>Peeking is like reading but without discarding, 
-        /// if you will call peek or read again, you will get the same data.</summary>
-        /// <param name="size"></param>
+        /// <summary>
+        /// Peeking is like reading but without discarding,
+        /// if you will call peek or read again, you will get the same data.
+        /// </summary>
+        /// <param name="offset">The offset.</param>
+        /// <param name="size">The size.</param>
         /// <returns></returns>
         public byte[] Peek(int offset, int size)
         {
@@ -257,6 +263,9 @@ namespace SuperSocket.SocketEngine.AsyncSocket
             }
         }
 
+        /// <summary>
+        /// Clears this buffer.
+        /// </summary>
         public void Clear()
         {
             try

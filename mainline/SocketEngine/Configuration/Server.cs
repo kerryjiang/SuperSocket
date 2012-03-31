@@ -12,80 +12,137 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
+    /// <summary>
+    /// Server configuration
+    /// </summary>
     public class Server : ConfigurationElementBase, IServerConfig
     {
+        /// <summary>
+        /// Gets the name of the service.
+        /// </summary>
+        /// <value>
+        /// The name of the service.
+        /// </value>
         [ConfigurationProperty("serviceName", IsRequired = true)]
         public string ServiceName
         {
             get { return this["serviceName"] as string; }
         }
 
+        /// <summary>
+        /// Gets the protocol.
+        /// </summary>
         [ConfigurationProperty("protocol", IsRequired = false)]
         public string Protocol
         {
             get { return this["protocol"] as string; }
         }
 
+        /// <summary>
+        /// Gets the ip.
+        /// </summary>
         [ConfigurationProperty("ip", IsRequired = false)]
         public string Ip
         {
             get { return this["ip"] as string; }
         }
 
+        /// <summary>
+        /// Gets the port.
+        /// </summary>
         [ConfigurationProperty("port", IsRequired = true)]
         public int Port
         {
             get { return (int)this["port"]; }
         }
 
+        /// <summary>
+        /// Gets the mode.
+        /// </summary>
         [ConfigurationProperty("mode", IsRequired = false, DefaultValue = "Tcp")]
         public SocketMode Mode
         {
             get { return (SocketMode)this["mode"]; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="IServerConfig"/> is disabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if disabled; otherwise, <c>false</c>.
+        /// </value>
         [ConfigurationProperty("disabled", DefaultValue = "false")]
         public bool Disabled
         {
             get { return (bool)this["disabled"]; }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether [enable management service].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
+        /// </value>
         [ConfigurationProperty("enableManagementService", DefaultValue = "false")]
         public bool EnableManagementService
         {
             get { return (bool)this["enableManagementService"]; }
         }
 
+        /// <summary>
+        /// Gets the provider.
+        /// </summary>
         [ConfigurationProperty("provider", IsRequired = false)]
         public string Provider
         {
             get { return (string)this["provider"]; }
         }
 
+        /// <summary>
+        /// Gets the read time out.
+        /// </summary>
         [ConfigurationProperty("readTimeOut", IsRequired = false, DefaultValue = 0)]
         public int ReadTimeOut
         {
             get { return (int)this["readTimeOut"]; }
         }
 
+        /// <summary>
+        /// Gets the send time out.
+        /// </summary>
         [ConfigurationProperty("sendTimeOut", IsRequired = false, DefaultValue = 0)]
         public int SendTimeOut
         {
             get { return (int)this["sendTimeOut"]; }
         }
 
+        /// <summary>
+        /// Gets the max connection number.
+        /// </summary>
         [ConfigurationProperty("maxConnectionNumber", IsRequired = false, DefaultValue = 100)]
         public int MaxConnectionNumber
         {
             get { return (int)this["maxConnectionNumber"]; }
         }
 
+        /// <summary>
+        /// Gets the size of the receive buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the receive buffer.
+        /// </value>
         [ConfigurationProperty("receiveBufferSize", IsRequired = false, DefaultValue = 2048)]
         public int ReceiveBufferSize
         {
             get { return (int)this["receiveBufferSize"]; }
         }
 
+        /// <summary>
+        /// Gets the size of the send buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the send buffer.
+        /// </value>
         [ConfigurationProperty("sendBufferSize", IsRequired = false, DefaultValue = 2048)]
         public int SendBufferSize
         {
@@ -143,11 +200,20 @@ namespace SuperSocket.SocketEngine.Configuration
             get { return (CertificateConfig)this["certificate"]; }
         }
 
+        /// <summary>
+        /// Gets X509Certificate configuration.
+        /// </summary>
+        /// <value>
+        /// X509Certificate configuration.
+        /// </value>
         public ICertificateConfig Certificate
         {
             get { return CertificateConfig; }
         }
 
+        /// <summary>
+        /// Gets the security protocol, X509 certificate.
+        /// </summary>
         [ConfigurationProperty("security", IsRequired = false, DefaultValue = "None")]
         public string Security
         {
@@ -195,7 +261,13 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["sessionSnapshotInterval"];
             }
         }
-        
+
+        /// <summary>
+        /// Gets the connection filters used by this server instance.
+        /// </summary>
+        /// <value>
+        /// The connection filters's name list, seperated by comma
+        /// </value>
         [ConfigurationProperty("connectionFilters", IsRequired = false)]
         public string ConnectionFilters
         {
@@ -256,6 +328,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the startup order of the server instance.
+        /// </summary>
         [ConfigurationProperty("startupOrder", IsRequired = false, DefaultValue = 0)]
         public int StartupOrder
         {
@@ -265,6 +340,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the listeners' configuration.
+        /// </summary>
         [ConfigurationProperty("listeners", IsRequired = false)]
         public ListenerConfigCollection Listeners
         {
@@ -274,6 +352,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the listeners' configuration.
+        /// </summary>
         IEnumerable<IListenerConfig> IServerConfig.Listeners
         {
             get

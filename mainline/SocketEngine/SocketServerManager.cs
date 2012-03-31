@@ -17,6 +17,9 @@ using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
+    /// <summary>
+    /// Socket server manager
+    /// </summary>
     public static partial class SocketServerManager
     {
         /// <summary>
@@ -45,10 +48,11 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
-        /// Initializes SuperSocket with the specified config.
+        /// Initializes SuperSocket with the specified config, config resolver and log factory.
         /// </summary>
         /// <param name="config">The config.</param>
         /// <param name="serverConfigResolver">The server config resolver.</param>
+        /// <param name="logFactory">The log factory.</param>
         /// <returns></returns>
         public static bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver, ILogFactory logFactory)
         {
@@ -155,6 +159,12 @@ namespace SuperSocket.SocketEngine
             return true;
         }
 
+        /// <summary>
+        /// Initializes SuperSocket with the specified config and config resolver.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <param name="serverConfigResolver">The server config resolver.</param>
+        /// <returns></returns>
         public static bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver)
         {
             return Initialize(config, serverConfigResolver, new Log4NetLogFactory());
@@ -174,6 +184,7 @@ namespace SuperSocket.SocketEngine
         /// Initializes SuperSocket with the specified config.
         /// </summary>
         /// <param name="config">The config.</param>
+        /// <param name="logFactory">The log factory.</param>
         /// <returns></returns>
         public static bool Initialize(IConfig config, ILogFactory logFactory)
         {
@@ -255,6 +266,10 @@ namespace SuperSocket.SocketEngine
             return true;
         }
 
+        /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        /// <returns></returns>
         public static bool Start()
         {
             if (!m_Initialized)
@@ -301,6 +316,11 @@ namespace SuperSocket.SocketEngine
             m_ServerContainer.StopPerformanceLog();
         }
 
+        /// <summary>
+        /// Gets the service config by name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public static IServiceConfig GetServiceConfig(string name)
         {
             foreach (var config in m_Config.Services)
@@ -313,6 +333,11 @@ namespace SuperSocket.SocketEngine
             return null;
         }
 
+        /// <summary>
+        /// Gets server instance by name.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
         public static IAppServer GetServerByName(string name)
         {
             return m_ServerContainer.GetServerByName(name);

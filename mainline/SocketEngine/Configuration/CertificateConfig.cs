@@ -6,10 +6,16 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
+    /// <summary>
+    /// Certificate configuration
+    /// </summary>
     public class CertificateConfig : ConfigurationElement, ICertificateConfig
     {
         #region ICertificateConfig Members
 
+        /// <summary>
+        /// Gets the certificate file path.
+        /// </summary>
         [ConfigurationProperty("filePath", IsRequired = false)]
         public string FilePath
         {
@@ -19,6 +25,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the password.
+        /// </summary>
         [ConfigurationProperty("password", IsRequired = false)]
         public string Password
         {
@@ -28,6 +37,12 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the the store where certificate locates.
+        /// </summary>
+        /// <value>
+        /// The name of the store.
+        /// </value>
         [ConfigurationProperty("storeName", IsRequired = false)]
         public string StoreName
         {
@@ -37,6 +52,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the thumbprint.
+        /// </summary>
         [ConfigurationProperty("thumbprint", IsRequired = false)]
         public string Thumbprint
         {
@@ -46,6 +64,12 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is enabled.
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if this instance is enabled; otherwise, <c>false</c>.
+        /// </value>
         [ConfigurationProperty("isEnabled", IsRequired = false, DefaultValue = true)]
         public bool IsEnabled
         {

@@ -6,6 +6,9 @@ using System.Net;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// The basic session interface
+    /// </summary>
     public interface ISessionBase
     {
         /// <summary>

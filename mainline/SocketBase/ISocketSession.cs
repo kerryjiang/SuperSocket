@@ -10,6 +10,9 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// CloseReason enum
+    /// </summary>
     public enum CloseReason
     {
         /// <summary>
@@ -43,6 +46,9 @@ namespace SuperSocket.SocketBase
         Unknown
     }
 
+    /// <summary>
+    /// SocketSession closed event argument
+    /// </summary>
     public class SocketSessionClosedEventArgs : EventArgs
     {
 
@@ -63,6 +69,9 @@ namespace SuperSocket.SocketBase
         public CloseReason Reason { get; set; }
     }
 
+    /// <summary>
+    /// The interface for socket session
+    /// </summary>
     public interface ISocketSession : ISessionBase
     {
         /// <summary>
@@ -86,6 +95,8 @@ namespace SuperSocket.SocketBase
         /// Sends the binary data to client.
         /// </summary>
         /// <param name="data">The binary data should be sent to client.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
         void SendResponse(byte[] data, int offset, int length);
 
         /// <summary>
@@ -116,6 +127,9 @@ namespace SuperSocket.SocketBase
         /// </summary>
         event EventHandler<SocketSessionClosedEventArgs> Closed;
 
+        /// <summary>
+        /// Gets the app session assosiated with this socket session.
+        /// </summary>
         IAppSession AppSession { get; }
     }
 }

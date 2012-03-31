@@ -6,9 +6,15 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
+    /// <summary>
+    /// ConnectionFilter configuration
+    /// </summary>
     public class ConnectionFilterConfig : ConfigurationElementBase, IConnectionFilterConfig
     {
         #region IConnectionFilterConfig Members
+        /// <summary>
+        /// Gets the filter's type.
+        /// </summary>
         [ConfigurationProperty("type", IsRequired = true)]
         public string Type
         {
@@ -16,7 +22,10 @@ namespace SuperSocket.SocketEngine.Configuration
         }
         #endregion
     }
-    
+
+    /// <summary>
+    /// ConnectionFilter configuartion collection
+    /// </summary>
     [ConfigurationCollection(typeof(ConnectionFilterConfig), AddItemName = "connectionFilter")] 
     public class ConnectionFilterConfigCollection : GenericConfigurationElementCollection<ConnectionFilterConfig, IConnectionFilterConfig>
     {

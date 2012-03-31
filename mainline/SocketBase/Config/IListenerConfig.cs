@@ -5,6 +5,9 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Config
 {
+    /// <summary>
+    /// The listener configuration interface
+    /// </summary>
     public interface IListenerConfig
     {
         /// <summary>

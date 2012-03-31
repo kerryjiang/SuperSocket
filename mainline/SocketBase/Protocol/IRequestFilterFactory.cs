@@ -2,6 +2,10 @@
 
 namespace SuperSocket.SocketBase.Protocol
 {
+    /// <summary>
+    /// Request filter factory interface
+    /// </summary>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public interface IRequestFilterFactory<TRequestInfo>
         where TRequestInfo : IRequestInfo
     {

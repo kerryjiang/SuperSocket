@@ -4,6 +4,9 @@ using System.Collections.Specialized;
 
 namespace SuperSocket.SocketBase.Config
 {
+    /// <summary>
+    /// Connection filter configuraion interface
+    /// </summary>
     public interface IConnectionFilterConfig
     {
         /// <summary>

@@ -7,36 +7,99 @@ using System.Collections.Specialized;
 
 namespace SuperSocket.SocketBase.Config
 {
+    /// <summary>
+    /// Server instance configuation interface
+    /// </summary>
     public interface IServerConfig
     {
+        /// <summary>
+        /// Gets the name of the service.
+        /// </summary>
+        /// <value>
+        /// The name of the service.
+        /// </value>
         string ServiceName { get; }
 
+        /// <summary>
+        /// Gets the protocol.
+        /// </summary>
         string Protocol { get; }
 
+        /// <summary>
+        /// Gets the ip.
+        /// </summary>
         string Ip { get; }
 
+        /// <summary>
+        /// Gets the port.
+        /// </summary>
         int Port { get; }
 
+        /// <summary>
+        /// Gets the options.
+        /// </summary>
         NameValueCollection Options { get; }
 
+        /// <summary>
+        /// Gets the provider.
+        /// </summary>
         string Provider { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="IServerConfig"/> is disabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if disabled; otherwise, <c>false</c>.
+        /// </value>
         bool Disabled { get; }
 
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Gets the mode.
+        /// </summary>
         SocketMode Mode { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether [enable management service].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
+        /// </value>
         bool EnableManagementService { get; }
 
+        /// <summary>
+        /// Gets the read time out.
+        /// </summary>
         int ReadTimeOut { get; }
 
+        /// <summary>
+        /// Gets the send time out.
+        /// </summary>
         int SendTimeOut { get; }
 
+        /// <summary>
+        /// Gets the max connection number.
+        /// </summary>
         int MaxConnectionNumber { get; }
 
+        /// <summary>
+        /// Gets the size of the receive buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the receive buffer.
+        /// </value>
         int ReceiveBufferSize { get; }
 
+        /// <summary>
+        /// Gets the size of the send buffer.
+        /// </summary>
+        /// <value>
+        /// The size of the send buffer.
+        /// </value>
         int SendBufferSize { get; }
 
         /// <summary>
@@ -139,6 +202,12 @@ namespace SuperSocket.SocketBase.Config
         int StartupOrder { get; }
 
 
+        /// <summary>
+        /// Gets the child config.
+        /// </summary>
+        /// <typeparam name="TConfig">The type of the config.</typeparam>
+        /// <param name="childConfigName">Name of the child config.</param>
+        /// <returns></returns>
         TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new();
 
