@@ -152,7 +152,7 @@ namespace SuperSocket.SocketEngine
 
         private void OnNewClientAccepted(Socket socket)
         {
-            m_NewClientAccepted(this, socket);
+            m_NewClientAccepted.BeginInvoke(this, socket, null, null);
         }
 
         private ErrorHandler m_Error;
