@@ -23,6 +23,23 @@ namespace SuperSocket.ClientEngine
             ReceiveBufferSize = receiveBufferSize;
         }
 
+        protected bool IsIgnorableException(Exception e)
+        {
+            if (e is System.ObjectDisposedException)
+                return true;
+
+            return false;
+        }
+
+        protected bool IsIgnorableSocketError(int errorCode)
+        {
+            //SocketError.Shutdown = 10058
+            if (errorCode == 10058)
+                return true;
+
+            return false;
+        }
+
 #if SILVERLIGHT && !WINDOWS_PHONE
         private SocketClientAccessPolicyProtocol m_ClientAccessPolicyProtocol = SocketClientAccessPolicyProtocol.Http;
 

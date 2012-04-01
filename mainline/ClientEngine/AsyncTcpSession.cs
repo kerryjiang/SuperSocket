@@ -77,7 +77,8 @@ namespace SuperSocket.ClientEngine
             {
                 if(EnsureSocketClosed())
                     OnClosed();
-                OnError(new SocketException((int)e.SocketError));
+                if(!IsIgnorableSocketError((int)e.SocketError))
+                    OnError(new SocketException((int)e.SocketError));
                 return;
             }
 
@@ -100,9 +101,16 @@ namespace SuperSocket.ClientEngine
             {
                 raiseEvent = Client.ReceiveAsync(m_SocketEventArgs);
             }
+            catch (SocketException exc)
+            {
+                if (EnsureSocketClosed() && !IsIgnorableSocketError(exc.ErrorCode))
+                    OnError(exc);
+
+                return;
+            }
             catch(Exception e)
             {
-                if (EnsureSocketClosed())
+                if (EnsureSocketClosed() && !IsIgnorableException(e))
                 {
                     OnError(e);
                 }
@@ -129,9 +137,16 @@ namespace SuperSocket.ClientEngine
             {
                 raiseEvent = Client.SendAsync(m_SocketEventArgsSend);
             }
+            catch (SocketException exc)
+            {
+                if (EnsureSocketClosed() && !IsIgnorableSocketError(exc.ErrorCode))
+                    OnError(exc);
+
+                return;
+            }
             catch (Exception e)
             {
-                if (EnsureSocketClosed())
+                if (EnsureSocketClosed() && IsIgnorableException(e))
                     OnError(e);
                 return;
             }
@@ -154,7 +169,7 @@ namespace SuperSocket.ClientEngine
                 if(EnsureSocketClosed())
                     OnClosed();
 
-                if (e.SocketError != SocketError.Success)
+                if (e.SocketError != SocketError.Success && !IsIgnorableSocketError((int)e.SocketError))
                     OnError(new SocketException((int)e.SocketError));
 
                 return;

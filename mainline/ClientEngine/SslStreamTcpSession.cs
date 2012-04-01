@@ -50,14 +50,6 @@ namespace SuperSocket.ClientEngine
             ProcessConnect(e);
         }
 
-        bool IsIgnorableException(Exception e)
-        {
-            if (e is System.ObjectDisposedException)
-                return true;
-
-            return false;
-        }
-
         protected override void StartReceive(SocketAsyncEventArgs e)
         {
             try
