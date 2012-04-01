@@ -108,6 +108,7 @@ namespace SuperSocket.SocketEngine
                 socketEventArgsProxy.Reset();
                 this.m_ReadWritePool.Push(socketEventArgsProxy);
                 Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                return;
             }
 
             session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
