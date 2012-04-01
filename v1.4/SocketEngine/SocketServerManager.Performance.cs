@@ -19,6 +19,8 @@ namespace SuperSocket.SocketEngine
         private static PerformanceCounter m_ThreadCountPC;
         private static PerformanceCounter m_WorkingSetPC;
 
+        private static int m_CpuCores = 1;
+
         private static void OnPerformanceTimerCallback(object state)
         {
             int availableWorkingThreads, availableCompletionPortThreads;
@@ -34,15 +36,17 @@ namespace SuperSocket.SocketEngine
                 AvailableCompletionPortThreads = availableCompletionPortThreads,
                 MaxWorkingThreads = maxWorkingThreads,
                 MaxCompletionPortThreads = maxCompletionPortThreads,
-                CpuUsage = m_CpuUsagePC.NextValue(),
+                CpuUsage = m_CpuUsagePC.NextValue() / m_CpuCores,
                 TotalThreadCount = (int)m_ThreadCountPC.NextValue(),
                 WorkingSet = (long)m_WorkingSetPC.NextValue()
             };
 
             var perfBuilder = new StringBuilder();
 
-            perfBuilder.AppendLine(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1:0N}, Total Thread Count: {2}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet, globalPerfData.TotalThreadCount));
+            perfBuilder.AppendLine("---------------------------------------------------");
+            perfBuilder.AppendLine(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1:N}, Total Thread Count: {2}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet, globalPerfData.TotalThreadCount));
             perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads));
+            perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData.MaxWorkingThreads, globalPerfData.MaxCompletionPortThreads));
 
             var instancesData = new List<PerformanceDataInfo>(m_ServerList.Count);
 
@@ -55,7 +59,7 @@ namespace SuperSocket.SocketEngine
 
                         instancesData.Add(new PerformanceDataInfo { ServerName = s.Name, Data = perfData });
 
-                        perfBuilder.AppendLine(string.Format("{0} - Total connections: {1}, total handled commands: {2}, command handling speed: {3}/s",
+                        perfBuilder.AppendLine(string.Format("{0} - Total Connections: {1}, Total Handled Commands: {2}, Command Handling Speed: {3}/s",
                             s.Name,
                             perfData.CurrentRecord.TotalConnections,
                             perfData.CurrentRecord.TotalHandledCommands,
@@ -76,6 +80,8 @@ namespace SuperSocket.SocketEngine
         private static void StartPerformanceLog()
         {
             Process process = Process.GetCurrentProcess();
+
+            m_CpuCores = Environment.ProcessorCount;
 
             m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", process.ProcessName);
             m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", process.ProcessName);
