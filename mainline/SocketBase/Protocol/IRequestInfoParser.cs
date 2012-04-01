@@ -16,6 +16,6 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns></returns>
-        StringRequestInfo ParseRequestInfo(string source);
+        TRequestInfo ParseRequestInfo(string source);
     }
 }
