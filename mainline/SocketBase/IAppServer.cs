@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.ServiceModel.Description;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.Common.Logging;

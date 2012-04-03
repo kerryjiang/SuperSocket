@@ -5,15 +5,14 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using System.ServiceModel.Description;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using SuperSocket.Common;
+using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketBase;
-using System.Threading.Tasks;
 
 
 namespace SuperSocket.SocketEngine

@@ -128,6 +128,21 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\Solution Items\log4net.config">
+      <Link>Config\log4net.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="..\Solution Items\log4net.unix.config">
+      <Link>Config\log4net.unix.config</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <None Include="..\Solution Items\Net40\App.config">
+      <Link>App.config</Link>
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common</Name>
@@ -140,20 +155,6 @@
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
       <Name>SuperSocket.SocketEngine</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="..\Solution Items\log4net.config">
-      <Link>Config\log4net.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\Solution Items\log4net.unix.config">
-      <Link>Config\log4net.unix.config</Link>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <None Include="..\Solution Items\Net40\App.config">
-      <Link>App.config</Link>
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

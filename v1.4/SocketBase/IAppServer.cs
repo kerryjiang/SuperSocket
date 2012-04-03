@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.ServiceModel.Description;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
@@ -32,14 +31,6 @@ namespace SuperSocket.SocketBase
         /// Gets the name of the server instance.
         /// </summary>
         string Name { get; }
-
-        /// <summary>
-        /// Gets or sets the server credentials for client console
-        /// </summary>
-        /// <value>
-        /// The server credentials.
-        /// </value>
-        ServiceCredentials ServerCredentials { get; set; }
         
         /// <summary>
         /// Gets or sets the server's connection filter

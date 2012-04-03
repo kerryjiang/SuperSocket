@@ -6,14 +6,12 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using System.ServiceModel.Description;
-using System.ServiceModel.Security;
 using System.Text;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {

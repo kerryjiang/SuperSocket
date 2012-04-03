@@ -6,8 +6,6 @@ using System.Net;
 using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.ServiceModel;
-using System.ServiceModel.Description;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,8 +30,6 @@ namespace SuperSocket.SocketBase
         public virtual X509Certificate Certificate { get; protected set; }
 
         public virtual ICustomProtocol<TCommandInfo> Protocol { get; protected set; }
-
-        public ServiceCredentials ServerCredentials { get; set; }
 
         private Dictionary<string, ICommand<TAppSession, TCommandInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TCommandInfo>>(StringComparer.OrdinalIgnoreCase);
 
