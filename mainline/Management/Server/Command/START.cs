@@ -9,8 +9,17 @@ using SuperSocket.Common;
 
 namespace SuperSocket.Management.Server.Command
 {
+    /// <summary>
+    /// Start command, which is used for starting AppServer instance
+    /// </summary>
     public class START : AsyncJsonSubCommand<ManagementSession, string>
     {
+        /// <summary>
+        /// Executes the async json command.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="token">The token.</param>
+        /// <param name="commandInfo">The command info.</param>
         protected override void ExecuteAsyncJsonCommand(ManagementSession session, string token, string commandInfo)
         {
             if (!session.LoggedIn)

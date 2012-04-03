@@ -7,8 +7,14 @@ using System.Configuration;
 
 namespace SuperSocket.Management.Server.Config
 {
+    /// <summary>
+    /// User configuration
+    /// </summary>
     public class UserConfig : ConfigurationElementBase
     {
+        /// <summary>
+        /// Gets the password.
+        /// </summary>
         [ConfigurationProperty("password", IsRequired = true)]
         public string Password
         {

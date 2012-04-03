@@ -9,8 +9,16 @@ using SuperWebSocket.SubProtocol;
 
 namespace SuperSocket.Management.Server.Command
 {
+    /// <summary>
+    /// Login command, which used for login in
+    /// </summary>
     public class LOGIN : JsonSubCommand<ManagementSession, LoginInfo>
     {
+        /// <summary>
+        /// Executes the json command.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="commandInfo">The command info.</param>
         protected override void ExecuteJsonCommand(ManagementSession session, LoginInfo commandInfo)
         {
             var user = session.AppServer.GetUserByName(commandInfo.UserName);

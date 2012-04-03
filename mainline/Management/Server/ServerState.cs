@@ -7,12 +7,31 @@ using SuperSocket.Management.Shared;
 
 namespace SuperSocket.Management.Server
 {
+    /// <summary>
+    /// Server's state
+    /// </summary>
     public class ServerState
     {
+        /// <summary>
+        /// Gets or sets the global performance.
+        /// </summary>
+        /// <value>
+        /// The global performance.
+        /// </value>
         public GlobalPerformanceData GlobalPerformance { get; set; }
 
+        /// <summary>
+        /// Gets or sets the instance states.
+        /// </summary>
+        /// <value>
+        /// The instance states.
+        /// </value>
         public InstanceState[] InstanceStates { get; set; }
 
+        /// <summary>
+        /// Convert to server's information which will be sent to client
+        /// </summary>
+        /// <returns></returns>
         public ServerInfo ToServerInfo()
         {
             return new ServerInfo

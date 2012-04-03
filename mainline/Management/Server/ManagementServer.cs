@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using SuperSocket.Common;
+using SuperSocket.Management.Server.Config;
 using SuperSocket.Management.Shared;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
@@ -11,22 +12,35 @@ using SuperSocket.SocketBase.Protocol;
 using SuperWebSocket;
 using SuperWebSocket.Protocol;
 using SuperWebSocket.SubProtocol;
-using SuperSocket.Management.Server.Config;
 
 namespace SuperSocket.Management.Server
 {
+    /// <summary>
+    /// Server manager app server
+    /// </summary>
     public class ManagementServer : WebSocketServer<ManagementSession>
     {
         private IServerContainer m_ServerContainer;
 
         private Dictionary<string, UserConfig> m_UsersDict;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ManagementServer"/> class.
+        /// </summary>
         public ManagementServer()
             : base(new BasicSubProtocol<ManagementSession>("ServerManager"))
         {
 
         }
 
+        /// <summary>
+        /// Setups with the specified parameters.
+        /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        /// <param name="config">The config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <param name="protocol">The protocol.</param>
+        /// <returns></returns>
         public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<IWebSocketFragment> protocol)
         {
             if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
@@ -50,6 +64,9 @@ namespace SuperSocket.Management.Server
             return true;
         }
 
+        /// <summary>
+        /// Called when [startup].
+        /// </summary>
         protected override void OnStartup()
         {
             m_ServerContainer = GetService<IServerContainer>();
@@ -59,6 +76,9 @@ namespace SuperSocket.Management.Server
             base.OnStartup();
         }
 
+        /// <summary>
+        /// Called when [stopped].
+        /// </summary>
         protected override void OnStopped()
         {
             if (m_ServerContainer != null)
