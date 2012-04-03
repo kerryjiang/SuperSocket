@@ -5,13 +5,14 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{1B10D247-BF48-4ECC-88A5-8D84C91B2246}</ProjectGuid>
+    <ProjectGuid>{6E1D1F75-B8D9-4935-A9B5-9DC8D89E41D9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SuperSocket.Management.Server</RootNamespace>
-    <AssemblyName>SuperSocket.Management.Server</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <RootNamespace>SuperSocket.Management.Shared</RootNamespace>
+    <AssemblyName>SuperSocket.Management.Shared</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,47 +32,22 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=4.0.5.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Reference\SuperWebSocket\Net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="SuperWebSocket">
-      <HintPath>..\Reference\SuperWebSocket\Net40\SuperWebSocket.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Config\UserConfig.cs" />
-    <Compile Include="Config\UserConfigCollection.cs" />
-    <Compile Include="InstanceState.cs" />
-    <Compile Include="ServerState.cs" />
-    <Compile Include="Command\LOGIN.cs" />
-    <Compile Include="Command\START.cs" />
-    <Compile Include="Command\STOP.cs" />
-    <Compile Include="ManagementServer.cs" />
-    <Compile Include="ManagementSession.cs" />
+    <Compile Include="CommandName.cs" />
+    <Compile Include="ListenerInfo.cs" />
+    <Compile Include="LoginInfo.cs" />
+    <Compile Include="LoginResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="SuperSocket.SocketService.exe.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\Solution Items\log4net.config">
-      <Link>Config\log4net.config</Link>
-    </None>
+    <Compile Include="InstanceInfo.cs" />
+    <Compile Include="ServerInfo.cs" />
+    <Compile Include="StartResult.cs" />
+    <Compile Include="StopResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
