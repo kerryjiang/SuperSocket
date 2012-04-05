@@ -58,7 +58,6 @@
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
-    <Compile Include="CommandHandler.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
@@ -105,6 +104,7 @@
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Protocol\TerminatorRequestFilter.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
+    <Compile Include="RequestHandler.cs" />
     <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="ServiceLocator.cs" />

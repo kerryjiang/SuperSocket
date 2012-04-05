@@ -72,7 +72,7 @@
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
-    <Compile Include="CommandHandler.cs" />
+    <Compile Include="RequestHandler.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
     <Compile Include="IServerContainer.cs" />

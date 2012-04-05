@@ -656,15 +656,15 @@ namespace SuperSocket.SocketBase
                 return null;
         }
 
-        private CommandHandler<TAppSession, TRequestInfo> m_CommandHandler;
+        private RequestHandler<TAppSession, TRequestInfo> m_RequestHandler;
 
         /// <summary>
         /// Occurs when a full request item received.
         /// </summary>
-        protected event CommandHandler<TAppSession, TRequestInfo> CommandHandler
+        protected event RequestHandler<TAppSession, TRequestInfo> RequestHandler
         {
-            add { m_CommandHandler += value; }
-            remove { m_CommandHandler -= value; }
+            add { m_RequestHandler += value; }
+            remove { m_RequestHandler -= value; }
         }
 
         /// <summary>
@@ -697,7 +697,7 @@ namespace SuperSocket.SocketBase
         /// <param name="requestInfo">The request info.</param>
         protected virtual void ExecuteCommand(TAppSession session, TRequestInfo requestInfo)
         {
-            if (m_CommandHandler == null)
+            if (m_RequestHandler == null)
             {
                 var command = GetCommandByName(requestInfo.Key);
 
@@ -738,7 +738,7 @@ namespace SuperSocket.SocketBase
             else
             {
                 session.CurrentCommand = requestInfo.Key;
-                m_CommandHandler(session, requestInfo);
+                m_RequestHandler(session, requestInfo);
                 session.PrevCommand = requestInfo.Key;
                 session.LastActiveTime = DateTime.Now;
 
