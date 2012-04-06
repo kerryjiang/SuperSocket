@@ -59,7 +59,7 @@ namespace SuperSocket.SocketEngine
 
                         instancesData.Add(new PerformanceDataInfo { ServerName = s.Name, Data = perfData });
 
-                        perfBuilder.AppendLine(string.Format("{0} - Total Connections: {1}, Total Handled Commands: {2}, Command Handling Speed: {3}/s",
+                        perfBuilder.AppendLine(string.Format("{0} - Total Connections: {1}, Total Handled Commands: {2}, Command Handling Speed: {3:f0}/s",
                             s.Name,
                             perfData.CurrentRecord.TotalConnections,
                             perfData.CurrentRecord.TotalHandledCommands,
