@@ -8,13 +8,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		GlobalAssemblyInfo.cs = GlobalAssemblyInfo.cs
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common.Net35", "..\Common\SuperSocket.Common.Net35.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common.Net35", "..\..\mainline\Common\SuperSocket.Common.Net35.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase.Net35", "..\SocketBase\SuperSocket.SocketBase.Net35.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase.Net35", "..\..\mainline\SocketBase\SuperSocket.SocketBase.Net35.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine.Net35", "..\SocketEngine\SuperSocket.SocketEngine.Net35.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine.Net35", "..\..\mainline\SocketEngine\SuperSocket.SocketEngine.Net35.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService.Net35", "..\SocketService\SuperSocket.SocketService.Net35.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService.Net35", "..\..\mainline\SocketService\SuperSocket.SocketService.Net35.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Net35", "Shared\Shared.Net35.csproj", "{6E1D1F75-B8D9-4935-A9B5-9DC8D89E41D9}"
 EndProject
