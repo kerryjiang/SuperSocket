@@ -1,0 +1,17 @@
+﻿<Application xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+             x:Class="SuperSocket.Management.Client.App"
+             xmlns:vm="clr-namespace:SuperSocket.Management.Client.ViewModel"
+             xmlns:cv="clr-namespace:SuperSocket.Management.Client.Converter">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Themes/Default/Skin.xaml"></ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+            <vm:ViewModelLocator x:Key="ViewModelLocator" />
+            <cv:ViewModelConverter x:Key="ViewModelConverter" />
+            <cv:BytesSizeConverter x:Key="BytesSizeConverter" />
+            <cv:VisibilityConverter x:Key="VisibilityConverter" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
