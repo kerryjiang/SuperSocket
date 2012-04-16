@@ -55,7 +55,7 @@ namespace SuperSocket.SocketEngine
                 var asyncResult = BeginInitStream(OnBeginInitStreamOnSessionStarted);
 
                 //If the operation is synchronous
-                if (asyncResult == null || asyncResult.CompletedSynchronously)
+                if (asyncResult == null)
                     OnSessionStarting();
             }
             catch (Exception e)
