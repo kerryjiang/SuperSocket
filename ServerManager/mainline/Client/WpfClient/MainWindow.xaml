@@ -1,0 +1,265 @@
+﻿<Window xmlns:my="clr-namespace:SuperSocket.Management.Client"
+        x:Class="SuperSocket.Management.Client.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:selector="clr-namespace:SuperSocket.Management.Client.Selector"
+        xmlns:primitives="clr-namespace:System.Windows.Controls.Primitives;assembly=PresentationFramework"
+        xmlns:vm="clr-namespace:SuperSocket.Management.Client.ViewModel"
+        Title="SuperSocket Server Manager" Height="350" Width="783"
+        Icon="Resources\Server.ico"
+        WindowState="Maximized"
+        DataContext="{Binding ViewModelSource, Converter={StaticResource ViewModelConverter}, ConverterParameter=MainViewModel, Source={StaticResource ViewModelLocator}}">
+    <Grid>
+        <Grid.Resources>
+            <ResourceDictionary>
+                <CollectionViewSource x:Key="InstanceSource" Source="{Binding Instances}">
+                    <CollectionViewSource.GroupDescriptions>
+                        <my:InstanceGroupDescription></my:InstanceGroupDescription>
+                    </CollectionViewSource.GroupDescriptions>
+                </CollectionViewSource>
+                
+                <ContextMenu  x:Key="InstanceMenu" DataContext="{Binding PlacementTarget.DataContext, RelativeSource={RelativeSource Self}}">
+                    <MenuItem Header="Start" Command="{Binding StartCommand}" />
+                    <MenuItem Header="Stop" Command="{Binding StopCommand}" />
+                </ContextMenu>
+                <Style x:Key="LoadingStyle" TargetType="DataGridRow">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate></ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+                <Style x:Key="FaultStyle" TargetType="DataGridRow">
+                    <Setter Property="Template" Value="{StaticResource FaultRowTemplate}" />
+                </Style>
+
+                <Style x:Key="NormalStyle" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
+                    <Setter Property="ContextMenu" Value="{StaticResource InstanceMenu}"></Setter>
+                </Style>
+                <selector:InstanceRowStyleSelector x:Key="InstanceRowStyleSelector"
+                        LoadingStyle="{StaticResource LoadingStyle}"
+                        FaultStyle="{StaticResource FaultStyle}"
+                        NormalStyle="{StaticResource NormalStyle}"></selector:InstanceRowStyleSelector>
+            </ResourceDictionary>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Background="{DynamicResource TopGradient}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+                <ColumnDefinition Width="*"></ColumnDefinition>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="Auto"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Label Grid.Column="0" Grid.Row="0"
+                   FontSize="25"
+                   FontWeight="Bold"
+                   Margin="20" Foreground="#FF255B7C" FontFamily="Verdana"
+                   Content="SuperSocket Server Manager"></Label>
+            <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+                <Button Style="{StaticResource MainMenuButton}" Content="Connect.." Command="{Binding ConnectNewServerCommand}"></Button>
+                <Button Style="{StaticResource MainMenuButton}" Content="Exit" Command="{Binding ExitCommand}"></Button>
+            </StackPanel>
+            <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+                       Fill="#FFDACEEC" Height="10" VerticalAlignment="Bottom"></Rectangle>
+        </Grid>
+        <DataGrid Grid.Row="1" ItemsSource="{Binding Source={StaticResource InstanceSource}}"
+                  SelectionMode="Single"
+                  VerticalAlignment="Stretch"
+                  SelectionUnit="FullRow"
+                  AutoGenerateColumns="False"
+                  CanUserAddRows="False"
+                  RowStyleSelector="{StaticResource InstanceRowStyleSelector}">
+            <DataGrid.Resources>
+                <Style TargetType="{x:Type GroupItem}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type GroupItem}">
+                                <StackPanel>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"></ColumnDefinition>
+                                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle Grid.ColumnSpan="2" Fill="{StaticResource HoverGradient}"></Rectangle>
+                                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Name.Name, StringFormat='Server: {0}'}"
+                                                   Margin="10,5,5,5"
+                                                   FontWeight="Bold"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="15"/>
+                                            <TextBlock Text="{Binding Name.State, StringFormat='[{0}]'}"
+                                                   Margin="5,5,5,5"
+                                                   VerticalAlignment="Center"
+                                                   FontSize="11"/>
+                                            <StackPanel Orientation="Horizontal" Visibility="Collapsed" Margin="10 0 0 0" VerticalAlignment="Stretch" Name="ServerDetailBar">
+                                                <StackPanel.Resources>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Margin" Value="10 0 0 0"></Setter>
+                                                        <Setter Property="FontSize" Value="11"></Setter>
+                                                        <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                                                    </Style>
+                                                </StackPanel.Resources>
+                                                <TextBlock Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:f0} %'}" />
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                            <TextBlock x:Name="InstanceCountLabel" Visibility="Collapsed" VerticalAlignment="Center" Margin="0 0 5 0" Text="{Binding ItemCount, StringFormat='\{0\} items'}"></TextBlock>
+                                            <Button Style="{StaticResource ImageMenuButton}" Margin="0 0 2 0" Width="22" Height="22" Command="{Binding Name.ConfigCommand}">
+                                                <Image Source="pack://application:,,,/Resources/Setting.png" Width="18" Height="18"></Image>
+                                            </Button>
+                                            <ToggleButton Name="DetailToggleButton" Visibility="Collapsed" Margin="0 0 2 0" Width="22" Height="22" Style="{StaticResource CollapseButton}">
+                                            </ToggleButton>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Border BorderThickness="1" Margin="5" Name="ServerDetailPanel">
+                                        <Border.BorderBrush>
+                                            <SolidColorBrush Color="{StaticResource ItemOver2}"></SolidColorBrush>
+                                        </Border.BorderBrush>
+                                        <Grid>
+                                            <Grid.Resources>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Margin" Value="10 0 0 0"></Setter>
+                                                    <Setter Property="FontSize" Value="11"></Setter>
+                                                    <Setter Property="VerticalAlignment" Value="Center"></Setter>
+                                                </Style>
+                                            </Grid.Resources>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="250"></ColumnDefinition>
+                                                <ColumnDefinition Width="*"></ColumnDefinition>
+                                            </Grid.ColumnDefinitions>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="25"></RowDefinition>
+                                                <RowDefinition Height="25"></RowDefinition>
+                                            </Grid.RowDefinitions>
+                                            <Rectangle Grid.ColumnSpan="5" Grid.RowSpan="3">
+                                                <Rectangle.Fill>
+                                                    <SolidColorBrush Color="{StaticResource ItemOver1}"></SolidColorBrush>
+                                                </Rectangle.Fill>
+                                            </Rectangle>
+                                            <TextBlock Grid.Column="0" Grid.Row="0" Text="{Binding Name.CpuUsage, StringFormat='CPU: {0:f0} %'}" />
+                                            <TextBlock Grid.Column="1" Grid.Row="0" Text="{Binding Name.PhysicalMemoryUsage, StringFormat='Physical Memory Usage: {0}', Converter={StaticResource BytesSizeConverter}}" />
+                                            <TextBlock Grid.Column="2" Grid.Row="0" Text="{Binding Name.TotalThreadCount, StringFormat='Total Thread Count: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                            <TextBlock Grid.Column="0" Grid.Row="1" Text="{Binding Name.AvailableWorkingThreads, StringFormat='Available Working Threads: {0}'}" />
+                                            <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Name.AvailableCompletionPortThreads, StringFormat='Available Completion Port Threads: {0}'}" />
+                                            <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding Name.MaxWorkingThreads, StringFormat='Max Working Threads: {0}'}" VerticalAlignment="Center" FontSize="11"/>
+                                            <TextBlock Grid.Column="3" Grid.Row="1" Text="{Binding Name.MaxCompletionPortThreads, StringFormat='Max Completion Port Threads: {0}'}" />
+                                        </Grid>
+                                    </Border>
+                                    <ItemsPresenter x:Name="RowsPresenter" />
+                                </StackPanel>
+                                <ControlTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Name.State}" Value="Connected">
+                                        <Setter Property="Visibility" Value="Visible" TargetName="ServerDetailBar"></Setter>
+                                        <Setter Property="Visibility" Value="Visible" TargetName="ServerDetailPanel"></Setter>
+                                        <Setter Property="Visibility" Value="Visible" TargetName="InstanceCountLabel"></Setter>
+                                        <Setter Property="Visibility" Value="Visible" TargetName="DetailToggleButton"></Setter>
+                                    </DataTrigger>
+                                    <EventTrigger RoutedEvent="ToggleButton.Unchecked" SourceName="DetailToggleButton">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="RowsPresenter" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0">
+                                                        <DiscreteObjectKeyFrame.Value>
+                                                            <Visibility>Visible</Visibility>
+                                                        </DiscreteObjectKeyFrame.Value>
+                                                    </DiscreteObjectKeyFrame>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="ServerDetailPanel" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0">
+                                                        <DiscreteObjectKeyFrame.Value>
+                                                            <Visibility>Visible</Visibility>
+                                                        </DiscreteObjectKeyFrame.Value>
+                                                    </DiscreteObjectKeyFrame>
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                    <EventTrigger RoutedEvent="ToggleButton.Checked" SourceName="DetailToggleButton">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="RowsPresenter" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0">
+                                                        <DiscreteObjectKeyFrame.Value>
+                                                            <Visibility>Collapsed</Visibility>
+                                                        </DiscreteObjectKeyFrame.Value>
+                                                    </DiscreteObjectKeyFrame>
+                                                </ObjectAnimationUsingKeyFrames>
+                                                <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="ServerDetailPanel" Storyboard.TargetProperty="Visibility">
+                                                    <DiscreteObjectKeyFrame KeyTime="0">
+                                                        <DiscreteObjectKeyFrame.Value>
+                                                            <Visibility>Collapsed</Visibility>
+                                                        </DiscreteObjectKeyFrame.Value>
+                                                    </DiscreteObjectKeyFrame>
+                                                </ObjectAnimationUsingKeyFrames>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.Resources>
+            <DataGrid.GroupStyle>
+                <GroupStyle>
+                    <GroupStyle.Panel>
+                        <ItemsPanelTemplate>
+                            <DataGridRowsPresenter></DataGridRowsPresenter>
+                        </ItemsPanelTemplate>
+                    </GroupStyle.Panel>
+                </GroupStyle>
+            </DataGrid.GroupStyle>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Name" IsReadOnly="True" SortMemberPath="Name" Width="3*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle VerticalAlignment="Center" Name="StatusFlag" Margin="5" Width="10" Height="10" Fill="Green" />
+                                <TextBlock VerticalAlignment="Center" Text="{Binding Name}"></TextBlock>
+                            </StackPanel>
+                            <DataTemplate.Triggers>
+                                <DataTrigger Binding="{Binding Path=IsRunning}" Value="False">
+                                    <Setter TargetName="StatusFlag"  Property="Fill" Value="Gray" />
+                                </DataTrigger>
+                            </DataTemplate.Triggers>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Started Time" Binding="{Binding Path=StartedTime, StringFormat='MM/dd/yyyy HH:mm'}" Width="2*" IsReadOnly="True" />
+                <DataGridTemplateColumn Header="Connection Count" IsReadOnly="True" SortMemberPath="CurrentConnectionCount" Width="2*">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock>
+                                    <TextBlock.Text>
+                                        <MultiBinding>
+                                          <MultiBinding.StringFormat>{0}/{1}</MultiBinding.StringFormat>
+                                          <Binding Path="CurrentConnectionCount" />
+                                          <Binding Path="MaxConnectionCount" />
+                                        </MultiBinding>
+                                    </TextBlock.Text>
+                                </TextBlock>
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTextColumn Header="Request Handling Speed (#/second)" Binding="{Binding RequestHandlingSpeed}" Width="2*" IsReadOnly="True" />
+                <DataGridTextColumn Header="Listeners" Binding="{Binding ListenersDescription}" SortMemberPath="ListenersDescription" IsReadOnly="True" Width="3*" />
+                <DataGridTextColumn Header="State" Binding="{Binding State}" IsReadOnly="True" Width="1*" />
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</Window>
