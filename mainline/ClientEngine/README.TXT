@@ -1,0 +1,1 @@
+SuperSocket.ClientEngine had been moved to new site: http://clientengine.codeplex.com/
