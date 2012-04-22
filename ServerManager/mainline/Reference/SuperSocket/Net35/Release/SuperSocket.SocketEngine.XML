@@ -1,0 +1,704 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SuperSocket.SocketEngine</name>
+    </assembly>
+    <members>
+        <member name="T:SuperSocket.SocketEngine.SocketSession">
+            <summary>
+            Socket Session, all application session should base on this class
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketSession.Start">
+            <summary>
+            Starts this session.
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketSession.StartSession">
+            <summary>
+            Says the welcome information when a client connectted.
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketSession.OnClose(SuperSocket.SocketBase.CloseReason)">
+            <summary>
+            Called when [close].
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.SocketSession.SessionID">
+            <summary>
+            Gets or sets the session ID.
+            </summary>
+            <value>The session ID.</value>
+        </member>
+        <member name="E:SuperSocket.SocketEngine.SocketSession.Closed">
+            <summary>
+            Occurs when [closed].
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.SocketSession.Client">
+            <summary>
+            Gets or sets the client.
+            </summary>
+            <value>The client.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.SocketSession.LocalEndPoint">
+            <summary>
+            Gets the local end point.
+            </summary>
+            <value>The local end point.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.SocketSession.RemoteEndPoint">
+            <summary>
+            Gets the remote end point.
+            </summary>
+            <value>The remote end point.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.SocketSession.SecureProtocol">
+            <summary>
+            Gets or sets the secure protocol.
+            </summary>
+            <value>The secure protocol.</value>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender">
+            <summary>
+            Async socket sender
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.#ctor(System.Net.Sockets.Socket)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender"/> class.
+            </summary>
+            <param name="socket">The socket.</param>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.Send(System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Sends the specified buffer.
+            </summary>
+            <param name="buffer">The buffer.</param>
+            <param name="start">The start.</param>
+            <param name="length">The length.</param>
+        </member>
+        <member name="E:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.OnError">
+            <summary>
+            Occurs when [on error].
+            </summary>
+        </member>
+        <member name="E:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.OnSocketClosed">
+            <summary>
+            Occurs when [on socket closed].
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.LastSendTime">
+            <summary>
+            Gets or sets the last send time.
+            </summary>
+            <value>
+            The last send time.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.BytesToSend">
+            <summary>
+            Gets the bytes to send.
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.EventError">
+            <summary>
+            The error delegate
+            </summary>
+            <param name="ex">The ex.</param>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.EventSocketClosed">
+            <summary>
+            Socket closed event
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.AsyncSocket.AsyncUserToken">
+            <summary>
+            This class is designed for use as the object to be assigned to the SocketAsyncEventArgs.UserToken property. 
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer">
+            <summary>
+            Socket Buffer
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.#ctor">
+            <summary>Creates new SocketBuffer object.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.#ctor(System.Int32)">
+            <summary>Creates new SocketBuffer object, with default page size
+            if you have any expectational as to the chunks length
+            you can use this constructor to fine tune performance.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Write(System.Byte[],System.Int32,System.Int32)">
+            <summary>Write given data to the buffer.</summary>
+            <param name="data">the data to write</param>
+            <param name="start">start of valid content</param>
+            <param name="length">length of valid content</param>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Write(System.Byte[])">
+            <summary>Write the entire data to the buffer.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Read(System.Int32)">
+            <summary>Read data from the buffer, this method
+            removes the read data from the buffer.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Read(System.Int32,System.Int32)">
+            <summary>Read data from the buffer, this method
+            removes the read data from the buffer.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Discard(System.Int32)">
+            <summary>Given a size this method Discards (forgets) data from the buffer.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Discard(System.Int32,System.Int32)">
+            <summary>Given a size this method Discards (forgets) data from the buffer.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Peek(System.Int32)">
+            <summary>Peeking is like reading but without discarding, 
+            if you will call peek or read again, you will get the same data.</summary>
+            <param name="size"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Peek(System.Int32,System.Int32)">
+            <summary>
+            Peeking is like reading but without discarding,
+            if you will call peek or read again, you will get the same data.
+            </summary>
+            <param name="offset">The offset.</param>
+            <param name="size">The size.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Clear">
+            <summary>
+            Clears this buffer.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Length">
+            <summary>Returns the length of valid content.</summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.AsyncStreamSocketSession.Start">
+            <summary>
+            Starts this session communication.
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.CertificateConfig">
+            <summary>
+            Certificate configuration
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.CertificateConfig.FilePath">
+            <summary>
+            Gets the certificate file path.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.CertificateConfig.Password">
+            <summary>
+            Gets the password.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.CertificateConfig.StoreName">
+            <summary>
+            Gets the the store where certificate locates.
+            </summary>
+            <value>
+            The name of the store.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.CertificateConfig.Thumbprint">
+            <summary>
+            Gets the thumbprint.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.CertificateConfig.IsEnabled">
+            <summary>
+            Gets a value indicating whether this instance is enabled.
+            </summary>
+            <value>
+            	<c>true</c> if this instance is enabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.ConnectionFilterConfig">
+            <summary>
+            ConnectionFilter configuration
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.ConnectionFilterConfig.Type">
+            <summary>
+            Gets the filter's type.
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.ConnectionFilterConfigCollection">
+            <summary>
+            ConnectionFilter configuartion collection
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.Listener">
+            <summary>
+            Listener configuration
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Listener.Ip">
+            <summary>
+            Gets the ip of listener
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Listener.Port">
+            <summary>
+            Gets the port of listener
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Listener.Backlog">
+            <summary>
+            Gets the backlog.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Listener.Security">
+            <summary>
+            Gets the security option, None/Default/Tls/Ssl/...
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.ListenerConfigCollection">
+            <summary>
+            Listener configuration collection
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.Server">
+            <summary>
+            Server configuration
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.Configuration.Server.GetChildConfig``1(System.String)">
+            <summary>
+            Gets the child config.
+            </summary>
+            <typeparam name="TConfig">The type of the config.</typeparam>
+            <param name="childConfigName">Name of the child config.</param>
+            <returns></returns>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ServiceName">
+            <summary>
+            Gets the name of the service.
+            </summary>
+            <value>
+            The name of the service.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Protocol">
+            <summary>
+            Gets the protocol.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Ip">
+            <summary>
+            Gets the ip.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Port">
+            <summary>
+            Gets the port.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Mode">
+            <summary>
+            Gets the mode.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Disabled">
+            <summary>
+            Gets a value indicating whether this <see cref="T:SuperSocket.SocketBase.Config.IServerConfig"/> is disabled.
+            </summary>
+            <value>
+              <c>true</c> if disabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.EnableManagementService">
+            <summary>
+            Gets a value indicating whether [enable management service].
+            </summary>
+            <value>
+            	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Provider">
+            <summary>
+            Gets the provider.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ReadTimeOut">
+            <summary>
+            Gets the read time out.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.SendTimeOut">
+            <summary>
+            Gets the send time out.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.MaxConnectionNumber">
+            <summary>
+            Gets the max connection number.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ReceiveBufferSize">
+            <summary>
+            Gets the size of the receive buffer.
+            </summary>
+            <value>
+            The size of the receive buffer.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.SendBufferSize">
+            <summary>
+            Gets the size of the send buffer.
+            </summary>
+            <value>
+            The size of the send buffer.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.LogCommand">
+            <summary>
+            Gets a value indicating whether log command in log file.
+            </summary>
+            <value><c>true</c> if log command; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ClearIdleSession">
+            <summary>
+            Gets a value indicating whether clear idle session.
+            </summary>
+            <value><c>true</c> if clear idle session; otherwise, <c>false</c>.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ClearIdleSessionInterval">
+            <summary>
+            Gets the clear idle session interval, in seconds.
+            </summary>
+            <value>The clear idle session interval.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.IdleSessionTimeOut">
+            <summary>
+            Gets the idle session timeout time length, in seconds.
+            </summary>
+            <value>The idle session time out.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.CertificateConfig">
+            <summary>
+            Gets the certificate config.
+            </summary>
+            <value>The certificate config.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Certificate">
+            <summary>
+            Gets X509Certificate configuration.
+            </summary>
+            <value>
+            X509Certificate configuration.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Security">
+            <summary>
+            Gets the security protocol, X509 certificate.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.MaxRequestLength">
+            <summary>
+            Gets the max allowed length of request.
+            </summary>
+            <value>
+            The max allowed length of request.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.DisableSessionSnapshot">
+            <summary>
+            Gets a value indicating whether [disable session snapshot]
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.SessionSnapshotInterval">
+            <summary>
+            Gets the interval to taking snapshot for all live sessions.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ConnectionFilters">
+            <summary>
+            Gets the connection filters used by this server instance.
+            </summary>
+            <value>
+            The connection filters's name list, seperated by comma
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.KeepAliveTime">
+            <summary>
+            Gets the start keep alive time, in seconds
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.KeepAliveInterval">
+            <summary>
+            Gets the keep alive interval, in seconds.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.EnableDynamicCommand">
+            <summary>
+            Gets a value indicating whether [enable dynamic command](support commands written in IronPython).
+            </summary>
+            <value>
+            	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ListenBacklog">
+            <summary>
+            Gets the backlog size of socket listening.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.StartupOrder">
+            <summary>
+            Gets the startup order of the server instance.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Listeners">
+            <summary>
+            Gets the listeners' configuration.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.SuperSocket#SocketBase#Config#IServerConfig#Listeners">
+            <summary>
+            Gets the listeners' configuration.
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.ServerCollection">
+            <summary>
+            Server configuration collection
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.Service">
+            <summary>
+            Service configuration
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Service.Type">
+            <summary>
+            Gets the type.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Service.Disabled">
+            <summary>
+            Gets a value indicating whether this <see cref="T:SuperSocket.SocketBase.Config.IServiceConfig"/> is disabled.
+            </summary>
+            <value>
+              <c>true</c> if disabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.ServiceCollection">
+            <summary>
+            Service configuration collection
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.Configuration.SocketServiceConfig">
+            <summary>
+            SuperSocket's root configuration node
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.Servers">
+            <summary>
+            Gets all the server configurations
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.Services">
+            <summary>
+            Gets the service configurations
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.ConnectionFilters">
+            <summary>
+            Gets all the connection filter configurations.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.MaxWorkingThreads">
+            <summary>
+            Gets the max working threads.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.MinWorkingThreads">
+            <summary>
+            Gets the min working threads.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.MaxCompletionPortThreads">
+            <summary>
+            Gets the max completion port threads.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.MinCompletionPortThreads">
+            <summary>
+            Gets the min completion port threads.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.PerformanceDataCollectInterval">
+            <summary>
+            Gets the performance data collect interval, in seconds.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.SocketServiceConfig.DisablePerformanceDataCollector">
+            <summary>
+            Gets a value indicating whether [disable performance data collector].
+            </summary>
+            <value>
+            	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.ISocketListener">
+            <summary>
+            The interface for socket listener
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.ISocketListener.Start">
+            <summary>
+            Starts to listen
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.ISocketListener.Stop">
+            <summary>
+            Stops listening
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.ISocketListener.Info">
+            <summary>
+            Gets the info of listener
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.ISocketListener.EndPoint">
+            <summary>
+            Gets the end point the listener is working on
+            </summary>
+        </member>
+        <member name="E:SuperSocket.SocketEngine.ISocketListener.NewClientAccepted">
+            <summary>
+            Occurs when new client accepted.
+            </summary>
+        </member>
+        <member name="E:SuperSocket.SocketEngine.ISocketListener.Error">
+            <summary>
+            Occurs when error got.
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.SocketServerFactory">
+            <summary>
+            Default socket server factory
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerFactory.CreateSocketServer``1(SuperSocket.SocketBase.IAppServer,SuperSocket.SocketBase.ListenerInfo[],SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.Protocol.IRequestFilterFactory{``0})">
+            <summary>
+            Creates the socket server.
+            </summary>
+            <typeparam name="TRequestInfo">The type of the request info.</typeparam>
+            <param name="appServer">The app server.</param>
+            <param name="listeners">The listeners.</param>
+            <param name="config">The config.</param>
+            <param name="requestFilterFactory">The request filter factory.</param>
+            <returns></returns>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.SocketServerFactory.Instance">
+            <summary>
+            Gets the instance.
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.SocketServerManager">
+            <summary>
+            Socket server manager
+            </summary>
+        </member>
+        <member name="F:SuperSocket.SocketEngine.SocketServerManager.m_ServerList">
+            <summary>
+            main AppServer instances list
+            </summary>
+        </member>
+        <member name="F:SuperSocket.SocketEngine.SocketServerManager.m_Initialized">
+            <summary>
+            Indicate whether the server has been initialized
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.Initialize(SuperSocket.SocketBase.Config.IConfig,System.Func{SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.Config.IServerConfig},SuperSocket.Common.Logging.ILogFactory)">
+            <summary>
+            Initializes SuperSocket with the specified config, config resolver and log factory.
+            </summary>
+            <param name="config">The config.</param>
+            <param name="serverConfigResolver">The server config resolver.</param>
+            <param name="logFactory">The log factory.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.Initialize(SuperSocket.SocketBase.Config.IConfig,System.Func{SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.Config.IServerConfig})">
+            <summary>
+            Initializes SuperSocket with the specified config and config resolver.
+            </summary>
+            <param name="config">The config.</param>
+            <param name="serverConfigResolver">The server config resolver.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.Initialize(SuperSocket.SocketBase.Config.IConfig)">
+            <summary>
+            Initializes SuperSocket with the specified config.
+            </summary>
+            <param name="config">The config.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.Initialize(SuperSocket.SocketBase.Config.IConfig,SuperSocket.Common.Logging.ILogFactory)">
+            <summary>
+            Initializes SuperSocket with the specified config.
+            </summary>
+            <param name="config">The config.</param>
+            <param name="logFactory">The log factory.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.Initialize(System.Collections.Generic.IEnumerable{SuperSocket.SocketBase.IAppServer})">
+            <summary>
+            Initializes the specified servers.
+            </summary>
+            <param name="servers">The passed in AppServers, which have been setup.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.Start">
+            <summary>
+            Starts this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.Stop">
+            <summary>
+            Stops this instance.
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.GetServiceConfig(System.String)">
+            <summary>
+            Gets the service config by name.
+            </summary>
+            <param name="name">The name.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.SocketServerManager.GetServerByName(System.String)">
+            <summary>
+            Gets server instance by name.
+            </summary>
+            <param name="name">The name.</param>
+            <returns></returns>
+        </member>
+        <member name="T:SuperSocket.SocketEngine.TcpAsyncSocketListener">
+            <summary>
+            Tcp socket listener in async mode
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketEngine.TcpAsyncSocketListener.Start">
+            <summary>
+            Starts to listen
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="E:SuperSocket.SocketEngine.TcpAsyncSocketListener.NewClientAccepted">
+            <summary>
+            Occurs when new client accepted.
+            </summary>
+        </member>
+        <member name="E:SuperSocket.SocketEngine.TcpAsyncSocketListener.Error">
+            <summary>
+            Occurs when error got.
+            </summary>
+        </member>
+    </members>
+</doc>
