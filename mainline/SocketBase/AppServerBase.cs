@@ -41,7 +41,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the certificate of current server.
         /// </summary>
-        public virtual X509Certificate Certificate { get; protected set; }
+        public X509Certificate Certificate { get; private set; }
 
         /// <summary>
         /// Gets or sets the request filter factory.
