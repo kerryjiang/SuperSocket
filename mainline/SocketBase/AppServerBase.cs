@@ -386,15 +386,27 @@ namespace SuperSocket.SocketBase
 
                 if (configProtocol != SslProtocols.None)
                 {
-                    if (config.Certificate == null || !config.Certificate.IsEnabled)
+                    try
+                    {
+                        var certificate = GetCertificate(config);
+
+                        if (certificate == null)
+                        {
+                            if (Logger.IsErrorEnabled)
+                                Logger.Error("Certificate cannot be null if you have set secure protocol!");
+
+                            return false;
+                        }
+
+                        Certificate = certificate;
+                    }
+                    catch (Exception e)
                     {
                         if (Logger.IsErrorEnabled)
-                            Logger.Error("There is no certificate defined and enabled!");
+                            Logger.Error("Failed to initialize certificate!", e);
+
                         return false;
                     }
-
-                    if (!SetupCertificate(config))
-                        return false;
                 }
 
                 BasicSecurity = configProtocol;
@@ -405,6 +417,31 @@ namespace SuperSocket.SocketBase
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Gets the certificate from server configuguration.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <returns></returns>
+        protected virtual X509Certificate GetCertificate(IServerConfig config)
+        {
+            if (config.Certificate == null || !config.Certificate.IsEnabled)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("There is no certificate defined and enabled!");
+                return null;
+            }
+
+            if (string.IsNullOrEmpty(config.Certificate.FilePath) && string.IsNullOrEmpty(config.Certificate.Thumbprint))
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Failed to initialize certificate! The attributes 'filePath' or 'thumbprint' is required!");
+
+                return null;
+            }
+
+            return CertificateManager.Initialize(config.Certificate);
         }
 
         /// <summary>
@@ -531,36 +568,6 @@ namespace SuperSocket.SocketBase
                 return false;
             }
         }
-
-        /// <summary>
-        /// Setups the TLS/SSL certificate.
-        /// </summary>
-        /// <param name="config">The config.</param>
-        /// <returns></returns>
-        private bool SetupCertificate(IServerConfig config)
-        {
-            try
-            {
-                if (config.Certificate.IsEnabled && string.IsNullOrEmpty(config.Certificate.FilePath) && string.IsNullOrEmpty(config.Certificate.Thumbprint))
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.Error("Failed to initialize certificate! The attributes 'filePath' or 'thumbprint' is required!");
-
-                    return false;
-                }
-
-                Certificate = CertificateManager.Initialize(config.Certificate);
-                return true;
-            }
-            catch (Exception e)
-            {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error("Failed to initialize certificate!", e);
-
-                return false;
-            }
-        }
-
 
         /// <summary>
         /// Gets the name of the server instance.
