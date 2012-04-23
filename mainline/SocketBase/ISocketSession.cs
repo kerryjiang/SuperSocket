@@ -41,32 +41,14 @@ namespace SuperSocket.SocketBase
         TimeOut,
 
         /// <summary>
+        /// Protocol error 
+        /// </summary>
+        ProtocolError,
+
+        /// <summary>
         /// The socket is closed for unknown reason
         /// </summary>
         Unknown
-    }
-
-    /// <summary>
-    /// SocketSession closed event argument
-    /// </summary>
-    public class SocketSessionClosedEventArgs : EventArgs
-    {
-
-        /// <summary>
-        /// Gets or sets the session ID.
-        /// </summary>
-        /// <value>
-        /// The session ID.
-        /// </value>
-        public string SessionID { get; set; }
-
-        /// <summary>
-        /// Gets or sets the reason.
-        /// </summary>
-        /// <value>
-        /// The reason.
-        /// </value>
-        public CloseReason Reason { get; set; }
     }
 
     /// <summary>
@@ -125,7 +107,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Occurs when [closed].
         /// </summary>
-        event EventHandler<SocketSessionClosedEventArgs> Closed;
+        Action<ISocketSession, CloseReason> Closed { get; set; }
 
         /// <summary>
         /// Gets the app session assosiated with this socket session.

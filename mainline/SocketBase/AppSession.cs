@@ -18,7 +18,7 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
         where TRequestInfo : class, IRequestInfo
     {
         #region Attributes
@@ -26,7 +26,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the app server instance assosiated with the session.
         /// </summary>
-        public virtual IAppServer<TAppSession, TRequestInfo> AppServer { get; private set; }
+        public virtual AppServerBase<TAppSession, TRequestInfo> AppServer { get; private set; }
 
         /// <summary>
         /// Gets the app server instance assosiated with the session.
@@ -61,12 +61,12 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Gets or sets the status of session.
+        /// Gets a value indicating whether this <see cref="IAppSession"/> is connected.
         /// </summary>
         /// <value>
-        /// The status.
+        ///   <c>true</c> if connected; otherwise, <c>false</c>.
         /// </value>
-        public SessionStatus Status { get; set; }
+        public bool Connected { get; internal set; }
 
         /// <summary>
         /// Gets or sets the previous command.
@@ -181,12 +181,20 @@ namespace SuperSocket.SocketBase
         /// <param name="requestFilter">The request filter.</param>
         public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter)
         {
-            AppServer = appServer;
+            AppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
-            Status = SessionStatus.Healthy;
+            Connected = true;
             m_RequestFilter = requestFilter;
             OnInit();
+        }
+
+        /// <summary>
+        /// Starts the session.
+        /// </summary>
+        public void StartSession()
+        {
+            OnSessionStarted();
         }
 
         /// <summary>
@@ -198,17 +206,27 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Starts the session.
+        /// Called when [session started].
         /// </summary>
-        public virtual void StartSession()
+        protected virtual void OnSessionStarted()
         {
 
         }
 
         /// <summary>
+        /// Called when [session closed].
+        /// </summary>
+        /// <param name="reason">The reason.</param>
+        internal protected virtual void OnSessionClosed(CloseReason reason)
+        {
+
+        }
+
+
+        /// <summary>
         /// Handles the exceptional error.
         /// </summary>
-        /// <param name="e">The e.</param>
+        /// <param name="e">The exception.</param>
         public virtual void HandleException(Exception e)
         {
             Logger.Error(e);
@@ -240,7 +258,6 @@ namespace SuperSocket.SocketBase
         public virtual void Close(CloseReason reason)
         {
             this.SocketSession.Close(reason);
-            Status = SessionStatus.Disconnected;
         }
 
         /// <summary>
@@ -302,6 +319,12 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
+            if (!AppServer.OnRawDataReceived(this, readBuffer, offset, length))
+            {
+                left = 0;
+                return null;
+            }
+
             var requestInfo = m_RequestFilter.Filter(this, readBuffer, offset, length, toBeCopied, out left);
 
             if (requestInfo == null)
@@ -359,7 +382,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
+        where TAppSession : AppSession<TAppSession, StringRequestInfo>, IAppSession, new()
     {
 
         private bool m_AppendNewLineForResponse = false;

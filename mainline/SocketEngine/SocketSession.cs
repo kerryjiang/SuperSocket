@@ -75,18 +75,14 @@ namespace SuperSocket.SocketEngine
             var closedHandler = Closed;
             if (closedHandler != null)
             {
-                closedHandler(this, new SocketSessionClosedEventArgs
-                    {
-                        SessionID = this.SessionID,
-                        Reason = reason
-                    });
+                closedHandler(this, reason);
             }
         }
 
         /// <summary>
         /// Occurs when [closed].
         /// </summary>
-        public event EventHandler<SocketSessionClosedEventArgs> Closed;
+        public Action<ISocketSession, CloseReason> Closed { get; set; }
 
         public abstract void SendResponse(byte[] data, int offset, int length);
 

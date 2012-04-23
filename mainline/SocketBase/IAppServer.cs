@@ -142,6 +142,24 @@ namespace SuperSocket.SocketBase
     }
 
     /// <summary>
+    /// The raw data processor
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
+    public interface IRawDataProcessor<TAppSession>
+        where TAppSession : IAppSession
+    {
+        /// <summary>
+        /// Gets or sets the raw binary data received event handler.
+        /// TAppSession: session
+        /// byte[]: receive buffer
+        /// int: receive buffer offset
+        /// int: receive lenght
+        /// bool: whether process the received data further
+        /// </summary>
+        Func<TAppSession, byte[], int, int, bool> RawDataReceived { get; set; }
+    }
+
+    /// <summary>
     /// The interface for AppServer
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
@@ -160,6 +178,17 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <returns></returns>
         IEnumerable<TAppSession> GetAllSessions();
+
+
+        /// <summary>
+        /// Gets/sets the new session connected event handler.
+        /// </summary>
+        Action<TAppSession> NewSessionConnected { get; set; }
+
+        /// <summary>
+        /// Gets/sets the session closed event handler.
+        /// </summary>
+        Action<TAppSession, CloseReason> SessionClosed { get; set; }
     }
 
     /// <summary>
@@ -169,13 +198,11 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public interface IAppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession>
         where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession<TRequestInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
     {
         /// <summary>
-        /// Executes the command.
+        /// Occurs when [request comming].
         /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="requestInfo">The request info.</param>
-        void ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo);
+        event RequestHandler<TAppSession, TRequestInfo> RequestHandler;
     }
 }

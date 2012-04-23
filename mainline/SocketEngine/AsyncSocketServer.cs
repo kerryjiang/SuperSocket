@@ -111,7 +111,7 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+            session.Closed += session_Closed;
             Async.Run(() => session.Start());
         }
 
@@ -130,9 +130,9 @@ namespace SuperSocket.SocketEngine
             socketSession.Start();
         }
 
-        void session_Closed(object sender, SocketSessionClosedEventArgs e)
+        void session_Closed(ISocketSession session, CloseReason reason)
         {
-            IAsyncSocketSessionBase socketSession = sender as IAsyncSocketSessionBase;
+            IAsyncSocketSessionBase socketSession = session as IAsyncSocketSessionBase;
             if (socketSession != null && this.m_ReadWritePool != null)
             {
                 socketSession.SocketAsyncProxy.Reset();

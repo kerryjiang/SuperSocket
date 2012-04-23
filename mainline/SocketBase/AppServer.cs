@@ -48,7 +48,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, StringRequestInfo>, new()
+        where TAppSession : AppSession<TAppSession, StringRequestInfo>, IAppSession, new()
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
@@ -77,8 +77,8 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public abstract class AppServer<TAppSession, TRequestInfo> : AppServerBase<TAppSession, TRequestInfo>, IPerformanceDataSource
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession<TAppSession, TRequestInfo>, new()
+        where TRequestInfo : class, IRequestInfo
+        where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
@@ -175,40 +175,23 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Called when [socket session closed].
         /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="SuperSocket.SocketBase.SocketSessionClosedEventArgs"/> instance containing the event data.</param>
-        internal protected override void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
+        /// <param name="session">The session.</param>
+        /// <param name="reason">The reason.</param>
+        protected override void OnSessionClosed(TAppSession session, CloseReason reason)
         {
-            string sessionID = e.SessionID;
+            string sessionID = session.SessionID;
 
-            if (string.IsNullOrEmpty(sessionID))
-                return;
-
-            TAppSession removedSession;
-            if (m_SessionDict.TryRemove(sessionID, out removedSession))
+            if (!string.IsNullOrEmpty(sessionID))
             {
-                removedSession.Status = SessionStatus.Disconnected;
-                if(Logger.IsInfoEnabled)
-                    Logger.Info(removedSession, "This session was closed!");
-
-                Async.Run(() => OnAppSessionClosed(this, new AppSessionClosedEventArgs<TAppSession>(removedSession, e.Reason)),
-                    exc => Logger.Error(exc));
+                TAppSession removedSession;
+                if (!m_SessionDict.TryRemove(sessionID, out removedSession))
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error(removedSession, "Failed to remove this session, Because it haven't been in session container!");
+                }
             }
-            else
-            {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error(removedSession, "Failed to remove this session, Because it haven't been in session container!");
-            }
-        }
 
-        /// <summary>
-        /// Called when [app session closed].
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="SuperSocket.SocketBase.AppSessionClosedEventArgs&lt;TAppSession&gt;"/> instance containing the event data.</param>
-        protected virtual void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<TAppSession> e)
-        {
-
+            base.OnSessionClosed(session, reason);
         }
 
         /// <summary>

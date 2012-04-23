@@ -107,7 +107,6 @@
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Protocol\IRequestFilter.cs" />
     <Compile Include="ServiceLocator.cs" />
-    <Compile Include="SessionStatus.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />

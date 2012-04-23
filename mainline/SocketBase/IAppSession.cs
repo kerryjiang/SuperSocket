@@ -72,12 +72,12 @@ namespace SuperSocket.SocketBase
         void HandleException(Exception e);
 
         /// <summary>
-        /// Gets or sets the status of session.
+        /// Gets a value indicating whether this <see cref="IAppSession"/> is connected.
         /// </summary>
         /// <value>
-        /// The status.
+        ///   <c>true</c> if connected; otherwise, <c>false</c>.
         /// </value>
-        SessionStatus Status { get; set; }
+        bool Connected { get; }
 
         /// <summary>
         /// Gets or sets the charset which is used for transfering text message.
@@ -142,7 +142,7 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public interface IAppSession<TAppSession, TRequestInfo> : IAppSession<TRequestInfo>
         where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IAppSession<TRequestInfo>, new()
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
     {
         /// <summary>
         /// Initializes the specified session.
@@ -158,34 +158,5 @@ namespace SuperSocket.SocketBase
         /// <param name="session">The session.</param>
         /// <param name="cmdInfo">The request info.</param>
         void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo);
-    }
-
-    /// <summary>
-    /// The app session closed event argument
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public class AppSessionClosedEventArgs<TAppSession> : EventArgs
-        where TAppSession : IAppSession, new()
-    {
-        /// <summary>
-        /// Gets the session.
-        /// </summary>
-        public TAppSession Session { get; private set; }
-
-        /// <summary>
-        /// Gets the close reason.
-        /// </summary>
-        public CloseReason Reason { get; private set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppSessionClosedEventArgs&lt;TAppSession&gt;"/> class.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="reason">The reason.</param>
-        public AppSessionClosedEventArgs(TAppSession session, CloseReason reason)
-        {
-            Session = session;
-            Reason = reason;
-        }
     }
 }

@@ -108,7 +108,6 @@
     <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="ServiceLocator.cs" />
-    <Compile Include="SessionStatus.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>
   <ItemGroup>

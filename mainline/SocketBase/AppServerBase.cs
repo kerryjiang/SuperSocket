@@ -24,9 +24,9 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession<TAppSession, TRequestInfo>, new()
+    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>, IRawDataProcessor<TAppSession>
+        where TRequestInfo : class, IRequestInfo
+        where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
         /// <summary>
         /// Null appSession instance
@@ -656,12 +656,45 @@ namespace SuperSocket.SocketBase
                 return null;
         }
 
+
+        private Func<TAppSession, byte[], int, int, bool> m_RawDataReceivedHandler;
+
+        /// <summary>
+        /// Gets or sets the raw binary data received event handler.
+        /// TAppSession: session
+        /// byte[]: receive buffer
+        /// int: receive buffer offset
+        /// int: receive lenght
+        /// bool: whether process the received data further
+        /// </summary>
+        Func<TAppSession, byte[], int, int, bool> IRawDataProcessor<TAppSession>.RawDataReceived
+        {
+            get { return m_RawDataReceivedHandler; }
+            set { m_RawDataReceivedHandler = value; }
+        }
+
+        /// <summary>
+        /// Called when [raw data received].
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="buffer">The buffer.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        internal bool OnRawDataReceived(IAppSession session, byte[] buffer, int offset, int length)
+        {
+            var handler = m_RawDataReceivedHandler;
+            if (handler == null)
+                return true;
+
+            return handler((TAppSession)session, buffer, offset, length);
+        }
+
         private RequestHandler<TAppSession, TRequestInfo> m_RequestHandler;
 
         /// <summary>
         /// Occurs when a full request item received.
         /// </summary>
-        protected event RequestHandler<TAppSession, TRequestInfo> RequestHandler
+        public event RequestHandler<TAppSession, TRequestInfo> RequestHandler
         {
             add { m_RequestHandler += value; }
             remove { m_RequestHandler -= value; }
@@ -715,7 +748,7 @@ namespace SuperSocket.SocketBase
 
                     //Command filter may close the session,
                     //so detect whether session is connected before execute command
-                    if (session.Status != SessionStatus.Disconnected)
+                    if (session.Connected)
                     {
                         command.ExecuteCommand(session, requestInfo);
 
@@ -754,7 +787,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
-        void IAppServer<TAppSession, TRequestInfo>.ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo)
+        internal void ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo)
         {
             this.ExecuteCommand((TAppSession)session, requestInfo);
         }
@@ -813,9 +846,42 @@ namespace SuperSocket.SocketBase
 
             var appSession = new TAppSession();
             appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this, socketSession));
-            socketSession.Closed += new EventHandler<SocketSessionClosedEventArgs>(OnSocketSessionClosed);
+            socketSession.Closed += OnSocketSessionClosed;
+
+            OnNewSessionConnected(appSession);
 
             return appSession;
+        }
+
+        /// <summary>
+        /// The action which will be executed after a new session connect
+        /// </summary>
+        public Action<TAppSession> NewSessionConnected { get; set; }
+
+        /// <summary>
+        /// Called when [new session connected].
+        /// </summary>
+        /// <param name="session">The session.</param>
+        protected virtual void OnNewSessionConnected(TAppSession session)
+        {
+            var handler = NewSessionConnected;
+            if (handler == null)
+                return;
+
+            handler.BeginInvoke(session, OnNewSessionConnectedCallback, handler);
+        }
+
+        private void OnNewSessionConnectedCallback(IAsyncResult result)
+        {
+            try
+            {
+                var handler = (Action<TAppSession>)result.AsyncState;
+                handler.EndInvoke(result);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
 
         /// <summary>
@@ -831,11 +897,51 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Called when [socket session closed].
         /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The <see cref="SuperSocket.SocketBase.SocketSessionClosedEventArgs"/> instance containing the event data.</param>
-        internal protected virtual void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
+        /// <param name="session">The socket session.</param>
+        /// <param name="reason">The reason.</param>
+        private void OnSocketSessionClosed(ISocketSession session, CloseReason reason)
         {
+            if (Logger.IsInfoEnabled)
+                Logger.Info(session, "This session was closed!");
 
+            OnSessionClosed((TAppSession)session.AppSession, reason);
+        }
+
+        /// <summary>
+        /// Gets/sets the session closed event handler.
+        /// </summary>
+        public Action<TAppSession, CloseReason> SessionClosed { get; set; }
+
+        /// <summary>
+        /// Called when [session closed].
+        /// </summary>
+        /// <param name="session">The appSession.</param>
+        /// <param name="reason">The reason.</param>
+        protected virtual void OnSessionClosed(TAppSession session, CloseReason reason)
+        {
+            session.Connected = false;
+
+            var handler = SessionClosed;
+
+            if (handler != null)
+            {
+                handler.BeginInvoke(session, reason, OnNewSessionClosedCallback, handler);
+            }
+
+            session.OnSessionClosed(reason);
+        }
+
+        private void OnNewSessionClosedCallback(IAsyncResult result)
+        {
+            try
+            {
+                var handler = (Action<TAppSession, CloseReason>)result.AsyncState;
+                handler.EndInvoke(result);
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
+            }
         }
 
         /// <summary>

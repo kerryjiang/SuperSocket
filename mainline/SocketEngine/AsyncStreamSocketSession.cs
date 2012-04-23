@@ -41,6 +41,28 @@ namespace SuperSocket.SocketEngine
             m_IsReset = isReset;
         }
 
+        private bool IsIgnorableException(Exception e)
+        {
+            if (e is ObjectDisposedException)
+                return true;
+
+            if (e is IOException)
+            {
+                if (e.InnerException is ObjectDisposedException)
+                    return true;
+
+                if(e.InnerException is SocketException)
+                {
+                    var se = e.InnerException as SocketException;
+
+                    if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
         /// <summary>
         /// Starts this session communication.
         /// </summary>
@@ -60,7 +82,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppSession.Logger.Error(e);
+                AppSession.Logger.Error(AppSession, e);
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -68,7 +90,17 @@ namespace SuperSocket.SocketEngine
 
         private void OnSessionStarting()
         {
-            m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
+            try
+            {
+                m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
+            }
+            catch (Exception e)
+            {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
+                this.Close(CloseReason.SocketError);
+            }
 
             if (!m_IsReset)
                 StartSession();
@@ -78,51 +110,49 @@ namespace SuperSocket.SocketEngine
         {
             var stream = result.AsyncState as Stream;
 
+            int thisRead = 0;
+
             try
             {
-                int thisRead = stream.EndRead(result);
-
-                if (thisRead > 0)
-                {
-                    AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
-
-                    m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                this.Close(CloseReason.SocketError);
-                return;
-            }
-            catch (IOException ioe)
-            {
-                if (ioe.InnerException != null)
-                {
-                    if (ioe.InnerException is SocketException)
-                    {
-                        var se = ioe.InnerException as SocketException;
-                        if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
-                        {
-                            this.Close(CloseReason.SocketError);
-                            return;
-                        }
-                    }
-
-                    if (ioe.InnerException is ObjectDisposedException)
-                    {
-                        this.Close(CloseReason.SocketError);
-                        return;
-                    }
-                }
-
-                AppSession.Logger.Error(this, ioe);
-                this.Close(CloseReason.SocketError);
-                return;
+                thisRead = stream.EndRead(result);
             }
             catch (Exception e)
             {
-                AppSession.Logger.Error(this, e);
-                this.Close(CloseReason.Unknown);
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
+                this.Close(CloseReason.SocketError);
+                return;
+            }
+
+            if (thisRead <= 0)
+            {
+                this.Close(CloseReason.ClientClosing);
+                return;
+            }
+
+            try
+            {
+                AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
+            }
+            catch (Exception ex)
+            {
+                AppSession.Logger.Error(AppSession, "protocol error", ex);
+                this.Close(CloseReason.ProtocolError);
+                return;
+            }
+
+
+            try
+            {
+                m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
+            }
+            catch (Exception exc)
+            {
+                if (!IsIgnorableException(exc))
+                    AppSession.Logger.Error(AppSession, exc);
+
+                this.Close(CloseReason.SocketError);
                 return;
             }
         }

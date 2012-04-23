@@ -49,6 +49,22 @@ namespace SuperSocket.SocketEngine
                 StartSession();
         }
 
+        private bool IsIgnorableException(Exception e)
+        {
+            if (e is ObjectDisposedException)
+                return true;
+
+            if (e is SocketException)
+            {
+                var se = e as SocketException;
+
+                if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
+                    return true;
+            }
+
+            return false;
+        }
+
         private void StartReceive(SocketAsyncEventArgs e)
         {
             if (IsClosed)
@@ -60,8 +76,11 @@ namespace SuperSocket.SocketEngine
             {
                 willRaiseEvent = Client.ReceiveAsync(e);
             }
-            catch (Exception)
+            catch (Exception exc)
             {
+                if (!IsIgnorableException(exc))
+                    AppSession.Logger.Error(AppSession, exc);
+
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -97,6 +116,14 @@ namespace SuperSocket.SocketEngine
 
             if (e.SocketError != SocketError.Success)
             {
+                if (e.SocketError != SocketError.ConnectionAborted
+                    && e.SocketError != SocketError.ConnectionReset
+                    && e.SocketError != SocketError.Interrupted
+                    && e.SocketError != SocketError.Shutdown)
+                {
+                    AppSession.Logger.Error(e);
+                }
+
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -104,7 +131,16 @@ namespace SuperSocket.SocketEngine
             int bytesTransferred = e.BytesTransferred;
             int offset = e.Offset;
 
-            this.AppSession.ProcessRequest(e.Buffer, e.Offset, e.BytesTransferred, true);
+            try
+            {
+                this.AppSession.ProcessRequest(e.Buffer, e.Offset, e.BytesTransferred, true);
+            }
+            catch (Exception exc)
+            {
+                AppSession.Logger.Error(AppSession, "protocol error", exc);
+                this.Close(CloseReason.ProtocolError);
+                return;
+            }
 
             //read the next block of data sent from the client
             StartReceive(e);

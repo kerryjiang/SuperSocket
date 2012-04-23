@@ -12,7 +12,7 @@ namespace SuperSocket.Test
         public const string WelcomeMessageFormat = "Welcome to {0}";
         public const string UnknownCommandMessageFormat = "Unknown command: {0}";
 
-        public override void StartSession()
+        protected override void OnSessionStarted()
         {
             if(AppServer.Config.Mode != SocketMode.Udp)
                 SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
