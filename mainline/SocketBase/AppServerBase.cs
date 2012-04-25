@@ -697,10 +697,10 @@ namespace SuperSocket.SocketBase
         /// int: receive lenght
         /// bool: whether process the received data further
         /// </summary>
-        Func<TAppSession, byte[], int, int, bool> IRawDataProcessor<TAppSession>.RawDataReceived
+        event Func<TAppSession, byte[], int, int, bool> IRawDataProcessor<TAppSession>.RawDataReceived
         {
-            get { return m_RawDataReceivedHandler; }
-            set { m_RawDataReceivedHandler = value; }
+            add { m_RawDataReceivedHandler += value; }
+            remove { m_RawDataReceivedHandler -= value; }
         }
 
         /// <summary>
@@ -883,10 +883,17 @@ namespace SuperSocket.SocketBase
             return appSession;
         }
 
+
+        private Action<TAppSession> m_NewSessionConnected;
+
         /// <summary>
         /// The action which will be executed after a new session connect
         /// </summary>
-        public Action<TAppSession> NewSessionConnected { get; set; }
+        public event Action<TAppSession> NewSessionConnected
+        {
+            add { m_NewSessionConnected += value; }
+            remove { m_NewSessionConnected -= value; }
+        }
 
         /// <summary>
         /// Called when [new session connected].
@@ -894,7 +901,7 @@ namespace SuperSocket.SocketBase
         /// <param name="session">The session.</param>
         protected virtual void OnNewSessionConnected(TAppSession session)
         {
-            var handler = NewSessionConnected;
+            var handler = m_NewSessionConnected;
             if (handler == null)
                 return;
 
@@ -937,10 +944,15 @@ namespace SuperSocket.SocketBase
             OnSessionClosed((TAppSession)session.AppSession, reason);
         }
 
+        private Action<TAppSession, CloseReason> m_SessionClosed;
         /// <summary>
         /// Gets/sets the session closed event handler.
         /// </summary>
-        public Action<TAppSession, CloseReason> SessionClosed { get; set; }
+        public event Action<TAppSession, CloseReason> SessionClosed
+        {
+            add { m_SessionClosed += value; }
+            remove { m_SessionClosed -= value; }
+        }
 
         /// <summary>
         /// Called when [session closed].
@@ -951,7 +963,7 @@ namespace SuperSocket.SocketBase
         {
             session.Connected = false;
 
-            var handler = SessionClosed;
+            var handler = m_SessionClosed;
 
             if (handler != null)
             {

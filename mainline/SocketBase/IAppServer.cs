@@ -157,7 +157,7 @@ namespace SuperSocket.SocketBase
         /// int: receive lenght
         /// bool: whether process the received data further
         /// </summary>
-        Func<TAppSession, byte[], int, int, bool> RawDataReceived { get; set; }
+        event Func<TAppSession, byte[], int, int, bool> RawDataReceived;
     }
 
     /// <summary>
@@ -180,16 +180,15 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         IEnumerable<TAppSession> GetAllSessions();
 
-
         /// <summary>
         /// Gets/sets the new session connected event handler.
         /// </summary>
-        Action<TAppSession> NewSessionConnected { get; set; }
+        event Action<TAppSession> NewSessionConnected;
 
         /// <summary>
         /// Gets/sets the session closed event handler.
         /// </summary>
-        Action<TAppSession, CloseReason> SessionClosed { get; set; }
+        event Action<TAppSession, CloseReason> SessionClosed;
     }
 
     /// <summary>
