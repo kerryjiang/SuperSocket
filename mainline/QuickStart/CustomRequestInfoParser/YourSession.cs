@@ -8,9 +8,9 @@ namespace SuperSocket.QuickStart.CustomCommandParser
 {
     public class YourSession : AppSession<YourSession>
     {
-        public override void StartSession()
+        protected override void OnSessionStarted()
         {
-            SendResponse("Welcome");   
+            SendResponse("Welcome");
         }
 
         public override void HandleException(Exception e)

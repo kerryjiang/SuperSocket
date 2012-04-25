@@ -72,6 +72,11 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public ILog Logger { get; private set; }
 
+        /// <summary>
+        /// Gets the bootstrap of this appServer instance.
+        /// </summary>
+        protected IBootstrap Bootstrap { get; private set; }
+
         private static bool m_ThreadPoolConfigured = false;
 
         private List<IConnectionFilter> m_ConnectionFilters;
@@ -219,7 +224,7 @@ namespace SuperSocket.SocketBase
         /// <param name="config">The socket server instance config.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
+        protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
             return Setup(rootConfig, config, socketServerFactory, null);
         }
@@ -232,7 +237,7 @@ namespace SuperSocket.SocketBase
         /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="requestFilterFactory">The request filter factory.</param>
         /// <returns></returns>
-        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+        protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -311,6 +316,24 @@ namespace SuperSocket.SocketBase
                 return false;
 
             return SetupSocketServer();
+        }
+
+        /// <summary>
+        /// Setups the specified root config.
+        /// </summary>
+        /// <param name="bootstrap">The bootstrap.</param>
+        /// <param name="rootConfig">The SuperSocket root config.</param>
+        /// <param name="config">The socket server instance config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <returns></returns>
+        bool IAppServer.Setup(IBootstrap bootstrap, IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
+        {
+            if (bootstrap == null)
+                throw new ArgumentNullException("bootstrap");
+
+            Bootstrap = bootstrap;
+
+            return Setup(rootConfig, config, socketServerFactory);
         }
 
         /// <summary>
@@ -994,17 +1017,6 @@ namespace SuperSocket.SocketBase
             {
                 throw new NotSupportedException();
             }
-        }
-
-        /// <summary>
-        /// Gets the service instance.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <returns></returns>
-        protected T GetService<T>()
-            where T : class
-        {
-            return ServiceLocator.GetService<T>();
         }
 
         #region IDisposable Members

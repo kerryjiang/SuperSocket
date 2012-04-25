@@ -75,7 +75,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="IAsyncSocketSession.cs" />
-    <Compile Include="SuperSocketServerContainer.cs" />
+    <Compile Include="DefaultBootstrap.cs" />
     <Compile Include="TcpAsyncSocketListener.cs" />
     <Compile Include="AsyncSocket\AsyncSocketSender.cs" />
     <Compile Include="AsyncSocketServer.cs">
@@ -101,7 +101,6 @@
     <Compile Include="AsyncSocket\SocketBuffer.cs" />
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerBase.cs" />
-    <Compile Include="SocketServerManager.cs" />
     <Compile Include="SocketSession.cs" />
     <Compile Include="TcpSocketServerBase.cs" />
   </ItemGroup>

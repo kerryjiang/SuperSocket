@@ -72,6 +72,7 @@
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
+    <Compile Include="IBootstrap.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
@@ -106,7 +107,6 @@
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="Protocol\IRequestFilter.cs" />
-    <Compile Include="ServiceLocator.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />

@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.MultipleAppServer
 
         protected override void OnStartup()
         {
-            m_DespatchServer = SocketServerManager.GetServerByName("ServerB") as IDespatchServer;
+            m_DespatchServer = this.Bootstrap.AppServers.FirstOrDefault(s => s.Name.Equals("ServerB", StringComparison.OrdinalIgnoreCase)) as IDespatchServer;
             base.OnStartup();
         }
 

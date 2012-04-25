@@ -10,15 +10,18 @@ using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.StorageClient;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
-using SuperSocket.Common.Logging;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.SuperSocketRole
 {
     public class WorkerRole : RoleEntryPoint
     {
+        private IBootstrap m_Bootstrap;
+
         public override void Run()
         {
             // This is a sample worker implementation. Replace with your logic.
@@ -39,20 +42,35 @@ namespace SuperSocket.SuperSocketRole
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
-            LogFactoryProvider.Initialize();
+            m_Bootstrap = new SuperSocketBootstrap();
 
             var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
 
-            if (!SocketServerManager.Initialize(serverConfig, ResolveServerConfig))
+            if (!m_Bootstrap.Initialize(serverConfig, ResolveServerConfig))
             {
                 Trace.WriteLine("Failed to initialize SuperSocket!", "Error");
                 return false;
             }
 
-            if (!SocketServerManager.Start())
+            var result = m_Bootstrap.Start();
+
+            switch (result)
             {
-                Trace.WriteLine("Failed to start SuperSocket!", "Error");
-                return false;
+                case (StartResult.None):
+                    Trace.WriteLine("No server is configured, please check you configuration!");
+                    return false;
+
+                case (StartResult.Success):
+                    Trace.WriteLine("The server has been started!");
+                    break;
+
+                case (StartResult.Failed):
+                    Trace.WriteLine("Failed to start SuperSocket server! Please check error log for more information!");
+                    return false;
+
+                case (StartResult.PartialSuccess):
+                    Trace.WriteLine("Some server instances were started successfully, but the others failed to start! Please check error log for more information!");
+                    break;
             }
 
             return base.OnStart();
@@ -112,7 +130,7 @@ namespace SuperSocket.SuperSocketRole
 
         public override void OnStop()
         {
-            SocketServerManager.Stop();
+            m_Bootstrap.Stop();
             base.OnStop();
         }
     }

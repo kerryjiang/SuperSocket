@@ -83,10 +83,10 @@ namespace SuperSocket.QuickStart.BroadcastService
                 });
         }
 
-        protected override void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<BroadcastSession> e)
+        protected override void OnSessionClosed(BroadcastSession session, CloseReason reason)
         {
-            RemoveOnlineSession(e.Session);
-            base.OnAppSessionClosed(sender, e);
+            RemoveOnlineSession(session);
+            base.OnSessionClosed(session, reason);
         }
     }
 }

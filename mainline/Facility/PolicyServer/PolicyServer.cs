@@ -46,7 +46,7 @@ namespace SuperSocket.Facility.PolicyServer
         /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="requestFilterFactory">The request filter factory.</param>
         /// <returns></returns>
-        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<BinaryRequestInfo> requestFilterFactory)
+        protected override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<BinaryRequestInfo> requestFilterFactory)
         {
             var policyRequest = config.Options.GetValue("policyRequest");
             if (!string.IsNullOrEmpty(policyRequest))

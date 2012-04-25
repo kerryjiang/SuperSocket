@@ -57,11 +57,12 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Setups the specified root config.
         /// </summary>
+        /// <param name="bootstrap">The bootstrap.</param>
         /// <param name="rootConfig">The SuperSocket root config.</param>
         /// <param name="config">The socket server instance config.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
         /// <returns></returns>
-        bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory);
+        bool Setup(IBootstrap bootstrap, IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory);
 
         /// <summary>
         /// Starts this server instance.

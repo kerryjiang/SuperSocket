@@ -11,7 +11,7 @@ namespace SuperSocket.Test
     public class Setup
     {
         [SetUp]
-        public void RunBeforeAnyTest()
+        public void RunBeforeAllTest()
         {
             if (LogFactoryProvider.LogFactory == null)
                 LogFactoryProvider.Initialize(new ConsoleLogFactory());

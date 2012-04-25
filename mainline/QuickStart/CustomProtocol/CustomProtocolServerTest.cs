@@ -20,10 +20,12 @@ namespace SuperSocket.QuickStart.CustomProtocol
         private CustomProtocolServer m_Server;
         private IServerConfig m_Config;
 
+        private IBootstrap m_Bootstrap;
+
         [TestFixtureSetUp]
         public void Setup()
         {
-            LogFactoryProvider.Initialize(new ConsoleLogFactory());
+            m_Bootstrap = new DefaultBootstrap();
 
             m_Config = new ServerConfig
                 {
@@ -35,21 +37,20 @@ namespace SuperSocket.QuickStart.CustomProtocol
                 };
 
             m_Server = new CustomProtocolServer();
-            m_Server.Setup(new RootConfig(),
-                m_Config,
-                SocketServerFactory.Instance);
+
+            m_Bootstrap.Initialize(new RootConfig(), new IAppServer[] { m_Server }, new IServerConfig[] { m_Config }, new ConsoleLogFactory());
         }
 
         [SetUp]
         public void StartServer()
         {
-            m_Server.Start();
+            m_Bootstrap.Start();
         }
 
         [TearDown]
         public void StopServer()
         {
-            m_Server.Stop();
+            m_Bootstrap.Stop();
         }
 
         [Test]

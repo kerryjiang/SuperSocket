@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase;
-using SuperSocket.SocketEngine;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
+using System.Text;
+using NUnit.Framework;
 using SuperSocket.Common.Logging;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketEngine;
 
 namespace SuperSocket.QuickStart.GPSSocketServer
 {
@@ -18,11 +18,13 @@ namespace SuperSocket.QuickStart.GPSSocketServer
     {
         private GPSServer m_Server;
         private IServerConfig m_Config;
+        private IBootstrap m_Bootstrap;
+
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            LogFactoryProvider.Initialize(new ConsoleLogFactory());
+            m_Bootstrap = new DefaultBootstrap();
 
             m_Config = new ServerConfig
             {
@@ -34,21 +36,19 @@ namespace SuperSocket.QuickStart.GPSSocketServer
             };
 
             m_Server = new GPSServer();
-            m_Server.Setup(new RootConfig(),
-                m_Config,
-                SocketServerFactory.Instance);
+            m_Bootstrap.Initialize(new RootConfig(), new IAppServer[] { m_Server }, new IServerConfig[] { m_Config }, new ConsoleLogFactory());
         }
 
         [SetUp]
         public void StartServer()
         {
-            m_Server.Start();
+            m_Bootstrap.Start();
         }
 
         [TearDown]
         public void StopServer()
         {
-            m_Server.Stop();
+            m_Bootstrap.Stop();
         }
 
         private static byte[] m_StartMark = new byte[] { 0x68, 0x68 };

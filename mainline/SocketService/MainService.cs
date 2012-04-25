@@ -14,30 +14,32 @@ namespace SuperSocket.SocketService
 {
     partial class MainService : ServiceBase
     {
+        private IBootstrap m_Bootstrap;
+
         public MainService()
         {
             InitializeComponent();
+            m_Bootstrap = new DefaultBootstrap();
         }
 
         protected override void OnStart(string[] args)
         {
             var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
-            if (!SocketServerManager.Initialize(serverConfig))
+            if (!m_Bootstrap.Initialize(serverConfig))
                 return;
 
-            if (!SocketServerManager.Start())
-                SocketServerManager.Stop();
+            m_Bootstrap.Start();
         }
 
         protected override void OnStop()
         {
-            SocketServerManager.Stop();
+            m_Bootstrap.Stop();
             base.OnStop();
         }
 
         protected override void OnShutdown()
         {
-            SocketServerManager.Stop();
+            m_Bootstrap.Stop();
             base.OnShutdown();
         }
     }

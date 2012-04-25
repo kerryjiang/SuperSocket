@@ -78,6 +78,7 @@
     <Compile Include="Config\ServerConfig.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
+    <Compile Include="IBootstrap.cs" />
     <Compile Include="ICommandSource.cs" />
     <Compile Include="IConnectionFilter.cs" />
     <Compile Include="IServerContainer.cs" />
@@ -107,7 +108,6 @@
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
-    <Compile Include="ServiceLocator.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService
             get { return (RemoteProcessServer)base.AppServer; }
         }
 
-        public override void StartSession()
+        protected override void OnSessionStarted()
         {
             SendResponse("Welcome to use this tool!");
         }

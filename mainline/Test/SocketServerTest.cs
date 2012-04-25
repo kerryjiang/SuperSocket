@@ -34,7 +34,8 @@ namespace SuperSocket.Test
                 MaxWorkingThreads = 500,
                 MaxCompletionPortThreads = 500,
                 MinWorkingThreads = 5,
-                MinCompletionPortThreads = 5
+                MinCompletionPortThreads = 5,
+                DisablePerformanceDataCollector = true
             };
             
             m_Encoding = new UTF8Encoding();
@@ -75,10 +76,10 @@ namespace SuperSocket.Test
                 return;
 
             var serverX = new TestServer();
-            serverX.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
-
             var serverY = new TestServer(new TestCommandParser());
-            serverY.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
+
+            IBootstrap bootstrap = new DefaultBootstrap();
+            bootstrap.Initialize(m_RootConfig, new IAppServer[] { serverX, serverY }, new IServerConfig[] { m_Config, m_Config });
 
             m_Servers[m_Config] = new TestServer[]
             {
@@ -192,13 +193,15 @@ namespace SuperSocket.Test
                 Certificate = defaultConfig.Certificate
             };
 
-            server.Setup(m_RootConfig, config, SocketServerFactory.Instance);
+            var bootstrap = new DefaultBootstrap();
+
+            bootstrap.Initialize(m_RootConfig, new IAppServer[] { server }, new IServerConfig[] { config });
 
             List<Socket> sockets = new List<Socket>();
 
             try
             {
-                server.Start();
+                bootstrap.Start();
 
                 EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -240,7 +243,7 @@ namespace SuperSocket.Test
             }
             finally
             {
-                server.Stop();
+                bootstrap.Stop();
             }
         }
 

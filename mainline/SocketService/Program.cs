@@ -8,6 +8,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
 using SuperSocket.Common.Logging;
+using SuperSocket.SocketBase;
 
 
 namespace SuperSocket.SocketService
@@ -51,21 +52,37 @@ namespace SuperSocket.SocketService
 
         static void RunAsConsole()
         {
+            IBootstrap bootstrap = new DefaultBootstrap();
+
             SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
-            if (!SocketServerManager.Initialize(serverConfig))
+            if (!bootstrap.Initialize(serverConfig))
             {
                 Console.WriteLine("Failed to initialize SuperSocket server! Please check error log for more information!");
                 return;
             }
 
-            if (!SocketServerManager.Start())
+            var result = bootstrap.Start();
+
+            switch(result)
             {
-                Console.WriteLine("Failed to start SuperSocket server! Please check error log for more information!");
-                SocketServerManager.Stop();
-                return;
+                case(StartResult.None):
+                    Console.WriteLine("No server is configured, please check you configuration!");
+                    break;
+
+                case(StartResult.Success):
+                    Console.WriteLine("The server has been started!");
+                    break;
+
+                case (StartResult.Failed):
+                    Console.WriteLine("Failed to start SuperSocket server! Please check error log for more information!");
+                    break;
+
+                case (StartResult.PartialSuccess):
+                    Console.WriteLine("Some server instances were started successfully, but the others failed to start! Please check error log for more information!");
+                    break;
             }
 
-            Console.WriteLine("The server has been started! Press key 'q' to stop the server.");
+            Console.WriteLine("Press key 'q' to stop the server.");
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
             {
@@ -73,7 +90,7 @@ namespace SuperSocket.SocketService
                 continue;
             }
 
-            SocketServerManager.Stop();
+            bootstrap.Stop();
 
             Console.WriteLine();
             Console.WriteLine("The server has been stopped!");

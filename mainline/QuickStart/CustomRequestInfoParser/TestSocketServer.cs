@@ -19,7 +19,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser
         [Test]
         public void TestECHO()
         {
-            LogFactoryProvider.Initialize(new ConsoleLogFactory());
+            var bootstrap = new DefaultBootstrap();
 
             IServerConfig config = new ServerConfig
             {
@@ -33,9 +33,10 @@ namespace SuperSocket.QuickStart.CustomCommandParser
             var rootConfig = new RootConfig();
 
             YourServer server = new YourServer();
-            server.Setup(rootConfig, config, SocketServerFactory.Instance);
 
-            server.Start();
+            bootstrap.Initialize(rootConfig, new IAppServer[] { server }, new IServerConfig[] { config }, new ConsoleLogFactory());
+
+            bootstrap.Start();
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), config.Port);
 
@@ -64,7 +65,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser
                 }
             }
 
-            server.Stop();
+            bootstrap.Stop();
         }
     }
 }
