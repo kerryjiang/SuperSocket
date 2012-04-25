@@ -108,7 +108,6 @@
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerBase.cs" />
     <Compile Include="SocketSession.cs" />
-    <Compile Include="SuperSocketServerContainer.cs" />
     <Compile Include="TcpAsyncSocketListener.cs" />
     <Compile Include="TcpSocketServerBase.cs" />
   </ItemGroup>
