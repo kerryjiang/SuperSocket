@@ -76,17 +76,28 @@ namespace SuperSocket.SocketBase
 
         private const string m_PerfLogName = "Perf";
 
+        private static ILog m_PerfLog;
+
         /// <summary>
         /// Logs the performance message
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="message">The message.</param>
-        public static void Perf(this IAppServer appServer, string message)
+        public static void LogPerf(this IAppServer appServer, string message)
         {
-            var perfLog = LogFactoryProvider.LogFactory.GetLog(m_PerfLogName);
+            if (m_PerfLog == null)
+            {
+                lock (m_PerfLogName)
+                {
+                    if (m_PerfLog == null)
+                    {
+                        m_PerfLog = LogFactoryProvider.LogFactory.GetLog(m_PerfLogName);
+                    }
+                }
+            }
 
-            if (perfLog != null && perfLog.IsInfoEnabled)
-                perfLog.Info(message);
+            if (m_PerfLog != null && m_PerfLog.IsInfoEnabled)
+                m_PerfLog.Info(message);
         }
     }
 }
