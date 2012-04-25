@@ -42,7 +42,7 @@ namespace SuperSocket.SuperSocketRole
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
-            m_Bootstrap = new SuperSocketBootstrap();
+            m_Bootstrap = new DefaultBootstrap();
 
             var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
 
