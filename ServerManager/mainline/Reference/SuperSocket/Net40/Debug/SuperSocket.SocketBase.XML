@@ -57,10 +57,11 @@
             Gets the logger assosiated with this object.
             </summary>
         </member>
-        <member name="M:SuperSocket.SocketBase.IAppServer.Setup(SuperSocket.SocketBase.Config.IRootConfig,SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.ISocketServerFactory)">
+        <member name="M:SuperSocket.SocketBase.IAppServer.Setup(SuperSocket.SocketBase.IBootstrap,SuperSocket.SocketBase.Config.IRootConfig,SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.ISocketServerFactory)">
             <summary>
             Setups the specified root config.
             </summary>
+            <param name="bootstrap">The bootstrap.</param>
             <param name="rootConfig">The SuperSocket root config.</param>
             <param name="config">The socket server instance config.</param>
             <param name="socketServerFactory">The socket server factory.</param>
@@ -168,12 +169,20 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:SuperSocket.SocketBase.IAppServer`2.ExecuteCommand(SuperSocket.SocketBase.IAppSession{`1},`1)">
+        <member name="E:SuperSocket.SocketBase.IAppServer`1.NewSessionConnected">
             <summary>
-            Executes the command.
+            Gets/sets the new session connected event handler.
             </summary>
-            <param name="session">The session.</param>
-            <param name="requestInfo">The request info.</param>
+        </member>
+        <member name="E:SuperSocket.SocketBase.IAppServer`1.SessionClosed">
+            <summary>
+            Gets/sets the session closed event handler.
+            </summary>
+        </member>
+        <member name="E:SuperSocket.SocketBase.IAppServer`2.RequestHandler">
+            <summary>
+            Occurs when [request comming].
+            </summary>
         </member>
         <member name="T:SuperSocket.SocketBase.ICommandSource`1">
             <summary>
@@ -187,6 +196,22 @@
             </summary>
             <param name="commandName">Name of the command.</param>
             <returns></returns>
+        </member>
+        <member name="T:SuperSocket.SocketBase.IRawDataProcessor`1">
+            <summary>
+            The raw data processor
+            </summary>
+            <typeparam name="TAppSession">The type of the app session.</typeparam>
+        </member>
+        <member name="E:SuperSocket.SocketBase.IRawDataProcessor`1.RawDataReceived">
+            <summary>
+            Gets or sets the raw binary data received event handler.
+            TAppSession: session
+            byte[]: receive buffer
+            int: receive buffer offset
+            int: receive lenght
+            bool: whether process the received data further
+            </summary>
         </member>
         <member name="F:SuperSocket.SocketBase.AppServerBase`2.NullAppSession">
             <summary>
@@ -236,6 +261,16 @@
             <param name="requestFilterFactory">The request filter factory.</param>
             <returns></returns>
         </member>
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.SuperSocket#SocketBase#IAppServer#Setup(SuperSocket.SocketBase.IBootstrap,SuperSocket.SocketBase.Config.IRootConfig,SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.ISocketServerFactory)">
+            <summary>
+            Setups the specified root config.
+            </summary>
+            <param name="bootstrap">The bootstrap.</param>
+            <param name="rootConfig">The SuperSocket root config.</param>
+            <param name="config">The socket server instance config.</param>
+            <param name="socketServerFactory">The socket server factory.</param>
+            <returns></returns>
+        </member>
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.SetupRequestFilterFactory(SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.Protocol.IRequestFilterFactory{`1})">
             <summary>
             Setups the request filter factory.
@@ -251,6 +286,13 @@
             <param name="config">The config of the server instance.</param>
             <returns></returns>
         </member>
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.GetCertificate(SuperSocket.SocketBase.Config.IServerConfig)">
+            <summary>
+            Gets the certificate from server configuguration.
+            </summary>
+            <param name="config">The config.</param>
+            <returns></returns>
+        </member>
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.SetupSocketServer">
             <summary>
             Setups the socket server.instance
@@ -260,13 +302,6 @@
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.SetupListeners(SuperSocket.SocketBase.Config.IServerConfig)">
             <summary>
             Setups the listeners base on server configuration
-            </summary>
-            <param name="config">The config.</param>
-            <returns></returns>
-        </member>
-        <member name="M:SuperSocket.SocketBase.AppServerBase`2.SetupCertificate(SuperSocket.SocketBase.Config.IServerConfig)">
-            <summary>
-            Setups the TLS/SSL certificate.
             </summary>
             <param name="config">The config.</param>
             <returns></returns>
@@ -301,6 +336,15 @@
             <param name="commandName">Name of the command.</param>
             <returns></returns>
         </member>
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.OnRawDataReceived(SuperSocket.SocketBase.IAppSession,System.Byte[],System.Int32,System.Int32)">
+            <summary>
+            Called when [raw data received].
+            </summary>
+            <param name="session">The session.</param>
+            <param name="buffer">The buffer.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
+        </member>
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.ExecuteCommandFilters(System.Collections.Generic.List{SuperSocket.SocketBase.CommandFilterAttribute},`0,SuperSocket.SocketBase.Command.ICommand,System.Action{SuperSocket.SocketBase.CommandFilterAttribute,`0,SuperSocket.SocketBase.Command.ICommand})">
             <summary>
             Executes the command filters.
@@ -317,7 +361,7 @@
             <param name="session">The session.</param>
             <param name="requestInfo">The request info.</param>
         </member>
-        <member name="M:SuperSocket.SocketBase.AppServerBase`2.SuperSocket#SocketBase#IAppServer{TAppSession@TRequestInfo}#ExecuteCommand(SuperSocket.SocketBase.IAppSession{`1},`1)">
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.ExecuteCommand(SuperSocket.SocketBase.IAppSession{`1},`1)">
             <summary>
             Executes the command for the session.
             </summary>
@@ -338,6 +382,12 @@
             <param name="socketSession">The socket session.</param>
             <returns></returns>
         </member>
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.OnNewSessionConnected(`0)">
+            <summary>
+            Called when [new session connected].
+            </summary>
+            <param name="session">The session.</param>
+        </member>
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.ResetSessionSecurity(SuperSocket.SocketBase.IAppSession,System.Security.Authentication.SslProtocols)">
             <summary>
             Resets the session's security protocol.
@@ -345,12 +395,19 @@
             <param name="session">The session.</param>
             <param name="security">The security protocol.</param>
         </member>
-        <member name="M:SuperSocket.SocketBase.AppServerBase`2.OnSocketSessionClosed(System.Object,SuperSocket.SocketBase.SocketSessionClosedEventArgs)">
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.OnSocketSessionClosed(SuperSocket.SocketBase.ISocketSession,SuperSocket.SocketBase.CloseReason)">
             <summary>
             Called when [socket session closed].
             </summary>
-            <param name="sender">The sender.</param>
-            <param name="e">The <see cref="T:SuperSocket.SocketBase.SocketSessionClosedEventArgs"/> instance containing the event data.</param>
+            <param name="session">The socket session.</param>
+            <param name="reason">The reason.</param>
+        </member>
+        <member name="M:SuperSocket.SocketBase.AppServerBase`2.OnSessionClosed(`0,SuperSocket.SocketBase.CloseReason)">
+            <summary>
+            Called when [session closed].
+            </summary>
+            <param name="session">The appSession.</param>
+            <param name="reason">The reason.</param>
         </member>
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.GetAppSessionByIDInternal(System.String)">
             <summary>
@@ -376,13 +433,6 @@
             <summary>
             Gets all sessions in sessions snapshot.
             </summary>
-        </member>
-        <member name="M:SuperSocket.SocketBase.AppServerBase`2.GetService``1">
-            <summary>
-            Gets the service instance.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
         </member>
         <member name="M:SuperSocket.SocketBase.AppServerBase`2.Dispose">
             <summary>
@@ -428,6 +478,11 @@
             Gets the logger assosiated with this object.
             </summary>
         </member>
+        <member name="P:SuperSocket.SocketBase.AppServerBase`2.Bootstrap">
+            <summary>
+            Gets the bootstrap of this appServer instance.
+            </summary>
+        </member>
         <member name="P:SuperSocket.SocketBase.AppServerBase`2.TotalHandledRequests">
             <summary>
             Gets the total handled requests number.
@@ -462,6 +517,16 @@
             	<c>true</c> if this instance is running; otherwise, <c>false</c>.
             </value>
         </member>
+        <member name="E:SuperSocket.SocketBase.AppServerBase`2.SuperSocket#SocketBase#IRawDataProcessor{TAppSession}#RawDataReceived">
+            <summary>
+            Gets or sets the raw binary data received event handler.
+            TAppSession: session
+            byte[]: receive buffer
+            int: receive buffer offset
+            int: receive lenght
+            bool: whether process the received data further
+            </summary>
+        </member>
         <member name="E:SuperSocket.SocketBase.AppServerBase`2.RequestHandler">
             <summary>
             Occurs when a full request item received.
@@ -474,6 +539,16 @@
             <value>
             The server's connection filters
             </value>
+        </member>
+        <member name="E:SuperSocket.SocketBase.AppServerBase`2.NewSessionConnected">
+            <summary>
+            The action which will be executed after a new session connect
+            </summary>
+        </member>
+        <member name="E:SuperSocket.SocketBase.AppServerBase`2.SessionClosed">
+            <summary>
+            Gets/sets the session closed event handler.
+            </summary>
         </member>
         <member name="P:SuperSocket.SocketBase.AppServerBase`2.SessionCount">
             <summary>
@@ -530,19 +605,12 @@
             <param name="sessionID">The session ID.</param>
             <returns></returns>
         </member>
-        <member name="M:SuperSocket.SocketBase.AppServer`2.OnSocketSessionClosed(System.Object,SuperSocket.SocketBase.SocketSessionClosedEventArgs)">
+        <member name="M:SuperSocket.SocketBase.AppServer`2.OnSessionClosed(`0,SuperSocket.SocketBase.CloseReason)">
             <summary>
             Called when [socket session closed].
             </summary>
-            <param name="sender">The sender.</param>
-            <param name="e">The <see cref="T:SuperSocket.SocketBase.SocketSessionClosedEventArgs"/> instance containing the event data.</param>
-        </member>
-        <member name="M:SuperSocket.SocketBase.AppServer`2.OnAppSessionClosed(System.Object,SuperSocket.SocketBase.AppSessionClosedEventArgs{`0})">
-            <summary>
-            Called when [app session closed].
-            </summary>
-            <param name="sender">The sender.</param>
-            <param name="e">The <see cref="T:SuperSocket.SocketBase.AppSessionClosedEventArgs`1"/> instance containing the event data.</param>
+            <param name="session">The session.</param>
+            <param name="reason">The reason.</param>
         </member>
         <member name="M:SuperSocket.SocketBase.AppServer`2.ClearIdleSession(System.Object)">
             <summary>
@@ -706,12 +774,12 @@
             Gets the start time of the session.
             </summary>
         </member>
-        <member name="P:SuperSocket.SocketBase.IAppSession.Status">
+        <member name="P:SuperSocket.SocketBase.IAppSession.Connected">
             <summary>
-            Gets or sets the status of session.
+            Gets a value indicating whether this <see cref="T:SuperSocket.SocketBase.IAppSession"/> is connected.
             </summary>
             <value>
-            The status.
+              <c>true</c> if connected; otherwise, <c>false</c>.
             </value>
         </member>
         <member name="P:SuperSocket.SocketBase.IAppSession.Charset">
@@ -788,21 +856,32 @@
             <param name="socketSession">The socket session.</param>
             <param name="requestFilter">The request filter.</param>
         </member>
-        <member name="M:SuperSocket.SocketBase.AppSession`2.OnInit">
-            <summary>
-            Called when [init].
-            </summary>
-        </member>
         <member name="M:SuperSocket.SocketBase.AppSession`2.StartSession">
             <summary>
             Starts the session.
             </summary>
         </member>
+        <member name="M:SuperSocket.SocketBase.AppSession`2.OnInit">
+            <summary>
+            Called when [init].
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketBase.AppSession`2.OnSessionStarted">
+            <summary>
+            Called when [session started].
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketBase.AppSession`2.OnSessionClosed(SuperSocket.SocketBase.CloseReason)">
+            <summary>
+            Called when [session closed].
+            </summary>
+            <param name="reason">The reason.</param>
+        </member>
         <member name="M:SuperSocket.SocketBase.AppSession`2.HandleException(System.Exception)">
             <summary>
             Handles the exceptional error.
             </summary>
-            <param name="e">The e.</param>
+            <param name="e">The exception.</param>
         </member>
         <member name="M:SuperSocket.SocketBase.AppSession`2.ExecuteCommand(`0,`1)">
             <summary>
@@ -898,12 +977,12 @@
             Gets the items dictionary, only support 10 items maximum
             </summary>
         </member>
-        <member name="P:SuperSocket.SocketBase.AppSession`2.Status">
+        <member name="P:SuperSocket.SocketBase.AppSession`2.Connected">
             <summary>
-            Gets or sets the status of session.
+            Gets a value indicating whether this <see cref="T:SuperSocket.SocketBase.IAppSession"/> is connected.
             </summary>
             <value>
-            The status.
+              <c>true</c> if connected; otherwise, <c>false</c>.
             </value>
         </member>
         <member name="P:SuperSocket.SocketBase.AppSession`2.PrevCommand">
@@ -1041,6 +1120,100 @@
             </summary>
             <param name="session">The session.</param>
             <param name="command">The command.</param>
+        </member>
+        <member name="T:SuperSocket.SocketBase.StartResult">
+            <summary>
+            The bookstrap start result
+            </summary>
+        </member>
+        <member name="F:SuperSocket.SocketBase.StartResult.None">
+            <summary>
+            No appserver has been set in the bootstrap, so nothing was started
+            </summary>
+        </member>
+        <member name="F:SuperSocket.SocketBase.StartResult.Success">
+            <summary>
+            All appserver instances were started successfully
+            </summary>
+        </member>
+        <member name="F:SuperSocket.SocketBase.StartResult.PartialSuccess">
+            <summary>
+            Some appserver instances were started successfully, but some of them failed
+            </summary>
+        </member>
+        <member name="F:SuperSocket.SocketBase.StartResult.Failed">
+            <summary>
+            All appserver instances failed to start
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketBase.IBootstrap">
+            <summary>
+            SuperSocket bootstrap
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IBootstrap.Initialize(SuperSocket.SocketBase.Config.IConfig,System.Func{SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.Config.IServerConfig},SuperSocket.Common.Logging.ILogFactory)">
+            <summary>
+            Initializes the bootstrap with the configuration, config resolver and log factory.
+            </summary>
+            <param name="config">The config.</param>
+            <param name="serverConfigResolver">The server config resolver.</param>
+            <param name="logFactory">The log factory.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IBootstrap.Initialize(SuperSocket.SocketBase.Config.IConfig,System.Func{SuperSocket.SocketBase.Config.IServerConfig,SuperSocket.SocketBase.Config.IServerConfig})">
+            <summary>
+            Initializes the bootstrap with the configuration and config resolver.
+            </summary>
+            <param name="config">The config.</param>
+            <param name="serverConfigResolver">The server config resolver.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IBootstrap.Initialize(SuperSocket.SocketBase.Config.IConfig)">
+            <summary>
+            Initializes the bootstrap with the configuration
+            </summary>
+            <param name="config">The config.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IBootstrap.Initialize(SuperSocket.SocketBase.Config.IRootConfig,System.Collections.Generic.IEnumerable{SuperSocket.SocketBase.IAppServer},System.Collections.Generic.IEnumerable{SuperSocket.SocketBase.Config.IServerConfig})">
+            <summary>
+            Initializes the bootstrap with initialized appserver instances.
+            </summary>
+            <param name="rootConfig">The root config.</param>
+            <param name="servers">The servers.</param>
+            <param name="serverConfigs">The server configs.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IBootstrap.Initialize(SuperSocket.SocketBase.Config.IRootConfig,System.Collections.Generic.IEnumerable{SuperSocket.SocketBase.IAppServer},System.Collections.Generic.IEnumerable{SuperSocket.SocketBase.Config.IServerConfig},SuperSocket.Common.Logging.ILogFactory)">
+            <summary>
+            Initializes the bootstrap with initialized appserver instances.
+            </summary>
+            <param name="rootConfig">The root config.</param>
+            <param name="servers">The servers.</param>
+            <param name="serverConfigs">The server configs.</param>
+            <param name="logFactory">The log factory.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IBootstrap.Start">
+            <summary>
+            Starts this bootstrap.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IBootstrap.Stop">
+            <summary>
+            Stops this bootstrap.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketBase.IBootstrap.AppServers">
+            <summary>
+            Gets all the app servers running in this bootstrap
+            </summary>
+        </member>
+        <member name="E:SuperSocket.SocketBase.IBootstrap.PerformanceDataCollected">
+            <summary>
+            Occurs when [performance data collected].
+            </summary>
         </member>
         <member name="T:SuperSocket.SocketBase.RequestHandler`2">
             <summary>
@@ -2334,74 +2507,6 @@
             Gets and sets the listeners' configuration.
             </summary>
         </member>
-        <member name="T:SuperSocket.SocketBase.ServiceLocator">
-            <summary>
-            Service Locator
-            </summary>
-        </member>
-        <member name="M:SuperSocket.SocketBase.ServiceLocator.RegisterService``1(``0)">
-            <summary>
-            Registers the service instance.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <param name="serviceInstance">The service instance.</param>
-        </member>
-        <member name="M:SuperSocket.SocketBase.ServiceLocator.RegisterService(System.Object)">
-            <summary>
-            Registers the service instance.
-            </summary>
-            <param name="serviceInstance">The service instance.</param>
-        </member>
-        <member name="M:SuperSocket.SocketBase.ServiceLocator.GetService``1">
-            <summary>
-            Gets the service instance.
-            </summary>
-            <typeparam name="T"></typeparam>
-            <returns></returns>
-        </member>
-        <member name="T:SuperSocket.SocketBase.SessionStatus">
-            <summary>
-            Session status enum
-            </summary>
-        </member>
-        <member name="F:SuperSocket.SocketBase.SessionStatus.Healthy">
-            <summary>
-            Healthy, connected
-            </summary>
-        </member>
-        <member name="F:SuperSocket.SocketBase.SessionStatus.Error">
-            <summary>
-            Error state, but connected
-            </summary>
-        </member>
-        <member name="F:SuperSocket.SocketBase.SessionStatus.Disconnected">
-            <summary>
-            Disconnected
-            </summary>
-        </member>
-        <member name="T:SuperSocket.SocketBase.AppSessionClosedEventArgs`1">
-            <summary>
-            The app session closed event argument
-            </summary>
-            <typeparam name="TAppSession">The type of the app session.</typeparam>
-        </member>
-        <member name="M:SuperSocket.SocketBase.AppSessionClosedEventArgs`1.#ctor(`0,SuperSocket.SocketBase.CloseReason)">
-            <summary>
-            Initializes a new instance of the <see cref="T:SuperSocket.SocketBase.AppSessionClosedEventArgs`1"/> class.
-            </summary>
-            <param name="session">The session.</param>
-            <param name="reason">The reason.</param>
-        </member>
-        <member name="P:SuperSocket.SocketBase.AppSessionClosedEventArgs`1.Session">
-            <summary>
-            Gets the session.
-            </summary>
-        </member>
-        <member name="P:SuperSocket.SocketBase.AppSessionClosedEventArgs`1.Reason">
-            <summary>
-            Gets the close reason.
-            </summary>
-        </member>
         <member name="T:SuperSocket.SocketBase.IConnectionFilter">
             <summary>
             The basic interface of connection filter
@@ -2505,31 +2610,15 @@
             The socket is closed by server for timeout
             </summary>
         </member>
+        <member name="F:SuperSocket.SocketBase.CloseReason.ProtocolError">
+            <summary>
+            Protocol error 
+            </summary>
+        </member>
         <member name="F:SuperSocket.SocketBase.CloseReason.Unknown">
             <summary>
             The socket is closed for unknown reason
             </summary>
-        </member>
-        <member name="T:SuperSocket.SocketBase.SocketSessionClosedEventArgs">
-            <summary>
-            SocketSession closed event argument
-            </summary>
-        </member>
-        <member name="P:SuperSocket.SocketBase.SocketSessionClosedEventArgs.SessionID">
-            <summary>
-            Gets or sets the session ID.
-            </summary>
-            <value>
-            The session ID.
-            </value>
-        </member>
-        <member name="P:SuperSocket.SocketBase.SocketSessionClosedEventArgs.Reason">
-            <summary>
-            Gets or sets the reason.
-            </summary>
-            <value>
-            The reason.
-            </value>
         </member>
         <member name="T:SuperSocket.SocketBase.ISocketSession">
             <summary>
@@ -2584,7 +2673,7 @@
             The secure protocol.
             </value>
         </member>
-        <member name="E:SuperSocket.SocketBase.ISocketSession.Closed">
+        <member name="P:SuperSocket.SocketBase.ISocketSession.Closed">
             <summary>
             Occurs when [closed].
             </summary>

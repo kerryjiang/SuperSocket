@@ -1467,13 +1467,6 @@
             Gets the web socket protocol processor.
             </summary>
         </member>
-        <member name="T:SuperWebSocket.SessionEventHandler`1">
-            <summary>
-            Session related event handler
-            </summary>
-            <typeparam name="TWebSocketSession">The type of the web socket session.</typeparam>
-            <param name="session">The session.</param>
-        </member>
         <member name="T:SuperWebSocket.SessionEventHandler`2">
             <summary>
             Session related event handler
@@ -1548,13 +1541,6 @@
             Called when [startup].
             </summary>
         </member>
-        <member name="M:SuperWebSocket.WebSocketServer`1.CreateAppSession(SuperSocket.SocketBase.ISocketSession)">
-            <summary>
-            Creates the app session.
-            </summary>
-            <param name="socketSession">The socket session.</param>
-            <returns></returns>
-        </member>
         <member name="M:SuperWebSocket.WebSocketServer`1.OnNewSessionConnected(`0)">
             <summary>
             Called when [new session connected].
@@ -1575,26 +1561,9 @@
             <param name="session">The session.</param>
             <param name="requestInfo">The request info.</param>
         </member>
-        <member name="M:SuperWebSocket.WebSocketServer`1.OnAppSessionClosed(System.Object,SuperSocket.SocketBase.AppSessionClosedEventArgs{`0})">
-            <summary>
-            Called when [app session closed].
-            </summary>
-            <param name="sender">The sender.</param>
-            <param name="e">The <see cref="T:SuperSocket.SocketBase.AppSessionClosedEventArgs`1"/> instance containing the event data.</param>
-        </member>
         <member name="P:SuperWebSocket.WebSocketServer`1.RequestFilterFactory">
             <summary>
             Gets the request filter factory.
-            </summary>
-        </member>
-        <member name="E:SuperWebSocket.WebSocketServer`1.NewSessionConnected">
-            <summary>
-            Occurs when [new session connected].
-            </summary>
-        </member>
-        <member name="E:SuperWebSocket.WebSocketServer`1.SessionClosed">
-            <summary>
-            Occurs when [session closed].
             </summary>
         </member>
         <member name="E:SuperWebSocket.WebSocketServer`1.NewMessageReceived">

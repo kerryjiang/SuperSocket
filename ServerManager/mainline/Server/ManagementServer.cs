@@ -20,8 +20,6 @@ namespace SuperSocket.Management.Server
     /// </summary>
     public class ManagementServer : WebSocketServer<ManagementSession>
     {
-        private IServerContainer m_ServerContainer;
-
         private Dictionary<string, UserConfig> m_UsersDict;
 
         /// <summary>
@@ -41,7 +39,7 @@ namespace SuperSocket.Management.Server
         /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="protocol">The protocol.</param>
         /// <returns></returns>
-        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<IWebSocketFragment> protocol)
+        protected override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<IWebSocketFragment> protocol)
         {
             if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
                 return false;
@@ -69,10 +67,15 @@ namespace SuperSocket.Management.Server
         /// </summary>
         protected override void OnStartup()
         {
-            m_ServerContainer = GetService<IServerContainer>();
-            m_ServerContainer.Loaded += new EventHandler(m_ServerContainer_Loaded);
-            m_ServerContainer.PerformanceDataCollected += new EventHandler<PermformanceDataEventArgs>(m_ServerContainer_PerformanceDataCollected);
+            m_ServerState = new ServerState
+            {
+                InstanceStates = Bootstrap.AppServers.Where(s => s != this).Select(s => new InstanceState
+                {
+                    Instance = s
+                }).ToArray()
+            };
 
+            Bootstrap.PerformanceDataCollected += new EventHandler<PermformanceDataEventArgs>(BootstrapPerformanceDataCollected);
             base.OnStartup();
         }
 
@@ -81,13 +84,7 @@ namespace SuperSocket.Management.Server
         /// </summary>
         protected override void OnStopped()
         {
-            if (m_ServerContainer != null)
-            {
-                m_ServerContainer.Loaded -= new EventHandler(m_ServerContainer_Loaded);
-                m_ServerContainer.PerformanceDataCollected -= new EventHandler<PermformanceDataEventArgs>(m_ServerContainer_PerformanceDataCollected);
-                m_ServerContainer = null;
-            }
-
+            Bootstrap.PerformanceDataCollected -= new EventHandler<PermformanceDataEventArgs>(BootstrapPerformanceDataCollected);
             base.OnStopped();
         }
 
@@ -95,7 +92,7 @@ namespace SuperSocket.Management.Server
 
         internal ServerInfo CurrentServerInfo { get; private set; }
 
-        void m_ServerContainer_PerformanceDataCollected(object sender, PermformanceDataEventArgs e)
+        void BootstrapPerformanceDataCollected(object sender, PermformanceDataEventArgs e)
         {
             m_ServerState.GlobalPerformance = e.GlobalData;
 
@@ -133,20 +130,9 @@ namespace SuperSocket.Management.Server
             return CurrentServerInfo;
         }
 
-        void m_ServerContainer_Loaded(object sender, EventArgs e)
-        {
-            m_ServerState = new ServerState
-            {
-                InstanceStates = m_ServerContainer.GetAllServers().Where(s => s != this).Select(s => new InstanceState
-                {
-                    Instance = s
-                }).ToArray()
-            };
-        }
-
         internal IAppServer GetServerByName(string name)
         {
-            return m_ServerContainer.GetServerByName(name);
+            return Bootstrap.AppServers.FirstOrDefault(i => name.Equals(i.Name, StringComparison.OrdinalIgnoreCase));
         }
 
         internal UserConfig GetUserByName(string name)
