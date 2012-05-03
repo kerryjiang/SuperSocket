@@ -46,7 +46,10 @@ namespace SuperSocket.Management.Client.ViewModel
 
         private JsonWebSocket CreateWebSocket(ServerConfig config)
         {
-            var websocket = new JsonWebSocket(string.Format("ws://{0}:{1}/", config.Host, config.Port), "ServerManager");
+            var websocket = new JsonWebSocket(string.Format("wss://{0}:{1}/", config.Host, config.Port), "ServerManager");
+#if DEBUG
+            websocket.AllowUnstrustedCertificate = true;
+#endif
             websocket.Opened += new EventHandler(m_WebSocket_Opened);
             websocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(m_WebSocket_Error);
             websocket.Closed += new EventHandler(m_WebSocket_Closed);

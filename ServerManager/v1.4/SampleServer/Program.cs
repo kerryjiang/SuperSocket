@@ -21,6 +21,7 @@ namespace SampleServer
             if (!SocketServerManager.Initialize(serverConfig))
             {
                 Console.WriteLine("Failed to initialize SuperSocket server! Please check error log for more information!");
+                Console.ReadLine();
                 return;
             }
 
@@ -28,6 +29,7 @@ namespace SampleServer
             {
                 Console.WriteLine("Failed to start SuperSocket server! Please check error log for more information!");
                 SocketServerManager.Stop();
+                Console.ReadLine();
                 return;
             }
 
@@ -43,6 +45,7 @@ namespace SampleServer
 
             Console.WriteLine();
             Console.WriteLine("The server has been stopped!");
+            Console.ReadLine();
         }
     }
 }
