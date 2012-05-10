@@ -54,7 +54,7 @@ namespace SuperSocket.Facility.PolicyServer
 
             m_ExpectedReceivedLength = Encoding.UTF8.GetByteCount(m_PolicyRequest);
 
-            requestFilterFactory = new FixSizeRequestFilterFactory(m_ExpectedReceivedLength);
+            requestFilterFactory = new PolicyRequestFilterFactory(m_ExpectedReceivedLength);
 
             if (!base.Setup(rootConfig, config, socketServerFactory, requestFilterFactory))
                 return false;

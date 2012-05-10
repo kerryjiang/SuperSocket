@@ -81,7 +81,6 @@
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ICommandSource.cs" />
     <Compile Include="IConnectionFilter.cs" />
-    <Compile Include="IServerContainer.cs" />
     <Compile Include="ISessionBase.cs" />
     <Compile Include="ISocketServer.cs" />
     <Compile Include="ISocketServerFactory.cs" />
@@ -96,6 +95,8 @@
     <Compile Include="Protocol\BinaryRequestInfo.cs" />
     <Compile Include="Protocol\CommandLineRequestFilterFactory.cs" />
     <Compile Include="Protocol\DefaultRequestFilterFactory.cs" />
+    <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
+    <Compile Include="Protocol\IOffsetAdapter.cs" />
     <Compile Include="Protocol\IRequestFilter.cs" />
     <Compile Include="Protocol\IRequestFilterFactory.cs" />
     <Compile Include="Protocol\IRequestInfo.cs" />

@@ -51,11 +51,11 @@ namespace SuperSocket.SocketEngine
                 if (e.InnerException is ObjectDisposedException)
                     return true;
 
-                if(e.InnerException is SocketException)
+                if (e.InnerException is SocketException)
                 {
                     var se = e.InnerException as SocketException;
 
-                    if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
+                    if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058 || se.ErrorCode == -1073741299)
                         return true;
                 }
             }
@@ -131,9 +131,11 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
+            int offsetDelta;
+
             try
             {
-                AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
+                offsetDelta = AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
             }
             catch (Exception ex)
             {
@@ -142,9 +144,17 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-
             try
             {
+                if (offsetDelta != 0)
+                {
+                    m_Offset += offsetDelta;
+                    m_Length -= offsetDelta;
+
+                    if (m_Length > AppSession.AppServer.Config.ReceiveBufferSize)
+                        throw new Exception("Illigal offsetDelta");
+                }
+
                 m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
             }
             catch (Exception exc)

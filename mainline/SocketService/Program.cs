@@ -63,6 +63,14 @@ namespace SuperSocket.SocketService
 
             var result = bootstrap.Start();
 
+            foreach (var server in bootstrap.AppServers)
+            {
+                if (server.IsRunning)
+                    Console.WriteLine("- {0} has been started");
+                else
+                    Console.WriteLine("- {0} failed to start");
+            }
+
             switch(result)
             {
                 case(StartResult.None):

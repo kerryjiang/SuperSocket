@@ -73,6 +73,8 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="IBootstrap.cs" />
+    <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
+    <Compile Include="Protocol\IOffsetAdapter.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />

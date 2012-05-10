@@ -51,9 +51,9 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="PolicyServer\FixSizeRequestFilterFactory.cs" />
-    <Compile Include="PolicyServer\FixSizeRequestFilter.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
+    <Compile Include="PolicyServer\PolicyRequestFilter.cs" />
+    <Compile Include="PolicyServer\PolicyRequestFilterFactory.cs" />
     <Compile Include="PolicyServer\PolicyServer.cs" />
     <Compile Include="PolicyServer\PolicySession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

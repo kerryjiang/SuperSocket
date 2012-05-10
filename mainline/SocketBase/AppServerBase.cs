@@ -939,7 +939,7 @@ namespace SuperSocket.SocketBase
         private void OnSocketSessionClosed(ISocketSession session, CloseReason reason)
         {
             if (Logger.IsInfoEnabled)
-                Logger.Info(session, "This session was closed!");
+                Logger.Info(session, string.Format("This session was closed for {0}!", reason));
 
             OnSessionClosed((TAppSession)session.AppSession, reason);
         }

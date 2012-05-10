@@ -316,16 +316,22 @@ namespace SuperSocket.SocketBase
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left, the size of the data which has not been processed</param>
+        /// <param name="offsetDelta">return offset delta of next receiving buffer.</param>
         /// <returns></returns>
-        TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left, out int offsetDelta)
         {
             if (!AppServer.OnRawDataReceived(this, readBuffer, offset, length))
             {
                 left = 0;
+                offsetDelta = 0;
                 return null;
             }
 
             var requestInfo = m_RequestFilter.Filter(this, readBuffer, offset, length, toBeCopied, out left);
+
+            var offsetAdapter = m_RequestFilter as IOffsetAdapter;
+
+            offsetDelta = offsetAdapter != null ? offsetAdapter.OffsetDelta : 0;
 
             if (requestInfo == null)
             {
@@ -353,21 +359,24 @@ namespace SuperSocket.SocketBase
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        void IAppSession.ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied)
+        /// <returns>
+        /// return offset delta of next receiving buffer
+        /// </returns>
+        int IAppSession.ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied)
         {
+            int left, offsetDelta;
+
             while (true)
             {
-                int left;
-
-                var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out left);
+                var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out left, out offsetDelta);
 
                 if (requestInfo == null)
-                    return;
+                    return offsetDelta;
 
                 AppServer.ExecuteCommand(this, requestInfo);
 
                 if (left <= 0)
-                    return;
+                    return offsetDelta;
 
                 offset = offset + length - left;
                 length = left;

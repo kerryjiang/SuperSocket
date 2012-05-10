@@ -67,6 +67,11 @@ namespace SuperSocket.SocketEngine
 
         private void StartReceive(SocketAsyncEventArgs e)
         {
+            StartReceive(e, 0);
+        }
+
+        private void StartReceive(SocketAsyncEventArgs e, int offsetDelta)
+        {
             if (IsClosed)
                 return;
 
@@ -74,6 +79,14 @@ namespace SuperSocket.SocketEngine
 
             try
             {
+                if (offsetDelta != 0)
+                {
+                    e.SetBuffer(e.Offset + offsetDelta, e.Count - offsetDelta);
+
+                    if (e.Count > AppSession.AppServer.Config.ReceiveBufferSize)
+                        throw new ArgumentException("Illigal offsetDelta", "offsetDelta");
+                }
+
                 willRaiseEvent = Client.ReceiveAsync(e);
             }
             catch (Exception exc)
@@ -128,12 +141,11 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            int bytesTransferred = e.BytesTransferred;
-            int offset = e.Offset;
+            int offsetDelta;
 
             try
             {
-                this.AppSession.ProcessRequest(e.Buffer, e.Offset, e.BytesTransferred, true);
+                offsetDelta = this.AppSession.ProcessRequest(e.Buffer, e.Offset, e.BytesTransferred, true);
             }
             catch (Exception exc)
             {
@@ -143,7 +155,7 @@ namespace SuperSocket.SocketEngine
             }
 
             //read the next block of data sent from the client
-            StartReceive(e);
+            StartReceive(e, offsetDelta);
         }      
 
         public override void ApplySecureProtocol()
