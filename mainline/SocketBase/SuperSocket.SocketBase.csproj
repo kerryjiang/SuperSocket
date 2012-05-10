@@ -78,7 +78,6 @@
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
-    <Compile Include="IServerContainer.cs" />
     <Compile Include="ListenerInfo.cs" />
     <Compile Include="PerformanceDataInfo.cs" />
     <Compile Include="PermformanceDataEventArgs.cs" />
