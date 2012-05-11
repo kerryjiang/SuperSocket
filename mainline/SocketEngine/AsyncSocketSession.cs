@@ -16,10 +16,10 @@ using SuperSocket.SocketEngine.AsyncSocket;
 namespace SuperSocket.SocketEngine
 {
     class AsyncSocketSession : SocketSession, IAsyncSocketSession
-    {        
-        private AsyncSocketSender m_AsyncSender;
-
+    {
         private bool m_IsReset;
+
+        private SocketAsyncEventArgs m_SocketEventArgSend;
 
         public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy)
             : this(client, socketAsyncProxy, false)
@@ -30,7 +30,6 @@ namespace SuperSocket.SocketEngine
         public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
             : base(client)
         {
-            m_AsyncSender = new AsyncSocketSender(client);
             SocketAsyncProxy = socketAsyncProxy;
             m_IsReset = isReset;
         }
@@ -45,8 +44,45 @@ namespace SuperSocket.SocketEngine
             SocketAsyncProxy.Initialize(this);
             StartReceive(SocketAsyncProxy.SocketEventArgs);
 
+            m_SocketEventArgSend = new SocketAsyncEventArgs();
+            m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+
             if (!m_IsReset)
                 StartSession();
+        }
+
+        bool ProcessCompleted(SocketAsyncEventArgs e)
+        {
+            // check if the remote host closed the connection
+            if (e.BytesTransferred <= 0)
+            {
+                Close(CloseReason.ClientClosing);
+                return false;
+            }
+
+            if (e.SocketError != SocketError.Success)
+            {
+                if (e.SocketError != SocketError.ConnectionAborted
+                    && e.SocketError != SocketError.ConnectionReset
+                    && e.SocketError != SocketError.Interrupted
+                    && e.SocketError != SocketError.Shutdown)
+                {
+                    AppSession.Logger.Error(AppSession, new SocketException((int)e.SocketError));
+                }
+
+                Close(CloseReason.SocketError);
+                return false;
+            }
+
+            return true;
+        }
+
+        void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
+        {
+            if (!ProcessCompleted(e))
+                return;
+
+            base.OnSendingCompleted();
         }
 
         private bool IsIgnorableException(Exception e)
@@ -104,14 +140,20 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public override void SendResponse(byte[] data, int offset, int length)
+        protected override void SendResponse(byte[] data, int offset, int length)
         {
             try
             {
-                m_AsyncSender.Send(data, offset, length);
+                m_SocketEventArgSend.SetBuffer(data, offset, length);
+
+                if (!Client.SendAsync(m_SocketEventArgSend))
+                    OnSendingCompleted(Client, m_SocketEventArgSend);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
                 Close(CloseReason.SocketError);
             }
         }
@@ -120,26 +162,8 @@ namespace SuperSocket.SocketEngine
 
         public void ProcessReceive(SocketAsyncEventArgs e)
         {
-            // check if the remote host closed the connection
-            if (e.BytesTransferred <= 0)
-            {
-                Close(CloseReason.ClientClosing);
+            if (!ProcessCompleted(e))
                 return;
-            }
-
-            if (e.SocketError != SocketError.Success)
-            {
-                if (e.SocketError != SocketError.ConnectionAborted
-                    && e.SocketError != SocketError.ConnectionReset
-                    && e.SocketError != SocketError.Interrupted
-                    && e.SocketError != SocketError.Shutdown)
-                {
-                    AppSession.Logger.Error(e);
-                }
-
-                Close(CloseReason.SocketError);
-                return;
-            }
 
             int offsetDelta;
 

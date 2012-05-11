@@ -24,6 +24,8 @@ namespace SuperSocket.SocketEngine
 
         protected readonly object SyncRoot = new object();
 
+        private bool m_InSending = false;
+
         public SocketSession(Socket client)
             : this(Guid.NewGuid().ToString())
         {
@@ -52,6 +54,12 @@ namespace SuperSocket.SocketEngine
         public string SessionID { get; private set; }
 
 
+        /// <summary>
+        /// Gets or sets the config.
+        /// </summary>
+        /// <value>
+        /// The config.
+        /// </value>
         public IServerConfig Config { get; set; }
 
         /// <summary>
@@ -72,6 +80,11 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         protected virtual void OnClose(CloseReason reason)
         {
+            m_IsClosed = true;
+
+            if (m_InSending)
+                m_InSending = false;
+
             var closedHandler = Closed;
             if (closedHandler != null)
             {
@@ -84,7 +97,44 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public Action<ISocketSession, CloseReason> Closed { get; set; }
 
-        public abstract void SendResponse(byte[] data, int offset, int length);
+        /// <summary>
+        /// Starts the sending.
+        /// </summary>
+        public void StartSend()
+        {
+            if(m_InSending)
+                return;
+
+            lock (SyncRoot)
+            {
+                if (m_InSending)
+                    return;
+
+                ArraySegment<byte> data;
+
+                if (AppSession.TryGetSendingData(out data))
+                {
+                    m_InSending = true;
+                    SendResponse(data.Array, data.Offset, data.Count);
+                }
+            }
+        }
+
+        protected abstract void SendResponse(byte[] data, int offset, int length);
+
+        protected void OnSendingCompleted()
+        {
+            ArraySegment<byte> data;
+
+            if (AppSession.TryGetSendingData(out data))
+            {
+                SendResponse(data.Array, data.Offset, data.Count);
+            }
+            else
+            {
+                m_InSending = false;
+            }
+        }
 
         public abstract void ApplySecureProtocol();
 
@@ -137,7 +187,7 @@ namespace SuperSocket.SocketEngine
                 Client.SafeCloseClientSocket(AppSession.Logger);
 
                 Client = null;
-                m_IsClosed = true;
+                
                 OnClose(reason);
             }
         }

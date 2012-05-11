@@ -9,6 +9,7 @@ using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using System.Collections.Concurrent;
 
 namespace SuperSocket.SocketBase
 {
@@ -229,7 +230,7 @@ namespace SuperSocket.SocketBase
         /// <param name="e">The exception.</param>
         public virtual void HandleException(Exception e)
         {
-            Logger.Error(e);
+            Logger.Error(this, e);
         }
 
         /// <summary>
@@ -268,6 +269,22 @@ namespace SuperSocket.SocketBase
             Close(CloseReason.ServerClosing);
         }
 
+        #region sending processing
+
+        private ConcurrentQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentQueue<ArraySegment<byte>>();
+
+        /// <summary>
+        /// Tries to get the data segment to be sent.
+        /// </summary>
+        /// <param name="segment">The segment.</param>
+        /// <returns>
+        /// return whether has data to send
+        /// </returns>
+        bool IAppSession.TryGetSendingData(out ArraySegment<byte> segment)
+        {
+            return m_SendingQueue.TryDequeue(out segment);
+        }
+
         /// <summary>
         /// Sends the response.
         /// </summary>
@@ -275,7 +292,30 @@ namespace SuperSocket.SocketBase
         public virtual void SendResponse(string message)
         {
             var data = this.Charset.GetBytes(message);
-            SocketSession.SendResponse(data, 0, data.Length);
+            m_SendingQueue.Enqueue(new ArraySegment<byte>(data, 0, data.Length));
+            SocketSession.StartSend();
+        }
+
+        /// <summary>
+        /// Sends the response.
+        /// </summary>
+        /// <param name="data">The data which will be sent.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        public virtual void SendResponse(byte[] data, int offset, int length)
+        {
+            m_SendingQueue.Enqueue(new ArraySegment<byte>(data, offset, length));
+            SocketSession.StartSend();
+        }
+
+        /// <summary>
+        /// Sends the response.
+        /// </summary>
+        /// <param name="segment">The segment which will be sent.</param>
+        public virtual void SendResponse(ArraySegment<byte> segment)
+        {
+            m_SendingQueue.Enqueue(segment);
+            SocketSession.StartSend();
         }
 
         /// <summary>
@@ -288,16 +328,9 @@ namespace SuperSocket.SocketBase
             SendResponse(string.Format(message, paramValues));
         }
 
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="data">The data which will be sent.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        public virtual void SendResponse(byte[] data, int offset, int length)
-        {
-            SocketSession.SendResponse(data, offset, length);
-        }
+        #endregion
+
+        #region receiving processing
 
         /// <summary>
         /// Sets the next request filter which will be used when next data block received
@@ -384,6 +417,8 @@ namespace SuperSocket.SocketBase
                 continue;
             }
         }
+
+        #endregion
     }
 
     /// <summary>

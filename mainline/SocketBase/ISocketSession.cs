@@ -74,12 +74,9 @@ namespace SuperSocket.SocketBase
         void Close(CloseReason reason);
 
         /// <summary>
-        /// Sends the binary data to client.
+        /// Starts the sending.
         /// </summary>
-        /// <param name="data">The binary data should be sent to client.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        void SendResponse(byte[] data, int offset, int length);
+        void StartSend();
 
         /// <summary>
         /// Applies the secure protocol.

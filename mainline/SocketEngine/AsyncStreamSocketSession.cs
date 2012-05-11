@@ -82,7 +82,9 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppSession.Logger.Error(AppSession, e);
+                if(!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -211,7 +213,9 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                AppSession.Logger.Error(e);
+                if(!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
                 this.Close(CloseReason.SocketError);
                 return;
             }
@@ -219,15 +223,33 @@ namespace SuperSocket.SocketEngine
             m_Stream = sslStream;
         }
 
-        public override void SendResponse(byte[] data, int offset, int length)
+        protected override void SendResponse(byte[] data, int offset, int length)
         {
             try
             {
-                m_Stream.Write(data, offset, length);
-                m_Stream.Flush();
+                m_Stream.BeginWrite(data, offset, length, OnEndWrite, null);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
+                Close(CloseReason.SocketError);
+            }
+        }
+
+        private void OnEndWrite(IAsyncResult result)
+        {
+            try
+            {
+                m_Stream.EndWrite(result);
+                OnSendingCompleted();
+            }
+            catch (Exception e)
+            {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
                 Close(CloseReason.SocketError);
             }
         }
