@@ -5,10 +5,10 @@ using System.IO;
 using System.ServiceProcess;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketEngine;
-using SuperSocket.SocketEngine.Configuration;
 using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketEngine;
+using SuperSocket.SocketEngine.Configuration;
 
 
 namespace SuperSocket.SocketService
@@ -66,9 +66,9 @@ namespace SuperSocket.SocketService
             foreach (var server in bootstrap.AppServers)
             {
                 if (server.IsRunning)
-                    Console.WriteLine("- {0} has been started");
+                    Console.WriteLine("- {0} has been started", server.Name);
                 else
-                    Console.WriteLine("- {0} failed to start");
+                    Console.WriteLine("- {0} failed to start", server.Name);
             }
 
             switch(result)
@@ -78,11 +78,11 @@ namespace SuperSocket.SocketService
                     break;
 
                 case(StartResult.Success):
-                    Console.WriteLine("The server has been started!");
+                    Console.WriteLine("The SuperSocket Server Engine has been started!");
                     break;
 
                 case (StartResult.Failed):
-                    Console.WriteLine("Failed to start SuperSocket server! Please check error log for more information!");
+                    Console.WriteLine("Failed to start SuperSocket Server Engine! Please check error log for more information!");
                     break;
 
                 case (StartResult.PartialSuccess):
@@ -90,7 +90,7 @@ namespace SuperSocket.SocketService
                     break;
             }
 
-            Console.WriteLine("Press key 'q' to stop the server.");
+            Console.WriteLine("Press key 'q' to stop the server engine.");
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
             {
@@ -101,7 +101,7 @@ namespace SuperSocket.SocketService
             bootstrap.Stop();
 
             Console.WriteLine();
-            Console.WriteLine("The server has been stopped!");
+            Console.WriteLine("The server engine has been stopped!");
         }
 
         static void RunAsService()
