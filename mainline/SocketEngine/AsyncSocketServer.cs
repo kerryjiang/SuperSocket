@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
@@ -12,7 +13,6 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
-using System.Security.Authentication;
 
 namespace SuperSocket.SocketEngine
 {
@@ -88,7 +88,7 @@ namespace SuperSocket.SocketEngine
             SocketAsyncEventArgsProxy socketEventArgsProxy;
             if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
             {
-                Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                Async.Run(() => client.SafeClose());
                 if (AppServer.Logger.IsErrorEnabled)
                     AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
                 return;
@@ -107,7 +107,7 @@ namespace SuperSocket.SocketEngine
             {
                 socketEventArgsProxy.Reset();
                 this.m_ReadWritePool.Push(socketEventArgsProxy);
-                Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                Async.Run(() => client.SafeClose());
                 return;
             }
 

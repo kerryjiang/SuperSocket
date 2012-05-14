@@ -8,9 +8,9 @@ using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
+using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
@@ -184,10 +184,8 @@ namespace SuperSocket.SocketEngine
                 if (Client == null && m_IsClosed)
                     return;
 
-                Client.SafeCloseClientSocket(AppSession.Logger);
-
+                Client.SafeClose();
                 Client = null;
-                
                 OnClose(reason);
             }
         }

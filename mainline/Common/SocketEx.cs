@@ -10,53 +10,32 @@ namespace SuperSocket.Common
     public static class SocketEx
     {
         /// <summary>
-        /// Safes the close client socket.
+        /// Close the socket safely.
         /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="logger">The logger.</param>
-        public static void SafeCloseClientSocket(this Socket client, ILog logger)
+        /// <param name="socket">The socket.</param>
+        public static void SafeClose(this Socket socket)
         {
-            if(client == null)
+            if (socket == null)
                 return;
 
-            if (!client.Connected)
+            if (!socket.Connected)
                 return;
             
             try
             {
-                client.Shutdown(SocketShutdown.Both);
+                socket.Shutdown(SocketShutdown.Both);
             }
-            catch(ObjectDisposedException)
+            catch
             {
             }
-            catch(Exception e)
-            {
-                if(logger != null)
-                    logger.Error(e);
-            }
-            
+
             try
             {
-                client.Close();
+                socket.Close();
             }
-            catch(ObjectDisposedException)
+            catch
             {
             }
-            catch(Exception e)
-            {
-                if(logger != null)
-                    logger.Error(e);
-            }
-        }
-
-        /// <summary>
-        /// Safes the close client socket.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        public static void SafeCloseClientSocket(this Socket client)
-        {
-            //No logger
-            client.SafeCloseClientSocket(null);
         }
 
         /// <summary>
