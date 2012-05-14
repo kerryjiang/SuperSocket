@@ -43,7 +43,7 @@ namespace SuperSocket.SocketService
                 return;
             }
 
-            Console.WriteLine("Press any key to start server!");
+            Console.WriteLine("Press any key to start the SuperSocket Server Engine!");
             Console.ReadKey();
             Console.WriteLine();
             RunAsConsole();
@@ -78,11 +78,11 @@ namespace SuperSocket.SocketService
                     break;
 
                 case(StartResult.Success):
-                    Console.WriteLine("The SuperSocket Server Engine has been started!");
+                    Console.WriteLine("The server engine has been started!");
                     break;
 
                 case (StartResult.Failed):
-                    Console.WriteLine("Failed to start SuperSocket Server Engine! Please check error log for more information!");
+                    Console.WriteLine("Failed to start the server engine! Please check error log for more information!");
                     break;
 
                 case (StartResult.PartialSuccess):
