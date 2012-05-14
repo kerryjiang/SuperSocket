@@ -6,10 +6,10 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
@@ -61,10 +61,9 @@ namespace SuperSocket.SocketEngine
             else
                 client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
 
-            client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
-            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-            client.DontFragment = false;
+            client.NoDelay = true;
             client.UseOnlyOverlappedIO = true;
+            client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
             IAppSession appSession = this.AppServer.CreateAppSession(session);
 
