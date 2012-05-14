@@ -99,15 +99,6 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets the read time out.
-        /// </summary>
-        [ConfigurationProperty("readTimeOut", IsRequired = false, DefaultValue = 0)]
-        public int ReadTimeOut
-        {
-            get { return (int)this["readTimeOut"]; }
-        }
-
-        /// <summary>
         /// Gets the send time out.
         /// </summary>
         [ConfigurationProperty("sendTimeOut", IsRequired = false, DefaultValue = 0)]

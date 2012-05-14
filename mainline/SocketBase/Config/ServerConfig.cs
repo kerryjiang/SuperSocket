@@ -89,11 +89,6 @@ namespace SuperSocket.SocketBase.Config
         public bool EnableManagementService { get; set; }
 
         /// <summary>
-        /// Gets/sets the read time out.
-        /// </summary>
-        public int ReadTimeOut { get; set; }
-
-        /// <summary>
         /// Gets/sets the send time out.
         /// </summary>
         public int SendTimeOut { get; set; }

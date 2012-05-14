@@ -16,7 +16,6 @@ namespace SuperSocket.SocketEngine
     abstract class TcpSocketServerBase : SocketServerBase
     {
         private readonly byte[] m_KeepAliveOptionValues;
-        private readonly int m_ReadTimeOut;
         private readonly int m_SendTimeOut;
         private readonly int m_ReceiveBufferSize;
         private readonly int m_SendBufferSize;
@@ -35,7 +34,6 @@ namespace SuperSocket.SocketEngine
             //keep alive interval
             BitConverter.GetBytes((uint)(config.KeepAliveInterval * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy) * 2);
 
-            m_ReadTimeOut = config.ReadTimeOut;
             m_SendTimeOut = config.SendTimeOut;
             m_ReceiveBufferSize = config.ReceiveBufferSize;
             m_SendBufferSize = config.SendBufferSize;
@@ -43,10 +41,6 @@ namespace SuperSocket.SocketEngine
 
         protected ISocketSession RegisterSession(Socket client, ISocketSession session)
         {
-            //load socket setting
-            if (m_ReadTimeOut > 0)
-                client.ReceiveTimeout = m_ReadTimeOut;
-
             if (m_SendTimeOut > 0)
                 client.SendTimeout = m_SendTimeOut;
 
