@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -9,7 +10,6 @@ using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
-using System.Collections.Concurrent;
 
 namespace SuperSocket.SocketBase
 {
@@ -372,7 +372,7 @@ namespace SuperSocket.SocketBase
                 if (leftBufferCount >= AppServer.Config.MaxRequestLength)
                 {
                     if (Logger.IsErrorEnabled)
-                        Logger.ErrorFormat("Max command length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, leftBufferCount);
+                        Logger.ErrorFormat("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, leftBufferCount);
                     Close(CloseReason.ServerClosing);
                     return null;
                 }
