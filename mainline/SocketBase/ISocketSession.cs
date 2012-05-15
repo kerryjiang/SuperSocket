@@ -31,6 +31,11 @@ namespace SuperSocket.SocketBase
         ServerClosing,
 
         /// <summary>
+        /// Application error
+        /// </summary>
+        ApplicationError,
+
+        /// <summary>
         /// The socket is closed for a socket error
         /// </summary>
         SocketError,
