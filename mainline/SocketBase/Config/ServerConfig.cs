@@ -58,11 +58,6 @@ namespace SuperSocket.SocketBase.Config
         public NameValueCollection Options { get; set; }
 
         /// <summary>
-        /// Gets/sets the provider.
-        /// </summary>
-        public string Provider { get; set; }
-
-        /// <summary>
         /// Gets/sets a value indicating whether this <see cref="IServerConfig"/> is disabled.
         /// </summary>
         /// <value>
@@ -79,14 +74,6 @@ namespace SuperSocket.SocketBase.Config
         /// Gets/sets the mode.
         /// </summary>
         public SocketMode Mode { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether [enable management service].
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
-        /// </value>
-        public bool EnableManagementService { get; set; }
 
         /// <summary>
         /// Gets/sets the send time out.

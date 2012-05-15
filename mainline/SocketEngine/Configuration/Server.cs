@@ -78,27 +78,6 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets a value indicating whether [enable management service].
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
-        /// </value>
-        [ConfigurationProperty("enableManagementService", DefaultValue = "false")]
-        public bool EnableManagementService
-        {
-            get { return (bool)this["enableManagementService"]; }
-        }
-
-        /// <summary>
-        /// Gets the provider.
-        /// </summary>
-        [ConfigurationProperty("provider", IsRequired = false)]
-        public string Provider
-        {
-            get { return (string)this["provider"]; }
-        }
-
-        /// <summary>
         /// Gets the send time out.
         /// </summary>
         [ConfigurationProperty("sendTimeOut", IsRequired = false, DefaultValue = 0)]
