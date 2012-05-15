@@ -26,6 +26,8 @@ namespace SuperSocket.SocketEngine
 
         private bool m_InSending = false;
 
+        protected bool SyncSend { get; private set; }
+
         public SocketSession(Socket client)
             : this(Guid.NewGuid().ToString())
         {
@@ -45,6 +47,7 @@ namespace SuperSocket.SocketEngine
         public virtual void Initialize(IAppSession appSession)
         {
             AppSession = appSession;
+            SyncSend = appSession.Config.SyncSend;
         }
 
         /// <summary>
@@ -120,7 +123,21 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected abstract void SendResponse(byte[] data, int offset, int length);
+        protected abstract void SendAsync(byte[] data, int offset, int length);
+
+        protected abstract void SendSync(byte[] data, int offset, int length);
+
+        private void SendResponse(byte[] data, int offset, int length)
+        {
+            if (SyncSend)
+            {
+                SendSync(data, offset, length);
+            }
+            else
+            {
+                SendAsync(data, offset, length);
+            }
+        }
 
         protected void OnSendingCompleted()
         {

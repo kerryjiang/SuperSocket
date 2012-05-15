@@ -84,6 +84,15 @@ namespace SuperSocket.SocketBase.Config
         /// </value>
         int SendBufferSize { get; }
 
+
+        /// <summary>
+        /// Gets a value indicating whether sending is in synchronous mode.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [sync send]; otherwise, <c>false</c>.
+        /// </value>
+        bool SyncSend { get; }
+
         /// <summary>
         /// Gets a value indicating whether log command in log file.
         /// </summary>

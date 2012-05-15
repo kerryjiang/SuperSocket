@@ -120,6 +120,18 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets a value indicating whether sending is in synchronous mode.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [sync send]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("syncSend", IsRequired = false, DefaultValue = false)]
+        public bool SyncSend
+        {
+            get { return (bool)this["syncSend"]; }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether log command in log file.
         /// </summary>
         /// <value><c>true</c> if log command; otherwise, <c>false</c>.</value>

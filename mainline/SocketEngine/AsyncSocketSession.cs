@@ -44,8 +44,11 @@ namespace SuperSocket.SocketEngine
             SocketAsyncProxy.Initialize(this);
             StartReceive(SocketAsyncProxy.SocketEventArgs);
 
-            m_SocketEventArgSend = new SocketAsyncEventArgs();
-            m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+            if (!SyncSend)
+            {
+                m_SocketEventArgSend = new SocketAsyncEventArgs();
+                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+            }
 
             if (!m_IsReset)
                 StartSession();
@@ -140,7 +143,23 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected override void SendResponse(byte[] data, int offset, int length)
+        protected override void SendSync(byte[] data, int offset, int length)
+        {
+            try
+            {
+                Client.Send(data, offset, length, SocketFlags.None);
+                OnSendingCompleted();
+            }
+            catch (Exception e)
+            {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
+                Close(CloseReason.SocketError);
+            }
+        }
+
+        protected override void SendAsync(byte[] data, int offset, int length)
         {
             try
             {

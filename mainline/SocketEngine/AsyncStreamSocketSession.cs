@@ -223,7 +223,23 @@ namespace SuperSocket.SocketEngine
             m_Stream = sslStream;
         }
 
-        protected override void SendResponse(byte[] data, int offset, int length)
+        protected override void SendSync(byte[] data, int offset, int length)
+        {
+            try
+            {
+                m_Stream.Write(data, offset, length);
+                m_Stream.Flush();
+            }
+            catch (Exception e)
+            {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
+                Close(CloseReason.SocketError);
+            }
+        }
+
+        protected override void SendAsync(byte[] data, int offset, int length)
         {
             try
             {
