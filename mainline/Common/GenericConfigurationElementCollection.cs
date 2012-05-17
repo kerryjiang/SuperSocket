@@ -28,7 +28,7 @@ namespace SuperSocket.Common
                 {
                     base.BaseRemoveAt(index);
                 }
-                this.BaseAdd(index, value);
+                this.BaseAdd(index, value as ConfigurationElement);
             }
         }
 
@@ -40,7 +40,7 @@ namespace SuperSocket.Common
         /// </returns>
         protected override ConfigurationElement CreateNewElement()
         {
-            return new TConfigElement();
+            return new TConfigElement() as ConfigurationElement;
         }
 
         /// <summary>
