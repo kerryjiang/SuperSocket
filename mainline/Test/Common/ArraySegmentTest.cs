@@ -138,11 +138,13 @@ namespace SuperSocket.Test.Common
             Stopwatch watch = new Stopwatch();
 
             watch.Start();
+            
+            char tt = ' ';
 
             for (var i = 0; i < testCount; i++)
             {
                 int index = rd.Next(0, sourceA.Count - 1);
-                var tt = sourceA[index];
+                tt = sourceA[index];
             }
 
             watch.Stop();
@@ -158,12 +160,13 @@ namespace SuperSocket.Test.Common
             for (var i = 0; i < testCount; i++)
             {
                 int index = rd.Next(0, sourceA.Count - 1);
-                var tt = sourceB[index];
+                tt = sourceB[index];
             }
 
             watch.Stop();
 
             Console.WriteLine(watch.ElapsedMilliseconds);
+            Console.WriteLine(tt);
         }
 
         [Test]
