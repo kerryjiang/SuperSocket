@@ -4,6 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.ServiceProcess;
 using System.Text;
+using System.Reflection;
 using SuperSocket.Common;
 using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
@@ -19,8 +20,9 @@ namespace SuperSocket.SocketService
         /// The main entry point for the application.
         /// </summary>
         static void Main(string[] args)
-        {
-            if (!Environment.UserInteractive)
+        {            
+            if ((!Platform.IsMono && !Environment.UserInteractive)//Windows Service
+                || (Platform.IsMono && !AppDomain.CurrentDomain.FriendlyName.Equals(Path.GetFileName(Assembly.GetEntryAssembly().CodeBase))))//MonoService
             {
                 RunAsService();
                 return;

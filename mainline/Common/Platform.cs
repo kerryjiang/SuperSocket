@@ -11,10 +11,7 @@ namespace SuperSocket.Common
     /// </summary>
     public static class Platform
     {
-        /// <summary>
-        /// Initializes this instance.
-        /// </summary>
-        public static void Initialize()
+        static Platform()
         {
             try
             {

@@ -56,7 +56,7 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public DefaultBootstrap()
         {
-            Platform.Initialize();
+
         }
 
         /// <summary>
