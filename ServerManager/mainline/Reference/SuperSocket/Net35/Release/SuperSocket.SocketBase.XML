@@ -730,11 +730,19 @@
             <param name="offset">The offset.</param>
             <param name="length">The length.</param>
             <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
+            <returns>return offset delta of next receiving buffer</returns>
         </member>
         <member name="M:SuperSocket.SocketBase.IAppSession.StartSession">
             <summary>
             Starts the session.
             </summary>
+        </member>
+        <member name="M:SuperSocket.SocketBase.IAppSession.TryGetSendingData(System.ArraySegment{System.Byte}@)">
+            <summary>
+            Tries to get the data segment to be sent.
+            </summary>
+            <param name="segment">The segment.</param>
+            <returns>return whether has data to send</returns>
         </member>
         <member name="P:SuperSocket.SocketBase.IAppSession.AppServer">
             <summary>
@@ -907,18 +915,20 @@
             Closes this session.
             </summary>
         </member>
+        <member name="M:SuperSocket.SocketBase.AppSession`2.SuperSocket#SocketBase#IAppSession#TryGetSendingData(System.ArraySegment{System.Byte}@)">
+            <summary>
+            Tries to get the data segment to be sent.
+            </summary>
+            <param name="segment">The segment.</param>
+            <returns>
+            return whether has data to send
+            </returns>
+        </member>
         <member name="M:SuperSocket.SocketBase.AppSession`2.SendResponse(System.String)">
             <summary>
             Sends the response.
             </summary>
             <param name="message">The message which will be sent.</param>
-        </member>
-        <member name="M:SuperSocket.SocketBase.AppSession`2.SendResponse(System.String,System.Object[])">
-            <summary>
-            Sends the response.
-            </summary>
-            <param name="message">The message which will be sent.</param>
-            <param name="paramValues">The parameter values.</param>
         </member>
         <member name="M:SuperSocket.SocketBase.AppSession`2.SendResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
@@ -928,13 +938,26 @@
             <param name="offset">The offset.</param>
             <param name="length">The length.</param>
         </member>
+        <member name="M:SuperSocket.SocketBase.AppSession`2.SendResponse(System.ArraySegment{System.Byte})">
+            <summary>
+            Sends the response.
+            </summary>
+            <param name="segment">The segment which will be sent.</param>
+        </member>
+        <member name="M:SuperSocket.SocketBase.AppSession`2.SendResponse(System.String,System.Object[])">
+            <summary>
+            Sends the response.
+            </summary>
+            <param name="message">The message which will be sent.</param>
+            <param name="paramValues">The parameter values.</param>
+        </member>
         <member name="M:SuperSocket.SocketBase.AppSession`2.SetNextRequestFilter(SuperSocket.SocketBase.Protocol.IRequestFilter{`1})">
             <summary>
             Sets the next request filter which will be used when next data block received
             </summary>
             <param name="nextRequestFilter">The next request filter.</param>
         </member>
-        <member name="M:SuperSocket.SocketBase.AppSession`2.FilterRequest(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Int32@)">
+        <member name="M:SuperSocket.SocketBase.AppSession`2.FilterRequest(System.Byte[],System.Int32,System.Int32,System.Boolean,System.Int32@,System.Int32@)">
             <summary>
             Filters the request.
             </summary>
@@ -943,6 +966,7 @@
             <param name="length">The length.</param>
             <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
             <param name="left">The left, the size of the data which has not been processed</param>
+            <param name="offsetDelta">return offset delta of next receiving buffer.</param>
             <returns></returns>
         </member>
         <member name="M:SuperSocket.SocketBase.AppSession`2.SuperSocket#SocketBase#IAppSession#ProcessRequest(System.Byte[],System.Int32,System.Int32,System.Boolean)">
@@ -953,6 +977,9 @@
             <param name="offset">The offset.</param>
             <param name="length">The length.</param>
             <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
+            <returns>
+            return offset delta of next receiving buffer
+            </returns>
         </member>
         <member name="P:SuperSocket.SocketBase.AppSession`2.AppServer">
             <summary>
@@ -1510,11 +1537,6 @@
             Gets the options.
             </summary>
         </member>
-        <member name="P:SuperSocket.SocketBase.Config.IServerConfig.Provider">
-            <summary>
-            Gets the provider.
-            </summary>
-        </member>
         <member name="P:SuperSocket.SocketBase.Config.IServerConfig.Disabled">
             <summary>
             Gets a value indicating whether this <see cref="T:SuperSocket.SocketBase.Config.IServerConfig"/> is disabled.
@@ -1531,19 +1553,6 @@
         <member name="P:SuperSocket.SocketBase.Config.IServerConfig.Mode">
             <summary>
             Gets the mode.
-            </summary>
-        </member>
-        <member name="P:SuperSocket.SocketBase.Config.IServerConfig.EnableManagementService">
-            <summary>
-            Gets a value indicating whether [enable management service].
-            </summary>
-            <value>
-            	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:SuperSocket.SocketBase.Config.IServerConfig.ReadTimeOut">
-            <summary>
-            Gets the read time out.
             </summary>
         </member>
         <member name="P:SuperSocket.SocketBase.Config.IServerConfig.SendTimeOut">
@@ -1570,6 +1579,14 @@
             </summary>
             <value>
             The size of the send buffer.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketBase.Config.IServerConfig.SyncSend">
+            <summary>
+            Gets a value indicating whether sending is in synchronous mode.
+            </summary>
+            <value>
+              <c>true</c> if [sync send]; otherwise, <c>false</c>.
             </value>
         </member>
         <member name="P:SuperSocket.SocketBase.Config.IServerConfig.LogCommand">
@@ -1816,11 +1833,6 @@
             Gets/sets the options.
             </summary>
         </member>
-        <member name="P:SuperSocket.SocketBase.Config.ServerConfig.Provider">
-            <summary>
-            Gets/sets the provider.
-            </summary>
-        </member>
         <member name="P:SuperSocket.SocketBase.Config.ServerConfig.Disabled">
             <summary>
             Gets/sets a value indicating whether this <see cref="T:SuperSocket.SocketBase.Config.IServerConfig"/> is disabled.
@@ -1837,19 +1849,6 @@
         <member name="P:SuperSocket.SocketBase.Config.ServerConfig.Mode">
             <summary>
             Gets/sets the mode.
-            </summary>
-        </member>
-        <member name="P:SuperSocket.SocketBase.Config.ServerConfig.EnableManagementService">
-            <summary>
-            Gets a value indicating whether [enable management service].
-            </summary>
-            <value>
-            	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:SuperSocket.SocketBase.Config.ServerConfig.ReadTimeOut">
-            <summary>
-            Gets/sets the read time out.
             </summary>
         </member>
         <member name="P:SuperSocket.SocketBase.Config.ServerConfig.SendTimeOut">
@@ -1876,6 +1875,14 @@
             </summary>
             <value>
             The size of the send buffer.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketBase.Config.ServerConfig.SyncSend">
+            <summary>
+            Gets a value indicating whether sending is in synchronous mode.
+            </summary>
+            <value>
+              <c>true</c> if [sync send]; otherwise, <c>false</c>.
             </value>
         </member>
         <member name="P:SuperSocket.SocketBase.Config.ServerConfig.LogCommand">
@@ -2104,34 +2111,6 @@
             Gets the name of the filter.
             </summary>
         </member>
-        <member name="T:SuperSocket.SocketBase.IServerContainer">
-            <summary>
-            The interface of server container
-            </summary>
-        </member>
-        <member name="M:SuperSocket.SocketBase.IServerContainer.GetAllServers">
-            <summary>
-            Gets all application servers.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:SuperSocket.SocketBase.IServerContainer.GetServerByName(System.String)">
-            <summary>
-            Gets the specific app server instance by name.
-            </summary>
-            <param name="name">The name.</param>
-            <returns></returns>
-        </member>
-        <member name="E:SuperSocket.SocketBase.IServerContainer.PerformanceDataCollected">
-            <summary>
-            Occurs when [performance data collect event is fired].
-            </summary>
-        </member>
-        <member name="E:SuperSocket.SocketBase.IServerContainer.Loaded">
-            <summary>
-            Occurs when [loaded].
-            </summary>
-        </member>
         <member name="T:SuperSocket.SocketBase.ISocketServer">
             <summary>
             It is the basic interface of SocketServer,
@@ -2200,6 +2179,11 @@
             The server side close the socket
             </summary>
         </member>
+        <member name="F:SuperSocket.SocketBase.CloseReason.ApplicationError">
+            <summary>
+            Application error
+            </summary>
+        </member>
         <member name="F:SuperSocket.SocketBase.CloseReason.SocketError">
             <summary>
             The socket is closed for a socket error
@@ -2242,13 +2226,10 @@
             </summary>
             <param name="reason">The reason.</param>
         </member>
-        <member name="M:SuperSocket.SocketBase.ISocketSession.SendResponse(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:SuperSocket.SocketBase.ISocketSession.StartSend">
             <summary>
-            Sends the binary data to client.
+            Starts the sending.
             </summary>
-            <param name="data">The binary data should be sent to client.</param>
-            <param name="offset">The offset.</param>
-            <param name="length">The length.</param>
         </member>
         <member name="M:SuperSocket.SocketBase.ISocketSession.ApplySecureProtocol">
             <summary>
@@ -2358,7 +2339,7 @@
             <param name="session">The session.</param>
             <param name="message">The message.</param>
         </member>
-        <member name="M:SuperSocket.SocketBase.LoggerExtension.Perf(SuperSocket.SocketBase.IAppServer,System.String)">
+        <member name="M:SuperSocket.SocketBase.LoggerExtension.LogPerf(SuperSocket.SocketBase.IAppServer,System.String)">
             <summary>
             Logs the performance message
             </summary>
@@ -2687,6 +2668,12 @@
             <param name="socketSession">The socket session.</param>
             <returns>the new created request filer assosiated with this socketSession</returns>
         </member>
+        <member name="T:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1">
+            <summary>
+            FixedSizeRequestFilter
+            </summary>
+            <typeparam name="TRequestInfo">The type of the request info.</typeparam>
+        </member>
         <member name="T:SuperSocket.SocketBase.Protocol.IRequestFilter`1">
             <summary>
             Request filter interface
@@ -2716,6 +2703,69 @@
         <member name="P:SuperSocket.SocketBase.Protocol.IRequestFilter`1.NextRequestFilter">
             <summary>
             Gets the next request filter.
+            </summary>
+        </member>
+        <member name="T:SuperSocket.SocketBase.Protocol.IOffsetAdapter">
+            <summary>
+            The interface for a request filter to adapt receiving buffer offset
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketBase.Protocol.IOffsetAdapter.OffsetDelta">
+            <summary>
+            Gets the offset delta.
+            </summary>
+        </member>
+        <member name="M:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1"/> class.
+            </summary>
+            <param name="size">The size.</param>
+        </member>
+        <member name="M:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1.Filter(SuperSocket.SocketBase.IAppSession{`0},System.Byte[],System.Int32,System.Int32,System.Boolean,System.Int32@)">
+            <summary>
+            Filters the specified session.
+            </summary>
+            <param name="session">The session.</param>
+            <param name="readBuffer">The read buffer.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
+            <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
+            <param name="left">The left.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1.FilterBuffer(SuperSocket.SocketBase.IAppSession{`0},System.Byte[],System.Int32,System.Int32,System.Boolean,System.Int32@)">
+            <summary>
+            Filters the buffer after the server receive the enough size of data.
+            </summary>
+            <param name="session">The session.</param>
+            <param name="buffer">The buffer.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
+            <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
+            <param name="left">The left.</param>
+            <returns></returns>
+        </member>
+        <member name="P:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1.Size">
+            <summary>
+            Gets the size of the fixed size request filter.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1.LeftBufferSize">
+            <summary>
+            Gets the size of the left buffer.
+            </summary>
+            <value>
+            The size of the left buffer.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1.NextRequestFilter">
+            <summary>
+            Gets the next request filter.
+            </summary>
+        </member>
+        <member name="P:SuperSocket.SocketBase.Protocol.FixedSizeRequestFilter`1.SuperSocket#SocketBase#Protocol#IOffsetAdapter#OffsetDelta">
+            <summary>
+            Gets the offset delta.
             </summary>
         </member>
         <member name="T:SuperSocket.SocketBase.Protocol.RequestFilterBase`1">

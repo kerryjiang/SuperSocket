@@ -167,59 +167,6 @@
             Occurs when error got.
             </summary>
         </member>
-        <member name="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender">
-            <summary>
-            Async socket sender
-            </summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.#ctor(System.Net.Sockets.Socket)">
-            <summary>
-            Initializes a new instance of the <see cref="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender"/> class.
-            </summary>
-            <param name="socket">The socket.</param>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.Send(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Sends the specified buffer.
-            </summary>
-            <param name="buffer">The buffer.</param>
-            <param name="start">The start.</param>
-            <param name="length">The length.</param>
-        </member>
-        <member name="E:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.OnError">
-            <summary>
-            Occurs when [on error].
-            </summary>
-        </member>
-        <member name="E:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.OnSocketClosed">
-            <summary>
-            Occurs when [on socket closed].
-            </summary>
-        </member>
-        <member name="P:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.LastSendTime">
-            <summary>
-            Gets or sets the last send time.
-            </summary>
-            <value>
-            The last send time.
-            </value>
-        </member>
-        <member name="P:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.BytesToSend">
-            <summary>
-            Gets the bytes to send.
-            </summary>
-        </member>
-        <member name="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.EventError">
-            <summary>
-            The error delegate
-            </summary>
-            <param name="ex">The ex.</param>
-        </member>
-        <member name="T:SuperSocket.SocketEngine.AsyncSocket.AsyncSocketSender.EventSocketClosed">
-            <summary>
-            Socket closed event
-            </summary>
-        </member>
         <member name="T:SuperSocket.SocketEngine.SocketSession">
             <summary>
             Socket Session, all application session should base on this class
@@ -240,11 +187,24 @@
             Called when [close].
             </summary>
         </member>
+        <member name="M:SuperSocket.SocketEngine.SocketSession.StartSend">
+            <summary>
+            Starts the sending.
+            </summary>
+        </member>
         <member name="P:SuperSocket.SocketEngine.SocketSession.SessionID">
             <summary>
             Gets or sets the session ID.
             </summary>
             <value>The session ID.</value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.SocketSession.Config">
+            <summary>
+            Gets or sets the config.
+            </summary>
+            <value>
+            The config.
+            </value>
         </member>
         <member name="P:SuperSocket.SocketEngine.SocketSession.Closed">
             <summary>
@@ -410,24 +370,6 @@
               <c>true</c> if disabled; otherwise, <c>false</c>.
             </value>
         </member>
-        <member name="P:SuperSocket.SocketEngine.Configuration.Server.EnableManagementService">
-            <summary>
-            Gets a value indicating whether [enable management service].
-            </summary>
-            <value>
-            	<c>true</c> if [enable management service]; otherwise, <c>false</c>.
-            </value>
-        </member>
-        <member name="P:SuperSocket.SocketEngine.Configuration.Server.Provider">
-            <summary>
-            Gets the provider.
-            </summary>
-        </member>
-        <member name="P:SuperSocket.SocketEngine.Configuration.Server.ReadTimeOut">
-            <summary>
-            Gets the read time out.
-            </summary>
-        </member>
         <member name="P:SuperSocket.SocketEngine.Configuration.Server.SendTimeOut">
             <summary>
             Gets the send time out.
@@ -452,6 +394,14 @@
             </summary>
             <value>
             The size of the send buffer.
+            </value>
+        </member>
+        <member name="P:SuperSocket.SocketEngine.Configuration.Server.SyncSend">
+            <summary>
+            Gets a value indicating whether sending is in synchronous mode.
+            </summary>
+            <value>
+              <c>true</c> if [sync send]; otherwise, <c>false</c>.
             </value>
         </member>
         <member name="P:SuperSocket.SocketEngine.Configuration.Server.LogCommand">
@@ -641,65 +591,6 @@
             <value>
             	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.
             </value>
-        </member>
-        <member name="T:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer">
-            <summary>
-            Socket Buffer
-            </summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.#ctor">
-            <summary>Creates new SocketBuffer object.</summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.#ctor(System.Int32)">
-            <summary>Creates new SocketBuffer object, with default page size
-            if you have any expectational as to the chunks length
-            you can use this constructor to fine tune performance.</summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Write(System.Byte[],System.Int32,System.Int32)">
-            <summary>Write given data to the buffer.</summary>
-            <param name="data">the data to write</param>
-            <param name="start">start of valid content</param>
-            <param name="length">length of valid content</param>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Write(System.Byte[])">
-            <summary>Write the entire data to the buffer.</summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Read(System.Int32)">
-            <summary>Read data from the buffer, this method
-            removes the read data from the buffer.</summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Read(System.Int32,System.Int32)">
-            <summary>Read data from the buffer, this method
-            removes the read data from the buffer.</summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Discard(System.Int32)">
-            <summary>Given a size this method Discards (forgets) data from the buffer.</summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Discard(System.Int32,System.Int32)">
-            <summary>Given a size this method Discards (forgets) data from the buffer.</summary>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Peek(System.Int32)">
-            <summary>Peeking is like reading but without discarding, 
-            if you will call peek or read again, you will get the same data.</summary>
-            <param name="size"></param>
-            <returns></returns>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Peek(System.Int32,System.Int32)">
-            <summary>
-            Peeking is like reading but without discarding,
-            if you will call peek or read again, you will get the same data.
-            </summary>
-            <param name="offset">The offset.</param>
-            <param name="size">The size.</param>
-            <returns></returns>
-        </member>
-        <member name="M:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Clear">
-            <summary>
-            Clears this buffer.
-            </summary>
-        </member>
-        <member name="P:SuperSocket.SocketEngine.AsyncSocket.SocketBuffer.Length">
-            <summary>Returns the length of valid content.</summary>
         </member>
         <member name="T:SuperSocket.SocketEngine.SocketServerFactory">
             <summary>

@@ -120,7 +120,7 @@ namespace SuperSocket.Management.Server
 
             foreach (var s in GetSessions(s => s.LoggedIn))
             {
-                s.SendResponseAsync(content);
+                s.SendResponse(content);
             }
         }
 

@@ -1701,11 +1701,6 @@
             This class is designed for detect platform attribute in runtime
             </summary>
         </member>
-        <member name="M:SuperSocket.Common.Platform.Initialize">
-            <summary>
-            Initializes this instance.
-            </summary>
-        </member>
         <member name="P:SuperSocket.Common.Platform.SupportSocketIOControlByCodeEnum">
             <summary>
             Gets a value indicating whether [support socket IO control by code enum].
@@ -1787,18 +1782,11 @@
             Socket extension class
             </summary>
         </member>
-        <member name="M:SuperSocket.Common.SocketEx.SafeCloseClientSocket(System.Net.Sockets.Socket,SuperSocket.Common.Logging.ILog)">
+        <member name="M:SuperSocket.Common.SocketEx.SafeClose(System.Net.Sockets.Socket)">
             <summary>
-            Safes the close client socket.
+            Close the socket safely.
             </summary>
-            <param name="client">The client.</param>
-            <param name="logger">The logger.</param>
-        </member>
-        <member name="M:SuperSocket.Common.SocketEx.SafeCloseClientSocket(System.Net.Sockets.Socket)">
-            <summary>
-            Safes the close client socket.
-            </summary>
-            <param name="client">The client.</param>
+            <param name="socket">The socket.</param>
         </member>
         <member name="M:SuperSocket.Common.SocketEx.SendData(System.Net.Sockets.Socket,System.Byte[])">
             <summary>

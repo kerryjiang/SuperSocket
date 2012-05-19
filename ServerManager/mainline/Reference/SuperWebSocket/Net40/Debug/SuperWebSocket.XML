@@ -376,15 +376,9 @@
             WebSocketSession basic interface
             </summary>
         </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.SendResponse(System.String)">
+        <member name="M:SuperWebSocket.IWebSocketSession.SendRawResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
-            Sends the response.
-            </summary>
-            <param name="message">The message.</param>
-        </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.SendResponse(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Sends the response.
+            Sends the raw response without fragment.
             </summary>
             <param name="data">The data.</param>
             <param name="offset">The offset.</param>
@@ -396,18 +390,6 @@
             </summary>
             <param name="protocol">The protocol.</param>
             <returns></returns>
-        </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.EnqueueSend(System.Collections.Generic.IList{System.ArraySegment{System.Byte}})">
-            <summary>
-            Enqueues the data which should be sent.
-            </summary>
-            <param name="data">The data.</param>
-        </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.EnqueueSend(System.ArraySegment{System.Byte})">
-            <summary>
-            Enqueues the data which should be sent.
-            </summary>
-            <param name="data">The data.</param>
         </member>
         <member name="P:SuperWebSocket.IWebSocketSession.Method">
             <summary>
@@ -502,18 +484,19 @@
             <param name="offset">The offset.</param>
             <param name="length">The length.</param>
         </member>
-        <member name="M:SuperWebSocket.WebSocketSession`1.SendResponseAsync(System.String)">
+        <member name="M:SuperWebSocket.WebSocketSession`1.SendResponse(System.ArraySegment{System.Byte})">
             <summary>
-            Sends the response async.
+            Sends the response.
             </summary>
-            <param name="message">The message.</param>
+            <param name="segment">The segment.</param>
         </member>
-        <member name="M:SuperWebSocket.WebSocketSession`1.SendResponseAsync(System.String,System.Object[])">
+        <member name="M:SuperWebSocket.WebSocketSession`1.SuperWebSocket#IWebSocketSession#SendRawResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
-            Sends the response async.
+            Sends the raw response without fragment.
             </summary>
-            <param name="message">The message.</param>
-            <param name="paramValues">The param values.</param>
+            <param name="data">The data.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
         </member>
         <member name="M:SuperWebSocket.WebSocketSession`1.CloseWithHandshake(System.String)">
             <summary>
