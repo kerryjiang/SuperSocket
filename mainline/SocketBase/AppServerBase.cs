@@ -243,6 +243,11 @@ namespace SuperSocket.SocketBase
                 throw new ArgumentNullException("rootConfig");
 
             RootConfig = rootConfig;
+            
+            if (config == null)
+                throw new ArgumentNullException("config");
+
+            Config = config;
 
             if (!m_ThreadPoolConfigured)
             {
@@ -256,19 +261,6 @@ namespace SuperSocket.SocketBase
 
                 m_ThreadPoolConfigured = true;
             }
-
-            if (config == null)
-                throw new ArgumentNullException("config");
-
-            if (!(config is ServerConfig))
-            {
-                //Use config plain model directly to avoid extra object casting in runtime
-                var newConfig = new ServerConfig();
-                config.CopyPropertiesTo(newConfig);
-                config = newConfig;
-            }
-
-            Config = config;
 
             m_SocketServerFactory = socketServerFactory;
 
