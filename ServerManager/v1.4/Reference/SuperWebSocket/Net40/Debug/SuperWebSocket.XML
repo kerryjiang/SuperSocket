@@ -376,15 +376,9 @@
             WebSocketSession basic interface
             </summary>
         </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.SendResponse(System.String)">
+        <member name="M:SuperWebSocket.IWebSocketSession.SendRawResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
-            Sends the response.
-            </summary>
-            <param name="message">The message.</param>
-        </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.SendResponse(System.Byte[],System.Int32,System.Int32)">
-            <summary>
-            Sends the response.
+            Sends the raw binary response.
             </summary>
             <param name="data">The data.</param>
             <param name="offset">The offset.</param>
@@ -396,18 +390,6 @@
             </summary>
             <param name="protocol">The protocol.</param>
             <returns></returns>
-        </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.EnqueueSend(System.Collections.Generic.IList{System.ArraySegment{System.Byte}})">
-            <summary>
-            Enqueues the data which should be sent.
-            </summary>
-            <param name="data">The data.</param>
-        </member>
-        <member name="M:SuperWebSocket.IWebSocketSession.EnqueueSend(System.ArraySegment{System.Byte})">
-            <summary>
-            Enqueues the data which should be sent.
-            </summary>
-            <param name="data">The data.</param>
         </member>
         <member name="P:SuperWebSocket.IWebSocketSession.Method">
             <summary>
@@ -502,18 +484,19 @@
             <param name="offset">The offset.</param>
             <param name="length">The length.</param>
         </member>
-        <member name="M:SuperWebSocket.WebSocketSession`1.SendResponseAsync(System.String)">
+        <member name="M:SuperWebSocket.WebSocketSession`1.SendResponse(System.ArraySegment{System.Byte})">
             <summary>
-            Sends the response async.
+            Sends the response.
             </summary>
-            <param name="message">The message.</param>
+            <param name="segment">The segment.</param>
         </member>
-        <member name="M:SuperWebSocket.WebSocketSession`1.SendResponseAsync(System.String,System.Object[])">
+        <member name="M:SuperWebSocket.WebSocketSession`1.SuperWebSocket#IWebSocketSession#SendRawResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
-            Sends the response async.
+            Sends the raw binary response.
             </summary>
-            <param name="message">The message.</param>
-            <param name="paramValues">The param values.</param>
+            <param name="data">The data.</param>
+            <param name="offset">The offset.</param>
+            <param name="length">The length.</param>
         </member>
         <member name="M:SuperWebSocket.WebSocketSession`1.CloseWithHandshake(System.String)">
             <summary>
@@ -1467,13 +1450,6 @@
             Gets the web socket protocol processor.
             </summary>
         </member>
-        <member name="T:SuperWebSocket.SessionEventHandler`1">
-            <summary>
-            Session related event handler
-            </summary>
-            <typeparam name="TWebSocketSession">The type of the web socket session.</typeparam>
-            <param name="session">The session.</param>
-        </member>
         <member name="T:SuperWebSocket.SessionEventHandler`2">
             <summary>
             Session related event handler
@@ -1548,13 +1524,6 @@
             Called when [startup].
             </summary>
         </member>
-        <member name="M:SuperWebSocket.WebSocketServer`1.CreateAppSession(SuperSocket.SocketBase.ISocketSession)">
-            <summary>
-            Creates the app session.
-            </summary>
-            <param name="socketSession">The socket session.</param>
-            <returns></returns>
-        </member>
         <member name="M:SuperWebSocket.WebSocketServer`1.OnNewSessionConnected(`0)">
             <summary>
             Called when [new session connected].
@@ -1575,26 +1544,9 @@
             <param name="session">The session.</param>
             <param name="requestInfo">The request info.</param>
         </member>
-        <member name="M:SuperWebSocket.WebSocketServer`1.OnAppSessionClosed(System.Object,SuperSocket.SocketBase.AppSessionClosedEventArgs{`0})">
-            <summary>
-            Called when [app session closed].
-            </summary>
-            <param name="sender">The sender.</param>
-            <param name="e">The <see cref="T:SuperSocket.SocketBase.AppSessionClosedEventArgs`1"/> instance containing the event data.</param>
-        </member>
         <member name="P:SuperWebSocket.WebSocketServer`1.RequestFilterFactory">
             <summary>
             Gets the request filter factory.
-            </summary>
-        </member>
-        <member name="E:SuperWebSocket.WebSocketServer`1.NewSessionConnected">
-            <summary>
-            Occurs when [new session connected].
-            </summary>
-        </member>
-        <member name="E:SuperWebSocket.WebSocketServer`1.SessionClosed">
-            <summary>
-            Occurs when [session closed].
             </summary>
         </member>
         <member name="E:SuperWebSocket.WebSocketServer`1.NewMessageReceived">

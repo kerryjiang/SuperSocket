@@ -378,7 +378,7 @@
         </member>
         <member name="M:SuperWebSocket.IWebSocketSession.SendRawResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
-            Sends the raw response without fragment.
+            Sends the raw binary response.
             </summary>
             <param name="data">The data.</param>
             <param name="offset">The offset.</param>
@@ -492,7 +492,7 @@
         </member>
         <member name="M:SuperWebSocket.WebSocketSession`1.SuperWebSocket#IWebSocketSession#SendRawResponse(System.Byte[],System.Int32,System.Int32)">
             <summary>
-            Sends the raw response without fragment.
+            Sends the raw binary response.
             </summary>
             <param name="data">The data.</param>
             <param name="offset">The offset.</param>
