@@ -57,7 +57,7 @@
                    Margin="20" Foreground="#FF255B7C" FontFamily="Verdana"
                    Content="SuperSocket Server Manager"></Label>
             <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
-                <Button Style="{StaticResource MainMenuButton}" Content="New Server" Command="{Binding NewServerCommand}"></Button>
+                <Button Style="{StaticResource MainMenuButton}" Content="Connect..." Command="{Binding NewServerCommand}"></Button>
                 <Button Style="{StaticResource MainMenuButton}" Content="Exit" Command="{Binding ExitCommand}"></Button>
             </StackPanel>
             <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"

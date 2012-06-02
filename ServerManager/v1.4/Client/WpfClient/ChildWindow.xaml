@@ -2,4 +2,17 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Icon="Resources\Server.ico">
+    <Grid x:Name="LayoutRoot">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Rectangle Grid.Row="0" Fill="{StaticResource HoverGradient}"></Rectangle>
+        <TextBlock x:Name="WindowTitle" Grid.Row="0" Margin="10 5 5 5">
+            <TextBlock.Style>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource WindowsTitle}">
+                </Style>
+            </TextBlock.Style>
+        </TextBlock>
+    </Grid>
 </Window>

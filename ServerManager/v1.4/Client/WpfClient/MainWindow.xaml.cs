@@ -118,12 +118,12 @@ namespace SuperSocket.Management.Client
             var window = new ChildWindow();
             var contentControl = new NewEditServer();
             contentControl.DataContext = new NewServerDetailViewModel();
-            window.Content = contentControl;
+            window.ChildContent = contentControl;
             window.SizeToContent = SizeToContent.WidthAndHeight;
             window.Topmost = true;
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.ResizeMode = ResizeMode.NoResize;
-            window.Title = "New Server";
+            window.Title = "Connect a New Server";
 
             Messenger.Default.Register<CloseNewServerMessage>(this, (m) =>
                 {
@@ -140,12 +140,12 @@ namespace SuperSocket.Management.Client
             var window = new ChildWindow();
             var contentControl = new NewEditServer();
             contentControl.DataContext = new EditServerDetailViewModel(message.Server);
-            window.Content = contentControl;
+            window.ChildContent = contentControl;
             window.SizeToContent = SizeToContent.WidthAndHeight;
             window.Topmost = true;
             window.WindowStartupLocation = WindowStartupLocation.CenterScreen;
             window.ResizeMode = ResizeMode.NoResize;
-            window.Title = "Edit Server";
+            window.Title = "Edit Information of the Server";
 
             Messenger.Default.Register<CloseEditServerMessage>(this, (m) =>
             {

@@ -7,27 +7,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              Width="400"
-             Height="220">
+             Height="200">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="40"></RowDefinition>
         </Grid.RowDefinitions>
-        <Rectangle Grid.Row="0" Fill="{StaticResource HoverGradient}"></Rectangle>
-        <TextBlock x:Name="Title" Grid.Row="0" Margin="10 5 5 5">
-            <TextBlock.Style>
-                <Style TargetType="TextBlock" BasedOn="{StaticResource WindowsTitle}">
-                    <Setter Property="Text" Value="New Server"></Setter>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsEdit}" Value="True">
-                            <Setter Property="Text" Value="Edit Server"></Setter>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </TextBlock.Style>
-        </TextBlock>
-        <Grid Grid.Row="1" Margin="10">
+        <Grid Grid.Row="0" Margin="10">
             <Grid.Resources>
                 <Style TargetType="TextBlock" BasedOn="{StaticResource FormLabel}" />
                 <Style TargetType="TextBox" BasedOn="{StaticResource FormTextInput}" />
@@ -78,7 +64,7 @@
             <TextBlock Grid.Column="0" Grid.Row="4" Text="Password:"></TextBlock>
             <PasswordBox Grid.Column="1" Grid.Row="4" x:Name="PasswordTextBox" IsEnabled="{Binding PasswordBoxDefaultEnabled, Mode=OneTime}"></PasswordBox>
         </Grid>
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>

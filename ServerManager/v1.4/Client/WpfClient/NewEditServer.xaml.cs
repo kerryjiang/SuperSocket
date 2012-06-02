@@ -42,7 +42,7 @@ namespace SuperSocket.Management.Client
             if (message.Sender == this.DataContext)
             {
                 var result = MessageBox.Show(
-                        (Window)this.Parent,
+                        (Window)(((Control)this.Parent).Parent),
                         message.Content,
                         message.Caption,
                         message.Button,
