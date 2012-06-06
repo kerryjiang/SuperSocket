@@ -124,9 +124,9 @@ namespace SuperSocket.Common
                 {
                     if (sourceProperty.PropertyType != p.PropertyType)
                         continue;
-                }
 
-                p.SetValue(target, sourceProperty.GetValue(source, m_EmptyObjectArray), m_EmptyObjectArray);
+                    p.SetValue(target, sourceProperty.GetValue(source, m_EmptyObjectArray), m_EmptyObjectArray);
+                }
             }
         }
 
