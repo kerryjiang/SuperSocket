@@ -33,7 +33,7 @@ namespace SuperSocket.Facility.PolicyServer
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        protected override BinaryRequestInfo FilterBuffer(IAppSession<BinaryRequestInfo> session, byte[] buffer, int offset, int length, bool toBeCopied, out int left)
+        protected override BinaryRequestInfo ProcessFixSizeRequest(IAppSession<BinaryRequestInfo> session, byte[] buffer, int offset, int length, bool toBeCopied, out int left)
         {
             left = length - this.Size;
             byte[] data = new byte[this.Size];

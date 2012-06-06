@@ -45,12 +45,12 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        public TRequestInfo Filter(IAppSession<TRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public virtual TRequestInfo Filter(IAppSession<TRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             if (m_ParsedLength + length >= m_Size)
             {
                 m_OffsetDelta = 0 - m_ParsedLength;
-                return FilterBuffer(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied, out left);
+                return ProcessFixSizeRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied, out left);
             }
             else
             {
@@ -71,7 +71,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo FilterBuffer(IAppSession<TRequestInfo> session, byte[] buffer, int offset, int length, bool toBeCopied, out int left);
+        protected abstract TRequestInfo ProcessFixSizeRequest(IAppSession<TRequestInfo> session, byte[] buffer, int offset, int length, bool toBeCopied, out int left);
 
         /// <summary>
         /// Gets the size of the left buffer.
