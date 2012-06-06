@@ -135,14 +135,34 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Initializes the specified servers.
         /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        /// <param name="servers">The passed in AppServers, which have been setup.</param>
+        /// <returns></returns>
+        public static bool Initialize(IRootConfig rootConfig, IEnumerable<IAppServer> servers)
+        {
+            if (rootConfig == null)
+                throw new ArgumentNullException("rootConfig");
+
+            var config = new ConfigMockup();
+            rootConfig.CopyPropertiesTo(config);
+
+            m_ServerList = new List<IAppServer>(servers.Count());
+            m_ServerList.AddRange(servers);
+            m_Initialized = true;
+
+            m_Config = config;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Initializes the specified servers.
+        /// </summary>
         /// <param name="servers">The passed in AppServers, which have been setup.</param>
         /// <returns></returns>
         public static bool Initialize(IEnumerable<IAppServer> servers)
         {
-            m_ServerList = new List<IAppServer>(servers.Count());
-            m_ServerList.AddRange(servers);
-            m_Initialized = true;
-            return true;
+            return Initialize(new RootConfig(), servers);
         }
 
         private static bool InitializeServer(IServerConfig serverConfig)
@@ -261,6 +281,30 @@ namespace SuperSocket.SocketEngine
         public static IAppServer GetServerByName(string name)
         {
             return m_ServerList.SingleOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        }
+
+        class ConfigMockup : RootConfig, IConfig
+        {
+            private List<IServerConfig> m_Servers = new List<IServerConfig>(0);
+
+            public IEnumerable<IServerConfig> Servers
+            {
+                get { return m_Servers; }
+            }
+
+            private List<IServiceConfig> m_Services = new List<IServiceConfig>(0);
+
+            public IEnumerable<IServiceConfig> Services
+            {
+                get { return m_Services; }
+            }
+
+            private List<IConnectionFilterConfig> m_ConnectionFilters = new List<IConnectionFilterConfig>(0);
+
+            public IEnumerable<IConnectionFilterConfig> ConnectionFilters
+            {
+                get { return m_ConnectionFilters; }
+            }
         }
     }
 }
