@@ -69,70 +69,9 @@ namespace SuperSocket.SocketEngine
             return session;
         }
 
-        public override bool Start()
-        {
-            if (!base.Start())
-                return false;
-
-            ILog log = AppServer.Logger;
-
-            for (var i = 0; i < ListenerInfos.Length; i++)
-            {
-                var listener = CreateListener(ListenerInfos[i]);
-                listener.Error += new ErrorHandler(listener_Error);
-                listener.NewClientAccepted += new NewClientAcceptHandler(AcceptNewClient);
-
-                if (listener.Start())
-                {
-                    Listeners.Add(listener);
-
-                    if (log.IsDebugEnabled)
-                    {
-                        log.DebugFormat("Listener ({0}) was started", listener.EndPoint);
-                    }
-                }
-                else //If one listener failed to start, stop started listeners
-                {
-                    if (log.IsDebugEnabled)
-                    {
-                        log.DebugFormat("Listener ({0}) failed to start", listener.EndPoint);
-                    }
-
-                    for (var j = 0; j < Listeners.Count; j++)
-                    {
-                        Listeners[j].Stop();
-                    }
-
-                    Listeners.Clear();
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
-        protected abstract void AcceptNewClient(ISocketListener listener, Socket client);
-
-        void listener_Error(ISocketListener listener, Exception e)
-        {
-            this.AppServer.Logger.Error(string.Format("Listener ({0}) error", listener.EndPoint), e);
-        }
-
-        protected virtual ISocketListener CreateListener(ListenerInfo listenerInfo)
+        protected override ISocketListener CreateListener(ListenerInfo listenerInfo)
         {
             return new TcpAsyncSocketListener(listenerInfo);
-        }
-
-        public override void Stop()
-        {
-            base.Stop();
-
-            for (var i = 0; i < Listeners.Count; i++)
-            {
-                Listeners[i].Stop();
-            }
-
-            Listeners.Clear();
         }
     }
 }

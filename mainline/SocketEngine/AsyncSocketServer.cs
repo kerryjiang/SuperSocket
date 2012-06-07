@@ -78,7 +78,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected override void AcceptNewClient(ISocketListener listener, Socket client)
+        protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
         {
             if (IsStopped)
                 return;

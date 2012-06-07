@@ -76,6 +76,7 @@
     </Compile>
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="DefaultBootstrap.cs" />
+    <Compile Include="SocketListenerBase.cs" />
     <Compile Include="TcpAsyncSocketListener.cs" />
     <Compile Include="AsyncSocketServer.cs">
       <SubType>Code</SubType>
@@ -101,6 +102,9 @@
     <Compile Include="SocketServerBase.cs" />
     <Compile Include="SocketSession.cs" />
     <Compile Include="TcpSocketServerBase.cs" />
+    <Compile Include="UdpSocketListener.cs" />
+    <Compile Include="UdpSocketServer.cs" />
+    <Compile Include="UdpSocketSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.0">

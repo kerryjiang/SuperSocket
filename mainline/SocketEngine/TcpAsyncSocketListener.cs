@@ -13,22 +13,15 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Tcp socket listener in async mode
     /// </summary>
-    class TcpAsyncSocketListener : ISocketListener
+    class TcpAsyncSocketListener : SocketListenerBase
     {
-        public ListenerInfo Info { get; private set; }
-
-        public IPEndPoint EndPoint
-        {
-            get { return Info.EndPoint; }
-        }
-
         private int m_ListenBackLog;
 
         private Socket m_ListenSocket;
 
         public TcpAsyncSocketListener(ListenerInfo info)
+            : base(info)
         {
-            Info = info;
             m_ListenBackLog = info.BackLog;
         }
 
@@ -36,7 +29,7 @@ namespace SuperSocket.SocketEngine
         /// Starts to listen
         /// </summary>
         /// <returns></returns>
-        public bool Start()
+        public override bool Start()
         {
             m_ListenSocket = new Socket(this.Info.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -103,7 +96,7 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            OnNewClientAccepted(e.AcceptSocket);
+            OnNewClientAccepted(e.AcceptSocket, null);
 
             e.AcceptSocket = null;
 
@@ -134,46 +127,9 @@ namespace SuperSocket.SocketEngine
                 ProcessAccept(e);
         }
 
-        public void Stop()
+        public override void Stop()
         {
             EnsureClose();
-        }
-
-        private NewClientAcceptHandler m_NewClientAccepted;
-
-        /// <summary>
-        /// Occurs when new client accepted.
-        /// </summary>
-        public event NewClientAcceptHandler NewClientAccepted
-        {
-            add { m_NewClientAccepted += value; }
-            remove { m_NewClientAccepted -= value; }
-        }
-
-        private void OnNewClientAccepted(Socket socket)
-        {
-            m_NewClientAccepted.BeginInvoke(this, socket, null, null);
-        }
-
-        private ErrorHandler m_Error;
-
-        /// <summary>
-        /// Occurs when error got.
-        /// </summary>
-        public event ErrorHandler Error
-        {
-            add { m_Error += value; }
-            remove { m_Error -= value; }
-        }
-
-        private void OnError(Exception e)
-        {
-            m_Error(this, e);
-        }
-
-        private void OnError(string errorMessage)
-        {
-            OnError(new Exception(errorMessage));
         }
     }
 }

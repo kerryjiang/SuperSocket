@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.IO;
-using System.Net.Sockets;
+using System.Linq;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
@@ -49,32 +49,17 @@ namespace SuperSocket.SocketEngine
             StartSession();
         }
 
-        internal void ProcessData(byte[] data)
+        protected override void SendAsync(byte[] data, int offset, int length)
         {
-            ProcessData(data, 0, data.Length);
+            var e = new SocketAsyncEventArgs();
+            e.RemoteEndPoint = RemoteEndPoint;
+            e.SetBuffer(data, offset, length);
+            m_ServerSocket.SendToAsync(e);
         }
 
-        internal void ProcessData(byte[] data, int offset, int length)
+        protected override void SendSync(byte[] data, int offset, int length)
         {
-            ProcessData(data, offset, length, false);
-        }
-
-        void ProcessData(byte[] data, int offset, int length, bool toBeCopied)
-        {
-            AppSession.ProcessRequest(data, offset, length, toBeCopied);
-        }
-
-        public override void SendResponse(byte[] data, int offset, int length)
-        {
-            try
-            {
-                //TODO: change to async sending
-                m_ServerSocket.SendTo(data, offset, length, SocketFlags.None, RemoteEndPoint);
-            }
-            catch (Exception)
-            {
-                Close(CloseReason.SocketError);
-            }
+            m_ServerSocket.SendTo(data, offset, length, SocketFlags.None, RemoteEndPoint);
         }
 
         public override void ApplySecureProtocol()

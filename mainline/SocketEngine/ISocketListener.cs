@@ -11,7 +11,7 @@ namespace SuperSocket.SocketEngine
 {
     delegate void ErrorHandler(ISocketListener listener, Exception e);
 
-    delegate void NewClientAcceptHandler(ISocketListener listener, Socket client);
+    delegate void NewClientAcceptHandler(ISocketListener listener, Socket client, object state);
 
     /// <summary>
     /// The interface for socket listener

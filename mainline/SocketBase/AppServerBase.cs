@@ -24,7 +24,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>, IRawDataProcessor<TAppSession>
+    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -50,6 +50,14 @@ namespace SuperSocket.SocketBase
         /// The request filter factory.
         /// </value>
         public virtual IRequestFilterFactory<TRequestInfo> RequestFilterFactory { get; protected set; }
+
+        /// <summary>
+        /// Gets the request filter factory.
+        /// </summary>
+        object IAppServer.RequestFilterFactory
+        {
+            get { return this.RequestFilterFactory; }
+        }
 
         private List<ICommandLoader> m_CommandLoaders;
 
@@ -810,6 +818,16 @@ namespace SuperSocket.SocketBase
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
         internal void ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo)
+        {
+            this.ExecuteCommand((TAppSession)session, requestInfo);
+        }
+
+        /// <summary>
+        /// Executes the command.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="requestInfo">The request info.</param>
+        void IRequestHandler<TRequestInfo>.ExecuteCommand(IAppSession session, TRequestInfo requestInfo)
         {
             this.ExecuteCommand((TAppSession)session, requestInfo);
         }

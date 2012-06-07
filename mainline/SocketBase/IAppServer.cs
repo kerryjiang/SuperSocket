@@ -88,6 +88,11 @@ namespace SuperSocket.SocketBase
         ListenerInfo[] Listeners { get; }
 
         /// <summary>
+        /// Gets the request filter factory.
+        /// </summary>
+        object RequestFilterFactory { get; }
+
+        /// <summary>
         /// Stops this server instance.
         /// </summary>
         void Stop();
@@ -204,5 +209,20 @@ namespace SuperSocket.SocketBase
         /// Occurs when [request comming].
         /// </summary>
         event RequestHandler<TAppSession, TRequestInfo> RequestHandler;
+    }
+
+    /// <summary>
+    /// The interface for handler of session request
+    /// </summary>
+    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
+    public interface IRequestHandler<TRequestInfo>
+        where TRequestInfo : IRequestInfo
+    {
+        /// <summary>
+        /// Executes the command.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="requestInfo">The request info.</param>
+        void ExecuteCommand(IAppSession session, TRequestInfo requestInfo);
     }
 }
