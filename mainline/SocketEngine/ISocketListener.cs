@@ -31,8 +31,9 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Starts to listen
         /// </summary>
+        /// <param name="config">The server config.</param>
         /// <returns></returns>
-        bool Start();
+        bool Start(IServerConfig config);
 
         /// <summary>
         /// Stops listening

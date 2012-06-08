@@ -77,6 +77,12 @@
     <Compile Include="TestCommandParser.cs" />
     <Compile Include="TestServer.cs" />
     <Compile Include="TestSession.cs" />
+    <Compile Include="UdpSocketServerTest.cs" />
+    <Compile Include="Udp\MyRequestFilter.cs" />
+    <Compile Include="Udp\MyUdpProtocol.cs" />
+    <Compile Include="Udp\SESS.cs" />
+    <Compile Include="Udp\UdpAppServer.cs" />
+    <Compile Include="Udp\UdpTestSession.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\TestFile.txt" />

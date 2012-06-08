@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine
 {
@@ -19,7 +20,12 @@ namespace SuperSocket.SocketEngine
 
         }
 
-        public override bool Start()
+        /// <summary>
+        /// Starts to listen
+        /// </summary>
+        /// <param name="config">The server config.</param>
+        /// <returns></returns>
+        public override bool Start(IServerConfig config)
         {
             try
             {
@@ -27,8 +33,13 @@ namespace SuperSocket.SocketEngine
                 m_ListenSocket.Bind(this.EndPoint);
 
                 var eventArgs = new SocketAsyncEventArgs();
+
                 eventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
                 eventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
+                int receiveBufferSize = config.ReceiveBufferSize <= 0 ? 2048 : config.ReceiveBufferSize;
+                var buffer = new byte[receiveBufferSize];
+                eventArgs.SetBuffer(buffer, 0, buffer.Length);
 
                 m_ListenSocket.ReceiveFromAsync(eventArgs);
 
@@ -65,7 +76,24 @@ namespace SuperSocket.SocketEngine
 
         public override void Stop()
         {
-            
+            if (m_ListenSocket == null)
+                return;
+
+            lock(this)
+            {
+                if (m_ListenSocket == null)
+                    return;
+
+                try
+                {
+                    m_ListenSocket.Shutdown(SocketShutdown.Both);
+                    m_ListenSocket.Close();
+                }
+                finally
+                {
+                    m_ListenSocket = null;
+                }
+            }
         }
     }
 }

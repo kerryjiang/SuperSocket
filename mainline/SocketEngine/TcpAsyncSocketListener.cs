@@ -28,8 +28,9 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Starts to listen
         /// </summary>
+        /// <param name="config">The server config.</param>
         /// <returns></returns>
-        public override bool Start()
+        public override bool Start(IServerConfig config)
         {
             m_ListenSocket = new Socket(this.Info.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
@@ -52,34 +53,11 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                EnsureClose();
                 OnError(e);
                 return false;
             }
         }
 
-        void EnsureClose()
-        {
-            if (m_ListenSocket != null)
-            {
-                lock (this)
-                {
-                    if (m_ListenSocket != null)
-                    {
-                        try
-                        {
-                            m_ListenSocket.Close();
-                        }
-                        catch
-                        {
-
-                        }
-
-                        m_ListenSocket = null;
-                    }
-                }
-            }
-        }
 
         void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
         {
@@ -90,9 +68,10 @@ namespace SuperSocket.SocketEngine
         {
             if (e.SocketError != SocketError.Success)
             {
-                if(e.SocketError != SocketError.OperationAborted)
-                    OnError(e.SocketError.ToString());
-                EnsureClose();
+                //if(e.SocketError != SocketError.OperationAborted)
+                //    OnError(e.SocketError.ToString());
+                //EnsureClose();
+                OnError(new SocketException((int)e.SocketError));
                 return;
             }
 
@@ -106,19 +85,17 @@ namespace SuperSocket.SocketEngine
             {
                 willRaiseEvent = m_ListenSocket.AcceptAsync(e);
             }
-            catch (ObjectDisposedException)//listener has been stopped
-            {
-                EnsureClose();
-                return;
-            }
-            catch (NullReferenceException)
-            {
-                EnsureClose();
-                return;
-            }
+            //catch (ObjectDisposedException)//listener has been stopped
+            //{
+            //    return;
+            //}
+            //catch (NullReferenceException)
+            //{
+            //    EnsureClose();
+            //    return;
+            //}
             catch (Exception exc)
             {
-                EnsureClose();
                 OnError(exc);
                 return;
             }
@@ -129,7 +106,23 @@ namespace SuperSocket.SocketEngine
 
         public override void Stop()
         {
-            EnsureClose();
+            if (m_ListenSocket == null)
+                return;
+
+            lock (this)
+            {
+                if (m_ListenSocket == null)
+                    return;
+
+                try
+                {
+                    m_ListenSocket.Close();
+                }
+                finally
+                {
+                    m_ListenSocket = null;
+                }
+            }
         }
     }
 }

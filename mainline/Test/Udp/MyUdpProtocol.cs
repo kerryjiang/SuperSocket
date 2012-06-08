@@ -7,11 +7,11 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Test.Udp
 {
-    class MyUdpProtocol : ICustomProtocol<MyUdpRequestInfo>
+    class MyUdpProtocol : IRequestFilterFactory<MyUdpRequestInfo>
     {
-        public ICommandReader<MyUdpRequestInfo> CreateCommandReader(IAppServer appServer)
+        public IRequestFilter<MyUdpRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
         {
-            return new MyCommandReader(appServer);
+            return new MyRequestFilter();
         }
     }
 }

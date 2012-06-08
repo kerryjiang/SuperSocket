@@ -50,10 +50,10 @@ namespace SuperSocket.SocketEngine
             for (var i = 0; i < ListenerInfos.Length; i++)
             {
                 var listener = CreateListener(ListenerInfos[i]);
-                listener.Error += new ErrorHandler(listener_Error);
+                listener.Error += new ErrorHandler(OnListenerError);
                 listener.NewClientAccepted += new NewClientAcceptHandler(OnNewClientAccepted);
 
-                if (listener.Start())
+                if (listener.Start(AppServer.Config))
                 {
                     Listeners.Add(listener);
 
@@ -84,9 +84,27 @@ namespace SuperSocket.SocketEngine
 
         protected abstract void OnNewClientAccepted(ISocketListener listener, Socket client, object state);
 
-        void listener_Error(ISocketListener listener, Exception e)
+        void OnListenerError(ISocketListener listener, Exception e)
         {
-            this.AppServer.Logger.Error(string.Format("Listener ({0}) error", listener.EndPoint), e);
+            listener.Stop();
+
+            var logger = this.AppServer.Logger;
+
+            if(!logger.IsErrorEnabled)
+                return;
+
+            if (e is ObjectDisposedException || e is NullReferenceException)
+                return;
+
+            var socketException = e as SocketException;
+
+            if (socketException != null)
+            {
+                if (socketException.ErrorCode == 995 || socketException.ErrorCode == 10004 || socketException.ErrorCode == 10038)
+                    return;
+            }
+
+            logger.ErrorFormat(string.Format("Listener ({0}) error", listener.EndPoint), e);
         }
 
         protected abstract ISocketListener CreateListener(ListenerInfo listenerInfo);

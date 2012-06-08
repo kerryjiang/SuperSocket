@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SuperSocket.SocketBase;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine
 {
@@ -22,7 +23,12 @@ namespace SuperSocket.SocketEngine
             Info = info;
         }
 
-        public abstract bool Start();
+        /// <summary>
+        /// Starts to listen
+        /// </summary>
+        /// <param name="config">The server config.</param>
+        /// <returns></returns>
+        public abstract bool Start(IServerConfig config);
 
         public abstract void Stop();
 
