@@ -53,5 +53,18 @@ namespace SuperSocket.SocketEngine
         {
             NewClientAccepted.BeginInvoke(this, socket, state, null, null);
         }
+
+        /// <summary>
+        /// Occurs when [stopped].
+        /// </summary>
+        public event EventHandler Stopped;
+
+        protected void OnStopped()
+        {
+            var handler = Stopped;
+
+            if (handler != null)
+                handler(this, EventArgs.Empty);
+        }
     }
 }

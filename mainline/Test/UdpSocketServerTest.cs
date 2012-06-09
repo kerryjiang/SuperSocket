@@ -130,7 +130,7 @@ namespace SuperSocket.Test
             Assert.IsFalse(m_Server.IsRunning);
         }
 
-        [Test, Timeout(5000)]
+        [Test, Timeout(10000)]
         public void TestEchoMessage()
         {
             StartServer();
@@ -159,7 +159,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(5000)]
+        [Test, Timeout(6000)]
         public void TestUdpCommand()
         {
             var testServer = new UdpAppServer();
@@ -247,46 +247,6 @@ namespace SuperSocket.Test
                 }
             }
         }
-
-        //[Test]
-        //public void TestBrokenCommandBlock()
-        //{
-        //    StartServer();
-
-        //    EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
-
-        //    using (Socket socket = CreateClientSocket())
-        //    {
-        //        char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
-
-        //        Random rd = new Random(1);
-
-        //        StringBuilder sb = new StringBuilder();
-
-        //        for (int i = 0; i < 50; i++)
-        //        {
-        //            sb.Append(chars[rd.Next(0, chars.Length - 1)]);
-        //        }
-
-        //        string command = sb.ToString();
-
-        //        var commandSource = ("ECHO " + command).ToList();
-
-        //        while (commandSource.Count > 0)
-        //        {
-        //            int readLen = rd.Next(1, commandSource.Count);
-        //            Console.WriteLine(commandSource.Take(readLen).ToArray());
-        //            socket.SendTo(m_Encoding.GetBytes(commandSource.Take(readLen).ToArray()), serverAddress);
-        //            commandSource.RemoveRange(0, readLen);
-        //        }
-
-        //        socket.SendTo(m_Encoding.GetBytes(Environment.NewLine), serverAddress);
-
-        //        string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
-        //        Console.WriteLine("C:" + echoMessage);
-        //        Assert.AreEqual(command, echoMessage);
-        //    }
-        //}
 
         private bool RunEchoMessage()
         {
@@ -414,46 +374,6 @@ namespace SuperSocket.Test
                     server.Stop();
             }
         }
-
-        //[Test, Repeat(3)]
-        //public void TestCommandParameterParser()
-        //{
-        //    var server = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
-        //    server.Setup(m_Config);
-
-        //    try
-        //    {
-        //        server.Start();
-
-        //        EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
-
-        //        using (Socket socket = CreateClientSocket())
-        //        {
-        //            string[] arrParam = new string[] { "A1", "A2", "A4", "B2", "A6", "E5" };
-        //            socket.SendTo(m_Encoding.GetBytes("PARA:" + string.Join(",", arrParam) + Environment.NewLine), serverAddress);
-
-        //            List<string> received = new List<string>();
-
-        //            foreach (var p in arrParam)
-        //            {
-        //                string r = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
-        //                Console.WriteLine("C: " + r);
-        //                received.Add(r);
-        //            }
-
-        //            Assert.AreEqual(arrParam, received);
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        throw e;
-        //    }
-        //    finally
-        //    {
-        //        if (server.IsRunning)
-        //            server.Stop();
-        //    }
-        //}
 
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {

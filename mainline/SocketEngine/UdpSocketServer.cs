@@ -114,7 +114,7 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            sessionID = requestInfo.Key;
+            sessionID = udpRequestInfo.SessionID;
 
             var appSession = AppServer.GetAppSessionByID(sessionID);
 

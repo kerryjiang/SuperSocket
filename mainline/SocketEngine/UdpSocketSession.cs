@@ -52,14 +52,31 @@ namespace SuperSocket.SocketEngine
         protected override void SendAsync(byte[] data, int offset, int length)
         {
             var e = new SocketAsyncEventArgs();
+            e.Completed += new EventHandler<SocketAsyncEventArgs>(SendingCompleted);
             e.RemoteEndPoint = RemoteEndPoint;
             e.SetBuffer(data, offset, length);
             m_ServerSocket.SendToAsync(e);
         }
 
+        void SendingCompleted(object sender, SocketAsyncEventArgs e)
+        {
+            if (e.SocketError != SocketError.Success)
+            {
+                var log = AppSession.Logger;
+
+                if (log.IsErrorEnabled)
+                    log.Error(new SocketException((int)e.SocketError));
+
+                return;
+            }
+
+            OnSendingCompleted();
+        }
+
         protected override void SendSync(byte[] data, int offset, int length)
         {
             m_ServerSocket.SendTo(data, offset, length, SocketFlags.None, RemoteEndPoint);
+            OnSendingCompleted();
         }
 
         public override void ApplySecureProtocol()

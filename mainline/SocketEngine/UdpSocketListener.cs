@@ -94,6 +94,8 @@ namespace SuperSocket.SocketEngine
                     m_ListenSocket = null;
                 }
             }
+
+            OnStopped();
         }
     }
 }

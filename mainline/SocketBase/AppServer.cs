@@ -232,7 +232,7 @@ namespace SuperSocket.SocketBase
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                         {
                             if (Logger.IsInfoEnabled)
-                                Logger.Info(s, string.Format("The session will be closed for {0} timeout, last active time: {1}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.LastActiveTime));
+                                Logger.Info(s, string.Format("The session will be closed for {0} timeout, the session start time: {1}, last active time: {2}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.StartTime, s.LastActiveTime));
                             s.Close(CloseReason.TimeOut);
                         });
                 }

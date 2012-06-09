@@ -49,5 +49,11 @@ namespace SuperSocket.SocketEngine
         /// Occurs when error got.
         /// </summary>
         event ErrorHandler Error;
+
+
+        /// <summary>
+        /// Occurs when [stopped].
+        /// </summary>
+        event EventHandler Stopped;
     }
 }

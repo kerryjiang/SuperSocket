@@ -25,7 +25,8 @@ namespace SuperSocket.Test
 
         public override void HandleUnknownRequest(StringRequestInfo cmdInfo)
         {
-            SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.Key));
+            string response = string.Format(UnknownCommandMessageFormat, cmdInfo.Key);
+            SendResponse(response);
         }
     }
 }

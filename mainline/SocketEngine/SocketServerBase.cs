@@ -51,6 +51,7 @@ namespace SuperSocket.SocketEngine
             {
                 var listener = CreateListener(ListenerInfos[i]);
                 listener.Error += new ErrorHandler(OnListenerError);
+                listener.Stopped += new EventHandler(OnListenerStopped);
                 listener.NewClientAccepted += new NewClientAcceptHandler(OnNewClientAccepted);
 
                 if (listener.Start(AppServer.Config))
@@ -79,6 +80,7 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
+            IsRunning = true;
             return true;
         }
 
@@ -104,7 +106,17 @@ namespace SuperSocket.SocketEngine
                     return;
             }
 
-            logger.ErrorFormat(string.Format("Listener ({0}) error", listener.EndPoint), e);
+            logger.ErrorFormat(string.Format("Listener ({0}) error: {1}", listener.EndPoint, e.Message), e);
+        }
+
+        void OnListenerStopped(object sender, EventArgs e)
+        {
+            var listener = sender as ISocketListener;
+
+            ILog log = AppServer.Logger;
+
+            if (log.IsDebugEnabled)
+                log.DebugFormat("Listener ({0}) was stoppped", listener.EndPoint);
         }
 
         protected abstract ISocketListener CreateListener(ListenerInfo listenerInfo);
@@ -115,10 +127,14 @@ namespace SuperSocket.SocketEngine
 
             for (var i = 0; i < Listeners.Count; i++)
             {
-                Listeners[i].Stop();
+                var listener = Listeners[i];
+
+                listener.Stop();
             }
 
             Listeners.Clear();
+
+            IsRunning = false;
         }
 
         #region IDisposable Members

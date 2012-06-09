@@ -85,15 +85,6 @@ namespace SuperSocket.SocketEngine
             {
                 willRaiseEvent = m_ListenSocket.AcceptAsync(e);
             }
-            //catch (ObjectDisposedException)//listener has been stopped
-            //{
-            //    return;
-            //}
-            //catch (NullReferenceException)
-            //{
-            //    EnsureClose();
-            //    return;
-            //}
             catch (Exception exc)
             {
                 OnError(exc);
@@ -123,6 +114,8 @@ namespace SuperSocket.SocketEngine
                     m_ListenSocket = null;
                 }
             }
+
+            OnStopped();
         }
     }
 }
