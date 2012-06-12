@@ -41,9 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\mainline\SocketBase\Security\Certificate.cs">
-      <Link>Certificate.cs</Link>
-    </Compile>
+    <Compile Include="Certificate.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
