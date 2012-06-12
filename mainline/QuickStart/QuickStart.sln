@@ -37,6 +37,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronSocketServer", "IronSoc
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomRequestInfoParser", "CustomRequestInfoParser\CustomRequestInfoParser.csproj", "{18457034-1FC3-4464-AA10-23B58EB1B0D5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigSample", "ConfigSample", "{863EC855-457E-484A-A7F4-2C787EB16E63}"
+	ProjectSection(SolutionItems) = preProject
+		MultipleListenersA.exe.config = MultipleListenersA.exe.config
+		MultipleListenersB.exe.config = MultipleListenersB.exe.config
+		MultipleListenersC.exe.config = MultipleListenersC.exe.config
+		PolicyServer.exe.config = PolicyServer.exe.config
+		SecureServerA.config = SecureServerA.config
+		SecureServerB.config = SecureServerB.config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
