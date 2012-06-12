@@ -107,7 +107,6 @@
     <Compile Include="Protocol\TerminatorRequestFilter.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
     <Compile Include="RequestHandler.cs" />
-    <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>

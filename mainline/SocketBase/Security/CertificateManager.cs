@@ -46,19 +46,5 @@ namespace SuperSocket.SocketBase.Security
                 return cert;
             }
         }
-
-        internal static void CreateCertificate(string commonName, ICertificateConfig cerConfig)
-        {
-            byte[] certificateData = Certificate.CreateSelfSignCertificatePfx(commonName, //host name
-                DateTime.Now, //not valid before
-                DateTime.Now.AddYears(5), //not valid after
-                cerConfig.Password);
-
-            using (BinaryWriter binWriter = new BinaryWriter(File.Open(cerConfig.FilePath, FileMode.Create)))
-            {
-                binWriter.Write(certificateData);
-                binWriter.Flush();
-            }
-        }
     }
 }

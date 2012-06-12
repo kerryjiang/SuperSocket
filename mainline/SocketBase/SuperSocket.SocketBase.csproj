@@ -121,7 +121,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="Protocol\IRequestInfoParser.cs" />
-    <Compile Include="Security\Certificate.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>
