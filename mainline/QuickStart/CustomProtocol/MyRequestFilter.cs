@@ -23,7 +23,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
         {
             left = 0;
 
-            int leftLength = 10 - this.BufferSegments.Count;
+            int leftLength = 6 - this.BufferSegments.Count;
 
             if (length < leftLength)
             {
@@ -35,7 +35,8 @@ namespace SuperSocket.QuickStart.CustomProtocol
             AddArraySegment(readBuffer, offset, leftLength, toBeCopied);
 
             string commandName = BufferSegments.Decode(Encoding.ASCII, 0, 4);
-            int commandDataLength = Convert.ToInt32(BufferSegments.Decode(Encoding.ASCII, 5, 4).TrimStart('0'));
+
+            int commandDataLength = (int)BufferSegments[4] * 256 + (int)BufferSegments[5];
 
             if (length > leftLength)
             {

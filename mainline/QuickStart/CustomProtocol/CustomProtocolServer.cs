@@ -10,10 +10,15 @@ namespace SuperSocket.QuickStart.CustomProtocol
 {
     /// <summary>
     /// It's a protocol like that:
-    /// "SEND 0008 xg^89W(v"
-    /// "SEND" is command name, which is 4 chars
-    /// "0008" is command data length, which also is 4 chars
-    /// "xg^89W(v" is the command data whose lenght is 8
+    /// +-------+---+-------------------------------+
+    /// |request| l |                               |
+    /// | name  | e |    request data               |
+    /// |  (4)  | n |                               |
+    /// |       |(2)|                               |
+    /// +-------+---+-------------------------------+
+    /// request name: the name of the request, 4 chars, used for matching the processing command
+    /// len: the lenght of request data, two bytes, 0x00 0x02 = 2, 0x01 0x01 = 257
+    /// request data: the body of the request
     /// </summary>
     class CustomProtocolServer : AppServer<CustomProtocolSession, BinaryRequestInfo>
     {
