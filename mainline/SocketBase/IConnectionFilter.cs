@@ -15,9 +15,9 @@ namespace SuperSocket.SocketBase
         /// Initializes the connection filter
         /// </summary>
         /// <param name="name">The name.</param>
-        /// <param name="options">The options.</param>
+        /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        bool Initialize(string name, NameValueCollection options);
+        bool Initialize(string name, IAppServer appServer);
 
         /// <summary>
         /// Gets the name of the filter.

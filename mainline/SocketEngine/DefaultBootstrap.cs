@@ -24,14 +24,14 @@ namespace SuperSocket.SocketEngine
         private bool m_Initialized = false;
 
         /// <summary>
-        /// Service dictionary which have been loaded
+        /// Service types dictionary which have been loaded
         /// </summary>
         private Dictionary<string, Type> m_ServiceDict;
 
         /// <summary>
-        /// Connection filter which have been loaded
+        /// Connection filter types which have been loaded
         /// </summary>
-        private Dictionary<string, IConnectionFilter> m_ConnectionFilterDict;
+        private Dictionary<string, Type> m_ConnectionFilterDict;
 
         /// <summary>
         /// Global configuration
@@ -111,7 +111,7 @@ namespace SuperSocket.SocketEngine
             }
 
             //Initialize connection filters
-            m_ConnectionFilterDict = new Dictionary<string, IConnectionFilter>(config.ConnectionFilters.Count(), StringComparer.OrdinalIgnoreCase);
+            m_ConnectionFilterDict = new Dictionary<string, Type>(config.ConnectionFilters.Count(), StringComparer.OrdinalIgnoreCase);
 
             foreach (var filter in config.ConnectionFilters)
             {
@@ -122,32 +122,16 @@ namespace SuperSocket.SocketEngine
                     filterType = Type.GetType(filter.Type, true);
 
                     if (filterType == null)
-                        throw new Exception(string.Format("Failed to get type {0}.", filter.Type));
+                        throw new NullReferenceException();
                 }
                 catch (Exception e)
                 {
                     if (m_GlobalLog.IsErrorEnabled)
-                        m_GlobalLog.Error("Failed to initialize filter " + filter.Name + "!", e);
+                        m_GlobalLog.Error("Failed to get filter type " + filter.Name + "!", e);
                     return false;
                 }
 
-                IConnectionFilter filterInstance;
-
-                try
-                {
-                    filterInstance = (IConnectionFilter)Activator.CreateInstance(filterType);
-
-                    if (!filterInstance.Initialize(filter.Name, filter.Options))
-                        return false;
-                }
-                catch (Exception e)
-                {
-                    if (m_GlobalLog.IsErrorEnabled)
-                        m_GlobalLog.Error(string.Format("Failed to initialize filter instance {0}!", filter.Name), e);
-                    return false;
-                }
-
-                m_ConnectionFilterDict[filter.Name] = filterInstance;
+                m_ConnectionFilterDict[filter.Name] = filterType;
             }
 
             m_AppServers = new List<IAppServer>(config.Servers.Count());
@@ -286,6 +270,34 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
+        /// Creates the connection filter.
+        /// </summary>
+        /// <param name="filterName">Name of the filter.</param>
+        /// <returns></returns>
+        private IConnectionFilter CreateConnectionFilter(string filterName)
+        {
+            Type filterType;
+
+            if (!m_ConnectionFilterDict.TryGetValue(filterName, out filterType))
+                return null;
+
+            IConnectionFilter filter;
+
+            try
+            {
+                filter = (IConnectionFilter)Activator.CreateInstance(filterType);
+            }
+            catch (Exception e)
+            {
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error("Failed to create connection filter instance!", e);
+                return null;
+            }
+
+            return filter;
+        }
+
+        /// <summary>
         /// Initializes the server with the server's configuration.
         /// </summary>
         /// <param name="serverConfig">The server config.</param>
@@ -334,13 +346,22 @@ namespace SuperSocket.SocketEngine
 
                     foreach (var f in filters)
                     {
-                        IConnectionFilter currentFilter;
-                        if (!m_ConnectionFilterDict.TryGetValue(f, out currentFilter))
+                        IConnectionFilter currentFilter = CreateConnectionFilter(f);
+
+                        if (currentFilter == null)
                         {
                             if (m_GlobalLog.IsErrorEnabled)
-                                m_GlobalLog.ErrorFormat("Failed to find a connection filter '{0}'!", f);
+                                m_GlobalLog.ErrorFormat("Failed to find or create a connection filter '{0}'!", f);
                             return null;
                         }
+
+                        if (!currentFilter.Initialize(f, server))
+                        {
+                            if (m_GlobalLog.IsErrorEnabled)
+                                m_GlobalLog.ErrorFormat("Failed to initialize a connection filter '{0}'!", f);
+                            return null;
+                        }
+
                         filterInstances.Add(currentFilter);
                     }
 

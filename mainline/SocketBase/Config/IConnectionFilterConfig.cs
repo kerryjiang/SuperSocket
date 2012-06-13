@@ -18,11 +18,6 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the filter's type.
         /// </summary>
         string Type { get; }
-
-        /// <summary>
-        /// Gets the configuration options of this filter.
-        /// </summary>
-        NameValueCollection Options { get; }
     }
 }
 
