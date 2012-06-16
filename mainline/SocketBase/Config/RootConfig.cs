@@ -9,7 +9,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Root configuration model
     /// </summary>
-    public class RootConfig : IRootConfig
+    public class RootConfig : MarshalByRefObject, IRootConfig
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RootConfig"/> class.

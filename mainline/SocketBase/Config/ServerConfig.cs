@@ -11,7 +11,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Server configruation model
     /// </summary>
-    public class ServerConfig : IServerConfig
+    public class ServerConfig : MarshalByRefObject, IServerConfig
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
