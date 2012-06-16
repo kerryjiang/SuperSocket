@@ -272,7 +272,7 @@ namespace SuperSocket.SocketBase
 
             m_SocketServerFactory = socketServerFactory;
 
-            SetupLogger();
+            Logger = CreateLogger(config.Name);
 
             if (!SetupSecurity(config))
                 return false;
@@ -384,9 +384,14 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        private void SetupLogger()
+        /// <summary>
+        /// Creates the logger for the AppServer.
+        /// </summary>
+        /// <param name="loggerName">Name of the logger.</param>
+        /// <returns></returns>
+        protected virtual ILog CreateLogger(string loggerName)
         {
-            Logger = LogFactoryProvider.LogFactory.GetLog(this.Name);
+            return LogFactoryProvider.LogFactory.GetLog(loggerName);
         }
 
         /// <summary>
