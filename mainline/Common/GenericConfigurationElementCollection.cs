@@ -52,7 +52,7 @@ namespace SuperSocket.Common
         /// </returns>
         protected override object GetElementKey(ConfigurationElement element)
         {
-            throw new NotImplementedException();
+            return element;
         }
 
         #region IEnumerable[T] implementation
