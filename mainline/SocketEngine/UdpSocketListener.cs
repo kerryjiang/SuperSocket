@@ -32,6 +32,14 @@ namespace SuperSocket.SocketEngine
                 m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
                 m_ListenSocket.Bind(this.EndPoint);
 
+                uint IOC_IN = 0x80000000;
+                uint IOC_VENDOR = 0x18000000;
+                uint SIO_UDP_CONNRESET = IOC_IN | IOC_VENDOR | 12;
+
+                byte[] optionInValue = { Convert.ToByte(false) };
+                byte[] optionOutValue = new byte[4];
+                m_ListenSocket.IOControl((int)SIO_UDP_CONNRESET, optionInValue, optionOutValue);
+
                 var eventArgs = new SocketAsyncEventArgs();
 
                 eventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
