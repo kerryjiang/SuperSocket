@@ -59,8 +59,9 @@ namespace SuperSocket.SocketEngine
 
                         instancesData.Add(new PerformanceDataInfo { ServerName = s.Name, Data = perfData });
 
-                        perfBuilder.AppendLine(string.Format("{0} - Total Connections: {1}, Total Handled Commands: {2}, Command Handling Speed: {3:f0}/s",
+                        perfBuilder.AppendLine(string.Format("{0} - Started Time: {1}, Total Connections: {2}, Total Handled Commands: {3}, Command Handling Speed: {4:f0}/s",
                             s.Name,
+                            s.StartedTime,
                             perfData.CurrentRecord.TotalConnections,
                             perfData.CurrentRecord.TotalHandledCommands,
                             (perfData.CurrentRecord.TotalHandledCommands - perfData.PreviousRecord.TotalHandledCommands) / perfData.CurrentRecord.RecordSpan));
