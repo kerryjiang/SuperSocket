@@ -14,8 +14,11 @@ namespace SuperSocket.Common.Logging.EnterpriseLibrary
         private const string m_MessageTemplate2 = "{0}\r\n{1}";
         private const string m_MessageTemplate3 = "{0}\r\n{1}\r\n{2}";
 
-        public EnterpriseLibraryLog(string category)
+        private LogWriter m_LogWriter;
+
+        public EnterpriseLibraryLog(LogWriter logWriter, string category)
         {
+            m_LogWriter = logWriter;
             m_Category = category;
         }
 
@@ -46,7 +49,7 @@ namespace SuperSocket.Common.Logging.EnterpriseLibrary
 
         private void Write(object message, string cactegory, TraceEventType logSeverity)
         {
-            Logger.Write(message, cactegory, -1, 1, logSeverity, string.Empty, null);
+            m_LogWriter.Write(message, cactegory, -1, 1, logSeverity, string.Empty, null);
         }
 
         public void Debug(object message)

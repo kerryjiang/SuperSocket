@@ -103,6 +103,7 @@
     <Compile Include="Logging\ILogFactory.cs" />
     <Compile Include="Logging\Log4NetLog.cs" />
     <Compile Include="Logging\Log4NetLogFactory.cs" />
+    <Compile Include="Logging\LogFactoryBase.cs" />
     <Compile Include="Logging\LogFactoryProvider.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
