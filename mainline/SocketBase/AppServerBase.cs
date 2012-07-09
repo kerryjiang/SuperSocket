@@ -1,21 +1,17 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Reflection;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
+using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketBase
 {
@@ -24,7 +20,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>
+    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -121,6 +117,15 @@ namespace SuperSocket.SocketBase
         /// The started time.
         /// </value>
         public DateTime StartedTime { get; private set; }
+
+
+        /// <summary>
+        /// Gets or sets the log factory.
+        /// </summary>
+        /// <value>
+        /// The log factory.
+        /// </value>
+        public ILogFactory LogFactory { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
@@ -226,32 +231,23 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Setups the appServer instance
-        /// </summary>
-        /// <param name="rootConfig">The SuperSocket root config.</param>
-        /// <param name="config">The socket server instance config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <returns></returns>
-        protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
-        {
-            return Setup(rootConfig, config, socketServerFactory, null);
-        }
-
-        /// <summary>
-        /// Setups the appServer instance
+        /// Setups the specified root config.
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
-        /// <param name="config">The socket server instance config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <param name="config">The config.</param>
         /// <returns></returns>
-        protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+        protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config)
+        {
+            return true;
+        }
+
+        private void SetupBasic(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
 
             RootConfig = rootConfig;
-            
+
             if (config == null)
                 throw new ArgumentNullException("config");
 
@@ -264,30 +260,138 @@ namespace SuperSocket.SocketBase
                         rootConfig.MinWorkingThreads >= 0 ? rootConfig.MinWorkingThreads : new Nullable<int>(),
                         rootConfig.MinCompletionPortThreads >= 0 ? rootConfig.MinCompletionPortThreads : new Nullable<int>()))
                 {
-                    return false;
+                    throw new Exception("Failed to configure thread pool!");
                 }
 
                 m_ThreadPoolConfigured = true;
             }
 
+            if (socketServerFactory == null)
+                throw new ArgumentNullException("socketServerFactory");
+
             m_SocketServerFactory = socketServerFactory;
+        }
 
-            Logger = CreateLogger(config.Name);
+        private bool SetupMedium(IRequestFilterFactory<TRequestInfo> requestFilterFactory, IEnumerable<IConnectionFilter> connectionFilters)
+        {
+            if (requestFilterFactory != null)
+                RequestFilterFactory = requestFilterFactory;
 
+            if (connectionFilters != null && connectionFilters.Any())
+            {
+                if (m_ConnectionFilters == null)
+                    m_ConnectionFilters = new List<IConnectionFilter>();
+
+                m_ConnectionFilters.AddRange(connectionFilters);
+            }
+
+            return true;
+        }
+
+        private bool SetupAdvanced(IServerConfig config)
+        {
             if (!SetupSecurity(config))
                 return false;
 
             if (!SetupListeners(config))
-            {
-                if(Logger.IsErrorEnabled)
-                    Logger.Error("Invalid config ip/port");
+                return false;
 
+            if (!SetupCommandLoader(config))
+                return false;
+
+            if (!SetupCommands(m_CommandDict))
+                return false;
+
+            return true;
+        }
+
+
+        private bool SetupFinal()
+        {
+            return SetupSocketServer();
+        }
+
+        /// <summary>
+        /// Setups the specified root config.
+        /// </summary>
+        /// <param name="bootstrap">The bootstrap.</param>
+        /// <param name="config">The socket server instance config.</param>
+        /// <param name="factories">The factories.</param>
+        /// <returns></returns>
+        bool IWorkItem.Setup(IBootstrap bootstrap, IServerConfig config, ProviderFactoryInfo[] factories)
+        {
+            if (bootstrap == null)
+                throw new ArgumentNullException("bootstrap");
+
+            Bootstrap = bootstrap;
+
+            if (factories == null)
+                throw new ArgumentNullException("factories");
+
+            var rootConfig = bootstrap.Config;
+
+            SetupBasic(rootConfig, config, GetSingleProviderInstance<ISocketServerFactory>(factories, ProviderKey.SocketServerFactory));
+
+            if (!SetupLogFactory(GetSingleProviderInstance<ILogFactory>(factories, ProviderKey.LogFactory)))
+                return false;
+
+            Logger = CreateLogger(this.Name);
+
+            if (!SetupMedium(
+                    GetSingleProviderInstance<IRequestFilterFactory<TRequestInfo>>(factories, ProviderKey.RequestFilterFactory),
+                    GetProviderInstances<IConnectionFilter>(factories, ProviderKey.ConnectionFilter)))
+            {
                 return false;
             }
 
-            if (!SetupRequestFilterFactory(config, requestFilterFactory))
+            if (!SetupAdvanced(config))
                 return false;
 
+            if (!Setup(rootConfig, config))
+                return false;
+
+            return SetupFinal();
+        }
+
+
+        private TProvider GetSingleProviderInstance<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key)
+        {
+            var factory = factories.FirstOrDefault(p => p.Key.Name == key.Name);
+
+            if (factory == null)
+                return default(TProvider);
+
+            return factory.ExportFactory.CreateExport<TProvider>();
+        }
+
+        private IEnumerable<TProvider> GetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key)
+            where TProvider : class
+        {
+            IEnumerable<ProviderFactoryInfo> selectedFactories = factories.Where(p => p.Key.Name == key.Name);
+
+            if (!selectedFactories.Any())
+                return null;
+
+            return selectedFactories.Select(f => f.ExportFactory.CreateExport<TProvider>());
+        }
+
+        private bool SetupLogFactory(ILogFactory logFactory)
+        {
+            if (logFactory != null)
+            {
+                LogFactory = logFactory;
+                return true;
+            }
+
+            //Log4NetLogFactory is default log factory
+            if (LogFactory == null)
+                LogFactory = new Log4NetLogFactory();
+
+            return true;
+        }
+
+        private bool SetupCommandLoader(IServerConfig config)
+        {
             m_CommandLoaders = new List<ICommandLoader>
             {
                 new ReflectCommandLoader()
@@ -312,75 +416,6 @@ namespace SuperSocket.SocketBase
                 m_CommandLoaders.Add(dynamicCommandLoader);
             }
 
-            if (!SetupCommands(m_CommandDict))
-                return false;
-
-            return SetupSocketServer();
-        }
-
-        /// <summary>
-        /// Setups the specified root config.
-        /// </summary>
-        /// <param name="bootstrap">The bootstrap.</param>
-        /// <param name="rootConfig">The SuperSocket root config.</param>
-        /// <param name="config">The socket server instance config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <returns></returns>
-        bool IAppServer.Setup(IBootstrap bootstrap, IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
-        {
-            if (bootstrap == null)
-                throw new ArgumentNullException("bootstrap");
-
-            Bootstrap = bootstrap;
-
-            return Setup(rootConfig, config, socketServerFactory);
-        }
-
-        /// <summary>
-        /// Setups the request filter factory.
-        /// </summary>
-        /// <param name="config">The config.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
-        /// <returns></returns>
-        private bool SetupRequestFilterFactory(IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
-        {
-            //The protocol passed by programming has higher priority, then by config
-            if (requestFilterFactory != null)
-            {
-                this.RequestFilterFactory = requestFilterFactory;
-            }
-            else
-            {
-                //There is a protocol configuration existing
-                if (!string.IsNullOrEmpty(config.Protocol))
-                {
-                    IRequestFilterFactory<TRequestInfo> configuredRequestFilterFactory;
-
-                    try
-                    {
-                        configuredRequestFilterFactory = AssemblyUtil.CreateInstance<IRequestFilterFactory<TRequestInfo>>(config.Protocol);
-                    }
-                    catch(Exception e)
-                    {
-                        if (Logger.IsErrorEnabled)
-                            Logger.Error(string.Format("Invalid configured protocol {0}.", config.Protocol), e);
-
-                        return false;
-                    }
-
-                    this.RequestFilterFactory = configuredRequestFilterFactory;
-                }
-            }
-
-            //If there is no defined protocol, use CommandLineProtocol as default
-            if (RequestFilterFactory == null)
-            {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error("Protocol hasn't been set!");
-
-                return false;
-            }
-
             return true;
         }
 
@@ -391,7 +426,7 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         protected virtual ILog CreateLogger(string loggerName)
         {
-            return LogFactoryProvider.LogFactory.GetLog(loggerName);
+            return LogFactory.GetLog(loggerName);
         }
 
         /// <summary>
@@ -582,6 +617,8 @@ namespace SuperSocket.SocketBase
                 {
                     if (Logger.IsErrorEnabled)
                         Logger.Error("No listener defined!");
+
+                    return false;
                 }
 
                 m_Listeners = listeners.ToArray();
@@ -846,13 +883,6 @@ namespace SuperSocket.SocketBase
         public IEnumerable<IConnectionFilter> ConnectionFilters
         {
             get { return m_ConnectionFilters; }
-            set
-            {
-                if (m_ConnectionFilters == null)
-                    m_ConnectionFilters = new List<IConnectionFilter>();
-
-                m_ConnectionFilters.AddRange(value);
-            }
         }
 
         /// <summary>

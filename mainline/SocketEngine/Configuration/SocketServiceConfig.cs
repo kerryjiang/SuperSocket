@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 using System.Configuration;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase;
@@ -10,7 +11,7 @@ namespace SuperSocket.SocketEngine.Configuration
     /// <summary>
     /// SuperSocket's root configuration node
     /// </summary>
-    public class SocketServiceConfig : ConfigurationSection, IConfig
+    public class SocketServiceConfig : ConfigurationSection, IConfigurationSource
     {
         /// <summary>
         /// Gets all the server configurations
@@ -28,11 +29,11 @@ namespace SuperSocket.SocketEngine.Configuration
         /// Gets the service configurations
         /// </summary>
         [ConfigurationProperty("services")]
-        public ServiceCollection Services
+        public TypeProviderCollection Services
         {
             get
             {
-                return this["services"] as ServiceCollection;
+                return this["services"] as TypeProviderCollection;
             }
         }
 
@@ -40,11 +41,35 @@ namespace SuperSocket.SocketEngine.Configuration
         /// Gets all the connection filter configurations.
         /// </summary>
         [ConfigurationProperty("connectionFilters", IsRequired = false)]
-        public ConnectionFilterConfigCollection ConnectionFilters
+        public TypeProviderCollection ConnectionFilters
         {
             get
             {
-                return this["connectionFilters"] as ConnectionFilterConfigCollection;
+                return this["connectionFilters"] as TypeProviderCollection;
+            }
+        }
+
+        /// <summary>
+        /// Gets the defined log factory types.
+        /// </summary>
+        [ConfigurationProperty("logFactories", IsRequired = false)]
+        public TypeProviderCollection LogFactories
+        {
+            get
+            {
+                return this["logFactories"] as TypeProviderCollection;
+            }
+        }
+
+        /// <summary>
+        /// Gets the logfactory name of the bootstrap.
+        /// </summary>
+        [ConfigurationProperty("requestFilterFactories", IsRequired = false)]
+        public TypeProviderCollection RequestFilterFactories
+        {
+            get
+            {
+                return this["requestFilterFactories"] as TypeProviderCollection;
             }
         }
 
@@ -123,9 +148,28 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        #region IConfig implementation
-        
-        IEnumerable<IServerConfig> IConfig.Servers
+        /// <summary>
+        /// Gets the isolation mode.
+        /// </summary>
+        [ConfigurationProperty("isolationMode", IsRequired = false, DefaultValue = IsolationMode.None)]
+        public IsolationMode IsolationMode
+        {
+            get { return (IsolationMode)this["isolationMode"]; }
+        }
+
+        /// <summary>
+        /// Gets the logfactory name of the bootstrap.
+        /// </summary>
+        [ConfigurationProperty("logFactory", IsRequired = false, DefaultValue = "")]
+        public string LogFactory
+        {
+            get
+            {
+                return (string)this["logFactory"];
+            }
+        }
+
+        IEnumerable<IServerConfig> IConfigurationSource.Servers
         {
             get
             {
@@ -133,15 +177,15 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        IEnumerable<IServiceConfig> IConfig.Services
+        IEnumerable<ITypeProvider> IConfigurationSource.Services
         {
             get
             {
                 return this.Services;
             }
         }
-        
-        IEnumerable<IConnectionFilterConfig> IConfig.ConnectionFilters
+
+        IEnumerable<ITypeProvider> IConfigurationSource.ConnectionFilters
         {
             get
             {
@@ -149,6 +193,20 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        #endregion
+        IEnumerable<ITypeProvider> IConfigurationSource.LogFactories
+        {
+            get
+            {
+                return this.LogFactories;
+            }
+        }
+
+        IEnumerable<ITypeProvider> IConfigurationSource.RequestFilterFactories
+        {
+            get
+            {
+                return this.RequestFilterFactories;
+            }
+        }
     }
 }

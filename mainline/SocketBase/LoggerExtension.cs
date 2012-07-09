@@ -91,7 +91,7 @@ namespace SuperSocket.SocketBase
                 {
                     if (m_PerfLog == null)
                     {
-                        m_PerfLog = LogFactoryProvider.LogFactory.GetLog(m_PerfLogName);
+                        m_PerfLog = appServer.LogFactory.GetLog(m_PerfLogName);
                     }
                 }
             }

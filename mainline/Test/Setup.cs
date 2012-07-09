@@ -13,8 +13,7 @@ namespace SuperSocket.Test
         [SetUp]
         public void RunBeforeAllTest()
         {
-            if (LogFactoryProvider.LogFactory == null)
-                LogFactoryProvider.Initialize(new ConsoleLogFactory());
+            
         }
     }
 }

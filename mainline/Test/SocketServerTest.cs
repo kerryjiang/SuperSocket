@@ -18,13 +18,13 @@ namespace SuperSocket.Test
 {
     public abstract class SocketServerTest
     {
-        private static Dictionary<IServerConfig, TestServer[]> m_Servers = new Dictionary<IServerConfig, TestServer[]>();
+        private static Dictionary<IServerConfig, IWorkItem[]> m_Servers = new Dictionary<IServerConfig, IWorkItem[]>();
 
-        private readonly IServerConfig m_Config;
+        protected readonly IServerConfig m_Config;
 
         private IRootConfig m_RootConfig;
         
-        private Encoding m_Encoding;
+        protected Encoding m_Encoding;
 
         public SocketServerTest()
         {
@@ -41,9 +41,9 @@ namespace SuperSocket.Test
             m_Encoding = new UTF8Encoding();
         }
 
-        private TestServer GetServerByIndex(int index)
+        private IWorkItem GetServerByIndex(int index)
         {
-            TestServer[] servers = new TestServer[0];
+            IWorkItem[] servers = new IWorkItem[0];
 
             if (!m_Servers.TryGetValue(m_Config, out servers))
                 return null;
@@ -51,7 +51,7 @@ namespace SuperSocket.Test
             return servers[index];
         }
 
-        private TestServer ServerX
+        private IWorkItem ServerX
         {
             get
             {
@@ -59,7 +59,7 @@ namespace SuperSocket.Test
             }
         }
 
-        private TestServer ServerY
+        private IWorkItem ServerY
         {
             get
             {
@@ -75,17 +75,29 @@ namespace SuperSocket.Test
             if (m_Servers.ContainsKey(m_Config))
                 return;
 
-            var serverX = new TestServer();
-            var serverY = new TestServer(new TestCommandParser());
+            var serverX = CreateAppServer<TestServer>();
 
-            IBootstrap bootstrap = new DefaultBootstrap();
-            bootstrap.Initialize(m_RootConfig, new IAppServer[] { serverX, serverY }, new IServerConfig[] { m_Config, m_Config });
+            var serverY = CreateAppServer<TestServerWithCustomRequestFilter>();
 
-            m_Servers[m_Config] = new TestServer[]
+            m_Servers[m_Config] = new IWorkItem[]
             {
                 serverX,
                 serverY
             };
+        }
+
+        private IWorkItem CreateAppServer<T>()
+            where T : IWorkItem, ITestSetup, new()
+        {
+            return CreateAppServer<T>(m_RootConfig, m_Config);
+        }
+
+        protected virtual IWorkItem CreateAppServer<T>(IRootConfig rootConfig, IServerConfig serverConfig)
+            where T : IWorkItem, ITestSetup, new()
+        {
+            var appServer = new T();
+            appServer.Setup(rootConfig, serverConfig);
+            return appServer;
         }
 
         [TestFixtureTearDown]
@@ -121,7 +133,7 @@ namespace SuperSocket.Test
             }
         }
 
-        private void StartServer()
+        protected void StartServer()
         {
             if (ServerX.IsRunning)
                 ServerX.Stop();
@@ -178,7 +190,6 @@ namespace SuperSocket.Test
 
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {
-            var server = new TestServer();
             var defaultConfig = DefaultServerConfig;
 
             var config = new ServerConfig
@@ -193,15 +204,13 @@ namespace SuperSocket.Test
                 Certificate = defaultConfig.Certificate
             };
 
-            var bootstrap = new DefaultBootstrap();
-
-            bootstrap.Initialize(m_RootConfig, new IAppServer[] { server }, new IServerConfig[] { config });
+            var server = CreateAppServer<TestServer>(m_RootConfig, config);
 
             List<Socket> sockets = new List<Socket>();
 
             try
             {
-                bootstrap.Start();
+                server.Start();
 
                 EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
@@ -243,7 +252,7 @@ namespace SuperSocket.Test
             }
             finally
             {
-                bootstrap.Stop();
+                server.Stop();
             }
         }
 
@@ -501,7 +510,7 @@ namespace SuperSocket.Test
         }
 
         [Test, Repeat(5)]
-        public void TestClearTimeoutSession()
+        public virtual void TestClearTimeoutSession()
         {
             StartServer();
 

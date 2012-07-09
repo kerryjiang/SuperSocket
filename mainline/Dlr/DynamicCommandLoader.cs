@@ -26,6 +26,8 @@ namespace SuperSocket.Dlr
 
         private static readonly int m_CommandDirCheckingInterval = 1000 * 60 * 5;// 5 minutes
 
+        private static List<DynamicCommandLoader> m_Loaders = new List<DynamicCommandLoader>();
+
         static DynamicCommandLoader()
         {
             m_ScriptRuntime = ScriptRuntime.CreateFromConfiguration();
@@ -146,10 +148,7 @@ namespace SuperSocket.Dlr
             }
             catch (Exception e)
             {
-                var globalLog = LogFactoryProvider.GlobalLog;
-
-                if (globalLog.IsErrorEnabled)
-                    globalLog.Error(e);
+                OnGlobalError(e);
             }
             finally
             {
@@ -191,7 +190,10 @@ namespace SuperSocket.Dlr
             where TRequestInfo : IRequestInfo
         {
             if (m_ServerCommandStateLib.ContainsKey(appServer.Name))
-                throw new Exception("This server's commands have been loaded already!");
+            {
+                OnError(new Exception("This server's commands have been loaded already!"));
+                return false;
+            }
 
             ServerCommandState serverCommandState = new ServerCommandState
             {
@@ -240,13 +242,21 @@ namespace SuperSocket.Dlr
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Failed to load command file: " + file + "!", e);
+                    OnError(new Exception("Failed to load command file: " + file + "!", e));
                 }
             }
 
             m_ServerCommandStateLib.Add(appServer.Name, serverCommandState);
 
             return true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DynamicCommandLoader"/> class.
+        /// </summary>
+        public DynamicCommandLoader()
+        {
+            m_Loaders.Add(this);
         }
 
         private IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>> UpdateCommands<TAppSession, TRequestInfo>(IAppServer appServer, IEnumerable<CommandUpdateInfo<CommandFileInfo>> updatedCommands)
@@ -276,11 +286,32 @@ namespace SuperSocket.Dlr
                 }
                 catch (Exception e)
                 {
-                    if (appServer.Logger.IsErrorEnabled)
-                        appServer.Logger.Error("Failed to load command file: " + c.Command.FilePath + "!", e);
+                    OnError(new Exception("Failed to load command file: " + c.Command.FilePath + "!", e));
                     return null;
                 }
             });
         }
+
+        private void OnError(Exception e)
+        {
+            var handler = Error;
+
+            if (handler != null)
+                handler(this, new SuperSocket.Common.ErrorEventArgs(e));
+        }
+
+        private static void OnGlobalError(Exception e)
+        {
+            foreach (var l in m_Loaders)
+            {
+                l.OnError(e);
+            }
+        }
+
+
+        /// <summary>
+        /// Occurs when [error].
+        /// </summary>
+        public event EventHandler<Common.ErrorEventArgs> Error;
     }
 }

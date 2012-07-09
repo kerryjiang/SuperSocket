@@ -9,6 +9,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Root configuration model
     /// </summary>
+    [Serializable]
     public class RootConfig : IRootConfig
     {
         /// <summary>
@@ -27,6 +28,8 @@ namespace SuperSocket.SocketBase.Config
             MinCompletionPortThreads = minCompletionPortThreads;
 
             PerformanceDataCollectInterval = 60;
+
+            IsolationMode = IsolationMode.None;
         }
 
         #region IRootConfig Members
@@ -63,6 +66,19 @@ namespace SuperSocket.SocketBase.Config
         /// 	<c>true</c> if [disable performance data collector]; otherwise, <c>false</c>.
         /// </value>
         public bool DisablePerformanceDataCollector { get; set; }
+
+        /// <summary>
+        /// Gets/sets the isolation mode.
+        /// </summary>
+        public IsolationMode IsolationMode { get; set; }
+
+        /// <summary>
+        /// Gets/sets the log factory name.
+        /// </summary>
+        /// <value>
+        /// The log factory.
+        /// </value>
+        public string LogFactory { get; set; }
 
         #endregion
     }

@@ -22,8 +22,6 @@ namespace SuperSocket.Common
         /// <returns></returns>
         public static bool ResetThreadPool(int? maxWorkingThreads, int? maxCompletionPortThreads, int? minWorkingThreads, int? minCompletionPortThreads)
         {
-            var log = LogFactoryProvider.GlobalLog;
-
             if (maxWorkingThreads.HasValue || maxCompletionPortThreads.HasValue)
             {
                 int oldMaxWorkingThreads, oldMaxCompletionPortThreads;
@@ -40,16 +38,7 @@ namespace SuperSocket.Common
                     || maxCompletionPortThreads.Value != oldMaxCompletionPortThreads)
                 {
                     if (!ThreadPool.SetMaxThreads(maxWorkingThreads.Value, maxCompletionPortThreads.Value))
-                    {
-                        if (log.IsErrorEnabled)
-                            log.ErrorFormat("Failed to run ThreadPool.SetMaxThreads({0}, {1})", maxWorkingThreads.Value, maxCompletionPortThreads.Value);
                         return false;
-                    }
-                    else
-                    {
-                        if (log.IsInfoEnabled)
-                            log.InfoFormat("ThreadPool.SetMaxThreads({0}, {1})", maxWorkingThreads.Value, maxCompletionPortThreads.Value);
-                    }
                 }
             }
 
@@ -69,16 +58,7 @@ namespace SuperSocket.Common
                     || minCompletionPortThreads.Value != oldMinCompletionPortThreads)
                 {
                     if (!ThreadPool.SetMinThreads(minWorkingThreads.Value, minCompletionPortThreads.Value))
-                    {
-                        if (log.IsErrorEnabled)
-                            log.ErrorFormat("Failed to run ThreadPool.SetMinThreads({0}, {1})", minWorkingThreads.Value, minCompletionPortThreads.Value);
                         return false;
-                    }
-                    else
-                    {
-                        if (log.IsInfoEnabled)
-                            log.InfoFormat("ThreadPool.SetMinThreads({0}, {1})", minWorkingThreads.Value, minCompletionPortThreads.Value);
-                    }
                 }
             }
 

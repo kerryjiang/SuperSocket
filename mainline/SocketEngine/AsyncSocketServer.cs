@@ -88,7 +88,7 @@ namespace SuperSocket.SocketEngine
             SocketAsyncEventArgsProxy socketEventArgsProxy;
             if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
             {
-                Async.Run(() => client.SafeClose());
+                AppServer.AsyncRun(() => client.SafeClose());
                 if (AppServer.Logger.IsErrorEnabled)
                     AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
                 return;
@@ -107,12 +107,12 @@ namespace SuperSocket.SocketEngine
             {
                 socketEventArgsProxy.Reset();
                 this.m_ReadWritePool.Push(socketEventArgsProxy);
-                Async.Run(() => client.SafeClose());
+                AppServer.AsyncRun(() => client.SafeClose());
                 return;
             }
 
             session.Closed += session_Closed;
-            Async.Run(() => session.Start());
+            AppServer.AsyncRun(() => session.Start());
         }
 
         public override void ResetSessionSecurity(IAppSession session, SslProtocols security)

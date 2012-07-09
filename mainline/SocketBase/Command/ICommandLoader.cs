@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase.Command
@@ -23,5 +24,10 @@ namespace SuperSocket.SocketBase.Command
         bool LoadCommands<TAppSession, TRequestInfo>(IAppServer appServer, Func<ICommand<TAppSession, TRequestInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>>> commandUpdater)
             where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
             where TRequestInfo : IRequestInfo;
+
+        /// <summary>
+        /// Occurs when [error].
+        /// </summary>
+        event EventHandler<ErrorEventArgs> Error;
     }
 }

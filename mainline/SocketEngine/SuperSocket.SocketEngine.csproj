@@ -41,7 +41,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <DocumentationFile>bin\Debug\SuperSocket.SocketEngine.XML</DocumentationFile>
   </PropertyGroup>
@@ -74,8 +74,18 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AppDomainAppServer.cs" />
+    <Compile Include="AppDomainBootstrap.cs" />
+    <Compile Include="AssemblyImport.cs" />
+    <Compile Include="BootstrapFactory.cs" />
+    <Compile Include="WorkItemFactoryInfoLoader.cs" />
+    <Compile Include="Configuration\TypeProvider.cs" />
+    <Compile Include="Configuration\TypeProviderCollection.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="DefaultBootstrap.cs" />
+    <Compile Include="WorkItemFactoryInfo.cs" />
+    <Compile Include="MarshalAppServer.cs" />
+    <Compile Include="PerformanceMonitor.cs" />
     <Compile Include="SocketListenerBase.cs" />
     <Compile Include="TcpAsyncSocketListener.cs" />
     <Compile Include="AsyncSocketServer.cs">
@@ -89,12 +99,9 @@
     </Compile>
     <Compile Include="AsyncStreamSocketSession.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
-    <Compile Include="Configuration\ConnectionFilterConfig.cs" />
     <Compile Include="Configuration\Listener.cs" />
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />
-    <Compile Include="Configuration\Service.cs" />
-    <Compile Include="Configuration\ServiceCollection.cs" />
     <Compile Include="Configuration\SocketServiceConfig.cs" />
     <Compile Include="ISocketListener.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

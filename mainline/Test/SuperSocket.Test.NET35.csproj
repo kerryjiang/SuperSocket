@@ -59,20 +59,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppDomainSocketServerTest.cs" />
     <Compile Include="AsyncSecureSocketServerTest.cs" />
+    <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
     <Compile Include="Command\RECEL.cs" />
     <Compile Include="Command\RECEM.cs" />
     <Compile Include="Common\ArraySegmentTest.cs" />
+    <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />
     <Compile Include="Common\PerformanceTest.cs" />
+    <Compile Include="ITestSetup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SecureTcpSocketServerTest.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="SocketServerTest.cs" />
     <Compile Include="TcpSocketServerTest.cs" />
-    <Compile Include="TestCommandParser.cs" />
+    <Compile Include="TestRequestParser.cs" />
     <Compile Include="TestServer.cs" />
     <Compile Include="TestSession.cs" />
     <Compile Include="UdpSocketServerTest.cs" />

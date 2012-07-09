@@ -34,7 +34,7 @@ namespace SuperSocket.SocketEngine
             m_IsReset = isReset;
         }
 
-        ILog IAsyncSocketSessionBase.Logger
+        ILog ILoggerProvider.Logger
         {
             get { return AppSession.Logger; }
         }

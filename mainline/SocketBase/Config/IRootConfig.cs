@@ -43,5 +43,20 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the performance data collect interval, in seconds.
         /// </summary>
         int PerformanceDataCollectInterval { get; }
+
+
+        /// <summary>
+        /// Gets the log factory name.
+        /// </summary>
+        /// <value>
+        /// The log factory.
+        /// </value>
+        string LogFactory { get; }
+
+
+        /// <summary>
+        /// Gets the isolation mode.
+        /// </summary>
+        IsolationMode IsolationMode { get; }
     }
 }

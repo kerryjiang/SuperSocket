@@ -78,6 +78,9 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AppDomainAppServer.cs" />
+    <Compile Include="AppDomainBootstrap.cs" />
+    <Compile Include="AssemblyImport.cs" />
     <Compile Include="AsyncSocketServer.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -88,17 +91,20 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AsyncStreamSocketSession.cs" />
+    <Compile Include="BootstrapFactory.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
-    <Compile Include="Configuration\ConnectionFilterConfig.cs" />
     <Compile Include="Configuration\Listener.cs" />
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />
-    <Compile Include="Configuration\Service.cs" />
-    <Compile Include="Configuration\ServiceCollection.cs" />
     <Compile Include="Configuration\SocketServiceConfig.cs" />
+    <Compile Include="Configuration\TypeProvider.cs" />
+    <Compile Include="Configuration\TypeProviderCollection.cs" />
     <Compile Include="DefaultBootstrap.cs" />
+    <Compile Include="Extensions.Net35.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="ISocketListener.cs" />
+    <Compile Include="MarshalAppServer.cs" />
+    <Compile Include="PerformanceMonitor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketListenerBase.cs" />
     <Compile Include="SocketServerFactory.cs" />
@@ -109,6 +115,8 @@
     <Compile Include="UdpSocketListener.cs" />
     <Compile Include="UdpSocketServer.cs" />
     <Compile Include="UdpSocketSession.cs" />
+    <Compile Include="WorkItemFactoryInfo.cs" />
+    <Compile Include="WorkItemFactoryInfoLoader.cs" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">

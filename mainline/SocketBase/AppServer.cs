@@ -325,7 +325,7 @@ namespace SuperSocket.SocketBase
                 });
 
             //User can process the performance data by self
-            Async.Run(() => OnPerformanceDataCollected(globalPerfData, m_PerformanceData), e => Logger.Error(e));
+            this.AsyncRun(() => OnPerformanceDataCollected(globalPerfData, m_PerformanceData), e => Logger.Error(e));
 
             return m_PerformanceData;
         }

@@ -11,6 +11,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Server configruation model
     /// </summary>
+    [Serializable]
     public class ServerConfig : IServerConfig
     {
         /// <summary>
@@ -38,9 +39,9 @@ namespace SuperSocket.SocketBase.Config
         public string ServiceName { get; set; }
 
         /// <summary>
-        /// Gets/sets the protocol.
+        /// Gets/sets the RequestFilter.
         /// </summary>
-        public string Protocol { get; set; }
+        public string RequestFilter { get; set; }
 
         /// <summary>
         /// Gets/sets the ip.
@@ -180,9 +181,9 @@ namespace SuperSocket.SocketBase.Config
         /// Gets/sets the connection filters used by this server instance.
         /// </summary>
         /// <value>
-        /// The connection filters's name list, seperated by comma
+        /// The connection filter's name list, seperated by comma
         /// </value>
-        public string ConnectionFilters { get; set; }
+        public string ConnectionFilter { get; set; }
 
         /// <summary>
         /// Gets/sets the start keep alive time, in seconds

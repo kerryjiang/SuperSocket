@@ -43,7 +43,8 @@ namespace SuperSocket.SocketBase.Command
                 }
                 catch (Exception e)
                 {
-                    throw new Exception("Failed to load defined command assemblies!", e);
+                    OnError(new Exception("Failed to load defined command assemblies!", e));
+                    return false;
                 }
             }
 
@@ -60,5 +61,19 @@ namespace SuperSocket.SocketBase.Command
         }
 
         #endregion
+
+        private void OnError(Exception e)
+        {
+            var handler = Error;
+
+            if (handler != null)
+                handler(this, new ErrorEventArgs(e));
+        }
+
+
+        /// <summary>
+        /// Occurs when [error].
+        /// </summary>
+        public event EventHandler<ErrorEventArgs> Error;
     }
 }

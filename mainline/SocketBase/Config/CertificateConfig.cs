@@ -8,6 +8,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Certificate config model class
     /// </summary>
+    [Serializable]
     public class CertificateConfig : ICertificateConfig
     {
         #region ICertificateConfig Members

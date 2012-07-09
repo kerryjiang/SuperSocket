@@ -19,13 +19,12 @@ namespace SuperSocket.SocketService
         public MainService()
         {
             InitializeComponent();
-            m_Bootstrap = new DefaultBootstrap();
+            m_Bootstrap = BootstrapFactory.CreateBootstrap("socketServer");
         }
 
         protected override void OnStart(string[] args)
         {
-            var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
-            if (!m_Bootstrap.Initialize(serverConfig))
+            if (!m_Bootstrap.Initialize())
                 return;
 
             m_Bootstrap.Start();

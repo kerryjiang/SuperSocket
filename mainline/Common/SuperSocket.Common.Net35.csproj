@@ -95,8 +95,10 @@
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="ConfigurationExtension.cs" />
     <Compile Include="DictionaryExtension.cs" />
+    <Compile Include="ErrorEventArgs.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="GlobalResourceManager.cs" />
+    <Compile Include="ILoggerProvider.cs" />
     <Compile Include="Logging\ConsoleLog.cs" />
     <Compile Include="Logging\ConsoleLogFactory.cs" />
     <Compile Include="Logging\ILog.cs" />

@@ -54,10 +54,9 @@ namespace SuperSocket.SocketService
 
         static void RunAsConsole()
         {
-            IBootstrap bootstrap = new DefaultBootstrap();
+            IBootstrap bootstrap = BootstrapFactory.CreateBootstrap("socketServer");
 
-            SocketServiceConfig serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
-            if (!bootstrap.Initialize(serverConfig))
+            if (!bootstrap.Initialize())
             {
                 Console.WriteLine("Failed to initialize SuperSocket server! Please check error log for more information!");
                 return;

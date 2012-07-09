@@ -32,10 +32,10 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the protocol.
         /// </summary>
-        [ConfigurationProperty("protocol", IsRequired = false)]
-        public string Protocol
+        [ConfigurationProperty("requestFilter", IsRequired = false)]
+        public string RequestFilter
         {
-            get { return this["protocol"] as string; }
+            get { return this["requestFilter"] as string; }
         }
 
         /// <summary>
@@ -250,12 +250,12 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// The connection filters's name list, seperated by comma
         /// </value>
-        [ConfigurationProperty("connectionFilters", IsRequired = false)]
-        public string ConnectionFilters
+        [ConfigurationProperty("connectionFilter", IsRequired = false)]
+        public string ConnectionFilter
         {
             get
             {
-                return (string)this["connectionFilters"];
+                return (string)this["connectionFilter"];
             }
         }
 
@@ -319,6 +319,18 @@ namespace SuperSocket.SocketEngine.Configuration
             get
             {
                 return (int)this["startupOrder"];
+            }
+        }
+
+        /// <summary>
+        /// Gets the logfactory name of the server instance.
+        /// </summary>
+        [ConfigurationProperty("logFactory", IsRequired = false, DefaultValue = "")]
+        public string LogFactory
+        {
+            get
+            {
+                return (string)this["logFactory"];
             }
         }
 

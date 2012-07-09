@@ -56,6 +56,7 @@
     </Compile>
     <Compile Include="AppServer.cs" />
     <Compile Include="AppServerBase.cs" />
+    <Compile Include="AppServerBase.Net35.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandBase.cs" />
@@ -66,13 +67,13 @@
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="CommanFilterFactory.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
+    <Compile Include="Config\ConfigurationSource.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
-    <Compile Include="Config\IConfig.cs" />
-    <Compile Include="Config\IConnectionFilterConfig.cs" />
+    <Compile Include="Config\IConfigurationSource.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
-    <Compile Include="Config\IServiceConfig.cs" />
+    <Compile Include="Config\ITypeProvider.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="ISocketServer.cs" />
     <Compile Include="ISocketServerFactory.cs" />
     <Compile Include="ISocketSession.cs" />
+    <Compile Include="IsolationMode.cs" />
     <Compile Include="ListenerInfo.cs" />
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="PerformanceData.cs" />
@@ -96,6 +98,7 @@
     <Compile Include="Protocol\CommandLineRequestFilterFactory.cs" />
     <Compile Include="Protocol\DefaultRequestFilterFactory.cs" />
     <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
+    <Compile Include="Protocol\FixHeaderRequestFilter.cs" />
     <Compile Include="Protocol\IOffsetAdapter.cs" />
     <Compile Include="Protocol\IRequestFilter.cs" />
     <Compile Include="Protocol\IRequestFilterFactory.cs" />
@@ -106,6 +109,9 @@
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Protocol\TerminatorRequestFilter.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
+    <Compile Include="Provider\ExportFactory.cs" />
+    <Compile Include="Provider\ProviderFactoryInfo.cs" />
+    <Compile Include="Provider\ProviderKey.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="SocketMode.cs" />

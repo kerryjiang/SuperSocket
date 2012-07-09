@@ -6,11 +6,12 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
+using SuperSocket.Common;
+using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
-using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
@@ -280,7 +281,7 @@ namespace SuperSocket.SocketEngine
 
         public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
 
-        ILog IAsyncSocketSessionBase.Logger
+        ILog ILoggerProvider.Logger
         {
             get { return AppSession.Logger; }
         }

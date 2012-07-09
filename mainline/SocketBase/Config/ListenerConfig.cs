@@ -8,6 +8,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Listener configuration model
     /// </summary>
+    [Serializable]
     public class ListenerConfig : IListenerConfig
     {
         /// <summary>

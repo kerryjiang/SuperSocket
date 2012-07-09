@@ -21,9 +21,9 @@ namespace SuperSocket.SocketBase.Config
         string ServiceName { get; }
 
         /// <summary>
-        /// Gets the protocol.
+        /// Gets the request filter.
         /// </summary>
-        string Protocol { get; }
+        string RequestFilter { get; }
 
         /// <summary>
         /// Gets the ip.
@@ -156,9 +156,9 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the connection filters used by this server instance.
         /// </summary>
         /// <value>
-        /// The connection filters's name list, seperated by comma
+        /// The connection filter's name list, seperated by comma
         /// </value>
-        string ConnectionFilters { get; }
+        string ConnectionFilter { get; }
 
 
         /// <summary>

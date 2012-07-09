@@ -18,14 +18,10 @@ namespace SuperSocket.QuickStart.GPSSocketServer
     {
         private GPSServer m_Server;
         private IServerConfig m_Config;
-        private IBootstrap m_Bootstrap;
-
 
         [TestFixtureSetUp]
         public void Setup()
         {
-            m_Bootstrap = new DefaultBootstrap();
-
             m_Config = new ServerConfig
             {
                 Port = 555,
@@ -36,19 +32,19 @@ namespace SuperSocket.QuickStart.GPSSocketServer
             };
 
             m_Server = new GPSServer();
-            m_Bootstrap.Initialize(new RootConfig(), new IAppServer[] { m_Server }, new IServerConfig[] { m_Config }, new ConsoleLogFactory());
+            m_Server.Setup(new RootConfig(), m_Config, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory());
         }
 
         [SetUp]
         public void StartServer()
         {
-            m_Bootstrap.Start();
+            m_Server.Start();
         }
 
         [TearDown]
         public void StopServer()
         {
-            m_Bootstrap.Stop();
+            m_Server.Stop();
         }
 
         private static byte[] m_StartMark = new byte[] { 0x68, 0x68 };

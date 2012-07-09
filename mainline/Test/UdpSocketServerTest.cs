@@ -88,9 +88,7 @@ namespace SuperSocket.Test
         public void Setup()
         {
             m_Server = new TestServer();
-
-            IBootstrap bootstrap = new DefaultBootstrap();
-            bootstrap.Initialize(m_RootConfig, new IAppServer[] { m_Server }, new IServerConfig[] { m_Config });
+            m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
         }
 
         [TestFixtureTearDown]
@@ -164,8 +162,7 @@ namespace SuperSocket.Test
         {
             var testServer = new UdpAppServer();
 
-            IBootstrap bootstrap = new DefaultBootstrap();
-            bootstrap.Initialize(m_RootConfig, new IAppServer[] { testServer }, new IServerConfig[] { m_Config });
+            testServer.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
             testServer.Start();
 
@@ -345,10 +342,8 @@ namespace SuperSocket.Test
         [Test, Repeat(3)]
         public void TestCommandParser()
         {
-            var server = new TestServer(new TestCommandParser());
-
-            IBootstrap bootstrap = new DefaultBootstrap();
-            bootstrap.Initialize(m_RootConfig, new IAppServer[] { server }, new IServerConfig[] { m_Config });
+            var server = new TestServer(new TestRequestParser());
+            server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
             try
             {
@@ -390,8 +385,7 @@ namespace SuperSocket.Test
                 Port = defaultConfig.Port
             };
 
-            IBootstrap bootstrap = new DefaultBootstrap();
-            bootstrap.Initialize(m_RootConfig, new IAppServer[] { server }, new IServerConfig[] { config });
+            server.Setup(m_RootConfig, config, SocketServerFactory.Instance);
 
             List<Socket> sockets = new List<Socket>();
 

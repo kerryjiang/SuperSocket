@@ -5,6 +5,7 @@ using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.Common.Logging;
+using System.Configuration;
 
 namespace SuperSocket.SocketBase
 {
@@ -39,51 +40,42 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets all the app servers running in this bootstrap
         /// </summary>
-        IEnumerable<IAppServer> AppServers { get; }
+        IEnumerable<IWorkItem> AppServers { get; }
 
         /// <summary>
-        /// Initializes the bootstrap with the configuration, config resolver and log factory.
+        /// Gets the config.
         /// </summary>
-        /// <param name="config">The config.</param>
-        /// <param name="serverConfigResolver">The server config resolver.</param>
-        /// <param name="logFactory">The log factory.</param>
-        /// <returns></returns>
-        bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver, ILogFactory logFactory);
-
-        /// <summary>
-        /// Initializes the bootstrap with the configuration and config resolver.
-        /// </summary>
-        /// <param name="config">The config.</param>
-        /// <param name="serverConfigResolver">The server config resolver.</param>
-        /// <returns></returns>
-        bool Initialize(IConfig config, Func<IServerConfig, IServerConfig> serverConfigResolver);
+        IRootConfig Config { get; }
 
         /// <summary>
         /// Initializes the bootstrap with the configuration
         /// </summary>
-        /// <param name="config">The config.</param>
         /// <returns></returns>
-        bool Initialize(IConfig config);
+        bool Initialize();
 
 
         /// <summary>
-        /// Initializes the bootstrap with initialized appserver instances.
+        /// Initializes the bootstrap with the configuration
         /// </summary>
-        /// <param name="rootConfig">The root config.</param>
-        /// <param name="servers">The servers.</param>
-        /// <param name="serverConfigs">The server configs.</param>
+        /// <param name="serverConfigResolver">The server config resolver.</param>
         /// <returns></returns>
-        bool Initialize(IRootConfig rootConfig, IEnumerable<IAppServer> servers, IEnumerable<IServerConfig> serverConfigs);
+        bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver);
+
 
         /// <summary>
-        /// Initializes the bootstrap with initialized appserver instances.
+        /// Initializes the bootstrap with the configuration
         /// </summary>
-        /// <param name="rootConfig">The root config.</param>
-        /// <param name="servers">The servers.</param>
-        /// <param name="serverConfigs">The server configs.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <returns></returns>
-        bool Initialize(IRootConfig rootConfig, IEnumerable<IAppServer> servers, IEnumerable<IServerConfig> serverConfigs, ILogFactory logFactory);
+        bool Initialize(ILogFactory logFactory);
+
+        /// <summary>
+        /// Initializes the bootstrap with the configuration
+        /// </summary>
+        /// <param name="serverConfigResolver">The server config resolver.</param>
+        /// <param name="logFactory">The log factory.</param>
+        /// <returns></returns>
+        bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver, ILogFactory logFactory);
 
         /// <summary>
         /// Starts this bootstrap.

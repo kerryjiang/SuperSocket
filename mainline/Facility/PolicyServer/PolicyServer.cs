@@ -43,10 +43,8 @@ namespace SuperSocket.Facility.PolicyServer
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="config">The config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
         /// <returns></returns>
-        protected override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<BinaryRequestInfo> requestFilterFactory)
+        protected override bool Setup(IRootConfig rootConfig, IServerConfig config)
         {
             var policyRequest = config.Options.GetValue("policyRequest");
             if (!string.IsNullOrEmpty(policyRequest))
@@ -54,10 +52,7 @@ namespace SuperSocket.Facility.PolicyServer
 
             m_ExpectedReceivedLength = Encoding.UTF8.GetByteCount(m_PolicyRequest);
 
-            requestFilterFactory = new PolicyRequestFilterFactory(m_ExpectedReceivedLength);
-
-            if (!base.Setup(rootConfig, config, socketServerFactory, requestFilterFactory))
-                return false;
+            RequestFilterFactory = new PolicyRequestFilterFactory(m_ExpectedReceivedLength);
 
             m_PolicyFile = config.Options.GetValue("policyFile");
 

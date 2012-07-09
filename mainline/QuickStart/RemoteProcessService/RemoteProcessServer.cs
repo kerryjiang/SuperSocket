@@ -64,11 +64,8 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 
         private Timer m_MonitorTimer;
 
-        protected override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
+        protected override bool Setup(IRootConfig rootConfig, IServerConfig config)
         {
-            if (!base.Setup(rootConfig, config, socketServerFactory, requestFilterFactory))
-                return false;
-
             int interval = config.Options.GetValue("MonitorInterval", "1").ToInt32();
             TimeSpan intervalTimeSpan = new TimeSpan(0, interval, 0);
             m_MonitorTimer = new Timer(new TimerCallback(OnMonitorTimerCallback), new object(), intervalTimeSpan, intervalTimeSpan);

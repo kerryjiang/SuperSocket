@@ -5,8 +5,15 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// Request filter factory interface
     /// </summary>
+    public interface IRequestFilterFactory
+    {
+
+    }
+    /// <summary>
+    /// Request filter factory interface
+    /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IRequestFilterFactory<TRequestInfo>
+    public interface IRequestFilterFactory<TRequestInfo> : IRequestFilterFactory
         where TRequestInfo : IRequestInfo
     {
         /// <summary>
