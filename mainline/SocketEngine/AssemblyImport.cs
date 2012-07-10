@@ -10,7 +10,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// AssemblyImport, used for importing assembly to the current AppDomain
     /// </summary>
-    public class AssemblyImport : MarshalByRefObject
+    class AssemblyImport : MarshalByRefObject
     {
         private string m_ImportRoot;
 

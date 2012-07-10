@@ -37,6 +37,11 @@ namespace SuperSocket.SocketEngine
         private ILog m_GlobalLog;
 
         /// <summary>
+        /// Gets the log factory.
+        /// </summary>
+        protected ILogFactory LogFactory { get; private set; }
+
+        /// <summary>
         /// Gets all the app servers running in this bootstrap
         /// </summary>
         public IEnumerable<IWorkItem> AppServers
@@ -76,13 +81,23 @@ namespace SuperSocket.SocketEngine
             return Activator.CreateInstance(serviceType) as IWorkItem;
         }
 
-        /// <summary>
-        /// Gets the socket server factory info.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual ProviderFactoryInfo GetSocketServerFactoryInfo()
+        internal virtual bool SetupWorkItemInstance(IWorkItem workItem, WorkItemFactoryInfo factoryInfo)
         {
-            return new ProviderFactoryInfo(ProviderKey.SocketServerFactory, this.GetType().Name, SocketServerFactory.Instance);
+            try
+            {
+                //Share AppDomain AppServers also share same socket server factory and log factory instances
+                factoryInfo.SocketServerFactory.ExportFactory.EnsureInstance();
+                factoryInfo.LogFactory.ExportFactory.EnsureInstance();
+            }
+            catch (Exception e)
+            {
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error(e);
+
+                return false;
+            }
+
+            return workItem.Setup(this, factoryInfo.Config, factoryInfo.ProviderFactories.ToArray());
         }
 
         /// <summary>
@@ -96,23 +111,18 @@ namespace SuperSocket.SocketEngine
             if (m_Initialized)
                 throw new Exception("The server had been initialized already, you cannot initialize it again!");
 
-            WorkItemFactoryInfoLoader factoryInfoLoader = new WorkItemFactoryInfoLoader(m_Config);
-
-            var configLogFactoryFactory = factoryInfoLoader.GetLogFactoryFactory();
-
-            if (configLogFactoryFactory != null)
+            if (logFactory != null && !string.IsNullOrEmpty(m_Config.LogFactory))
             {
-                if (logFactory != null)
-                    throw new Exception("You cannot pass in a logFactory parameter, if you have configured a root log factory.");
-                else
-                    logFactory = configLogFactoryFactory.ExportFactory.CreateExport<ILogFactory>();
-            }
-            else
-            {
-                if (logFactory == null)
-                    logFactory = new Log4NetLogFactory();
+                throw new ArgumentException("You cannot pass in a logFactory parameter, if you have configured a root log factory.", "logFactory");
             }
 
+            WorkItemFactoryInfoLoader factoryInfoLoader = new WorkItemFactoryInfoLoader(m_Config, logFactory);
+
+            var bootstrapLogFactory = factoryInfoLoader.GetBootstrapLogFactory();
+
+            logFactory = bootstrapLogFactory.ExportFactory.CreateExport<ILogFactory>();
+
+            LogFactory = logFactory;
             m_GlobalLog = logFactory.GetLog(this.GetType().Name);
 
             IEnumerable<WorkItemFactoryInfo> workItemFactories;
@@ -146,10 +156,7 @@ namespace SuperSocket.SocketEngine
                     return false;
                 }
 
-                var providerFactories = factoryInfo.ProviderFactories.ToList();
-                providerFactories.Add(GetSocketServerFactoryInfo());
-
-                if (!appServer.Setup(this, factoryInfo.Config, providerFactories.ToArray()))
+                if (!SetupWorkItemInstance(appServer, factoryInfo))
                 {
                     if (m_GlobalLog.IsErrorEnabled)
                         m_GlobalLog.Error("Failed to setup server instance!");

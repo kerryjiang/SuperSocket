@@ -48,6 +48,15 @@ namespace SuperSocket.SocketBase.Provider
         }
 
         /// <summary>
+        /// Ensures the instance's existance.
+        /// </summary>
+        public void EnsureInstance()
+        {
+            if (m_Instance == null)
+                m_Instance = Activator.CreateInstance(Type);
+        }
+
+        /// <summary>
         /// Creates the export type instance.
         /// </summary>
         /// <typeparam name="T"></typeparam>

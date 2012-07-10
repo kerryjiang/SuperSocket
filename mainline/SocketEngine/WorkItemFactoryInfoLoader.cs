@@ -5,24 +5,38 @@ using System.Text;
 using SuperSocket.SocketEngine.Configuration;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
     class WorkItemFactoryInfoLoader
     {
-        private ProviderFactoryInfo m_DefaultLogFactoryFactory;
+        private ProviderFactoryInfo m_DefaultLogFactory;
 
         private IConfigurationSource m_Config;
+
+        public WorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory passedInLogFactory)
+            : this(config)
+        {
+            if (passedInLogFactory != null)
+                m_DefaultLogFactory = new ProviderFactoryInfo(ProviderKey.LogFactory, string.Empty, passedInLogFactory);
+        }
 
         public WorkItemFactoryInfoLoader(IConfigurationSource config)
         {
             m_Config = config;
         }
 
-        public ProviderFactoryInfo GetLogFactoryFactory()
+        public ProviderFactoryInfo GetBootstrapLogFactory()
         {
+            if (m_DefaultLogFactory != null)
+                return m_DefaultLogFactory;
+
             if (string.IsNullOrEmpty(m_Config.LogFactory))
-                return null;
+            {
+                m_DefaultLogFactory = new ProviderFactoryInfo(ProviderKey.LogFactory, string.Empty, typeof(Log4NetLogFactory));
+                return m_DefaultLogFactory;
+            }
 
             ProviderFactoryInfo factory = null;
 
@@ -40,7 +54,7 @@ namespace SuperSocket.SocketEngine
             if (factory == null)
                 throw new Exception(string.Format("the specific log factory '{0}' cannot be found!", m_Config.LogFactory));
 
-            m_DefaultLogFactoryFactory = factory;
+            m_DefaultLogFactory = factory;
 
             return factory;
         }
@@ -65,10 +79,10 @@ namespace SuperSocket.SocketEngine
 
             //Initialize log factories
             var logFactoryFactories = InitializeProviderFactories(ProviderKey.LogFactory, m_Config.LogFactories,
-                m_DefaultLogFactoryFactory != null ? new string[] { m_DefaultLogFactoryFactory.Name } : new string[0]);
+                m_DefaultLogFactory != null ? new string[] { m_DefaultLogFactory.Name } : new string[0]);
 
-            if (m_DefaultLogFactoryFactory != null)
-                logFactoryFactories.Add(m_DefaultLogFactoryFactory);
+            if (m_DefaultLogFactory != null)
+                logFactoryFactories.Add(m_DefaultLogFactory);
 
             //Initialize request filter factories
             var requestFilterFactories = InitializeProviderFactories(ProviderKey.RequestFilterFactory, m_Config.RequestFilterFactories);
@@ -99,6 +113,10 @@ namespace SuperSocket.SocketEngine
 
                 var factories = new List<ProviderFactoryInfo>();
 
+                workItemFactory.SocketServerFactory = new ProviderFactoryInfo(ProviderKey.SocketServerFactory, string.Empty, typeof(SocketServerFactory));
+
+                factories.Add(workItemFactory.SocketServerFactory);
+
                 //Initialize connection filters
                 if(!string.IsNullOrEmpty(serverConfig.ConnectionFilter))
                 {
@@ -121,17 +139,19 @@ namespace SuperSocket.SocketEngine
                 {
                     logFactoryName = logFactoryName.Trim();
 
-                    var logFactoryFactory = logFactoryFactories.FirstOrDefault(p => p.Name.Equals(logFactoryName, StringComparison.OrdinalIgnoreCase));
+                    var logProviderFactory = logFactoryFactories.FirstOrDefault(p => p.Name.Equals(logFactoryName, StringComparison.OrdinalIgnoreCase));
 
-                    if (logFactoryFactory == null)
+                    if (logProviderFactory == null)
                         throw new Exception(string.Format("the specific log factory '{0}' cannot be found!", logFactoryName));
 
-                    factories.Add(logFactoryFactory);
+                    workItemFactory.LogFactory = logProviderFactory;
                 }
-                else if (m_DefaultLogFactoryFactory != null)
+                else
                 {
-                    factories.Add(m_DefaultLogFactoryFactory);
+                    workItemFactory.LogFactory = m_DefaultLogFactory;
                 }
+
+                factories.Add(workItemFactory.LogFactory);
 
                 workItemFactory.ProviderFactories = factories;
 

@@ -18,10 +18,12 @@ namespace SuperSocket.SocketEngine
     {
         class DefaultBootstrapAppDomainWrap : DefaultBootstrap
         {
-            public DefaultBootstrapAppDomainWrap(IConfigurationSource config)
+            private AppDomainBootstrap m_AppDomainBootstrap;
+
+            public DefaultBootstrapAppDomainWrap(IConfigurationSource config, AppDomainBootstrap appDomainBootstrap)
                 : base(config)
             {
-
+                m_AppDomainBootstrap = appDomainBootstrap;
             }
 
             protected override IWorkItem CreateWorkItemInstance(Type serviceType)
@@ -29,9 +31,9 @@ namespace SuperSocket.SocketEngine
                 return new AppDomainAppServer(serviceType);
             }
 
-            protected override ProviderFactoryInfo GetSocketServerFactoryInfo()
+            internal override bool SetupWorkItemInstance(IWorkItem workItem, WorkItemFactoryInfo factoryInfo)
             {
-                return new ProviderFactoryInfo(ProviderKey.SocketServerFactory, this.GetType().Name, typeof(SocketServerFactory));
+                return workItem.Setup(m_AppDomainBootstrap, factoryInfo.Config, factoryInfo.ProviderFactories.ToArray());
             }
         }
 
@@ -58,7 +60,7 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public AppDomainBootstrap(IConfigurationSource config)
         {
-            m_InnerBootstrap = new DefaultBootstrapAppDomainWrap(config);
+            m_InnerBootstrap = new DefaultBootstrapAppDomainWrap(config, this);
         }
 
         /// <summary>

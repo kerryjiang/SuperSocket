@@ -14,5 +14,9 @@ namespace SuperSocket.SocketEngine
         public IServerConfig Config { get; set; }
 
         public IEnumerable<ProviderFactoryInfo> ProviderFactories { get; set; }
+
+        public ProviderFactoryInfo LogFactory { get; set; }
+
+        public ProviderFactoryInfo SocketServerFactory { get; set; }
     }
 }
