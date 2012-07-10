@@ -56,7 +56,7 @@ namespace SuperSocket.SocketEngine.Configuration
     /// <summary>
     /// Listener configuration collection
     /// </summary>
-    [ConfigurationCollection(typeof(Listener), AddItemName = "listener")]
+    [ConfigurationCollection(typeof(Listener))]
     public class ListenerConfigCollection : GenericConfigurationElementCollectionBase<Listener, IListenerConfig>
     {
 
