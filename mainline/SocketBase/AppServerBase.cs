@@ -416,7 +416,15 @@ namespace SuperSocket.SocketBase
                 m_CommandLoaders.Add(dynamicCommandLoader);
             }
 
+            m_CommandLoaders.ForEach(l => l.Error += OnCommandLoaderError);
+
             return true;
+        }
+
+        private void OnCommandLoaderError(object sender, ErrorEventArgs e)
+        {
+            if (Logger.IsErrorEnabled)
+                Logger.Error("CommandLoader error", e.Exception);
         }
 
         /// <summary>
