@@ -101,8 +101,7 @@ namespace SuperSocket.SocketEngine
                 if (string.IsNullOrEmpty(serverConfig.ServiceName))
                     throw new Exception("The serviceName attribute of server node is required!");
 
-                var serviceFactory = providerFactories.FirstOrDefault(p =>
-                        p.Key == ProviderKey.Service && p.Name.Equals(serverConfig.ServiceName, StringComparison.OrdinalIgnoreCase));
+                var serviceFactory = serviceFactories.FirstOrDefault(p => p.Name.Equals(serverConfig.ServiceName, StringComparison.OrdinalIgnoreCase));
 
                 if (serviceFactory == null)
                     throw new Exception(string.Format("Failed to find a service for server {0}!", serverConfig.Name));
@@ -163,10 +162,10 @@ namespace SuperSocket.SocketEngine
 
         private List<ProviderFactoryInfo> InitializeProviderFactories(ProviderKey key, IEnumerable<ITypeProvider> providerCollection, params string[] ignoreNames)
         {
-            if (providerCollection == null || !providerCollection.Any())
-                return null;
+            var factories = new List<ProviderFactoryInfo>();
 
-            var factories = new List<ProviderFactoryInfo>(providerCollection.Count());
+            if (providerCollection == null || !providerCollection.Any())
+                return factories;
 
             foreach (var provider in providerCollection)
             {

@@ -224,7 +224,7 @@ namespace SuperSocket.SocketEngine
 
             var succeeded = 0;
 
-            foreach (IAppServer server in m_AppServers)
+            foreach (var server in m_AppServers)
             {
                 if (!server.Start())
                 {

@@ -22,9 +22,9 @@ namespace SuperSocket.SocketEngine
         public static IBootstrap CreateBootstrap(IConfigurationSource config)
         {
             if (config.IsolationMode == IsolationMode.AppDomain)
-                return new DefaultBootstrap(config);
-            else
                 return new AppDomainBootstrap(config);
+            else
+                return new DefaultBootstrap(config);
         }
 
         /// <summary>

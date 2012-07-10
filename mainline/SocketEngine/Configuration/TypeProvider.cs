@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Configuration;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
     /// <summary>
     /// Type provider configuration
     /// </summary>
-    public class TypeProvider : ConfigurationElement
+    public class TypeProvider : ConfigurationElement, ITypeProvider
     {
         /// <summary>
         /// Gets the name.
