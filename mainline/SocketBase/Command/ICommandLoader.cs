@@ -13,17 +13,25 @@ namespace SuperSocket.SocketBase.Command
     public interface ICommandLoader
     {
         /// <summary>
-        /// Loads the commands for specific server.
+        /// Initializes the command loader
         /// </summary>
-        /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-        /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
+        /// <typeparam name="TCommand">The type of the command.</typeparam>
         /// <param name="appServer">The app server.</param>
-        /// <param name="commandRegister">The command register.</param>
-        /// <param name="commandUpdater">The command updater.</param>
         /// <returns></returns>
-        bool LoadCommands<TAppSession, TRequestInfo>(IAppServer appServer, Func<ICommand<TAppSession, TRequestInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>>> commandUpdater)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-            where TRequestInfo : IRequestInfo;
+        bool Initialize<TCommand>(IAppServer appServer)
+            where TCommand : ICommand;
+
+        /// <summary>
+        /// Tries to load commands.
+        /// </summary>
+        /// <param name="commands">The commands.</param>
+        /// <returns></returns>
+        bool TryLoadCommands(out IEnumerable<ICommand> commands);
+
+        /// <summary>
+        /// Occurs when [updated].
+        /// </summary>
+        event EventHandler<CommandUpdateEventArgs<ICommand>> Updated;
 
         /// <summary>
         /// Occurs when [error].

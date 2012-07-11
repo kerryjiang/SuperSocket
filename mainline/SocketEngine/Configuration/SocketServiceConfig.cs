@@ -74,6 +74,18 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets the command loaders definition.
+        /// </summary>
+        [ConfigurationProperty("commmandLoaders", IsRequired = false)]
+        public TypeProviderCollection CommandLoaders
+        {
+            get
+            {
+                return this["commmandLoaders"] as TypeProviderCollection;
+            }
+        }
+
+        /// <summary>
         /// Gets the max working threads.
         /// </summary>
         [ConfigurationProperty("maxWorkingThreads", IsRequired = false, DefaultValue = -1)]
@@ -206,6 +218,15 @@ namespace SuperSocket.SocketEngine.Configuration
             get
             {
                 return this.RequestFilterFactories;
+            }
+        }
+
+
+        IEnumerable<ITypeProvider> IConfigurationSource.CommandLoaders
+        {
+            get
+            {
+                return this.CommandLoaders;
             }
         }
     }

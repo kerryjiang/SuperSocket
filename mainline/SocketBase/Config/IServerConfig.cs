@@ -160,6 +160,10 @@ namespace SuperSocket.SocketBase.Config
         /// </value>
         string ConnectionFilter { get; }
 
+        /// <summary>
+        /// Gets the command loader, multiple values should be separated by comma.
+        /// </summary>
+        string CommandLoader { get; }
 
         /// <summary>
         /// Gets the start keep alive time, in seconds

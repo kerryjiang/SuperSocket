@@ -186,6 +186,11 @@ namespace SuperSocket.SocketBase.Config
         public string ConnectionFilter { get; set; }
 
         /// <summary>
+        /// Gets the command loader, multiple values should be separated by comma.
+        /// </summary>
+        public string CommandLoader { get; set; }
+
+        /// <summary>
         /// Gets/sets the start keep alive time, in seconds
         /// </summary>
         public int KeepAliveTime { get; set; }
@@ -231,5 +236,8 @@ namespace SuperSocket.SocketBase.Config
         public IEnumerable<IListenerConfig> Listeners { get; set; }
 
         #endregion
+
+
+        
     }
 }

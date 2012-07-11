@@ -22,8 +22,9 @@ namespace SuperSocket.SocketBase
         /// <param name="requestFilterFactory">The request filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
+        /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
         {
             SetupBasic(rootConfig, config, socketServerFactory);
 
@@ -32,7 +33,7 @@ namespace SuperSocket.SocketBase
 
             Logger = CreateLogger(this.Name);
 
-            if (!SetupMedium(requestFilterFactory, connectionFilters))
+            if (!SetupMedium(requestFilterFactory, connectionFilters, commandLoaders))
                 return false;
 
             if (!SetupAdvanced(config))

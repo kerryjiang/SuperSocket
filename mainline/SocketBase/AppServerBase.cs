@@ -154,9 +154,27 @@ namespace SuperSocket.SocketBase
         {
             foreach (var loader in m_CommandLoaders)
             {
-                try
+                loader.Error += new EventHandler<ErrorEventArgs>(CommandLoaderOnError);
+                loader.Updated += new EventHandler<CommandUpdateEventArgs<ICommand>>(CommandLoaderOnCommandsUploaded);
+
+                if (!loader.Initialize<ICommand<TAppSession, TRequestInfo>>(this))
                 {
-                    var ret = loader.LoadCommands<TAppSession, TRequestInfo>(this, c =>
+                    if (Logger.IsErrorEnabled)
+                        Logger.ErrorFormat("Failed initialize the command loader {0}.", loader.ToString());
+                    return false;
+                }
+
+                IEnumerable<ICommand> commands;
+                if (!loader.TryLoadCommands(out commands))
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.ErrorFormat("Failed load commands from the command loader {0}.", loader.ToString());
+                    return false;
+                }
+
+                if (commands != null && commands.Any())
+                {
+                    foreach (var c in commands)
                     {
                         if (commandDict.ContainsKey(c.Name))
                         {
@@ -165,54 +183,17 @@ namespace SuperSocket.SocketBase
                             return false;
                         }
 
-                        commandDict.Add(c.Name, c);
-                        return true;
-                    }, u =>
-                    {
-                        var workingDict = m_CommandDict.Values.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
-                        var updatedCommands = 0;
+                        var castedCommand = c as ICommand<TAppSession, TRequestInfo>;
 
-                        foreach (var c in u)
+                        if (castedCommand == null)
                         {
-                            if (c == null)
-                                continue;
-
-                            if (c.UpdateAction == CommandUpdateAction.Remove)
-                            {
-                                workingDict.Remove(c.Command.Name);
-                                if (Logger.IsInfoEnabled)
-                                    Logger.InfoFormat("The command '{0}' has been removed from this server!", c.Command.Name);
-                            }
-                            else if (c.UpdateAction == CommandUpdateAction.Add)
-                            {
-                                workingDict.Add(c.Command.Name, c.Command);
-                                if (Logger.IsInfoEnabled)
-                                    Logger.InfoFormat("The command '{0}' has been added into this server!", c.Command.Name);
-                            }
-                            else
-                            {
-                                workingDict[c.Command.Name] = c.Command;
-                                if (Logger.IsInfoEnabled)
-                                    Logger.InfoFormat("The command '{0}' has been updated!", c.Command.Name);
-                            }
-
-                            updatedCommands++;
+                            if (Logger.IsErrorEnabled)
+                                Logger.Error("Invalid command has been found! Command name: " + c.Name);
+                            return false;
                         }
 
-                        if (updatedCommands > 0)
-                        {
-                            Interlocked.Exchange<Dictionary<string, ICommand<TAppSession, TRequestInfo>>>(ref m_CommandDict, workingDict);
-                        }
-                    });
-
-                    if (!ret)
-                        return false;
-                }
-                catch (Exception e)
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.Error("Failed to load command by " + loader.GetType().ToString() + "!", e);
-                    return false;
+                        commandDict.Add(c.Name, castedCommand);
+                    }
                 }
             }
 
@@ -221,13 +202,70 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
+        void CommandLoaderOnCommandsUploaded(object sender, CommandUpdateEventArgs<ICommand> e)
+        {
+            var workingDict = m_CommandDict.Values.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+            var updatedCommands = 0;
+
+            foreach (var c in e.Commands)
+            {
+                if (c == null)
+                    continue;
+
+                var castedCommand = c.Command as ICommand<TAppSession, TRequestInfo>;
+
+                if (castedCommand == null)
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("Invalid command has been found! Command name: " + c.Command.Name);
+
+                    continue;
+                }
+
+                if (c.UpdateAction == CommandUpdateAction.Remove)
+                {
+                    workingDict.Remove(castedCommand.Name);
+                    if (Logger.IsInfoEnabled)
+                        Logger.InfoFormat("The command '{0}' has been removed from this server!", c.Command.Name);
+                }
+                else if (c.UpdateAction == CommandUpdateAction.Add)
+                {
+                    workingDict.Add(castedCommand.Name, castedCommand);
+                    if (Logger.IsInfoEnabled)
+                        Logger.InfoFormat("The command '{0}' has been added into this server!", c.Command.Name);
+                }
+                else
+                {
+                    workingDict[c.Command.Name] = castedCommand;
+                    if (Logger.IsInfoEnabled)
+                        Logger.InfoFormat("The command '{0}' has been updated!", c.Command.Name);
+                }
+
+                updatedCommands++;
+            }
+
+            if (updatedCommands > 0)
+            {
+                Interlocked.Exchange(ref m_CommandDict, workingDict);
+            }
+        }
+
+        void CommandLoaderOnError(object sender, ErrorEventArgs e)
+        {
+            if (!Logger.IsErrorEnabled)
+                return;
+
+            Logger.Error(e.Exception);
+        }
+
         /// <summary>
         /// Setups the command filters.
         /// </summary>
         /// <param name="commands">The commands.</param>
         private void SetupCommandFilters(IEnumerable<ICommand<TAppSession, TRequestInfo>> commands)
         {
-            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
+            var commandFilters = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
+            Interlocked.Exchange(ref m_CommandFilterDict, commandFilters);
         }
 
         /// <summary>
@@ -272,7 +310,7 @@ namespace SuperSocket.SocketBase
             m_SocketServerFactory = socketServerFactory;
         }
 
-        private bool SetupMedium(IRequestFilterFactory<TRequestInfo> requestFilterFactory, IEnumerable<IConnectionFilter> connectionFilters)
+        private bool SetupMedium(IRequestFilterFactory<TRequestInfo> requestFilterFactory, IEnumerable<IConnectionFilter> connectionFilters, IEnumerable<ICommandLoader> commandLoaders)
         {
             if (requestFilterFactory != null)
                 RequestFilterFactory = requestFilterFactory;
@@ -285,6 +323,8 @@ namespace SuperSocket.SocketBase
                 m_ConnectionFilters.AddRange(connectionFilters);
             }
 
+            SetupCommandLoader(commandLoaders);
+
             return true;
         }
 
@@ -294,9 +334,6 @@ namespace SuperSocket.SocketBase
                 return false;
 
             if (!SetupListeners(config))
-                return false;
-
-            if (!SetupCommandLoader(config))
                 return false;
 
             if (!SetupCommands(m_CommandDict))
@@ -339,7 +376,8 @@ namespace SuperSocket.SocketBase
 
             if (!SetupMedium(
                     GetSingleProviderInstance<IRequestFilterFactory<TRequestInfo>>(factories, ProviderKey.RequestFilterFactory),
-                    GetProviderInstances<IConnectionFilter>(factories, ProviderKey.ConnectionFilter)))
+                    GetProviderInstances<IConnectionFilter>(factories, ProviderKey.ConnectionFilter),
+                    GetProviderInstances<ICommandLoader>(factories, ProviderKey.CommandLoader)))
             {
                 return false;
             }
@@ -390,41 +428,15 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        private bool SetupCommandLoader(IServerConfig config)
+        private bool SetupCommandLoader(IEnumerable<ICommandLoader> commandLoaders)
         {
-            m_CommandLoaders = new List<ICommandLoader>
-            {
-                new ReflectCommandLoader()
-            };
+            m_CommandLoaders = new List<ICommandLoader>();
+            m_CommandLoaders.Add(new ReflectCommandLoader());
 
-            if (Config.EnableDynamicCommand)
-            {
-                ICommandLoader dynamicCommandLoader;
-
-                try
-                {
-                    dynamicCommandLoader = AssemblyUtil.CreateInstance<ICommandLoader>("SuperSocket.Dlr.DynamicCommandLoader, SuperSocket.Dlr");
-                }
-                catch (Exception e)
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.Error("The file SuperSocket.Dlr is required for dynamic command support!", e);
-
-                    return false;
-                }
-
-                m_CommandLoaders.Add(dynamicCommandLoader);
-            }
-
-            m_CommandLoaders.ForEach(l => l.Error += OnCommandLoaderError);
+            if (commandLoaders != null && commandLoaders.Any())
+                m_CommandLoaders.AddRange(commandLoaders);
 
             return true;
-        }
-
-        private void OnCommandLoaderError(object sender, ErrorEventArgs e)
-        {
-            if (Logger.IsErrorEnabled)
-                Logger.Error("CommandLoader error", e.Exception);
         }
 
         /// <summary>

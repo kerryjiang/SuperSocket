@@ -16,7 +16,7 @@ namespace SuperSocket.Dlr
     /// <summary>
     /// Which is used for loading dynamic script file
     /// </summary>
-    public class DynamicCommandLoader : ICommandLoader
+    public class DynamicCommandLoader : CommandLoaderBase
     {
         private static ScriptRuntime m_ScriptRuntime;
 
@@ -177,39 +177,109 @@ namespace SuperSocket.Dlr
         private static Dictionary<string, ServerCommandState> m_ServerCommandStateLib;
 
         /// <summary>
-        /// Loads the commands.
+        /// Initializes a new instance of the <see cref="DynamicCommandLoader"/> class.
         /// </summary>
-        /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-        /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-        /// <param name="appServer">The app server.</param>
-        /// <param name="commandRegister">The command register.</param>
-        /// <param name="commandUpdater">The command updater.</param>
-        /// <returns></returns>
-        public bool LoadCommands<TAppSession, TRequestInfo>(IAppServer appServer, Func<ICommand<TAppSession, TRequestInfo>, bool> commandRegister, Action<IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>>> commandUpdater)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-            where TRequestInfo : IRequestInfo
+        public DynamicCommandLoader()
         {
-            if (m_ServerCommandStateLib.ContainsKey(appServer.Name))
+            m_Loaders.Add(this);
+        }
+
+        private IEnumerable<CommandUpdateInfo<ICommand>> GetUpdatedCommands(IEnumerable<CommandUpdateInfo<CommandFileInfo>> updatedCommandFiles)
+        {
+            var updatedCommands = new List<CommandUpdateInfo<ICommand>>();
+
+            foreach (var commandFile in updatedCommandFiles)
             {
-                OnError(new Exception("This server's commands have been loaded already!"));
+                if (commandFile.UpdateAction == CommandUpdateAction.Remove)
+                {
+                    updatedCommands.Add(new CommandUpdateInfo<ICommand>
+                    {
+                        Command = (ICommand)Activator.CreateInstance(m_MockupCommandType, Path.GetFileNameWithoutExtension(commandFile.Command.FilePath)),
+                        UpdateAction = commandFile.UpdateAction
+                    });
+                }
+
+                try
+                {
+                    var command = (ICommand)Activator.CreateInstance(m_DynamicCommandType, m_ScriptRuntime, commandFile.Command.FilePath, commandFile.Command.LastUpdatedTime);
+
+                    updatedCommands.Add(new CommandUpdateInfo<ICommand>
+                    {
+                        Command = command,
+                        UpdateAction = commandFile.UpdateAction
+                    });
+                }
+                catch (Exception e)
+                {
+                    OnError(new Exception("Failed to load command file: " + commandFile.Command.FilePath + "!", e));
+                    continue;
+                }
+            }
+
+            return updatedCommands;
+        }
+
+        private static void OnGlobalError(Exception e)
+        {
+            foreach (var l in m_Loaders)
+            {
+                l.OnError(e);
+            }
+        }
+
+        private IAppServer m_AppServer;
+
+        private Type m_DynamicCommandType;
+
+        private Type m_MockupCommandType;
+
+        /// <summary>
+        /// Initializes with the specified app server.
+        /// </summary>
+        /// <typeparam name="TCommand">The type of the command.</typeparam>
+        /// <param name="appServer">The app server.</param>
+        /// <returns></returns>
+        public override bool Initialize<TCommand>(IAppServer appServer)
+        {
+            m_AppServer = appServer;
+
+            var genericParameterTypes = typeof(TCommand).GetGenericArguments();
+            m_DynamicCommandType = typeof(DynamicCommand<,>).MakeGenericType(genericParameterTypes);
+            m_MockupCommandType = typeof(MockupCommand<,>).MakeGenericType(genericParameterTypes);
+            return true;
+        }
+
+        /// <summary>
+        /// Tries to load commands.
+        /// </summary>
+        /// <param name="commands">The commands.</param>
+        /// <returns></returns>
+        public override bool TryLoadCommands(out IEnumerable<ICommand> commands)
+        {
+            var outputCommands = new List<ICommand>();
+
+            if (m_ServerCommandStateLib.ContainsKey(m_AppServer.Name))
+            {
+                OnError("This server's commands have been loaded already!");
+                commands = outputCommands;
                 return false;
             }
 
-            ServerCommandState serverCommandState = new ServerCommandState
+            var serverCommandState = new ServerCommandState
             {
-                CommandUpdater = (o) =>
-                {
-                    commandUpdater(UpdateCommands<TAppSession, TRequestInfo>(appServer, o));
-                },
+                CommandUpdater = (o) => OnUpdated(GetUpdatedCommands(o)),
                 Commands = new List<CommandFileInfo>()
             };
 
 
             var commandDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Command");
-            var serverCommandDir = Path.Combine(commandDir, appServer.Name);
+            var serverCommandDir = Path.Combine(commandDir, m_AppServer.Name);
 
             if (!Directory.Exists(commandDir))
+            {
+                commands = outputCommands;
                 return true;
+            }
 
             List<string> commandFiles = new List<string>();
 
@@ -221,24 +291,26 @@ namespace SuperSocket.Dlr
             }
 
             if (!commandFiles.Any())
+            {
+                commands = outputCommands;
                 return true;
+            }
 
             foreach (var file in commandFiles)
             {
-                DynamicCommand<TAppSession, TRequestInfo> command;
+                ICommand command;
 
                 try
                 {
                     var lastUpdatedTime = File.GetLastWriteTime(file);
-                    command = new DynamicCommand<TAppSession, TRequestInfo>(m_ScriptRuntime, file, lastUpdatedTime);
+                    command = (ICommand)Activator.CreateInstance(m_DynamicCommandType, m_ScriptRuntime, file, lastUpdatedTime);
                     serverCommandState.Commands.Add(new CommandFileInfo
-                        {
-                            FilePath = file,
-                            LastUpdatedTime = lastUpdatedTime
-                        });
+                    {
+                        FilePath = file,
+                        LastUpdatedTime = lastUpdatedTime
+                    });
 
-                    if (!commandRegister(command))
-                        return false;
+                    outputCommands.Add(command);
                 }
                 catch (Exception e)
                 {
@@ -246,72 +318,11 @@ namespace SuperSocket.Dlr
                 }
             }
 
-            m_ServerCommandStateLib.Add(appServer.Name, serverCommandState);
+            m_ServerCommandStateLib.Add(m_AppServer.Name, serverCommandState);
+
+            commands = outputCommands;
 
             return true;
         }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicCommandLoader"/> class.
-        /// </summary>
-        public DynamicCommandLoader()
-        {
-            m_Loaders.Add(this);
-        }
-
-        private IEnumerable<CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>> UpdateCommands<TAppSession, TRequestInfo>(IAppServer appServer, IEnumerable<CommandUpdateInfo<CommandFileInfo>> updatedCommands)
-            where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-            where TRequestInfo : IRequestInfo
-        {
-            return updatedCommands.Select(c =>
-            {
-                if (c.UpdateAction == CommandUpdateAction.Remove)
-                {
-                    return new CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>
-                    {
-                        Command = new MockupCommand<TAppSession, TRequestInfo>(Path.GetFileNameWithoutExtension(c.Command.FilePath)),
-                        UpdateAction = c.UpdateAction
-                    };
-                }
-
-                try
-                {
-                    var command = new DynamicCommand<TAppSession, TRequestInfo>(m_ScriptRuntime, c.Command.FilePath, c.Command.LastUpdatedTime);
-
-                    return new CommandUpdateInfo<ICommand<TAppSession, TRequestInfo>>
-                    {
-                        Command = command,
-                        UpdateAction = c.UpdateAction
-                    };
-                }
-                catch (Exception e)
-                {
-                    OnError(new Exception("Failed to load command file: " + c.Command.FilePath + "!", e));
-                    return null;
-                }
-            });
-        }
-
-        private void OnError(Exception e)
-        {
-            var handler = Error;
-
-            if (handler != null)
-                handler(this, new SuperSocket.Common.ErrorEventArgs(e));
-        }
-
-        private static void OnGlobalError(Exception e)
-        {
-            foreach (var l in m_Loaders)
-            {
-                l.OnError(e);
-            }
-        }
-
-
-        /// <summary>
-        /// Occurs when [error].
-        /// </summary>
-        public event EventHandler<Common.ErrorEventArgs> Error;
     }
 }

@@ -260,6 +260,18 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets the command loader, multiple values should be separated by comma.
+        /// </summary>
+        [ConfigurationProperty("commandLoader", IsRequired = false)]
+        public string CommandLoader
+        {
+            get
+            {
+                return (string)this["commandLoader"];
+            }
+        }
+
+        /// <summary>
         /// Gets the start keep alive time, in seconds
         /// </summary>
         [ConfigurationProperty("keepAliveTime", IsRequired = false, DefaultValue = 600)]

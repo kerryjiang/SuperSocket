@@ -60,6 +60,8 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandBase.cs" />
+    <Compile Include="Command\CommandLoaderBase.cs" />
+    <Compile Include="Command\CommandUpdateEventArgs.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandLoader.cs" />

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.Common.Logging;
+using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase.Provider
@@ -41,6 +42,7 @@ namespace SuperSocket.SocketBase.Provider
             ConnectionFilter = new ProviderKey { Name = "ConnectionFilter", Type = typeof(IConnectionFilter) };
             LogFactory = new ProviderKey { Name = "LogFactory", Type = typeof(ILogFactory) };
             RequestFilterFactory = new ProviderKey { Name = "RequestFilterFactory", Type = typeof(IRequestFilterFactory) };
+            CommandLoader = new ProviderKey { Name = "CommandLoader", Type = typeof(ICommandLoader) };
         }
 
         /// <summary>
@@ -67,5 +69,10 @@ namespace SuperSocket.SocketBase.Provider
         /// Gets the request filter factory.
         /// </summary>
         public static ProviderKey RequestFilterFactory { get; private set; }
+
+        /// <summary>
+        /// Gets the command loader.
+        /// </summary>
+        public static ProviderKey CommandLoader { get; private set; }
     }
 }

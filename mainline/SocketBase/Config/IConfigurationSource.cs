@@ -33,5 +33,10 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the request filter factories definition.
         /// </summary>
         IEnumerable<ITypeProvider> RequestFilterFactories { get; }
+
+        /// <summary>
+        /// Gets the command loaders definition.
+        /// </summary>
+        IEnumerable<ITypeProvider> CommandLoaders { get; }
     }
 }

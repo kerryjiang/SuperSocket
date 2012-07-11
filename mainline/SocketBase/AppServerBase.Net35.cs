@@ -30,7 +30,7 @@ namespace SuperSocket.SocketBase
 
             Logger = CreateLogger(this.Name);
 
-            if (!SetupMedium(GetProviderInstance<IRequestFilterFactory<TRequestInfo>>(providers), GetProviderInstance<IEnumerable<IConnectionFilter>>(providers)))
+            if (!SetupMedium(GetProviderInstance<IRequestFilterFactory<TRequestInfo>>(providers), GetProviderInstance<IEnumerable<IConnectionFilter>>(providers), GetProviderInstance<IEnumerable<ICommandLoader>>(providers)))
                 return false;
 
             if (!SetupAdvanced(config))

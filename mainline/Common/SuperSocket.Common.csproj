@@ -92,7 +92,6 @@
     <Compile Include="DictionaryExtension.cs" />
     <Compile Include="ErrorEventArgs.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
-    <Compile Include="GlobalResourceManager.cs" />
     <Compile Include="ILoggerProvider.cs" />
     <Compile Include="Logging\ConsoleLog.cs" />
     <Compile Include="Logging\ConsoleLogFactory.cs" />
@@ -103,7 +102,6 @@
     <Compile Include="Logging\LogFactoryBase.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GlobalResources.cs" />
     <Compile Include="SearchMarkState.cs" />
     <Compile Include="SocketEx.cs" />
     <Compile Include="StringExtension.cs" />

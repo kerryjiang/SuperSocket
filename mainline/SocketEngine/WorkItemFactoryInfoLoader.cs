@@ -63,7 +63,7 @@ namespace SuperSocket.SocketEngine
         {
             var workItemFactories = new List<WorkItemFactoryInfo>(m_Config.Servers.Count());
 
-            var providerFactories = new List<ProviderFactoryInfo>();
+            //var providerFactories = new List<ProviderFactoryInfo>();
 
             //Initialize services
             var serviceFactories = InitializeProviderFactories(ProviderKey.Service, m_Config.Services);
@@ -74,21 +74,15 @@ namespace SuperSocket.SocketEngine
             //Initialize connection filters
             var connectionFilterFactories = InitializeProviderFactories(ProviderKey.ConnectionFilter, m_Config.ConnectionFilters);
 
-            if (connectionFilterFactories != null && connectionFilterFactories.Any())
-                providerFactories.AddRange(connectionFilterFactories);
-
             //Initialize log factories
-            var logFactoryFactories = InitializeProviderFactories(ProviderKey.LogFactory, m_Config.LogFactories,
-                m_DefaultLogFactory != null ? new string[] { m_DefaultLogFactory.Name } : new string[0]);
-
-            if (m_DefaultLogFactory != null)
-                logFactoryFactories.Add(m_DefaultLogFactory);
+            var logFactoryFactories = InitializeProviderFactories(ProviderKey.LogFactory, m_Config.LogFactories, m_DefaultLogFactory);
 
             //Initialize request filter factories
             var requestFilterFactories = InitializeProviderFactories(ProviderKey.RequestFilterFactory, m_Config.RequestFilterFactories);
 
-            if (requestFilterFactories != null && requestFilterFactories.Any())
-                providerFactories.AddRange(requestFilterFactories);
+
+            //Initialize command loader factories
+            var commandLoaderFactories = InitializeProviderFactories(ProviderKey.CommandLoader, m_Config.CommandLoaders);
 
             //Initialize servers
             foreach (var c in m_Config.Servers.OrderBy(s => s.StartupOrder))
@@ -119,17 +113,19 @@ namespace SuperSocket.SocketEngine
                 //Initialize connection filters
                 if(!string.IsNullOrEmpty(serverConfig.ConnectionFilter))
                 {
-                    var filters = serverConfig.ConnectionFilter.Split(new char[] { ',', ';' });
+                    var currentFactories = GetSelectedFactories(connectionFilterFactories, serverConfig.ConnectionFilter);
 
-                    if(filters != null && filters.Any())
-                    {
-                        filters = filters.Select(f => f.Trim()).ToArray();
-                        var filterFactories = connectionFilterFactories.Where(p =>
-                                filters.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+                    if (currentFactories.Any())
+                        factories.AddRange(currentFactories);
+                }
 
-                        if (filterFactories.Any())
-                            factories.AddRange(filterFactories);
-                    }
+                //Initialize command loaders
+                if (!string.IsNullOrEmpty(serverConfig.CommandLoader))
+                {
+                    var currentFactories = GetSelectedFactories(commandLoaderFactories, serverConfig.CommandLoader);
+
+                    if (currentFactories.Any())
+                        factories.AddRange(currentFactories);
                 }
 
                 var logFactoryName = ((Server)c).LogFactory;
@@ -160,19 +156,46 @@ namespace SuperSocket.SocketEngine
             return workItemFactories;
         }
 
-        private List<ProviderFactoryInfo> InitializeProviderFactories(ProviderKey key, IEnumerable<ITypeProvider> providerCollection, params string[] ignoreNames)
+        private IEnumerable<ProviderFactoryInfo> GetSelectedFactories(List<ProviderFactoryInfo> source, string selectedItems)
         {
+            var items = selectedItems.Split(new char[] { ',', ';' });
+
+            if (items == null && !items.Any())
+                return null;
+
+            items = items.Select(f => f.Trim()).ToArray();
+
+            return source.Where(p => items.Contains(p.Name, StringComparer.OrdinalIgnoreCase));
+        }
+
+        private List<ProviderFactoryInfo> InitializeProviderFactories(ProviderKey key, IEnumerable<ITypeProvider> providerCollection)
+        {
+            return InitializeProviderFactories(key, providerCollection);
+        }
+
+        private List<ProviderFactoryInfo> InitializeProviderFactories(ProviderKey key, IEnumerable<ITypeProvider> providerCollection, ProviderFactoryInfo loadedFactory)
+        {
+            var loadedFactoryPassedIn = false;
+
+            if(loadedFactory != null && !string.IsNullOrEmpty(loadedFactory.Name))
+                loadedFactoryPassedIn = true;
+
             var factories = new List<ProviderFactoryInfo>();
 
             if (providerCollection == null || !providerCollection.Any())
+            {
                 return factories;
+            }
 
             foreach (var provider in providerCollection)
             {
-                if (ignoreNames != null && ignoreNames.Length > 0)
+                if (loadedFactoryPassedIn)
                 {
-                    if (ignoreNames.Contains(provider.Name, StringComparer.OrdinalIgnoreCase))
+                    if (loadedFactory.Name.Equals(provider.Name, StringComparison.OrdinalIgnoreCase))
+                    {
+                        factories.Add(loadedFactory);
                         continue;
+                    }
                 }
 
                 factories.Add(new ProviderFactoryInfo(key, provider.Name, GetTypeByTypeProvider(key, provider)));

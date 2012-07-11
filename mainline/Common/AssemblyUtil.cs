@@ -63,12 +63,13 @@ namespace SuperSocket.Common
         }
 
         /// <summary>
-        /// Gets the implemented objects by interface from assembly.
+        /// Gets the implemented objects by interface.
         /// </summary>
         /// <typeparam name="TBaseInterface">The type of the base interface.</typeparam>
         /// <param name="assembly">The assembly.</param>
+        /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
-        public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly)
+        public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly, Type targetType)
             where TBaseInterface : class
         {
             Type interfaceType = typeof(TBaseInterface);
@@ -83,12 +84,10 @@ namespace SuperSocket.Common
                 if (currentImplementType.IsAbstract)
                     continue;
 
-                var foundInterface = currentImplementType.GetInterfaces().SingleOrDefault(x => x == interfaceType);
+                if (!targetType.IsAssignableFrom(currentImplementType))
+                    continue;
 
-                if (foundInterface != null)
-                {
-                    result.Add(currentImplementType.GetConstructor(new Type[0]).Invoke(new object[0]) as TBaseInterface);
-                }
+                result.Add((TBaseInterface)Activator.CreateInstance(currentImplementType));
             }
 
             return result;
