@@ -201,14 +201,6 @@ namespace SuperSocket.SocketBase.Config
         public int KeepAliveInterval { get; set; }
 
         /// <summary>
-        /// Gets/sets a value indicating whether [enable dynamic command](support commands written in IronPython).
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
-        /// </value>
-        public bool EnableDynamicCommand { get; set; }
-
-        /// <summary>
         /// Gets the backlog size of socket listening.
         /// </summary>
         public int ListenBacklog { get; set; }

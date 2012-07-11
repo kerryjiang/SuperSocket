@@ -296,21 +296,6 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets a value indicating whether [enable dynamic command](support commands written in IronPython).
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if [dynamic command is enabled]; otherwise, <c>false</c>.
-        /// </value>
-        [ConfigurationProperty("enableDynamicCommand", IsRequired = false, DefaultValue = false)]
-        public bool EnableDynamicCommand
-        {
-            get
-            {
-                return (bool)this["enableDynamicCommand"];
-            }
-        }
-
-        /// <summary>
         /// Gets the backlog size of socket listening.
         /// </summary>
         [ConfigurationProperty("listenBacklog", IsRequired = false, DefaultValue = 100)]
