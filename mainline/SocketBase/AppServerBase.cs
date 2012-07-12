@@ -155,7 +155,7 @@ namespace SuperSocket.SocketBase
             foreach (var loader in m_CommandLoaders)
             {
                 loader.Error += new EventHandler<ErrorEventArgs>(CommandLoaderOnError);
-                loader.Updated += new EventHandler<CommandUpdateEventArgs<ICommand>>(CommandLoaderOnCommandsUploaded);
+                loader.Updated += new EventHandler<CommandUpdateEventArgs<ICommand>>(CommandLoaderOnCommandsUpdated);
 
                 if (!loader.Initialize<ICommand<TAppSession, TRequestInfo>>(this))
                 {
@@ -197,12 +197,11 @@ namespace SuperSocket.SocketBase
                 }
             }
 
-            SetupCommandFilters(commandDict.Values);
-
+            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commandDict.Values.Cast<ICommand>());
             return true;
         }
 
-        void CommandLoaderOnCommandsUploaded(object sender, CommandUpdateEventArgs<ICommand> e)
+        void CommandLoaderOnCommandsUpdated(object sender, CommandUpdateEventArgs<ICommand> e)
         {
             var workingDict = m_CommandDict.Values.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
             var updatedCommands = 0;
@@ -246,7 +245,10 @@ namespace SuperSocket.SocketBase
 
             if (updatedCommands > 0)
             {
+                var commandFilters = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), workingDict.Values.Cast<ICommand>());
+
                 Interlocked.Exchange(ref m_CommandDict, workingDict);
+                Interlocked.Exchange(ref m_CommandFilterDict, commandFilters);
             }
         }
 
@@ -256,16 +258,6 @@ namespace SuperSocket.SocketBase
                 return;
 
             Logger.Error(e.Exception);
-        }
-
-        /// <summary>
-        /// Setups the command filters.
-        /// </summary>
-        /// <param name="commands">The commands.</param>
-        private void SetupCommandFilters(IEnumerable<ICommand<TAppSession, TRequestInfo>> commands)
-        {
-            var commandFilters = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commands.Cast<ICommand>());
-            Interlocked.Exchange(ref m_CommandFilterDict, commandFilters);
         }
 
         /// <summary>
