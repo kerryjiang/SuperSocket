@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
+using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
@@ -16,22 +16,24 @@ namespace SuperSocket.Dlr
     {
         private Action<TAppSession, TRequestInfo> m_DynamicExecuteCommand;
 
-        public DynamicCommand(ScriptRuntime scriptRuntime, string filePath, DateTime lastUpdatedTime)
+        public DynamicCommand(ScriptRuntime scriptRuntime, IScriptSource source)
         {
-            FilePath = filePath;
-            LastUpdatedTime = lastUpdatedTime;
+            Source = source;
 
-            Name = Path.GetFileNameWithoutExtension(filePath);
-            var scriptEngine = scriptRuntime.GetEngineByFileExtension(Path.GetExtension(filePath));
+            Name = source.Name;
+
+            var scriptEngine = scriptRuntime.GetEngineByFileExtension(source.LanguageExtension);
             var scriptScope = scriptEngine.CreateScope();
 
-            var scriptSource = scriptEngine.CreateScriptSourceFromFile(filePath);
+            var scriptSource = scriptEngine.CreateScriptSourceFromString(source.GetScriptCode(), SourceCodeKind.File);
             var compiledCode = scriptSource.Compile();
             compiledCode.Execute(scriptScope);
 
             Action<TAppSession, TRequestInfo> dynamicMethod;
             if (!scriptScope.TryGetVariable<Action<TAppSession, TRequestInfo>>("execute", out dynamicMethod))
-                throw new Exception("Failed to find a command execution method in file: " + filePath);
+                throw new Exception("Failed to find a command execution method in source: " + source.Tag);
+
+            CompiledTime = DateTime.Now;
 
             m_DynamicExecuteCommand = dynamicMethod;
         }
@@ -45,9 +47,9 @@ namespace SuperSocket.Dlr
 
         #endregion
 
-        public string FilePath { get; private set; }
+        public IScriptSource Source { get; private set; }
 
-        public DateTime LastUpdatedTime { get; private set; }
+        public DateTime CompiledTime { get; private set; }
 
         #region ICommand Members
 

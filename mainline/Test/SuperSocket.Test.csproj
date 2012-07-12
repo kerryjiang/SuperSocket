@@ -37,6 +37,16 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="IronPython">
+      <HintPath>..\Reference\IronPython\Net40\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\Reference\DLR\Net40\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Reference\DLR\Net40\Microsoft.Scripting.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Reference\nunit.framework.dll</HintPath>
@@ -57,18 +67,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDomainSocketServerTest.cs" />
+    <Compile Include="Command\ADDCS.cs" />
     <Compile Include="Command\DOMAIN.cs" />
+    <Compile Include="Command\MULTCS.cs" />
+    <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
     <Compile Include="TcpSocketServerTest.cs" />
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
-    <Compile Include="Command\RECEL.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Command\RECEM.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Common\ArraySegmentTest.cs" />
     <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />
@@ -95,6 +102,10 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Dlr\SuperSocket.Dlr.csproj">
+      <Project>{55BAA051-CE62-4D4A-81B6-68B042CC78E9}</Project>
+      <Name>SuperSocket.Dlr</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SocketBase\SuperSocket.SocketBase.csproj">
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
       <Name>SuperSocket.SocketBase</Name>
@@ -105,6 +116,12 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Command\ADD.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Command\MULT.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="supersocket.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
