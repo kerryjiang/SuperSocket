@@ -7,10 +7,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 using SuperSocket.Management.Client.Config;
 using SuperSocket.Management.Shared;
-using GalaSoft.MvvmLight.Command;
 
 namespace SuperSocket.Management.Client.ViewModel
 {

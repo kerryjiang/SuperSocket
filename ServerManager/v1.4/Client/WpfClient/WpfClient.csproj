@@ -88,9 +88,6 @@
     <Compile Include="ViewModel\InstanceState.cs" />
     <Compile Include="ViewModel\InstanceViewModel.cs" />
     <Compile Include="Selector\InstanceRowStyleSelector.cs" />
-    <Compile Include="Themes\Default\CircularProgressBar.xaml.cs">
-      <DependentUpon>CircularProgressBar.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Themes\Default\HorizonProgressBar.xaml.cs">
       <DependentUpon>HorizonProgressBar.xaml</DependentUpon>
     </Compile>
@@ -121,10 +118,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="NewEditServer.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Themes\Default\CircularProgressBar.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
