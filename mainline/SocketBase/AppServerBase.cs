@@ -926,18 +926,36 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="socketSession">The socket session.</param>
         /// <returns></returns>
-        public virtual IAppSession CreateAppSession(ISocketSession socketSession)
+        IAppSession IAppServer.CreateAppSession(ISocketSession socketSession)
         {
             if (!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
                 return NullAppSession;
 
             var appSession = new TAppSession();
+
+            if (!RegisterSession(socketSession.SessionID, appSession))
+                return NullAppSession;
+
             appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this, socketSession));
             socketSession.Closed += OnSocketSessionClosed;
+
+            if (Logger.IsInfoEnabled)
+                Logger.InfoFormat("A new session connected!");
 
             OnNewSessionConnected(appSession);
 
             return appSession;
+        }
+
+        /// <summary>
+        /// Registers the session into session container.
+        /// </summary>
+        /// <param name="sessionID">The session ID.</param>
+        /// <param name="appSession">The app session.</param>
+        /// <returns></returns>
+        protected virtual bool RegisterSession(string sessionID, TAppSession appSession)
+        {
+            return true;
         }
 
 
@@ -1044,11 +1062,11 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Gets the app session by ID internal.
+        /// Gets the app session by ID.
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
-        protected abstract IAppSession GetAppSessionByIDInternal(string sessionID);
+        public abstract TAppSession GetAppSessionByID(string sessionID);
 
         /// <summary>
         /// Gets the app session by ID.
@@ -1057,7 +1075,7 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         IAppSession IAppServer.GetAppSessionByID(string sessionID)
         {
-            return GetAppSessionByIDInternal(sessionID);
+            return this.GetAppSessionByID(sessionID);
         }
 
         /// <summary>

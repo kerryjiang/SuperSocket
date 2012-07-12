@@ -120,41 +120,20 @@ namespace SuperSocket.SocketBase
         private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
-        /// Creates the app session base one socketSession.
-        /// </summary>
-        /// <param name="socketSession">The socket session.</param>
-        /// <returns></returns>
-        public override IAppSession CreateAppSession(ISocketSession socketSession)
-        {
-            var baseAppSession = base.CreateAppSession(socketSession);
-
-            if (baseAppSession == null)
-                return null;
-
-            var appSession = (TAppSession)baseAppSession;
-
-            if (m_SessionDict.TryAdd(appSession.SessionID, appSession))
-            {
-                if(!Logger.IsInfoEnabled)
-                    Logger.Info(appSession, "New SocketSession was accepted!");
-                return appSession;
-            }
-            else
-            {
-                if(Logger.IsErrorEnabled)
-                    Logger.Error(appSession, "SocketSession was refused because the session's IdentityKey already exists!");
-                return NullAppSession;
-            }
-        }
-
-        /// <summary>
-        /// Gets the app session by ID internal.
+        /// Registers the session into the session container.
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
+        /// <param name="appSession">The app session.</param>
         /// <returns></returns>
-        protected override IAppSession GetAppSessionByIDInternal(string sessionID)
+        protected override bool RegisterSession(string sessionID, TAppSession appSession)
         {
-            return GetAppSessionByID(sessionID);
+            if (m_SessionDict.TryAdd(sessionID, appSession))
+                return true;
+
+            if (Logger.IsErrorEnabled)
+                Logger.Error(appSession, "The session is refused because the it's ID already exists!");
+
+            return false;
         }
 
         /// <summary>
@@ -162,7 +141,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
-        public TAppSession GetAppSessionByID(string sessionID)
+        public override TAppSession GetAppSessionByID(string sessionID)
         {
             if (string.IsNullOrEmpty(sessionID))
                 return NullAppSession;
