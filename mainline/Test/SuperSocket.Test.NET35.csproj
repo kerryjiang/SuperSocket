@@ -82,6 +82,8 @@
     <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />
     <Compile Include="Common\PerformanceTest.cs" />
+    <Compile Include="ConnectionFilterTest.cs" />
+    <Compile Include="ConnectionFilter\TestConnectionFilter.cs" />
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -70,6 +70,8 @@
     <Compile Include="Command\ADDCS.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
+    <Compile Include="ConnectionFilterTest.cs" />
+    <Compile Include="ConnectionFilter\TestConnectionFilter.cs" />
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
     <Compile Include="TcpSocketServerTest.cs" />
@@ -137,6 +139,7 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

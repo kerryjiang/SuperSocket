@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using NUnit.Framework;
 using SuperSocket.Common.Logging;
+using System.Threading;
 
 namespace SuperSocket.Test
 {
@@ -13,7 +14,7 @@ namespace SuperSocket.Test
         [SetUp]
         public void RunBeforeAllTest()
         {
-            
+
         }
     }
 }

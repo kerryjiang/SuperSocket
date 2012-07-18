@@ -38,9 +38,7 @@ namespace SuperSocket.Test
                     Mode = SocketMode.Tcp,
                     Name = "DLR Socket Server",
                     Port = 2012,
-                    ClearIdleSession = true,
-                    ClearIdleSessionInterval = 1,
-                    IdleSessionTimeOut = 5
+                    ClearIdleSession = true
                 };
 
             m_Server = new TestServer();
