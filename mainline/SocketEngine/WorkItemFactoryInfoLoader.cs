@@ -170,7 +170,7 @@ namespace SuperSocket.SocketEngine
 
         private List<ProviderFactoryInfo> InitializeProviderFactories(ProviderKey key, IEnumerable<ITypeProvider> providerCollection)
         {
-            return InitializeProviderFactories(key, providerCollection);
+            return InitializeProviderFactories(key, providerCollection, null);
         }
 
         private List<ProviderFactoryInfo> InitializeProviderFactories(ProviderKey key, IEnumerable<ITypeProvider> providerCollection, ProviderFactoryInfo loadedFactory)
