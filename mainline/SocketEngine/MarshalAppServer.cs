@@ -13,19 +13,13 @@ namespace SuperSocket.SocketEngine
     {
         private IWorkItem m_AppServer;
 
-        public MarshalAppServer(string assemblyFilePath, string typeFullName)
-        {
-            var targetAssembly = Assembly.LoadFrom(assemblyFilePath);
-            m_AppServer = (IWorkItem)targetAssembly.CreateInstance(typeFullName, true);
-        }
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AppDomainAppServer"/> class.
         /// </summary>
-        /// <param name="serviceType">Type of the service.</param>
-        public MarshalAppServer(Type serviceType)
+        /// <param name="serviceTypeName">Name of the service type.</param>
+        public MarshalAppServer(string serviceTypeName)
         {
+            var serviceType = Type.GetType(serviceTypeName);
             m_AppServer = (IWorkItem)Activator.CreateInstance(serviceType);
         }
 

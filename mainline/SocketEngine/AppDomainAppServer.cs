@@ -14,7 +14,7 @@ namespace SuperSocket.SocketEngine
     {
         private IWorkItem m_AppServer;
 
-        private Type m_ServiceType;
+        private string m_ServiceTypeName;
 
         private IBootstrap m_Bootstrap;
 
@@ -29,10 +29,19 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Initializes a new instance of the <see cref="AppDomainAppServer"/> class.
         /// </summary>
+        /// <param name="serviceTypeName">Name of the service type.</param>
+        public AppDomainAppServer(string serviceTypeName)
+        {
+            m_ServiceTypeName = serviceTypeName;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppDomainAppServer"/> class.
+        /// </summary>
         /// <param name="serviceType">Type of the service.</param>
         public AppDomainAppServer(Type serviceType)
         {
-            m_ServiceType = serviceType;
+            m_ServiceTypeName = serviceType.AssemblyQualifiedName;
         }
 
         /// <summary>
@@ -98,7 +107,7 @@ namespace SuperSocket.SocketEngine
                         true,
                         BindingFlags.CreateInstance,
                         null,
-                        new object[] { m_ServiceType },
+                        new object[] { m_ServiceTypeName },
                         null,
                         new object[0]);
 

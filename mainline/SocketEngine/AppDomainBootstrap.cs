@@ -16,6 +16,71 @@ namespace SuperSocket.SocketEngine
     /// </summary>
     public sealed class AppDomainBootstrap : MarshalByRefObject, IBootstrap
     {
+        class AppDomainWorkItemFactoryInfoLoader : WorkItemFactoryInfoLoader
+        {
+            class TypeValidator : MarshalByRefObject
+            {
+                public bool ValidateTypeName(string typeName)
+                {
+                    Type type = null;
+
+                    try
+                    {
+                        type = Type.GetType(typeName, false);
+                    }
+                    catch
+                    {
+
+                    }
+
+                    return type != null;
+                }
+            }
+
+            public AppDomainWorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory passedInLogFactory)
+                : base(config, passedInLogFactory)
+            {
+                InitliazeValidationAppDomain();
+            }
+
+            public AppDomainWorkItemFactoryInfoLoader(IConfigurationSource config)
+                : base(config)
+            {
+                InitliazeValidationAppDomain();
+            }
+
+            private AppDomain m_ValidationAppDomain;
+
+            private TypeValidator m_Validator; 
+
+            private void InitliazeValidationAppDomain()
+            {
+                m_ValidationAppDomain = AppDomain.CreateDomain("ValidationDomain", AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.BaseDirectory, string.Empty, false);
+
+                var validatorType = typeof(TypeValidator);
+                m_Validator = (TypeValidator)m_ValidationAppDomain.CreateInstanceAndUnwrap(validatorType.Assembly.FullName, validatorType.FullName);
+            }
+
+            protected override string ValidateProviderType(string typeName)
+            {
+                if (!m_Validator.ValidateTypeName(typeName))
+                    throw new Exception(string.Format("Failed to load type {0}!", typeName));
+
+                return typeName;
+            }
+
+            public override void Dispose()
+            {
+                if (m_ValidationAppDomain != null)
+                {
+                    AppDomain.Unload(m_ValidationAppDomain);
+                    m_ValidationAppDomain = null;
+                }
+
+                base.Dispose();
+            }
+        }
+
         class DefaultBootstrapAppDomainWrap : DefaultBootstrap
         {
             private AppDomainBootstrap m_AppDomainBootstrap;
@@ -26,14 +91,19 @@ namespace SuperSocket.SocketEngine
                 m_AppDomainBootstrap = appDomainBootstrap;
             }
 
-            protected override IWorkItem CreateWorkItemInstance(Type serviceType)
+            protected override IWorkItem CreateWorkItemInstance(string serviceTypeName)
             {
-                return new AppDomainAppServer(serviceType);
+                return new AppDomainAppServer(serviceTypeName);
             }
 
             internal override bool SetupWorkItemInstance(IWorkItem workItem, WorkItemFactoryInfo factoryInfo)
             {
                 return workItem.Setup(m_AppDomainBootstrap, factoryInfo.Config, factoryInfo.ProviderFactories.ToArray());
+            }
+
+            internal override WorkItemFactoryInfoLoader GetWorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory logFactory)
+            {
+                return new AppDomainWorkItemFactoryInfoLoader(config, logFactory);
             }
         }
 
@@ -60,7 +130,12 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public AppDomainBootstrap(IConfigurationSource config)
         {
-            m_InnerBootstrap = new DefaultBootstrapAppDomainWrap(config, this);
+            var plainConfigSorce = config as ConfigurationSource;
+
+            if(plainConfigSorce == null)
+                plainConfigSorce = new ConfigurationSource(config);
+
+            m_InnerBootstrap = new DefaultBootstrapAppDomainWrap(plainConfigSorce, this);
         }
 
         /// <summary>

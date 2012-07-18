@@ -5,6 +5,7 @@ using System.Configuration;
 using System.Linq;
 using System.Security.Authentication;
 using System.Text;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -14,6 +15,26 @@ namespace SuperSocket.SocketBase.Config
     [Serializable]
     public class ServerConfig : IServerConfig
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerConfig"/> class.
+        /// </summary>
+        /// <param name="serverConfig">The server config.</param>
+        public ServerConfig(IServerConfig serverConfig)
+        {
+            serverConfig.CopyPropertiesTo(this);
+            
+            this.Options = serverConfig.Options;
+            this.OptionElements = serverConfig.OptionElements;
+
+            if (serverConfig.Certificate != null)
+                this.Certificate = serverConfig.Certificate.CopyPropertiesTo(new CertificateConfig());
+
+            if (serverConfig.Listeners != null && serverConfig.Listeners.Any())
+            {
+                this.Listeners = serverConfig.Listeners.Select(l => l.CopyPropertiesTo(new ListenerConfig()));
+            }
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
         /// </summary>
@@ -57,6 +78,11 @@ namespace SuperSocket.SocketBase.Config
         /// Gets/sets the options.
         /// </summary>
         public NameValueCollection Options { get; set; }
+
+        /// <summary>
+        /// Gets the option elements.
+        /// </summary>
+        public NameValueCollection OptionElements { get; set; }
 
         /// <summary>
         /// Gets/sets a value indicating whether this <see cref="IServerConfig"/> is disabled.
@@ -219,7 +245,7 @@ namespace SuperSocket.SocketBase.Config
         public virtual TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new()
         {
-            return default(TConfig);
+            return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
         }
 
         /// <summary>
@@ -227,9 +253,11 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public IEnumerable<IListenerConfig> Listeners { get; set; }
 
+        /// <summary>
+        /// Gets/sets the log factory name.
+        /// </summary>
+        public string LogFactory { get; set; }
+
         #endregion
-
-
-        
     }
 }

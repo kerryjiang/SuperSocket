@@ -120,7 +120,7 @@ namespace SuperSocket.Common
         /// </summary>
         /// <param name="source">The source.</param>
         /// <param name="target">The target.</param>
-        public static void CopyPropertiesTo(this object source, object target)
+        public static T CopyPropertiesTo<T>(this T source, T target)
         {
             PropertyInfo[] properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
             Dictionary<string, PropertyInfo> sourcePropertiesDict = properties.ToDictionary(p => p.Name);
@@ -130,14 +130,20 @@ namespace SuperSocket.Common
             {
                 var p = targetProperties[i];
                 PropertyInfo sourceProperty;
+
                 if (sourcePropertiesDict.TryGetValue(p.Name, out sourceProperty))
                 {
                     if (sourceProperty.PropertyType != p.PropertyType)
                         continue;
 
+                    if (!sourceProperty.PropertyType.IsSerializable)
+                        continue;
+
                     p.SetValue(target, sourceProperty.GetValue(source, m_EmptyObjectArray), m_EmptyObjectArray);
                 }
             }
+
+            return target;
         }
 
         /// <summary>

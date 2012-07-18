@@ -9,7 +9,7 @@ using SuperSocket.Common.Logging;
 
 namespace SuperSocket.SocketEngine
 {
-    class WorkItemFactoryInfoLoader
+    class WorkItemFactoryInfoLoader : IDisposable
     {
         private ProviderFactoryInfo m_DefaultLogFactory;
 
@@ -47,7 +47,7 @@ namespace SuperSocket.SocketEngine
 
                 if (logConfig != null)
                 {
-                    factory = new ProviderFactoryInfo(ProviderKey.LogFactory, m_Config.LogFactory, GetTypeByTypeProvider(ProviderKey.LogFactory, logConfig));
+                    factory = new ProviderFactoryInfo(ProviderKey.LogFactory, m_Config.LogFactory, ValidateProviderType(logConfig.Type));
                 }
             }
 
@@ -102,7 +102,7 @@ namespace SuperSocket.SocketEngine
 
                 var workItemFactory = new WorkItemFactoryInfo();
                 workItemFactory.Config = serverConfig;
-                workItemFactory.ServiceType = serviceFactory.ExportFactory.Type;
+                workItemFactory.ServiceType = serviceFactory.ExportFactory.TypeName;
 
                 var factories = new List<ProviderFactoryInfo>();
 
@@ -128,7 +128,7 @@ namespace SuperSocket.SocketEngine
                         factories.AddRange(currentFactories);
                 }
 
-                var logFactoryName = ((Server)c).LogFactory;
+                var logFactoryName = c.LogFactory;
 
                 if (!string.IsNullOrEmpty(logFactoryName))
                 {
@@ -198,27 +198,28 @@ namespace SuperSocket.SocketEngine
                     }
                 }
 
-                factories.Add(new ProviderFactoryInfo(key, provider.Name, GetTypeByTypeProvider(key, provider)));
+                factories.Add(new ProviderFactoryInfo(key, provider.Name, ValidateProviderType(provider.Type)));
             }
 
             return factories;
         }
 
-        private Type GetTypeByTypeProvider(ProviderKey key, ITypeProvider provider)
+        /// <summary>
+        /// Validates the type of the provider, needn't validate in default mode, because it will be validate later when initializing.
+        /// </summary>
+        /// <param name="typeName">Name of the type.</param>
+        /// <returns></returns>
+        protected virtual string ValidateProviderType(string typeName)
         {
-            try
-            {
-                var providerType = Type.GetType(provider.Type, true);
+            return typeName;
+        }
 
-                if (providerType == null)
-                    throw new NullReferenceException();
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public virtual void Dispose()
+        {
 
-                return providerType;
-            }
-            catch (Exception e)
-            {
-                throw new Exception(string.Format("Failed to get {0} {1}'s type {2}.", key.Name, provider.Name, provider.Type), e);
-            }
         }
     }
 }

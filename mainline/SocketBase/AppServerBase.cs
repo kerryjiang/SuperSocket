@@ -337,6 +337,16 @@ namespace SuperSocket.SocketBase
 
         private bool SetupFinal()
         {
+            var plainConfig = Config as ServerConfig;
+
+            if (plainConfig == null)
+            {
+                //Using plain config model instead of .NET configuration element to improve performance
+                plainConfig = new ServerConfig();
+                Config.CopyPropertiesTo(plainConfig);
+                Config = plainConfig;
+            }
+
             return SetupSocketServer();
         }
 

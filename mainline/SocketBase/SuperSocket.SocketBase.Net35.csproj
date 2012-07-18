@@ -79,6 +79,7 @@
     <Compile Include="Config\ListenerConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
+    <Compile Include="Config\TypeProviderConfig.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="IBootstrap.cs" />

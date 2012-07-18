@@ -74,10 +74,11 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Creates the work item instance.
         /// </summary>
-        /// <param name="serviceType">Type of the service.</param>
+        /// <param name="serviceTypeName">Name of the service type.</param>
         /// <returns></returns>
-        protected virtual IWorkItem CreateWorkItemInstance(Type serviceType)
+        protected virtual IWorkItem CreateWorkItemInstance(string serviceTypeName)
         {
+            var serviceType = Type.GetType(serviceTypeName, true);
             return Activator.CreateInstance(serviceType) as IWorkItem;
         }
 
@@ -101,6 +102,17 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
+        /// Gets the work item factory info loader.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <param name="logFactory">The log factory.</param>
+        /// <returns></returns>
+        internal virtual WorkItemFactoryInfoLoader GetWorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory logFactory)
+        {
+            return new WorkItemFactoryInfoLoader(config, logFactory);
+        }
+
+        /// <summary>
         /// Initializes the bootstrap with the configuration, config resolver and log factory.
         /// </summary>
         /// <param name="serverConfigResolver">The server config resolver.</param>
@@ -116,27 +128,28 @@ namespace SuperSocket.SocketEngine
                 throw new ArgumentException("You cannot pass in a logFactory parameter, if you have configured a root log factory.", "logFactory");
             }
 
-            WorkItemFactoryInfoLoader factoryInfoLoader = new WorkItemFactoryInfoLoader(m_Config, logFactory);
-
-            var bootstrapLogFactory = factoryInfoLoader.GetBootstrapLogFactory();
-
-            logFactory = bootstrapLogFactory.ExportFactory.CreateExport<ILogFactory>();
-
-            LogFactory = logFactory;
-            m_GlobalLog = logFactory.GetLog(this.GetType().Name);
-
             IEnumerable<WorkItemFactoryInfo> workItemFactories;
 
-            try
+            using (var factoryInfoLoader = GetWorkItemFactoryInfoLoader(m_Config, logFactory))
             {
-                workItemFactories = factoryInfoLoader.LoadResult(serverConfigResolver);
-            }
-            catch (Exception e)
-            {
-                if (m_GlobalLog.IsErrorEnabled)
-                    m_GlobalLog.Error(e);
+                var bootstrapLogFactory = factoryInfoLoader.GetBootstrapLogFactory();
 
-                return false;
+                logFactory = bootstrapLogFactory.ExportFactory.CreateExport<ILogFactory>();
+
+                LogFactory = logFactory;
+                m_GlobalLog = logFactory.GetLog(this.GetType().Name);
+
+                try
+                {
+                    workItemFactories = factoryInfoLoader.LoadResult(serverConfigResolver);
+                }
+                catch (Exception e)
+                {
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error(e);
+
+                    return false;
+                }
             }
 
             m_AppServers = new List<IWorkItem>(m_Config.Servers.Count());
@@ -156,7 +169,21 @@ namespace SuperSocket.SocketEngine
                     return false;
                 }
 
-                if (!SetupWorkItemInstance(appServer, factoryInfo))
+
+                var setupResult = false;
+
+                try
+                {
+                    setupResult = SetupWorkItemInstance(appServer, factoryInfo);
+                    setupResult = true;
+                }
+                catch (Exception e)
+                {
+                    m_GlobalLog.Error(e);
+                    setupResult = false;
+                }
+
+                if (!setupResult)
                 {
                     if (m_GlobalLog.IsErrorEnabled)
                         m_GlobalLog.Error("Failed to setup server instance!");
@@ -184,7 +211,7 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public virtual bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver)
         {
-            return Initialize(serverConfigResolver, new Log4NetLogFactory());
+            return Initialize(serverConfigResolver, null);
         }
 
         /// <summary>

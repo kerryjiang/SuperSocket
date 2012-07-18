@@ -17,8 +17,11 @@ namespace SuperSocket.SocketBase.Provider
         /// <value>
         /// The type.
         /// </value>
-        public Type Type { get; set; }
+        public string TypeName { get; set; }
 
+        private Type m_LoadedType;
+
+        [NonSerialized]
         private object m_Instance;
 
         /// <summary>
@@ -41,10 +44,10 @@ namespace SuperSocket.SocketBase.Provider
         /// <summary>
         /// Initializes a new instance of the <see cref="ExportFactory"/> class.
         /// </summary>
-        /// <param name="type">The type.</param>
-        public ExportFactory(Type type)
+        /// <param name="typeName">Name of the type.</param>
+        public ExportFactory(string typeName)
         {
-            Type = type;
+            TypeName = typeName;
         }
 
         /// <summary>
@@ -52,8 +55,20 @@ namespace SuperSocket.SocketBase.Provider
         /// </summary>
         public void EnsureInstance()
         {
-            if (m_Instance == null)
-                m_Instance = Activator.CreateInstance(Type);
+            if (m_Instance != null)
+                return;
+
+            m_Instance = CreateInstance();
+        }
+
+        private object CreateInstance()
+        {
+            if (m_LoadedType == null)
+            {
+                m_LoadedType = System.Type.GetType(TypeName, true);
+            }
+
+            return Activator.CreateInstance(m_LoadedType);
         }
 
         /// <summary>
@@ -66,10 +81,7 @@ namespace SuperSocket.SocketBase.Provider
             if (m_Instance != null)
                 return (T)m_Instance;
 
-            if (Type != null)
-                return (T)Activator.CreateInstance(Type);
-
-            return default(T);
+            return (T)CreateInstance();
         }
     }
 }

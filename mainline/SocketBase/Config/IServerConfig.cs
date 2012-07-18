@@ -40,6 +40,12 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         NameValueCollection Options { get; }
 
+
+        /// <summary>
+        /// Gets the option elements.
+        /// </summary>
+        NameValueCollection OptionElements { get; }
+
         /// <summary>
         /// Gets a value indicating whether this <see cref="IServerConfig"/> is disabled.
         /// </summary>
@@ -203,5 +209,10 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the listeners' configuration.
         /// </summary>
         IEnumerable<IListenerConfig> Listeners { get; }
+
+        /// <summary>
+        /// Gets the log factory name.
+        /// </summary>
+        string LogFactory { get; }
     }
 }

@@ -15,6 +15,7 @@ namespace SuperSocket.SocketEngine.Configuration
     /// <summary>
     /// Server configuration
     /// </summary>
+    [Serializable]
     public class Server : ConfigurationElementBase, IServerConfig
     {
         /// <summary>
@@ -363,23 +364,7 @@ namespace SuperSocket.SocketEngine.Configuration
         public TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new()
         {
-            var childConfig = this.OptionElements.GetValue(childConfigName, string.Empty);
-
-            if (string.IsNullOrEmpty(childConfig))
-                return default(TConfig);
-
-            var checkConfig = childConfig.Replace(Environment.NewLine, string.Empty).Trim();
-
-            if (string.IsNullOrEmpty(checkConfig))
-                return default(TConfig);
-
-            XmlReader reader = new XmlTextReader(new StringReader(checkConfig));
-
-            var config = new TConfig();
-
-            config.Deserialize(reader);
-
-            return config;
+            return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
         }
     }
 }

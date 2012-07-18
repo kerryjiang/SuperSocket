@@ -9,7 +9,7 @@ namespace SuperSocket.SocketEngine
 {
     class WorkItemFactoryInfo
     {
-        public Type ServiceType { get; set; }
+        public string ServiceType { get; set; }
 
         public IServerConfig Config { get; set; }
 

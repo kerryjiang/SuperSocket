@@ -78,6 +78,7 @@
     <Compile Include="Config\IConfigurationSource.cs" />
     <Compile Include="Config\ITypeProvider.cs" />
     <Compile Include="Config\ConfigurationSource.cs" />
+    <Compile Include="Config\TypeProviderConfig.cs" />
     <Compile Include="IBootstrap.cs" />
     <Compile Include="IsolationMode.cs" />
     <Compile Include="Protocol\FixedSizeRequestFilter.cs" />

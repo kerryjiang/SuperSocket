@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Xml;
+using System.IO;
 
 namespace SuperSocket.Common
 {
@@ -59,6 +60,35 @@ namespace SuperSocket.Common
         {
             var deserializeElementMethod = typeof(TElement).GetMethod("DeserializeElement", BindingFlags.NonPublic | BindingFlags.Instance);
             deserializeElementMethod.Invoke(section, new object[] { reader, true });
+        }
+
+        /// <summary>
+        /// Gets the child config.
+        /// </summary>
+        /// <typeparam name="TConfig">The type of the config.</typeparam>
+        /// <param name="childElements">The child elements.</param>
+        /// <param name="childConfigName">Name of the child config.</param>
+        /// <returns></returns>
+        public static TConfig GetChildConfig<TConfig>(this NameValueCollection childElements, string childConfigName)
+            where TConfig : ConfigurationElement, new()
+        {
+            var childConfig = childElements.GetValue(childConfigName, string.Empty);
+
+            if (string.IsNullOrEmpty(childConfig))
+                return default(TConfig);
+
+            var checkConfig = childConfig.Replace(Environment.NewLine, string.Empty).Trim();
+
+            if (string.IsNullOrEmpty(checkConfig))
+                return default(TConfig);
+
+            XmlReader reader = new XmlTextReader(new StringReader(checkConfig));
+
+            var config = new TConfig();
+
+            config.Deserialize(reader);
+
+            return config;
         }
     }
 }

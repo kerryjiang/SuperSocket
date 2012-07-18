@@ -59,12 +59,24 @@ namespace SuperSocket.SocketBase.Provider
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="name">The name.</param>
-        /// <param name="type">The type.</param>
-        public ProviderFactoryInfo(ProviderKey key, string name, Type type)
+        /// <param name="typeName">Name of the type.</param>
+        public ProviderFactoryInfo(ProviderKey key, string name, string typeName)
         {
             Key = key;
             Name = name;
-            ExportFactory = new ExportFactory(type);
+            ExportFactory = new ExportFactory(typeName);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProviderFactoryInfo"/> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="name">The name.</param>
+        /// <param name="type">The type.</param>
+        public ProviderFactoryInfo(ProviderKey key, string name, Type type)
+            : this(key, name, type.AssemblyQualifiedName)
+        {
+            
         }
     }
 }
