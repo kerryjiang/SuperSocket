@@ -36,5 +36,21 @@ namespace SuperSocket.SocketEngine
         {
             return CreateBootstrap(ConfigurationManager.GetSection(configSectionName) as IConfigurationSource);
         }
+
+        /// <summary>
+        /// Creates the bootstrap from configuration file.
+        /// </summary>
+        /// <param name="configFile">The configuration file.</param>
+        /// <returns></returns>
+        public static IBootstrap CreateBootstrapFromConfigFile(string configFile)
+        {
+            ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
+            fileMap.ExeConfigFilename = configFile;
+
+            var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+            var configSource = config.GetSection("socketServer") as IConfigurationSource;
+
+            return CreateBootstrap(configSource);
+        }
     }
 }
