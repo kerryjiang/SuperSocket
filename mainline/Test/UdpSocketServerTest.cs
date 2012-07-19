@@ -14,6 +14,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine;
 using SuperSocket.Test.Udp;
+using SuperSocket.SocketBase.Logging;
 
 namespace SuperSocket.Test
 {
@@ -88,7 +89,7 @@ namespace SuperSocket.Test
         public void Setup()
         {
             m_Server = new TestServer();
-            m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
+            m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance, null, new ConsoleLogFactory(), null, null);
         }
 
         [TestFixtureTearDown]

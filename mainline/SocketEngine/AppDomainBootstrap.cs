@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Provider;
-using System.Configuration;
-using SuperSocket.Common.Logging;
 using SuperSocket.SocketEngine.Configuration;
 
 namespace SuperSocket.SocketEngine
@@ -146,7 +146,7 @@ namespace SuperSocket.SocketEngine
             var configSectionSource = config as ConfigurationSection;
 
             if (configSectionSource != null)
-                startupConfigFile = configSectionSource.CurrentConfiguration.FilePath;
+                startupConfigFile = configSectionSource.ElementInformation.Source;
 
             //Keep serializable version of configuration
             if(!config.GetType().IsSerializable)

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.Common.Logging;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine

@@ -10,8 +10,8 @@ using NUnit.Framework;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
-using SuperSocket.Common.Logging;
 
 
 namespace SuperSocket.Test

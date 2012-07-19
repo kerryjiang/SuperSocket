@@ -7,9 +7,9 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
 

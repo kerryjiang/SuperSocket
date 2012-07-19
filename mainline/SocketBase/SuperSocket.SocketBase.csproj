@@ -58,6 +58,10 @@
     <AssemblyOriginatorKeyFile>..\supersocket.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\Reference\log4net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -72,6 +76,7 @@
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppServerBase.Net40.cs" />
     <Compile Include="AppSession.cs" />
+    <Compile Include="Async.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
     <Compile Include="Command\CommandUpdateEventArgs.cs" />
@@ -80,7 +85,15 @@
     <Compile Include="Config\ConfigurationSource.cs" />
     <Compile Include="Config\TypeProviderConfig.cs" />
     <Compile Include="IBootstrap.cs" />
+    <Compile Include="ILoggerProvider.cs" />
     <Compile Include="IsolationMode.cs" />
+    <Compile Include="Logging\ConsoleLog.cs" />
+    <Compile Include="Logging\ConsoleLogFactory.cs" />
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\ILogFactory.cs" />
+    <Compile Include="Logging\Log4NetLog.cs" />
+    <Compile Include="Logging\Log4NetLogFactory.cs" />
+    <Compile Include="Logging\LogFactoryBase.cs" />
     <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
     <Compile Include="Protocol\FixHeaderRequestFilter.cs" />
     <Compile Include="Protocol\IOffsetAdapter.cs" />

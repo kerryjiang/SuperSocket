@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.Common.Logging;
-using System.Configuration;
+using SuperSocket.SocketBase.Logging;
 
 namespace SuperSocket.SocketBase
 {

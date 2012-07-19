@@ -1,6 +1,5 @@
 using System;
 using System.Net.Sockets;
-using SuperSocket.Common.Logging;
 
 namespace SuperSocket.Common
 {

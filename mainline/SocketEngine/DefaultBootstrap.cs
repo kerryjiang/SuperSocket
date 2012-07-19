@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketEngine.Configuration;
 
@@ -76,7 +76,7 @@ namespace SuperSocket.SocketEngine
             var fileConfigSource = config as ConfigurationSection;
 
             if (fileConfigSource != null)
-                StartupConfigFile = fileConfigSource.CurrentConfiguration.FilePath;
+                StartupConfigFile = fileConfigSource.ElementInformation.Source;
 
             m_Config = config;
         }

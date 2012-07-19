@@ -6,9 +6,9 @@ using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine

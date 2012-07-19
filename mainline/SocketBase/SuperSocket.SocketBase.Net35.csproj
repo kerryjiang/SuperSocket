@@ -42,6 +42,10 @@
     <AssemblyOriginatorKeyFile>..\supersocket.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\Reference\log4net.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
@@ -49,6 +53,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Reference\System.Threading.dll</HintPath>
     </Reference>
+    <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
@@ -58,6 +63,7 @@
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppServerBase.Net35.cs" />
     <Compile Include="AppSession.cs" />
+    <Compile Include="Async.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
@@ -85,6 +91,7 @@
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ICommandSource.cs" />
     <Compile Include="IConnectionFilter.cs" />
+    <Compile Include="ILoggerProvider.cs" />
     <Compile Include="ISessionBase.cs" />
     <Compile Include="ISocketServer.cs" />
     <Compile Include="ISocketServerFactory.cs" />
@@ -92,6 +99,13 @@
     <Compile Include="IsolationMode.cs" />
     <Compile Include="ListenerInfo.cs" />
     <Compile Include="LoggerExtension.cs" />
+    <Compile Include="Logging\ConsoleLog.cs" />
+    <Compile Include="Logging\ConsoleLogFactory.cs" />
+    <Compile Include="Logging\ILog.cs" />
+    <Compile Include="Logging\ILogFactory.cs" />
+    <Compile Include="Logging\Log4NetLog.cs" />
+    <Compile Include="Logging\Log4NetLogFactory.cs" />
+    <Compile Include="Logging\LogFactoryBase.cs" />
     <Compile Include="PerformanceData.cs" />
     <Compile Include="PerformanceDataInfo.cs" />
     <Compile Include="PermformanceDataEventArgs.cs" />

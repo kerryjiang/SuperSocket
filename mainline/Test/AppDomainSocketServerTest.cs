@@ -11,7 +11,7 @@ using mscoree;//Add the following as a COM reference - C:\WINDOWS\Microsoft.NET\
 #endif
 using NUnit.Framework;
 using SuperSocket.Common;
-using SuperSocket.Common.Logging;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Provider;
