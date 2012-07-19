@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.Common;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Command
 {
@@ -15,9 +16,10 @@ namespace SuperSocket.SocketBase.Command
         /// Initializes the command loader
         /// </summary>
         /// <typeparam name="TCommand">The type of the command.</typeparam>
+        /// <param name="rootConfig">The root config.</param>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        public abstract bool Initialize<TCommand>(IAppServer appServer) where TCommand : ICommand;
+        public abstract bool Initialize<TCommand>(IRootConfig rootConfig, IAppServer appServer) where TCommand : ICommand;
 
         /// <summary>
         /// Tries to load commands.

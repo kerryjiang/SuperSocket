@@ -88,7 +88,8 @@ namespace SuperSocket.SocketEngine
                 m_HostDomain = AppDomain.CreateDomain(m_ServerConfig.Name, currentDomain.Evidence, new AppDomainSetup
                     {
                         ApplicationName = m_ServerConfig.Name,
-                        ApplicationBase = workingDir
+                        ApplicationBase = workingDir,
+                        ConfigurationFile = m_Bootstrap.StartupConfigFile
                     });
 
                 var assemblyImportType = typeof(AssemblyImport);

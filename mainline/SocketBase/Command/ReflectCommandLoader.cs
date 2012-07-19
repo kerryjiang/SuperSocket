@@ -5,6 +5,7 @@ using System.Text;
 using System.Reflection;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Command
 {
@@ -21,9 +22,10 @@ namespace SuperSocket.SocketBase.Command
         /// Initializes the command loader
         /// </summary>
         /// <typeparam name="TCommand">The type of the command.</typeparam>
+        /// <param name="rootConfig">The root config.</param>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        public override bool Initialize<TCommand>(IAppServer appServer)
+        public override bool Initialize<TCommand>(IRootConfig rootConfig, IAppServer appServer)
         {
             m_CommandType = typeof(TCommand);
             m_AppServer = appServer;

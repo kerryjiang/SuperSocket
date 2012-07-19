@@ -57,6 +57,11 @@ namespace SuperSocket.SocketEngine
             get { return m_Config; }
         }
 
+        /// <summary>
+        /// Gets the startup config file.
+        /// </summary>
+        public string StartupConfigFile { get; private set; }
+
         private PerformanceMonitor m_PerfMonitor;
 
         /// <summary>
@@ -67,6 +72,27 @@ namespace SuperSocket.SocketEngine
         {
             if (config == null)
                 throw new ArgumentNullException("config");
+
+            var fileConfigSource = config as ConfigurationSection;
+
+            if (fileConfigSource != null)
+                StartupConfigFile = fileConfigSource.CurrentConfiguration.FilePath;
+
+            m_Config = config;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultBootstrap"/> class.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <param name="startupConfigFile">The startup config file.</param>
+        public DefaultBootstrap(IConfigurationSource config, string startupConfigFile)
+        {
+            if (config == null)
+                throw new ArgumentNullException("config");
+
+            if (!string.IsNullOrEmpty(startupConfigFile))
+                StartupConfigFile = startupConfigFile;
 
             m_Config = config;
         }

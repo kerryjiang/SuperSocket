@@ -157,7 +157,7 @@ namespace SuperSocket.SocketBase
                 loader.Error += new EventHandler<ErrorEventArgs>(CommandLoaderOnError);
                 loader.Updated += new EventHandler<CommandUpdateEventArgs<ICommand>>(CommandLoaderOnCommandsUpdated);
 
-                if (!loader.Initialize<ICommand<TAppSession, TRequestInfo>>(this))
+                if (!loader.Initialize<ICommand<TAppSession, TRequestInfo>>(RootConfig, this))
                 {
                     if (Logger.IsErrorEnabled)
                         Logger.ErrorFormat("Failed initialize the command loader {0}.", loader.ToString());

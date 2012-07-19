@@ -85,8 +85,8 @@ namespace SuperSocket.SocketEngine
         {
             private AppDomainBootstrap m_AppDomainBootstrap;
 
-            public DefaultBootstrapAppDomainWrap(IConfigurationSource config, AppDomainBootstrap appDomainBootstrap)
-                : base(config)
+            public DefaultBootstrapAppDomainWrap(AppDomainBootstrap appDomainBootstrap, IConfigurationSource config, string startupConfigFile)
+                : base(config, startupConfigFile)
             {
                 m_AppDomainBootstrap = appDomainBootstrap;
             }
@@ -126,16 +126,34 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
+        /// Gets the startup config file.
+        /// </summary>
+        public string StartupConfigFile
+        {
+            get { return m_InnerBootstrap.StartupConfigFile; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AppDomainBootstrap"/> class.
         /// </summary>
         public AppDomainBootstrap(IConfigurationSource config)
         {
-            var plainConfigSorce = config as ConfigurationSource;
+            string startupConfigFile = string.Empty;
 
-            if(plainConfigSorce == null)
-                plainConfigSorce = new ConfigurationSource(config);
+            if (config == null)
+                throw new ArgumentNullException("config");
 
-            m_InnerBootstrap = new DefaultBootstrapAppDomainWrap(plainConfigSorce, this);
+            var configSectionSource = config as ConfigurationSection;
+
+            if (configSectionSource != null)
+                startupConfigFile = configSectionSource.CurrentConfiguration.FilePath;
+
+            //Keep serializable version of configuration
+            if(!config.GetType().IsSerializable)
+                config = new ConfigurationSource(config);
+
+            //Still use raw configuration type to bootstrap
+            m_InnerBootstrap = new DefaultBootstrapAppDomainWrap(this, config, startupConfigFile);
         }
 
         /// <summary>

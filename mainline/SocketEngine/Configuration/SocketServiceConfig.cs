@@ -76,12 +76,12 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the command loaders definition.
         /// </summary>
-        [ConfigurationProperty("commmandLoaders", IsRequired = false)]
+        [ConfigurationProperty("commandLoaders", IsRequired = false)]
         public TypeProviderCollection CommandLoaders
         {
             get
             {
-                return this["commmandLoaders"] as TypeProviderCollection;
+                return this["commandLoaders"] as TypeProviderCollection;
             }
         }
 

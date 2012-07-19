@@ -9,6 +9,7 @@ using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.Dlr
 {
@@ -62,9 +63,10 @@ namespace SuperSocket.Dlr
         /// <summary>
         /// Gets the script sources.
         /// </summary>
+        /// <param name="rootConfig">The root config.</param>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        protected abstract IEnumerable<IScriptSource> GetScriptSources(IAppServer appServer);
+        protected abstract IEnumerable<IScriptSource> GetScriptSources(IRootConfig rootConfig, IAppServer appServer);
 
         private IEnumerable<CommandUpdateInfo<ICommand>> GetUpdatedCommands(IEnumerable<CommandUpdateInfo<IScriptSource>> updatedSources)
         {
@@ -104,6 +106,8 @@ namespace SuperSocket.Dlr
 
         private IAppServer m_AppServer;
 
+        private IRootConfig m_RootConfig;
+
         private Type m_DynamicCommandType;
 
         private Type m_MockupCommandType;
@@ -112,10 +116,12 @@ namespace SuperSocket.Dlr
         /// Initializes with the specified app server.
         /// </summary>
         /// <typeparam name="TCommand">The type of the command.</typeparam>
+        /// <param name="rootConfig">The root config.</param>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        public override bool Initialize<TCommand>(IAppServer appServer)
+        public override bool Initialize<TCommand>(IRootConfig rootConfig, IAppServer appServer)
         {
+            m_RootConfig = rootConfig;
             m_AppServer = appServer;
 
             var genericParameterTypes = typeof(TCommand).GetGenericArguments();
@@ -148,7 +154,7 @@ namespace SuperSocket.Dlr
 
             m_ServerCommandState = serverCommandState;
 
-            var scriptSources = GetScriptSources(m_AppServer);
+            var scriptSources = GetScriptSources(m_RootConfig, m_AppServer);
 
             foreach (var source in scriptSources)
             {
@@ -183,7 +189,7 @@ namespace SuperSocket.Dlr
                     c => new CommandFileEntity { Source = c },
                     StringComparer.OrdinalIgnoreCase);
 
-                var commandSources = GetScriptSources(m_AppServer);
+                var commandSources = GetScriptSources(m_RootConfig, m_AppServer);
 
                 List<CommandUpdateInfo<IScriptSource>> updatedSources = new List<CommandUpdateInfo<IScriptSource>>();
 

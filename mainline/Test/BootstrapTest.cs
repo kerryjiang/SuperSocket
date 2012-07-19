@@ -133,5 +133,52 @@ namespace SuperSocket.Test
                 }
             }
         }
+
+        [Test]
+        public void TestDLRConfig()
+        {
+            var configSource = SetupBootstrap("DLR.config");
+
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    reader.ReadLine();
+
+                    Random rd = new Random();
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        int x = rd.Next(1, 1000), y = rd.Next(1, 1000);
+                        string command = string.Format("{0} {1} {2}", "ADD", x, y);
+                        Console.WriteLine(command);
+                        writer.WriteLine(command);
+                        writer.Flush();
+                        string line = reader.ReadLine();
+                        Console.WriteLine(line);
+                        Assert.AreEqual(x + y, int.Parse(line));
+                    }
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        int x = rd.Next(1, 1000), y = rd.Next(1, 1000);
+                        string command = string.Format("{0} {1} {2}", "MULT", x, y);
+                        Console.WriteLine(command);
+                        writer.WriteLine(command);
+                        writer.Flush();
+                        string line = reader.ReadLine();
+                        Console.WriteLine(line);
+                        Assert.AreEqual(x * y, int.Parse(line));
+                    }
+                }
+            }
+        }
     }
 }

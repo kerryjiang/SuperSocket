@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase;
 using Microsoft.Scripting.Hosting;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.Dlr
 {
@@ -52,28 +53,37 @@ namespace SuperSocket.Dlr
         /// <summary>
         /// Gets the script sources.
         /// </summary>
+        /// <param name="rootConfig">The root config.</param>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        protected override IEnumerable<IScriptSource> GetScriptSources(IAppServer appServer)
+        protected override IEnumerable<IScriptSource> GetScriptSources(IRootConfig rootConfig, IAppServer appServer)
         {
             var sources = new List<IScriptSource>();
 
-            var commandDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Command");
-            var serverCommandDir = Path.Combine(commandDir, appServer.Name);
+            string commandDir = string.Empty;
+            string serverCommandDir = string.Empty;
 
-            if (!Directory.Exists(commandDir))
+            var commandDirSearchOption = SearchOption.TopDirectoryOnly;
+
+            if (rootConfig.IsolationMode == IsolationMode.None)
             {
-                return sources;
+                commandDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Command");
+                serverCommandDir = Path.Combine(commandDir, appServer.Name);
+            }
+            else
+            {
+                commandDirSearchOption = SearchOption.AllDirectories;
+                commandDir = Path.Combine(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName, "Command");
+                serverCommandDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Command");
             }
 
             List<string> commandFiles = new List<string>();
 
-            commandFiles.AddRange(GetCommandFiles(commandDir, SearchOption.TopDirectoryOnly));
+            if (Directory.Exists(commandDir))
+                commandFiles.AddRange(GetCommandFiles(commandDir, commandDirSearchOption));
 
             if (Directory.Exists(serverCommandDir))
-            {
-                commandFiles.AddRange(GetCommandFiles(serverCommandDir, SearchOption.TopDirectoryOnly));
-            }
+                commandFiles.AddRange(GetCommandFiles(serverCommandDir, SearchOption.AllDirectories));
 
             if (!commandFiles.Any())
             {

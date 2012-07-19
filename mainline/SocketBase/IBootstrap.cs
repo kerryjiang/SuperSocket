@@ -92,5 +92,10 @@ namespace SuperSocket.SocketBase
         /// Occurs when [performance data collected].
         /// </summary>
         event EventHandler<PermformanceDataEventArgs> PerformanceDataCollected;
+
+        /// <summary>
+        /// Gets the startup config file.
+        /// </summary>
+        string StartupConfigFile { get; }
     }
 }
