@@ -6,7 +6,6 @@ using System.ServiceProcess;
 using System.Text;
 using System.Reflection;
 using SuperSocket.Common;
-using SuperSocket.Common.Logging;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
