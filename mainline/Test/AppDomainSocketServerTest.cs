@@ -6,9 +6,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
-#if !IL20
-using mscoree;//Add the following as a COM reference - C:\WINDOWS\Microsoft.NET\Framework\vXXXXXX\mscoree.tlb
-#endif
 using NUnit.Framework;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Logging;
@@ -66,59 +63,5 @@ namespace SuperSocket.Test
                 }
             }
         }
-
-#if !IL20
-        [Test]
-        public void TestAppDomainLifetime()
-        {
-            StartServer();
-
-            Assert.IsTrue(DetectAppDomain(m_Config.Name));
-
-            StopServer();
-
-            Assert.IsFalse(DetectAppDomain(m_Config.Name));
-        }
-
-        private bool DetectAppDomain(string domainName)
-        {
-            IntPtr enumHandle = IntPtr.Zero;
-
-            ICorRuntimeHost host = new CorRuntimeHost();
-
-            try
-            {
-                host.EnumDomains(out enumHandle);
-
-                object domain = null;
-
-                while (true)
-                {
-
-                    host.NextDomain(enumHandle, out domain);
-
-                    if (domain == null)
-                        break;
-
-                    AppDomain appDomain = (AppDomain)domain;
-
-                    if (appDomain.FriendlyName.Equals(domainName, StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-
-                return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                return false;
-            }
-            finally
-            {
-                host.CloseEnum(enumHandle);
-                Marshal.ReleaseComObject(host);
-            }
-        }
-#endif
     }
 }

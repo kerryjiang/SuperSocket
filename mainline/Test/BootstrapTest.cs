@@ -180,5 +180,27 @@ namespace SuperSocket.Test
                 }
             }
         }
+
+
+        [Test]
+        public void TestCustomChildConfig()
+        {
+            SetupBootstrap("ChildConfigA.config");
+            Assert.AreEqual(168, ChildConfigTestServer.ChildConfigValue);
+            ClearBootstrap();
+
+            SetupBootstrap("ChildConfigB.config");
+            Assert.AreEqual(192, ChildConfigTestServer.ChildConfigValue);
+            ClearBootstrap();
+
+            SetupBootstrap("ChildConfigC.config");
+            Assert.AreEqual(200, ChildConfigTestServer.ChildConfigValue);
+            ClearBootstrap();
+
+            SetupBootstrap("ChildConfigD.config");
+            Assert.AreEqual(8848, ChildrenConfigTestServer.ChildConfigGlobalValue);
+            Assert.AreEqual(10 + 20 + 30, ChildrenConfigTestServer.ChildConfigValueSum);
+            Assert.AreEqual(10 * 20 * 30, ChildrenConfigTestServer.ChildConfigValueMultiplyProduct);
+        }
     }
 }

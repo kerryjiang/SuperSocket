@@ -22,12 +22,9 @@ namespace SuperSocket.Test
 
         private IServerConfig m_ServerConfig;
 
-        private Encoding m_Encoding;
-
         [TestFixtureSetUp]
         public void Setup()
         {
-            m_Encoding = new UTF8Encoding();
             m_ServerConfig = new ServerConfig
                 {
                     Ip = "Any",
