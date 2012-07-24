@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="AsyncSecureSocketServerTest.cs" />
     <Compile Include="AsyncSocketServerTest.cs" />
+    <Compile Include="ChildConfigTestServer.cs" />
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
@@ -66,6 +67,8 @@
     <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />
     <Compile Include="Common\PerformanceTest.cs" />
+    <Compile Include="Config\ChildConfig.cs" />
+    <Compile Include="CustomChildConfigTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecureSocketServerTest.cs" />
     <Compile Include="SocketServerTest.cs" />
@@ -99,6 +102,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="supersocket.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Config\ChildConfig.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

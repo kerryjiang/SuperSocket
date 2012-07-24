@@ -256,15 +256,11 @@ namespace SuperSocket.SocketEngine.Configuration
             if (string.IsNullOrEmpty(childConfig))
                 return default(TConfig);
 
-            var checkConfig = childConfig.Replace(Environment.NewLine, string.Empty).Trim();
-
-            if (string.IsNullOrEmpty(checkConfig))
-                return default(TConfig);
-
-            XmlReader reader = new XmlTextReader(new StringReader(checkConfig));
+            XmlReader reader = new XmlTextReader(new StringReader(childConfig));
 
             var config = new TConfig();
 
+            reader.Read();
             config.Deserialize(reader);
 
             return config;

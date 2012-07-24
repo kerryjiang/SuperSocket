@@ -36,7 +36,7 @@ namespace SuperSocket.Common
             where TElement : ConfigurationElement
         {
             var deserializeElementMethod = typeof(TElement).GetMethod("DeserializeElement", BindingFlags.NonPublic | BindingFlags.Instance);
-            deserializeElementMethod.Invoke(section, new object[] { reader, true });
+            deserializeElementMethod.Invoke(section, new object[] { reader, false });
         }
     }
 }
