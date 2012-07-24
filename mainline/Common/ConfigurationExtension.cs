@@ -59,7 +59,7 @@ namespace SuperSocket.Common
             where TElement : ConfigurationElement
         {
             var deserializeElementMethod = typeof(TElement).GetMethod("DeserializeElement", BindingFlags.NonPublic | BindingFlags.Instance);
-            deserializeElementMethod.Invoke(section, new object[] { reader, true });
+            deserializeElementMethod.Invoke(section, new object[] { reader, false });
         }
 
         /// <summary>
@@ -77,15 +77,11 @@ namespace SuperSocket.Common
             if (string.IsNullOrEmpty(childConfig))
                 return default(TConfig);
 
-            var checkConfig = childConfig.Replace(Environment.NewLine, string.Empty).Trim();
-
-            if (string.IsNullOrEmpty(checkConfig))
-                return default(TConfig);
-
-            XmlReader reader = new XmlTextReader(new StringReader(checkConfig));
+            XmlReader reader = new XmlTextReader(new StringReader(childConfig));
 
             var config = new TConfig();
 
+            reader.Read();
             config.Deserialize(reader);
 
             return config;
