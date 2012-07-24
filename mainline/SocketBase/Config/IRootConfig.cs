@@ -57,6 +57,6 @@ namespace SuperSocket.SocketBase.Config
         /// <summary>
         /// Gets the isolation mode.
         /// </summary>
-        IsolationMode IsolationMode { get; }
+        IsolationMode Isolation { get; }
     }
 }

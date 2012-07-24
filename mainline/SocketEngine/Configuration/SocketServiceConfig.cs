@@ -163,10 +163,10 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the isolation mode.
         /// </summary>
-        [ConfigurationProperty("isolationMode", IsRequired = false, DefaultValue = IsolationMode.None)]
-        public IsolationMode IsolationMode
+        [ConfigurationProperty("isolation", IsRequired = false, DefaultValue = IsolationMode.None)]
+        public IsolationMode Isolation
         {
-            get { return (IsolationMode)this["isolationMode"]; }
+            get { return (IsolationMode)this["isolation"]; }
         }
 
         /// <summary>

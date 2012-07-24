@@ -72,7 +72,6 @@ namespace SuperSocket.Common
         public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly, Type targetType)
             where TBaseInterface : class
         {
-            Type interfaceType = typeof(TBaseInterface);
             Type[] arrType = assembly.GetExportedTypes();
 
             var result = new List<TBaseInterface>();

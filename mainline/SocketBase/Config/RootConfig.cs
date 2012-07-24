@@ -30,7 +30,7 @@ namespace SuperSocket.SocketBase.Config
 
             PerformanceDataCollectInterval = 60;
 
-            IsolationMode = IsolationMode.None;
+            Isolation = IsolationMode.None;
         }
 
         #region IRootConfig Members
@@ -71,7 +71,7 @@ namespace SuperSocket.SocketBase.Config
         /// <summary>
         /// Gets/sets the isolation mode.
         /// </summary>
-        public IsolationMode IsolationMode { get; set; }
+        public IsolationMode Isolation { get; set; }
 
         /// <summary>
         /// Gets/sets the log factory name.

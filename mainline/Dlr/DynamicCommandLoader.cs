@@ -65,7 +65,7 @@ namespace SuperSocket.Dlr
 
             var commandDirSearchOption = SearchOption.TopDirectoryOnly;
 
-            if (rootConfig.IsolationMode == IsolationMode.None)
+            if (rootConfig.Isolation == IsolationMode.None)
             {
                 commandDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Command");
                 serverCommandDir = Path.Combine(commandDir, appServer.Name);
