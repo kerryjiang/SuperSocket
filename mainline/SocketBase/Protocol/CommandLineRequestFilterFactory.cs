@@ -31,7 +31,7 @@ namespace SuperSocket.SocketBase.Protocol
         public CommandLineRequestFilterFactory(Encoding encoding, IRequestInfoParser<StringRequestInfo> lineParser)
         {
             m_Encoding = encoding;
-            m_LineTerminator = encoding.GetBytes("\r\n");
+            m_LineTerminator = encoding.GetBytes(Environment.NewLine);
             m_LineParser = lineParser;
         }
 

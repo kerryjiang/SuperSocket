@@ -92,11 +92,20 @@ namespace SuperSocket.SocketEngine
                 if (m_ListenSocket == null)
                     return;
 
+                if(!Platform.IsMono)
+                {
+                    try
+                    {
+                        m_ListenSocket.Shutdown(SocketShutdown.Both);
+                    }
+                    catch { }
+                }
+
                 try
                 {
-                    m_ListenSocket.Shutdown(SocketShutdown.Both);
                     m_ListenSocket.Close();
                 }
+                catch { }
                 finally
                 {
                     m_ListenSocket = null;
