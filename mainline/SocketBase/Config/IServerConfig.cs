@@ -21,9 +21,9 @@ namespace SuperSocket.SocketBase.Config
         string ServiceName { get; }
 
         /// <summary>
-        /// Gets the request filter.
+        /// Gets the request filter factory.
         /// </summary>
-        string RequestFilter { get; }
+        string RequestFilterFactory { get; }
 
         /// <summary>
         /// Gets the ip.

@@ -166,7 +166,7 @@ namespace SuperSocket.SocketBase
                 if (!m_SessionDict.TryRemove(sessionID, out removedSession))
                 {
                     if (Logger.IsErrorEnabled)
-                        Logger.Error(removedSession, "Failed to remove this session, Because it haven't been in session container!");
+                        Logger.Error(session, "Failed to remove this session, Because it has't been in session container!");
                 }
             }
 
@@ -357,7 +357,13 @@ namespace SuperSocket.SocketBase
                     {
                         tasks[i] = Task.Factory.StartNew((s) =>
                             {
-                                ((TAppSession)s).Close(CloseReason.ServerShutdown);
+                                var session = s as TAppSession;
+
+                                if (session != null)
+                                {
+                                    session.Close(CloseReason.ServerShutdown);
+                                }
+
                             }, sessions[i].Value);
                     }
 

@@ -258,7 +258,14 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The close reason.</param>
         public virtual void Close(CloseReason reason)
         {
-            this.SocketSession.Close(reason);
+            try
+            {
+                this.SocketSession.Close(reason);
+            }
+            catch
+            {
+
+            }
         }
 
         /// <summary>

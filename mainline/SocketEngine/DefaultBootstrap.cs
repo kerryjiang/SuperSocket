@@ -76,7 +76,7 @@ namespace SuperSocket.SocketEngine
             var fileConfigSource = config as ConfigurationSection;
 
             if (fileConfigSource != null)
-                StartupConfigFile = fileConfigSource.ElementInformation.Source;
+                StartupConfigFile = fileConfigSource.GetConfigSource();
 
             m_Config = config;
         }

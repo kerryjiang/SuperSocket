@@ -54,8 +54,6 @@ namespace SuperSocket.SocketEngine
         /// <param name="state">The state.</param>
         protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
         {
-            var log = AppServer.Logger;
-
             var paramArray = state as object[];
 
             var receivedData = paramArray[0] as byte[];

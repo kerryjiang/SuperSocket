@@ -148,6 +148,17 @@ namespace SuperSocket.SocketEngine
 
                 factories.Add(workItemFactory.LogFactory);
 
+                //Initialize request filter factory
+                if (!string.IsNullOrEmpty(serverConfig.RequestFilterFactory))
+                {
+                    var currentRequestFilterFactory = requestFilterFactories.FirstOrDefault(p => p.Name.Equals(serverConfig.RequestFilterFactory, StringComparison.OrdinalIgnoreCase));
+
+                    if (currentRequestFilterFactory == null)
+                        throw new Exception(string.Format("the specific request filter factory '{0}' cannot be found!", serverConfig.RequestFilterFactory));
+
+                    factories.Add(currentRequestFilterFactory);
+                }
+
                 workItemFactory.ProviderFactories = factories;
 
                 workItemFactories.Add(workItemFactory);

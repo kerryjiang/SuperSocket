@@ -10,7 +10,6 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SuperSocket.SocketBase</RootNamespace>
     <AssemblyName>SuperSocket.SocketBase</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
@@ -63,19 +62,15 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="AppServer.cs" />
-    <Compile Include="AppServerBase.cs" />
-    <Compile Include="AppServerBase.Net40.cs" />
-    <Compile Include="AppSession.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
@@ -119,7 +114,6 @@
     <Compile Include="Protocol\RequestInfo.cs" />
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
-    <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="Protocol\TerminatorRequestFilter.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
     <Compile Include="CommanFilterFactory.cs" />
@@ -145,6 +139,10 @@
     <Compile Include="Protocol\IRequestInfoParser.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="SocketMode.cs" />
+    <Compile Include="AppServer.cs" />
+    <Compile Include="AppServerBase.cs" />
+    <Compile Include="AppSession.cs" />
+    <Compile Include="Command\StringCommandBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.csproj">

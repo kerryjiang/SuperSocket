@@ -193,15 +193,17 @@ namespace SuperSocket.SocketEngine
 
         public virtual void Close(CloseReason reason)
         {
-            if (Client == null && m_IsClosed)
+            var client = Client;
+
+            if (client == null && m_IsClosed)
                 return;
 
             lock (SyncRoot)
             {
-                if (Client == null && m_IsClosed)
+                if (client == null && m_IsClosed)
                     return;
 
-                Client.SafeClose();
+                client.SafeClose();
                 Client = null;
                 OnClose(reason);
             }

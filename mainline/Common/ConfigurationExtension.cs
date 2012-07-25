@@ -86,5 +86,26 @@ namespace SuperSocket.Common
 
             return config;
         }
+
+        /// <summary>
+        /// Gets the config source path.
+        /// </summary>
+        /// <param name="config">The config.</param>
+        /// <returns></returns>
+        public static string GetConfigSource(this ConfigurationElement config)
+        {
+            var source = config.ElementInformation.Source;
+
+            if (!string.IsNullOrEmpty(source) || !Platform.IsMono)
+                return source;
+
+            var configProperty = typeof(ConfigurationElement).GetProperty("Configuration", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            if (configProperty == null)
+                return string.Empty;
+
+            var configuration = (Configuration)configProperty.GetValue(config, new object[0]);
+            return configuration.FilePath;
+        }
     }
 }

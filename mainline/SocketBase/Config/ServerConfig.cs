@@ -60,9 +60,9 @@ namespace SuperSocket.SocketBase.Config
         public string ServiceName { get; set; }
 
         /// <summary>
-        /// Gets/sets the RequestFilter.
+        /// Gets/sets the request filter factory.
         /// </summary>
-        public string RequestFilter { get; set; }
+        public string RequestFilterFactory { get; set; }
 
         /// <summary>
         /// Gets/sets the ip.

@@ -31,12 +31,12 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets the protocol.
+        /// Gets the request filter factory.
         /// </summary>
-        [ConfigurationProperty("requestFilter", IsRequired = false)]
-        public string RequestFilter
+        [ConfigurationProperty("requestFilterFactory", IsRequired = false)]
+        public string RequestFilterFactory
         {
-            get { return this["requestFilter"] as string; }
+            get { return this["requestFilterFactory"] as string; }
         }
 
         /// <summary>

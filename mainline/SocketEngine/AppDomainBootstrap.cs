@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
@@ -146,7 +147,7 @@ namespace SuperSocket.SocketEngine
             var configSectionSource = config as ConfigurationSection;
 
             if (configSectionSource != null)
-                startupConfigFile = configSectionSource.ElementInformation.Source;
+                startupConfigFile = configSectionSource.GetConfigSource();
 
             //Keep serializable version of configuration
             if(!config.GetType().IsSerializable)

@@ -153,6 +153,7 @@
   <ItemGroup>
     <Content Include="Config\ChildConfigA.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>

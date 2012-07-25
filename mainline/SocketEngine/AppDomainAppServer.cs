@@ -85,16 +85,24 @@ namespace SuperSocket.SocketEngine
                 if (!Directory.Exists(workingDir))
                     Directory.CreateDirectory(workingDir);
 
+                var startupConfigFile = m_Bootstrap.StartupConfigFile;
+
+                if (!string.IsNullOrEmpty(startupConfigFile))
+                {
+                    if (!Path.IsPathRooted(startupConfigFile))
+                        startupConfigFile = Path.Combine(currentDomain.BaseDirectory, startupConfigFile);
+                }
+
                 m_HostDomain = AppDomain.CreateDomain(m_ServerConfig.Name, currentDomain.Evidence, new AppDomainSetup
                     {
                         ApplicationName = m_ServerConfig.Name,
                         ApplicationBase = workingDir,
-                        ConfigurationFile = m_Bootstrap.StartupConfigFile
+                        ConfigurationFile = startupConfigFile
                     });
 
                 var assemblyImportType = typeof(AssemblyImport);
 
-                var assemblyImport = (AssemblyImport)m_HostDomain.CreateInstanceFromAndUnwrap(assemblyImportType.Assembly.CodeBase,
+                m_HostDomain.CreateInstanceFrom(assemblyImportType.Assembly.CodeBase,
                         assemblyImportType.FullName,
                         true,
                         BindingFlags.CreateInstance,
@@ -150,8 +158,14 @@ namespace SuperSocket.SocketEngine
             }
             finally
             {
-                AppDomain.Unload(m_HostDomain);
-                m_HostDomain = null;
+                try
+                {
+                    AppDomain.Unload(m_HostDomain);
+                }
+                finally
+                {
+                    m_HostDomain = null;
+                }
             }
         }
 

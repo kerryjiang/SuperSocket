@@ -15,6 +15,7 @@ using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine;
 using SuperSocket.Test.Udp;
 using SuperSocket.SocketBase.Logging;
+using System.Threading.Tasks;
 
 namespace SuperSocket.Test
 {
@@ -262,11 +263,15 @@ namespace SuperSocket.Test
                 {
                     sb.Append(chars[rd.Next(0, chars.Length - 1)]);
                     string command = sb.ToString();
+
                     socket.SendTo(m_Encoding.GetBytes("ECHO " + command + Environment.NewLine), serverAddress);
                     string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
-                    Assert.AreEqual(command, echoMessage);
                     if (!string.Equals(command, echoMessage))
+                    {
+                        Console.WriteLine("Incorrect response: {0}, {1}", command, echoMessage);
                         return false;
+                    }
+
                     Thread.Sleep(100);
                 }
             }
@@ -274,31 +279,30 @@ namespace SuperSocket.Test
             return true;
         }
 
-        [Test, Repeat(3)]
+        [Test]
         public void TestConcurrencyCommunication()
         {
             StartServer();
 
             int concurrencyCount = 64;
 
-            Semaphore semaphore = new Semaphore(0, concurrencyCount);
+            bool[] resultArray = new bool[concurrencyCount];
 
-            ManualResetEvent taskEvent = new ManualResetEvent(true);
+            Semaphore semaphore = new Semaphore(0, concurrencyCount);
 
             System.Threading.Tasks.Parallel.For(0, concurrencyCount, i =>
                 {
-                    if (!RunEchoMessage())
-                        taskEvent.Reset();
+                    resultArray[i] = RunEchoMessage();
                     semaphore.Release();
                 });
 
             for (var i = 0; i < concurrencyCount; i++)
             {
                 semaphore.WaitOne();
+                Console.WriteLine("Got {0}", i);
             }
 
-            if(!taskEvent.WaitOne(1000))
-                Assert.Fail();
+            Assert.AreEqual(false, resultArray.Any(b => !b));
         }
 
         [Test, Repeat(2)]

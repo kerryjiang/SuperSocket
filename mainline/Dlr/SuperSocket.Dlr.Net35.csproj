@@ -44,10 +44,11 @@
   <ItemGroup>
     <Reference Include="Microsoft.Scripting">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Reference\DLR\Net20\Microsoft.Scripting.dll</HintPath>
+      <HintPath>..\Reference\DLR\Net35\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting.Core">
-      <HintPath>..\Reference\DLR\Net20\Microsoft.Scripting.Core.dll</HintPath>
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Reference\DLR\Net35\Microsoft.Scripting.Core.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.configuration" />

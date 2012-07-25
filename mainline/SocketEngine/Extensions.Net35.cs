@@ -30,9 +30,8 @@ namespace SuperSocket.SocketEngine
             return appDomain.CreateInstanceAndUnwrap(assemblyFile, typeName, ignoreCase, bindingAttr, binder, args, culture, activationAttributes, AppDomain.CurrentDomain.Evidence);
         }
 
-
         /// <summary>
-        /// Creates the instance from and unwrap.
+        /// Creates the instance from.
         /// </summary>
         /// <param name="appDomain">The app domain.</param>
         /// <param name="assemblyFile">The assembly file.</param>
@@ -44,9 +43,9 @@ namespace SuperSocket.SocketEngine
         /// <param name="culture">The culture.</param>
         /// <param name="activationAttributes">The activation attributes.</param>
         /// <returns></returns>
-        public static object CreateInstanceFromAndUnwrap(this AppDomain appDomain, string assemblyFile, string typeName, bool ignoreCase, BindingFlags bindingAttr, Binder binder, object[] args, CultureInfo culture, object[] activationAttributes)
+        public static object CreateInstanceFrom(this AppDomain appDomain, string assemblyFile, string typeName, bool ignoreCase, BindingFlags bindingAttr, Binder binder, object[] args, CultureInfo culture, object[] activationAttributes)
         {
-            return appDomain.CreateInstanceFromAndUnwrap(assemblyFile, typeName, ignoreCase, bindingAttr, binder, args, culture, activationAttributes, AppDomain.CurrentDomain.Evidence);
+            return appDomain.CreateInstanceFrom(assemblyFile, typeName, ignoreCase, bindingAttr, binder, args, culture, activationAttributes, AppDomain.CurrentDomain.Evidence);
         }
     }
 }
