@@ -84,9 +84,12 @@ namespace SuperSocket.SocketEngine
 
             m_CpuCores = Environment.ProcessorCount;
 
-            m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", process.ProcessName);
-            m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", process.ProcessName);
-            m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", process.ProcessName);
+            var isUnix = Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
+            var instanceName = isUnix ? string.Format("{0}/{1}", process.Id, process.ProcessName) : process.ProcessName;
+
+            m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", instanceName);
+            m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
+            m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", instanceName);
 
             m_TimerInterval = m_Config.PerformanceDataCollectInterval * 1000;
 
