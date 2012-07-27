@@ -7,7 +7,6 @@ using System.Threading;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
-using SuperSocket.Common;
 
 namespace SuperSocket.SocketEngine
 {

@@ -100,6 +100,18 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public Action<ISocketSession, CloseReason> Closed { get; set; }
 
+        IPosList<ArraySegment<byte>> m_SendingItems;
+
+        private IPosList<ArraySegment<byte>> GetSendingItems()
+        {
+            if (m_SendingItems == null)
+            {
+                m_SendingItems = new PosList<ArraySegment<byte>>();
+            }
+
+            return m_SendingItems;
+        }
+
         /// <summary>
         /// Starts the sending.
         /// </summary>
@@ -113,39 +125,41 @@ namespace SuperSocket.SocketEngine
                 if (m_InSending)
                     return;
 
-                ArraySegment<byte> data;
+                var sendingItems = GetSendingItems();
 
-                if (AppSession.TryGetSendingData(out data))
+                if (AppSession.TryGetSendingData(sendingItems))
                 {
                     m_InSending = true;
-                    SendResponse(data.Array, data.Offset, data.Count);
+                    SendResponse(sendingItems);
                 }
             }
         }
 
-        protected abstract void SendAsync(byte[] data, int offset, int length);
+        protected abstract void SendAsync(IPosList<ArraySegment<byte>> items);
 
-        protected abstract void SendSync(byte[] data, int offset, int length);
+        protected abstract void SendSync(IPosList<ArraySegment<byte>> items);
 
-        private void SendResponse(byte[] data, int offset, int length)
+        private void SendResponse(IPosList<ArraySegment<byte>> items)
         {
             if (SyncSend)
             {
-                SendSync(data, offset, length);
+                SendSync(items);
             }
             else
             {
-                SendAsync(data, offset, length);
+                SendAsync(items);
             }
         }
 
         protected void OnSendingCompleted()
         {
-            ArraySegment<byte> data;
+            var sendingItems = GetSendingItems();
+            sendingItems.Clear();
+            sendingItems.Position = 0;
 
-            if (AppSession.TryGetSendingData(out data))
+            if (AppSession.TryGetSendingData(sendingItems))
             {
-                SendResponse(data.Array, data.Offset, data.Count);
+                SendResponse(sendingItems);
             }
             else
             {

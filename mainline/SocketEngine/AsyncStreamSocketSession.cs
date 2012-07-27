@@ -224,11 +224,16 @@ namespace SuperSocket.SocketEngine
             m_Stream = sslStream;
         }
 
-        protected override void SendSync(byte[] data, int offset, int length)
+        protected override void SendSync(IPosList<ArraySegment<byte>> items)
         {
             try
             {
-                m_Stream.Write(data, offset, length);
+                for (var i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+                    m_Stream.Write(item.Array, item.Offset, item.Count);
+                }
+
                 m_Stream.Flush();
             }
             catch (Exception e)
@@ -237,14 +242,18 @@ namespace SuperSocket.SocketEngine
                     AppSession.Logger.Error(AppSession, e);
 
                 Close(CloseReason.SocketError);
+                return;
             }
+
+            OnSendingCompleted();
         }
 
-        protected override void SendAsync(byte[] data, int offset, int length)
+        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
         {
             try
             {
-                m_Stream.BeginWrite(data, offset, length, OnEndWrite, null);
+                var item = items[items.Position];
+                m_Stream.BeginWrite(item.Array, item.Offset, item.Count, OnEndWrite, items);
             }
             catch (Exception e)
             {
@@ -260,7 +269,6 @@ namespace SuperSocket.SocketEngine
             try
             {
                 m_Stream.EndWrite(result);
-                OnSendingCompleted();
             }
             catch (Exception e)
             {
@@ -268,7 +276,21 @@ namespace SuperSocket.SocketEngine
                     AppSession.Logger.Error(AppSession, e);
 
                 Close(CloseReason.SocketError);
+                return;
             }
+
+            var items = result.AsyncState as IPosList<ArraySegment<byte>>;
+            var nextPos = items.Position + 1;
+
+            //Has more data to send
+            if (nextPos < items.Count)
+            {
+                items.Position = nextPos;
+                SendAsync(items);
+                return;
+            }
+
+            OnSendingCompleted();
         }
 
         public override void ApplySecureProtocol()

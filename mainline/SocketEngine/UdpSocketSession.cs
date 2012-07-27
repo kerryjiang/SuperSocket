@@ -49,12 +49,12 @@ namespace SuperSocket.SocketEngine
             StartSession();
         }
 
-        protected override void SendAsync(byte[] data, int offset, int length)
+        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
         {
             var e = new SocketAsyncEventArgs();
             e.Completed += new EventHandler<SocketAsyncEventArgs>(SendingCompleted);
             e.RemoteEndPoint = RemoteEndPoint;
-            e.SetBuffer(data, offset, length);
+            e.BufferList = items;
             m_ServerSocket.SendToAsync(e);
         }
 
@@ -73,9 +73,14 @@ namespace SuperSocket.SocketEngine
             OnSendingCompleted();
         }
 
-        protected override void SendSync(byte[] data, int offset, int length)
+        protected override void SendSync(IPosList<ArraySegment<byte>> items)
         {
-            m_ServerSocket.SendTo(data, offset, length, SocketFlags.None, RemoteEndPoint);
+            for (var i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                m_ServerSocket.SendTo(item.Array, item.Offset, item.Count, SocketFlags.None, RemoteEndPoint);
+            }
+                
             OnSendingCompleted();
         }
 

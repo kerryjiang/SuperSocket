@@ -278,18 +278,18 @@ namespace SuperSocket.SocketBase
 
         #region sending processing
 
-        private ConcurrentQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentQueue<ArraySegment<byte>>();
+        private IBatchQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentBatchQueue<ArraySegment<byte>>();
 
         /// <summary>
         /// Tries to get the data segment to be sent.
         /// </summary>
-        /// <param name="segment">The segment.</param>
+        /// <param name="segments">The segments.</param>
         /// <returns>
         /// return whether has data to send
         /// </returns>
-        bool IAppSession.TryGetSendingData(out ArraySegment<byte> segment)
+        bool IAppSession.TryGetSendingData(IList<ArraySegment<byte>> segments)
         {
-            return m_SendingQueue.TryDequeue(out segment);
+            return m_SendingQueue.TryDequeue(segments);
         }
 
         /// <summary>

@@ -72,6 +72,7 @@
     <Compile Include="Command\ADDCS.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
+    <Compile Include="Common\BatchQueueTest.cs" />
     <Compile Include="Config\ChildConfig.cs" />
     <Compile Include="ConnectionFilterTest.cs" />
     <Compile Include="ConnectionFilter\TestConnectionFilter.cs" />

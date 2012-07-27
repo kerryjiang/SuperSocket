@@ -125,9 +125,11 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Tries to get the data segment to be sent.
         /// </summary>
-        /// <param name="segment">The segment.</param>
-        /// <returns>return whether has data to send</returns>
-        bool TryGetSendingData(out ArraySegment<byte> segment);
+        /// <param name="segments">The segments.</param>
+        /// <returns>
+        /// return whether has data to send
+        /// </returns>
+        bool TryGetSendingData(IList<ArraySegment<byte>> segments);
     }
 
     /// <summary>

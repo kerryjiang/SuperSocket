@@ -82,6 +82,7 @@
     <Compile Include="Command\PARA.cs" />
     <Compile Include="Common\ArraySegmentTest.cs" />
     <Compile Include="Common\AssemblyUtilTest.cs" />
+    <Compile Include="Common\BatchQueueTest.cs" />
     <Compile Include="Common\BinaryUtilTest.cs" />
     <Compile Include="Common\PerformanceTest.cs" />
     <Compile Include="Config\ChildConfig.cs" />

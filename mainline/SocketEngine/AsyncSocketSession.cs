@@ -143,12 +143,15 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected override void SendSync(byte[] data, int offset, int length)
+        protected override void SendSync(IPosList<ArraySegment<byte>> items)
         {
             try
             {
-                Client.Send(data, offset, length, SocketFlags.None);
-                OnSendingCompleted();
+                for (var i = 0; i < items.Count; i++)
+                {
+                    var item = items[i];
+                    Client.Send(item.Array, item.Offset, item.Count, SocketFlags.None);
+                }
             }
             catch (Exception e)
             {
@@ -156,14 +159,17 @@ namespace SuperSocket.SocketEngine
                     AppSession.Logger.Error(AppSession, e);
 
                 Close(CloseReason.SocketError);
+                return;
             }
+
+            OnSendingCompleted();
         }
 
-        protected override void SendAsync(byte[] data, int offset, int length)
+        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
         {
             try
             {
-                m_SocketEventArgSend.SetBuffer(data, offset, length);
+                m_SocketEventArgSend.BufferList = items;
 
                 if (!Client.SendAsync(m_SocketEventArgSend))
                     OnSendingCompleted(Client, m_SocketEventArgSend);
