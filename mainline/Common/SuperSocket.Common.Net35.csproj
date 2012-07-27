@@ -91,13 +91,16 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BufferManager.cs" />
+    <Compile Include="ConcurrentBatchQueue.cs" />
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="ConfigurationExtension.cs" />
     <Compile Include="DictionaryExtension.cs" />
     <Compile Include="ErrorEventArgs.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="GlobalResourceManager.cs" />
+    <Compile Include="IBatchQueue.cs" />
     <Compile Include="Platform.cs" />
+    <Compile Include="PosList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GlobalResources.cs" />
     <Compile Include="SearchMarkState.cs" />
