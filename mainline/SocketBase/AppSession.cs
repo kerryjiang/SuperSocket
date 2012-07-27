@@ -324,6 +324,18 @@ namespace SuperSocket.SocketBase
             LastActiveTime = DateTime.Now;
         }
 
+
+        /// <summary>
+        /// Sends the response.
+        /// </summary>
+        /// <param name="segments">The segments.</param>
+        public virtual void SendResponse(IList<ArraySegment<byte>> segments)
+        {
+            m_SendingQueue.Enqueue(segments);
+            SocketSession.StartSend();
+            LastActiveTime = DateTime.Now;
+        }
+
         /// <summary>
         /// Sends the response.
         /// </summary>

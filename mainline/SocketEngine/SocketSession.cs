@@ -24,7 +24,7 @@ namespace SuperSocket.SocketEngine
 
         protected readonly object SyncRoot = new object();
 
-        private bool m_InSending = false;
+        private int m_InSending = 0;
 
         protected bool SyncSend { get; private set; }
 
@@ -85,8 +85,7 @@ namespace SuperSocket.SocketEngine
         {
             m_IsClosed = true;
 
-            if (m_InSending)
-                m_InSending = false;
+            Interlocked.CompareExchange(ref m_InSending, 0, 1);
 
             var closedHandler = Closed;
             if (closedHandler != null)
@@ -117,22 +116,15 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public void StartSend()
         {
-            if(m_InSending)
+            if (Interlocked.CompareExchange(ref m_InSending, 1, 0) == 1)
                 return;
 
-            lock (SyncRoot)
-            {
-                if (m_InSending)
-                    return;
+            var sendingItems = GetSendingItems();
 
-                var sendingItems = GetSendingItems();
+            if (!AppSession.TryGetSendingData(sendingItems))
+                Interlocked.Decrement(ref m_InSending);
 
-                if (AppSession.TryGetSendingData(sendingItems))
-                {
-                    m_InSending = true;
-                    SendResponse(sendingItems);
-                }
-            }
+            SendResponse(sendingItems);
         }
 
         protected abstract void SendAsync(IPosList<ArraySegment<byte>> items);
@@ -163,7 +155,7 @@ namespace SuperSocket.SocketEngine
             }
             else
             {
-                m_InSending = false;
+                Interlocked.Decrement(ref m_InSending);
             }
         }
 
