@@ -136,9 +136,6 @@ namespace SuperSocket.Test.Common
             {
                 if (!queue.TryDequeue(outputList))
                     spinWait.SpinOnce();
-
-                if (spinWait.Count >= 1000)
-                    Assert.Fail("Failed to dequeue all items on time!");
             }
 
             var dict = source.ToDictionary(s => s);
@@ -191,9 +188,6 @@ namespace SuperSocket.Test.Common
                     spinWait.SpinOnce();
                 else
                     Console.WriteLine("Count:" + outputList.Count);
-
-                if (spinWait.Count >= 1000)
-                    Assert.Fail("Failed to dequeue all items on time!");
             }
 
             var dict = source.ToDictionary(s => s);
