@@ -258,14 +258,7 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The close reason.</param>
         public virtual void Close(CloseReason reason)
         {
-            try
-            {
-                this.SocketSession.Close(reason);
-            }
-            catch
-            {
-
-            }
+            this.SocketSession.Close(reason);
         }
 
         /// <summary>
@@ -278,7 +271,23 @@ namespace SuperSocket.SocketBase
 
         #region sending processing
 
-        private IBatchQueue<ArraySegment<byte>> m_SendingQueue = new ConcurrentBatchQueue<ArraySegment<byte>>();
+        private IBatchQueue<ArraySegment<byte>> m_SendingQueue;
+
+        private IBatchQueue<ArraySegment<byte>> GetSendingQueue()
+        {
+            if (m_SendingQueue != null)
+                return m_SendingQueue;
+
+            lock (this)
+            {
+                if (m_SendingQueue != null)
+                    return m_SendingQueue;
+
+                //Sending queue size must be greater than 3
+                m_SendingQueue = new ConcurrentBatchQueue<ArraySegment<byte>>(Math.Max(Config.SendingQueueSize, 3), (t) => t.Array == null);
+                return m_SendingQueue;
+            }
+        }
 
         /// <summary>
         /// Tries to get the data segment to be sent.
@@ -289,17 +298,18 @@ namespace SuperSocket.SocketBase
         /// </returns>
         bool IAppSession.TryGetSendingData(IList<ArraySegment<byte>> segments)
         {
-            return m_SendingQueue.TryDequeue(segments);
+            return GetSendingQueue().TryDequeue(segments);
         }
 
         /// <summary>
         /// Sends the response.
         /// </summary>
         /// <param name="message">The message which will be sent.</param>
-        public virtual void SendResponse(string message)
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public virtual bool SendResponse(string message)
         {
             var data = this.Charset.GetBytes(message);
-            SendResponse(data, 0, data.Length);
+            return SendResponse(data, 0, data.Length);
         }
 
         /// <summary>
@@ -308,20 +318,26 @@ namespace SuperSocket.SocketBase
         /// <param name="data">The data which will be sent.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
-        public virtual void SendResponse(byte[] data, int offset, int length)
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public virtual bool SendResponse(byte[] data, int offset, int length)
         {
-            SendResponse(new ArraySegment<byte>(data, offset, length));
+            return SendResponse(new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
         /// Sends the response.
         /// </summary>
         /// <param name="segment">The segment which will be sent.</param>
-        public virtual void SendResponse(ArraySegment<byte> segment)
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public virtual bool SendResponse(ArraySegment<byte> segment)
         {
-            m_SendingQueue.Enqueue(segment);
+            if (!GetSendingQueue().Enqueue(segment))
+                return false;
+
             SocketSession.StartSend();
             LastActiveTime = DateTime.Now;
+
+            return true;
         }
 
 
@@ -329,11 +345,16 @@ namespace SuperSocket.SocketBase
         /// Sends the response.
         /// </summary>
         /// <param name="segments">The segments.</param>
-        public virtual void SendResponse(IList<ArraySegment<byte>> segments)
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public virtual bool SendResponse(IList<ArraySegment<byte>> segments)
         {
-            m_SendingQueue.Enqueue(segments);
+            if (!GetSendingQueue().Enqueue(segments))
+                return false;
+
             SocketSession.StartSend();
             LastActiveTime = DateTime.Now;
+
+            return true;
         }
 
         /// <summary>
@@ -341,9 +362,10 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="message">The message which will be sent.</param>
         /// <param name="paramValues">The parameter values.</param>
-        public virtual void SendResponse(string message, params object[] paramValues)
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public virtual bool SendResponse(string message, params object[] paramValues)
         {
-            SendResponse(string.Format(message, paramValues));
+            return SendResponse(string.Format(message, paramValues));
         }
 
         #endregion
@@ -490,9 +512,10 @@ namespace SuperSocket.SocketBase
         /// Sends the response.
         /// </summary>
         /// <param name="message">The message.</param>
-        public override void SendResponse(string message)
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public override bool SendResponse(string message)
         {
-            base.SendResponse(ProcessSendingMessage(message));
+            return base.SendResponse(ProcessSendingMessage(message));
         }
 
         /// <summary>
@@ -500,9 +523,10 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="message">The message.</param>
         /// <param name="paramValues">The param values.</param>
-        public override void SendResponse(string message, params object[] paramValues)
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public override bool SendResponse(string message, params object[] paramValues)
         {
-            base.SendResponse(ProcessSendingMessage(message), paramValues);
+            return base.SendResponse(ProcessSendingMessage(message), paramValues);
         }
     }
 

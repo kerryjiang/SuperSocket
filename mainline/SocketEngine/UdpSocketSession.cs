@@ -88,5 +88,11 @@ namespace SuperSocket.SocketEngine
         {
             throw new NotSupportedException();
         }
+
+        public override void Close(CloseReason reason)
+        {
+            if (!IsClosed)
+                OnClose(reason);
+        }
     }
 }

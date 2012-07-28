@@ -1125,13 +1125,13 @@ namespace SuperSocket.SocketBase
 
             if (handler != null)
             {
-                handler.BeginInvoke(session, reason, OnNewSessionClosedCallback, handler);
+                handler.BeginInvoke(session, reason, OnSessionClosedCallback, handler);
             }
 
             session.OnSessionClosed(reason);
         }
 
-        private void OnNewSessionClosedCallback(IAsyncResult result)
+        private void OnSessionClosedCallback(IAsyncResult result)
         {
             try
             {

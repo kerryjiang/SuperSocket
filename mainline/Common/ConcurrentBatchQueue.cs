@@ -17,6 +17,8 @@ namespace SuperSocket.Common
 
         private static readonly T m_Null = default(T);
 
+        private Func<T, bool> m_NullValidator;
+
         class Entity
         {
             public T[] Array { get; set; }
@@ -38,12 +40,20 @@ namespace SuperSocket.Common
         /// </summary>
         /// <param name="capacity">The capacity of the queue.</param>
         public ConcurrentBatchQueue(int capacity)
+            : this(new T[capacity])
         {
-            m_Entity = new Entity();
-            m_Entity.Array = new T[capacity];
 
-            m_BackEntity = new Entity();
-            m_BackEntity.Array = new T[capacity];
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConcurrentBatchQueue&lt;T&gt;"/> class.
+        /// </summary>
+        /// <param name="capacity">The capacity.</param>
+        /// <param name="nullValidator">The null validator.</param>
+        public ConcurrentBatchQueue(int capacity, Func<T, bool> nullValidator)
+            : this(new T[capacity], nullValidator)
+        {
+
         }
 
         /// <summary>
@@ -51,12 +61,25 @@ namespace SuperSocket.Common
         /// </summary>
         /// <param name="array">The array.</param>
         public ConcurrentBatchQueue(T[] array)
+            : this(array, (t) => t == null)
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConcurrentBatchQueue&lt;T&gt;"/> class.
+        /// </summary>
+        /// <param name="array">The array.</param>
+        /// <param name="nullValidator">The null validator.</param>
+        public ConcurrentBatchQueue(T[] array, Func<T, bool> nullValidator)
         {
             m_Entity = new Entity();
             m_Entity.Array = array;
 
             m_BackEntity = new Entity();
             m_BackEntity.Array = new T[array.Length];
+
+            m_NullValidator = nullValidator;
         }
 
         /// <summary>
@@ -202,13 +225,10 @@ namespace SuperSocket.Common
             {
                 var item = array[i];
 
-                if (item == null)
+                while (m_NullValidator(item))
                 {
-                    while (item == null)
-                    {
-                        spinWait.SpinOnce();
-                        item = array[i];
-                    }
+                    spinWait.SpinOnce();
+                    item = array[i];
                 }
 
                 outputItems.Add(array[i]);

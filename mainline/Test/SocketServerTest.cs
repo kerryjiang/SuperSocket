@@ -12,6 +12,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
+using SuperSocket.Test.Command;
 
 
 namespace SuperSocket.Test
@@ -583,6 +584,49 @@ namespace SuperSocket.Test
                     Assert.AreEqual(command, echoMessage);
                 }
             }
+        }
+
+        [Test, Repeat(3)]
+        public void TestConcurrentSending()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            string[] source = SEND.GetStringSource();
+
+            string[] received = new string[source.Length];
+
+            using (Socket socket = CreateClientSocket())
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = GetSocketStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    reader.ReadLine();
+                    writer.WriteLine("SEND");
+                    writer.Flush();
+
+                    for (var i = 0; i < received.Length; i++)
+                    {
+                        var line = reader.ReadLine();
+                        received[i] = line;
+                        Console.WriteLine(line);
+                    }
+                }
+            }
+
+            var dict = source.ToDictionary(i => i);
+
+            for (var i = 0; i < received.Length; i++)
+            {
+                if (!dict.Remove(received[i]))
+                    Assert.Fail(received[i]);
+            }
+
+            if (dict.Count > 0)
+                Assert.Fail();
         }
 
         private byte[] ReadStreamToBytes(Stream stream)

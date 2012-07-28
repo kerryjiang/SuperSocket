@@ -34,7 +34,7 @@ namespace SuperSocket.SocketEngine
             if (client == null)
                 throw new ArgumentNullException("client");
 
-            Client = client;
+            m_Client = client;
             LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
             RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
         }
@@ -143,7 +143,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected void OnSendingCompleted()
+        protected virtual void OnSendingCompleted()
         {
             var sendingItems = GetSendingItems();
             sendingItems.Clear();
@@ -166,11 +166,16 @@ namespace SuperSocket.SocketEngine
             return new NetworkStream(Client);
         }
 
+
+        private Socket m_Client;
         /// <summary>
         /// Gets or sets the client.
         /// </summary>
         /// <value>The client.</value>
-        public Socket Client { get; set; }
+        public Socket Client
+        {
+            get { return m_Client; }
+        }
 
         private bool m_IsClosed = false;
 
@@ -199,18 +204,14 @@ namespace SuperSocket.SocketEngine
 
         public virtual void Close(CloseReason reason)
         {
-            var client = Client;
+            var client = m_Client;
 
-            if (client == null && m_IsClosed)
+            if(client == null)
                 return;
 
-            lock (SyncRoot)
+            if (Interlocked.CompareExchange(ref m_Client, null, client) == client)
             {
-                if (client == null && m_IsClosed)
-                    return;
-
                 client.SafeClose();
-                Client = null;
                 OnClose(reason);
             }
         }

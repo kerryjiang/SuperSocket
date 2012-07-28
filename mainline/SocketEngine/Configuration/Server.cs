@@ -321,6 +321,21 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets/sets the size of the sending queue.
+        /// </summary>
+        /// <value>
+        /// The size of the sending queue.
+        /// </value>
+        [ConfigurationProperty("sendingQueueSize", IsRequired = false, DefaultValue = 16)]
+        public int SendingQueueSize
+        {
+            get
+            {
+                return (int)this["sendingQueueSize"];
+            }
+        }
+
+        /// <summary>
         /// Gets the logfactory name of the server instance.
         /// </summary>
         [ConfigurationProperty("logFactory", IsRequired = false, DefaultValue = "")]

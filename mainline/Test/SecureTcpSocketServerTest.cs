@@ -32,6 +32,7 @@ namespace SuperSocket.Test
                     ClearIdleSessionInterval = 1,
                     IdleSessionTimeOut = 5,
                     Security = "Tls",
+                    SendingQueueSize = 100,
                     Certificate = new CertificateConfig
                     {
                         IsEnabled = true,

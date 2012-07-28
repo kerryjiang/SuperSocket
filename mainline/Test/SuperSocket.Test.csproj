@@ -72,6 +72,7 @@
     <Compile Include="Command\ADDCS.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
+    <Compile Include="Command\SEND.cs" />
     <Compile Include="Common\BatchQueueTest.cs" />
     <Compile Include="Config\ChildConfig.cs" />
     <Compile Include="ConnectionFilterTest.cs" />
@@ -126,6 +127,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Command\MULT.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Strings.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="supersocket.pfx">

@@ -233,8 +233,6 @@ namespace SuperSocket.SocketEngine
                     var item = items[i];
                     m_Stream.Write(item.Array, item.Offset, item.Count);
                 }
-
-                m_Stream.Flush();
             }
             catch (Exception e)
             {
@@ -246,6 +244,24 @@ namespace SuperSocket.SocketEngine
             }
 
             OnSendingCompleted();
+        }
+
+        protected override void OnSendingCompleted()
+        {
+            try
+            {
+                m_Stream.Flush();
+            }
+            catch (Exception e)
+            {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
+                Close(CloseReason.SocketError);
+                return;
+            }
+
+            base.OnSendingCompleted();
         }
 
         protected override void SendAsync(IPosList<ArraySegment<byte>> items)

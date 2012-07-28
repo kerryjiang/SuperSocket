@@ -150,7 +150,13 @@ namespace SuperSocket.SocketEngine
                 for (var i = 0; i < items.Count; i++)
                 {
                     var item = items[i];
-                    Client.Send(item.Array, item.Offset, item.Count, SocketFlags.None);
+
+                    var client = Client;
+
+                    if (client == null)
+                        return;
+
+                    client.Send(item.Array, item.Offset, item.Count, SocketFlags.None);
                 }
             }
             catch (Exception e)
@@ -171,8 +177,13 @@ namespace SuperSocket.SocketEngine
             {
                 m_SocketEventArgSend.BufferList = items;
 
-                if (!Client.SendAsync(m_SocketEventArgSend))
-                    OnSendingCompleted(Client, m_SocketEventArgSend);
+                var client = Client;
+
+                if (client == null)
+                    return;
+
+                if (!client.SendAsync(m_SocketEventArgSend))
+                    OnSendingCompleted(client, m_SocketEventArgSend);
             }
             catch (Exception e)
             {

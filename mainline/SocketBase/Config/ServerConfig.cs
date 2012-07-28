@@ -258,6 +258,14 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public string LogFactory { get; set; }
 
+        /// <summary>
+        /// Gets/sets the size of the sending queue.
+        /// </summary>
+        /// <value>
+        /// The size of the sending queue.
+        /// </value>
+        public int SendingQueueSize { get; set; }
+
         #endregion
     }
 }

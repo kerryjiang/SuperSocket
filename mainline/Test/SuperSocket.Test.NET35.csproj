@@ -80,6 +80,7 @@
     <Compile Include="Command\MULTCS.cs" />
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
+    <Compile Include="Command\SEND.cs" />
     <Compile Include="Common\ArraySegmentTest.cs" />
     <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BatchQueueTest.cs" />
@@ -113,6 +114,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Command\MULT.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Strings.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="supersocket.pfx">

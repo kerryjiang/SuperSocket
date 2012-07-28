@@ -214,5 +214,14 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the log factory name.
         /// </summary>
         string LogFactory { get; }
+
+
+        /// <summary>
+        /// Gets the size of the sending queue.
+        /// </summary>
+        /// <value>
+        /// The size of the sending queue.
+        /// </value>
+        int SendingQueueSize { get; }
     }
 }

@@ -74,7 +74,8 @@ namespace SuperSocket.Test
                         Port = 2196,
                         ClearIdleSession = true,
                         ClearIdleSessionInterval = 1,
-                        IdleSessionTimeOut = 5
+                        IdleSessionTimeOut = 5,
+                        SendingQueueSize = 100
                     };
             }
         }
