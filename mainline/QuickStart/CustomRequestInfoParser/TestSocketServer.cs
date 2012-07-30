@@ -6,10 +6,10 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using NUnit.Framework;
-using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
-using SuperSocket.Common.Logging;
 
 namespace SuperSocket.QuickStart.CustomCommandParser
 {

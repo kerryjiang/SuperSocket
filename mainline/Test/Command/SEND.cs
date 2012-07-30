@@ -41,7 +41,7 @@ namespace SuperSocket.Test.Command
 
             Parallel.For(0, source.Length, (i) =>
                 {
-                    session.SendResponse(source[i]);
+                    session.Send(source[i]);
                 });
         }
     }

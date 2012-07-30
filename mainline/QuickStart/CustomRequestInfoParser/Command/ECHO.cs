@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser.Command
         {
             foreach (var p in commandData.Parameters)
             {
-                session.SendResponse(p);
+                session.Send(p);
             }
         }
     }

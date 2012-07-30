@@ -21,7 +21,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
         {
             //You can do nothing, after this command is executed, the LastActiveTime of this session will be updated
             var response = session.AppServer.DefaultResponse;
-            session.SendResponse(response, 0, response.Length);
+            session.Send(response, 0, response.Length);
         }
     }
 }

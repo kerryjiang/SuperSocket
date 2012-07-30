@@ -21,7 +21,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
         {
             //The logic of saving GPS position data
             var response = session.AppServer.DefaultResponse;
-            session.SendResponse(response, 0, response.Length); ;
+            session.Send(response, 0, response.Length); ;
         }
     }
 }

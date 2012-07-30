@@ -14,7 +14,7 @@ namespace SuperSocket.QuickStart.MultipleAppServer
             if (session == null)
                 return;
 
-            session.SendResponse(message);
+            session.Send(message);
         }
     }
 }

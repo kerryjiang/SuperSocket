@@ -14,7 +14,7 @@ namespace SuperSocket.Test.Command
             foreach (var p in commandData.Parameters)
             {
                 Console.WriteLine("S: " + p);
-                session.SendResponse(p);
+                session.Send(p);
             }
         }
     }

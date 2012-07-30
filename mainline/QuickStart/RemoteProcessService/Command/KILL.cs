@@ -20,7 +20,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
 
             if (string.IsNullOrEmpty(processKey))
             {
-                session.SendResponse("No parameter!");
+                session.Send("No parameter!");
                 return;
             }
 
@@ -30,12 +30,12 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
                 if (process != null)
                 {
                     process.Kill();
-                    session.SendResponse("The specific process has been killed!");
+                    session.Send("The specific process has been killed!");
                     return;
                 }
                 else
                 {
-                    session.SendResponse("The specific process does not exist!");
+                    session.Send("The specific process does not exist!");
                 }
             }
             else
@@ -46,11 +46,11 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
                 processes.ForEach(p => p.Kill());
 
                 if (processes.Count <= 0)
-                    session.SendResponse("The specific process does not exist!");
+                    session.Send("The specific process does not exist!");
                 else if (processes.Count == 1)
-                    session.SendResponse("The specific process has been killed!");
+                    session.Send("The specific process has been killed!");
                 else
-                    session.SendResponse(string.Format("The {0} specific process has been killed!", processes.Count));
+                    session.Send(string.Format("The {0} specific process has been killed!", processes.Count));
             }
         }
 

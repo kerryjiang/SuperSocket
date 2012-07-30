@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using NUnit.Framework;
-using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketEngine;
-using SuperSocket.SocketBase;
 using System.Net;
 using System.Net.Sockets;
-using System.IO;
-using SuperSocket.Common.Logging;
+using System.Text;
+using NUnit.Framework;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketEngine;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {

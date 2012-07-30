@@ -19,7 +19,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
 
             if (string.IsNullOrEmpty(firstParam))
             {
-                session.SendResponse("Invalid parameter!");
+                session.Send("Invalid parameter!");
                 return;
             }
 
@@ -34,49 +34,49 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
                 }
                 sb.AppendLine();
 
-                session.SendResponse(sb.ToString());
+                session.Send(sb.ToString());
                 return;
             }
             else if ("add".Equals(firstParam, StringComparison.OrdinalIgnoreCase))
             {
                 if (string.IsNullOrEmpty(param))
                 {
-                    session.SendResponse("Invalid parameter!");
+                    session.Send("Invalid parameter!");
                     return;
                 }
 
                 server.AddFrozedProcess(param);
-                session.SendResponse(string.Format("Frozed process {0} has been added!", param));
+                session.Send(string.Format("Frozed process {0} has been added!", param));
                 return;
             }
             else if ("remove".Equals(firstParam, StringComparison.OrdinalIgnoreCase))
             {
                 if (string.IsNullOrEmpty(param))
                 {
-                    session.SendResponse("Invalid parameter!");
+                    session.Send("Invalid parameter!");
                     return;
                 }
 
                 server.RemoveFrozedProcess(param);
-                session.SendResponse(string.Format("Frozed process {0} has been removed!", param));
+                session.Send(string.Format("Frozed process {0} has been removed!", param));
                 return;
             }
             else if ("clear".Equals(firstParam, StringComparison.OrdinalIgnoreCase))
             {
                 server.ClearFrozedProcess();
-                session.SendResponse("All frozed process have been removed!");
+                session.Send("All frozed process have been removed!");
                 return;
             }
             else if ("stop".Equals(firstParam, StringComparison.OrdinalIgnoreCase))
             {
                 server.StopFroze();
-                session.SendResponse("Frozing has been stopped!");
+                session.Send("Frozing has been stopped!");
                 return;
             }
             else if ("start".Equals(firstParam, StringComparison.OrdinalIgnoreCase))
             {
                 server.StartFroze();
-                session.SendResponse("Frozing has been started!");
+                session.Send("Frozing has been started!");
                 return;
             }
         }

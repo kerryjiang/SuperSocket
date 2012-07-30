@@ -15,7 +15,7 @@ namespace SuperSocket.Test
         protected override void OnSessionStarted()
         {
             if(AppServer.Config.Mode != SocketMode.Udp)
-                SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
+                Send(string.Format(WelcomeMessageFormat, AppServer.Name));
         }
 
         public override void HandleException(Exception e)
@@ -26,7 +26,7 @@ namespace SuperSocket.Test
         public override void HandleUnknownRequest(StringRequestInfo cmdInfo)
         {
             string response = string.Format(UnknownCommandMessageFormat, cmdInfo.Key);
-            SendResponse(response);
+            Send(response);
         }
     }
 }

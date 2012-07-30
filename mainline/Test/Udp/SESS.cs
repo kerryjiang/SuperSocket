@@ -10,7 +10,7 @@ namespace SuperSocket.Test.Udp
     {
         public override void ExecuteCommand(UdpTestSession session, MyUdpRequestInfo requestInfo)
         {
-            session.SendResponse(session.SessionID + " " + requestInfo.Value);
+            session.Send(session.SessionID + " " + requestInfo.Value);
         }
     }
 }

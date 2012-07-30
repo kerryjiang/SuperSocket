@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.BroadcastService.Command
         {
             string message = commandData.Data;
             session.AppServer.BroadcastMessage(session, message);
-            session.SendResponse("101 message broadcasted");
+            session.Send("101 message broadcasted");
         }
     }
 }

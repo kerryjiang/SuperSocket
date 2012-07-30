@@ -33,7 +33,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
 
             sb.AppendLine();
 
-            session.SendResponse(sb.ToString());
+            session.Send(sb.ToString());
         }
 
         #endregion

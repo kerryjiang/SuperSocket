@@ -11,7 +11,7 @@ namespace SuperSocket.QuickStart.CustomProtocol.Command
     {
         public override void ExecuteCommand(CustomProtocolSession session, BinaryRequestInfo commandInfo)
         {
-            session.SendResponse(Encoding.ASCII.GetString(commandInfo.Data) + Environment.NewLine);
+            session.Send(Encoding.ASCII.GetString(commandInfo.Data) + Environment.NewLine);
         }
     }
 }

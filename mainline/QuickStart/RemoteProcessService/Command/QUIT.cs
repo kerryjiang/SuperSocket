@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
 
         public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo commandData)
         {
-            session.SendResponse("bye");
+            session.Send("bye");
             session.Close();
         }
 

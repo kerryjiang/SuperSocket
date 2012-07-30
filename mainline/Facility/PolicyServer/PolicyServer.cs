@@ -121,7 +121,7 @@ namespace SuperSocket.Facility.PolicyServer
             }
 
             var response = GetPolicyFileResponse(session.RemoteEndPoint);
-            session.SendResponse(response, 0, response.Length);
+            session.Send(response, 0, response.Length);
         }
     }
 }

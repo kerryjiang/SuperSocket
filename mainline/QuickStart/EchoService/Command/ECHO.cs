@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.EchoService.Command
 
         public override void ExecuteCommand(EchoSession session, StringRequestInfo requestInfo)
         {
-            session.SendResponse(requestInfo.Data);
+            session.Send(requestInfo.Data);
         }
 
         #endregion

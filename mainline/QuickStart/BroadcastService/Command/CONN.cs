@@ -13,7 +13,7 @@ namespace SuperSocket.QuickStart.BroadcastService.Command
         {
             session.DeviceNumber = commandData[0];
             session.AppServer.RegisterNewSession(session);
-            session.SendResponse("100 Connected");
+            session.Send("100 Connected");
         }
     }
 }
