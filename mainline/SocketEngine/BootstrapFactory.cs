@@ -28,6 +28,15 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
+        /// Creates the bootstrap from app configuration's socketServer section.
+        /// </summary>
+        /// <returns></returns>
+        public static IBootstrap CreateBootstrap()
+        {
+            return CreateBootstrap("socketServer");
+        }
+
+        /// <summary>
         /// Creates the bootstrap.
         /// </summary>
         /// <param name="configSectionName">Name of the config section.</param>

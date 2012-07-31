@@ -53,7 +53,7 @@ namespace SuperSocket.SocketService
 
         static void RunAsConsole()
         {
-            IBootstrap bootstrap = BootstrapFactory.CreateBootstrap("socketServer");
+            IBootstrap bootstrap = BootstrapFactory.CreateBootstrap();
 
             if (!bootstrap.Initialize())
             {

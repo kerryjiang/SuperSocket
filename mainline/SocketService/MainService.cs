@@ -19,7 +19,7 @@ namespace SuperSocket.SocketService
         public MainService()
         {
             InitializeComponent();
-            m_Bootstrap = BootstrapFactory.CreateBootstrap("socketServer");
+            m_Bootstrap = BootstrapFactory.CreateBootstrap();
         }
 
         protected override void OnStart(string[] args)
