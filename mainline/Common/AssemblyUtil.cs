@@ -67,6 +67,18 @@ namespace SuperSocket.Common
         /// </summary>
         /// <typeparam name="TBaseInterface">The type of the base interface.</typeparam>
         /// <param name="assembly">The assembly.</param>
+        /// <returns></returns>
+        public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly)
+            where TBaseInterface : class
+        {
+            return GetImplementedObjectsByInterface<TBaseInterface>(assembly, typeof(TBaseInterface));
+        }
+
+        /// <summary>
+        /// Gets the implemented objects by interface.
+        /// </summary>
+        /// <typeparam name="TBaseInterface">The type of the base interface.</typeparam>
+        /// <param name="assembly">The assembly.</param>
         /// <param name="targetType">Type of the target.</param>
         /// <returns></returns>
         public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly, Type targetType)

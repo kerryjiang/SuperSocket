@@ -175,7 +175,22 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                m_SocketEventArgSend.BufferList = items;
+                if (items.Count > 1)
+                {
+                    if (m_SocketEventArgSend.Buffer != null)
+                        m_SocketEventArgSend.SetBuffer(null, 0, 0);
+
+                    m_SocketEventArgSend.BufferList = items;
+                }
+                else
+                {
+                    var currentItem = items[0];
+
+                    if (m_SocketEventArgSend.BufferList != null)
+                        m_SocketEventArgSend.BufferList = null;
+
+                    m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
+                }
 
                 var client = Client;
 
