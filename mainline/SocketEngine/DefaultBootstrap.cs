@@ -49,12 +49,20 @@ namespace SuperSocket.SocketEngine
             get { return m_AppServers; }
         }
 
+        private IRootConfig m_RootConfig;
+
         /// <summary>
         /// Gets the config.
         /// </summary>
         public IRootConfig Config
         {
-            get { return m_Config; }
+            get
+            {
+                if (m_Config != null)
+                    return m_Config;
+
+                return m_RootConfig;
+            }
         }
 
         /// <summary>
@@ -63,6 +71,62 @@ namespace SuperSocket.SocketEngine
         public string StartupConfigFile { get; private set; }
 
         private PerformanceMonitor m_PerfMonitor;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultBootstrap"/> class.
+        /// </summary>
+        /// <param name="appServers">The app servers.</param>
+        public DefaultBootstrap(IEnumerable<IWorkItem> appServers)
+            : this(new RootConfig(), appServers, new Log4NetLogFactory())
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultBootstrap"/> class.
+        /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        /// <param name="appServers">The app servers.</param>
+        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IWorkItem> appServers)
+            : this(rootConfig, appServers, new Log4NetLogFactory())
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultBootstrap"/> class.
+        /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        /// <param name="appServers">The app servers.</param>
+        /// <param name="logFactory">The log factory.</param>
+        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IWorkItem> appServers, ILogFactory logFactory)
+        {
+            if (rootConfig == null)
+                throw new ArgumentNullException("rootConfig");
+
+            if (appServers == null)
+                throw new ArgumentNullException("appServers");
+
+            if(!appServers.Any())
+                throw new ArgumentException("appServers must have one item at least", "appServers");
+
+            if (logFactory == null)
+                throw new ArgumentNullException("logFactory");
+
+            m_RootConfig = rootConfig;
+
+            m_AppServers = appServers.ToList();
+
+            m_GlobalLog = logFactory.GetLog(this.GetType().Name);
+
+            if (!rootConfig.DisablePerformanceDataCollector)
+            {
+                m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, logFactory);
+                m_PerfMonitor.Collected += new EventHandler<PermformanceDataEventArgs>(m_PerfMonitor_Collected);
+            }
+
+            m_Initialized = true;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultBootstrap"/> class.

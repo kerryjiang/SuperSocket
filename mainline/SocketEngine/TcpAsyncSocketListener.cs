@@ -68,9 +68,6 @@ namespace SuperSocket.SocketEngine
         {
             if (e.SocketError != SocketError.Success)
             {
-                //if(e.SocketError != SocketError.OperationAborted)
-                //    OnError(e.SocketError.ToString());
-                //EnsureClose();
                 OnError(new SocketException((int)e.SocketError));
                 return;
             }

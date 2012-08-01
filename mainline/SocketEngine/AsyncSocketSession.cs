@@ -186,8 +186,15 @@ namespace SuperSocket.SocketEngine
                 {
                     var currentItem = items[0];
 
-                    if (m_SocketEventArgSend.BufferList != null)
-                        m_SocketEventArgSend.BufferList = null;
+                    try
+                    {
+                        if (m_SocketEventArgSend.BufferList != null)
+                            m_SocketEventArgSend.BufferList = null;
+                    }
+                    catch (Exception e) //a strange NullReference exception
+                    {
+                        AppSession.Logger.Error(AppSession, e);
+                    }
 
                     m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
                 }

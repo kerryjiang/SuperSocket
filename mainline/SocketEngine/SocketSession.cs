@@ -124,14 +124,14 @@ namespace SuperSocket.SocketEngine
             if (!AppSession.TryGetSendingData(sendingItems))
                 Interlocked.Decrement(ref m_InSending);
 
-            SendResponse(sendingItems);
+            Send(sendingItems);
         }
 
         protected abstract void SendAsync(IPosList<ArraySegment<byte>> items);
 
         protected abstract void SendSync(IPosList<ArraySegment<byte>> items);
 
-        private void SendResponse(IPosList<ArraySegment<byte>> items)
+        private void Send(IPosList<ArraySegment<byte>> items)
         {
             if (SyncSend)
             {
@@ -151,7 +151,7 @@ namespace SuperSocket.SocketEngine
 
             if (AppSession.TryGetSendingData(sendingItems))
             {
-                SendResponse(sendingItems);
+                Send(sendingItems);
             }
             else
             {

@@ -136,7 +136,9 @@ namespace SuperSocket.SocketEngine
             if (socketSession != null && this.m_ReadWritePool != null)
             {
                 socketSession.SocketAsyncProxy.Reset();
-                this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
+
+                if (m_ReadWritePool != null)
+                    m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
             }
         }
 
