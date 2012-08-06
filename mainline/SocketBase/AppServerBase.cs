@@ -57,7 +57,7 @@ namespace SuperSocket.SocketBase
 
         private List<ICommandLoader> m_CommandLoaders;
 
-        private Dictionary<string, ICommand<TAppSession, TRequestInfo>> m_CommandDict = new Dictionary<string, ICommand<TAppSession, TRequestInfo>>(StringComparer.OrdinalIgnoreCase);
+        private Dictionary<string, ICommand<TAppSession, TRequestInfo>> m_CommandContainer = new Dictionary<string, ICommand<TAppSession, TRequestInfo>>(StringComparer.OrdinalIgnoreCase);
 
         private ISocketServerFactory m_SocketServerFactory;
 
@@ -149,10 +149,8 @@ namespace SuperSocket.SocketBase
         /// Setups the command into command dictionary
         /// </summary>
         /// <returns></returns>
-        private bool SetupCommands()
+        protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TRequestInfo>> commandContainer)
         {
-            var commandDict = m_CommandDict;
-
             foreach (var loader in m_CommandLoaders)
             {
                 loader.Error += new EventHandler<ErrorEventArgs>(CommandLoaderOnError);
@@ -177,7 +175,7 @@ namespace SuperSocket.SocketBase
                 {
                     foreach (var c in commands)
                     {
-                        if (commandDict.ContainsKey(c.Name))
+                        if (commandContainer.ContainsKey(c.Name))
                         {
                             if (Logger.IsErrorEnabled)
                                 Logger.Error("Duplicated name command has been found! Command name: " + c.Name);
@@ -193,18 +191,18 @@ namespace SuperSocket.SocketBase
                             return false;
                         }
 
-                        commandDict.Add(c.Name, castedCommand);
+                        commandContainer.Add(c.Name, castedCommand);
                     }
                 }
             }
 
-            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), commandDict.Values.Cast<ICommand>());
+            m_CommandFilterDict = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), m_CommandContainer.Values.Cast<ICommand>());
             return true;
         }
 
         void CommandLoaderOnCommandsUpdated(object sender, CommandUpdateEventArgs<ICommand> e)
         {
-            var workingDict = m_CommandDict.Values.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+            var workingDict = m_CommandContainer.Values.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
             var updatedCommands = 0;
 
             foreach (var c in e.Commands)
@@ -248,7 +246,7 @@ namespace SuperSocket.SocketBase
             {
                 var commandFilters = CommandFilterFactory.GenerateCommandFilterLibrary(this.GetType(), workingDict.Values.Cast<ICommand>());
 
-                Interlocked.Exchange(ref m_CommandDict, workingDict);
+                Interlocked.Exchange(ref m_CommandContainer, workingDict);
                 Interlocked.Exchange(ref m_CommandFilterDict, commandFilters);
             }
         }
@@ -329,7 +327,7 @@ namespace SuperSocket.SocketBase
             if (!SetupListeners(config))
                 return false;
 
-            if (!SetupCommands())
+            if (!SetupCommands(m_CommandContainer))
                 return false;
 
             return true;
@@ -813,7 +811,7 @@ namespace SuperSocket.SocketBase
         {
             ICommand<TAppSession, TRequestInfo> command;
 
-            if (m_CommandDict.TryGetValue(commandName, out command))
+            if (m_CommandContainer.TryGetValue(commandName, out command))
                 return command;
             else
                 return null;
