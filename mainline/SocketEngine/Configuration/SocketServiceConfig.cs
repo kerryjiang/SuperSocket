@@ -183,6 +183,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets the option elements.
+        /// </summary>
         public NameValueCollection OptionElements { get; private set; }
 
         /// <summary>
