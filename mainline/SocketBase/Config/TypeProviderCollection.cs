@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Configuration;
-using SuperSocket.SocketBase.Config;
 
-namespace SuperSocket.SocketEngine.Configuration
+namespace SuperSocket.SocketBase.Config
 {
     /// <summary>
     /// Type provider colletion configuration

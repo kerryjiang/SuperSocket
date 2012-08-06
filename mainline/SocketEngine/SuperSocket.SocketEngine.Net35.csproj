@@ -97,8 +97,6 @@
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />
     <Compile Include="Configuration\SocketServiceConfig.cs" />
-    <Compile Include="Configuration\TypeProvider.cs" />
-    <Compile Include="Configuration\TypeProviderCollection.cs" />
     <Compile Include="DefaultBootstrap.cs" />
     <Compile Include="Extensions.Net35.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
