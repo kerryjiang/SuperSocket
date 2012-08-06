@@ -6,6 +6,7 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using System.Collections.Specialized;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
@@ -182,6 +183,8 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        public NameValueCollection OptionElements { get; private set; }
+
         /// <summary>
         /// Gets a value indicating whether an unknown element is encountered during deserialization.
         /// To keep compatible with old configuration
@@ -196,7 +199,13 @@ namespace SuperSocket.SocketEngine.Configuration
         {
             //To keep compatible with old configuration
             if (!"services".Equals(elementName, StringComparison.OrdinalIgnoreCase))
-                return base.OnDeserializeUnrecognizedElement(elementName, reader);
+            {
+                if (OptionElements == null)
+                    OptionElements = new NameValueCollection();
+
+                OptionElements.Add(elementName, reader.ReadOuterXml());
+                return true;
+            }
 
             var serverTypes = new TypeProviderCollection();
             reader.Read();
@@ -205,6 +214,18 @@ namespace SuperSocket.SocketEngine.Configuration
             this["serverTypes"] = serverTypes;
 
             return true;
+        }
+
+        /// <summary>
+        /// Gets the child config.
+        /// </summary>
+        /// <typeparam name="TConfig">The type of the config.</typeparam>
+        /// <param name="childConfigName">Name of the child config.</param>
+        /// <returns></returns>
+        public TConfig GetChildConfig<TConfig>(string childConfigName)
+            where TConfig : ConfigurationElement, new()
+        {
+            return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
         }
 
         IEnumerable<IServerConfig> IConfigurationSource.Servers

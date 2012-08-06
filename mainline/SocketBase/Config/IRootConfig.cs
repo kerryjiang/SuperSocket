@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -58,5 +60,20 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the isolation mode.
         /// </summary>
         IsolationMode Isolation { get; }
+
+
+        /// <summary>
+        /// Gets the option elements.
+        /// </summary>
+        NameValueCollection OptionElements { get; }
+
+        /// <summary>
+        /// Gets the child config.
+        /// </summary>
+        /// <typeparam name="TConfig">The type of the config.</typeparam>
+        /// <param name="childConfigName">Name of the child config.</param>
+        /// <returns></returns>
+        TConfig GetChildConfig<TConfig>(string childConfigName)
+            where TConfig : ConfigurationElement, new();
     }
 }

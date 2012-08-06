@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
+using System.Collections.Specialized;
+using System.Configuration;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -13,6 +15,16 @@ namespace SuperSocket.SocketBase.Config
     [Serializable]
     public class RootConfig : IRootConfig
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RootConfig"/> class.
+        /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        public RootConfig(IRootConfig rootConfig)
+        {
+            rootConfig.CopyPropertiesTo(this);
+            this.OptionElements = rootConfig.OptionElements;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RootConfig"/> class.
         /// </summary>
@@ -80,6 +92,23 @@ namespace SuperSocket.SocketBase.Config
         /// The log factory.
         /// </value>
         public string LogFactory { get; set; }
+
+        /// <summary>
+        /// Gets/sets the option elements.
+        /// </summary>
+        public NameValueCollection OptionElements { get; set; }
+
+        /// <summary>
+        /// Gets the child config.
+        /// </summary>
+        /// <typeparam name="TConfig">The type of the config.</typeparam>
+        /// <param name="childConfigName">Name of the child config.</param>
+        /// <returns></returns>
+        public virtual TConfig GetChildConfig<TConfig>(string childConfigName)
+            where TConfig : ConfigurationElement, new()
+        {
+            return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
+        }
 
         #endregion
     }

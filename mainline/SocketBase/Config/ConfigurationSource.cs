@@ -25,9 +25,8 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         /// <param name="source">The source.</param>
         public ConfigurationSource(IConfigurationSource source)
+            : base(source)
         {
-            source.CopyPropertiesTo(this);
-
             if (source.Servers != null && source.Servers.Any())
             {
                 this.Servers = source.Servers.Select(s => new ServerConfig(s)).ToArray();
