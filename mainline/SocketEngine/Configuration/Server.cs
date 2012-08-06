@@ -6,6 +6,7 @@ using System.IO;
 using System.Security.Authentication;
 using System.Text;
 using System.Xml;
+using System.Linq;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
@@ -19,15 +20,27 @@ namespace SuperSocket.SocketEngine.Configuration
     public class Server : ConfigurationElementBase, IServerConfig
     {
         /// <summary>
-        /// Gets the name of the service.
+        /// Gets the name of the server type this appServer want to use.
         /// </summary>
         /// <value>
-        /// The name of the service.
+        /// The name of the server type.
         /// </value>
-        [ConfigurationProperty("serviceName", IsRequired = true)]
-        public string ServiceName
+        [ConfigurationProperty("serverTypeName", IsRequired = false)]
+        public string ServerTypeName
         {
-            get { return this["serviceName"] as string; }
+            get { return this["serverTypeName"] as string; }
+        }
+
+        /// <summary>
+        /// Gets the type definition of the appserver.
+        /// </summary>
+        /// <value>
+        /// The type of the server.
+        /// </value>
+        [ConfigurationProperty("serverType", IsRequired = false)]
+        public string ServerType
+        {
+            get { return this["serverType"] as string; }
         }
 
         /// <summary>
@@ -180,7 +193,10 @@ namespace SuperSocket.SocketEngine.Configuration
         [ConfigurationProperty("certificate", IsRequired = false)]
         public CertificateConfig CertificateConfig
         {
-            get { return (CertificateConfig)this["certificate"]; }
+            get
+            {
+                return (CertificateConfig)this["certificate"];
+            }
         }
 
         /// <summary>
@@ -380,6 +396,25 @@ namespace SuperSocket.SocketEngine.Configuration
             where TConfig : ConfigurationElement, new()
         {
             return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether an unknown attribute is encountered during deserialization.
+        /// To keep compatible with old configuration
+        /// </summary>
+        /// <param name="name">The name of the unrecognized attribute.</param>
+        /// <param name="value">The value of the unrecognized attribute.</param>
+        /// <returns>
+        /// true when an unknown attribute is encountered while deserializing; otherwise, false.
+        /// </returns>
+        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
+        {
+            //To keep compatible with old configuration
+            if (!"serviceName".Equals(name, StringComparison.OrdinalIgnoreCase))
+                return base.OnDeserializeUnrecognizedAttribute(name, value);
+
+            this["serverTypeName"] = value;
+            return true;
         }
     }
 }

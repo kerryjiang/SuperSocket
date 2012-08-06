@@ -33,9 +33,9 @@ namespace SuperSocket.SocketBase.Config
                 this.Servers = source.Servers.Select(s => new ServerConfig(s)).ToArray();
             }
 
-            if (source.Services != null && source.Services.Any())
+            if (source.ServerTypes != null && source.ServerTypes.Any())
             {
-                this.Services = source.Services.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
+                this.ServerTypes = source.ServerTypes.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
             }
 
             if (source.ConnectionFilters != null && source.ConnectionFilters.Any())
@@ -66,22 +66,22 @@ namespace SuperSocket.SocketBase.Config
         public IEnumerable<IServerConfig> Servers { get; set; }
 
         /// <summary>
-        /// Gets the services definition.
+        /// Gets/sets the server types definition.
         /// </summary>
-        public IEnumerable<ITypeProvider> Services { get; set; }
+        public IEnumerable<ITypeProvider> ServerTypes { get; set; }
 
         /// <summary>
-        /// Gets the connection filters definition.
+        /// Gets/sets the connection filters definition.
         /// </summary>
         public IEnumerable<ITypeProvider> ConnectionFilters { get; set; }
 
         /// <summary>
-        /// Gets the log factories definition.
+        /// Gets/sets the log factories definition.
         /// </summary>
         public IEnumerable<ITypeProvider> LogFactories { get; set; }
 
         /// <summary>
-        /// Gets the request filter factories definition.
+        /// Gets/sets the request filter factories definition.
         /// </summary>
         public IEnumerable<ITypeProvider> RequestFilterFactories { get; set; }
 

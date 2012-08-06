@@ -37,7 +37,7 @@ namespace SuperSocket.SocketBase.Provider
 
         static ProviderKey()
         {
-            Service = new ProviderKey { Name = "Service", Type = typeof(IAppServer) };
+            ServerType = new ProviderKey { Name = "ServerType", Type = typeof(IAppServer) };
             SocketServerFactory = new ProviderKey { Name = "SocketServerFactory", Type = typeof(ISocketServerFactory) };
             ConnectionFilter = new ProviderKey { Name = "ConnectionFilter", Type = typeof(IConnectionFilter) };
             LogFactory = new ProviderKey { Name = "LogFactory", Type = typeof(ILogFactory) };
@@ -48,7 +48,7 @@ namespace SuperSocket.SocketBase.Provider
         /// <summary>
         /// Gets the service.
         /// </summary>
-        public static ProviderKey Service { get; private set; }
+        public static ProviderKey ServerType { get; private set; }
 
         /// <summary>
         /// Gets the socket server factory.

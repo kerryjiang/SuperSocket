@@ -65,11 +65,8 @@ namespace SuperSocket.SocketEngine
 
             //var providerFactories = new List<ProviderFactoryInfo>();
 
-            //Initialize services
-            var serviceFactories = InitializeProviderFactories(ProviderKey.Service, m_Config.Services);
-
-            if (serviceFactories == null || !serviceFactories.Any())
-                throw new Exception("Services configuration node is required!");
+            //Initialize server types
+            var serverTypeFactories = InitializeProviderFactories(ProviderKey.ServerType, m_Config.ServerTypes);
 
             //Initialize connection filters
             var connectionFilterFactories = InitializeProviderFactories(ProviderKey.ConnectionFilter, m_Config.ConnectionFilters);
@@ -92,17 +89,28 @@ namespace SuperSocket.SocketEngine
                 if (string.IsNullOrEmpty(serverConfig.Name))
                     throw new Exception("The name attribute of server node is required!");
 
-                if (string.IsNullOrEmpty(serverConfig.ServiceName))
-                    throw new Exception("The serviceName attribute of server node is required!");
+                string serverType;
 
-                var serviceFactory = serviceFactories.FirstOrDefault(p => p.Name.Equals(serverConfig.ServiceName, StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrEmpty(serverConfig.ServerTypeName))
+                {
+                    if (string.IsNullOrEmpty(serverConfig.ServerType))
+                        throw new Exception("Either serverTypeName or serverType attribute of the server node is required!");
 
-                if (serviceFactory == null)
-                    throw new Exception(string.Format("Failed to find a service for server {0}!", serverConfig.Name));
+                    serverType = ValidateProviderType(serverConfig.ServerType);
+                }
+                else
+                {
+                    var serviceFactory = serverTypeFactories.FirstOrDefault(p => p.Name.Equals(serverConfig.ServerTypeName, StringComparison.OrdinalIgnoreCase));
+
+                    if (serviceFactory == null)
+                        throw new Exception(string.Format("Failed to find a service for server {0}!", serverConfig.Name));
+
+                    serverType = serviceFactory.ExportFactory.TypeName;
+                }
 
                 var workItemFactory = new WorkItemFactoryInfo();
                 workItemFactory.Config = serverConfig;
-                workItemFactory.ServiceType = serviceFactory.ExportFactory.TypeName;
+                workItemFactory.ServerType = serverType;
 
                 var factories = new List<ProviderFactoryInfo>();
 

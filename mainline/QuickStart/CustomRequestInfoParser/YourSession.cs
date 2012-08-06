@@ -10,7 +10,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser
     {
         protected override void OnSessionStarted()
         {
-            SendResponse("Welcome");
+            Send("Welcome");
         }
 
         public override void HandleException(Exception e)

@@ -148,10 +148,11 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Setups the command into command dictionary
         /// </summary>
-        /// <param name="commandDict">The target command dict.</param>
         /// <returns></returns>
-        protected virtual bool SetupCommands(Dictionary<string, ICommand<TAppSession, TRequestInfo>> commandDict)
+        private bool SetupCommands()
         {
+            var commandDict = m_CommandDict;
+
             foreach (var loader in m_CommandLoaders)
             {
                 loader.Error += new EventHandler<ErrorEventArgs>(CommandLoaderOnError);
@@ -328,7 +329,7 @@ namespace SuperSocket.SocketBase
             if (!SetupListeners(config))
                 return false;
 
-            if (!SetupCommands(m_CommandDict))
+            if (!SetupCommands())
                 return false;
 
             return true;
@@ -549,12 +550,7 @@ namespace SuperSocket.SocketBase
                         var certificate = GetCertificate(config);
 
                         if (certificate == null)
-                        {
-                            if (Logger.IsErrorEnabled)
-                                Logger.Error("Certificate cannot be null if you have set secure protocol!");
-
                             return false;
-                        }
 
                         Certificate = certificate;
                     }
@@ -584,17 +580,17 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         protected virtual X509Certificate GetCertificate(IServerConfig config)
         {
-            if (config.Certificate == null || !config.Certificate.IsEnabled)
+            if (config.Certificate == null)
             {
                 if (Logger.IsErrorEnabled)
-                    Logger.Error("There is no certificate defined and enabled!");
+                    Logger.Error("There is no certificate defined!");
                 return null;
             }
 
             if (string.IsNullOrEmpty(config.Certificate.FilePath) && string.IsNullOrEmpty(config.Certificate.Thumbprint))
             {
                 if (Logger.IsErrorEnabled)
-                    Logger.Error("Failed to initialize certificate! The attributes 'filePath' or 'thumbprint' is required!");
+                    Logger.Error("You should define certificate node and either attribute 'filePath' or 'thumbprint' is required!");
 
                 return null;
             }
@@ -692,7 +688,7 @@ namespace SuperSocket.SocketBase
                             return false;
                         }
 
-                        if (configProtocol != SslProtocols.None && (config.Certificate == null || !config.Certificate.IsEnabled))
+                        if (configProtocol != SslProtocols.None && (config.Certificate == null))
                         {
                             if (Logger.IsErrorEnabled)
                                 Logger.Error("There is no certificate defined and enabled!");

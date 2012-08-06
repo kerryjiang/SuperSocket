@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
 using System.Configuration;
-using SuperSocket.SocketBase.Config;
+using System.Linq;
+using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
@@ -28,12 +29,12 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the service configurations
         /// </summary>
-        [ConfigurationProperty("services")]
-        public TypeProviderCollection Services
+        [ConfigurationProperty("serverTypes")]
+        public TypeProviderCollection ServerTypes
         {
             get
             {
-                return this["services"] as TypeProviderCollection;
+                return this["serverTypes"] as TypeProviderCollection;
             }
         }
 
@@ -181,6 +182,31 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether an unknown element is encountered during deserialization.
+        /// To keep compatible with old configuration
+        /// </summary>
+        /// <param name="elementName">The name of the unknown subelement.</param>
+        /// <param name="reader">The <see cref="T:System.Xml.XmlReader"/> being used for deserialization.</param>
+        /// <returns>
+        /// true when an unknown element is encountered while deserializing; otherwise, false.
+        /// </returns>
+        /// <exception cref="T:System.Configuration.ConfigurationErrorsException">The element identified by <paramref name="elementName"/> is locked.- or -One or more of the element's attributes is locked.- or -<paramref name="elementName"/> is unrecognized, or the element has an unrecognized attribute.- or -The element has a Boolean attribute with an invalid value.- or -An attempt was made to deserialize a property more than once.- or -An attempt was made to deserialize a property that is not a valid member of the element.- or -The element cannot contain a CDATA or text element.</exception>
+        protected override bool OnDeserializeUnrecognizedElement(string elementName, System.Xml.XmlReader reader)
+        {
+            //To keep compatible with old configuration
+            if (!"services".Equals(elementName, StringComparison.OrdinalIgnoreCase))
+                return base.OnDeserializeUnrecognizedElement(elementName, reader);
+
+            var serverTypes = new TypeProviderCollection();
+            reader.Read();
+            serverTypes.Deserialize(reader);
+
+            this["serverTypes"] = serverTypes;
+
+            return true;
+        }
+
         IEnumerable<IServerConfig> IConfigurationSource.Servers
         {
             get
@@ -189,11 +215,11 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        IEnumerable<ITypeProvider> IConfigurationSource.Services
+        IEnumerable<ITypeProvider> IConfigurationSource.ServerTypes
         {
             get
             {
-                return this.Services;
+                return this.ServerTypes;
             }
         }
 

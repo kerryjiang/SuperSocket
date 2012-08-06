@@ -250,7 +250,7 @@ namespace SuperSocket.SocketEngine
 
                 try
                 {
-                    appServer = CreateWorkItemInstance(factoryInfo.ServiceType);
+                    appServer = CreateWorkItemInstance(factoryInfo.ServerType);
                 }
                 catch (Exception e)
                 {

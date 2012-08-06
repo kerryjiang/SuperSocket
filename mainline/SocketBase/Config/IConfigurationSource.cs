@@ -15,9 +15,9 @@ namespace SuperSocket.SocketBase.Config
         IEnumerable<IServerConfig> Servers { get; }
 
         /// <summary>
-        /// Gets the services definition.
+        /// Gets the appServer types definition.
         /// </summary>
-        IEnumerable<ITypeProvider> Services { get; }
+        IEnumerable<ITypeProvider> ServerTypes { get; }
 
         /// <summary>
         /// Gets the connection filters definition.

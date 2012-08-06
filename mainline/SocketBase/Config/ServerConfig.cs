@@ -52,12 +52,21 @@ namespace SuperSocket.SocketBase.Config
         #region IServerConfig Members
 
         /// <summary>
-        /// Gets/sets the name of the service.
+        /// Gets/sets the name of the server type of this appServer want to use.
         /// </summary>
         /// <value>
-        /// The name of the service.
+        /// The name of the server type.
         /// </value>
-        public string ServiceName { get; set; }
+        public string ServerTypeName { get; set; }
+
+
+        /// <summary>
+        /// Gets/sets the type definition of the appserver.
+        /// </summary>
+        /// <value>
+        /// The type of the server.
+        /// </value>
+        public string ServerType { get; set; }
 
         /// <summary>
         /// Gets/sets the request filter factory.

@@ -15,12 +15,12 @@ namespace SuperSocket.QuickStart.RemoteProcessService
 
         protected override void OnSessionStarted()
         {
-            SendResponse("Welcome to use this tool!");
+            Send("Welcome to use this tool!");
         }
 
         public override void HandleException(Exception e)
         {
-            SendResponse("An error has occurred in server side! Error message: " + e.Message + "!");
+            Send("An error has occurred in server side! Error message: " + e.Message + "!");
         }
     }
 }

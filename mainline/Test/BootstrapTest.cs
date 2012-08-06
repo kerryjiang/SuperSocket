@@ -52,7 +52,12 @@ namespace SuperSocket.Test
         [Test]
         public void TestBasicConfig()
         {
-            var configSource = SetupBootstrap("Basic.config");
+            TestBasicConfig("Basic.config");
+        }
+
+        private void TestBasicConfig(string configFile)
+        {
+            var configSource = SetupBootstrap(configFile);
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), configSource.Servers.FirstOrDefault().Port);
 
@@ -74,6 +79,12 @@ namespace SuperSocket.Test
                     }
                 }
             }
+        }
+
+        [Test]
+        public void TestServerTypeConfig()
+        {
+            TestBasicConfig("ServerType.config");
         }
 
 

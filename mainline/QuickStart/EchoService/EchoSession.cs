@@ -10,12 +10,12 @@ namespace SuperSocket.QuickStart.EchoService
     {
         protected override void OnSessionStarted()
         {
-            SendResponse("Welcome to EchoServer!");
+            Send("Welcome to EchoServer!");
         }
 
         public override void HandleException(Exception e)
         {
-            SendResponse("Server side error occurred!");
+            Send("Server side error occurred!");
         }
     }
 }

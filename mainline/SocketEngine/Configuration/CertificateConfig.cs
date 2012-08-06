@@ -64,21 +64,6 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is enabled.
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if this instance is enabled; otherwise, <c>false</c>.
-        /// </value>
-        [ConfigurationProperty("isEnabled", IsRequired = false, DefaultValue = true)]
-        public bool IsEnabled
-        {
-            get
-            {
-                return (bool)this["isEnabled"];
-            }
-        }
-
         #endregion ICertificateConfig Members
     }
 }

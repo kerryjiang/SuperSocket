@@ -10,14 +10,6 @@ namespace SuperSocket.SocketBase.Config
     public interface ICertificateConfig
     {
         /// <summary>
-        /// Gets a value indicating whether this instance is enabled.
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if this instance is enabled; otherwise, <c>false</c>.
-        /// </value>
-        bool IsEnabled { get; }
-
-        /// <summary>
         /// Gets the file path.
         /// </summary>
         string FilePath { get; }

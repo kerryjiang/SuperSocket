@@ -35,7 +35,6 @@ namespace SuperSocket.Test
                     SendingQueueSize = 100,
                     Certificate = new CertificateConfig
                     {
-                        IsEnabled = true,
                         Password = "supersocket",
                         FilePath = "supersocket.pfx"
                     }

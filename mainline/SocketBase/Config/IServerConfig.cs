@@ -13,12 +13,20 @@ namespace SuperSocket.SocketBase.Config
     public interface IServerConfig
     {
         /// <summary>
-        /// Gets the name of the service.
+        /// Gets the name of the server type this appServer want to use.
         /// </summary>
         /// <value>
-        /// The name of the service.
+        /// The name of the server type.
         /// </value>
-        string ServiceName { get; }
+        string ServerTypeName { get; }
+
+        /// <summary>
+        /// Gets the type definition of the appserver.
+        /// </summary>
+        /// <value>
+        /// The type of the server.
+        /// </value>
+        string ServerType { get; }
 
         /// <summary>
         /// Gets the request filter factory.

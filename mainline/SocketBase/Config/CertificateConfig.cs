@@ -14,14 +14,6 @@ namespace SuperSocket.SocketBase.Config
         #region ICertificateConfig Members
 
         /// <summary>
-        /// Gets/sets a value indicating whether this instance is enabled.
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if this instance is enabled; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsEnabled { get; set; }
-
-        /// <summary>
         /// Gets/sets the file path.
         /// </summary>
         public string FilePath { get; set; }

@@ -79,7 +79,7 @@ namespace SuperSocket.QuickStart.BroadcastService
 
             this.AsyncRun(() =>
                 {
-                    sessions.ForEach(s => s.SendResponse(message));
+                    sessions.ForEach(s => s.Send(message));
                 });
         }
 
