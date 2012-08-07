@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{153FEF72-191C-43D9-BE71-2B351C7AC760}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SuperSocket.SocketServiceCore</RootNamespace>
+    <AssemblyName>SuperSocket.SocketServiceCore</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.IdentityModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Runtime.Serialization">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.ServiceModel">
+      <RequiredTargetFramework>3.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AppSession.cs" />
+    <Compile Include="AsyncSocketServer.cs" />
+    <Compile Include="AsyncSocketSession.cs" />
+    <Compile Include="AsyncSocket\AsyncCommandReader.cs" />
+    <Compile Include="AsyncSocket\AsyncUserToken.cs" />
+    <Compile Include="AsyncSocket\BufferManager.cs" />
+    <Compile Include="AsyncSocket\NormalAsyncCommandReader.cs" />
+    <Compile Include="AsyncSocket\PartMatchedAsyncCommandReader.cs" />
+    <Compile Include="AsyncSocket\SearhMarkResult.cs" />
+    <Compile Include="AsyncSocket\SocketAsyncEventArgPool.cs" />
+    <Compile Include="AsyncSocket\SocketAsyncEventArgsProxy.cs" />
+    <Compile Include="AuthenticationResult.cs" />
+    <Compile Include="Command\BasicCommandParser.cs" />
+    <Compile Include="Command\CommandBase.cs" />
+    <Compile Include="Command\CommandInfo.cs" />
+    <Compile Include="Command\FixedSplitCommandParameter.cs" />
+    <Compile Include="Command\ICommand.cs" />
+    <Compile Include="Command\ICommandLoader.cs" />
+    <Compile Include="Command\ICommandParameterParser.cs" />
+    <Compile Include="Command\ICommandParser.cs" />
+    <Compile Include="Command\ReflectCommandLoader.cs" />
+    <Compile Include="Command\SplitAllCommandParameterParser.cs" />
+    <Compile Include="Command\TagCommandParser.cs" />
+    <Compile Include="Configuration\CertificateConfig.cs" />
+    <Compile Include="Configuration\CredentialConfig.cs" />
+    <Compile Include="Configuration\Server.cs" />
+    <Compile Include="Configuration\ServerCollection.cs" />
+    <Compile Include="Configuration\Service.cs" />
+    <Compile Include="Configuration\ServiceCollection.cs" />
+    <Compile Include="Configuration\SocketServiceConfig.cs" />
+    <Compile Include="Config\ICertificateConfig.cs" />
+    <Compile Include="Config\IConfig.cs" />
+    <Compile Include="Config\ICredentialConfig.cs" />
+    <Compile Include="Config\IServerConfig.cs" />
+    <Compile Include="Config\IServiceConfig.cs" />
+    <Compile Include="Config\ServerConfig.cs" />
+    <Compile Include="ConsoleHostInfo.cs" />
+    <Compile Include="CreateUserResult.cs" />
+    <Compile Include="GlobalAssemblyInfo.cs" />
+    <Compile Include="ICommandSource.cs" />
+    <Compile Include="IRunable.cs" />
+    <Compile Include="ISocketSession.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProviderBase.cs" />
+    <Compile Include="Security\Certificate.cs" />
+    <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="SocketContext.cs" />
+    <Compile Include="SocketContextStatus.cs" />
+    <Compile Include="SocketManagerPasswordValidator.cs" />
+    <Compile Include="AppServer.cs" />
+    <Compile Include="SocketMode.cs" />
+    <Compile Include="SyncSocketServer.cs" />
+    <Compile Include="SocketServerBase.cs" />
+    <Compile Include="SocketServerManager.cs" />
+    <Compile Include="SocketSession.cs" />
+    <Compile Include="SocketUser.cs" />
+    <Compile Include="SyncSocketSession.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Common\Common.csproj">
+      <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
+      <Name>Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
