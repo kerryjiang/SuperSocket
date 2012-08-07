@@ -19,9 +19,9 @@ using SuperSocket.SocketBase.Security;
 namespace SuperSocket.SocketBase
 {
     /// <summary>
-    /// AppServer basic class
+    /// AppServer class
     /// </summary>
-    public abstract class AppServer : AppServer<AppSession>
+    public class AppServer : AppServer<AppSession>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServer"/> class.
@@ -44,10 +44,10 @@ namespace SuperSocket.SocketBase
     }
 
     /// <summary>
-    /// AppServer basic class
+    /// AppServer class
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringRequestInfo>
+    public class AppServer<TAppSession> : AppServer<TAppSession, StringRequestInfo>
         where TAppSession : AppSession<TAppSession, StringRequestInfo>, IAppSession, new()
     {
         /// <summary>
