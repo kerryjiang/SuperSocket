@@ -350,15 +350,28 @@ namespace SuperSocket.SocketBase
         }
 
 #if NET_35
+
         /// <summary>
-        /// Setups the specified root config, used for programming setup
+        /// Setups with the specified config, used for programming setup
         /// </summary>
-        /// <param name="rootConfig">The root config.</param>
-        /// <param name="config">The config.</param>
+        /// <param name="config">The server config.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="providers">The providers.</param>
         /// <returns></returns>
-        public virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, params object[] providers)
+        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, params object[] providers)
+        {
+            return Setup(config, socketServerFactory, providers);
+        }
+
+        /// <summary>
+        /// Setups with the specified root config, used for programming setup
+        /// </summary>
+        /// <param name="rootConfig">The root config.</param>
+        /// <param name="config">The server config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <param name="providers">The providers.</param>
+        /// <returns></returns>
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, params object[] providers)
         {
             SetupBasic(rootConfig, config, socketServerFactory);
 
@@ -390,10 +403,25 @@ namespace SuperSocket.SocketBase
 #else
 
         /// <summary>
+        /// Setups with the specified config.
+        /// </summary>
+        /// <param name="config">The server config.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <param name="logFactory">The log factory.</param>
+        /// <param name="connectionFilters">The connection filters.</param>
+        /// <param name="commandLoaders">The command loaders.</param>
+        /// <returns></returns>
+        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        {
+            return Setup(new RootConfig(), config, socketServerFactory, requestFilterFactory, logFactory, connectionFilters, commandLoaders);
+        }
+
+        /// <summary>
         /// Setups the specified root config, this method used for programming setup
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
-        /// <param name="config">The config.</param>
+        /// <param name="config">The server config.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="requestFilterFactory">The request filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
