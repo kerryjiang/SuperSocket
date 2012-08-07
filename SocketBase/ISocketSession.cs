@@ -10,9 +10,6 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
-    /// <summary>
-    /// CloseReason enum
-    /// </summary>
     public enum CloseReason
     {
         /// <summary>
@@ -31,11 +28,6 @@ namespace SuperSocket.SocketBase
         ServerClosing,
 
         /// <summary>
-        /// Application error
-        /// </summary>
-        ApplicationError,
-
-        /// <summary>
         /// The socket is closed for a socket error
         /// </summary>
         SocketError,
@@ -46,27 +38,32 @@ namespace SuperSocket.SocketBase
         TimeOut,
 
         /// <summary>
-        /// Protocol error 
-        /// </summary>
-        ProtocolError,
-
-        /// <summary>
         /// The socket is closed for unknown reason
         /// </summary>
         Unknown
     }
 
-    /// <summary>
-    /// The interface for socket session
-    /// </summary>
-    public interface ISocketSession : ISessionBase
+    public class SocketSessionClosedEventArgs : EventArgs
     {
         /// <summary>
-        /// Initializes the specified app session.
+        /// Gets or sets the identity key of the closed session.
         /// </summary>
-        /// <param name="appSession">The app session.</param>
-        void Initialize(IAppSession appSession);
+        /// <value>
+        /// The identity key.
+        /// </value>
+        public string IdentityKey { get; set; }
 
+        /// <summary>
+        /// Gets or sets the reason.
+        /// </summary>
+        /// <value>
+        /// The reason.
+        /// </value>
+        public CloseReason Reason { get; set; }
+    }
+
+    public interface ISocketSession : ISessionBase
+    {
         /// <summary>
         /// Starts this instance.
         /// </summary>
@@ -79,9 +76,24 @@ namespace SuperSocket.SocketBase
         void Close(CloseReason reason);
 
         /// <summary>
-        /// Starts the sending.
+        /// Sends the message to client.
         /// </summary>
-        void StartSend();
+        /// <param name="message">The message.</param>
+        void SendResponse(string message);
+
+        /// <summary>
+        /// Sends the binary data to client.
+        /// </summary>
+        /// <param name="data">The binary data should be sent to client.</param>
+        void SendResponse(byte[] data);
+
+        /// <summary>
+        /// Sends the binary data to client.
+        /// </summary>
+        /// <param name="data">The binary data should be sent to client.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        void SendResponse(byte[] data, int offset, int length);
 
         /// <summary>
         /// Applies the secure protocol.
@@ -92,6 +104,12 @@ namespace SuperSocket.SocketBase
         /// Gets the client socket.
         /// </summary>
         Socket Client { get; }
+
+        /// <summary>
+        /// Gets the underly stream of the socket connection, only supported in Sync mode.
+        /// </summary>
+        /// <returns></returns>
+        Stream GetUnderlyStream();
 
         /// <summary>
         /// Gets the local listening endpoint.
@@ -109,11 +127,17 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Occurs when [closed].
         /// </summary>
-        Action<ISocketSession, CloseReason> Closed { get; set; }
+        event EventHandler<SocketSessionClosedEventArgs> Closed;
+    }
 
+    public interface ISocketSession<TAppSession> : ISocketSession
+        where TAppSession : IAppSession, new()
+    {
         /// <summary>
-        /// Gets the app session assosiated with this socket session.
+        /// Initializes the specified socket session by AppServer and AppSession.
         /// </summary>
-        IAppSession AppSession { get; }
+        /// <param name="appServer">The app server.</param>
+        /// <param name="appSession">The app session.</param>
+        void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession);
     }
 }

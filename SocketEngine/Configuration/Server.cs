@@ -6,143 +6,90 @@ using System.IO;
 using System.Security.Authentication;
 using System.Text;
 using System.Xml;
-using System.Linq;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
-    /// <summary>
-    /// Server configuration
-    /// </summary>
-    [Serializable]
     public class Server : ConfigurationElementBase, IServerConfig
     {
-        /// <summary>
-        /// Gets the name of the server type this appServer want to use.
-        /// </summary>
-        /// <value>
-        /// The name of the server type.
-        /// </value>
-        [ConfigurationProperty("serverTypeName", IsRequired = false)]
-        public string ServerTypeName
+        [ConfigurationProperty("serviceName", IsRequired = true)]
+        public string ServiceName
         {
-            get { return this["serverTypeName"] as string; }
+            get { return this["serviceName"] as string; }
         }
 
-        /// <summary>
-        /// Gets the type definition of the appserver.
-        /// </summary>
-        /// <value>
-        /// The type of the server.
-        /// </value>
-        [ConfigurationProperty("serverType", IsRequired = false)]
-        public string ServerType
+        [ConfigurationProperty("protocol", IsRequired = false)]
+        public string Protocol
         {
-            get { return this["serverType"] as string; }
+            get { return this["protocol"] as string; }
         }
 
-        /// <summary>
-        /// Gets the request filter factory.
-        /// </summary>
-        [ConfigurationProperty("requestFilterFactory", IsRequired = false)]
-        public string RequestFilterFactory
-        {
-            get { return this["requestFilterFactory"] as string; }
-        }
-
-        /// <summary>
-        /// Gets the ip.
-        /// </summary>
         [ConfigurationProperty("ip", IsRequired = false)]
         public string Ip
         {
             get { return this["ip"] as string; }
         }
 
-        /// <summary>
-        /// Gets the port.
-        /// </summary>
-        [ConfigurationProperty("port", IsRequired = false)]
+        [ConfigurationProperty("port", IsRequired = true)]
         public int Port
         {
             get { return (int)this["port"]; }
         }
 
-        /// <summary>
-        /// Gets the mode.
-        /// </summary>
-        [ConfigurationProperty("mode", IsRequired = false, DefaultValue = "Tcp")]
+        [ConfigurationProperty("mode", IsRequired = false, DefaultValue = "Sync")]
         public SocketMode Mode
         {
             get { return (SocketMode)this["mode"]; }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="IServerConfig"/> is disabled.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if disabled; otherwise, <c>false</c>.
-        /// </value>
         [ConfigurationProperty("disabled", DefaultValue = "false")]
         public bool Disabled
         {
             get { return (bool)this["disabled"]; }
         }
 
-        /// <summary>
-        /// Gets the send time out.
-        /// </summary>
+        [ConfigurationProperty("enableManagementService", DefaultValue = "false")]
+        public bool EnableManagementService
+        {
+            get { return (bool)this["enableManagementService"]; }
+        }
+
+        [ConfigurationProperty("provider", IsRequired = false)]
+        public string Provider
+        {
+            get { return (string)this["provider"]; }
+        }
+
+        [ConfigurationProperty("readTimeOut", IsRequired = false, DefaultValue = 0)]
+        public int ReadTimeOut
+        {
+            get { return (int)this["readTimeOut"]; }
+        }
+
         [ConfigurationProperty("sendTimeOut", IsRequired = false, DefaultValue = 0)]
         public int SendTimeOut
         {
             get { return (int)this["sendTimeOut"]; }
         }
 
-        /// <summary>
-        /// Gets the max connection number.
-        /// </summary>
         [ConfigurationProperty("maxConnectionNumber", IsRequired = false, DefaultValue = 100)]
         public int MaxConnectionNumber
         {
             get { return (int)this["maxConnectionNumber"]; }
         }
 
-        /// <summary>
-        /// Gets the size of the receive buffer.
-        /// </summary>
-        /// <value>
-        /// The size of the receive buffer.
-        /// </value>
         [ConfigurationProperty("receiveBufferSize", IsRequired = false, DefaultValue = 2048)]
         public int ReceiveBufferSize
         {
             get { return (int)this["receiveBufferSize"]; }
         }
 
-        /// <summary>
-        /// Gets the size of the send buffer.
-        /// </summary>
-        /// <value>
-        /// The size of the send buffer.
-        /// </value>
         [ConfigurationProperty("sendBufferSize", IsRequired = false, DefaultValue = 2048)]
         public int SendBufferSize
         {
             get { return (int)this["sendBufferSize"]; }
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether sending is in synchronous mode.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [sync send]; otherwise, <c>false</c>.
-        /// </value>
-        [ConfigurationProperty("syncSend", IsRequired = false, DefaultValue = false)]
-        public bool SyncSend
-        {
-            get { return (bool)this["syncSend"]; }
         }
 
         /// <summary>
@@ -193,26 +140,14 @@ namespace SuperSocket.SocketEngine.Configuration
         [ConfigurationProperty("certificate", IsRequired = false)]
         public CertificateConfig CertificateConfig
         {
-            get
-            {
-                return (CertificateConfig)this["certificate"];
-            }
+            get { return (CertificateConfig)this["certificate"]; }
         }
 
-        /// <summary>
-        /// Gets X509Certificate configuration.
-        /// </summary>
-        /// <value>
-        /// X509Certificate configuration.
-        /// </value>
         public ICertificateConfig Certificate
         {
             get { return CertificateConfig; }
         }
 
-        /// <summary>
-        /// Gets the security protocol, X509 certificate.
-        /// </summary>
         [ConfigurationProperty("security", IsRequired = false, DefaultValue = "None")]
         public string Security
         {
@@ -223,17 +158,17 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets the max allowed length of request.
+        /// Gets the max command length in bytes. Default value is 1024.
         /// </summary>
         /// <value>
-        /// The max allowed length of request.
+        /// The length of the max command.
         /// </value>
-        [ConfigurationProperty("maxRequestLength", IsRequired = false, DefaultValue = 1024)]
-        public int MaxRequestLength
+        [ConfigurationProperty("maxCommandLength", IsRequired = false, DefaultValue = 1024)]
+        public int MaxCommandLength
         {
             get
             {
-                return (int)this["maxRequestLength"];
+                return (int)this["maxCommandLength"];
             }
         }
 
@@ -260,31 +195,13 @@ namespace SuperSocket.SocketEngine.Configuration
                 return (int)this["sessionSnapshotInterval"];
             }
         }
-
-        /// <summary>
-        /// Gets the connection filters used by this server instance.
-        /// </summary>
-        /// <value>
-        /// The connection filters's name list, seperated by comma
-        /// </value>
-        [ConfigurationProperty("connectionFilter", IsRequired = false)]
-        public string ConnectionFilter
+        
+        [ConfigurationProperty("connectionFilters", IsRequired = false)]
+        public string ConnectionFilters
         {
             get
             {
-                return (string)this["connectionFilter"];
-            }
-        }
-
-        /// <summary>
-        /// Gets the command loader, multiple values should be separated by comma.
-        /// </summary>
-        [ConfigurationProperty("commandLoader", IsRequired = false)]
-        public string CommandLoader
-        {
-            get
-            {
-                return (string)this["commandLoader"];
+                return (string)this["connectionFilters"];
             }
         }
 
@@ -312,6 +229,7 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+
         /// <summary>
         /// Gets the backlog size of socket listening.
         /// </summary>
@@ -325,68 +243,6 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets the startup order of the server instance.
-        /// </summary>
-        [ConfigurationProperty("startupOrder", IsRequired = false, DefaultValue = 0)]
-        public int StartupOrder
-        {
-            get
-            {
-                return (int)this["startupOrder"];
-            }
-        }
-
-        /// <summary>
-        /// Gets/sets the size of the sending queue.
-        /// </summary>
-        /// <value>
-        /// The size of the sending queue.
-        /// </value>
-        [ConfigurationProperty("sendingQueueSize", IsRequired = false, DefaultValue = 16)]
-        public int SendingQueueSize
-        {
-            get
-            {
-                return (int)this["sendingQueueSize"];
-            }
-        }
-
-        /// <summary>
-        /// Gets the logfactory name of the server instance.
-        /// </summary>
-        [ConfigurationProperty("logFactory", IsRequired = false, DefaultValue = "")]
-        public string LogFactory
-        {
-            get
-            {
-                return (string)this["logFactory"];
-            }
-        }
-
-        /// <summary>
-        /// Gets the listeners' configuration.
-        /// </summary>
-        [ConfigurationProperty("listeners", IsRequired = false)]
-        public ListenerConfigCollection Listeners
-        {
-            get
-            {
-                return this["listeners"] as ListenerConfigCollection;
-            }
-        }
-
-        /// <summary>
-        /// Gets the listeners' configuration.
-        /// </summary>
-        IEnumerable<IListenerConfig> IServerConfig.Listeners
-        {
-            get
-            {
-                return this.Listeners;
-            }
-        }
-
-        /// <summary>
         /// Gets the child config.
         /// </summary>
         /// <typeparam name="TConfig">The type of the config.</typeparam>
@@ -395,26 +251,19 @@ namespace SuperSocket.SocketEngine.Configuration
         public TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new()
         {
-            return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
-        }
+            var childConfig = this.OptionElements.GetValue(childConfigName, string.Empty);
 
-        /// <summary>
-        /// Gets a value indicating whether an unknown attribute is encountered during deserialization.
-        /// To keep compatible with old configuration
-        /// </summary>
-        /// <param name="name">The name of the unrecognized attribute.</param>
-        /// <param name="value">The value of the unrecognized attribute.</param>
-        /// <returns>
-        /// true when an unknown attribute is encountered while deserializing; otherwise, false.
-        /// </returns>
-        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
-        {
-            //To keep compatible with old configuration
-            if (!"serviceName".Equals(name, StringComparison.OrdinalIgnoreCase))
-                return base.OnDeserializeUnrecognizedAttribute(name, value);
+            if (string.IsNullOrEmpty(childConfig))
+                return default(TConfig);
 
-            this["serverTypeName"] = value;
-            return true;
+            XmlReader reader = new XmlTextReader(new StringReader(childConfig));
+
+            var config = new TConfig();
+
+            reader.Read();
+            config.Deserialize(reader);
+
+            return config;
         }
     }
 }

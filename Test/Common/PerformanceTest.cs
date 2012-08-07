@@ -17,7 +17,7 @@ namespace SuperSocket.Test.Common
 
             int offset = 1024 * 1024 * 5;
             int length = 1024 * 1024 * 5;
-
+            
             Stopwatch watch = new Stopwatch();
 
             watch.Start();

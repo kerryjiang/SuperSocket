@@ -13,11 +13,11 @@ namespace SuperSocket.QuickStart.ConnectionFilter
     {
         private Tuple<long, long>[] m_IpRanges;
 
-        public bool Initialize(string name, IAppServer appServer)
+        public bool Initialize(string name, NameValueCollection options)
         {
             Name = name;
 
-            var ipRange = appServer.Config.Options.GetValue("ipRange");
+            var ipRange = options.GetValue("ipRange");
 
             string[] ipRangeArray;
 

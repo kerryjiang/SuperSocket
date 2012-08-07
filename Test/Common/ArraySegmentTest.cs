@@ -40,7 +40,7 @@ namespace SuperSocket.Test.Common
 
             source.AddSegment("I love you,".ToCharArray(), 0, 5);
             source.AddSegment("Hello world!".ToCharArray(), 0, 4);
-
+            
             char currentChar = ' ';
 
             Assert.Throws<IndexOutOfRangeException>(delegate
@@ -72,7 +72,7 @@ namespace SuperSocket.Test.Common
             {
                 currentChar = source[10];
             });
-
+            
             Console.Write(currentChar);
         }
 
@@ -138,7 +138,7 @@ namespace SuperSocket.Test.Common
             Stopwatch watch = new Stopwatch();
 
             watch.Start();
-            
+
             char tt = ' ';
 
             for (var i = 0; i < testCount; i++)
@@ -163,10 +163,11 @@ namespace SuperSocket.Test.Common
                 tt = sourceB[index];
             }
 
+            Console.Write(tt);
+
             watch.Stop();
 
             Console.WriteLine(watch.ElapsedMilliseconds);
-            Console.WriteLine(tt);
         }
 
         [Test]
@@ -287,7 +288,7 @@ namespace SuperSocket.Test.Common
             }
 
             watch.Stop();
-
+            
             Console.WriteLine(watch.ElapsedMilliseconds);
 
             watch.Reset();

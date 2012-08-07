@@ -8,14 +8,14 @@ namespace SuperSocket.QuickStart.EchoService
 {
     public class EchoSession : AppSession<EchoSession>
     {
-        protected override void OnSessionStarted()
+        public override void StartSession()
         {
-            Send("Welcome to EchoServer!");
+            SendResponse("Welcome to EchoServer!");
         }
 
-        public override void HandleException(Exception e)
+        public override void HandleExceptionalError(Exception e)
         {
-            Send("Server side error occurred!");
+            SendResponse("Server side error occurred!");
         }
     }
 }

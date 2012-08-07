@@ -108,6 +108,10 @@
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
       <Name>SuperSocket.SocketBase</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SocketService\SuperSocket.SocketService.csproj">
+      <Project>{B9113694-7226-4152-938D-3172B11571A1}</Project>
+      <Name>SuperSocket.SocketService</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -18,97 +18,64 @@ using SuperSocket.SocketBase.Security;
 
 namespace SuperSocket.SocketBase
 {
-    /// <summary>
-    /// AppServer basic class
-    /// </summary>
     public abstract class AppServer : AppServer<AppSession>
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppServer"/> class.
-        /// </summary>
         public AppServer()
             : base()
         {
 
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppServer"/> class.
-        /// </summary>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
-        public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
-            : base(requestFilterFactory)
+        public AppServer(ICustomProtocol<StringCommandInfo> protocol)
+            : base(protocol)
         {
 
         }
     }
 
-    /// <summary>
-    /// AppServer basic class
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringRequestInfo>
-        where TAppSession : AppSession<TAppSession, StringRequestInfo>, IAppSession, new()
+    public abstract class AppServer<TAppSession> : AppServer<TAppSession, StringCommandInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
-        /// </summary>
         public AppServer()
-            : base(new CommandLineRequestFilterFactory())
+            : base(new CommandLineProtocol())
         {
 
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
-        /// </summary>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
-        public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
-            : base(requestFilterFactory)
+        public AppServer(ICustomProtocol<StringCommandInfo> protocol)
+            : base(protocol)
         {
 
         }
     }
 
-
-    /// <summary>
-    /// AppServer basic class
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppServer<TAppSession, TRequestInfo> : AppServerBase<TAppSession, TRequestInfo>, IPerformanceDataSource
-        where TRequestInfo : class, IRequestInfo
-        where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
+    public abstract class AppServer<TAppSession, TCommandInfo> : AppServerBase<TAppSession, TCommandInfo>, IPerformanceDataSource
+        where TCommandInfo : ICommandInfo
+        where TAppSession : IAppSession<TAppSession, TCommandInfo>, new()
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
-        /// </summary>
+
+        private bool m_DisableSessionSnapshot;
+
+        private int m_IdleSessionTimeOut;
+
         public AppServer()
             : base()
         {
             
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
-        /// </summary>
-        /// <param name="protocol">The protocol.</param>
-        protected AppServer(IRequestFilterFactory<TRequestInfo> protocol)
+        protected AppServer(ICustomProtocol<TCommandInfo> protocol)
             : base(protocol)
         {
    
         }
 
-        /// <summary>
-        /// Starts this AppServer instance.
-        /// </summary>
-        /// <returns></returns>
         public override bool Start()
         {
             if (!base.Start())
                 return false;
 
-            if (!Config.DisableSessionSnapshot)
+            if (!m_DisableSessionSnapshot)
                 StartSessionSnapshotTimer();
 
             if (Config.ClearIdleSession)
@@ -117,70 +84,87 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
-
-        /// <summary>
-        /// Registers the session into the session container.
-        /// </summary>
-        /// <param name="sessionID">The session ID.</param>
-        /// <param name="appSession">The app session.</param>
-        /// <returns></returns>
-        protected override bool RegisterSession(string sessionID, TAppSession appSession)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<TCommandInfo> protocol)
         {
-            if (m_SessionDict.TryAdd(sessionID, appSession))
-                return true;
-
-            if (Logger.IsErrorEnabled)
-                Logger.Error(appSession, "The session is refused because the it's ID already exists!");
-
-            return false;
+            m_DisableSessionSnapshot = config.DisableSessionSnapshot;
+            m_IdleSessionTimeOut = config.IdleSessionTimeOut;
+            return base.Setup(rootConfig, config, socketServerFactory, protocol);
         }
 
-        /// <summary>
-        /// Gets the app session by ID.
-        /// </summary>
-        /// <param name="sessionID">The session ID.</param>
-        /// <returns></returns>
-        public override TAppSession GetAppSessionByID(string sessionID)
+        private ConcurrentDictionary<string, TAppSession> m_SessionDict = new ConcurrentDictionary<string, TAppSession>(StringComparer.OrdinalIgnoreCase);
+                       
+        public override TAppSession CreateAppSession(ISocketSession socketSession)
         {
-            if (string.IsNullOrEmpty(sessionID))
+            var appSession = base.CreateAppSession(socketSession);
+
+            if (ReferenceEquals(NullAppSession, appSession))
+                return appSession;
+
+            if (m_SessionDict.TryAdd(appSession.IdentityKey, appSession))
+            {
+                Logger.LogInfo(appSession, "New SocketSession was accepted!");
+                return appSession;
+            }
+            else
+            {
+                Logger.LogError(appSession, "SocketSession was refused because the session's IdentityKey already exists!");
+                return NullAppSession;
+            }
+        }
+
+        public override TAppSession GetAppSessionByIndentityKey(string identityKey)
+        {
+            if(string.IsNullOrEmpty(identityKey))
                 return NullAppSession;
 
             TAppSession targetSession;
-            m_SessionDict.TryGetValue(sessionID, out targetSession);
+            m_SessionDict.TryGetValue(identityKey, out targetSession);
             return targetSession;
         }
 
-        /// <summary>
-        /// Called when [socket session closed].
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="reason">The reason.</param>
-        protected override void OnSessionClosed(TAppSession session, CloseReason reason)
+        internal protected override void OnSocketSessionClosed(object sender, SocketSessionClosedEventArgs e)
         {
-            string sessionID = session.SessionID;
+            //the sender is a sessionID
+            string identityKey = e.IdentityKey;
 
-            if (!string.IsNullOrEmpty(sessionID))
+            if (string.IsNullOrEmpty(identityKey))
+                return;
+
+            TAppSession removedSession;
+            if (m_SessionDict.TryRemove(identityKey, out removedSession))
             {
-                TAppSession removedSession;
-                if (!m_SessionDict.TryRemove(sessionID, out removedSession))
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.Error(session, "Failed to remove this session, Because it has't been in session container!");
-                }
+                removedSession.Status = SessionStatus.Disconnected;
+                Logger.LogInfo(removedSession, "This session was closed!");
+                Async.Run(() => OnAppSessionClosed(this, new AppSessionClosedEventArgs<TAppSession>(removedSession, e.Reason)),
+                    exc => Logger.LogError(exc));
             }
-
-            base.OnSessionClosed(session, reason);
+            else
+            {
+                Logger.LogError(removedSession, "Failed to remove this session, Because it haven't been in session container!");
+            }
         }
 
-        /// <summary>
-        /// Gets the total session count.
-        /// </summary>
+        protected virtual void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<TAppSession> e)
+        {
+
+        }
+
         public override int SessionCount
         {
             get
             {
                 return m_SessionDict.Count;
+            }
+        }
+
+        private KeyValuePair<string, TAppSession>[] SessionSource
+        {
+            get
+            {
+                if (m_DisableSessionSnapshot)
+                    return m_SessionDict.ToArray();
+                else
+                    return m_SessionsSnapshot;
             }
         }
 
@@ -194,10 +178,6 @@ namespace SuperSocket.SocketBase
             m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
         }
 
-        /// <summary>
-        /// Clears the idle session.
-        /// </summary>
-        /// <param name="state">The state.</param>
         private void ClearIdleSession(object state)
         {
             if (Monitor.TryEnter(state))
@@ -205,36 +185,23 @@ namespace SuperSocket.SocketBase
                 try
                 {
                     DateTime now = DateTime.Now;
-                    DateTime timeOut = now.AddSeconds(0 - Config.IdleSessionTimeOut);
+                    DateTime timeOut = now.AddSeconds(0 - m_IdleSessionTimeOut);
 
                     var timeOutSessions = SessionSource.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                         {
-                            if (Logger.IsInfoEnabled)
-                                Logger.Info(s, string.Format("The session will be closed for {0} timeout, the session start time: {1}, last active time: {2}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.StartTime, s.LastActiveTime));
+                            Logger.LogInfo(s, string.Format("The socket session has been closed for {0} timeout, last active time: {1}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.LastActiveTime));
                             s.Close(CloseReason.TimeOut);
                         });
                 }
                 catch (Exception e)
                 {
-                    if(Logger.IsErrorEnabled)
-                        Logger.Error("Clear idle session error!", e);
+                    Logger.LogError("Clear idle session error!", e);
                 }
                 finally
                 {
                     Monitor.Exit(state);
                 }
-            }
-        }
-
-        private KeyValuePair<string, TAppSession>[] SessionSource
-        {
-            get
-            {
-                if (Config.DisableSessionSnapshot)
-                    return m_SessionDict.ToArray();
-                else
-                    return m_SessionsSnapshot;
             }
         }
 
@@ -290,30 +257,21 @@ namespace SuperSocket.SocketBase
 
         private PerformanceData m_PerformanceData = new PerformanceData();
 
-        /// <summary>
-        /// Collects the performance data.
-        /// </summary>
-        /// <param name="globalPerfData">The global perf data.</param>
-        /// <returns></returns>
         public PerformanceData CollectPerformanceData(GlobalPerformanceData globalPerfData)
         {
             m_PerformanceData.PushRecord(new PerformanceRecord
                 {
                     TotalConnections = m_SessionDict.Count,
-                    TotalHandledRequests = TotalHandledRequests
+                    TotalHandledCommands = TotalHandledCommands
                 });
 
             //User can process the performance data by self
-            this.AsyncRun(() => OnPerformanceDataCollected(globalPerfData, m_PerformanceData), e => Logger.Error(e));
+            Async.Run(() => OnPerformanceDataCollected(globalPerfData, m_PerformanceData), e => Logger.LogError(e));
 
             return m_PerformanceData;
         }
 
-        /// <summary>
-        /// Called when [performance data collected], you can override this method to get collected performance data
-        /// </summary>
-        /// <param name="globalPerfData">The global perf data.</param>
-        /// <param name="performanceData">The performance data.</param>
+        //User can override this method a get collected performance data
         protected virtual void OnPerformanceDataCollected(GlobalPerformanceData globalPerfData, PerformanceData performanceData)
         {
 
@@ -323,10 +281,6 @@ namespace SuperSocket.SocketBase
 
         #region IDisposable Members
 
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
@@ -357,13 +311,7 @@ namespace SuperSocket.SocketBase
                     {
                         tasks[i] = Task.Factory.StartNew((s) =>
                             {
-                                var session = s as TAppSession;
-
-                                if (session != null)
-                                {
-                                    session.Close(CloseReason.ServerShutdown);
-                                }
-
+                                ((TAppSession)s).Close(CloseReason.ServerShutdown);
                             }, sessions[i].Value);
                     }
 

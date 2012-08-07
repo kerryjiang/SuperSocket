@@ -5,10 +5,6 @@ using System.Text;
 
 namespace SuperSocket.Common
 {
-    /// <summary>
-    /// ArraySegmentList
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
     public class ArraySegmentList<T> : IList<T>
         where T : IEquatable<T>
     {
@@ -24,9 +20,6 @@ namespace SuperSocket.Common
 
         private int m_Count;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ArraySegmentList&lt;T&gt;"/> class.
-        /// </summary>
         public ArraySegmentList()
         {
             m_Segments = new List<ArraySegmentEx<T>>();
@@ -54,13 +47,6 @@ namespace SuperSocket.Common
 
         #region IList<T> Members
 
-        /// <summary>
-        /// Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1"/>.
-        /// </summary>
-        /// <param name="item">The object to locate in the <see cref="T:System.Collections.Generic.IList`1"/>.</param>
-        /// <returns>
-        /// The index of <paramref name="item"/> if found in the list; otherwise, -1.
-        /// </returns>
         public int IndexOf(T item)
         {
             int index = 0;
@@ -82,35 +68,16 @@ namespace SuperSocket.Common
             return -1;
         }
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         public void Insert(int index, T item)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         public void RemoveAt(int index)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        /// Gets or sets the element at the specified index.
-        /// </summary>
-        /// <returns>
-        /// The element at the specified index.
-        ///   </returns>
-        ///   
-        /// <exception cref="T:System.ArgumentOutOfRangeException"><paramref name="index"/> is not a valid index in the <see cref="T:System.Collections.Generic.IList`1"/>.
-        ///   </exception>
-        ///   
-        /// <exception cref="T:System.NotSupportedException">
-        /// The property is set and the <see cref="T:System.Collections.Generic.IList`1"/> is read-only.
-        ///   </exception>
         public T this[int index]
         {
             get
@@ -118,8 +85,8 @@ namespace SuperSocket.Common
                 ArraySegmentEx<T> segment;
 
                 var internalIndex = GetElementInternalIndex(index, out segment);
-
-                if (internalIndex < 0)
+                
+                if(internalIndex < 0)
                     throw new IndexOutOfRangeException();
 
                 return segment.Array[internalIndex];
@@ -300,64 +267,36 @@ namespace SuperSocket.Common
 
         #region ICollection<T> Members
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         public void Add(T item)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         public void Clear()
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         public bool Contains(T item)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        /// Copies to.
-        /// </summary>
-        /// <param name="array">The array.</param>
-        /// <param name="arrayIndex">Index of the array.</param>
         public void CopyTo(T[] array, int arrayIndex)
         {
             CopyTo(array, 0, arrayIndex, Math.Min(array.Length, this.Count - arrayIndex));
         }
 
-        /// <summary>
-        /// Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
-        /// </summary>
-        /// <returns>
-        /// The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1"/>.
-        ///   </returns>
         public int Count
         {
             get { return m_Count; }
         }
 
-        /// <summary>
-        /// Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only.
-        /// </summary>
-        /// <returns>true if the <see cref="T:System.Collections.Generic.ICollection`1"/> is read-only; otherwise, false.
-        ///   </returns>
         public bool IsReadOnly
         {
             get { return true; }
         }
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         public bool Remove(T item)
         {
             throw new NotSupportedException();
@@ -367,9 +306,6 @@ namespace SuperSocket.Common
 
         #region IEnumerable<T> Members
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         public IEnumerator<T> GetEnumerator()
         {
             throw new NotSupportedException();
@@ -379,9 +315,6 @@ namespace SuperSocket.Common
 
         #region IEnumerable Members
 
-        /// <summary>
-        /// NotSupported
-        /// </summary>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
             throw new NotSupportedException();
@@ -389,10 +322,6 @@ namespace SuperSocket.Common
 
         #endregion
 
-        /// <summary>
-        /// Removes the segment at.
-        /// </summary>
-        /// <param name="index">The index.</param>
         public void RemoveSegmentAt(int index)
         {
             var removedSegment = m_Segments[index];
@@ -403,7 +332,7 @@ namespace SuperSocket.Common
             m_PrevSegment = null;
 
             //the removed item is not the the last item 
-            if (index != m_Segments.Count)
+            if(index != m_Segments.Count)
             {
                 for (int i = index; i < m_Segments.Count; i++)
                 {
@@ -415,24 +344,11 @@ namespace SuperSocket.Common
             m_Count -= removedLen;
         }
 
-        /// <summary>
-        /// Adds the segment to the list.
-        /// </summary>
-        /// <param name="array">The array.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
         public void AddSegment(T[] array, int offset, int length)
         {
             AddSegment(array, offset, length, false);
         }
 
-        /// <summary>
-        /// Adds the segment to the list.
-        /// </summary>
-        /// <param name="array">The array.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         public void AddSegment(T[] array, int offset, int length, bool toBeCopied)
         {
             if (length <= 0)
@@ -454,17 +370,11 @@ namespace SuperSocket.Common
             m_Segments.Add(segment);
         }
 
-        /// <summary>
-        /// Gets the segment count.
-        /// </summary>
         public int SegmentCount
         {
             get { return m_Segments.Count; }
         }
 
-        /// <summary>
-        /// Clears all the segements.
-        /// </summary>
         public void ClearSegements()
         {
             m_Segments.Clear();
@@ -472,21 +382,11 @@ namespace SuperSocket.Common
             m_Count = 0;
         }
 
-        /// <summary>
-        /// Read all data in this list to the array data.
-        /// </summary>
-        /// <returns></returns>
         public T[] ToArrayData()
         {
             return ToArrayData(0, m_Count);
         }
 
-        /// <summary>
-        /// Read the data in specific range to the array data.
-        /// </summary>
-        /// <param name="startIndex">The start index.</param>
-        /// <param name="length">The length.</param>
-        /// <returns></returns>
         public T[] ToArrayData(int startIndex, int length)
         {
             var result = new T[length];
@@ -518,10 +418,6 @@ namespace SuperSocket.Common
             return result;
         }
 
-        /// <summary>
-        /// Trims the end.
-        /// </summary>
-        /// <param name="trimSize">Size of the trim.</param>
         public void TrimEnd(int trimSize)
         {
             if (trimSize <= 0)
@@ -544,14 +440,9 @@ namespace SuperSocket.Common
             }
         }
 
-        /// <summary>
-        /// Searches the last segment.
-        /// </summary>
-        /// <param name="state">The state.</param>
-        /// <returns></returns>
         public int SearchLastSegment(SearchMarkState<T> state)
         {
-            if (m_Segments.Count <= 0)
+            if(m_Segments.Count <= 0)
                 return -1;
 
             var lastSegment = m_Segments[m_Segments.Count - 1];
@@ -574,24 +465,11 @@ namespace SuperSocket.Common
             return -1;
         }
 
-        /// <summary>
-        /// Copies to.
-        /// </summary>
-        /// <param name="to">To.</param>
-        /// <returns></returns>
         public int CopyTo(T[] to)
         {
             return CopyTo(to, 0, 0, Math.Min(m_Count, to.Length));
         }
 
-        /// <summary>
-        /// Copies to.
-        /// </summary>
-        /// <param name="to">To.</param>
-        /// <param name="srcIndex">Index of the SRC.</param>
-        /// <param name="toIndex">To index.</param>
-        /// <param name="length">The length.</param>
-        /// <returns></returns>
         public int CopyTo(T[] to, int srcIndex, int toIndex, int length)
         {
             int copied = 0;
@@ -633,28 +511,13 @@ namespace SuperSocket.Common
         }
     }
 
-    /// <summary>
-    /// ArraySegmentList
-    /// </summary>
     public class ArraySegmentList : ArraySegmentList<byte>
     {
-        /// <summary>
-        /// Decodes bytes to string by the specified encoding.
-        /// </summary>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns></returns>
         public string Decode(Encoding encoding)
         {
             return Decode(encoding, 0, Count);
         }
 
-        /// <summary>
-        /// Decodes bytes to string by the specified encoding.
-        /// </summary>
-        /// <param name="encoding">The encoding.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <returns></returns>
         public string Decode(Encoding encoding, int offset, int length)
         {
             var arraySegments = Segments;
@@ -708,12 +571,6 @@ namespace SuperSocket.Common
             return new string(charsBuffer, 0, totalChars);
         }
 
-        /// <summary>
-        /// Decodes data by the mask.
-        /// </summary>
-        /// <param name="mask">The mask.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
         public void DecodeMask(byte[] mask, int offset, int length)
         {
             int maskLen = mask.Length;

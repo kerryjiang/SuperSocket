@@ -11,17 +11,14 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine;
 using SuperSocket.Test.Udp;
-using SuperSocket.SocketBase.Logging;
-using System.Threading.Tasks;
 
 namespace SuperSocket.Test
 {
-    public class MyUdpRequestInfo : UdpRequestInfo
+    public class MyUdpCommandInfo : UdpCommandInfo
     {
-        public MyUdpRequestInfo(string key, string sessionID)
+        public MyUdpCommandInfo(string key, string sessionID)
             : base(key, sessionID)
         {
 
@@ -34,7 +31,7 @@ namespace SuperSocket.Test
             List<byte> data = new List<byte>();
 
             data.AddRange(Encoding.ASCII.GetBytes(Key));
-            data.AddRange(Encoding.ASCII.GetBytes(SessionID));
+            data.AddRange(Encoding.ASCII.GetBytes(SessionKey));
 
             int expectedLen = 36 + 4;
 
@@ -65,33 +62,38 @@ namespace SuperSocket.Test
             get
             {
                 return new ServerConfig
-                    {
-                        Ip = "127.0.0.1",
-                        LogCommand = true,
-                        MaxConnectionNumber = 100,
-                        Mode = SocketMode.Udp,
-                        Name = "Udp Test Socket Server",
-                        Port = 2196,
-                        ClearIdleSession = true,
-                        ClearIdleSessionInterval = 1,
-                        IdleSessionTimeOut = 5,
-                        SendingQueueSize = 100
-                    };
+                {
+                    Ip = "127.0.0.1",
+                    LogCommand = true,
+                    MaxConnectionNumber = 100,
+                    Mode = SocketMode.Udp,
+                    Name = "Udp Test Socket Server",
+                    Port = 2196,
+                    ClearIdleSession = true,
+                    ClearIdleSessionInterval = 1,
+                    IdleSessionTimeOut = 5
+                };
             }
         }
 
         public UdpSocketServerTest()
         {
             m_Config = DefaultServerConfig;
-            m_RootConfig = new RootConfig();
-            m_Encoding = new System.Text.UTF8Encoding();
+            m_RootConfig = new RootConfig
+            {
+                LoggingMode = LoggingMode.Console
+            };
+            
+            m_Encoding = new UTF8Encoding();
         }
 
         [TestFixtureSetUp]
         public void Setup()
         {
+            LogUtil.Setup(new ConsoleLogger());
+
             m_Server = new TestServer();
-            m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance, null, new ConsoleLogFactory(), null, null);
+            m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
         }
 
         [TestFixtureTearDown]
@@ -131,7 +133,7 @@ namespace SuperSocket.Test
             Assert.IsFalse(m_Server.IsRunning);
         }
 
-        [Test, Timeout(10000)]
+        [Test, Timeout(5000)]
         public void TestEchoMessage()
         {
             StartServer();
@@ -160,11 +162,10 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Timeout(6000)]
+        [Test, Timeout(5000)]
         public void TestUdpCommand()
         {
             var testServer = new UdpAppServer();
-
             testServer.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
             testServer.Start();
@@ -179,7 +180,7 @@ namespace SuperSocket.Test
 
                 StringBuilder sb = new StringBuilder();
 
-                var sessionID = Guid.NewGuid().ToString();
+                var sessionKey = Guid.NewGuid().ToString();
 
                 for (int i = 0; i < 100; i++)
                 {
@@ -188,7 +189,7 @@ namespace SuperSocket.Test
 
                     Console.WriteLine("Client prepare sent:" + command);
 
-                    var cmdInfo = new MyUdpRequestInfo("SESS", sessionID);
+                    var cmdInfo = new MyUdpCommandInfo("SESS", sessionKey);
                     cmdInfo.Value = command;
 
                     socket.SendTo(cmdInfo.ToData(), serverAddress);
@@ -197,7 +198,7 @@ namespace SuperSocket.Test
 
                     string[] res = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray()).Split(' ');
 
-                    Assert.AreEqual(sessionID, res[0]);
+                    Assert.AreEqual(sessionKey, res[0]);
                     Assert.AreEqual(command, res[1]);
                 }
             }
@@ -234,7 +235,7 @@ namespace SuperSocket.Test
                         sbCombile.AppendLine("ECHO " + command);
                     }
 
-                    socket.SendTo(m_Encoding.GetBytes(sbCombile.ToString()), serverAddress);                    
+                    socket.SendTo(m_Encoding.GetBytes(sbCombile.ToString()), serverAddress);
 
                     for (int i = 0; i < 5; i++)
                     {
@@ -247,6 +248,46 @@ namespace SuperSocket.Test
                 }
             }
         }
+
+        //[Test]
+        //public void TestBrokenCommandBlock()
+        //{
+        //    StartServer();
+
+        //    EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+        //    using (Socket socket = CreateClientSocket())
+        //    {
+        //        char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+
+        //        Random rd = new Random(1);
+
+        //        StringBuilder sb = new StringBuilder();
+
+        //        for (int i = 0; i < 50; i++)
+        //        {
+        //            sb.Append(chars[rd.Next(0, chars.Length - 1)]);
+        //        }
+
+        //        string command = sb.ToString();
+
+        //        var commandSource = ("ECHO " + command).ToList();
+
+        //        while (commandSource.Count > 0)
+        //        {
+        //            int readLen = rd.Next(1, commandSource.Count);
+        //            Console.WriteLine(commandSource.Take(readLen).ToArray());
+        //            socket.SendTo(m_Encoding.GetBytes(commandSource.Take(readLen).ToArray()), serverAddress);
+        //            commandSource.RemoveRange(0, readLen);
+        //        }
+
+        //        socket.SendTo(m_Encoding.GetBytes("\r\n"), serverAddress);
+
+        //        string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+        //        Console.WriteLine("C:" + echoMessage);
+        //        Assert.AreEqual(command, echoMessage);
+        //    }
+        //}
 
         private bool RunEchoMessage()
         {
@@ -264,15 +305,11 @@ namespace SuperSocket.Test
                 {
                     sb.Append(chars[rd.Next(0, chars.Length - 1)]);
                     string command = sb.ToString();
-
                     socket.SendTo(m_Encoding.GetBytes("ECHO " + command + Environment.NewLine), serverAddress);
                     string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    Assert.AreEqual(command, echoMessage);
                     if (!string.Equals(command, echoMessage))
-                    {
-                        Console.WriteLine("Incorrect response: {0}, {1}", command, echoMessage);
                         return false;
-                    }
-
                     Thread.Sleep(100);
                 }
             }
@@ -280,30 +317,31 @@ namespace SuperSocket.Test
             return true;
         }
 
-        [Test]
+        [Test, Repeat(3)]
         public void TestConcurrencyCommunication()
         {
             StartServer();
 
             int concurrencyCount = 64;
 
-            bool[] resultArray = new bool[concurrencyCount];
-
             Semaphore semaphore = new Semaphore(0, concurrencyCount);
 
+            ManualResetEvent taskEvent = new ManualResetEvent(true);
+
             System.Threading.Tasks.Parallel.For(0, concurrencyCount, i =>
-                {
-                    resultArray[i] = RunEchoMessage();
-                    semaphore.Release();
-                });
+            {
+                if (!RunEchoMessage())
+                    taskEvent.Reset();
+                semaphore.Release();
+            });
 
             for (var i = 0; i < concurrencyCount; i++)
             {
                 semaphore.WaitOne();
-                Console.WriteLine("Got {0}", i);
             }
 
-            Assert.AreEqual(false, resultArray.Any(b => !b));
+            if (!taskEvent.WaitOne(1000))
+                Assert.Fail();
         }
 
         [Test, Repeat(2)]
@@ -348,7 +386,7 @@ namespace SuperSocket.Test
         [Test, Repeat(3)]
         public void TestCommandParser()
         {
-            var server = new TestServer(new TestRequestParser());
+            var server = new TestServer(new TestCommandParser());
             server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
             try
@@ -375,6 +413,46 @@ namespace SuperSocket.Test
                     server.Stop();
             }
         }
+
+        //[Test, Repeat(3)]
+        //public void TestCommandParameterParser()
+        //{
+        //    var server = new TestServer(new TestCommandParser(), new TestCommandParameterParser());
+        //    server.Setup(m_Config);
+
+        //    try
+        //    {
+        //        server.Start();
+
+        //        EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+        //        using (Socket socket = CreateClientSocket())
+        //        {
+        //            string[] arrParam = new string[] { "A1", "A2", "A4", "B2", "A6", "E5" };
+        //            socket.SendTo(m_Encoding.GetBytes("PARA:" + string.Join(",", arrParam) + Environment.NewLine), serverAddress);
+
+        //            List<string> received = new List<string>();
+
+        //            foreach (var p in arrParam)
+        //            {
+        //                string r = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+        //                Console.WriteLine("C: " + r);
+        //                received.Add(r);
+        //            }
+
+        //            Assert.AreEqual(arrParam, received);
+        //        }
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        throw e;
+        //    }
+        //    finally
+        //    {
+        //        if (server.IsRunning)
+        //            server.Stop();
+        //    }
+        //}
 
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {
@@ -413,9 +491,9 @@ namespace SuperSocket.Test
                 {
                     trySocket.SendTo(m_Encoding.GetBytes(Guid.NewGuid().ToString() + Environment.NewLine), serverAddress);
                     Thread thread = new Thread(new ThreadStart(() =>
-                        {
-                            Console.WriteLine("C: " + m_Encoding.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
-                        }));
+                    {
+                        Console.WriteLine("C: " + m_Encoding.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
+                    }));
                     thread.Start();
                     if (thread.Join(500))
                     {

@@ -22,8 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\SuperSocket.Facility.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,8 +30,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Release\SuperSocket.Facility.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -48,16 +44,15 @@
     <Reference Include="System.Threading">
       <HintPath>..\Reference\System.Threading.dll</HintPath>
     </Reference>
-    <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="PolicyServer\FixSizeCommandProtocol.cs" />
+    <Compile Include="PolicyServer\FixSizeCommandReader.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
-    <Compile Include="PolicyServer\PolicyRequestFilter.cs" />
-    <Compile Include="PolicyServer\PolicyRequestFilterFactory.cs" />
     <Compile Include="PolicyServer\PolicyServer.cs" />
     <Compile Include="PolicyServer\PolicySession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

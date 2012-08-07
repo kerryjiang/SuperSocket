@@ -8,70 +8,65 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class TcpSocketServerBase : SocketServerBase
+    class TcpSocketServerBase<TSocketSession, TAppSession, TCommandInfo> : SocketServerBase<TSocketSession, TAppSession, TCommandInfo>
+        where TAppSession : IAppSession, new()
+        where TSocketSession : ISocketSession<TAppSession>
+        where TCommandInfo : ICommandInfo
     {
-        private readonly byte[] m_KeepAliveOptionValues;
-        private readonly int m_SendTimeOut;
-        private readonly int m_ReceiveBufferSize;
-        private readonly int m_SendBufferSize;
+        private byte[] m_KeepAliveOptionValues;
 
-        public TcpSocketServerBase(IAppServer appServer, ListenerInfo[] listeners)
-            : base(appServer, listeners)
+        public TcpSocketServerBase(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+            : base(appServer, localEndPoint, protocol)
         {
-            var config = appServer.Config;
-
             uint dummy = 0;
             m_KeepAliveOptionValues = new byte[Marshal.SizeOf(dummy) * 3];
             //whether enable KeepAlive
             BitConverter.GetBytes((uint)1).CopyTo(m_KeepAliveOptionValues, 0);
             //how long will start first keep alive
-            BitConverter.GetBytes((uint)(config.KeepAliveTime * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy));
+            BitConverter.GetBytes((uint)(appServer.Config.KeepAliveTime * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy));
             //keep alive interval
-            BitConverter.GetBytes((uint)(config.KeepAliveInterval * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy) * 2);
-
-            m_SendTimeOut = config.SendTimeOut;
-            m_ReceiveBufferSize = config.ReceiveBufferSize;
-            m_SendBufferSize = config.SendBufferSize;
+            BitConverter.GetBytes((uint)(appServer.Config.KeepAliveInterval * 1000)).CopyTo(m_KeepAliveOptionValues, Marshal.SizeOf(dummy) * 2);
         }
 
-        protected ISocketSession RegisterSession(Socket client, ISocketSession session)
+        protected TSocketSession RegisterSession(Socket client, TSocketSession session)
         {
-            if (m_SendTimeOut > 0)
-                client.SendTimeout = m_SendTimeOut;
+            //load socket setting
+            if (AppServer.Config.ReadTimeOut > 0)
+                client.ReceiveTimeout = AppServer.Config.ReadTimeOut;
 
-            if (m_ReceiveBufferSize > 0)
-                client.ReceiveBufferSize = m_ReceiveBufferSize;
+            if (AppServer.Config.SendTimeOut > 0)
+                client.SendTimeout = AppServer.Config.SendTimeOut;
 
-            if (m_SendBufferSize > 0)
-                client.SendBufferSize = m_SendBufferSize;
+            if (AppServer.Config.ReceiveBufferSize > 0)
+                client.ReceiveBufferSize = AppServer.Config.ReceiveBufferSize;
 
-            if(!Platform.SupportSocketIOControlByCodeEnum)
+            if (AppServer.Config.SendBufferSize > 0)
+                client.SendBufferSize = AppServer.Config.SendBufferSize;
+
+            if (!Platform.SupportSocketIOControlByCodeEnum)
+            {
                 client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+            }
             else
+            {
                 client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
+            }
 
-            client.NoDelay = true;
-            client.UseOnlyOverlappedIO = true;
+            client.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, true);
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
-            IAppSession appSession = this.AppServer.CreateAppSession(session);
+            TAppSession appSession = this.AppServer.CreateAppSession(session);
 
             if (appSession == null)
-                return null;
+                return default(TSocketSession);
 
-            session.Initialize(appSession);
+            session.Initialize(this.AppServer, appSession);
 
             return session;
-        }
-
-        protected override ISocketListener CreateListener(ListenerInfo listenerInfo)
-        {
-            return new TcpAsyncSocketListener(listenerInfo);
         }
     }
 }

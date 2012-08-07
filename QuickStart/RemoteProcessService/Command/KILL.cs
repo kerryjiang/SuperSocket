@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Diagnostics;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.RemoteProcessService.Command
 {
@@ -12,7 +11,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(RemoteProcessSession session, StringCommandInfo commandData)
         {
             int processId;
 
@@ -20,7 +19,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
 
             if (string.IsNullOrEmpty(processKey))
             {
-                session.Send("No parameter!");
+                session.SendResponse("No parameter!");
                 return;
             }
 
@@ -30,12 +29,12 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
                 if (process != null)
                 {
                     process.Kill();
-                    session.Send("The specific process has been killed!");
+                    session.SendResponse("The specific process has been killed!");
                     return;
                 }
                 else
                 {
-                    session.Send("The specific process does not exist!");
+                    session.SendResponse("The specific process does not exist!");
                 }
             }
             else
@@ -46,11 +45,11 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
                 processes.ForEach(p => p.Kill());
 
                 if (processes.Count <= 0)
-                    session.Send("The specific process does not exist!");
+                    session.SendResponse("The specific process does not exist!");
                 else if (processes.Count == 1)
-                    session.Send("The specific process has been killed!");
+                    session.SendResponse("The specific process has been killed!");
                 else
-                    session.Send(string.Format("The {0} specific process has been killed!", processes.Count));
+                    session.SendResponse(string.Format("The {0} specific process has been killed!", processes.Count));
             }
         }
 

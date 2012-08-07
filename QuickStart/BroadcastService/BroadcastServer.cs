@@ -77,16 +77,16 @@ namespace SuperSocket.QuickStart.BroadcastService
                 }
             }
 
-            this.AsyncRun(() =>
+            Async.Run(() =>
                 {
-                    sessions.ForEach(s => s.Send(message));
+                    sessions.ForEach(s => s.SendResponse(message));
                 });
         }
 
-        protected override void OnSessionClosed(BroadcastSession session, CloseReason reason)
+        protected override void OnAppSessionClosed(object sender, AppSessionClosedEventArgs<BroadcastSession> e)
         {
-            RemoveOnlineSession(session);
-            base.OnSessionClosed(session, reason);
+            RemoveOnlineSession(e.Session);
+            base.OnAppSessionClosed(sender, e);
         }
     }
 }

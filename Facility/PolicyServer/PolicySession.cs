@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Text;
+using System.Net.Sockets;
+using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    /// <summary>
-    /// PolicySession
-    /// </summary>
-    public class PolicySession : AppSession<PolicySession, BinaryRequestInfo>
+    public class PolicySession : AppSession<PolicySession, BinaryCommandInfo>
     {
 
     }

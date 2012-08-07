@@ -1,42 +1,26 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
-using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
-    /// <summary>
-    /// AppSession base class
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>
-        where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
-        where TRequestInfo : class, IRequestInfo
+    public abstract class AppSession<TAppSession, TCommandInfo> : IAppSession, IAppSession<TAppSession, TCommandInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+        where TCommandInfo : ICommandInfo
     {
         #region Attributes
 
         /// <summary>
-        /// Gets the app server instance assosiated with the session.
+        /// Gets the app server.
         /// </summary>
-        public virtual AppServerBase<TAppSession, TRequestInfo> AppServer { get; private set; }
-
-        /// <summary>
-        /// Gets the app server instance assosiated with the session.
-        /// </summary>
-        IAppServer IAppSession.AppServer
-        {
-            get { return this.AppServer; }
-        }
+        public virtual IAppServer<TAppSession, TCommandInfo> AppServer { get; private set; }
 
         /// <summary>
         /// Gets or sets the charset which is used for transfering text message.
@@ -63,12 +47,12 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="IAppSession"/> is connected.
+        /// Gets or sets the status of session.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if connected; otherwise, <c>false</c>.
+        /// The status.
         /// </value>
-        public bool Connected { get; internal set; }
+        public SessionStatus Status { get; set; }
 
         /// <summary>
         /// Gets or sets the previous command.
@@ -118,7 +102,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the logger.
         /// </summary>
-        public ILog Logger
+        public ILogger Logger
         {
             get { return AppServer.Logger; }
         }
@@ -142,6 +126,12 @@ namespace SuperSocket.SocketBase
         public string SessionID { get; private set; }
 
         /// <summary>
+        /// Gets the identity key.
+        /// In most case, IdentityKey is same as SessionID
+        /// </summary>
+        public string IdentityKey { get; private set; }
+
+        /// <summary>
         /// Gets the socket session of the AppSession.
         /// </summary>
         public ISocketSession SocketSession { get; private set; }
@@ -153,20 +143,17 @@ namespace SuperSocket.SocketBase
         {
             get { return AppServer.Config; }
         }
-
+        
         /// <summary>
-        /// Gets or sets the m_ request filter.
+        /// Gets or sets the next command reader.
         /// </summary>
         /// <value>
-        /// The m_ request filter.
+        /// The next command reader.
         /// </value>
-        IRequestFilter<TRequestInfo> m_RequestFilter { get; set; }
+        ICommandReader<TCommandInfo> IAppSession<TCommandInfo>.NextCommandReader { get; set; }
 
         #endregion
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession, TRequestInfo&gt;"/> class.
-        /// </summary>
         public AppSession()
         {
             this.StartTime = DateTime.Now;
@@ -174,29 +161,19 @@ namespace SuperSocket.SocketBase
             this.Charset = Encoding.UTF8;
         }
 
-
         /// <summary>
         /// Initializes the specified app session by AppServer and SocketSession.
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
-        /// <param name="requestFilter">The request filter.</param>
-        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter)
+        public virtual void Initialize(IAppServer<TAppSession, TCommandInfo> appServer, ISocketSession socketSession)
         {
-            AppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
+            AppServer = appServer;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
-            Connected = true;
-            m_RequestFilter = requestFilter;
+            IdentityKey = socketSession.IdentityKey;
+            Status = SessionStatus.Healthy;
             OnInit();
-        }
-
-        /// <summary>
-        /// Starts the session.
-        /// </summary>
-        public void StartSession()
-        {
-            OnSessionStarted();
         }
 
         /// <summary>
@@ -208,30 +185,20 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Called when [session started].
+        /// Starts the session.
         /// </summary>
-        protected virtual void OnSessionStarted()
+        public virtual void StartSession()
         {
 
         }
-
-        /// <summary>
-        /// Called when [session closed].
-        /// </summary>
-        /// <param name="reason">The reason.</param>
-        internal protected virtual void OnSessionClosed(CloseReason reason)
-        {
-
-        }
-
 
         /// <summary>
         /// Handles the exceptional error.
         /// </summary>
-        /// <param name="e">The exception.</param>
-        public virtual void HandleException(Exception e)
+        /// <param name="e">The e.</param>
+        public virtual void HandleExceptionalError(Exception e)
         {
-            Logger.Error(this, e);
+            Logger.LogError(e);
         }
 
         /// <summary>
@@ -239,18 +206,18 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="cmdInfo">The CMD info.</param>
-        public void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo)
+        public void ExecuteCommand(TAppSession session, TCommandInfo cmdInfo)
         {
             AppServer.ExecuteCommand(session, cmdInfo);
         }
 
         /// <summary>
-        /// Handles the unknown request.
+        /// Handles the unknown command.
         /// </summary>
-        /// <param name="requestInfo">The request info.</param>
-        public virtual void HandleUnknownRequest(TRequestInfo requestInfo)
+        /// <param name="cmdInfo">The CMD info.</param>
+        public virtual void HandleUnknownCommand(TCommandInfo cmdInfo)
         {
-            Send("Unknown request: " + requestInfo.Key);
+            SendResponse("Unknown command: " + cmdInfo.Key);
         }
 
         /// <summary>
@@ -260,6 +227,7 @@ namespace SuperSocket.SocketBase
         public virtual void Close(CloseReason reason)
         {
             this.SocketSession.Close(reason);
+            Status = SessionStatus.Disconnected;
         }
 
         /// <summary>
@@ -270,219 +238,13 @@ namespace SuperSocket.SocketBase
             Close(CloseReason.ServerClosing);
         }
 
-        #region sending processing
-
-        private IBatchQueue<ArraySegment<byte>> m_SendingQueue;
-
-        private IBatchQueue<ArraySegment<byte>> GetSendingQueue()
-        {
-            if (m_SendingQueue != null)
-                return m_SendingQueue;
-
-            lock (this)
-            {
-                if (m_SendingQueue != null)
-                    return m_SendingQueue;
-
-                //Sending queue size must be greater than 3
-                m_SendingQueue = new ConcurrentBatchQueue<ArraySegment<byte>>(Math.Max(Config.SendingQueueSize, 3), (t) => t.Array == null);
-                return m_SendingQueue;
-            }
-        }
-
-        /// <summary>
-        /// Tries to get the data segment to be sent.
-        /// </summary>
-        /// <param name="segments">The segments.</param>
-        /// <returns>
-        /// return whether has data to send
-        /// </returns>
-        bool IAppSession.TryGetSendingData(IList<ArraySegment<byte>> segments)
-        {
-            return GetSendingQueue().TryDequeue(segments);
-        }
-
-        /// <summary>
-        /// Try to send the message to client.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public virtual bool TrySend(string message)
-        {
-            var data = this.Charset.GetBytes(message);
-            return InternalTrySend(new ArraySegment<byte>(data, 0, data.Length));
-        }
-
-        /// <summary>
-        /// Sends the message to client.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        public virtual void Send(string message)
-        {
-            var data = this.Charset.GetBytes(message);
-            Send(data, 0, data.Length);
-        }
-
         /// <summary>
         /// Sends the response.
         /// </summary>
         /// <param name="message">The message which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message)' instead")]
         public virtual void SendResponse(string message)
         {
-            Send(message);
-        }
-
-        /// <summary>
-        /// Try to send the data to client.
-        /// </summary>
-        /// <param name="data">The data which will be sent.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public virtual bool TrySend(byte[] data, int offset, int length)
-        {
-            return InternalTrySend(new ArraySegment<byte>(data, offset, length));
-        }
-
-        /// <summary>
-        /// Sends the data to client.
-        /// </summary>
-        /// <param name="data">The data which will be sent.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        public virtual void Send(byte[] data, int offset, int length)
-        {
-            InternalSend(new ArraySegment<byte>(data, offset, length));
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="data">The data which will be sent.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        [Obsolete("Use 'Send(byte[] data, int offset, int length)' instead")]
-        public virtual void SendResponse(byte[] data, int offset, int length)
-        {
-            Send(data, offset, length);
-        }
-
-        private bool InternalTrySend(ArraySegment<byte> segment)
-        {
-            if (!GetSendingQueue().Enqueue(segment))
-                return false;
-
-            SocketSession.StartSend();
-            LastActiveTime = DateTime.Now;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Try to send the data segment to client.
-        /// </summary>
-        /// <param name="segment">The segment which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public virtual bool TrySend(ArraySegment<byte> segment)
-        {
-            return InternalTrySend(segment);
-        }
-
-
-        private void InternalSend(ArraySegment<byte> segment)
-        {
-            if (InternalTrySend(segment))
-                return;
-
-            var spinWait = new SpinWait();
-
-            while (this.Connected)
-            {
-                spinWait.SpinOnce();
-
-                if (InternalTrySend(segment))
-                    return;
-            }
-        }
-
-        /// <summary>
-        /// Sends the data segment to client.
-        /// </summary>
-        /// <param name="segment">The segment which will be sent.</param>
-        public virtual void Send(ArraySegment<byte> segment)
-        {
-            InternalSend(segment);
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="segment">The segment which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(ArraySegment<byte> segment)' instead")]
-        public virtual void SendResponse(ArraySegment<byte> segment)
-        {
-            InternalSend(segment);
-        }
-
-
-        private bool InternalTrySend(IList<ArraySegment<byte>> segments)
-        {
-            if (!GetSendingQueue().Enqueue(segments))
-                return false;
-
-            SocketSession.StartSend();
-            LastActiveTime = DateTime.Now;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Try to send the data segments to clinet.
-        /// </summary>
-        /// <param name="segments">The segments.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public virtual bool TrySend(IList<ArraySegment<byte>> segments)
-        {
-            return InternalTrySend(segments);
-        }
-
-        private void InternalSend(IList<ArraySegment<byte>> segments)
-        {
-            if (InternalTrySend(segments))
-                return;
-
-            var spinWait = new SpinWait();
-
-            while (this.Connected)
-            {
-                spinWait.SpinOnce();
-
-                if (InternalTrySend(segments))
-                    return;
-            }
-        }
-
-        /// <summary>
-        /// Sends the data segments to clinet.
-        /// </summary>
-        /// <param name="segments">The segments.</param>
-        public virtual void Send(IList<ArraySegment<byte>> segments)
-        {
-            InternalSend(segments);
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="segments">The segments.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(IList<ArraySegment<byte>> segments)' instead")]
-        public virtual void SendResponse(IList<ArraySegment<byte>> segments)
-        {
-            InternalSend(segments);
+            SocketSession.SendResponse(message);
         }
 
         /// <summary>
@@ -490,151 +252,47 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="message">The message which will be sent.</param>
         /// <param name="paramValues">The parameter values.</param>
-        public virtual void Send(string message, params object[] paramValues)
-        {
-            var data = this.Charset.GetBytes(string.Format(message, paramValues));
-            InternalSend(new ArraySegment<byte>(data, 0, data.Length));
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        /// <param name="paramValues">The parameter values.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message, params object[] paramValues)' instead")]
         public virtual void SendResponse(string message, params object[] paramValues)
         {
-            var data = this.Charset.GetBytes(string.Format(message, paramValues));
-            InternalSend(new ArraySegment<byte>(data, 0, data.Length));
-        }
-
-        #endregion
-
-        #region receiving processing
-
-        /// <summary>
-        /// Sets the next request filter which will be used when next data block received
-        /// </summary>
-        /// <param name="nextRequestFilter">The next request filter.</param>
-        protected void SetNextRequestFilter(IRequestFilter<TRequestInfo> nextRequestFilter)
-        {
-            m_RequestFilter = nextRequestFilter;
+            SocketSession.SendResponse(string.Format(message, paramValues));
         }
 
         /// <summary>
-        /// Filters the request.
+        /// Sends the response.
         /// </summary>
-        /// <param name="readBuffer">The read buffer.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left, the size of the data which has not been processed</param>
-        /// <param name="offsetDelta">return offset delta of next receiving buffer.</param>
-        /// <returns></returns>
-        TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left, out int offsetDelta)
+        /// <param name="data">The data which will be sent.</param>
+        public virtual void SendResponse(byte[] data)
         {
-            if (!AppServer.OnRawDataReceived(this, readBuffer, offset, length))
-            {
-                left = 0;
-                offsetDelta = 0;
-                return null;
-            }
-
-            var requestInfo = m_RequestFilter.Filter(this, readBuffer, offset, length, toBeCopied, out left);
-
-            var offsetAdapter = m_RequestFilter as IOffsetAdapter;
-
-            offsetDelta = offsetAdapter != null ? offsetAdapter.OffsetDelta : 0;
-
-            if (requestInfo == null)
-            {
-                int leftBufferCount = m_RequestFilter.LeftBufferSize;
-                if (leftBufferCount >= AppServer.Config.MaxRequestLength)
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.ErrorFormat("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, leftBufferCount);
-                    Close(CloseReason.ServerClosing);
-                    return null;
-                }
-            }
-
-            //If next request filter wasn't set, still use current request filter in next round received data processing
-            if (m_RequestFilter.NextRequestFilter != null)
-                m_RequestFilter = m_RequestFilter.NextRequestFilter;
-
-            return requestInfo;
+            SocketSession.SendResponse(data);
         }
-
+        
         /// <summary>
-        /// Processes the request data.
+        /// Sets the next command reader for next round receiving.
         /// </summary>
-        /// <param name="readBuffer">The read buffer.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <returns>
-        /// return offset delta of next receiving buffer
-        /// </returns>
-        int IAppSession.ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied)
+        /// <param name="nextCommandReader">The next command reader.</param>
+        public void SetNextCommandReader(ICommandReader<TCommandInfo> nextCommandReader)
         {
-            int left, offsetDelta;
-
-            while (true)
-            {
-                var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out left, out offsetDelta);
-
-                if (requestInfo == null)
-                    return offsetDelta;
-
-                AppServer.ExecuteCommand(this, requestInfo);
-
-                if (left <= 0)
-                    return offsetDelta;
-
-                offset = offset + length - left;
-                length = left;
-
-                continue;
-            }
+            ((IAppSession<TCommandInfo>)this).NextCommandReader = nextCommandReader;
         }
-
-        #endregion
     }
 
-    /// <summary>
-    /// AppServer basic class for whose request infoe type is StringRequestInfo
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringRequestInfo>
-        where TAppSession : AppSession<TAppSession, StringRequestInfo>, IAppSession, new()
+    public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringCommandInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, StringCommandInfo>, new()
     {
 
         private bool m_AppendNewLineForResponse = false;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession&gt;"/> class.
-        /// </summary>
         public AppSession()
             : this(true)
         {
 
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession&gt;"/> class.
-        /// </summary>
-        /// <param name="appendNewLineForResponse">if set to <c>true</c> [append new line for response].</param>
         public AppSession(bool appendNewLineForResponse)
         {
             m_AppendNewLineForResponse = appendNewLineForResponse;
         }
 
-        /// <summary>
-        /// Processes the sending message.
-        /// </summary>
-        /// <param name="rawMessage">The raw message.</param>
-        /// <returns></returns>
         protected virtual string ProcessSendingMessage(string rawMessage)
         {
             if (!m_AppendNewLineForResponse)
@@ -649,64 +307,17 @@ namespace SuperSocket.SocketBase
                 return rawMessage;
         }
 
-        /// <summary>
-        /// Try to send the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public override bool TrySend(string message)
-        {
-            return base.TrySend(message);
-        }
-
-        /// <summary>
-        /// Sends the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        public override void Send(string message)
-        {
-            base.Send(ProcessSendingMessage(message));
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message)' instead")]
         public override void SendResponse(string message)
         {
-            base.Send(ProcessSendingMessage(message));
+            base.SendResponse(ProcessSendingMessage(message));
         }
 
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="paramValues">The param values.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public override void Send(string message, params object[] paramValues)
-        {
-            base.Send(ProcessSendingMessage(message), paramValues);
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="paramValues">The param values.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message, params object[] paramValues)' instead")]
         public override void SendResponse(string message, params object[] paramValues)
         {
-            base.Send(ProcessSendingMessage(message), paramValues);
+            base.SendResponse(ProcessSendingMessage(message), paramValues);
         }
     }
 
-    /// <summary>
-    /// AppServer basic class for whose request infoe type is StringRequestInfo
-    /// </summary>
     public class AppSession : AppSession<AppSession>
     {
 

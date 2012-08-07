@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Configuration;
-using System.Collections.Specialized;
 
 namespace SuperSocket.SocketBase.Config
 {
-    /// <summary>
-    /// The root configuration interface
-    /// </summary>
     public interface IRootConfig
     {
+        /// <summary>
+        /// Gets the logging mode.
+        /// </summary>
+        LoggingMode LoggingMode { get; }
+
         /// <summary>
         /// Gets the max working threads.
         /// </summary>
@@ -32,7 +32,6 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         int MinCompletionPortThreads { get; }
 
-
         /// <summary>
         /// Gets a value indicating whether [disable performance data collector].
         /// </summary>
@@ -45,35 +44,5 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the performance data collect interval, in seconds.
         /// </summary>
         int PerformanceDataCollectInterval { get; }
-
-
-        /// <summary>
-        /// Gets the log factory name.
-        /// </summary>
-        /// <value>
-        /// The log factory.
-        /// </value>
-        string LogFactory { get; }
-
-
-        /// <summary>
-        /// Gets the isolation mode.
-        /// </summary>
-        IsolationMode Isolation { get; }
-
-
-        /// <summary>
-        /// Gets the option elements.
-        /// </summary>
-        NameValueCollection OptionElements { get; }
-
-        /// <summary>
-        /// Gets the child config.
-        /// </summary>
-        /// <typeparam name="TConfig">The type of the config.</typeparam>
-        /// <param name="childConfigName">Name of the child config.</param>
-        /// <returns></returns>
-        TConfig GetChildConfig<TConfig>(string childConfigName)
-            where TConfig : ConfigurationElement, new();
     }
 }

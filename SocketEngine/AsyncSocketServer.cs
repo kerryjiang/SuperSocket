@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
@@ -16,22 +15,37 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncSocketServer : TcpSocketServerBase
+    class AsyncSocketServer<TAppSession, TCommandInfo> : TcpSocketServerBase<AsyncSocketSession<TAppSession, TCommandInfo>, TAppSession, TCommandInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+        where TCommandInfo : ICommandInfo
     {
-        public AsyncSocketServer(IAppServer appServer, ListenerInfo[] listeners)
-            : base(appServer, listeners)
+        public AsyncSocketServer(IAppServer<TAppSession> appServer, IPEndPoint localEndPoint, ICustomProtocol<TCommandInfo> protocol)
+            : base(appServer, localEndPoint, protocol)
         {
 
         }
+
+        private AutoResetEvent m_TcpClientConnected;
 
         private BufferManager m_BufferManager;
 
         private ConcurrentStack<SocketAsyncEventArgsProxy> m_ReadWritePool;
 
+        private Semaphore m_MaxConnectionSemaphore;
+
+        private Socket m_ListenSocket = null;
+
+        private Thread m_ListenThread = null;
+
         public override bool Start()
         {
             try
             {
+                if (!base.Start())
+                    return false;
+
+                m_TcpClientConnected = new AutoResetEvent(false);
+
                 int bufferSize = AppServer.Config.ReceiveBufferSize;
 
                 if (bufferSize <= 0)
@@ -45,7 +59,7 @@ namespace SuperSocket.SocketEngine
                 }
                 catch (Exception e)
                 {
-                    AppServer.Logger.Error("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
+                    AppServer.Logger.LogError("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
                     return false;
                 }
 
@@ -58,6 +72,7 @@ namespace SuperSocket.SocketEngine
                 {
                     //Pre-allocate a set of reusable SocketAsyncEventArgs
                     socketEventArg = new SocketAsyncEventArgs();
+                    socketEventArg.UserToken = new AsyncUserToken();
                     m_BufferManager.SetBuffer(socketEventArg);
 
                     socketArgsProxyList.Add(new SocketAsyncEventArgsProxy(socketEventArg));
@@ -65,103 +80,169 @@ namespace SuperSocket.SocketEngine
 
                 m_ReadWritePool = new ConcurrentStack<SocketAsyncEventArgsProxy>(socketArgsProxyList);
 
-                if (!base.Start())
-                    return false;
+                if (m_ListenSocket == null)
+                {
+                    m_ListenThread = new Thread(StartListen);
+                    m_ListenThread.Start();
+                }
 
-                IsRunning = true;
-                return true;
+                WaitForStartupFinished();
+
+                return IsRunning;
             }
             catch (Exception e)
             {
-                AppServer.Logger.Error(e);
+                AppServer.Logger.LogError(e);
                 return false;
             }
         }
 
-        protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
+        private void StartListen()
         {
-            if (IsStopped)
-                return;
+            m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-            //Get the socket for the accepted client connection and put it into the 
-            //ReadEventArg object user token
-            SocketAsyncEventArgsProxy socketEventArgsProxy;
-            if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
+            try
             {
-                AppServer.AsyncRun(() => client.SafeClose());
-                if (AppServer.Logger.IsErrorEnabled)
-                    AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
+                m_ListenSocket.Bind(this.EndPoint);
+                m_ListenSocket.Listen(this.AppServer.Config.ListenBacklog);
+
+                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+            }
+            catch (Exception e)
+            {
+                AppServer.Logger.LogError(e);
+                OnStartupFinished();
                 return;
             }
 
-            ISocketSession session;
+            m_MaxConnectionSemaphore = new Semaphore(this.AppServer.Config.MaxConnectionNumber, this.AppServer.Config.MaxConnectionNumber);
 
-            var security = listener.Info.Security;
+            SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
+            acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
 
-            if (security == SslProtocols.None)
-                session = RegisterSession(client, new AsyncSocketSession(client, socketEventArgsProxy));
-            else
-                session = RegisterSession(client, new AsyncStreamSocketSession(client, security, socketEventArgsProxy));
+            IsRunning = true;
 
-            if (session == null)
+            OnStartupFinished();
+
+            while (!IsStopped)
             {
-                socketEventArgsProxy.Reset();
-                this.m_ReadWritePool.Push(socketEventArgsProxy);
-                AppServer.AsyncRun(() => client.SafeClose());
-                return;
+                m_MaxConnectionSemaphore.WaitOne();
+
+                if (IsStopped)
+                    break;
+
+                acceptEventArg.AcceptSocket = null;
+
+                bool willRaiseEvent = true;
+
+                try
+                {
+                    willRaiseEvent = m_ListenSocket.AcceptAsync(acceptEventArg);
+                }
+                catch (ObjectDisposedException)//listener has been stopped
+                {
+                    break;
+                }
+                catch (NullReferenceException)
+                {
+                    break;
+                }
+                catch (Exception e)
+                {
+                    AppServer.Logger.LogError("Failed to accept new tcp client in async server!", e);
+                    break;
+                }
+
+                if (!willRaiseEvent)
+                    AceptNewClient(acceptEventArg);
+
+                m_TcpClientConnected.WaitOne();
             }
 
-            session.Closed += session_Closed;
-            AppServer.AsyncRun(() => session.Start());
+            IsRunning = false;
         }
 
-        public override void ResetSessionSecurity(IAppSession session, SslProtocols security)
+        void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
         {
-            ISocketSession socketSession;
+            AceptNewClient(e);
+        }
 
-            var socketAsyncProxy = ((IAsyncSocketSessionBase)session.SocketSession).SocketAsyncProxy;
+        void AceptNewClient(SocketAsyncEventArgs e)
+        {            
+            if (e.SocketError == SocketError.Success)
+            {
+                var client = e.AcceptSocket;
+                m_TcpClientConnected.Set();
 
-            if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(session.SocketSession.Client, socketAsyncProxy, true);
+                //Get the socket for the accepted client connection and put it into the 
+                //ReadEventArg object user token
+                SocketAsyncEventArgsProxy socketEventArgsProxy;
+                if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
+                {
+                    AppServer.Logger.LogError("There is no enough buffer block to arrange to new accepted client!");
+                    return;
+                }
+
+                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
+                
+                if (session != null)
+                {
+                    session.SocketAsyncProxy = socketEventArgsProxy;
+                    session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                    session.Start();
+                }
+                else
+                {
+                    Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                }
+            }
             else
-                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, socketAsyncProxy, true);
-
-            socketSession.Initialize(session);
-            socketSession.Start();
+            {
+                m_TcpClientConnected.Set();
+            }
         }
 
-        void session_Closed(ISocketSession session, CloseReason reason)
+        void session_Closed(object sender, SocketSessionClosedEventArgs e)
         {
-            IAsyncSocketSessionBase socketSession = session as IAsyncSocketSessionBase;
+            m_MaxConnectionSemaphore.Release();
+
+            IAsyncSocketSession socketSession = sender as IAsyncSocketSession;
             if (socketSession != null && this.m_ReadWritePool != null)
-            {
-                socketSession.SocketAsyncProxy.Reset();
-
-                if (m_ReadWritePool != null)
-                    m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
-            }
+                this.m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
         }
 
         public override void Stop()
         {
-            if (IsStopped)
-                return;
+            base.Stop();
 
-            lock (SyncRoot)
+            if (m_ListenSocket != null)
             {
-                if (IsStopped)
-                    return;
-
-                base.Stop();
-
-                if (m_ReadWritePool != null)
-                    m_ReadWritePool = null;
-
-                if (m_BufferManager != null)
-                    m_BufferManager = null;
-
-                IsRunning = false;
+                m_ListenSocket.Close();
+                m_ListenSocket = null;
             }
+
+            if (m_ReadWritePool != null)
+                m_ReadWritePool = null;
+
+            if (m_BufferManager != null)
+                m_BufferManager = null;
+
+            VerifySocketServerRunning(false);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                if (IsRunning)
+                    Stop();
+
+                m_TcpClientConnected.Close();
+                m_MaxConnectionSemaphore.Close();
+            }
+
+            base.Dispose(disposing);
         }
     }
 }

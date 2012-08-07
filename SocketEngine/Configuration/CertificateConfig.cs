@@ -6,17 +6,11 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
-    /// <summary>
-    /// Certificate configuration
-    /// </summary>
     public class CertificateConfig : ConfigurationElement, ICertificateConfig
     {
         #region ICertificateConfig Members
 
-        /// <summary>
-        /// Gets the certificate file path.
-        /// </summary>
-        [ConfigurationProperty("filePath", IsRequired = false)]
+        [ConfigurationProperty("filePath", IsRequired = true)]
         public string FilePath
         {
             get
@@ -25,10 +19,7 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        /// <summary>
-        /// Gets the password.
-        /// </summary>
-        [ConfigurationProperty("password", IsRequired = false)]
+        [ConfigurationProperty("password", IsRequired = true)]
         public string Password
         {
             get
@@ -37,30 +28,12 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        /// <summary>
-        /// Gets the the store where certificate locates.
-        /// </summary>
-        /// <value>
-        /// The name of the store.
-        /// </value>
-        [ConfigurationProperty("storeName", IsRequired = false)]
-        public string StoreName
+        [ConfigurationProperty("isEnabled", IsRequired = false, DefaultValue = false)]
+        public bool IsEnabled
         {
             get
             {
-                return this["storeName"] as string;
-            }
-        }
-
-        /// <summary>
-        /// Gets the thumbprint.
-        /// </summary>
-        [ConfigurationProperty("thumbprint", IsRequired = false)]
-        public string Thumbprint
-        {
-            get
-            {
-                return this["thumbprint"] as string;
+                return (bool)this["isEnabled"];
             }
         }
 

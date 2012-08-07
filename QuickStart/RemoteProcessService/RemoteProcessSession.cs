@@ -13,14 +13,14 @@ namespace SuperSocket.QuickStart.RemoteProcessService
             get { return (RemoteProcessServer)base.AppServer; }
         }
 
-        protected override void OnSessionStarted()
+        public override void StartSession()
         {
-            Send("Welcome to use this tool!");
+            SendResponse("Welcome to use this tool!");
         }
 
-        public override void HandleException(Exception e)
+        public override void HandleExceptionalError(Exception e)
         {
-            Send("An error has occurred in server side! Error message: " + e.Message + "!");
+            SendResponse("An error has occurred in server side! Error message: " + e.Message + "!");
         }
     }
 }

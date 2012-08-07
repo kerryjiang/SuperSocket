@@ -4,86 +4,77 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Linq;
-
-#if SILVERLIGHT
-#else
 using System.Runtime.Serialization.Formatters.Binary;
-#endif
 
 namespace SuperSocket.Common
 {
-    /// <summary>
-    /// Assembly Util Class
-    /// </summary>
     public static class AssemblyUtil
     {
-        /// <summary>
-        /// Creates the instance from type name.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="type">The type.</param>
-        /// <returns></returns>
-        public static T CreateInstance<T>(string type)
+        public static bool TryCreateInstance<T>(string type, out T result)
         {
-            return CreateInstance<T>(type, new object[0]);
+            Exception e;
+            return TryCreateInstance<T>(type, out result, out e);
         }
 
-        /// <summary>
-        /// Creates the instance from type name and parameters.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="type">The type.</param>
-        /// <param name="parameters">The parameters.</param>
-        /// <returns></returns>
-        public static T CreateInstance<T>(string type, object[] parameters)
+        public static bool TryCreateInstance<T>(string type, out T result, out Exception e)
+        {
+            return TryCreateInstance<T>(type, new object[0], out result, out e);
+        }
+
+        public static bool TryCreateInstance<T>(string type, object[] parameters, out T result, out Exception e)
         {
             Type instanceType = null;
-            var result = default(T);
+            result = default(T);
 
-            instanceType = Type.GetType(type, true);
+            if (!TryGetType(type, out instanceType, out e))
+                return false;
 
-            if (instanceType == null)
-                throw new Exception(string.Format("The type '{0}' was not found!", type));
-
-            object instance = Activator.CreateInstance(instanceType, parameters);
-            result = (T)instance;
-            return result;
+            try
+            {
+                object instance = Activator.CreateInstance(instanceType, parameters);
+                result = (T)instance;
+                return true;
+            }
+            catch (Exception exc)
+            {
+                e = exc;
+                return false;
+            }
         }
 
-        /// <summary>
-        /// Gets the implement types from assembly.
-        /// </summary>
-        /// <typeparam name="TBaseType">The type of the base type.</typeparam>
-        /// <param name="assembly">The assembly.</param>
-        /// <returns></returns>
+        public static bool TryGetType(string type, out Type result)
+        {
+            Exception e;
+            return TryGetType(type, out result, out e);
+        }
+
+        public static bool TryGetType(string type, out Type result, out Exception e)
+        {
+            e = null;
+
+            try
+            {
+                result = Type.GetType(type, true);
+                return true;
+            }
+            catch (Exception exc)
+            {
+                e = exc;
+                result = null;
+                return false;
+            }
+        }
+
         public static IEnumerable<Type> GetImplementTypes<TBaseType>(this Assembly assembly)
         {
             return assembly.GetExportedTypes().Where(t =>
                 t.IsSubclassOf(typeof(TBaseType)) && t.IsClass && !t.IsAbstract);
         }
 
-        /// <summary>
-        /// Gets the implemented objects by interface.
-        /// </summary>
-        /// <typeparam name="TBaseInterface">The type of the base interface.</typeparam>
-        /// <param name="assembly">The assembly.</param>
-        /// <returns></returns>
         public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly)
             where TBaseInterface : class
         {
-            return GetImplementedObjectsByInterface<TBaseInterface>(assembly, typeof(TBaseInterface));
-        }
-
-        /// <summary>
-        /// Gets the implemented objects by interface.
-        /// </summary>
-        /// <typeparam name="TBaseInterface">The type of the base interface.</typeparam>
-        /// <param name="assembly">The assembly.</param>
-        /// <param name="targetType">Type of the target.</param>
-        /// <returns></returns>
-        public static IEnumerable<TBaseInterface> GetImplementedObjectsByInterface<TBaseInterface>(this Assembly assembly, Type targetType)
-            where TBaseInterface : class
-        {
+            Type interfaceType = typeof(TBaseInterface);
             Type[] arrType = assembly.GetExportedTypes();
 
             var result = new List<TBaseInterface>();
@@ -95,23 +86,17 @@ namespace SuperSocket.Common
                 if (currentImplementType.IsAbstract)
                     continue;
 
-                if (!targetType.IsAssignableFrom(currentImplementType))
-                    continue;
+                var foundInterface = currentImplementType.GetInterfaces().SingleOrDefault(x => x == interfaceType);
 
-                result.Add((TBaseInterface)Activator.CreateInstance(currentImplementType));
+                if (foundInterface != null)
+                {
+                    result.Add(currentImplementType.GetConstructor(new Type[0]).Invoke(new object[0]) as TBaseInterface);
+                }
             }
 
             return result;
         }
 
-#if SILVERLIGHT
-#else
-        /// <summary>
-        /// Clone object in binary format.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="target">The target.</param>
-        /// <returns></returns>
         public static T BinaryClone<T>(this T target)
         {
             BinaryFormatter formatter = new BinaryFormatter();
@@ -122,16 +107,10 @@ namespace SuperSocket.Common
                 return (T)formatter.Deserialize(ms);
             }
         }
-#endif
 
         private static object[] m_EmptyObjectArray = new object[] { };
 
-        /// <summary>
-        /// Copies the properties of one object to another object.
-        /// </summary>
-        /// <param name="source">The source.</param>
-        /// <param name="target">The target.</param>
-        public static T CopyPropertiesTo<T>(this T source, T target)
+        public static void CopyPropertiesTo(this object source, object target)
         {
             PropertyInfo[] properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
             Dictionary<string, PropertyInfo> sourcePropertiesDict = properties.ToDictionary(p => p.Name);
@@ -141,27 +120,16 @@ namespace SuperSocket.Common
             {
                 var p = targetProperties[i];
                 PropertyInfo sourceProperty;
-
                 if (sourcePropertiesDict.TryGetValue(p.Name, out sourceProperty))
                 {
                     if (sourceProperty.PropertyType != p.PropertyType)
                         continue;
 
-                    if (!sourceProperty.PropertyType.IsSerializable)
-                        continue;
-
                     p.SetValue(target, sourceProperty.GetValue(source, m_EmptyObjectArray), m_EmptyObjectArray);
                 }
             }
-
-            return target;
         }
 
-        /// <summary>
-        /// Gets the assemblies from string.
-        /// </summary>
-        /// <param name="assemblyDef">The assembly def.</param>
-        /// <returns></returns>
         public static IEnumerable<Assembly> GetAssembliesFromString(string assemblyDef)
         {
             string[] assemblies = assemblyDef.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);

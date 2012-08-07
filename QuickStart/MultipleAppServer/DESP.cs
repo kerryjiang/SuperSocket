@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.MultipleAppServer
 {
     public class DESP : StringCommandBase
     {
-        public override void ExecuteCommand(AppSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(AppSession session, StringCommandInfo commandInfo)
         {
-            ((MyAppServerA)session.AppServer).DespatchMessage(requestInfo[0], requestInfo[1]);
+            ((MyAppServerA)session.AppServer).DespatchMessage(commandInfo[0], commandInfo[1]);
         }
     }
 }

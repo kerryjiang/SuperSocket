@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.GPSSocketServer.Command
 {
-    public class Position : CommandBase<GPSSession, BinaryRequestInfo>
+    public class Position : CommandBase<GPSSession, BinaryCommandInfo>
     {
         public override string Name
         {
@@ -17,11 +16,10 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
             }
         }
 
-        public override void ExecuteCommand(GPSSession session, BinaryRequestInfo requestInfo)
+        public override void ExecuteCommand(GPSSession session, BinaryCommandInfo commandInfo)
         {
             //The logic of saving GPS position data
-            var response = session.AppServer.DefaultResponse;
-            session.Send(response, 0, response.Length); ;
+            session.SendResponse(session.AppServer.DefaultResponse);
         }
     }
 }

@@ -46,7 +46,8 @@
   <ItemGroup>
     <Compile Include="Command\KeepAlive.cs" />
     <Compile Include="Command\Position.cs" />
-    <Compile Include="GPSRequestFilter.cs" />
+    <Compile Include="GPSCommandReader.cs" />
+    <Compile Include="GPSCustomProtocol.cs" />
     <Compile Include="GPSServer.cs" />
     <Compile Include="GPSServerTest.cs" />
     <Compile Include="GPSSession.cs" />

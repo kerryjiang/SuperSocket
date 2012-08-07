@@ -9,41 +9,14 @@ using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Config
 {
-    /// <summary>
-    /// Server configruation model
-    /// </summary>
-    [Serializable]
     public class ServerConfig : IServerConfig
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServerConfig"/> class.
-        /// </summary>
-        /// <param name="serverConfig">The server config.</param>
-        public ServerConfig(IServerConfig serverConfig)
-        {
-            serverConfig.CopyPropertiesTo(this);
-            
-            this.Options = serverConfig.Options;
-            this.OptionElements = serverConfig.OptionElements;
-
-            if (serverConfig.Certificate != null)
-                this.Certificate = serverConfig.Certificate.CopyPropertiesTo(new CertificateConfig());
-
-            if (serverConfig.Listeners != null && serverConfig.Listeners.Any())
-            {
-                this.Listeners = serverConfig.Listeners.Select(l => l.CopyPropertiesTo(new ListenerConfig()));
-            }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ServerConfig"/> class.
-        /// </summary>
         public ServerConfig()
         {
             Security = "None";
             MaxConnectionNumber = 100;
-            Mode = SocketMode.Tcp;
-            MaxRequestLength = 1024;
+            Mode = SocketMode.Async;
+            MaxCommandLength = 1024;
             KeepAliveTime = 10 * 60;// 10 minutes
             KeepAliveInterval = 60;// 60 seconds
             ListenBacklog = 100;
@@ -51,103 +24,38 @@ namespace SuperSocket.SocketBase.Config
 
         #region IServerConfig Members
 
-        /// <summary>
-        /// Gets/sets the name of the server type of this appServer want to use.
-        /// </summary>
-        /// <value>
-        /// The name of the server type.
-        /// </value>
-        public string ServerTypeName { get; set; }
+        public string ServiceName { get; set; }
 
+        public string Protocol { get; set; }
 
-        /// <summary>
-        /// Gets/sets the type definition of the appserver.
-        /// </summary>
-        /// <value>
-        /// The type of the server.
-        /// </value>
-        public string ServerType { get; set; }
-
-        /// <summary>
-        /// Gets/sets the request filter factory.
-        /// </summary>
-        public string RequestFilterFactory { get; set; }
-
-        /// <summary>
-        /// Gets/sets the ip.
-        /// </summary>
         public string Ip { get; set; }
 
-        /// <summary>
-        /// Gets/sets the port.
-        /// </summary>
         public int Port { get; set; }
 
-        /// <summary>
-        /// Gets/sets the options.
-        /// </summary>
         public NameValueCollection Options { get; set; }
 
-        /// <summary>
-        /// Gets the option elements.
-        /// </summary>
-        public NameValueCollection OptionElements { get; set; }
+        public string Provider { get; set; }
 
-        /// <summary>
-        /// Gets/sets a value indicating whether this <see cref="IServerConfig"/> is disabled.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if disabled; otherwise, <c>false</c>.
-        /// </value>
         public bool Disabled { get; set; }
 
-        /// <summary>
-        /// Gets the name.
-        /// </summary>
         public string Name { get; set; }
 
-        /// <summary>
-        /// Gets/sets the mode.
-        /// </summary>
         public SocketMode Mode { get; set; }
 
-        /// <summary>
-        /// Gets/sets the send time out.
-        /// </summary>
+        public bool EnableManagementService { get; set; }
+
+        public int ReadTimeOut { get; set; }
+
         public int SendTimeOut { get; set; }
 
-        /// <summary>
-        /// Gets the max connection number.
-        /// </summary>
         public int MaxConnectionNumber { get; set; }
 
-        /// <summary>
-        /// Gets the size of the receive buffer.
-        /// </summary>
-        /// <value>
-        /// The size of the receive buffer.
-        /// </value>
         public int ReceiveBufferSize { get; set; }
 
-        /// <summary>
-        /// Gets the size of the send buffer.
-        /// </summary>
-        /// <value>
-        /// The size of the send buffer.
-        /// </value>
         public int SendBufferSize { get; set; }
 
-
         /// <summary>
-        /// Gets a value indicating whether sending is in synchronous mode.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [sync send]; otherwise, <c>false</c>.
-        /// </value>
-        public bool SyncSend { get; set; }
-
-        /// <summary>
-        /// Gets/sets a value indicating whether log command in log file.
+        /// Gets a value indicating whether log command in log file.
         /// </summary>
         /// <value>
         ///   <c>true</c> if log command; otherwise, <c>false</c>.
@@ -155,7 +63,7 @@ namespace SuperSocket.SocketBase.Config
         public bool LogCommand { get; set; }
 
         /// <summary>
-        /// Gets/sets a value indicating whether clear idle session.
+        /// Gets a value indicating whether clear idle session.
         /// </summary>
         /// <value>
         ///   <c>true</c> if clear idle session; otherwise, <c>false</c>.
@@ -163,7 +71,7 @@ namespace SuperSocket.SocketBase.Config
         public bool ClearIdleSession { get; set; }
 
         /// <summary>
-        /// Gets/sets the clear idle session interval, in seconds.
+        /// Gets the clear idle session interval, in seconds.
         /// </summary>
         /// <value>
         /// The clear idle session interval.
@@ -171,67 +79,38 @@ namespace SuperSocket.SocketBase.Config
         public int ClearIdleSessionInterval { get; set; }
 
         /// <summary>
-        /// Gets/sets the idle session timeout time length, in seconds.
+        /// Gets the idle session timeout time length, in seconds.
         /// </summary>
         /// <value>
         /// The idle session time out.
         /// </value>
         public int IdleSessionTimeOut { get; set; }
 
-        /// <summary>
-        /// Gets/sets X509Certificate configuration.
-        /// </summary>
-        /// <value>
-        /// X509Certificate configuration.
-        /// </value>
         public ICertificateConfig Certificate { get; set; }
 
-        /// <summary>
-        /// Gets/sets the security protocol, X509 certificate.
-        /// </summary>
         public string Security { get; set; }
 
-        /// <summary>
-        /// Gets/sets the length of the max request.
-        /// </summary>
-        /// <value>
-        /// The length of the max request.
-        /// </value>
-        public int MaxRequestLength { get; set; }
+        public int MaxCommandLength { get; set; }
 
         /// <summary>
-        /// Gets/sets a value indicating whether [disable session snapshot].
+        /// Gets a value indicating whether [disable session snapshot].
         /// </summary>
         /// <value>
         /// 	<c>true</c> if [disable session snapshot]; otherwise, <c>false</c>.
         /// </value>
         public bool DisableSessionSnapshot { get; set; }
 
-        /// <summary>
-        /// Gets/sets the interval to taking snapshot for all live sessions.
-        /// </summary>
         public int SessionSnapshotInterval { get; set; }
 
-        /// <summary>
-        /// Gets/sets the connection filters used by this server instance.
-        /// </summary>
-        /// <value>
-        /// The connection filter's name list, seperated by comma
-        /// </value>
-        public string ConnectionFilter { get; set; }
+        public string ConnectionFilters { get; set; }
 
         /// <summary>
-        /// Gets the command loader, multiple values should be separated by comma.
-        /// </summary>
-        public string CommandLoader { get; set; }
-
-        /// <summary>
-        /// Gets/sets the start keep alive time, in seconds
+        /// Gets the start keep alive time, in seconds
         /// </summary>
         public int KeepAliveTime { get; set; }
 
         /// <summary>
-        /// Gets/sets the keep alive interval, in seconds.
+        /// Gets the keep alive interval, in seconds.
         /// </summary>
         public int KeepAliveInterval { get; set; }
 
@@ -240,40 +119,12 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public int ListenBacklog { get; set; }
 
-        /// <summary>
-        /// Gets/sets the startup order of the server instance.
-        /// </summary>
-        public int StartupOrder { get; set; }
 
-        /// <summary>
-        /// Gets the child config.
-        /// </summary>
-        /// <typeparam name="TConfig">The type of the config.</typeparam>
-        /// <param name="childConfigName">Name of the child config.</param>
-        /// <returns></returns>
         public virtual TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new()
         {
-            return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
+            return default(TConfig);
         }
-
-        /// <summary>
-        /// Gets and sets the listeners' configuration.
-        /// </summary>
-        public IEnumerable<IListenerConfig> Listeners { get; set; }
-
-        /// <summary>
-        /// Gets/sets the log factory name.
-        /// </summary>
-        public string LogFactory { get; set; }
-
-        /// <summary>
-        /// Gets/sets the size of the sending queue.
-        /// </summary>
-        /// <value>
-        /// The size of the sending queue.
-        /// </value>
-        public int SendingQueueSize { get; set; }
 
         #endregion
     }

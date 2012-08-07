@@ -1,23 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Text;
-using SuperSocket.Common;
-using SuperSocket.SocketBase;
+using System.Configuration;
 using SuperSocket.SocketBase.Config;
-using System.Collections.Specialized;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
-    /// <summary>
-    /// SuperSocket's root configuration node
-    /// </summary>
-    public class SocketServiceConfig : ConfigurationSection, IConfigurationSource
+    public class SocketServiceConfig : ConfigurationSection, IConfig
     {
-        /// <summary>
-        /// Gets all the server configurations
-        /// </summary>
         [ConfigurationProperty("servers")]
         public ServerCollection Servers
         {
@@ -27,63 +18,33 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        /// <summary>
-        /// Gets the service configurations
-        /// </summary>
-        [ConfigurationProperty("serverTypes")]
-        public TypeProviderCollection ServerTypes
+        [ConfigurationProperty("services")]
+        public ServiceCollection Services
         {
             get
             {
-                return this["serverTypes"] as TypeProviderCollection;
+                return this["services"] as ServiceCollection;
             }
         }
-
-        /// <summary>
-        /// Gets all the connection filter configurations.
-        /// </summary>
+        
         [ConfigurationProperty("connectionFilters", IsRequired = false)]
-        public TypeProviderCollection ConnectionFilters
+        public ConnectionFilterConfigCollection ConnectionFilters
         {
             get
             {
-                return this["connectionFilters"] as TypeProviderCollection;
+                return this["connectionFilters"] as ConnectionFilterConfigCollection;
             }
         }
 
         /// <summary>
-        /// Gets the defined log factory types.
+        /// Gets the logging mode.
         /// </summary>
-        [ConfigurationProperty("logFactories", IsRequired = false)]
-        public TypeProviderCollection LogFactories
+        [ConfigurationProperty("loggingMode", IsRequired = false, DefaultValue = "ShareFile")]
+        public LoggingMode LoggingMode
         {
             get
             {
-                return this["logFactories"] as TypeProviderCollection;
-            }
-        }
-
-        /// <summary>
-        /// Gets the logfactory name of the bootstrap.
-        /// </summary>
-        [ConfigurationProperty("requestFilterFactories", IsRequired = false)]
-        public TypeProviderCollection RequestFilterFactories
-        {
-            get
-            {
-                return this["requestFilterFactories"] as TypeProviderCollection;
-            }
-        }
-
-        /// <summary>
-        /// Gets the command loaders definition.
-        /// </summary>
-        [ConfigurationProperty("commandLoaders", IsRequired = false)]
-        public TypeProviderCollection CommandLoaders
-        {
-            get
-            {
-                return this["commandLoaders"] as TypeProviderCollection;
+                return (LoggingMode)this["loggingMode"];
             }
         }
 
@@ -162,76 +123,9 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        /// <summary>
-        /// Gets the isolation mode.
-        /// </summary>
-        [ConfigurationProperty("isolation", IsRequired = false, DefaultValue = IsolationMode.None)]
-        public IsolationMode Isolation
-        {
-            get { return (IsolationMode)this["isolation"]; }
-        }
-
-        /// <summary>
-        /// Gets the logfactory name of the bootstrap.
-        /// </summary>
-        [ConfigurationProperty("logFactory", IsRequired = false, DefaultValue = "")]
-        public string LogFactory
-        {
-            get
-            {
-                return (string)this["logFactory"];
-            }
-        }
-
-        /// <summary>
-        /// Gets the option elements.
-        /// </summary>
-        public NameValueCollection OptionElements { get; private set; }
-
-        /// <summary>
-        /// Gets a value indicating whether an unknown element is encountered during deserialization.
-        /// To keep compatible with old configuration
-        /// </summary>
-        /// <param name="elementName">The name of the unknown subelement.</param>
-        /// <param name="reader">The <see cref="T:System.Xml.XmlReader"/> being used for deserialization.</param>
-        /// <returns>
-        /// true when an unknown element is encountered while deserializing; otherwise, false.
-        /// </returns>
-        /// <exception cref="T:System.Configuration.ConfigurationErrorsException">The element identified by <paramref name="elementName"/> is locked.- or -One or more of the element's attributes is locked.- or -<paramref name="elementName"/> is unrecognized, or the element has an unrecognized attribute.- or -The element has a Boolean attribute with an invalid value.- or -An attempt was made to deserialize a property more than once.- or -An attempt was made to deserialize a property that is not a valid member of the element.- or -The element cannot contain a CDATA or text element.</exception>
-        protected override bool OnDeserializeUnrecognizedElement(string elementName, System.Xml.XmlReader reader)
-        {
-            //To keep compatible with old configuration
-            if (!"services".Equals(elementName, StringComparison.OrdinalIgnoreCase))
-            {
-                if (OptionElements == null)
-                    OptionElements = new NameValueCollection();
-
-                OptionElements.Add(elementName, reader.ReadOuterXml());
-                return true;
-            }
-
-            var serverTypes = new TypeProviderCollection();
-            reader.Read();
-            serverTypes.Deserialize(reader);
-
-            this["serverTypes"] = serverTypes;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Gets the child config.
-        /// </summary>
-        /// <typeparam name="TConfig">The type of the config.</typeparam>
-        /// <param name="childConfigName">Name of the child config.</param>
-        /// <returns></returns>
-        public TConfig GetChildConfig<TConfig>(string childConfigName)
-            where TConfig : ConfigurationElement, new()
-        {
-            return this.OptionElements.GetChildConfig<TConfig>(childConfigName);
-        }
-
-        IEnumerable<IServerConfig> IConfigurationSource.Servers
+        #region IConfig implementation
+        
+        IEnumerable<IServerConfig> IConfig.Servers
         {
             get
             {
@@ -239,45 +133,22 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        IEnumerable<ITypeProvider> IConfigurationSource.ServerTypes
+        IEnumerable<IServiceConfig> IConfig.Services
         {
             get
             {
-                return this.ServerTypes;
+                return this.Services;
             }
         }
-
-        IEnumerable<ITypeProvider> IConfigurationSource.ConnectionFilters
+        
+        IEnumerable<IConnectionFilterConfig> IConfig.ConnectionFilters
         {
             get
             {
                 return this.ConnectionFilters;
             }
         }
-
-        IEnumerable<ITypeProvider> IConfigurationSource.LogFactories
-        {
-            get
-            {
-                return this.LogFactories;
-            }
-        }
-
-        IEnumerable<ITypeProvider> IConfigurationSource.RequestFilterFactories
-        {
-            get
-            {
-                return this.RequestFilterFactories;
-            }
-        }
-
-
-        IEnumerable<ITypeProvider> IConfigurationSource.CommandLoaders
-        {
-            get
-            {
-                return this.CommandLoaders;
-            }
-        }
+        
+        #endregion
     }
 }

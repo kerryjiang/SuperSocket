@@ -6,11 +6,11 @@ using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test.Udp
 {
-    public class SESS : CommandBase<UdpTestSession, MyUdpRequestInfo>
+    public class SESS : CommandBase<UdpTestSession, MyUdpCommandInfo>
     {
-        public override void ExecuteCommand(UdpTestSession session, MyUdpRequestInfo requestInfo)
+        public override void ExecuteCommand(UdpTestSession session, MyUdpCommandInfo commandInfo)
         {
-            session.Send(session.SessionID + " " + requestInfo.Value);
+            session.SendResponse(session.IdentityKey + " " + commandInfo.Value);
         }
     }
 }

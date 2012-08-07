@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.GPSSocketServer
 {
-    public class GPSSession : AppSession<GPSSession, BinaryRequestInfo>
+    public class GPSSession : AppSession<GPSSession, BinaryCommandInfo>
     {
         public new GPSServer AppServer
         {

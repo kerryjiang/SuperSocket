@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>SuperSocket</id>
+    <version>1.4.2</version>
+    <authors>Kerry Jiang</authors>
+    <owners>Kerry Jiang</owners>
+    <licenseUrl>http://files.cnblogs.com/jzywh/Apache.xml</licenseUrl>
+    <projectUrl>http://supersocket.codeplex.com/</projectUrl>
+    <iconUrl>http://images.cnblogs.com/cnblogs_com/jzywh/25056/o_SuperSocket(200x50).png</iconUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>SuperSocket is a light weight, cross platform and extensible socket application framework. You can use it to build a server side socket application (like FTP server, SMTP/POP3/IMAP4 server, SIP server, etc) easily without thinking about how to use socket, how to maintain the socket connections and how socket works(synchronize/asynchronize).</description>
+    <tags>SuperSocket, Socket Server</tags>
+    <dependencies>
+      <dependency id="log4net" version="1.2.11" />
+    </dependencies>
+  </metadata>
+</package>

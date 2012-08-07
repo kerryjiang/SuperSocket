@@ -19,11 +19,6 @@ namespace SuperSocket.Common
         int m_currentIndex;
         int m_bufferSize;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BufferManager"/> class.
-        /// </summary>
-        /// <param name="totalBytes">The total bytes.</param>
-        /// <param name="bufferSize">Size of the buffer.</param>
         public BufferManager(int totalBytes, int bufferSize)
         {
             m_numBytes = totalBytes;

@@ -8,22 +8,13 @@ using SuperSocket.Test.Config;
 
 namespace SuperSocket.Test
 {
-    public class ChildConfigTestServer : AppServer<TestSession>
-    {
-        protected override bool Setup(IRootConfig rootConfig, IServerConfig config)
-        {
-            var childConfig = config.GetChildConfig<ChildConfig>("child");
-            ChildConfigValue = childConfig.Value;
-            return true;
-        }
-
-        public static int ChildConfigValue { get; private set; }
-    }
-
     public class ChildrenConfigTestServer : AppServer<TestSession>
     {
-        protected override bool Setup(IRootConfig rootConfig, IServerConfig config)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, SocketBase.Protocol.ICustomProtocol<SocketBase.Command.StringCommandInfo> protocol)
         {
+            if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
+                return false;
+
             var childrenConfig = config.GetChildConfig<ChildConfigCollection>("children");
 
             ChildConfigGlobalValue = childrenConfig.GlobalValue;
@@ -40,13 +31,18 @@ namespace SuperSocket.Test
             ChildConfigValueSum = sum;
             ChildConfigValueMultiplyProduct = pro;
 
+            var childConfig = config.GetChildConfig<ChildConfig>("child");
+            ChildConfigValue = childConfig.Value;
+
             return true;
         }
 
-        public static int ChildConfigValueSum { get; private set; }
+        public int ChildConfigValue { get; private set; }
 
-        public static int ChildConfigValueMultiplyProduct { get; private set; }
+        public int ChildConfigValueSum { get; private set; }
 
-        public static int ChildConfigGlobalValue { get; private set; }
+        public int ChildConfigValueMultiplyProduct { get; private set; }
+
+        public int ChildConfigGlobalValue { get; private set; }
     }
 }

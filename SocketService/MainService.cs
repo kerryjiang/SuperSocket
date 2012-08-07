@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Configuration;
+using System.Data;
 using System.Diagnostics;
 using System.ServiceProcess;
 using System.Text;
@@ -14,31 +15,30 @@ namespace SuperSocket.SocketService
 {
     partial class MainService : ServiceBase
     {
-        private IBootstrap m_Bootstrap;
-
         public MainService()
         {
             InitializeComponent();
-            m_Bootstrap = BootstrapFactory.CreateBootstrap();
         }
 
         protected override void OnStart(string[] args)
         {
-            if (!m_Bootstrap.Initialize())
+            var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
+            if (!SocketServerManager.Initialize(serverConfig))
                 return;
 
-            m_Bootstrap.Start();
+            if (!SocketServerManager.Start())
+                SocketServerManager.Stop();
         }
 
         protected override void OnStop()
         {
-            m_Bootstrap.Stop();
+            SocketServerManager.Stop();
             base.OnStop();
         }
 
         protected override void OnShutdown()
         {
-            m_Bootstrap.Stop();
+            SocketServerManager.Stop();
             base.OnShutdown();
         }
     }

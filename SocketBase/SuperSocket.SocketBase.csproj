@@ -11,21 +11,6 @@
     <RootNamespace>SuperSocket.SocketBase</RootNamespace>
     <AssemblyName>SuperSocket.SocketBase</AssemblyName>
     <FileAlignment>512</FileAlignment>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
-    <PublishUrl>publish\</PublishUrl>
-    <Install>true</Install>
-    <InstallFrom>Disk</InstallFrom>
-    <UpdateEnabled>false</UpdateEnabled>
-    <UpdateMode>Foreground</UpdateMode>
-    <UpdateInterval>7</UpdateInterval>
-    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
-    <UpdatePeriodically>false</UpdatePeriodically>
-    <UpdateRequired>false</UpdateRequired>
-    <MapFileExtensions>true</MapFileExtensions>
-    <ApplicationRevision>0</ApplicationRevision>
-    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <UseApplicationTrust>false</UseApplicationTrust>
-    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,9 +20,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\SuperSocket.SocketBase.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -46,9 +28,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Release\SuperSocket.SocketBase.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -57,10 +36,6 @@
     <AssemblyOriginatorKeyFile>..\supersocket.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\Reference\log4net.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
@@ -71,61 +46,35 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Async.cs" />
+    <Compile Include="AppServer.cs" />
+    <Compile Include="AppServerBase.cs" />
+    <Compile Include="AppSession.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
-    <Compile Include="Command\CommandLoaderBase.cs" />
-    <Compile Include="Command\CommandUpdateEventArgs.cs" />
-    <Compile Include="Config\IConfigurationSource.cs" />
-    <Compile Include="Config\ITypeProvider.cs" />
-    <Compile Include="Config\ConfigurationSource.cs" />
-    <Compile Include="Config\TypeProvider.cs" />
-    <Compile Include="Config\TypeProviderCollection.cs" />
-    <Compile Include="Config\TypeProviderConfig.cs" />
-    <Compile Include="IBootstrap.cs" />
-    <Compile Include="ILoggerProvider.cs" />
-    <Compile Include="IsolationMode.cs" />
-    <Compile Include="Logging\ConsoleLog.cs" />
-    <Compile Include="Logging\ConsoleLogFactory.cs" />
-    <Compile Include="Logging\ILog.cs" />
-    <Compile Include="Logging\ILogFactory.cs" />
-    <Compile Include="Logging\Log4NetLog.cs" />
-    <Compile Include="Logging\Log4NetLogFactory.cs" />
-    <Compile Include="Logging\LogFactoryBase.cs" />
-    <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
-    <Compile Include="Protocol\FixHeaderRequestFilter.cs" />
-    <Compile Include="Protocol\IOffsetAdapter.cs" />
-    <Compile Include="Provider\ExportFactory.cs" />
-    <Compile Include="Provider\ProviderFactoryInfo.cs" />
-    <Compile Include="Provider\ProviderKey.cs" />
-    <Compile Include="RequestHandler.cs" />
-    <Compile Include="Config\IListenerConfig.cs" />
-    <Compile Include="Config\ListenerConfig.cs" />
-    <Compile Include="ListenerInfo.cs" />
-    <Compile Include="PerformanceDataInfo.cs" />
-    <Compile Include="PermformanceDataEventArgs.cs" />
-    <Compile Include="Protocol\BinaryRequestInfo.cs" />
+    <Compile Include="CommandHandler.cs" />
+    <Compile Include="Command\BinaryCommandInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
-    <Compile Include="Command\CommandUpdateInfo.cs" />
+    <Compile Include="Command\CommandInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
+    <Compile Include="Command\ICommandInfo.cs" />
     <Compile Include="Command\ICommandLoader.cs" />
-    <Compile Include="Protocol\CommandLineRequestFilterFactory.cs" />
-    <Compile Include="Protocol\DefaultRequestFilterFactory.cs" />
-    <Compile Include="Protocol\IRequestFilterFactory.cs" />
-    <Compile Include="Protocol\IRequestInfo.cs" />
-    <Compile Include="Protocol\RequestFilterBase.cs" />
-    <Compile Include="Protocol\RequestInfo.cs" />
-    <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
-    <Compile Include="Protocol\TerminatorRequestFilter.cs" />
-    <Compile Include="Protocol\UdpRequestInfo.cs" />
+    <Compile Include="Command\StringCommandBase.cs" />
+    <Compile Include="Command\StringCommandInfo.cs" />
+    <Compile Include="Command\UdpCommandInfo.cs" />
     <Compile Include="CommanFilterFactory.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
+    <Compile Include="Config\IConfig.cs" />
+    <Compile Include="Config\IConnectionFilterConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
     <Compile Include="Config\IServerConfig.cs" />
+    <Compile Include="Config\IServiceConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
-    <Compile Include="Protocol\IRequestFilter.cs" />
+    <Compile Include="Messanger.cs" />
+    <Compile Include="PerformanceDataInfo.cs" />
+    <Compile Include="PermformanceDataEventArgs.cs" />
+    <Compile Include="SessionStatus.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="ICommandSource.cs" />
@@ -135,44 +84,27 @@
     <Compile Include="ISocketServerFactory.cs" />
     <Compile Include="ISocketSession.cs" />
     <Compile Include="LoggerExtension.cs" />
+    <Compile Include="LoggingMode.cs" />
     <Compile Include="PerformanceData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocol\BasicRequestInfoParser.cs" />
-    <Compile Include="Protocol\IRequestInfoParser.cs" />
+    <Compile Include="Protocol\BasicCommandParser.cs" />
+    <Compile Include="Protocol\CommandLineProtocol.cs" />
+    <Compile Include="Protocol\CommandReaderBase.cs" />
+    <Compile Include="Protocol\ICommandParser.cs" />
+    <Compile Include="Protocol\ICommandReader.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Protocol\ICustomProtocol.cs" />
+    <Compile Include="Protocol\TerminatorCommandReader.cs" />
+    <Compile Include="ProviderBase.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="SocketMode.cs" />
-    <Compile Include="AppServer.cs" />
-    <Compile Include="AppServerBase.cs" />
-    <Compile Include="AppSession.cs" />
-    <Compile Include="Command\StringCommandBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
-      <Visible>False</Visible>
-      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

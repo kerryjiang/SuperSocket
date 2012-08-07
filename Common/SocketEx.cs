@@ -3,57 +3,54 @@ using System.Net.Sockets;
 
 namespace SuperSocket.Common
 {
-    /// <summary>
-    /// Socket extension class
-    /// </summary>
     public static class SocketEx
     {
-        /// <summary>
-        /// Close the socket safely.
-        /// </summary>
-        /// <param name="socket">The socket.</param>
-        public static void SafeClose(this Socket socket)
+        public static void SafeCloseClientSocket(this Socket client, ILogger logger)
         {
-            if (socket == null)
+            if(client == null)
                 return;
 
-            if (!socket.Connected)
+            if (!client.Connected)
                 return;
             
             try
             {
-                socket.Shutdown(SocketShutdown.Both);
+                client.Shutdown(SocketShutdown.Both);
             }
-            catch
+            catch(ObjectDisposedException)
             {
             }
-
+            catch(Exception e)
+            {
+                if(logger != null)
+                    logger.LogError(e);
+            }
+            
             try
             {
-                socket.Close();
+                client.Close();
             }
-            catch
+            catch(ObjectDisposedException)
             {
             }
+            catch(Exception e)
+            {
+                if(logger != null)
+                    logger.LogError(e);
+            }
+        }
+        
+        public static void SafeCloseClientSocket(this Socket client)
+        {
+            //No logger
+            client.SafeCloseClientSocket(null);
         }
 
-        /// <summary>
-        /// Sends the data.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="data">The data.</param>
         public static void SendData(this Socket client, byte[] data)
         {
             SendData(client, data, 0, data.Length);
         }
 
-        /// <summary>
-        /// Sends the data.
-        /// </summary>
-        /// <param name="client">The client.</param>
-        /// <param name="data">The data.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
         public static void SendData(this Socket client, byte[] data, int offset, int length)
         {
             int sent = 0;

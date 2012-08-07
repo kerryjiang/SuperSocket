@@ -43,7 +43,6 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Debug\SuperSocket.Common.XML</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -53,8 +52,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <DocumentationFile>bin\Release\SuperSocket.Common.XML</DocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -82,20 +79,29 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="AssemblyUtil.cs" />
+    <Compile Include="Async.cs" />
     <Compile Include="BinaryUtil.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="BufferManager.cs" />
-    <Compile Include="ConcurrentBatchQueue.cs" />
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="ConfigurationExtension.cs" />
+    <Compile Include="ConsoleLogger.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DictionaryExtension.cs" />
-    <Compile Include="ErrorEventArgs.cs" />
+    <Compile Include="DynamicLog4NetLogger.cs" />
     <Compile Include="GenericConfigurationElementCollection.cs" />
-    <Compile Include="IBatchQueue.cs" />
+    <Compile Include="GlobalResourceManager.cs" />
+    <Compile Include="ILogger.cs" />
+    <Compile Include="Log4NetLogger.cs" />
+    <Compile Include="LoggerBase.cs" />
+    <Compile Include="LogUtil.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Platform.cs" />
-    <Compile Include="PosList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="GlobalResources.cs" />
     <Compile Include="SearchMarkState.cs" />
     <Compile Include="SocketEx.cs" />
     <Compile Include="StringExtension.cs" />

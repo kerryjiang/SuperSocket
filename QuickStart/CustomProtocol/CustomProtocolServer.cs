@@ -4,26 +4,20 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
     /// <summary>
     /// It's a protocol like that:
-    /// +-------+---+-------------------------------+
-    /// |request| l |                               |
-    /// | name  | e |    request data               |
-    /// |  (4)  | n |                               |
-    /// |       |(2)|                               |
-    /// +-------+---+-------------------------------+
-    /// request name: the name of the request, 4 chars, used for matching the processing command
-    /// len: the lenght of request data, two bytes, 0x00 0x02 = 2, 0x01 0x01 = 257
-    /// request data: the body of the request
+    /// "SEND 0008 xg^89W(v"
+    /// "SEND" is command name, which is 4 chars
+    /// "0008" is command data length, which also is 4 chars
+    /// "xg^89W(v" is the command data whose lenght is 8
     /// </summary>
-    class CustomProtocolServer : AppServer<CustomProtocolSession, BinaryRequestInfo>
+    class CustomProtocolServer : AppServer<CustomProtocolSession, BinaryCommandInfo>
     {
         public CustomProtocolServer()
-            : base(new DefaultRequestFilterFactory<MyRequestFilter, BinaryRequestInfo>())
+            : base(new MyCustomProtocol())
         {
 
         }

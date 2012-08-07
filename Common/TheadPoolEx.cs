@@ -6,19 +6,8 @@ using System.Threading;
 
 namespace SuperSocket.Common
 {
-    /// <summary>
-    /// Thread pool extension class
-    /// </summary>
     public static class TheadPoolEx
     {
-        /// <summary>
-        /// Resets the thread pool.
-        /// </summary>
-        /// <param name="maxWorkingThreads">The max working threads.</param>
-        /// <param name="maxCompletionPortThreads">The max completion port threads.</param>
-        /// <param name="minWorkingThreads">The min working threads.</param>
-        /// <param name="minCompletionPortThreads">The min completion port threads.</param>
-        /// <returns></returns>
         public static bool ResetThreadPool(int? maxWorkingThreads, int? maxCompletionPortThreads, int? minWorkingThreads, int? minCompletionPortThreads)
         {
             if (maxWorkingThreads.HasValue || maxCompletionPortThreads.HasValue)
@@ -37,7 +26,14 @@ namespace SuperSocket.Common
                     || maxCompletionPortThreads.Value != oldMaxCompletionPortThreads)
                 {
                     if (!ThreadPool.SetMaxThreads(maxWorkingThreads.Value, maxCompletionPortThreads.Value))
+                    {
+                        LogUtil.LogError(string.Format("Failed to run ThreadPool.SetMaxThreads({0}, {1})", maxWorkingThreads.Value, maxCompletionPortThreads.Value));
                         return false;
+                    }
+                    else
+                    {
+                        LogUtil.LogInfo(string.Format("ThreadPool.SetMaxThreads({0}, {1})", maxWorkingThreads.Value, maxCompletionPortThreads.Value));
+                    }
                 }
             }
 
@@ -57,7 +53,14 @@ namespace SuperSocket.Common
                     || minCompletionPortThreads.Value != oldMinCompletionPortThreads)
                 {
                     if (!ThreadPool.SetMinThreads(minWorkingThreads.Value, minCompletionPortThreads.Value))
+                    {
+                        LogUtil.LogError(string.Format("Failed to run ThreadPool.SetMinThreads({0}, {1})", minWorkingThreads.Value, minCompletionPortThreads.Value));
                         return false;
+                    }
+                    else
+                    {
+                        LogUtil.LogInfo(string.Format("ThreadPool.SetMinThreads({0}, {1})", minWorkingThreads.Value, minCompletionPortThreads.Value));
+                    }
                 }
             }
 

@@ -10,41 +10,39 @@ using NUnit.Framework;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
-using SuperSocket.Test.Command;
 
 
 namespace SuperSocket.Test
 {
     public abstract class SocketServerTest
     {
-        private static Dictionary<IServerConfig, IWorkItem[]> m_Servers = new Dictionary<IServerConfig, IWorkItem[]>();
+        private static Dictionary<IServerConfig, TestServer[]> m_Servers = new Dictionary<IServerConfig, TestServer[]>();
 
-        protected readonly IServerConfig m_Config;
+        private readonly IServerConfig m_Config;
 
         private IRootConfig m_RootConfig;
         
-        protected Encoding m_Encoding;
+        private Encoding m_Encoding;
 
         public SocketServerTest()
         {
             m_Config = DefaultServerConfig;
             m_RootConfig = new RootConfig
             {
+                LoggingMode = LoggingMode.Console,
                 MaxWorkingThreads = 500,
                 MaxCompletionPortThreads = 500,
                 MinWorkingThreads = 5,
-                MinCompletionPortThreads = 5,
-                DisablePerformanceDataCollector = true
+                MinCompletionPortThreads = 5
             };
             
             m_Encoding = new UTF8Encoding();
         }
 
-        private IWorkItem GetServerByIndex(int index)
+        private TestServer GetServerByIndex(int index)
         {
-            IWorkItem[] servers = new IWorkItem[0];
+            TestServer[] servers = new TestServer[0];
 
             if (!m_Servers.TryGetValue(m_Config, out servers))
                 return null;
@@ -52,7 +50,7 @@ namespace SuperSocket.Test
             return servers[index];
         }
 
-        private IWorkItem ServerX
+        private TestServer ServerX
         {
             get
             {
@@ -60,7 +58,7 @@ namespace SuperSocket.Test
             }
         }
 
-        private IWorkItem ServerY
+        private TestServer ServerY
         {
             get
             {
@@ -70,35 +68,26 @@ namespace SuperSocket.Test
 
         protected abstract IServerConfig DefaultServerConfig { get; }
 
+
         [TestFixtureSetUp]
         public void Setup()
         {
+            LogUtil.Setup(new ConsoleLogger());
+
             if (m_Servers.ContainsKey(m_Config))
                 return;
 
-            var serverX = CreateAppServer<TestServer>();
+            var serverX = new TestServer();
+            serverX.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
-            var serverY = CreateAppServer<TestServerWithCustomRequestFilter>();
+            var serverY = new TestServer(new TestCommandParser());
+            serverY.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
 
-            m_Servers[m_Config] = new IWorkItem[]
+            m_Servers[m_Config] = new TestServer[]
             {
                 serverX,
                 serverY
             };
-        }
-
-        private IWorkItem CreateAppServer<T>()
-            where T : IWorkItem, ITestSetup, new()
-        {
-            return CreateAppServer<T>(m_RootConfig, m_Config);
-        }
-
-        protected virtual IWorkItem CreateAppServer<T>(IRootConfig rootConfig, IServerConfig serverConfig)
-            where T : IWorkItem, ITestSetup, new()
-        {
-            var appServer = new T();
-            appServer.Setup(rootConfig, serverConfig);
-            return appServer;
         }
 
         [TestFixtureTearDown]
@@ -130,11 +119,11 @@ namespace SuperSocket.Test
                 catch (Exception)
                 {
                     return false;
-                }                
+                }
             }
         }
 
-        protected void StartServer()
+        private void StartServer()
         {
             if (ServerX.IsRunning)
                 ServerX.Stop();
@@ -191,6 +180,7 @@ namespace SuperSocket.Test
 
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {
+            var server = new TestServer();
             var defaultConfig = DefaultServerConfig;
 
             var config = new ServerConfig
@@ -205,7 +195,7 @@ namespace SuperSocket.Test
                 Certificate = defaultConfig.Certificate
             };
 
-            var server = CreateAppServer<TestServer>(m_RootConfig, config);
+            server.Setup(m_RootConfig, config, SocketServerFactory.Instance);
 
             List<Socket> sockets = new List<Socket>();
 
@@ -318,7 +308,7 @@ namespace SuperSocket.Test
 
                     Random rd = new Random(1);
 
-                    StringBuilder sb = new StringBuilder();                   
+                    StringBuilder sb = new StringBuilder();
 
                     for (int i = 0; i < 100; i++)
                     {
@@ -410,7 +400,7 @@ namespace SuperSocket.Test
 
                     for (int i = 0; i < 50; i++)
                     {
-                        sb.Append(chars[rd.Next(0, chars.Length - 1)]);                        
+                        sb.Append(chars[rd.Next(0, chars.Length - 1)]);
                     }
 
                     string command = sb.ToString();
@@ -506,12 +496,12 @@ namespace SuperSocket.Test
                     result = false;
             }
 
-            if (!result)
+            if(!result)
                 Assert.Fail("Concurrent Communications fault!");
         }
 
         [Test, Repeat(5)]
-        public virtual void TestClearTimeoutSession()
+        public void TestClearTimeoutSession()
         {
             StartServer();
 
@@ -584,49 +574,6 @@ namespace SuperSocket.Test
                     Assert.AreEqual(command, echoMessage);
                 }
             }
-        }
-
-        [Test, Repeat(3)]
-        public void TestConcurrentSending()
-        {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
-
-            string[] source = SEND.GetStringSource();
-
-            string[] received = new string[source.Length];
-
-            using (Socket socket = CreateClientSocket())
-            {
-                socket.Connect(serverAddress);
-                Stream socketStream = GetSocketStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
-                {
-                    reader.ReadLine();
-                    writer.WriteLine("SEND");
-                    writer.Flush();
-
-                    for (var i = 0; i < received.Length; i++)
-                    {
-                        var line = reader.ReadLine();
-                        received[i] = line;
-                        Console.WriteLine(line);
-                    }
-                }
-            }
-
-            var dict = source.ToDictionary(i => i);
-
-            for (var i = 0; i < received.Length; i++)
-            {
-                if (!dict.Remove(received[i]))
-                    Assert.Fail(received[i]);
-            }
-
-            if (dict.Count > 0)
-                Assert.Fail();
         }
 
         private byte[] ReadStreamToBytes(Stream stream)

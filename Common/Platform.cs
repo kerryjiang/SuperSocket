@@ -11,13 +11,14 @@ namespace SuperSocket.Common
     /// </summary>
     public static class Platform
     {
-        static Platform()
+        public static void Initialize()
         {
             try
             {
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.IOControl(IOControlCode.KeepAliveValues, null, null);
                 SupportSocketIOControlByCodeEnum = true;
+                IsMono = false;
             }
             catch (NotSupportedException)
             {
@@ -36,20 +37,8 @@ namespace SuperSocket.Common
             IsMono = t != null;
         }
 
-        /// <summary>
-        /// Gets a value indicating whether [support socket IO control by code enum].
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if [support socket IO control by code enum]; otherwise, <c>false</c>.
-        /// </value>
         public static bool SupportSocketIOControlByCodeEnum { get; private set; }
 
-        /// <summary>
-        /// Gets a value indicating whether this instance is mono.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is mono; otherwise, <c>false</c>.
-        /// </value>
         public static bool IsMono { get; private set; }
     }
 }

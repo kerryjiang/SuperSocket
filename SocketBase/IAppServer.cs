@@ -5,18 +5,16 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Protocol;
-using System.Collections;
-using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketBase
 {
-    /// <summary>
-    /// The interface for who will react with performance collecting
-    /// </summary>
+    public interface ILoggerProvider
+    {
+        ILogger Logger { get; }
+    }
+
     public interface IPerformanceDataSource
     {
         /// <summary>
@@ -27,25 +25,29 @@ namespace SuperSocket.SocketBase
         PerformanceData CollectPerformanceData(GlobalPerformanceData globalPerfData);
     }
 
-    /// <summary>
-    /// An item can be started and stopped
-    /// </summary>
-    public interface IWorkItem
+    public interface IAppServer : ILoggerProvider
     {
         /// <summary>
-        /// Gets the name.
+        /// Gets the name of the server instance.
         /// </summary>
         string Name { get; }
+        
+        /// <summary>
+        /// Gets or sets the server's connection filter
+        /// </summary>
+        /// <value>
+        /// The server's connection filters
+        /// </value>
+        IEnumerable<IConnectionFilter> ConnectionFilters{ get; set; }
 
         /// <summary>
-        /// Setups with the specified root config.
+        /// Setups the specified root config.
         /// </summary>
-        /// <param name="bootstrap">The bootstrap.</param>
+        /// <param name="rootConfig">The SuperSocket root config.</param>
         /// <param name="config">The socket server instance config.</param>
-        /// <param name="factories">The factories.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
         /// <returns></returns>
-        bool Setup(IBootstrap bootstrap, IServerConfig config, ProviderFactoryInfo[] factories);
-
+        bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory);
 
         /// <summary>
         /// Starts this server instance.
@@ -53,6 +55,15 @@ namespace SuperSocket.SocketBase
         /// <returns>return true if start successfull, else false</returns>
         bool Start();
 
+        /// <summary>
+        /// Stops this server instance.
+        /// </summary>
+        void Stop();
+
+        /// <summary>
+        /// Gets the server's config.
+        /// </summary>
+        IServerConfig Config { get; }
 
         /// <summary>
         /// Gets a value indicating whether this instance is running.
@@ -63,49 +74,14 @@ namespace SuperSocket.SocketBase
         bool IsRunning { get; }
 
         /// <summary>
-        /// Stops this server instance.
-        /// </summary>
-        void Stop();
-
-        /// <summary>
-        /// Gets the total session count.
-        /// </summary>
-        int SessionCount { get; }
-    }
-
-    /// <summary>
-    /// The interface for AppServer
-    /// </summary>
-    public interface IAppServer : IWorkItem, ILoggerProvider
-    {
-        /// <summary>
         /// Gets the started time.
         /// </summary>
-        /// <value>
-        /// The started time.
-        /// </value>
         DateTime StartedTime { get; }
+    }
 
-
-        /// <summary>
-        /// Gets or sets the listeners.
-        /// </summary>
-        /// <value>
-        /// The listeners.
-        /// </value>
-        ListenerInfo[] Listeners { get; }
-
-        /// <summary>
-        /// Gets the request filter factory.
-        /// </summary>
-        object RequestFilterFactory { get; }
-        
-
-        /// <summary>
-        /// Gets the server's config.
-        /// </summary>
-        IServerConfig Config { get; }
-
+    public interface IAppServer<TAppSession> : IAppServer
+        where TAppSession : IAppSession
+    {
         /// <summary>
         /// Gets the certificate of current server.
         /// </summary>
@@ -117,57 +93,19 @@ namespace SuperSocket.SocketBase
         SslProtocols BasicSecurity { get; }
 
         /// <summary>
-        /// Creates the app session.
+        /// Creates a new app session by a socket session.
         /// </summary>
         /// <param name="socketSession">The socket session.</param>
         /// <returns></returns>
-        IAppSession CreateAppSession(ISocketSession socketSession);
+        TAppSession CreateAppSession(ISocketSession socketSession);
 
         /// <summary>
-        /// Gets the app session by ID.
+        /// Gets the app session by indentity key from server's session container.
         /// </summary>
-        /// <param name="sessionID">The session ID.</param>
+        /// <param name="identityKey">The identity key.</param>
         /// <returns></returns>
-        IAppSession GetAppSessionByID(string sessionID);
+        TAppSession GetAppSessionByIndentityKey(string identityKey);
 
-        /// <summary>
-        /// Resets the session's security protocol.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="security">The security protocol.</param>
-        void ResetSessionSecurity(IAppSession session, SslProtocols security);
-
-        /// <summary>
-        /// Gets the log factory.
-        /// </summary>
-        ILogFactory LogFactory { get; }
-    }
-
-    /// <summary>
-    /// The raw data processor
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public interface IRawDataProcessor<TAppSession>
-        where TAppSession : IAppSession
-    {
-        /// <summary>
-        /// Gets or sets the raw binary data received event handler.
-        /// TAppSession: session
-        /// byte[]: receive buffer
-        /// int: receive buffer offset
-        /// int: receive lenght
-        /// bool: whether process the received data further
-        /// </summary>
-        event Func<TAppSession, byte[], int, int, bool> RawDataReceived;
-    }
-
-    /// <summary>
-    /// The interface for AppServer
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public interface IAppServer<TAppSession> : IAppServer
-        where TAppSession : IAppSession
-    {
         /// <summary>
         /// Gets the matched sessions from sessions snapshot.
         /// </summary>
@@ -182,43 +120,20 @@ namespace SuperSocket.SocketBase
         IEnumerable<TAppSession> GetAllSessions();
 
         /// <summary>
-        /// Gets/sets the new session connected event handler.
+        /// Gets the total session count.
         /// </summary>
-        event Action<TAppSession> NewSessionConnected;
-
-        /// <summary>
-        /// Gets/sets the session closed event handler.
-        /// </summary>
-        event Action<TAppSession, CloseReason> SessionClosed;
+        int SessionCount { get; }
     }
 
-    /// <summary>
-    /// The interface for AppServer
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IAppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession>
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-    {
-        /// <summary>
-        /// Occurs when [request comming].
-        /// </summary>
-        event RequestHandler<TAppSession, TRequestInfo> RequestHandler;
-    }
-
-    /// <summary>
-    /// The interface for handler of session request
-    /// </summary>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IRequestHandler<TRequestInfo>
-        where TRequestInfo : IRequestInfo
+    public interface IAppServer<TAppSession, TCommandInfo> : IAppServer<TAppSession>, ICommandSource<ICommand<TAppSession, TCommandInfo>>
+        where TCommandInfo : ICommandInfo
+        where TAppSession : IAppSession<TCommandInfo>
     {
         /// <summary>
         /// Executes the command.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="requestInfo">The request info.</param>
-        void ExecuteCommand(IAppSession session, TRequestInfo requestInfo);
+        /// <param name="commandInfo">The command info.</param>
+        void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
     }
 }

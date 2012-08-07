@@ -7,8 +7,8 @@
     <ConfigurationSettings>
     </ConfigurationSettings>
     <Endpoints>
-      <InputEndpoint name="EchoServer_911" protocol="tcp" port="911" />
-      <InputEndpoint name="RemoteProcessServer_912" protocol="tcp" port="912" />
+      <InputEndpoint name="EchoServerEndpoint" protocol="tcp" port="911" />
+      <InputEndpoint name="RemoteProcessServerEndpoint" protocol="tcp" port="912" />
     </Endpoints>
     <LocalResources>
     </LocalResources>

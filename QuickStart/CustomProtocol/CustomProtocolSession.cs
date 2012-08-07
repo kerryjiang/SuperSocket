@@ -4,13 +4,12 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
-    public class CustomProtocolSession : AppSession<CustomProtocolSession, BinaryRequestInfo>
+    public class CustomProtocolSession : AppSession<CustomProtocolSession, BinaryCommandInfo>
     {
-        public override void HandleException(Exception e)
+        public override void HandleExceptionalError(Exception e)
         {
 
         }

@@ -16,35 +16,20 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    /// <summary>
-    /// PolicyServer base class
-    /// </summary>
-    public abstract class PolicyServer : AppServer<PolicySession, BinaryRequestInfo>
+    public abstract class PolicyServer : AppServer<PolicySession, BinaryCommandInfo>
     {
         private string m_PolicyFile;
         private string m_PolicyRequest = "<policy-file-request/>";
-        /// <summary>
-        /// Gets the policy response.
-        /// </summary>
         protected byte[] PolicyResponse { get; private set; }
         private int m_ExpectedReceivedLength;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="PolicyServer"/> class.
-        /// </summary>
         public PolicyServer()
             : base()
         {
 
         }
 
-        /// <summary>
-        /// Setups the specified root config.
-        /// </summary>
-        /// <param name="rootConfig">The root config.</param>
-        /// <param name="config">The config.</param>
-        /// <returns></returns>
-        protected override bool Setup(IRootConfig rootConfig, IServerConfig config)
+        public override bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, ICustomProtocol<BinaryCommandInfo> protocol)
         {
             var policyRequest = config.Options.GetValue("policyRequest");
             if (!string.IsNullOrEmpty(policyRequest))
@@ -52,14 +37,16 @@ namespace SuperSocket.Facility.PolicyServer
 
             m_ExpectedReceivedLength = Encoding.UTF8.GetByteCount(m_PolicyRequest);
 
-            RequestFilterFactory = new PolicyRequestFilterFactory(m_ExpectedReceivedLength);
+            this.Protocol = new FixSizeCommandProtocol(m_ExpectedReceivedLength);
+
+            if (!base.Setup(rootConfig, config, socketServerFactory, protocol))
+                return false;
 
             m_PolicyFile = config.Options.GetValue("policyFile");
 
             if (string.IsNullOrEmpty(m_PolicyFile))
             {
-                if(Logger.IsErrorEnabled)
-                    Logger.Error("Configuration option policyFile is required!");
+                Logger.LogError("Configuration option policyFile is required!");
                 return false;
             }
 
@@ -68,48 +55,32 @@ namespace SuperSocket.Facility.PolicyServer
 
             if (!File.Exists(m_PolicyFile))
             {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error("The specified policyFile doesn't exist! " + m_PolicyFile);
+                Logger.LogError("The specified policyFile doesn't exist! " + m_PolicyFile);
                 return false;
             }
 
             PolicyResponse = SetupPolicyResponse(File.ReadAllBytes(m_PolicyFile));
             
-            this.RequestHandler += new RequestHandler<PolicySession, BinaryRequestInfo>(PolicyServer_RequestHandler);
+            this.CommandHandler += new CommandHandler<PolicySession, BinaryCommandInfo>(PolicyServer_CommandHandler);
 
             return true;
         }
 
-        /// <summary>
-        /// Setups the policy response.
-        /// </summary>
-        /// <param name="policyFileData">The policy file data.</param>
-        /// <returns></returns>
         protected virtual byte[] SetupPolicyResponse(byte[] policyFileData)
         {
             return policyFileData;
         }
 
-        /// <summary>
-        /// Gets the policy file response.
-        /// </summary>
-        /// <param name="clientEndPoint">The client end point.</param>
-        /// <returns></returns>
         protected virtual byte[] GetPolicyFileResponse(IPEndPoint clientEndPoint)
         {
             return PolicyResponse;
         }
 
-        void PolicyServer_RequestHandler(PolicySession session, BinaryRequestInfo requestInfo)
+        void PolicyServer_CommandHandler(PolicySession session, BinaryCommandInfo commandInfo)
         {
-            ProcessRequest(session, requestInfo.Data);
+            ProcessRequest(session, commandInfo.Data);
         }
 
-        /// <summary>
-        /// Processes the request.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="data">The data.</param>
         protected virtual void ProcessRequest(PolicySession session, byte[] data)
         {
             var request = Encoding.UTF8.GetString(data);
@@ -120,8 +91,7 @@ namespace SuperSocket.Facility.PolicyServer
                 return;
             }
 
-            var response = GetPolicyFileResponse(session.RemoteEndPoint);
-            session.Send(response, 0, response.Length);
+            session.SendResponse(GetPolicyFileResponse(session.RemoteEndPoint));
         }
     }
 }

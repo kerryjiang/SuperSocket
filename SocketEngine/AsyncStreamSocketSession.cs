@@ -6,62 +6,22 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
-using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncStreamSocketSession : SocketSession, IAsyncSocketSessionBase
+    class AsyncStreamSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+        where TCommandInfo : ICommandInfo
     {
         private byte[] m_ReadBuffer;
-        private int m_Offset;
-        private int m_Length;
 
-        private bool m_IsReset;
-
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy)
-            : this(client, security, socketAsyncProxy, false)
+        public AsyncStreamSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
+            : base(client, initialCommandReader)
         {
-
-        }
-
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
-            : base(client)
-        {
-            SecureProtocol = security;
-            SocketAsyncProxy = socketAsyncProxy;
-            SocketAsyncEventArgs e = socketAsyncProxy.SocketEventArgs;
-            m_ReadBuffer = e.Buffer;
-            m_Offset = e.Offset;
-            m_Length = e.Count;
-
-            m_IsReset = isReset;
-        }
-
-        private bool IsIgnorableException(Exception e)
-        {
-            if (e is ObjectDisposedException)
-                return true;
-
-            if (e is IOException)
-            {
-                if (e.InnerException is ObjectDisposedException)
-                    return true;
-
-                if (e.InnerException is SocketException)
-                {
-                    var se = e.InnerException as SocketException;
-
-                    if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058 || se.ErrorCode == -1073741299)
-                        return true;
-                }
-            }
-
-            return false;
+            
         }
 
         /// <summary>
@@ -73,8 +33,12 @@ namespace SuperSocket.SocketEngine
             if (IsClosed)
                 return;
 
+            m_ReadBuffer = new byte[Client.ReceiveBufferSize];
+
             try
             {
+                SecureProtocol = AppServer.BasicSecurity;
+
                 var asyncResult = BeginInitStream(OnBeginInitStreamOnSessionStarted);
 
                 //If the operation is synchronous
@@ -83,9 +47,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if(!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
+                AppServer.Logger.LogError(e);
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -93,79 +55,80 @@ namespace SuperSocket.SocketEngine
 
         private void OnSessionStarting()
         {
-            try
-            {
-                m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
-            }
-            catch (Exception e)
-            {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
-                this.Close(CloseReason.SocketError);
-            }
-
-            if (!m_IsReset)
-                StartSession();
+            m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
+            StartSession();
         }
 
         private void OnStreamEndRead(IAsyncResult result)
         {
             var stream = result.AsyncState as Stream;
 
-            int thisRead = 0;
-
             try
             {
-                thisRead = stream.EndRead(result);
+                int thisRead = stream.EndRead(result);
+
+                if (thisRead > 0)
+                {
+                    AppSession.Status = SessionStatus.Healthy;
+
+                    int thisLeft, thisLength;
+                    thisLength = thisRead;
+                    thisLeft = thisRead;
+
+                    while (thisLeft > 0)
+                    {
+                        TCommandInfo commandInfo = FindCommand(m_ReadBuffer, thisRead - thisLength, thisLength, true, out thisLeft);
+                        thisLength = thisLeft;
+
+                        if (commandInfo != null)
+                        {
+                            ExecuteCommand(commandInfo);
+
+                            if (Client == null && !IsClosed)
+                            {
+                                Close(CloseReason.ServerClosing);
+                                return;
+                            }
+                        }
+                    }
+
+                    m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
+                }
+            }
+            catch (ObjectDisposedException)
+            {
+                this.Close(CloseReason.SocketError);
+                return;
+            }
+            catch (IOException ioe)
+            {
+                if (ioe.InnerException != null)
+                {
+                    if (ioe.InnerException is SocketException)
+                    {
+                        var se = ioe.InnerException as SocketException;
+                        if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
+                        {
+                            this.Close(CloseReason.SocketError);
+                            return;
+                        }
+                    }
+
+                    if (ioe.InnerException is ObjectDisposedException)
+                    {
+                        this.Close(CloseReason.SocketError);
+                        return;
+                    }
+                }
+
+                AppServer.Logger.LogError(this, ioe);
+                this.Close(CloseReason.SocketError);
+                return;
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
-                this.Close(CloseReason.SocketError);
-                return;
-            }
-
-            if (thisRead <= 0)
-            {
-                this.Close(CloseReason.ClientClosing);
-                return;
-            }
-
-            int offsetDelta;
-
-            try
-            {
-                offsetDelta = AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
-            }
-            catch (Exception ex)
-            {
-                AppSession.Logger.Error(AppSession, "protocol error", ex);
-                this.Close(CloseReason.ProtocolError);
-                return;
-            }
-
-            try
-            {
-                if (offsetDelta != 0)
-                {
-                    m_Offset += offsetDelta;
-                    m_Length -= offsetDelta;
-
-                    if (m_Length > AppSession.AppServer.Config.ReceiveBufferSize)
-                        throw new Exception("Illigal offsetDelta");
-                }
-
-                m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
-            }
-            catch (Exception exc)
-            {
-                if (!IsIgnorableException(exc))
-                    AppSession.Logger.Error(AppSession, exc);
-
-                this.Close(CloseReason.SocketError);
+                AppServer.Logger.LogError(this, e);
+                this.Close(CloseReason.Unknown);
                 return;
             }
         }
@@ -182,11 +145,11 @@ namespace SuperSocket.SocketEngine
                 case (SslProtocols.Tls):
                 case (SslProtocols.Ssl3):
                     SslStream sslStream = new SslStream(new NetworkStream(Client), false);
-                    result = sslStream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, false, SslProtocols.Default, false, asyncCallback, sslStream);
+                    result = sslStream.BeginAuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Default, false, asyncCallback, sslStream);
                     break;
                 case (SslProtocols.Ssl2):
                     SslStream ssl2Stream = new SslStream(new NetworkStream(Client), false);
-                    result = ssl2Stream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, false, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
+                    result = ssl2Stream.BeginAuthenticateAsServer(AppServer.Certificate, false, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
                     break;
                 default:
                     m_Stream = new NetworkStream(Client);
@@ -214,9 +177,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if(!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
+                AppSession.Logger.LogError(e);
                 this.Close(CloseReason.SocketError);
                 return;
             }
@@ -224,89 +185,28 @@ namespace SuperSocket.SocketEngine
             m_Stream = sslStream;
         }
 
-        protected override void SendSync(IPosList<ArraySegment<byte>> items)
+        public override void SendResponse(string message)
         {
-            try
-            {
-                for (var i = 0; i < items.Count; i++)
-                {
-                    var item = items[i];
-                    m_Stream.Write(item.Array, item.Offset, item.Count);
-                }
-            }
-            catch (Exception e)
-            {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
-                Close(CloseReason.SocketError);
-                return;
-            }
-
-            OnSendingCompleted();
+            byte[] data = AppSession.Charset.GetBytes(message);
+            SendResponse(data, 0, data.Length);
         }
 
-        protected override void OnSendingCompleted()
+        public override void SendResponse(byte[] data)
+        {
+            SendResponse(data, 0, data.Length);
+        }
+
+        public override void SendResponse(byte[] data, int offset, int length)
         {
             try
             {
+                m_Stream.Write(data, offset, length);
                 m_Stream.Flush();
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
-                Close(CloseReason.SocketError);
-                return;
-            }
-
-            base.OnSendingCompleted();
-        }
-
-        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
-        {
-            try
-            {
-                var item = items[items.Position];
-                m_Stream.BeginWrite(item.Array, item.Offset, item.Count, OnEndWrite, items);
-            }
-            catch (Exception e)
-            {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
                 Close(CloseReason.SocketError);
             }
-        }
-
-        private void OnEndWrite(IAsyncResult result)
-        {
-            try
-            {
-                m_Stream.EndWrite(result);
-            }
-            catch (Exception e)
-            {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
-                Close(CloseReason.SocketError);
-                return;
-            }
-
-            var items = result.AsyncState as IPosList<ArraySegment<byte>>;
-            var nextPos = items.Position + 1;
-
-            //Has more data to send
-            if (nextPos < items.Count)
-            {
-                items.Position = nextPos;
-                SendAsync(items);
-                return;
-            }
-
-            OnSendingCompleted();
         }
 
         public override void ApplySecureProtocol()
@@ -315,13 +215,6 @@ namespace SuperSocket.SocketEngine
 
             if (asyncResult != null)
                 asyncResult.AsyncWaitHandle.WaitOne();
-        }
-
-        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
-
-        ILog ILoggerProvider.Logger
-        {
-            get { return AppSession.Logger; }
         }
     }
 }

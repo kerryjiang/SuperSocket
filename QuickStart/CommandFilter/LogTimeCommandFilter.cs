@@ -20,9 +20,9 @@ namespace SuperSocket.QuickStart.CommandFilter
             var startTime = session.Items.GetValue<DateTime>("StartTime");
             var ts = DateTime.Now.Subtract(startTime);
 
-            if (ts.TotalSeconds > 5 && session.Logger.IsInfoEnabled)
+            if (ts.TotalSeconds > 5)
             {
-                session.Logger.InfoFormat("A command '{0}' took {1} seconds!", command.Name, ts.ToString());
+                session.Logger.LogPerf(string.Format("A command '{0}' took {1} seconds!", command.Name, ts.ToString()));
             }
         }
     }

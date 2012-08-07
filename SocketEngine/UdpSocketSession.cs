@@ -1,30 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
+using System.IO;
+using System.Net.Sockets;
+using System.Net;
 using SuperSocket.Common;
+using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketSession : SocketSession
+    class UdpSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+        where TCommandInfo : ICommandInfo
     {
         private Socket m_ServerSocket;
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint)
-            : base(remoteEndPoint.ToString())
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, ICommandReader<TCommandInfo> commandReader)
+            : base(commandReader)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
+            IdentityKey = remoteEndPoint.ToString();
         }
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, string sessionID)
-            : base(sessionID)
+        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, string sessionKey)
+            : base(sessionKey, null)
         {
             m_ServerSocket = serverSocket;
             RemoteEndPoint = remoteEndPoint;
@@ -35,64 +38,57 @@ namespace SuperSocket.SocketEngine
             get { return (IPEndPoint)m_ServerSocket.LocalEndPoint; }
         }
 
-        /// <summary>
-        /// Updates the remote end point of the client.
-        /// </summary>
-        /// <param name="remoteEndPoint">The remote end point.</param>
-        internal void UpdateRemoteEndPoint(IPEndPoint remoteEndPoint)
-        {
-            this.RemoteEndPoint = remoteEndPoint;
-        }
-
         public override void Start()
         {
             StartSession();
         }
 
-        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
+        internal void ProcessData(byte[] data)
         {
-            var e = new SocketAsyncEventArgs();
-            e.Completed += new EventHandler<SocketAsyncEventArgs>(SendingCompleted);
-            e.RemoteEndPoint = RemoteEndPoint;
-            e.BufferList = items;
-            m_ServerSocket.SendToAsync(e);
+            ProcessData(data, 0, data.Length);
         }
 
-        void SendingCompleted(object sender, SocketAsyncEventArgs e)
+        internal void ProcessData(byte[] data, int offset, int length)
         {
-            if (e.SocketError != SocketError.Success)
-            {
-                var log = AppSession.Logger;
+            ProcessData(data, offset, length, false);
+        }
 
-                if (log.IsErrorEnabled)
-                    log.Error(new SocketException((int)e.SocketError));
+        void ProcessData(byte[] data, int offset, int length, bool isReusableBuffer)
+        {
+            int left;
 
+            TCommandInfo commandInfo = FindCommand(data, offset, length, isReusableBuffer, out left);
+
+            if (commandInfo == null)
                 return;
-            }
 
-            OnSendingCompleted();
+            ExecuteCommand(commandInfo);
+
+            if (left > 0)
+            {
+                ProcessData(data, offset + length - left, left, true);
+            }
         }
 
-        protected override void SendSync(IPosList<ArraySegment<byte>> items)
+        public override void SendResponse(string message)
         {
-            for (var i = 0; i < items.Count; i++)
-            {
-                var item = items[i];
-                m_ServerSocket.SendTo(item.Array, item.Offset, item.Count, SocketFlags.None, RemoteEndPoint);
-            }
-                
-            OnSendingCompleted();
+            byte[] data = AppSession.Charset.GetBytes(message);
+            m_ServerSocket.SendTo(data, RemoteEndPoint);
+        }
+
+        public override void SendResponse(byte[] data)
+        {
+            m_ServerSocket.SendTo(data, RemoteEndPoint);
+        }
+
+        public override void SendResponse(byte[] data, int offset, int length)
+        {
+            m_ServerSocket.SendTo(data, offset, length, SocketFlags.None, RemoteEndPoint);
         }
 
         public override void ApplySecureProtocol()
         {
             throw new NotSupportedException();
-        }
-
-        public override void Close(CloseReason reason)
-        {
-            if (!IsClosed)
-                OnClose(reason);
         }
     }
 }

@@ -9,107 +9,41 @@ using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncSocketSession : SocketSession, IAsyncSocketSession
+    interface IAsyncSocketSession
     {
-        private bool m_IsReset;
+        SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
+        void ProcessReceive(SocketAsyncEventArgs e);
+        ILogger Logger { get; }
+    }
 
-        private SocketAsyncEventArgs m_SocketEventArgSend;
-
-        public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy)
-            : this(client, socketAsyncProxy, false)
+    class AsyncSocketSession<TAppSession, TCommandInfo> : SocketSession<TAppSession, TCommandInfo>, IAsyncSocketSession
+        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+        where TCommandInfo : ICommandInfo
+    {
+        public AsyncSocketSession(Socket client, ICommandReader<TCommandInfo> initialCommandReader)
+            : base(client, initialCommandReader)
         {
 
         }
 
-        public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
-            : base(client)
+        ILogger IAsyncSocketSession.Logger
         {
-            SocketAsyncProxy = socketAsyncProxy;
-            m_IsReset = isReset;
-        }
-
-        ILog ILoggerProvider.Logger
-        {
-            get { return AppSession.Logger; }
+            get { return AppServer.Logger; }
         }
 
         public override void Start()
         {
-            SocketAsyncProxy.Initialize(this);
+            SocketAsyncProxy.Initialize(Client, this);
+            StartSession();
             StartReceive(SocketAsyncProxy.SocketEventArgs);
-
-            if (!SyncSend)
-            {
-                m_SocketEventArgSend = new SocketAsyncEventArgs();
-                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
-            }
-
-            if (!m_IsReset)
-                StartSession();
-        }
-
-        bool ProcessCompleted(SocketAsyncEventArgs e)
-        {
-            // check if the remote host closed the connection
-            if (e.BytesTransferred <= 0)
-            {
-                Close(CloseReason.ClientClosing);
-                return false;
-            }
-
-            if (e.SocketError != SocketError.Success)
-            {
-                if (e.SocketError != SocketError.ConnectionAborted
-                    && e.SocketError != SocketError.ConnectionReset
-                    && e.SocketError != SocketError.Interrupted
-                    && e.SocketError != SocketError.Shutdown)
-                {
-                    AppSession.Logger.Error(AppSession, new SocketException((int)e.SocketError));
-                }
-
-                Close(CloseReason.SocketError);
-                return false;
-            }
-
-            return true;
-        }
-
-        void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
-        {
-            if (!ProcessCompleted(e))
-                return;
-
-            base.OnSendingCompleted();
-        }
-
-        private bool IsIgnorableException(Exception e)
-        {
-            if (e is ObjectDisposedException)
-                return true;
-
-            if (e is SocketException)
-            {
-                var se = e as SocketException;
-
-                if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
-                    return true;
-            }
-
-            return false;
         }
 
         private void StartReceive(SocketAsyncEventArgs e)
-        {
-            StartReceive(e, 0);
-        }
-
-        private void StartReceive(SocketAsyncEventArgs e, int offsetDelta)
         {
             if (IsClosed)
                 return;
@@ -118,21 +52,10 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                if (offsetDelta != 0)
-                {
-                    e.SetBuffer(e.Offset + offsetDelta, e.Count - offsetDelta);
-
-                    if (e.Count > AppSession.AppServer.Config.ReceiveBufferSize)
-                        throw new ArgumentException("Illigal offsetDelta", "offsetDelta");
-                }
-
                 willRaiseEvent = Client.ReceiveAsync(e);
             }
-            catch (Exception exc)
+            catch (Exception)
             {
-                if (!IsIgnorableException(exc))
-                    AppSession.Logger.Error(AppSession, exc);
-
                 Close(CloseReason.SocketError);
                 return;
             }
@@ -143,101 +66,97 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected override void SendSync(IPosList<ArraySegment<byte>> items)
+        public override void SendResponse(string message)
         {
-            try
-            {
-                for (var i = 0; i < items.Count; i++)
-                {
-                    var item = items[i];
-
-                    var client = Client;
-
-                    if (client == null)
-                        return;
-
-                    client.Send(item.Array, item.Offset, item.Count, SocketFlags.None);
-                }
-            }
-            catch (Exception e)
-            {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
-                Close(CloseReason.SocketError);
+            if (IsClosed)
                 return;
-            }
 
-            OnSendingCompleted();
-        }
+            byte[] data = AppSession.Charset.GetBytes(message);
 
-        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
-        {
+            if (IsClosed)
+                return;
+
             try
             {
-                if (items.Count > 1)
-                {
-                    if (m_SocketEventArgSend.Buffer != null)
-                        m_SocketEventArgSend.SetBuffer(null, 0, 0);
-
-                    m_SocketEventArgSend.BufferList = items;
-                }
-                else
-                {
-                    var currentItem = items[0];
-
-                    try
-                    {
-                        if (m_SocketEventArgSend.BufferList != null)
-                            m_SocketEventArgSend.BufferList = null;
-                    }
-                    catch (Exception e) //a strange NullReference exception
-                    {
-                        AppSession.Logger.Error(AppSession, e);
-                    }
-
-                    m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
-                }
-
-                var client = Client;
-
-                if (client == null)
-                    return;
-
-                if (!client.SendAsync(m_SocketEventArgSend))
-                    OnSendingCompleted(client, m_SocketEventArgSend);
+                Client.SendData(data);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
                 Close(CloseReason.SocketError);
             }
         }
 
-        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
+        public override void SendResponse(byte[] data)
+        {
+            SendResponse(data, 0, data.Length);
+        }
+
+        public override void SendResponse(byte[] data, int offset, int length)
+        {
+            if (IsClosed)
+                return;
+
+            try
+            {
+                Client.SendData(data, offset, length);
+            }
+            catch (Exception)
+            {
+                Close(CloseReason.SocketError);
+            }
+        }
+
+        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; set; }
 
         public void ProcessReceive(SocketAsyncEventArgs e)
         {
-            if (!ProcessCompleted(e))
-                return;
-
-            int offsetDelta;
-
-            try
+            // check if the remote host closed the connection
+            if (e.BytesTransferred <= 0)
             {
-                offsetDelta = this.AppSession.ProcessRequest(e.Buffer, e.Offset, e.BytesTransferred, true);
+                Close(CloseReason.ClientClosing);
+                return;
             }
-            catch (Exception exc)
+
+            if (e.SocketError != SocketError.Success)
             {
-                AppSession.Logger.Error(AppSession, "protocol error", exc);
-                this.Close(CloseReason.ProtocolError);
+                Close(CloseReason.SocketError);
                 return;
+            }
+
+            int bytesTransferred = e.BytesTransferred;
+            int offset = e.Offset;
+
+            while (bytesTransferred > 0)
+            {
+                int left;
+
+                TCommandInfo commandInfo = FindCommand(e.Buffer, offset, bytesTransferred, true, out left);
+                
+                if (IsClosed)
+                    return;
+
+                if (commandInfo == null)
+                    break;
+
+                try
+                {
+                    ExecuteCommand(commandInfo);
+                }
+                catch (Exception exc)
+                {
+                    AppServer.Logger.LogError(this, exc);
+                    HandleExceptionalError(exc);
+                }
+
+                if (left <= 0)
+                    break;
+
+                bytesTransferred = left;
+                offset = e.Offset + e.BytesTransferred - left;
             }
 
             //read the next block of data sent from the client
-            StartReceive(e, offsetDelta);
+            StartReceive(e);
         }      
 
         public override void ApplySecureProtocol()

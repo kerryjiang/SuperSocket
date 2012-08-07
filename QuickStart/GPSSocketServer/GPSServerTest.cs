@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using NUnit.Framework;
-using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketBase;
 using SuperSocket.SocketEngine;
+using System.Net;
+using System.Net.Sockets;
+using System.IO;
 
 namespace SuperSocket.QuickStart.GPSSocketServer
 {
@@ -27,12 +26,14 @@ namespace SuperSocket.QuickStart.GPSSocketServer
                 Port = 555,
                 Ip = "Any",
                 MaxConnectionNumber = 10,
-                Mode = SocketMode.Tcp,
+                Mode = SocketMode.Async,
                 Name = "GPSServer"
             };
 
             m_Server = new GPSServer();
-            m_Server.Setup(new RootConfig(), m_Config, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory());
+            m_Server.Setup(new RootConfig { LoggingMode = LoggingMode.Console },
+                m_Config,
+                SocketServerFactory.Instance);
         }
 
         [SetUp]

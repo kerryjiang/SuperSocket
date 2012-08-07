@@ -4,90 +4,33 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Command
 {
-    /// <summary>
-    /// A command loader which loads commands from assembly by reflection
-    /// </summary>
-    public class ReflectCommandLoader : CommandLoaderBase
+    public class ReflectCommandLoader<TCommand> : ICommandLoader<TCommand>
+        where TCommand : class
     {
-        private Type m_CommandType;
+        private Assembly[] m_CommandAssemblies;
 
-        private IAppServer m_AppServer;
-
-        /// <summary>
-        /// Initializes the command loader
-        /// </summary>
-        /// <typeparam name="TCommand">The type of the command.</typeparam>
-        /// <param name="rootConfig">The root config.</param>
-        /// <param name="appServer">The app server.</param>
-        /// <returns></returns>
-        public override bool Initialize<TCommand>(IRootConfig rootConfig, IAppServer appServer)
+        public ReflectCommandLoader(IEnumerable<Assembly> assemblies)
         {
-            m_CommandType = typeof(TCommand);
-            m_AppServer = appServer;
-            return true;
+            m_CommandAssemblies = assemblies.Where(a => a != null).ToArray();
         }
 
-        /// <summary>
-        /// Tries to load commands.
-        /// </summary>
-        /// <param name="commands">The commands.</param>
-        /// <returns></returns>
-        public override bool TryLoadCommands(out IEnumerable<ICommand> commands)
+        #region ICommandLoader Members
+
+        public IEnumerable<TCommand> LoadCommands()
         {
-            commands = null;
+            var commands = new List<TCommand>();
 
-            var commandAssemblies = new List<Assembly>();
-
-            if (m_AppServer.GetType().Assembly != this.GetType().Assembly)
-                commandAssemblies.Add(m_AppServer.GetType().Assembly);
-
-            string commandAssembly = m_AppServer.Config.Options.GetValue("commandAssembly");
-
-            if (!string.IsNullOrEmpty(commandAssembly))
+            foreach (var assembly in m_CommandAssemblies)
             {
-                try
-                {
-                    var definedAssemblies = AssemblyUtil.GetAssembliesFromString(commandAssembly);
-
-                    if (definedAssemblies.Any())
-                        commandAssemblies.AddRange(definedAssemblies);
-                }
-                catch (Exception e)
-                {
-                    OnError(new Exception("Failed to load defined command assemblies!", e));
-                    return false;
-                }
+                commands.AddRange(assembly.GetImplementedObjectsByInterface<TCommand>());
             }
 
-            if (!commandAssemblies.Any())
-            {
-                OnError("You should configure the commandAssembly value!");
-                return false;
-            }
-
-            var outputCommands = new List<ICommand>();
-
-            foreach (var assembly in commandAssemblies)
-            {
-                try
-                {
-                    outputCommands.AddRange(assembly.GetImplementedObjectsByInterface<ICommand>(m_CommandType));
-                }
-                catch (Exception exc)
-                {
-                    OnError(new Exception(string.Format("Failed to get commands from the assembly {0}!", assembly.FullName), exc));
-                    return false;
-                }
-            }
-
-            commands = outputCommands;
-
-            return true;
+            return commands;
         }
+
+        #endregion
     }
 }

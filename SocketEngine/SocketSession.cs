@@ -8,9 +8,9 @@ using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
@@ -18,51 +18,90 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    abstract class SocketSession : ISocketSession
+    abstract class SocketSession<TAppSession, TCommandInfo> : ISocketSession<TAppSession>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+        where TCommandInfo : ICommandInfo
     {
-        public IAppSession AppSession { get; private set; }
+        public IAppServer<TAppSession> AppServer { get; private set; }
+
+        protected ICommandReader<TCommandInfo> CommandReader { get; private set; }
+
+        private static readonly TCommandInfo m_NullCommandInfo = default(TCommandInfo);
+
+        protected TCommandInfo NullCommandInfo
+        {
+            get { return m_NullCommandInfo; }
+        }
+
+        public TAppSession AppSession { get; private set; }
 
         protected readonly object SyncRoot = new object();
 
-        private int m_InSending = 0;
-
-        protected bool SyncSend { get; private set; }
-
-        public SocketSession(Socket client)
-            : this(Guid.NewGuid().ToString())
+        public SocketSession(Socket client, ICommandReader<TCommandInfo> commandReader)
+            : this(commandReader)
         {
             if (client == null)
                 throw new ArgumentNullException("client");
 
-            m_Client = client;
+            Client = client;
             LocalEndPoint = (IPEndPoint)client.LocalEndPoint;
             RemoteEndPoint = (IPEndPoint)client.RemoteEndPoint;
         }
 
-        public SocketSession(string sessionID)
+        public SocketSession(string sessionKey, ICommandReader<TCommandInfo> commandReader)
         {
-            SessionID = sessionID;
+            this.IdentityKey = sessionKey;
+            CommandReader = commandReader;
         }
 
-        public virtual void Initialize(IAppSession appSession)
+        public SocketSession(ICommandReader<TCommandInfo> commandReader)
         {
-            AppSession = appSession;
-            SyncSend = appSession.Config.SyncSend;
+            CommandReader = commandReader;
         }
+
+        public virtual void Initialize(IAppServer<TAppSession> appServer, TAppSession appSession)
+        {
+            AppServer = appServer;
+            AppSession = appSession;
+        }
+
+        /// <summary>
+        /// The session identity string
+        /// </summary>
+        private string m_SessionID = Guid.NewGuid().ToString();
 
         /// <summary>
         /// Gets or sets the session ID.
         /// </summary>
         /// <value>The session ID.</value>
-        public string SessionID { get; private set; }
+        public string SessionID
+        {
+            get { return m_SessionID; }
+        }
 
 
+        private string m_IdentityKey;
         /// <summary>
-        /// Gets or sets the config.
+        /// Gets or sets the IdentityKey, in some case we cannot use sessionID as key directly
+        /// Then we need to use indentity key
         /// </summary>
-        /// <value>
-        /// The config.
-        /// </value>
+        /// <value>The IdentityKey.</value>
+        public string IdentityKey
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(m_IdentityKey))
+                    return m_SessionID;
+
+                return m_IdentityKey;
+            }
+
+            protected set
+            {
+                m_IdentityKey = value;
+            }
+        }      
+
         public IServerConfig Config { get; set; }
 
         /// <summary>
@@ -71,10 +110,54 @@ namespace SuperSocket.SocketEngine
         public abstract void Start();
 
         /// <summary>
+        /// Updates the remote end point of the client.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote end point.</param>
+        internal void UpdateRemoteEndPoint(IPEndPoint remoteEndPoint)
+        {
+            this.RemoteEndPoint = remoteEndPoint;
+        }
+
+        protected virtual void ExecuteCommand(TCommandInfo commandInfo)
+        {
+            AppSession.ExecuteCommand(AppSession, commandInfo);
+            
+            if(AppSession.NextCommandReader != null)
+            {
+                CommandReader = AppSession.NextCommandReader;
+                AppSession.NextCommandReader = null;
+            }
+        }
+
+        protected internal TCommandInfo FindCommand(byte[] readBuffer, int offset, int length, bool isReusableBuffer, out int left)
+        {
+            var commandInfo = CommandReader.FindCommandInfo(AppSession, readBuffer, offset, length, isReusableBuffer, out left);
+
+            if (commandInfo == null)
+            {
+                int leftBufferCount = CommandReader.LeftBufferSize;
+                if (leftBufferCount >= AppServer.Config.MaxCommandLength)
+                {
+                    AppServer.Logger.LogError(this, string.Format("Max command length: {0}, current processed length: {1}",
+                        AppServer.Config.MaxCommandLength, leftBufferCount));
+                    Close(CloseReason.ServerClosing);
+                    return m_NullCommandInfo;
+                }
+            }
+
+            //If next command reader wasn't set, still use current command reader in next round received data processing
+            if (CommandReader.NextCommandReader != null)
+                CommandReader = CommandReader.NextCommandReader;
+
+            return commandInfo;
+        }
+
+        /// <summary>
         /// Says the welcome information when a client connectted.
         /// </summary>
         protected virtual void StartSession()
         {
+            AppSession.LastActiveTime = DateTime.Now;
             AppSession.StartSession();
         }
 
@@ -83,81 +166,32 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         protected virtual void OnClose(CloseReason reason)
         {
-            m_IsClosed = true;
-
-            Interlocked.CompareExchange(ref m_InSending, 0, 1);
-
             var closedHandler = Closed;
             if (closedHandler != null)
             {
-                closedHandler(this, reason);
+                closedHandler(this, new SocketSessionClosedEventArgs
+                    {
+                        IdentityKey = this.IdentityKey,
+                        Reason = reason
+                    });
             }
         }
 
         /// <summary>
         /// Occurs when [closed].
         /// </summary>
-        public Action<ISocketSession, CloseReason> Closed { get; set; }
+        public event EventHandler<SocketSessionClosedEventArgs> Closed;
 
-        IPosList<ArraySegment<byte>> m_SendingItems;
-
-        private IPosList<ArraySegment<byte>> GetSendingItems()
+        protected virtual void HandleExceptionalError(Exception e)
         {
-            if (m_SendingItems == null)
-            {
-                m_SendingItems = new PosList<ArraySegment<byte>>();
-            }
-
-            return m_SendingItems;
+            AppSession.HandleExceptionalError(e);
         }
 
-        /// <summary>
-        /// Starts the sending.
-        /// </summary>
-        public void StartSend()
-        {
-            if (Interlocked.CompareExchange(ref m_InSending, 1, 0) == 1)
-                return;
+        public abstract void SendResponse(string message);
 
-            var sendingItems = GetSendingItems();
+        public abstract void SendResponse(byte[] data);
 
-            if (!AppSession.TryGetSendingData(sendingItems))
-                Interlocked.Decrement(ref m_InSending);
-
-            Send(sendingItems);
-        }
-
-        protected abstract void SendAsync(IPosList<ArraySegment<byte>> items);
-
-        protected abstract void SendSync(IPosList<ArraySegment<byte>> items);
-
-        private void Send(IPosList<ArraySegment<byte>> items)
-        {
-            if (SyncSend)
-            {
-                SendSync(items);
-            }
-            else
-            {
-                SendAsync(items);
-            }
-        }
-
-        protected virtual void OnSendingCompleted()
-        {
-            var sendingItems = GetSendingItems();
-            sendingItems.Clear();
-            sendingItems.Position = 0;
-
-            if (AppSession.TryGetSendingData(sendingItems))
-            {
-                Send(sendingItems);
-            }
-            else
-            {
-                Interlocked.Decrement(ref m_InSending);
-            }
-        }
+        public abstract void SendResponse(byte[] data, int offset, int length);
 
         public abstract void ApplySecureProtocol();
 
@@ -166,16 +200,11 @@ namespace SuperSocket.SocketEngine
             return new NetworkStream(Client);
         }
 
-
-        private Socket m_Client;
         /// <summary>
         /// Gets or sets the client.
         /// </summary>
         /// <value>The client.</value>
-        public Socket Client
-        {
-            get { return m_Client; }
-        }
+        public Socket Client { get; set; }
 
         private bool m_IsClosed = false;
 
@@ -204,14 +233,18 @@ namespace SuperSocket.SocketEngine
 
         public virtual void Close(CloseReason reason)
         {
-            var client = m_Client;
-
-            if(client == null)
+            if (Client == null && m_IsClosed)
                 return;
 
-            if (Interlocked.CompareExchange(ref m_Client, null, client) == client)
+            lock (SyncRoot)
             {
-                client.SafeClose();
+                if (Client == null && m_IsClosed)
+                    return;
+
+                Client.SafeCloseClientSocket(AppServer.Logger);
+
+                Client = null;
+                m_IsClosed = true;
                 OnClose(reason);
             }
         }

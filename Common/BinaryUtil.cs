@@ -6,20 +6,8 @@ using System.Collections;
 
 namespace SuperSocket.Common
 {
-    /// <summary>
-    /// Binary util class
-    /// </summary>
     public static class BinaryUtil
     {
-        /// <summary>
-        /// Search target from source.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="target">The target.</param>
-        /// <param name="pos">The pos.</param>
-        /// <param name="length">The length.</param>
-        /// <returns></returns>
         public static int IndexOf<T>(this IList<T> source, T target, int pos, int length)
             where T : IEquatable<T>
         {
@@ -32,44 +20,18 @@ namespace SuperSocket.Common
             return -1;
         }
 
-        /// <summary>
-        /// Searches the mark from source.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="mark">The mark.</param>
-        /// <returns></returns>
         public static int? SearchMark<T>(this IList<T> source, T[] mark)
             where T : IEquatable<T>
         {
             return SearchMark(source, 0, source.Count, mark, 0);
         }
 
-        /// <summary>
-        /// Searches the mark from source.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="mark">The mark.</param>
-        /// <returns></returns>
         public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark)
             where T : IEquatable<T>
         {
             return SearchMark(source, offset, length, mark, 0);
         }
 
-        /// <summary>
-        /// Searches the mark from source.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="mark">The mark.</param>
-        /// <param name="matched">The matched.</param>
-        /// <returns></returns>
         public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark, int matched)
             where T : IEquatable<T>
         {
@@ -137,15 +99,6 @@ namespace SuperSocket.Common
             }
         }
 
-        /// <summary>
-        /// Searches the mark from source.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="searchState">State of the search.</param>
-        /// <returns></returns>
         public static int SearchMark<T>(this IList<T> source, int offset, int length, SearchMarkState<T> searchState)
             where T : IEquatable<T>
         {
@@ -167,31 +120,15 @@ namespace SuperSocket.Common
             return result.Value;
         }
 
-        /// <summary>
-        /// Startses the with.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="mark">The mark.</param>
-        /// <returns></returns>
         public static int StartsWith<T>(this IList<T> source, T[] mark)
             where T : IEquatable<T>
         {
             return source.StartsWith(0, source.Count, mark);
         }
 
-        /// <summary>
-        /// Startses the with.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="mark">The mark.</param>
-        /// <returns></returns>
         public static int StartsWith<T>(this IList<T> source, int offset, int length, T[] mark)
             where T : IEquatable<T>
-        {
+        {            
             int pos = offset;
             int endOffset = offset + length - 1;
 
@@ -209,28 +146,12 @@ namespace SuperSocket.Common
             return mark.Length;
         }
 
-        /// <summary>
-        /// Endses the with.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="mark">The mark.</param>
-        /// <returns></returns>
         public static bool EndsWith<T>(this IList<T> source, T[] mark)
             where T : IEquatable<T>
         {
             return source.EndsWith(0, source.Count, mark);
         }
 
-        /// <summary>
-        /// Endses the with.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="mark">The mark.</param>
-        /// <returns></returns>
         public static bool EndsWith<T>(this IList<T> source, int offset, int length, T[] mark)
             where T : IEquatable<T>
         {
@@ -246,14 +167,6 @@ namespace SuperSocket.Common
             return true;
         }
 
-        /// <summary>
-        /// Clones the elements in the specific range.
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="source">The source.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <returns></returns>
         public static T[] CloneRange<T>(this T[] source, int offset, int length)
         {
             T[] target = new T[length];

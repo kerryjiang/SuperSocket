@@ -2,36 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase.Command
 {
-    /// <summary>
-    /// Command base class
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class CommandBase<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    public abstract class CommandBase<TAppSession, TCommandInfo> : ICommand<TAppSession, TCommandInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TCommandInfo>, new()
+        where TCommandInfo : ICommandInfo
     {
 
-        #region ICommand<TAppSession,TRequestInfo> Members
+        #region ICommand<TAppSession,TCommandInfo> Members
 
-        /// <summary>
-        /// Executes the command.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="requestInfo">The request info.</param>
-        public abstract void ExecuteCommand(TAppSession session, TRequestInfo requestInfo);
+        public abstract void ExecuteCommand(TAppSession session, TCommandInfo commandInfo);
 
         #endregion
 
         #region ICommand Members
 
-        /// <summary>
-        /// Gets the name.
-        /// </summary>
         public virtual string Name
         {
             get { return this.GetType().Name; }

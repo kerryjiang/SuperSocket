@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Test
 {
@@ -12,21 +12,20 @@ namespace SuperSocket.Test
         public const string WelcomeMessageFormat = "Welcome to {0}";
         public const string UnknownCommandMessageFormat = "Unknown command: {0}";
 
-        protected override void OnSessionStarted()
+        public override void StartSession()
         {
             if(AppServer.Config.Mode != SocketMode.Udp)
-                Send(string.Format(WelcomeMessageFormat, AppServer.Name));
+ 	            SendResponse(string.Format(WelcomeMessageFormat, AppServer.Name));
         }
 
-        public override void HandleException(Exception e)
+        public override void HandleExceptionalError(Exception e)
         {
             
         }
 
-        public override void HandleUnknownRequest(StringRequestInfo cmdInfo)
+        public override void HandleUnknownCommand(StringCommandInfo cmdInfo)
         {
-            string response = string.Format(UnknownCommandMessageFormat, cmdInfo.Key);
-            Send(response);
+            SendResponse(string.Format(UnknownCommandMessageFormat, cmdInfo.Key));
         }
     }
 }

@@ -10,11 +10,11 @@ namespace SuperSocket.QuickStart.MultipleAppServer
     {
         public void DispatchMessage(string sessionKey, string message)
         {
-            var session = GetAppSessionByID(sessionKey);
+            var session = GetAppSessionByIndentityKey(sessionKey);
             if (session == null)
                 return;
 
-            session.Send(message);
+            session.SendResponse(message);
         }
     }
 }

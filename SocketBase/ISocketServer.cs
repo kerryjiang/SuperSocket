@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Security.Authentication;
 
 namespace SuperSocket.SocketBase
 {
@@ -18,12 +17,6 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         bool Start();
 
-        /// <summary>
-        /// Resets the session's security protocol.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="security">The security protocol.</param>
-        void ResetSessionSecurity(IAppSession session, SslProtocols security);
         /// <summary>
         /// Gets a value indicating whether this instance is running.
         /// </summary>

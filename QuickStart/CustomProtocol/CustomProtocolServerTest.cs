@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using NUnit.Framework;
-using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
+using SuperSocket.SocketBase;
+using System.Net;
+using System.Net.Sockets;
+using System.IO;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
@@ -28,12 +27,14 @@ namespace SuperSocket.QuickStart.CustomProtocol
                     Port = 911,
                     Ip = "Any",
                     MaxConnectionNumber = 1000,
-                    Mode = SocketMode.Tcp,
+                    Mode = SocketMode.Async,
                     Name = "CustomProtocolServer"
                 };
 
             m_Server = new CustomProtocolServer();
-            m_Server.Setup(new RootConfig(), m_Config, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory());
+            m_Server.Setup(new RootConfig { LoggingMode = LoggingMode.Console },
+                m_Config,
+                SocketServerFactory.Instance);
         }
 
         [SetUp]
@@ -59,6 +60,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
 
                 var socketStream = new NetworkStream(socket);
                 var reader = new StreamReader(socketStream, Encoding.ASCII, false);
+                var writer = new StreamWriter(socketStream, Encoding.ASCII, 1024);
 
                 string charSource = Guid.NewGuid().ToString().Replace("-", string.Empty)
                     + Guid.NewGuid().ToString().Replace("-", string.Empty)
@@ -73,12 +75,8 @@ namespace SuperSocket.QuickStart.CustomProtocol
 
                     var currentMessage = charSource.Substring(startPos, endPos - startPos + 1);
 
-                    byte[] data = Encoding.ASCII.GetBytes("ECHO");
-                    socketStream.Write(data, 0, data.Length);
-                    data = Encoding.ASCII.GetBytes(currentMessage);
-                    socketStream.Write(new byte[] { (byte)(data.Length / 256), (byte)(data.Length % 256) }, 0, 2);
-                    socketStream.Write(data, 0, data.Length);
-                    socketStream.Flush();
+                    writer.Write("ECHO {0} {1}", currentMessage.Length.ToString().PadLeft(4, '0'), currentMessage);
+                    writer.Flush();
 
                     var line = reader.ReadLine();
                     Console.WriteLine("Received: " + line);

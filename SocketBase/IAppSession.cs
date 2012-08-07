@@ -5,22 +5,14 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
-    /// <summary>
-    /// The basic interface for appSession
-    /// </summary>
     public interface IAppSession : ISessionBase
     {
-        /// <summary>
-        /// Gets the app server.
-        /// </summary>
-        IAppServer AppServer { get; }
         /// <summary>
         /// Gets the socket session of the AppSession.
         /// </summary>
@@ -66,18 +58,23 @@ namespace SuperSocket.SocketBase
         void Close(CloseReason reason);
 
         /// <summary>
+        /// Starts the session.
+        /// </summary>
+        void StartSession();
+
+        /// <summary>
         /// Handles the exceptional error.
         /// </summary>
         /// <param name="e">The e.</param>
-        void HandleException(Exception e);
+        void HandleExceptionalError(Exception e);
 
         /// <summary>
-        /// Gets a value indicating whether this <see cref="IAppSession"/> is connected.
+        /// Gets or sets the status of session.
         /// </summary>
         /// <value>
-        ///   <c>true</c> if connected; otherwise, <c>false</c>.
+        /// The status.
         /// </value>
-        bool Connected { get; }
+        SessionStatus Status { get; set; }
 
         /// <summary>
         /// Gets or sets the charset which is used for transfering text message.
@@ -104,70 +101,63 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the logger assosiated with this session.
         /// </summary>
-        ILog Logger { get; }
-
-        /// <summary>
-        /// Processes the request.
-        /// </summary>
-        /// <param name="readBuffer">The read buffer.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <returns>return offset delta of next receiving buffer</returns>
-        int ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied);
-
-        /// <summary>
-        /// Starts the session.
-        /// </summary>
-        void StartSession();
-
-
-        /// <summary>
-        /// Tries to get the data segment to be sent.
-        /// </summary>
-        /// <param name="segments">The segments.</param>
-        /// <returns>
-        /// return whether has data to send
-        /// </returns>
-        bool TryGetSendingData(IList<ArraySegment<byte>> segments);
+        ILogger Logger { get; }
     }
 
-    /// <summary>
-    /// The interface for appSession
-    /// </summary>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IAppSession<TRequestInfo> : IAppSession
-        where TRequestInfo : IRequestInfo
+    public interface IAppSession<TCommandInfo> : IAppSession
+        where TCommandInfo : ICommandInfo
     {
         /// <summary>
-        /// Handles the unknown request.
+        /// Handles the unknown command.
         /// </summary>
-        /// <param name="requestInfo">The request info.</param>
-        void HandleUnknownRequest(TRequestInfo requestInfo);
+        /// <param name="cmdInfo">The command info.</param>
+        void HandleUnknownCommand(TCommandInfo cmdInfo);
+        
+        /// <summary>
+        /// Gets or sets the next command reader for next round receiving.
+        /// </summary>
+        /// <value>
+        /// The next command reader.
+        /// </value>
+        ICommandReader<TCommandInfo> NextCommandReader { get; set; }
     }
 
-    /// <summary>
-    /// The interface for appSession
-    /// </summary>
-    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IAppSession<TAppSession, TRequestInfo> : IAppSession<TRequestInfo>
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+    public interface IAppSession<TAppSession, TCommandInfo> : IAppSession<TCommandInfo>
+        where TCommandInfo : ICommandInfo
+        where TAppSession : IAppSession, IAppSession<TCommandInfo>, new()
     {
         /// <summary>
         /// Initializes the specified session.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="socketSession">The socket session.</param>
-        /// <param name="requestFilter">The request filter.</param>
-        void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter);
+        void Initialize(IAppServer<TAppSession, TCommandInfo> server, ISocketSession socketSession);
 
         /// <summary>
         /// Executes the command.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="cmdInfo">The request info.</param>
-        void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo);
+        /// <param name="cmdInfo">The command info.</param>
+        void ExecuteCommand(TAppSession session, TCommandInfo cmdInfo);
+    }
+
+    public class AppSessionClosedEventArgs<TAppSession> : EventArgs
+        where TAppSession : IAppSession, new()
+    {
+        /// <summary>
+        /// Gets the session.
+        /// </summary>
+        public TAppSession Session { get; private set; }
+
+        /// <summary>
+        /// Gets the close reason.
+        /// </summary>
+        public CloseReason Reason { get; private set; }
+
+        public AppSessionClosedEventArgs(TAppSession session, CloseReason reason)
+        {
+            Session = session;
+            Reason = reason;
+        }
     }
 }

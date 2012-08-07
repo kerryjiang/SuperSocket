@@ -1,111 +1,44 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Collections.Specialized;
 using System.Configuration;
 using System.Security.Authentication;
-using System.Collections.Specialized;
+using System.Text;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Config
 {
-    /// <summary>
-    /// Server instance configuation interface
-    /// </summary>
     public interface IServerConfig
     {
-        /// <summary>
-        /// Gets the name of the server type this appServer want to use.
-        /// </summary>
-        /// <value>
-        /// The name of the server type.
-        /// </value>
-        string ServerTypeName { get; }
+        string ServiceName { get; }
 
-        /// <summary>
-        /// Gets the type definition of the appserver.
-        /// </summary>
-        /// <value>
-        /// The type of the server.
-        /// </value>
-        string ServerType { get; }
+        string Protocol { get; }
 
-        /// <summary>
-        /// Gets the request filter factory.
-        /// </summary>
-        string RequestFilterFactory { get; }
-
-        /// <summary>
-        /// Gets the ip.
-        /// </summary>
         string Ip { get; }
 
-        /// <summary>
-        /// Gets the port.
-        /// </summary>
         int Port { get; }
 
-        /// <summary>
-        /// Gets the options.
-        /// </summary>
         NameValueCollection Options { get; }
 
+        string Provider { get; }
 
-        /// <summary>
-        /// Gets the option elements.
-        /// </summary>
-        NameValueCollection OptionElements { get; }
-
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="IServerConfig"/> is disabled.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if disabled; otherwise, <c>false</c>.
-        /// </value>
         bool Disabled { get; }
 
-        /// <summary>
-        /// Gets the name.
-        /// </summary>
         string Name { get; }
 
-        /// <summary>
-        /// Gets the mode.
-        /// </summary>
         SocketMode Mode { get; }
 
-        /// <summary>
-        /// Gets the send time out.
-        /// </summary>
+        bool EnableManagementService { get; }
+
+        int ReadTimeOut { get; }
+
         int SendTimeOut { get; }
 
-        /// <summary>
-        /// Gets the max connection number.
-        /// </summary>
         int MaxConnectionNumber { get; }
 
-        /// <summary>
-        /// Gets the size of the receive buffer.
-        /// </summary>
-        /// <value>
-        /// The size of the receive buffer.
-        /// </value>
         int ReceiveBufferSize { get; }
 
-        /// <summary>
-        /// Gets the size of the send buffer.
-        /// </summary>
-        /// <value>
-        /// The size of the send buffer.
-        /// </value>
         int SendBufferSize { get; }
-
-
-        /// <summary>
-        /// Gets a value indicating whether sending is in synchronous mode.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [sync send]; otherwise, <c>false</c>.
-        /// </value>
-        bool SyncSend { get; }
 
         /// <summary>
         /// Gets a value indicating whether log command in log file.
@@ -146,13 +79,12 @@ namespace SuperSocket.SocketBase.Config
 
 
         /// <summary>
-        /// Gets the length of the max request.
+        /// Gets the max command length.
         /// </summary>
         /// <value>
-        /// The length of the max request.
+        /// The length of the max command.
         /// </value>
-        int MaxRequestLength { get; }
-
+        int MaxCommandLength { get; }
 
         /// <summary>
         /// Gets a value indicating whether [disable session snapshot].
@@ -161,6 +93,7 @@ namespace SuperSocket.SocketBase.Config
         /// 	<c>true</c> if [disable session snapshot]; otherwise, <c>false</c>.
         /// </value>
         bool DisableSessionSnapshot { get; }
+
         /// <summary>
         /// Gets the interval to taking snapshot for all live sessions.
         /// </summary>
@@ -170,14 +103,10 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the connection filters used by this server instance.
         /// </summary>
         /// <value>
-        /// The connection filter's name list, seperated by comma
+        /// The connection filters's name list, seperated by comma
         /// </value>
-        string ConnectionFilter { get; }
+        string ConnectionFilters { get; }
 
-        /// <summary>
-        /// Gets the command loader, multiple values should be separated by comma.
-        /// </summary>
-        string CommandLoader { get; }
 
         /// <summary>
         /// Gets the start keep alive time, in seconds
@@ -197,39 +126,7 @@ namespace SuperSocket.SocketBase.Config
         int ListenBacklog { get; }
 
 
-        /// <summary>
-        /// Gets the startup order of the server instance.
-        /// </summary>
-        int StartupOrder { get; }
-
-
-        /// <summary>
-        /// Gets the child config.
-        /// </summary>
-        /// <typeparam name="TConfig">The type of the config.</typeparam>
-        /// <param name="childConfigName">Name of the child config.</param>
-        /// <returns></returns>
         TConfig GetChildConfig<TConfig>(string childConfigName)
             where TConfig : ConfigurationElement, new();
-
-
-        /// <summary>
-        /// Gets the listeners' configuration.
-        /// </summary>
-        IEnumerable<IListenerConfig> Listeners { get; }
-
-        /// <summary>
-        /// Gets the log factory name.
-        /// </summary>
-        string LogFactory { get; }
-
-
-        /// <summary>
-        /// Gets the size of the sending queue.
-        /// </summary>
-        /// <value>
-        /// The size of the sending queue.
-        /// </value>
-        int SendingQueueSize { get; }
     }
 }

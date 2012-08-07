@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Command
 {
@@ -11,9 +10,9 @@ namespace SuperSocket.Test.Command
     {
         public const string ReplyFormat = "325 received {0}!";
 
-        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringCommandInfo commandData)
         {
-            session.Send(string.Format(ReplyFormat, commandData.Data));
+            session.SendResponse(string.Format(ReplyFormat, commandData.Data));
         }
 
         public override string Name
