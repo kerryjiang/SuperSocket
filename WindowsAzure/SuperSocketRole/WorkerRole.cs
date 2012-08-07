@@ -10,11 +10,11 @@ using Microsoft.WindowsAzure.Diagnostics;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using Microsoft.WindowsAzure.StorageClient;
 using SuperSocket.Common;
-using SuperSocket.Common.Logging;
+using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketEngine.Configuration;
-using SuperSocket.SocketBase;
 
 namespace SuperSocket.SuperSocketRole
 {
@@ -42,11 +42,11 @@ namespace SuperSocket.SuperSocketRole
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
-            m_Bootstrap = new DefaultBootstrap();
-
             var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
 
-            if (!m_Bootstrap.Initialize(serverConfig, ResolveServerConfig))
+            m_Bootstrap = BootstrapFactory.CreateBootstrap(serverConfig);
+
+            if (!m_Bootstrap.Initialize(ResolveServerConfig))
             {
                 Trace.WriteLine("Failed to initialize SuperSocket!", "Error");
                 return false;
