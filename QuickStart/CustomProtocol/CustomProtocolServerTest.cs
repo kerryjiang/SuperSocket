@@ -73,12 +73,14 @@ namespace SuperSocket.QuickStart.CustomProtocol
 
                     var currentMessage = charSource.Substring(startPos, endPos - startPos + 1);
 
-                    byte[] data = Encoding.ASCII.GetBytes("ECHO");
-                    socketStream.Write(data, 0, data.Length);
-                    data = Encoding.ASCII.GetBytes(currentMessage);
+                    byte[] requestNameData = Encoding.ASCII.GetBytes("ECHO");
+                    socketStream.Write(requestNameData, 0, requestNameData.Length);
+                    var data = Encoding.ASCII.GetBytes(currentMessage);
                     socketStream.Write(new byte[] { (byte)(data.Length / 256), (byte)(data.Length % 256) }, 0, 2);
                     socketStream.Write(data, 0, data.Length);
                     socketStream.Flush();
+
+                    Console.WriteLine("Sent: " + currentMessage);
 
                     var line = reader.ReadLine();
                     Console.WriteLine("Received: " + line);

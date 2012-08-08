@@ -9,66 +9,22 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
-    class MyRequestFilter : RequestFilterBase<BinaryRequestInfo>
+    class MyRequestFilter : FixedHeaderRequestFilter<BinaryRequestInfo>
     {
-        private readonly MyDataRequestFilter m_PreparedDataReader = new MyDataRequestFilter();
-
-        private MyDataRequestFilter GetMyCommandDataReader(string commandName, int dataLength)
+        public MyRequestFilter()
+            : base(6)
         {
-            m_PreparedDataReader.Initialize(commandName, dataLength, this);
-            return m_PreparedDataReader;
+
         }
 
-        public override BinaryRequestInfo Filter(IAppSession<BinaryRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        protected override int GetBodyLengthFromHeader(byte[] header, int offset, int length)
         {
-            left = 0;
+            return (int)header[offset + 4] * 256 + (int)header[offset + 5];
+        }
 
-            int leftLength = 6 - this.BufferSegments.Count;
-
-            if (length < leftLength)
-            {
-                AddArraySegment(readBuffer, offset, length, toBeCopied);
-                NextRequestFilter = this;
-                return null;
-            }
-
-            AddArraySegment(readBuffer, offset, leftLength, toBeCopied);
-
-            string commandName = BufferSegments.Decode(Encoding.ASCII, 0, 4);
-
-            int commandDataLength = (int)BufferSegments[4] * 256 + (int)BufferSegments[5];
-
-            if (length > leftLength)
-            {
-                int leftDataLength = length - leftLength;
-                if (leftDataLength >= commandDataLength)
-                {
-                    byte[] commandData = readBuffer.CloneRange(offset + leftLength, commandDataLength);
-                    BufferSegments.ClearSegements();
-                    NextRequestFilter = this;
-                    var requestInfo = new BinaryRequestInfo(commandName, commandData);
-
-                    //The next requestInfo is comming
-                    if (leftDataLength > commandDataLength)
-                        left = leftDataLength - commandDataLength;
-
-                    return requestInfo;
-                }
-                else// if (leftDataLength < commandDataLength)
-                {
-                    //Clear previous cached header data
-                    BufferSegments.ClearSegements();
-                    //Save left data part
-                    AddArraySegment(readBuffer, offset + leftLength, length - leftLength, toBeCopied);
-                    NextRequestFilter = GetMyCommandDataReader(commandName, commandDataLength);
-                    return null;
-                }
-            }
-            else
-            {
-                NextRequestFilter = GetMyCommandDataReader(commandName, commandDataLength);
-                return null;
-            }
+        protected override BinaryRequestInfo ResolveRequestData(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
+        {
+            return new BinaryRequestInfo(Encoding.UTF8.GetString(header.Array, header.Offset, 4), bodyBuffer.CloneRange(offset, length));
         }
     }
 }
