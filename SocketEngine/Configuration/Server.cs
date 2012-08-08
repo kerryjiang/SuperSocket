@@ -103,7 +103,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the max connection number.
         /// </summary>
-        [ConfigurationProperty("maxConnectionNumber", IsRequired = false, DefaultValue = 100)]
+        [ConfigurationProperty("maxConnectionNumber", IsRequired = false, DefaultValue = ServerConfig.DefaultMaxConnectionNumber)]
         public int MaxConnectionNumber
         {
             get { return (int)this["maxConnectionNumber"]; }
@@ -115,7 +115,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// The size of the receive buffer.
         /// </value>
-        [ConfigurationProperty("receiveBufferSize", IsRequired = false, DefaultValue = 2048)]
+        [ConfigurationProperty("receiveBufferSize", IsRequired = false, DefaultValue = ServerConfig.DefaultReceiveBufferSize)]
         public int ReceiveBufferSize
         {
             get { return (int)this["receiveBufferSize"]; }
@@ -228,7 +228,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// The max allowed length of request.
         /// </value>
-        [ConfigurationProperty("maxRequestLength", IsRequired = false, DefaultValue = 1024)]
+        [ConfigurationProperty("maxRequestLength", IsRequired = false, DefaultValue = ServerConfig.DefaultMaxRequestLength)]
         public int MaxRequestLength
         {
             get

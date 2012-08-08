@@ -162,12 +162,5 @@ namespace SuperSocket.SocketBase
         /// <param name="socketSession">The socket session.</param>
         /// <param name="requestFilter">The request filter.</param>
         void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter);
-
-        /// <summary>
-        /// Executes the command.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="cmdInfo">The request info.</param>
-        void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo);
     }
 }

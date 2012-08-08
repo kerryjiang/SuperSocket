@@ -47,7 +47,8 @@ namespace SuperSocket.SocketEngine
         public virtual void Initialize(IAppSession appSession)
         {
             AppSession = appSession;
-            SyncSend = appSession.Config.SyncSend;
+            Config = appSession.Config;
+            SyncSend = Config.SyncSend;
         }
 
         /// <summary>

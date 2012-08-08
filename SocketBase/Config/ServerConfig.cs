@@ -16,6 +16,21 @@ namespace SuperSocket.SocketBase.Config
     public class ServerConfig : IServerConfig
     {
         /// <summary>
+        /// Default ReceiveBufferSize
+        /// </summary>
+        public const int DefaultReceiveBufferSize = 4096;
+
+        /// <summary>
+        /// Default MaxConnectionNumber
+        /// </summary>
+        public const int DefaultMaxConnectionNumber = 100;
+
+        /// <summary>
+        /// Default MaxRequestLength
+        /// </summary>
+        public const int DefaultMaxRequestLength = 1024;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
         /// </summary>
         /// <param name="serverConfig">The server config.</param>
@@ -41,12 +56,13 @@ namespace SuperSocket.SocketBase.Config
         public ServerConfig()
         {
             Security = "None";
-            MaxConnectionNumber = 100;
+            MaxConnectionNumber = DefaultMaxConnectionNumber;
             Mode = SocketMode.Tcp;
-            MaxRequestLength = 1024;
+            MaxRequestLength = DefaultMaxRequestLength;
             KeepAliveTime = 10 * 60;// 10 minutes
             KeepAliveInterval = 60;// 60 seconds
             ListenBacklog = 100;
+            ReceiveBufferSize = DefaultReceiveBufferSize;
         }
 
         #region IServerConfig Members

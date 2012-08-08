@@ -226,22 +226,13 @@ namespace SuperSocket.SocketBase
 
 
         /// <summary>
-        /// Handles the exceptional error.
+        /// Handles the exceptional error, it only handles application error.
         /// </summary>
         /// <param name="e">The exception.</param>
         public virtual void HandleException(Exception e)
         {
             Logger.Error(this, e);
-        }
-
-        /// <summary>
-        /// Executes the command.
-        /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="cmdInfo">The CMD info.</param>
-        public void ExecuteCommand(TAppSession session, TRequestInfo cmdInfo)
-        {
-            AppServer.ExecuteCommand(session, cmdInfo);
+            this.Close(CloseReason.ApplicationError);
         }
 
         /// <summary>
@@ -250,7 +241,7 @@ namespace SuperSocket.SocketBase
         /// <param name="requestInfo">The request info.</param>
         public virtual void HandleUnknownRequest(TRequestInfo requestInfo)
         {
-            Send("Unknown request: " + requestInfo.Key);
+
         }
 
         /// <summary>
@@ -584,18 +575,26 @@ namespace SuperSocket.SocketBase
             {
                 var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out left, out offsetDelta);
 
-                if (requestInfo == null)
-                    return offsetDelta;
-
-                AppServer.ExecuteCommand(this, requestInfo);
+                if (requestInfo != null)
+                {
+                    try
+                    {
+                        AppServer.ExecuteCommand(this, requestInfo);
+                    }
+                    catch (Exception e)
+                    {
+                        HandleException(e);
+                    }
+                }
 
                 if (left <= 0)
+                {
                     return offsetDelta;
+                }
 
+                //Still have data has not been processed
                 offset = offset + length - left;
                 length = left;
-
-                continue;
             }
         }
 
@@ -628,6 +627,15 @@ namespace SuperSocket.SocketBase
         public AppSession(bool appendNewLineForResponse)
         {
             m_AppendNewLineForResponse = appendNewLineForResponse;
+        }
+
+        /// <summary>
+        /// Handles the unknown request.
+        /// </summary>
+        /// <param name="requestInfo">The request info.</param>
+        public override void HandleUnknownRequest(StringRequestInfo requestInfo)
+        {
+            Send("Unknown request: " + requestInfo.Key);
         }
 
         /// <summary>

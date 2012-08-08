@@ -18,6 +18,7 @@ namespace SuperSocket.SocketEngine
     class AsyncStreamSocketSession : SocketSession, IAsyncSocketSessionBase
     {
         private byte[] m_ReadBuffer;
+        private int m_OrigOffset;
         private int m_Offset;
         private int m_Length;
 
@@ -34,9 +35,9 @@ namespace SuperSocket.SocketEngine
         {
             SecureProtocol = security;
             SocketAsyncProxy = socketAsyncProxy;
-            SocketAsyncEventArgs e = socketAsyncProxy.SocketEventArgs;
+            var e = socketAsyncProxy.SocketEventArgs;
             m_ReadBuffer = e.Buffer;
-            m_Offset = e.Offset;
+            m_OrigOffset = m_Offset = e.Offset;
             m_Length = e.Count;
 
             m_IsReset = isReset;
@@ -151,11 +152,11 @@ namespace SuperSocket.SocketEngine
             {
                 if (offsetDelta != 0)
                 {
-                    m_Offset += offsetDelta;
-                    m_Length -= offsetDelta;
+                    if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
+                        throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
 
-                    if (m_Length > AppSession.AppServer.Config.ReceiveBufferSize)
-                        throw new Exception("Illigal offsetDelta");
+                    m_Offset = m_OrigOffset + offsetDelta;
+                    m_Length = Config.ReceiveBufferSize - offsetDelta;
                 }
 
                 m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);

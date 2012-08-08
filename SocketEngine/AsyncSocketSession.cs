@@ -21,6 +21,8 @@ namespace SuperSocket.SocketEngine
 
         private SocketAsyncEventArgs m_SocketEventArgSend;
 
+        private int m_OrigOffset;
+
         public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy)
             : this(client, socketAsyncProxy, false)
         {
@@ -31,6 +33,7 @@ namespace SuperSocket.SocketEngine
             : base(client)
         {
             SocketAsyncProxy = socketAsyncProxy;
+            m_OrigOffset = socketAsyncProxy.SocketEventArgs.Offset;
             m_IsReset = isReset;
         }
 
@@ -90,7 +93,7 @@ namespace SuperSocket.SocketEngine
 
         private bool IsIgnorableException(Exception e)
         {
-            if (e is ObjectDisposedException)
+            if (e is ObjectDisposedException || e is NullReferenceException)
                 return true;
 
             if (e is SocketException)
@@ -120,10 +123,10 @@ namespace SuperSocket.SocketEngine
             {
                 if (offsetDelta != 0)
                 {
-                    e.SetBuffer(e.Offset + offsetDelta, e.Count - offsetDelta);
+                    if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
+                        throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
 
-                    if (e.Count > AppSession.AppServer.Config.ReceiveBufferSize)
-                        throw new ArgumentException("Illigal offsetDelta", "offsetDelta");
+                    e.SetBuffer(m_OrigOffset + offsetDelta, Config.ReceiveBufferSize - offsetDelta);
                 }
 
                 willRaiseEvent = Client.ReceiveAsync(e);

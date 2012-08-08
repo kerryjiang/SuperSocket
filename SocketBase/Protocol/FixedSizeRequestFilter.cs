@@ -49,13 +49,15 @@ namespace SuperSocket.SocketBase.Protocol
         {
             if (m_ParsedLength + length >= m_Size)
             {
-                m_OffsetDelta = 0 - m_ParsedLength;
-                return ProcessFixSizeRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied, out left);
+                m_OffsetDelta = 0;
+                var requestInfo = ProcessFixSizeRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied, out left);
+                m_ParsedLength = 0;
+                return requestInfo;
             }
             else
             {
                 m_ParsedLength += length;
-                m_OffsetDelta = length;
+                m_OffsetDelta = m_ParsedLength;
                 left = 0;
                 return m_NullRequestInfo;
             }

@@ -92,7 +92,7 @@
     <Compile Include="Logging\Log4NetLogFactory.cs" />
     <Compile Include="Logging\LogFactoryBase.cs" />
     <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
-    <Compile Include="Protocol\FixHeaderRequestFilter.cs" />
+    <Compile Include="Protocol\FixedHeaderRequestFilter.cs" />
     <Compile Include="Protocol\IOffsetAdapter.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
     <Compile Include="Provider\ProviderFactoryInfo.cs" />

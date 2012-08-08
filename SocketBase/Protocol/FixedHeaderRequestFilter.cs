@@ -9,12 +9,12 @@ using SuperSocket.SocketBase.Protocol;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// FixHeaderRequestFilter,
+    /// FixedHeaderRequestFilter,
     /// it is the request filter base for the protocol which define fixed length header and the header contains the request body length,
     /// you can implement your own request filter for this kind protocol easily by inheriting this class 
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class FixHeaderRequestFilter<TRequestInfo> : FixedSizeRequestFilter<TRequestInfo>
+    public abstract class FixedHeaderRequestFilter<TRequestInfo> : FixedSizeRequestFilter<TRequestInfo>
         where TRequestInfo : IRequestInfo
     {
         private bool m_FoundHeader = false;
@@ -26,10 +26,10 @@ namespace SuperSocket.SocketBase.Protocol
         private ArraySegmentList m_BodyBuffer;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FixHeaderRequestFilter&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="FixedHeaderRequestFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="headerSize">Size of the header.</param>
-        public FixHeaderRequestFilter(int headerSize)
+        public FixedHeaderRequestFilter(int headerSize)
             : base(headerSize)
         {
 
