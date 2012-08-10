@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -54,7 +55,11 @@ namespace SuperSocket.SocketEngine
             var e = new SocketAsyncEventArgs();
             e.Completed += new EventHandler<SocketAsyncEventArgs>(SendingCompleted);
             e.RemoteEndPoint = RemoteEndPoint;
-            e.BufferList = items;
+            e.UserToken = items;
+
+            var item = items[items.Position];
+            e.SetBuffer(item.Array, item.Offset, item.Count);
+
             m_ServerSocket.SendToAsync(e);
         }
 
@@ -70,7 +75,18 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            OnSendingCompleted();
+            var items = e.UserToken as IPosList<ArraySegment<byte>>;
+
+            var newPos = items.Position + 1;
+
+            if (newPos >= items.Count)
+            {
+                OnSendingCompleted();
+                return;
+            }
+
+            items.Position = newPos;
+            SendAsync(items);
         }
 
         protected override void SendSync(IPosList<ArraySegment<byte>> items)
