@@ -91,7 +91,7 @@ namespace SuperSocket.Test
         public void Setup()
         {
             m_Server = new TestServer();
-            m_Server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance, null, new ConsoleLogFactory(), null, null);
+            ((ITestSetup)m_Server).Setup(m_RootConfig, m_Config);
         }
 
         [TestFixtureTearDown]
@@ -165,7 +165,7 @@ namespace SuperSocket.Test
         {
             var testServer = new UdpAppServer();
 
-            testServer.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
+            ((ITestSetup)testServer).Setup(m_RootConfig, m_Config);
 
             testServer.Start();
 
@@ -240,6 +240,7 @@ namespace SuperSocket.Test
                     {
                         byte[] receivedData = ReceiveMessage(socket, serverAddress).ToArray();
                         string receivedContent = m_Encoding.GetString(receivedData);
+                        Console.WriteLine("G: {0}", receivedContent);
                         StringReader reader = new StringReader(receivedContent);
                         string line = reader.ReadLine();
                         Assert.AreEqual(source[i], line);
@@ -349,7 +350,7 @@ namespace SuperSocket.Test
         public void TestCommandParser()
         {
             var server = new TestServer(new TestRequestParser());
-            server.Setup(m_RootConfig, m_Config, SocketServerFactory.Instance);
+            ((ITestSetup)server).Setup(m_RootConfig, m_Config);
 
             try
             {
@@ -391,7 +392,7 @@ namespace SuperSocket.Test
                 Port = defaultConfig.Port
             };
 
-            server.Setup(m_RootConfig, config, SocketServerFactory.Instance);
+            ((ITestSetup)server).Setup(m_RootConfig, config);
 
             List<Socket> sockets = new List<Socket>();
 
