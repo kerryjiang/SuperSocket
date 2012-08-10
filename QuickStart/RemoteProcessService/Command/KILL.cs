@@ -12,11 +12,11 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo requestInfo)
         {
             int processId;
 
-            string processKey = commandData.Parameters.FirstOrDefault();
+            string processKey = requestInfo.Parameters.FirstOrDefault();
 
             if (string.IsNullOrEmpty(processKey))
             {

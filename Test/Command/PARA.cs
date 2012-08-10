@@ -9,9 +9,9 @@ namespace SuperSocket.Test.Command
 {
     public class PARA : StringCommandBase<TestSession>
     {
-        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
         {
-            foreach (var p in commandData.Parameters)
+            foreach (var p in requestInfo.Parameters)
             {
                 Console.WriteLine("S: " + p);
                 session.Send(p);

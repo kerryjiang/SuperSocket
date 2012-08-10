@@ -102,7 +102,7 @@ namespace SuperSocket.Facility.PolicyServer
 
         void PolicyServer_RequestHandler(PolicySession session, BinaryRequestInfo requestInfo)
         {
-            ProcessRequest(session, requestInfo.Data);
+            ProcessRequest(session, requestInfo.Body);
         }
 
         /// <summary>

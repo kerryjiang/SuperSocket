@@ -9,9 +9,9 @@ namespace SuperSocket.QuickStart.BroadcastService.Command
 {
     public class BROA : StringCommandBase<BroadcastSession>
     {
-        public override void ExecuteCommand(BroadcastSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(BroadcastSession session, StringRequestInfo requestInfo)
         {
-            string message = commandData.Data;
+            string message = requestInfo.Body;
             session.AppServer.BroadcastMessage(session, message);
             session.Send("101 message broadcasted");
         }

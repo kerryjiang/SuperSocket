@@ -19,12 +19,12 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// Request information interface
     /// </summary>
-    /// <typeparam name="TRequestData">The type of the request data.</typeparam>
-    public interface IRequestInfo<TRequestData> : IRequestInfo
+    /// <typeparam name="TRequestBody">The type of the request body.</typeparam>
+    public interface IRequestInfo<TRequestBody> : IRequestInfo
     {
         /// <summary>
-        /// Gets the data of this request.
+        /// Gets the body of this request.
         /// </summary>
-        TRequestData Data { get; }
+        TRequestBody Body { get; }
     }
 }

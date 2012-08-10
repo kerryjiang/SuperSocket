@@ -9,10 +9,10 @@ namespace SuperSocket.Test.Command
 {
     public class ECHO : StringCommandBase<TestSession>
     {
-        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
         {
-            Console.WriteLine("R:" + commandData.Data);
-            session.Send(commandData.Data);
+            Console.WriteLine("R:" + requestInfo.Body);
+            session.Send(requestInfo.Body);
         }
     }
 }

@@ -35,7 +35,7 @@ namespace SuperSocket.Test.Command
             return list.ToArray();
         }
 
-        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
         {
             string[] source = GetStringSource();
 

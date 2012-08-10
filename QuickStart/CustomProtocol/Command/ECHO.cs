@@ -9,9 +9,9 @@ namespace SuperSocket.QuickStart.CustomProtocol.Command
 {
     public class ECHO : CommandBase<CustomProtocolSession, BinaryRequestInfo>
     {
-        public override void ExecuteCommand(CustomProtocolSession session, BinaryRequestInfo commandInfo)
+        public override void ExecuteCommand(CustomProtocolSession session, BinaryRequestInfo requestInfo)
         {
-            session.Send(Encoding.ASCII.GetString(commandInfo.Data) + Environment.NewLine);
+            session.Send(Encoding.ASCII.GetString(requestInfo.Body) + Environment.NewLine);
         }
     }
 }

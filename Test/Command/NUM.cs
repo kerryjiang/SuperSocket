@@ -11,9 +11,9 @@ namespace SuperSocket.Test.Command
     {
         public const string ReplyFormat = "325 received {0}!";
 
-        public override void ExecuteCommand(TestSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
         {
-            session.Send(string.Format(ReplyFormat, commandData.Data));
+            session.Send(string.Format(ReplyFormat, requestInfo.Body));
         }
 
         public override string Name

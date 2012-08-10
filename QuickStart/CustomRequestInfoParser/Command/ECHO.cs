@@ -9,9 +9,9 @@ namespace SuperSocket.QuickStart.CustomCommandParser.Command
 {
     public class ECHO : StringCommandBase<YourSession>
     {
-        public override void ExecuteCommand(YourSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(YourSession session, StringRequestInfo requestInfo)
         {
-            foreach (var p in commandData.Parameters)
+            foreach (var p in requestInfo.Parameters)
             {
                 session.Send(p);
             }

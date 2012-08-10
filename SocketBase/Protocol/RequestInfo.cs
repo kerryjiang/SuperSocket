@@ -8,18 +8,18 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// RequestInfo basic class
     /// </summary>
-    /// <typeparam name="TRequestData">The type of the request data.</typeparam>
-    public class RequestInfo<TRequestData> : IRequestInfo<TRequestData>
+    /// <typeparam name="TRequestBody">The type of the request body.</typeparam>
+    public class RequestInfo<TRequestBody> : IRequestInfo<TRequestBody>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestInfo&lt;TRequestData&gt;"/> class.
+        /// Initializes a new instance of the <see cref="RequestInfo&lt;TRequestBody&gt;"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="data">The data.</param>
-        protected RequestInfo(string key, TRequestData data)
+        /// <param name="body">The body.</param>
+        protected RequestInfo(string key, TRequestBody body)
         {
             Key = key;
-            Data = data;
+            Body = body;
         }
 
         /// <summary>
@@ -28,8 +28,8 @@ namespace SuperSocket.SocketBase.Protocol
         public string Key { get; private set; }
 
         /// <summary>
-        /// Gets the data.
+        /// Gets the body.
         /// </summary>
-        public TRequestData Data { get; private set; }
+        public TRequestBody Body { get; private set; }
     }
 }

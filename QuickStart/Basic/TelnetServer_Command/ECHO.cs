@@ -12,7 +12,7 @@ namespace SuperSocket.QuickStart.TelnetServer_Command
     {
         public override void ExecuteCommand(AppSession session, StringRequestInfo requestInfo)
         {
-            session.Send(requestInfo.Data);
+            session.Send(requestInfo.Body);
         }
     }
 }

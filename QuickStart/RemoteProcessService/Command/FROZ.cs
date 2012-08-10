@@ -11,11 +11,11 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo requestInfo)
         {
             var server = session.AppServer;
 
-            string firstParam = commandData.GetFirstParam();
+            string firstParam = requestInfo.GetFirstParam();
 
             if (string.IsNullOrEmpty(firstParam))
             {
@@ -23,7 +23,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
                 return;
             }
 
-            var param = commandData[1];
+            var param = requestInfo[1];
 
             if ("list".Equals(firstParam, StringComparison.OrdinalIgnoreCase))
             {

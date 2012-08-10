@@ -67,7 +67,7 @@ namespace TelnetServer_ProcessRequest
             switch (requestInfo.Key.ToLower())
             {
                 case("ECHO"):
-                    session.Send(requestInfo.Data);
+                    session.Send(requestInfo.Body);
                     break;
 
                 case ("ADD"):

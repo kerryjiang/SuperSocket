@@ -9,9 +9,9 @@ namespace SuperSocket.QuickStart.BroadcastService.Command
 {
     public class CONN : StringCommandBase<BroadcastSession>
     {
-        public override void ExecuteCommand(BroadcastSession session, StringRequestInfo commandData)
+        public override void ExecuteCommand(BroadcastSession session, StringRequestInfo requestInfo)
         {
-            session.DeviceNumber = commandData[0];
+            session.DeviceNumber = requestInfo[0];
             session.AppServer.RegisterNewSession(session);
             session.Send("100 Connected");
         }
