@@ -27,4 +27,18 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         TRequestBody Body { get; }
     }
+
+
+    /// <summary>
+    /// Request information interface
+    /// </summary>
+    /// <typeparam name="TRequestHeader">The type of the request header.</typeparam>
+    /// <typeparam name="TRequestBody">The type of the request body.</typeparam>
+    public interface IRequestInfo<TRequestHeader, TRequestBody> : IRequestInfo<TRequestBody>
+    {
+        /// <summary>
+        /// Gets the header of the request.
+        /// </summary>
+        TRequestHeader Header { get; }
+    }
 }
