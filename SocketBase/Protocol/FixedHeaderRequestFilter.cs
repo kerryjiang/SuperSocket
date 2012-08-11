@@ -45,7 +45,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        public override TRequestInfo Filter(IAppSession<TRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             if (!m_FoundHeader)
                 return base.Filter(session, readBuffer, offset, length, toBeCopied, out left);
@@ -59,19 +59,19 @@ namespace SuperSocket.SocketBase.Protocol
 
                     m_BodyBuffer.AddSegment(readBuffer, offset, length, toBeCopied);
                     left = 0;
-                    return default(TRequestInfo);
+                    return NullRequestInfo;
                 }
                 else if (length == m_BodyLength)
                 {
                     left = 0;
                     m_FoundHeader = false;
-                    return ResolveRequestData(m_Header, readBuffer, offset, length);
+                    return ResolveRequestInfo(m_Header, readBuffer, offset, length);
                 }
                 else
                 {
                     left = length - m_BodyLength;
                     m_FoundHeader = false;
-                    return ResolveRequestData(m_Header, readBuffer, offset, m_BodyLength);
+                    return ResolveRequestInfo(m_Header, readBuffer, offset, m_BodyLength);
                 }
             }
             else
@@ -82,14 +82,14 @@ namespace SuperSocket.SocketBase.Protocol
                 {
                     m_BodyBuffer.AddSegment(readBuffer, offset, length, toBeCopied);
                     left = 0;
-                    return default(TRequestInfo);
+                    return NullRequestInfo;
                 }
                 else if (length == required)
                 {
                     m_BodyBuffer.AddSegment(readBuffer, offset, length, toBeCopied);
                     left = 0;
                     m_FoundHeader = false;
-                    var requestInfo = ResolveRequestData(m_Header, m_BodyBuffer.ToArrayData());
+                    var requestInfo = ResolveRequestInfo(m_Header, m_BodyBuffer.ToArrayData());
                     m_BodyBuffer.ClearSegements();
                     return requestInfo;
                 }
@@ -98,7 +98,7 @@ namespace SuperSocket.SocketBase.Protocol
                     m_BodyBuffer.AddSegment(readBuffer, offset, required, toBeCopied);
                     left = length - required;
                     m_FoundHeader = false;
-                    var requestInfo = ResolveRequestData(m_Header, m_BodyBuffer.ToArrayData(0, m_BodyLength));
+                    var requestInfo = ResolveRequestInfo(m_Header, m_BodyBuffer.ToArrayData(0, m_BodyLength));
                     m_BodyBuffer.ClearSegements();
                     return requestInfo;
                 }
@@ -115,7 +115,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        protected override TRequestInfo ProcessFixSizeRequest(IAppSession<TRequestInfo> session, byte[] buffer, int offset, int length, bool toBeCopied, out int left)
+        protected override TRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied, out int left)
         {
             m_FoundHeader = true;
 
@@ -128,12 +128,12 @@ namespace SuperSocket.SocketBase.Protocol
             else
                 m_Header = new ArraySegment<byte>(buffer, offset, Size);
 
-            return default(TRequestInfo);
+            return NullRequestInfo;
         }
 
-        private TRequestInfo ResolveRequestData(ArraySegment<byte> header, byte[] bodyBuffer)
+        private TRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer)
         {
-            return ResolveRequestData(header, bodyBuffer, 0, bodyBuffer.Length);
+            return ResolveRequestInfo(header, bodyBuffer, 0, bodyBuffer.Length);
         }
 
         /// <summary>
@@ -153,6 +153,17 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo ResolveRequestData(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length);
+        protected abstract TRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length);
+
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
+        public override void Reset()
+        {
+            base.Reset();
+
+            m_FoundHeader = false;
+            m_BodyLength = 0;
+        }
     }
 }

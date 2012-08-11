@@ -229,7 +229,7 @@ namespace SuperSocket.SocketBase
         /// Handles the exceptional error, it only handles application error.
         /// </summary>
         /// <param name="e">The exception.</param>
-        public virtual void HandleException(Exception e)
+        protected virtual void HandleException(Exception e)
         {
             Logger.Error(this, e);
             this.Close(CloseReason.ApplicationError);
@@ -239,9 +239,14 @@ namespace SuperSocket.SocketBase
         /// Handles the unknown request.
         /// </summary>
         /// <param name="requestInfo">The request info.</param>
-        public virtual void HandleUnknownRequest(TRequestInfo requestInfo)
+        protected virtual void HandleUnknownRequest(TRequestInfo requestInfo)
         {
 
+        }
+
+        internal void InternalHandleUnknownRequest(TRequestInfo requestInfo)
+        {
+            HandleUnknownRequest(requestInfo);
         }
 
         /// <summary>
@@ -633,7 +638,7 @@ namespace SuperSocket.SocketBase
         /// Handles the unknown request.
         /// </summary>
         /// <param name="requestInfo">The request info.</param>
-        public override void HandleUnknownRequest(StringRequestInfo requestInfo)
+        protected override void HandleUnknownRequest(StringRequestInfo requestInfo)
         {
             Send("Unknown request: " + requestInfo.Key);
         }
@@ -655,16 +660,6 @@ namespace SuperSocket.SocketBase
                 return rawMessage + Environment.NewLine;
             else
                 return rawMessage;
-        }
-
-        /// <summary>
-        /// Try to send the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public override bool TrySend(string message)
-        {
-            return base.TrySend(message);
         }
 
         /// <summary>

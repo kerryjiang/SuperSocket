@@ -66,12 +66,6 @@ namespace SuperSocket.SocketBase
         void Close(CloseReason reason);
 
         /// <summary>
-        /// Handles the exceptional error.
-        /// </summary>
-        /// <param name="e">The e.</param>
-        void HandleException(Exception e);
-
-        /// <summary>
         /// Gets a value indicating whether this <see cref="IAppSession"/> is connected.
         /// </summary>
         /// <value>
@@ -135,23 +129,9 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// The interface for appSession
     /// </summary>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IAppSession<TRequestInfo> : IAppSession
-        where TRequestInfo : IRequestInfo
-    {
-        /// <summary>
-        /// Handles the unknown request.
-        /// </summary>
-        /// <param name="requestInfo">The request info.</param>
-        void HandleUnknownRequest(TRequestInfo requestInfo);
-    }
-
-    /// <summary>
-    /// The interface for appSession
-    /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IAppSession<TAppSession, TRequestInfo> : IAppSession<TRequestInfo>
+    public interface IAppSession<TAppSession, TRequestInfo> : IAppSession
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
     {

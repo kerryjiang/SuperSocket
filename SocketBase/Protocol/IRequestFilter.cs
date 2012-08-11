@@ -23,7 +23,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left, the length of the data which hasn't been parsed.</param>
         /// <returns></returns>
-        TRequestInfo Filter(IAppSession<TRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
+        TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
 
         /// <summary>
         /// Gets the size of the left buffer.
@@ -37,5 +37,10 @@ namespace SuperSocket.SocketBase.Protocol
         /// Gets the next request filter.
         /// </summary>
         IRequestFilter<TRequestInfo> NextRequestFilter { get; }
+
+        /// <summary>
+        /// Resets this instance to initial state.
+        /// </summary>
+        void Reset();
     }
 }

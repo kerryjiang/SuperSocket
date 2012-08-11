@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
+﻿
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
@@ -24,13 +20,13 @@ namespace SuperSocket.SocketBase.Protocol
             get { return m_Size; }
         }
 
-        private static TRequestInfo m_NullRequestInfo = default(TRequestInfo);
+        protected readonly static TRequestInfo NullRequestInfo = default(TRequestInfo);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FixedSizeRequestFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="size">The size.</param>
-        public FixedSizeRequestFilter(int size)
+        protected FixedSizeRequestFilter(int size)
         {
             m_Size = size;
         }
@@ -45,13 +41,12 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        public virtual TRequestInfo Filter(IAppSession<TRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public virtual TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             if (m_ParsedLength + length >= m_Size)
             {
-                m_OffsetDelta = 0;
-                var requestInfo = ProcessFixSizeRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied, out left);
-                m_ParsedLength = 0;
+                var requestInfo = ProcessMatchedRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied, out left);
+                Reset();
                 return requestInfo;
             }
             else
@@ -59,7 +54,7 @@ namespace SuperSocket.SocketBase.Protocol
                 m_ParsedLength += length;
                 m_OffsetDelta = m_ParsedLength;
                 left = 0;
-                return m_NullRequestInfo;
+                return NullRequestInfo;
             }
         }
 
@@ -73,7 +68,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo ProcessFixSizeRequest(IAppSession<TRequestInfo> session, byte[] buffer, int offset, int length, bool toBeCopied, out int left);
+        protected abstract TRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied, out int left);
 
         /// <summary>
         /// Gets the size of the left buffer.
@@ -81,7 +76,10 @@ namespace SuperSocket.SocketBase.Protocol
         /// <value>
         /// The size of the left buffer.
         /// </value>
-        public int LeftBufferSize { get; private set; }
+        public int LeftBufferSize
+        {
+            get { return m_ParsedLength; }
+        }
 
         /// <summary>
         /// Gets the next request filter.
@@ -99,10 +97,13 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         int IOffsetAdapter.OffsetDelta
         {
-            get
-            {
-                return m_OffsetDelta;
-            }
+            get { return m_OffsetDelta; }
+        }
+
+        public virtual void Reset()
+        {
+            m_ParsedLength = 0;
+            m_OffsetDelta = 0;
         }
     }
 }

@@ -62,7 +62,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left, the length of the data which hasn't been parsed.</param>
         /// <returns></returns>
-        public abstract TRequestInfo Filter(IAppSession<TRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
+        public abstract TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
 
 
         /// <summary>
@@ -114,6 +114,15 @@ namespace SuperSocket.SocketBase.Protocol
         protected void ClearBufferSegments()
         {
             m_BufferSegments.ClearSegements();
+        }
+
+        /// <summary>
+        /// Resets this instance to initial state.
+        /// </summary>
+        public virtual void Reset()
+        {
+            if(m_BufferSegments != null && m_BufferSegments.Count > 0)
+                m_BufferSegments.ClearSegements();
         }
     }
 }

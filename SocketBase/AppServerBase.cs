@@ -952,7 +952,7 @@ namespace SuperSocket.SocketBase
                 }
                 else
                 {
-                    session.HandleUnknownRequest(requestInfo);
+                    session.InternalHandleUnknownRequest(requestInfo);
                 }
 
                 session.LastActiveTime = DateTime.Now;
@@ -976,7 +976,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
-        internal void ExecuteCommand(IAppSession<TRequestInfo> session, TRequestInfo requestInfo)
+        internal void ExecuteCommand(IAppSession session, TRequestInfo requestInfo)
         {
             this.ExecuteCommand((TAppSession)session, requestInfo);
         }

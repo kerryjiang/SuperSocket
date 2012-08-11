@@ -35,7 +35,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left, the length of the data which hasn't been parsed.</param>
         /// <returns>return the parsed TRequestInfo</returns>
-        public override TRequestInfo Filter(IAppSession<TRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             left = 0;
 

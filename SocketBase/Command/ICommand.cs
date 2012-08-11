@@ -24,7 +24,7 @@ namespace SuperSocket.SocketBase.Command
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public interface ICommand<TAppSession, TRequestInfo> : ICommand
         where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession<TRequestInfo>
+        where TAppSession : IAppSession
     {
         /// <summary>
         /// Executes the command.
@@ -41,7 +41,7 @@ namespace SuperSocket.SocketBase.Command
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     public class MockupCommand<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>
         where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession<TRequestInfo>
+        where TAppSession : IAppSession
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="MockupCommand&lt;TAppSession, TRequestInfo&gt;"/> class.
