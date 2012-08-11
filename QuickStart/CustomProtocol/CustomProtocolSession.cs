@@ -10,7 +10,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
 {
     public class CustomProtocolSession : AppSession<CustomProtocolSession, BinaryRequestInfo>
     {
-        public override void HandleException(Exception e)
+        protected override void HandleException(Exception e)
         {
 
         }

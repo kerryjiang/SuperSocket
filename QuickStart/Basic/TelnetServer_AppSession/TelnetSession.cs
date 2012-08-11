@@ -14,12 +14,12 @@ namespace SuperSocket.QuickStart.TelnetServer_AppSession
             this.Send("Welcome to SuperSocket Telnet Server");
         }
 
-        public override void HandleUnknownRequest(StringRequestInfo requestInfo)
+        protected override void HandleUnknownRequest(StringRequestInfo requestInfo)
         {
             this.Send("Unknow request");
         }
 
-        public override void HandleException(Exception e)
+        protected override void HandleException(Exception e)
         {
             this.Send("Application error: {0}", e.Message);
         }

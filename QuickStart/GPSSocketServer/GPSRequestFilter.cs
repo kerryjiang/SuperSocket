@@ -33,7 +33,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer
             m_EndSearchState = new SearchMarkState<byte>(m_EndMark);
         }
 
-        public override BinaryRequestInfo Filter(IAppSession<BinaryRequestInfo> session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override BinaryRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             left = 0;
 
@@ -70,9 +70,9 @@ namespace SuperSocket.QuickStart.GPSSocketServer
                 int parsedLen = endPos - pos + m_EndMark.Length;
                 left = length - parsedLen;
 
-                var requestInfo = CreateCommandInfo(readBuffer.CloneRange(pos, parsedLen));
+                var requestInfo = CreateRequestInfo(readBuffer.CloneRange(pos, parsedLen));
 
-                ResetState();
+                Reset();
 
                 return requestInfo;
             }
@@ -97,24 +97,24 @@ namespace SuperSocket.QuickStart.GPSSocketServer
 
                 Array.Copy(readBuffer, offset, commandData, BufferSegments.Count, parsedLen);
 
-                var requestInfo = CreateCommandInfo(commandData);
+                var requestInfo = CreateRequestInfo(commandData);
 
-                ResetState();
+                Reset();
 
                 return requestInfo;
             }
         }
 
-        private void ResetState()
+        public override void Reset()
         {
             m_StartSearchState.Matched = 0;
             m_EndSearchState.Matched = 0;
             m_FoundStart = false;
 
-            ClearBufferSegments();
+            base.Reset();
         }
 
-        private BinaryRequestInfo CreateCommandInfo(byte[] data)
+        private BinaryRequestInfo CreateRequestInfo(byte[] data)
         {
             return new BinaryRequestInfo(BitConverter.ToString(data, 15, 1), data);
         }

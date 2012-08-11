@@ -18,7 +18,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService
             Send("Welcome to use this tool!");
         }
 
-        public override void HandleException(Exception e)
+        protected override void HandleException(Exception e)
         {
             Send("An error has occurred in server side! Error message: " + e.Message + "!");
         }

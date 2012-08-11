@@ -22,7 +22,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
             return (int)header[offset + 4] * 256 + (int)header[offset + 5];
         }
 
-        protected override BinaryRequestInfo ResolveRequestData(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
+        protected override BinaryRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
         {
             return new BinaryRequestInfo(Encoding.UTF8.GetString(header.Array, header.Offset, 4), bodyBuffer.CloneRange(offset, length));
         }
