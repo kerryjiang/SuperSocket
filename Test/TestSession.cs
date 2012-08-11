@@ -18,12 +18,12 @@ namespace SuperSocket.Test
                 Send(string.Format(WelcomeMessageFormat, AppServer.Name));
         }
 
-        public override void HandleException(Exception e)
+        protected override void HandleException(Exception e)
         {
             
         }
 
-        public override void HandleUnknownRequest(StringRequestInfo cmdInfo)
+        protected override void HandleUnknownRequest(StringRequestInfo cmdInfo)
         {
             string response = string.Format(UnknownCommandMessageFormat, cmdInfo.Key);
             Send(response);
