@@ -9,6 +9,7 @@ using SuperSocket.SocketBase.Protocol;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Threading;
 
 namespace SuperSocket.Test
 {
@@ -33,30 +34,30 @@ namespace SuperSocket.Test
 
                 EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2012);
 
-                using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+                using (var socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
                 {
                     socket.Connect(serverAddress);
-                    Stream socketStream = new NetworkStream(socket);
-                    using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                    using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                    var socketStream = new NetworkStream(socket);
+                    using (var reader = new StreamReader(socketStream, m_Encoding, true))
+                    using (var writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
                     {
                         var welcomeString = reader.ReadLine();
                         Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, appServer.Name), welcomeString);
 
-                        char[] chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
+                        var chars = new char[] { 'a', 'A', 'b', 'B', 'c', 'C', 'd', 'D', 'e', 'E', 'f', 'F', 'g', 'G', 'h', 'H' };
 
-                        Random rd = new Random(1);
+                        var rd = new Random(1);
 
-                        StringBuilder sb = new StringBuilder();
+                        var sb = new StringBuilder();
 
-                        for (int i = 0; i < 100; i++)
+                        for (var i = 0; i < 100; i++)
                         {
                             sb.Append(chars[rd.Next(0, chars.Length - 1)]);
-                            string command = sb.ToString();
+                            var command = sb.ToString();
                             writer.Write("ECHO " + command);
                             writer.Write("##");
                             writer.Flush();
-                            string echoMessage = reader.ReadLine();
+                            var echoMessage = reader.ReadLine();
                             Console.WriteLine("C:" + echoMessage);
                             Assert.AreEqual(command, echoMessage);
                         }
@@ -64,6 +65,101 @@ namespace SuperSocket.Test
                 }
                 
             }
+        }
+
+
+        [Test]
+        public void TestTerminatorRequestFilterA()
+        {
+            var appServer = new TestServer();
+
+            using (appServer as IDisposable)
+            {
+
+                var setupResult = appServer.Setup("127.0.0.1", 2012,
+                    null, new TerminatorRequestFilterFactory("##", m_Encoding), new ConsoleLogFactory(), null, null);
+
+                Assert.IsTrue(setupResult);
+                Assert.IsTrue(appServer.Start());
+
+                EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2012);
+
+                using (var socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+                {
+                    socket.Connect(serverAddress);
+                    var socketStream = new NetworkStream(socket);
+                    using (var reader = new StreamReader(socketStream, m_Encoding, true))
+                    using (var writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                    {
+                        var welcomeString = reader.ReadLine();
+                        Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, appServer.Name), welcomeString);
+
+                        var actions = new Action<StreamWriter, string>[]
+                            {
+                                (w, r) => SendRequestA(w, r),
+                                (w, r) => SendRequestB(w, r),
+                                (w, r) => SendRequestC(w, r)
+                            };
+
+                        var rd = new Random();
+
+                        for(var i = 0; i < 50; i++)
+                        {
+                            var command = Guid.NewGuid().ToString();
+
+                            var act = actions[rd.Next(0, 100) % actions.Length];
+
+                            act(writer, command);
+
+                            var echoMessage = reader.ReadLine();
+                            Console.WriteLine("C:" + echoMessage);
+                            Assert.AreEqual(command, echoMessage);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void SendRequestA(StreamWriter writer, string line)
+        {
+            writer.Write("ECHO " + line);
+            writer.Flush();
+
+            Thread.Sleep(100);
+
+            writer.Write("##");
+            writer.Flush();
+        }
+
+        private void SendRequestB(StreamWriter writer, string line)
+        {
+            writer.Write("ECHO " + line);
+            writer.Flush();
+
+            Thread.Sleep(100);
+
+            writer.Write("#");
+            writer.Flush();
+
+            Thread.Sleep(100);
+
+            writer.Write("#");
+            writer.Flush();
+        }
+
+        private void SendRequestC(StreamWriter writer, string line)
+        {
+            writer.Write("ECHO " + line.Substring(0, line.Length - 1));
+            writer.Flush();
+
+            Thread.Sleep(100);
+            writer.Write(line.Substring(line.Length - 1) + "#");
+            writer.Flush();
+
+            Thread.Sleep(100);
+
+            writer.Write("#");
+            writer.Flush();
         }
     }
 }

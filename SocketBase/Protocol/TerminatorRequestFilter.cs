@@ -10,11 +10,14 @@ namespace SuperSocket.SocketBase.Protocol
     /// Terminator Request Filter
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class TerminatorRequestFilter<TRequestInfo> : RequestFilterBase<TRequestInfo>
+    public abstract class TerminatorRequestFilter<TRequestInfo> : RequestFilterBase<TRequestInfo>, IOffsetAdapter
         where TRequestInfo : IRequestInfo
     {
-        private SearchMarkState<byte> m_SearchState;
-        private static readonly TRequestInfo m_NullRequestInfo = default(TRequestInfo);
+        private readonly SearchMarkState<byte> m_SearchState;
+
+        private static readonly TRequestInfo NullRequestInfo = default(TRequestInfo);
+
+        private int m_ParsedLengthInBuffer = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorRequestFilter&lt;TRequestInfo&gt;"/> class.
@@ -45,36 +48,102 @@ namespace SuperSocket.SocketBase.Protocol
 
             if (result < 0)
             {
-                this.AddArraySegment(readBuffer, offset, length, toBeCopied);
-                return m_NullRequestInfo;
+                m_ParsedLengthInBuffer += length;
+
+                if (m_ParsedLengthInBuffer >= session.Config.ReceiveBufferSize)
+                {
+                    this.AddArraySegment(readBuffer, offset + length - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer, toBeCopied);
+                    m_ParsedLengthInBuffer = 0;
+                }
+
+                return NullRequestInfo;
             }
 
             int findLen = result - offset;
 
+            left = length - findLen - (m_SearchState.Mark.Length - prevMatched);
+
+            TRequestInfo requestInfo;
+
             if (findLen > 0)
             {
-                this.AddArraySegment(readBuffer, offset, findLen, false);
+                if(this.BufferSegments != null && this.BufferSegments.Count > 0)
+                {
+                    this.AddArraySegment(readBuffer, offset - m_ParsedLengthInBuffer, findLen + m_ParsedLengthInBuffer, toBeCopied);
+                    requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                }
+                else
+                {
+                    requestInfo = Resolve(readBuffer, offset - m_ParsedLengthInBuffer, findLen + m_ParsedLengthInBuffer);
+                }
             }
             else if (prevMatched > 0)
             {
-                BufferSegments.TrimEnd(prevMatched);
+                if (m_ParsedLengthInBuffer > 0)
+                {
+                    if (m_ParsedLengthInBuffer < prevMatched)
+                    {
+                        BufferSegments.TrimEnd(prevMatched - m_ParsedLengthInBuffer);
+                        requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                    }
+                    else
+                    {
+                        if (this.BufferSegments != null && this.BufferSegments.Count > 0)
+                        {
+                            this.AddArraySegment(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer - prevMatched, toBeCopied);
+                            requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                        }
+                        else
+                        {
+                            requestInfo = Resolve(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer - prevMatched);
+                        }
+                    }
+                }
+                else
+                {
+                    BufferSegments.TrimEnd(prevMatched);
+                    requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                }
+            }
+            else
+            {
+                if (this.BufferSegments != null && this.BufferSegments.Count > 0)
+                {
+                    requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                }
+                else
+                {
+                    requestInfo = Resolve(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer);
+                }
             }
 
-            var requestInfo = Resolve(BufferSegments);
-
-            ClearBufferSegments();
-
-            left = length - findLen - (m_SearchState.Mark.Length - prevMatched);
+            Reset();
 
             return requestInfo;
+        }
+
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
+        public override void Reset()
+        {
+            m_ParsedLengthInBuffer = 0;
+            base.Reset();
         }
 
         /// <summary>
         /// Resolves the specified data to TRequestInfo.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo Resolve(ArraySegmentList data);
+        protected abstract TRequestInfo Resolve(IList<byte> data, int offset, int length);
+
+        int IOffsetAdapter.OffsetDelta
+        {
+            get { return m_ParsedLengthInBuffer; }
+        }
     }
 
     /// <summary>
@@ -112,10 +181,25 @@ namespace SuperSocket.SocketBase.Protocol
         /// Resolves the specified data to StringRequestInfo.
         /// </summary>
         /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected override StringRequestInfo Resolve(ArraySegmentList data)
+        protected override StringRequestInfo Resolve(IList<byte> data, int offset, int length)
         {
-            return m_RequestParser.ParseRequestInfo(data.Decode(m_Encoding));
+            if(length == 0)
+                return m_RequestParser.ParseRequestInfo(string.Empty);
+
+            var segmentList = data as ArraySegmentList;
+
+            if (segmentList != null)
+                return m_RequestParser.ParseRequestInfo(((ArraySegmentList)data).Decode(m_Encoding, offset, length));
+
+            var array = data as byte[];
+
+            if (array != null)
+                return m_RequestParser.ParseRequestInfo(m_Encoding.GetString(array, offset, length));
+
+            return m_RequestParser.ParseRequestInfo(m_Encoding.GetString(data.CloneRange(offset, length)));
         }
     }
 }
