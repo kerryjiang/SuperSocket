@@ -66,8 +66,7 @@ namespace SuperSocket.SocketBase.Command
 
             if (!commandAssemblies.Any())
             {
-                OnError("You should configure the commandAssembly value!");
-                return false;
+                commandAssemblies.Add(Assembly.GetEntryAssembly());
             }
 
             var outputCommands = new List<ICommand>();
