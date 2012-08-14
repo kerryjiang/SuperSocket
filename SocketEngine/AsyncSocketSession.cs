@@ -121,13 +121,13 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                if (offsetDelta != 0)
-                {
-                    if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
-                        throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
+                if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
+                    throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
 
-                    e.SetBuffer(m_OrigOffset + offsetDelta, Config.ReceiveBufferSize - offsetDelta);
-                }
+                var predictOffset = m_OrigOffset + offsetDelta;
+
+                if (e.Offset != predictOffset)
+                    e.SetBuffer(predictOffset, Config.ReceiveBufferSize - offsetDelta);
 
                 willRaiseEvent = Client.ReceiveAsync(e);
             }

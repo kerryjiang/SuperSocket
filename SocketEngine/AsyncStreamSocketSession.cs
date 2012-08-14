@@ -150,14 +150,11 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                if (offsetDelta != 0)
-                {
-                    if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
-                        throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
+                if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
+                    throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
 
-                    m_Offset = m_OrigOffset + offsetDelta;
-                    m_Length = Config.ReceiveBufferSize - offsetDelta;
-                }
+                m_Offset = m_OrigOffset + offsetDelta;
+                m_Length = Config.ReceiveBufferSize - offsetDelta;
 
                 m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
             }
