@@ -31,7 +31,7 @@ namespace SuperSocket.QuickStart.CustomCommandParser
             var rootConfig = new RootConfig();
 
             YourServer server = new YourServer();
-            server.Setup(rootConfig, config, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory());
+            server.Setup(rootConfig, config, logFactory: new ConsoleLogFactory());
 
             server.Start();
 

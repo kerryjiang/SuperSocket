@@ -21,13 +21,14 @@ namespace TelnetServer_Command
 
             var appServer = new AppServer();
 
+            //Setup with config model, which provides more options
             var serverConfig = new ServerConfig
             {
                 Port = 2012 //set the listening port
             };
 
             //Setup the appServer
-            if (!appServer.Setup(serverConfig, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory()))
+            if (!appServer.Setup(serverConfig))
             {
                 Console.WriteLine("Failed to setup!");
                 Console.ReadKey();

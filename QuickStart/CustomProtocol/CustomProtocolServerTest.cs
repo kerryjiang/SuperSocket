@@ -33,7 +33,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
                 };
 
             m_Server = new CustomProtocolServer();
-            m_Server.Setup(new RootConfig(), m_Config, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory());
+            m_Server.Setup(m_Config, logFactory: new ConsoleLogFactory());
         }
 
         [SetUp]

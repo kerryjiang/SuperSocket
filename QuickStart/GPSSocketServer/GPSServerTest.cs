@@ -32,7 +32,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer
             };
 
             m_Server = new GPSServer();
-            m_Server.Setup(new RootConfig(), m_Config, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory());
+            m_Server.Setup(new RootConfig(), m_Config, logFactory: new ConsoleLogFactory());
         }
 
         [SetUp]

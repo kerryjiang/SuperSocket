@@ -21,13 +21,8 @@ namespace SuperSocket.QuickStart.TelnetServer
 
             var appServer = new AppServer();
 
-            var serverConfig = new ServerConfig
-                {
-                    Port = 2012 //set the listening port
-                };
-
             //Setup the appServer
-            if (!appServer.Setup(serverConfig, SocketServerFactory.Instance, logFactory: new ConsoleLogFactory()))
+            if (!appServer.Setup(2012)) //Setup with listening port
             {
                 Console.WriteLine("Failed to setup!");
                 Console.ReadKey();
