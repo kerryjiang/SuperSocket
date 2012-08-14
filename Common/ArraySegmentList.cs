@@ -32,26 +32,6 @@ namespace SuperSocket.Common
             m_Segments = new List<ArraySegmentEx<T>>();
         }
 
-        private void CalculateSegmentsInfo(IList<ArraySegmentEx<T>> segments)
-        {
-            int total = 0;
-
-            foreach (var segment in segments)
-            {
-                if (segment.Count <= 0)
-                    continue;
-
-                segment.From = total;
-                segment.To = total + segment.Count - 1;
-
-                m_Segments.Add(segment);
-
-                total += segment.Count;
-            }
-
-            m_Count = total;
-        }
-
         #region IList<T> Members
 
         /// <summary>
@@ -497,9 +477,11 @@ namespace SuperSocket.Common
             if (startIndex != 0)
             {
                 var startSegment = QuickSearchSegment(0, m_Segments.Count - 1, startIndex, out startSegmentIndex);
-                from = startIndex - startSegment.From;
+
                 if (startSegment == null)
                     throw new IndexOutOfRangeException();
+
+                from = startIndex - startSegment.From;
             }
 
             for (var i = startSegmentIndex; i < m_Segments.Count; i++)
