@@ -6,19 +6,25 @@ using System.Text;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// CommandLineRequestFilterFactory
+    /// CommandLine RequestFilter Factory
     /// </summary>
-    public class CommandLineRequestFilterFactory : IRequestFilterFactory<StringRequestInfo>
+    public class CommandLineRequestFilterFactory : TerminatorRequestFilterFactory
     {
-        private Encoding m_Encoding;
-        private byte[] m_LineTerminator;
-        private IRequestInfoParser<StringRequestInfo> m_LineParser;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="CommandLineRequestFilterFactory"/> class.
         /// </summary>
         public CommandLineRequestFilterFactory()
-            : this(Encoding.ASCII, new BasicRequestInfoParser())
+            : this(Encoding.ASCII)
+        {
+            
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandLineRequestFilterFactory"/> class.
+        /// </summary>
+        /// <param name="encoding">The encoding.</param>
+        public CommandLineRequestFilterFactory(Encoding encoding)
+            : this(encoding, new BasicRequestInfoParser())
         {
 
         }
@@ -27,23 +33,11 @@ namespace SuperSocket.SocketBase.Protocol
         /// Initializes a new instance of the <see cref="CommandLineRequestFilterFactory"/> class.
         /// </summary>
         /// <param name="encoding">The encoding.</param>
-        /// <param name="lineParser">The line parser.</param>
-        public CommandLineRequestFilterFactory(Encoding encoding, IRequestInfoParser<StringRequestInfo> lineParser)
+        /// <param name="requestInfoParser">The request info parser.</param>
+        public CommandLineRequestFilterFactory(Encoding encoding, IRequestInfoParser<StringRequestInfo> requestInfoParser)
+            : base("\r\n", encoding, requestInfoParser)
         {
-            m_Encoding = encoding;
-            m_LineTerminator = encoding.GetBytes(Environment.NewLine);
-            m_LineParser = lineParser;
-        }
 
-        /// <summary>
-        /// Creates the request filter.
-        /// </summary>
-        /// <param name="appServer">The app server.</param>
-        /// <param name="socketSession">The socket session.</param>
-        /// <returns>the new created request filer assosiated with this socketSession</returns>
-        public virtual IRequestFilter<StringRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
-        {
-            return new TerminatorRequestFilter(m_LineTerminator, m_Encoding, m_LineParser);
         }
     }
 }

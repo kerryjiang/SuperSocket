@@ -82,9 +82,19 @@ namespace SuperSocket.SocketBase.Protocol
     /// </summary>
     public class TerminatorRequestFilter : TerminatorRequestFilter<StringRequestInfo>
     {
-        private Encoding m_Encoding;
-        private IRequestInfoParser<StringRequestInfo> m_RequestParser;
+        private readonly Encoding m_Encoding;
+        private readonly IRequestInfoParser<StringRequestInfo> m_RequestParser;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TerminatorRequestFilter"/> class.
+        /// </summary>
+        /// <param name="terminator">The terminator.</param>
+        /// <param name="encoding">The encoding.</param>
+        public TerminatorRequestFilter(byte[] terminator, Encoding encoding)
+            : this(terminator, encoding, BasicRequestInfoParser.DefaultInstance)
+        {
+            
+        }
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorRequestFilter"/> class.
         /// </summary>

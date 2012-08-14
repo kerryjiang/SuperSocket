@@ -10,10 +10,15 @@ namespace SuperSocket.SocketBase.Protocol
     /// </summary>
     public class BasicRequestInfoParser : IRequestInfoParser<StringRequestInfo>
     {
-        private string m_Spliter;
-        private string[] m_ParameterSpliters;
+        private readonly string m_Spliter;
+        private readonly string[] m_ParameterSpliters;
 
         private const string m_OneSpace = " ";
+
+        /// <summary>
+        /// The default singlegton instance
+        /// </summary>
+        public static readonly BasicRequestInfoParser DefaultInstance = new BasicRequestInfoParser();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BasicRequestInfoParser"/> class.
