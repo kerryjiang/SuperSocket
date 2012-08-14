@@ -32,7 +32,7 @@ namespace SuperSocket.Test
 
         private IConfigurationSource SetupBootstrap(string configFile)
         {
-            ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();
+            var fileMap = new ExeConfigurationFileMap();
             fileMap.ExeConfigFilename = Path.Combine(@"Config", configFile);
 
             var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);

@@ -13,11 +13,9 @@ namespace SuperSocket.Test.Command
     {
         public static string[] GetStringSource()
         {
-            var filePath = Path.Combine(Path.GetDirectoryName(new Uri(typeof(SEND).Assembly.CodeBase).LocalPath), "Strings.txt");
-
             var list = new List<string>();
 
-            using (var reader = new StreamReader(filePath, Encoding.UTF8, true))
+            using (var reader = new StringReader(Setup.GetResourceContent("Strings.txt")))
             {
                 while(true)
                 {

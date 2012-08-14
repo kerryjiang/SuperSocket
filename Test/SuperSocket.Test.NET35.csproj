@@ -107,18 +107,9 @@
     <Compile Include="Udp\UdpTestSession.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\TestFile.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Command\ADD.py">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Command\MULT.py">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Strings.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="Command\ADD.py" />
+    <EmbeddedResource Include="Command\MULT.py" />
+    <EmbeddedResource Include="Strings.txt" />
     <Content Include="supersocket.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -142,38 +133,21 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\AppDomain.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\Basic.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <EmbeddedResource Include="Config\AppDomain.config" />
+    <EmbeddedResource Include="Config\Basic.config">
       <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Config\DLR.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\Listeners.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Config\DLR.config" />
+    <EmbeddedResource Include="Config\Listeners.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\ChildConfigA.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\ChildConfigB.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\ChildConfigC.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Config\ChildConfigD.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="Config\ChildConfigA.config" />
+    <EmbeddedResource Include="Config\ChildConfigB.config" />
+    <EmbeddedResource Include="Config\ChildConfigC.config" />
+    <EmbeddedResource Include="Config\ChildConfigD.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Config\ServerType.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <EmbeddedResource Include="Config\ServerType.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
