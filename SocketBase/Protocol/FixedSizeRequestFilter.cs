@@ -20,6 +20,9 @@ namespace SuperSocket.SocketBase.Protocol
             get { return m_Size; }
         }
 
+        /// <summary>
+        /// Null RequestInfo
+        /// </summary>
         protected readonly static TRequestInfo NullRequestInfo = default(TRequestInfo);
 
         /// <summary>
@@ -43,10 +46,12 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns></returns>
         public virtual TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
-            if (m_ParsedLength + length >= m_Size)
+            left = m_ParsedLength + length - m_Size;
+
+            if (left >= 0)
             {
-                var requestInfo = ProcessMatchedRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied, out left);
-                Reset();
+                var requestInfo = ProcessMatchedRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied);
+                InternalReset();
                 return requestInfo;
             }
             else
@@ -66,9 +71,8 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied, out int left);
+        protected abstract TRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied);
 
         /// <summary>
         /// Gets the size of the left buffer.
@@ -100,10 +104,18 @@ namespace SuperSocket.SocketBase.Protocol
             get { return m_OffsetDelta; }
         }
 
-        public virtual void Reset()
+        private void InternalReset()
         {
             m_ParsedLength = 0;
             m_OffsetDelta = 0;
+        }
+
+        /// <summary>
+        /// Resets this instance.
+        /// </summary>
+        public virtual void Reset()
+        {
+            InternalReset();
         }
     }
 }

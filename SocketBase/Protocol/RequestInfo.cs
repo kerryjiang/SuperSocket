@@ -11,6 +11,9 @@ namespace SuperSocket.SocketBase.Protocol
     /// <typeparam name="TRequestBody">The type of the request body.</typeparam>
     public class RequestInfo<TRequestBody> : IRequestInfo<TRequestBody>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RequestInfo&lt;TRequestBody&gt;"/> class.
+        /// </summary>
         protected RequestInfo()
         {
             

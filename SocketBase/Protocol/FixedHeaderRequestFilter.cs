@@ -29,7 +29,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// Initializes a new instance of the <see cref="FixedHeaderRequestFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="headerSize">Size of the header.</param>
-        public FixedHeaderRequestFilter(int headerSize)
+        protected FixedHeaderRequestFilter(int headerSize)
             : base(headerSize)
         {
 
@@ -113,13 +113,10 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
         /// <returns></returns>
-        protected override TRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied, out int left)
+        protected override TRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied)
         {
             m_FoundHeader = true;
-
-            left = length - this.Size;
 
             m_BodyLength = GetBodyLengthFromHeader(buffer, offset, Size);
 
@@ -161,7 +158,6 @@ namespace SuperSocket.SocketBase.Protocol
         public override void Reset()
         {
             base.Reset();
-
             m_FoundHeader = false;
             m_BodyLength = 0;
         }

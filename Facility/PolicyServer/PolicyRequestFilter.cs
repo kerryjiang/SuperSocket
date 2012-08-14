@@ -31,11 +31,9 @@ namespace SuperSocket.Facility.PolicyServer
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
         /// <returns></returns>
-        protected override BinaryRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied, out int left)
+        protected override BinaryRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied)
         {
-            left = length - this.Size;
             byte[] data = new byte[this.Size];
             Buffer.BlockCopy(buffer, offset, data, 0, data.Length);
             return new BinaryRequestInfo(m_DefaultRequestInfoKey, data);
