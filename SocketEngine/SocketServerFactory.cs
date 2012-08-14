@@ -14,23 +14,6 @@ namespace SuperSocket.SocketEngine
     /// </summary>
     public class SocketServerFactory : ISocketServerFactory
     {
-        private static ISocketServerFactory m_Instance;
-
-        /// <summary>
-        /// Gets the instance.
-        /// </summary>
-        public static ISocketServerFactory Instance
-        {
-            get { return m_Instance; }
-        }
-
-        static SocketServerFactory()
-        {
-            m_Instance = new SocketServerFactory();
-        }
-
-        private const string m_SecurityNone = "None";
-
         #region ISocketServerFactory Members
 
         /// <summary>

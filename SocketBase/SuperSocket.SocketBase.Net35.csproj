@@ -126,6 +126,7 @@
     <Compile Include="Protocol\RequestInfo.cs" />
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Protocol\TerminatorRequestFilter.cs" />
+    <Compile Include="Protocol\TerminatorRequestFilterFactory.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
     <Compile Include="Provider\ProviderFactoryInfo.cs" />

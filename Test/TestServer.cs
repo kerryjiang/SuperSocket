@@ -37,7 +37,7 @@ namespace SuperSocket.Test
 
         void ITestSetup.Setup(IRootConfig rootConfig, IServerConfig serverConfig)
         {
-            base.Setup(rootConfig, serverConfig, SocketServerFactory.Instance, null, new ConsoleLogFactory(), null);
+            base.Setup(rootConfig, serverConfig, null, null, new ConsoleLogFactory(), null);
         }
     }
 }

@@ -49,7 +49,7 @@ namespace SuperSocket.Test
                         new LanguageSetup("IronPython.Runtime.PythonContext, IronPython", "IronPython", "IronPython;Python;py".Split(';'), new string[] { ".py" })
                     }
                 });
-            m_Server.Setup(new RootConfig(), m_ServerConfig, SocketServerFactory.Instance, null, new ConsoleLogFactory(), null, new ICommandLoader[] { new DynamicCommandLoader(scriptRuntime) });
+            m_Server.Setup(new RootConfig(), m_ServerConfig, null, null, new ConsoleLogFactory(), null, new ICommandLoader[] { new DynamicCommandLoader(scriptRuntime) });
         }
 
         [TearDown]

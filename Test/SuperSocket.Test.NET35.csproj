@@ -92,6 +92,7 @@
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ProtocolServerTest.cs" />
     <Compile Include="SecureTcpSocketServerTest.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="SocketServerTest.cs" />

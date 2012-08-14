@@ -79,6 +79,7 @@
     <Compile Include="ConnectionFilter\TestConnectionFilter.cs" />
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
+    <Compile Include="ProtocolServerTest.cs" />
     <Compile Include="TcpSocketServerTest.cs" />
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Command\NUM.cs" />

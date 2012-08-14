@@ -94,6 +94,7 @@
     <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
     <Compile Include="Protocol\FixedHeaderRequestFilter.cs" />
     <Compile Include="Protocol\IOffsetAdapter.cs" />
+    <Compile Include="Protocol\TerminatorRequestFilterFactory.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
     <Compile Include="Provider\ProviderFactoryInfo.cs" />
     <Compile Include="Provider\ProviderKey.cs" />

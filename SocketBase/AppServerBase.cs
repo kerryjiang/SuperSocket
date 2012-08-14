@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>
+    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, ICommandSource<ICommand<TAppSession, TRequestInfo>>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, IDisposable
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -296,7 +296,12 @@ namespace SuperSocket.SocketBase
             }
 
             if (socketServerFactory == null)
-                throw new ArgumentNullException("socketServerFactory");
+            {
+                var socketServerFactoryType =
+                    Type.GetType("SuperSocket.SocketEngine.SocketServerFactory, SuperSocket.SocketEngine", true);
+
+                socketServerFactory = (ISocketServerFactory)Activator.CreateInstance(socketServerFactoryType);
+            }
 
             m_SocketServerFactory = socketServerFactory;
         }
@@ -349,18 +354,43 @@ namespace SuperSocket.SocketBase
             return SetupSocketServer();
         }
 
+        /// <summary>
+        /// Setups with the specified port.
+        /// </summary>
+        /// <param name="port">The port.</param>
+        /// <returns>return setup result</returns>
+        public bool Setup(int port)
+        {
+            return Setup("Any", port);
+        }
+
 #if NET_35
 
+        /// <summary>
+        /// Setups with the specified ip and port.
+        /// </summary>
+        /// <param name="ip">The ip.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="providers">The providers.</param>
+        /// <returns></returns>
+        public bool Setup(string ip, int port, params object[] providers)
+        {
+            return Setup(new ServerConfig
+            {
+                Name = string.Format("{0}-{1}", this.GetType().Name, Math.Abs(this.GetHashCode())),
+                Ip = ip,
+                Port = port
+            }, providers);
+        }
         /// <summary>
         /// Setups with the specified config, used for programming setup
         /// </summary>
         /// <param name="config">The server config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="providers">The providers.</param>
         /// <returns></returns>
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, params object[] providers)
+        public bool Setup(IServerConfig config, params object[] providers)
         {
-            return Setup(config, socketServerFactory, providers);
+            return Setup(new RootConfig(), config, providers);
         }
 
         /// <summary>
@@ -368,12 +398,11 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="config">The server config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="providers">The providers.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, params object[] providers)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, params object[] providers)
         {
-            SetupBasic(rootConfig, config, socketServerFactory);
+            SetupBasic(rootConfig, config, GetProviderInstance<ISocketServerFactory>(providers));
 
             if (!SetupLogFactory(GetProviderInstance<ILogFactory>(providers)))
                 return false;
@@ -412,7 +441,7 @@ namespace SuperSocket.SocketBase
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory = null, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
         {
             return Setup(new RootConfig(), config, socketServerFactory, requestFilterFactory, logFactory, connectionFilters, commandLoaders);
         }
@@ -428,7 +457,7 @@ namespace SuperSocket.SocketBase
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory = null, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
         {
             SetupBasic(rootConfig, config, socketServerFactory);
 
@@ -447,6 +476,32 @@ namespace SuperSocket.SocketBase
                 return false;
 
             return SetupFinal();
+        }
+
+        /// <summary>
+        /// Setups with the specified ip and port.
+        /// </summary>
+        /// <param name="ip">The ip.</param>
+        /// <param name="port">The port.</param>
+        /// <param name="socketServerFactory">The socket server factory.</param>
+        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <param name="logFactory">The log factory.</param>
+        /// <param name="connectionFilters">The connection filters.</param>
+        /// <param name="commandLoaders">The command loaders.</param>
+        /// <returns>return setup result</returns>
+        public bool Setup(string ip, int port, ISocketServerFactory socketServerFactory = null, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        {
+            return Setup(new ServerConfig
+                            {
+                                Name = string.Format("{0}-{1}", this.GetType().Name, Math.Abs(this.GetHashCode())),
+                                Ip = ip,
+                                Port = port
+                            },
+                          socketServerFactory,
+                          requestFilterFactory,
+                          logFactory,
+                          connectionFilters,
+                          commandLoaders);
         }
 #endif
 
