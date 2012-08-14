@@ -19,7 +19,7 @@ namespace SuperSocket.QuickStart.TelnetServer_StartByConfig
 
             var bootstrap = BootstrapFactory.CreateBootstrap();
 
-            if (!bootstrap.Initialize(new ConsoleLogFactory()))
+            if (!bootstrap.Initialize())
             {
                 Console.WriteLine("Failed to initialize!");
                 Console.ReadKey();
