@@ -46,8 +46,6 @@
   <ItemGroup>
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="CountSpliterAppServer.cs" />
-    <Compile Include="CountSpliterRequestFilter.cs" />
-    <Compile Include="CountSpliterRequestFilterFactory.cs" />
     <Compile Include="MyRequetFilter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnitTest.cs" />

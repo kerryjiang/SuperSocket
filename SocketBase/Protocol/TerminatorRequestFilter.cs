@@ -132,7 +132,7 @@ namespace SuperSocket.SocketBase.Protocol
                 }
             }
 
-            Reset();
+            InternalReset();
 
             if(left == 0)
             {
@@ -146,13 +146,20 @@ namespace SuperSocket.SocketBase.Protocol
             return requestInfo;
         }
 
+        private void InternalReset()
+        {
+            m_ParsedLengthInBuffer = 0;
+            m_SearchState.Matched = 0;
+            base.Reset();
+        }
+
         /// <summary>
         /// Resets this instance.
         /// </summary>
         public override void Reset()
         {
-            m_ParsedLengthInBuffer = 0;
-            base.Reset();
+            InternalReset();
+            m_OffsetDelta = 0;
         }
 
         /// <summary>
