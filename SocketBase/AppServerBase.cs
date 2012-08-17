@@ -34,6 +34,9 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public IServerConfig Config { get; private set; }
 
+        //Server instance name
+        private string m_Name;
+
         /// <summary>
         /// Gets the certificate of current server.
         /// </summary>
@@ -280,6 +283,11 @@ namespace SuperSocket.SocketBase
             if (config == null)
                 throw new ArgumentNullException("config");
 
+            if (!string.IsNullOrEmpty(config.Name))
+                m_Name = config.Name;
+            else
+                m_Name = string.Format("{0}-{1}", this.GetType().Name, Math.Abs(this.GetHashCode()));
+
             Config = config;
 
             if (!m_ThreadPoolConfigured)
@@ -346,8 +354,11 @@ namespace SuperSocket.SocketBase
             if (plainConfig == null)
             {
                 //Using plain config model instead of .NET configuration element to improve performance
-                plainConfig = new ServerConfig();
-                Config.CopyPropertiesTo(plainConfig);
+                plainConfig = new ServerConfig(Config);
+
+                if (string.IsNullOrEmpty(plainConfig.Name))
+                    plainConfig.Name = Name;
+
                 Config = plainConfig;
             }
 
@@ -493,7 +504,6 @@ namespace SuperSocket.SocketBase
         {
             return Setup(new ServerConfig
                             {
-                                Name = string.Format("{0}-{1}", this.GetType().Name, Math.Abs(this.GetHashCode())),
                                 Ip = ip,
                                 Port = port
                             },
@@ -811,7 +821,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public string Name
         {
-            get { return Config.Name; }
+            get { return m_Name; }
         }
 
         private ISocketServer m_SocketServer;
