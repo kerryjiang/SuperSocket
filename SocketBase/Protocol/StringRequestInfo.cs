@@ -14,10 +14,10 @@ namespace SuperSocket.SocketBase.Protocol
         /// Initializes a new instance of the <see cref="StringRequestInfo"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="data">The data.</param>
+        /// <param name="body">The body.</param>
         /// <param name="parameters">The parameters.</param>
-        public StringRequestInfo(string key, string data, string[] parameters)
-            : base(key, data)
+        public StringRequestInfo(string key, string body, string[] parameters)
+            : base(key, body)
         {
             Parameters = parameters;
         }
