@@ -48,18 +48,33 @@ namespace SuperSocket.SocketBase.Protocol
 
             if (result < 0)
             {
-                m_ParsedLengthInBuffer += length;
-
-                if (m_ParsedLengthInBuffer >= session.Config.ReceiveBufferSize)
+                if (m_OffsetDelta != m_ParsedLengthInBuffer)
                 {
-                    this.AddArraySegment(readBuffer, offset + length - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer, toBeCopied);
-                    m_ParsedLengthInBuffer = 0;
+                    Buffer.BlockCopy(readBuffer, offset - m_ParsedLengthInBuffer, readBuffer, offset - m_OffsetDelta, m_ParsedLengthInBuffer + length);
+
+                    m_ParsedLengthInBuffer += length;
+                    m_OffsetDelta = m_ParsedLengthInBuffer;
+                }
+                else
+                {
+                    m_ParsedLengthInBuffer += length;
+
+                    if (m_ParsedLengthInBuffer >= session.Config.ReceiveBufferSize)
+                    {
+                        this.AddArraySegment(readBuffer, offset + length - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer, toBeCopied);
+                        m_ParsedLengthInBuffer = 0;
+                        m_OffsetDelta = 0;
+
+                        return NullRequestInfo;
+                    }
+
+                    m_OffsetDelta += length;
                 }
 
                 return NullRequestInfo;
             }
 
-            int findLen = result - offset;
+            var findLen = result - offset;
 
             left = length - findLen - (m_SearchState.Mark.Length - prevMatched);
 
@@ -119,6 +134,15 @@ namespace SuperSocket.SocketBase.Protocol
 
             Reset();
 
+            if(left == 0)
+            {
+                m_OffsetDelta = 0;
+            }
+            else
+            {
+                m_OffsetDelta += (length - left);
+            }
+
             return requestInfo;
         }
 
@@ -140,9 +164,12 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns></returns>
         protected abstract TRequestInfo Resolve(IList<byte> data, int offset, int length);
 
+        
+        private int m_OffsetDelta;
+
         int IOffsetAdapter.OffsetDelta
         {
-            get { return m_ParsedLengthInBuffer; }
+            get { return m_OffsetDelta; }
         }
     }
 
