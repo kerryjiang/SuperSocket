@@ -91,6 +91,7 @@
     <Compile Include="Logging\Log4NetLog.cs" />
     <Compile Include="Logging\Log4NetLogFactory.cs" />
     <Compile Include="Logging\LogFactoryBase.cs" />
+    <Compile Include="Protocol\BeginEndMarkRequestFilter.cs" />
     <Compile Include="Protocol\CountSpliterRequestFilter.cs" />
     <Compile Include="Protocol\CountSpliterRequestFilterFactory.cs" />
     <Compile Include="Protocol\FixedSizeRequestFilter.cs" />

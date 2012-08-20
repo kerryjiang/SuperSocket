@@ -112,8 +112,11 @@
     <Compile Include="PermformanceDataEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
+    <Compile Include="Protocol\BeginEndMarkRequestFilter.cs" />
     <Compile Include="Protocol\BinaryRequestInfo.cs" />
     <Compile Include="Protocol\CommandLineRequestFilterFactory.cs" />
+    <Compile Include="Protocol\CountSpliterRequestFilter.cs" />
+    <Compile Include="Protocol\CountSpliterRequestFilterFactory.cs" />
     <Compile Include="Protocol\DefaultRequestFilterFactory.cs" />
     <Compile Include="Protocol\FixedHeaderRequestFilter.cs" />
     <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
