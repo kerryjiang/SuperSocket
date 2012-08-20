@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
         /// <returns>the new created request filer assosiated with this socketSession</returns>
-        public IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
+        public virtual IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
         {
             return new TRequestFilter();
         }
