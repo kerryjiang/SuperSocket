@@ -29,6 +29,7 @@ namespace SuperSocket.Common
         public ConfigurationElementBase(bool nameRequired)
         {
             m_NameRequired = nameRequired;
+            Options = new NameValueCollection();
         }
 
         /// <summary>
@@ -71,11 +72,6 @@ namespace SuperSocket.Common
         /// </returns>
         protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
         {
-            if (Options == null)
-            {
-                Options = new NameValueCollection();
-            }
-
             Options.Add(name, value);
             return true;
         }
