@@ -10,7 +10,7 @@ using SuperSocket.SocketBase.Logging;
 namespace SuperSocket.SocketBase
 {
     /// <summary>
-    /// The bookstrap start result
+    /// The bootstrap start result
     /// </summary>
     public enum StartResult
     {
