@@ -136,7 +136,7 @@ namespace SuperSocket.SocketEngine
                         factories.AddRange(currentFactories);
                 }
 
-                var logFactoryName = c.LogFactory;
+                var logFactoryName = serverConfig.LogFactory;
 
                 if (!string.IsNullOrEmpty(logFactoryName))
                 {
