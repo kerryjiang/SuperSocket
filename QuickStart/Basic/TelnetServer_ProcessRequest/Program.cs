@@ -30,7 +30,7 @@ namespace TelnetServer_ProcessRequest
             }
 
             appServer.NewSessionConnected += new Action<AppSession>(appServer_NewSessionConnected);
-            appServer.RequestHandler += new RequestHandler<AppSession, SuperSocket.SocketBase.Protocol.StringRequestInfo>(appServer_RequestHandler);
+            appServer.RequestHandler += new RequestHandler<AppSession, StringRequestInfo>(appServer_RequestHandler);
 
             Console.WriteLine();
 
@@ -59,7 +59,7 @@ namespace TelnetServer_ProcessRequest
 
         static void appServer_RequestHandler(AppSession session, StringRequestInfo requestInfo)
         {
-            switch (requestInfo.Key.ToLower())
+            switch (requestInfo.Key.ToUpper())
             {
                 case("ECHO"):
                     session.Send(requestInfo.Body);

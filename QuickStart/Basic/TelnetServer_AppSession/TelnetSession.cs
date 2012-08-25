@@ -26,6 +26,7 @@ namespace SuperSocket.QuickStart.TelnetServer_AppSession
 
         protected override void OnSessionClosed(CloseReason reason)
         {
+            //add you logics which will be executed after the session is closed
             base.OnSessionClosed(reason);
         }
     }
