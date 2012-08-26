@@ -57,6 +57,10 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Facility\SuperSocket.Facility.csproj">
+      <Project>{01987BAC-C498-44DD-B274-62EA2506B51D}</Project>
+      <Name>SuperSocket.Facility</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\SocketBase\SuperSocket.SocketBase.csproj">
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
       <Name>SuperSocket.SocketBase</Name>

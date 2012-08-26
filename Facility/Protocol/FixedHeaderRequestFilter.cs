@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
-namespace SuperSocket.SocketBase.Protocol
+namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
     /// FixedHeaderRequestFilter,

@@ -1,4 +1,9 @@
-﻿
+﻿using System;
+using System.Text;
+using SuperSocket.Common;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Protocol;
+
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>

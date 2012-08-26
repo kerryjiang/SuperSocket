@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Command;
+using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
