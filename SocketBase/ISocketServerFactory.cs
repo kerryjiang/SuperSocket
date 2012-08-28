@@ -21,9 +21,8 @@ namespace SuperSocket.SocketBase
         /// <param name="appServer">The app server.</param>
         /// <param name="listeners">The listeners.</param>
         /// <param name="config">The config.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
         /// <returns></returns>
-        ISocketServer CreateSocketServer<TRequestInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+        ISocketServer CreateSocketServer<TRequestInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config)
             where TRequestInfo : IRequestInfo;
     }
 }

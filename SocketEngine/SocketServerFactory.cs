@@ -23,13 +23,18 @@ namespace SuperSocket.SocketEngine
         /// <param name="appServer">The app server.</param>
         /// <param name="listeners">The listeners.</param>
         /// <param name="config">The config.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
         /// <returns></returns>
-        public ISocketServer CreateSocketServer<TRequestInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config, IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+        public ISocketServer CreateSocketServer<TRequestInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config)
             where TRequestInfo : IRequestInfo
         {
-            if (requestFilterFactory == null)
-                throw new ArgumentNullException("requestFilterFactory");
+            if (appServer == null)
+                throw new ArgumentNullException("appServer");
+
+            if (listeners == null)
+                throw new ArgumentNullException("listeners");
+
+            if (config == null)
+                throw new ArgumentNullException("config");
 
             switch(config.Mode)
             {
