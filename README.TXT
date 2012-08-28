@@ -1,4 +1,5 @@
 SuperSocket
+===========================================
 
 SuperSocket is a light weight extensible socket application framework.
 You can use it to build a command based server side socket application easily without thinking about how to use socket,
@@ -10,7 +11,7 @@ you must be able to use SuperSocket to build your socket application as a part o
 
 
 Project homepage:	http://supersocket.codeplex.com/
-SVN address:		https://SuperSocket.svn.codeplex.com/svn
+Git URL:		https://git01.codeplex.com/supersocket
 Author email address:	kerry-jiang@hotmail.com
 
 
