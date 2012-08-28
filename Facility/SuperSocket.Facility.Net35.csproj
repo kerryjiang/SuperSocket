@@ -55,6 +55,9 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="HttpBase\HttpRequestFilterBase.cs" />
+    <Compile Include="HttpBase\HttpRequestInfoBase.cs" />
+    <Compile Include="HttpBase\MimeHeaderHelper.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
     <Compile Include="PolicyServer\PolicyRequestFilter.cs" />
     <Compile Include="PolicyServer\PolicyRequestFilterFactory.cs" />
@@ -78,6 +81,7 @@
       <Name>SuperSocket.SocketBase.Net35</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -51,6 +51,9 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="HttpBase\HttpRequestFilterBase.cs" />
+    <Compile Include="HttpBase\HttpRequestInfoBase.cs" />
+    <Compile Include="HttpBase\MimeHeaderHelper.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
     <Compile Include="PolicyServer\PolicyRequestFilter.cs" />
     <Compile Include="PolicyServer\PolicyRequestFilterFactory.cs" />
