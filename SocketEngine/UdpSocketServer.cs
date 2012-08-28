@@ -43,7 +43,7 @@ namespace SuperSocket.SocketEngine
 
             m_IsUdpRequestInfo = typeof(TRequestInfo).IsSubclassOf(typeof(UdpRequestInfo));
 
-            m_UdpRequestFilter = ((IRequestFilterFactory<TRequestInfo>)appServer.RequestFilterFactory).CreateFilter(appServer, null);
+            m_UdpRequestFilter = ((IRequestFilterFactory<TRequestInfo>)appServer.RequestFilterFactory).CreateFilter(appServer, null, null);
         }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                requestInfo = this.m_UdpRequestFilter.Filter(null, receivedData, 0, receivedData.Length, false, out left);
+                requestInfo = this.m_UdpRequestFilter.Filter(receivedData, 0, receivedData.Length, false, out left);
             }
             catch (Exception exc)
             {

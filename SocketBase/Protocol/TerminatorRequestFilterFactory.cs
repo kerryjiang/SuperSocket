@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 
 namespace SuperSocket.SocketBase.Protocol
@@ -52,13 +53,14 @@ namespace SuperSocket.SocketBase.Protocol
         /// Creates the request filter.
         /// </summary>
         /// <param name="appServer">The app server.</param>
-        /// <param name="socketSession">The socket session.</param>
+        /// <param name="appSession">The app session.</param>
+        /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns>
         /// the new created request filer assosiated with this socketSession
         /// </returns>
-        public virtual IRequestFilter<StringRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
+        public virtual IRequestFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
-            return new TerminatorRequestFilter(m_Terminator, m_Encoding, m_RequestInfoParser);
+            return new TerminatorRequestFilter(appSession, m_Terminator, m_Encoding, m_RequestInfoParser);
         }
     }
 }

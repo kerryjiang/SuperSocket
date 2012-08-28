@@ -55,14 +55,13 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Filters received data of the specific session into request info.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
         /// <param name="offset">The offset of the current received data in this read buffer.</param>
         /// <param name="length">The length of the current received data.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left, the length of the data which hasn't been parsed.</param>
         /// <returns></returns>
-        public abstract TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
+        public abstract TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
 
 
         /// <summary>

@@ -88,7 +88,7 @@ namespace SuperSocket.SocketEngine
             SocketAsyncEventArgsProxy socketEventArgsProxy;
             if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
             {
-                AppServer.AsyncRun(() => client.SafeClose());
+                AppServer.AsyncRun(client.SafeClose);
                 if (AppServer.Logger.IsErrorEnabled)
                     AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
                 return;
@@ -107,11 +107,11 @@ namespace SuperSocket.SocketEngine
             {
                 socketEventArgsProxy.Reset();
                 this.m_ReadWritePool.Push(socketEventArgsProxy);
-                AppServer.AsyncRun(() => client.SafeClose());
+                AppServer.AsyncRun(client.SafeClose);
                 return;
             }
 
-            session.Closed += session_Closed;
+            session.Closed += SessionClosed;
             AppServer.AsyncRun(() => session.Start());
         }
 
@@ -130,9 +130,9 @@ namespace SuperSocket.SocketEngine
             socketSession.Start();
         }
 
-        void session_Closed(ISocketSession session, CloseReason reason)
+        void SessionClosed(ISocketSession session, CloseReason reason)
         {
-            IAsyncSocketSessionBase socketSession = session as IAsyncSocketSessionBase;
+            var socketSession = session as IAsyncSocketSessionBase;
             if (socketSession != null && this.m_ReadWritePool != null)
             {
                 socketSession.SocketAsyncProxy.Reset();
@@ -154,12 +154,8 @@ namespace SuperSocket.SocketEngine
 
                 base.Stop();
 
-                if (m_ReadWritePool != null)
-                    m_ReadWritePool = null;
-
-                if (m_BufferManager != null)
-                    m_BufferManager = null;
-
+                m_ReadWritePool = null;
+                m_BufferManager = null;
                 IsRunning = false;
             }
         }

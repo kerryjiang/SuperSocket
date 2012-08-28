@@ -37,14 +37,13 @@ namespace SuperSocket.Facility.Protocol
         /// <summary>
         /// Filters the specified session.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        public override TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             left = 0;
 

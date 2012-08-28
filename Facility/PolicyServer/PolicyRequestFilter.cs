@@ -26,13 +26,12 @@ namespace SuperSocket.Facility.PolicyServer
         /// <summary>
         /// Filters the buffer after the server receive the enough size of data.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <returns></returns>
-        protected override BinaryRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied)
+        protected override BinaryRequestInfo ProcessMatchedRequest(byte[] buffer, int offset, int length, bool toBeCopied)
         {
             byte[] data = new byte[this.Size];
             Buffer.BlockCopy(buffer, offset, data, 0, data.Length);

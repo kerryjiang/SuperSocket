@@ -285,6 +285,10 @@ namespace SuperSocket.Test
                     for (int i = 0; i < 10; i++)
                     {
                         string commandName = Guid.NewGuid().ToString().Substring(i, 3);
+
+                        if(commandName.Equals("325"))
+                            continue;
+
                         string command = commandName + " " + DateTime.Now;
                         writer.WriteLine(command);
                         writer.Flush();

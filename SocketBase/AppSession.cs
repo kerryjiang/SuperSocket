@@ -537,7 +537,7 @@ namespace SuperSocket.SocketBase
                 return null;
             }
 
-            var requestInfo = m_RequestFilter.Filter(this, readBuffer, offset, length, toBeCopied, out left);
+            var requestInfo = m_RequestFilter.Filter(readBuffer, offset, length, toBeCopied, out left);
 
             var offsetAdapter = m_RequestFilter as IOffsetAdapter;
 

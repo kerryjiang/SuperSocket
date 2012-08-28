@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.Facility.PolicyServer
 {
@@ -29,9 +31,10 @@ namespace SuperSocket.Facility.PolicyServer
         /// Creates the filter.
         /// </summary>
         /// <param name="appServer">The app server.</param>
-        /// <param name="socketSession">The socket session.</param>
+        /// <param name="appSession">The app session.</param>
+        /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IRequestFilter<BinaryRequestInfo> CreateFilter(SocketBase.IAppServer appServer, SocketBase.ISocketSession socketSession)
+        public IRequestFilter<BinaryRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             return new PolicyRequestFilter(FixRequestSize);
         }

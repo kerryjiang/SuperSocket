@@ -15,30 +15,44 @@ namespace SuperSocket.SocketBase.Protocol
     {
         private readonly SearchMarkState<byte> m_SearchState;
 
-        private static readonly TRequestInfo NullRequestInfo = default(TRequestInfo);
+        private readonly IAppSession m_Session;
+
+        /// <summary>
+        /// Gets the session assosiated with the request filter.
+        /// </summary>
+        protected IAppSession Session
+        {
+            get { return m_Session; }
+        }
+
+        /// <summary>
+        /// Null RequestInfo
+        /// </summary>
+        protected static readonly TRequestInfo NullRequestInfo = default(TRequestInfo);
 
         private int m_ParsedLengthInBuffer = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorRequestFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
+        /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
-        public TerminatorRequestFilter(byte[] terminator)
+        protected TerminatorRequestFilter(IAppSession session, byte[] terminator)
         {
+            m_Session = session;
             m_SearchState = new SearchMarkState<byte>(terminator);
         }
 
         /// <summary>
         /// Filters received data of the specific session into request info.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
         /// <param name="offset">The offset of the current received data in this read buffer.</param>
         /// <param name="length">The length of the current received data.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left, the length of the data which hasn't been parsed.</param>
         /// <returns>return the parsed TRequestInfo</returns>
-        public override TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             left = 0;
 
@@ -59,7 +73,7 @@ namespace SuperSocket.SocketBase.Protocol
                 {
                     m_ParsedLengthInBuffer += length;
 
-                    if (m_ParsedLengthInBuffer >= session.Config.ReceiveBufferSize)
+                    if (m_ParsedLengthInBuffer >= m_Session.Config.ReceiveBufferSize)
                     {
                         this.AddArraySegment(readBuffer, offset + length - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer, toBeCopied);
                         m_ParsedLengthInBuffer = 0;
@@ -191,21 +205,23 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorRequestFilter"/> class.
         /// </summary>
+        /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
-        public TerminatorRequestFilter(byte[] terminator, Encoding encoding)
-            : this(terminator, encoding, BasicRequestInfoParser.DefaultInstance)
+        public TerminatorRequestFilter(IAppSession session, byte[] terminator, Encoding encoding)
+            : this(session, terminator, encoding, BasicRequestInfoParser.DefaultInstance)
         {
             
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorRequestFilter"/> class.
         /// </summary>
+        /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="requestParser">The request parser.</param>
-        public TerminatorRequestFilter(byte[] terminator, Encoding encoding, IRequestInfoParser<StringRequestInfo> requestParser)
-            : base(terminator)
+        public TerminatorRequestFilter(IAppSession session, byte[] terminator, Encoding encoding, IRequestInfoParser<StringRequestInfo> requestParser)
+            : base(session, terminator)
         {
             m_Encoding = encoding;
             m_RequestParser = requestParser;

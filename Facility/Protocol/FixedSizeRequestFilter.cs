@@ -42,20 +42,19 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Filters the specified session.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="readBuffer">The read buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <param name="left">The left.</param>
         /// <returns></returns>
-        public virtual TRequestInfo Filter(IAppSession session, byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public virtual TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
         {
             left = m_ParsedLength + length - m_Size;
 
             if (left >= 0)
             {
-                var requestInfo = ProcessMatchedRequest(session, readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied);
+                var requestInfo = ProcessMatchedRequest(readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied);
                 InternalReset();
                 return requestInfo;
             }
@@ -71,13 +70,12 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Filters the buffer after the server receive the enough size of data.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="buffer">The buffer.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
         /// <returns></returns>
-        protected abstract TRequestInfo ProcessMatchedRequest(IAppSession session, byte[] buffer, int offset, int length, bool toBeCopied);
+        protected abstract TRequestInfo ProcessMatchedRequest(byte[] buffer, int offset, int length, bool toBeCopied);
 
         /// <summary>
         /// Gets the size of the left buffer.

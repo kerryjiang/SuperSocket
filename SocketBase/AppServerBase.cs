@@ -697,7 +697,7 @@ namespace SuperSocket.SocketBase
         {
             try
             {
-                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TRequestInfo>(this, m_Listeners, Config, RequestFilterFactory);
+                m_SocketServer = m_SocketServerFactory.CreateSocketServer<TRequestInfo>(this, m_Listeners, Config);
                 return m_SocketServer != null;
             }
             catch (Exception e)
@@ -1106,7 +1106,7 @@ namespace SuperSocket.SocketBase
             if (!RegisterSession(socketSession.SessionID, appSession))
                 return NullAppSession;
 
-            appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this, socketSession));
+            appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this, appSession, socketSession.RemoteEndPoint));
             socketSession.Closed += OnSocketSessionClosed;
 
             if (Logger.IsInfoEnabled)

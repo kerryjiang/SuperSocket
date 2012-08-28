@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
@@ -17,9 +18,10 @@ namespace SuperSocket.Facility.Protocol
         /// Creates the filter.
         /// </summary>
         /// <param name="appServer">The app server.</param>
-        /// <param name="socketSession">The socket session.</param>
+        /// <param name="appSession">The app session.</param>
+        /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer, ISocketSession socketSession)
+        public IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             var config = appServer.Config;
 
