@@ -129,26 +129,27 @@ namespace SuperSocket.SocketEngine
 
         void AceptNewClient(SocketAsyncEventArgs e)
         {
-            if (e.SocketError == SocketError.Success)
+            if (e.SocketError != SocketError.Success)
             {
-                var client = e.AcceptSocket;
+                m_MaxConnectionSemaphore.Release();
                 m_TcpClientConnected.Set();
+                return;
+            }
 
-                var session = RegisterSession(client, new AsyncStreamSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
+            var client = e.AcceptSocket;
+            m_TcpClientConnected.Set();
 
-                if (session != null)
-                {
-                    session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
-                    session.Start();
-                }
-                else
-                {
-                    Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
-                }
+            var session = RegisterSession(client, new AsyncStreamSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
+
+            if (session != null)
+            {
+                session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
+                session.Start();
             }
             else
             {
-                m_TcpClientConnected.Set();
+                Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                m_MaxConnectionSemaphore.Release();
             }
         }
 

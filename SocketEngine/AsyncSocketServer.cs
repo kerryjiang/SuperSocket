@@ -169,38 +169,37 @@ namespace SuperSocket.SocketEngine
         }
 
         void AceptNewClient(SocketAsyncEventArgs e)
-        {            
-            if (e.SocketError == SocketError.Success)
+        {
+            if (e.SocketError != SocketError.Success)
             {
-                var client = e.AcceptSocket;
+                m_MaxConnectionSemaphore.Release();
                 m_TcpClientConnected.Set();
+                return;
+            }
 
+            var client = e.AcceptSocket;
+            m_TcpClientConnected.Set();
+
+            var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
+
+            if (session != null)
+            {
                 //Get the socket for the accepted client connection and put it into the 
                 //ReadEventArg object user token
                 SocketAsyncEventArgsProxy socketEventArgsProxy;
-                if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
-                {
-                    AppServer.Logger.LogError("There is no enough buffer block to arrange to new accepted client!");
-                    return;
-                }
-
-                var session = RegisterSession(client, new AsyncSocketSession<TAppSession, TCommandInfo>(client, Protocol.CreateCommandReader(AppServer)));
-                
-                if (session != null)
+                if (m_ReadWritePool.TryPop(out socketEventArgsProxy))
                 {
                     session.SocketAsyncProxy = socketEventArgsProxy;
                     session.Closed += new EventHandler<SocketSessionClosedEventArgs>(session_Closed);
                     session.Start();
+                    return;
                 }
-                else
-                {
-                    Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
-                }
+
+                AppServer.Logger.LogError("There is no enough buffer block to arrange to new accepted client!");
             }
-            else
-            {
-                m_TcpClientConnected.Set();
-            }
+
+            Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+            m_MaxConnectionSemaphore.Release();
         }
 
         void session_Closed(object sender, SocketSessionClosedEventArgs e)
