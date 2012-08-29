@@ -136,12 +136,14 @@ namespace SuperSocket.SocketEngine
                 catch (Exception e)
                 {
                     AppServer.Logger.LogError(e);
+                    m_MaxConnectionSemaphore.Release();
                     continue;
                 }
 
                 if (session == null)
                 {
                     Async.Run(() => client.SafeCloseClientSocket(AppServer.Logger));
+                    m_MaxConnectionSemaphore.Release();
                     continue;
                 }
 
