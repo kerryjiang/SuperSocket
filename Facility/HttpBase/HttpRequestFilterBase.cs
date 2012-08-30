@@ -80,20 +80,9 @@ namespace SuperSocket.Facility.HttpBase
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected override TRequestInfo Resolve(IList<byte> data, int offset, int length)
+        protected override TRequestInfo ProcessMatchedRequest(IList<byte> data, int offset, int length)
         {
-            string header;
-
-            var dataArray = data as byte[];
-
-            if(dataArray != null)
-            {
-                header = Encoding.UTF8.GetString(dataArray, offset, length);
-            }
-            else
-            {
-                header = ((ArraySegmentList)data).Decode(Encoding.UTF8);
-            }
+            string header = DecodeString(data, offset, length, Encoding.UTF8);
 
             var headerItems = new NameValueCollection();
             MimeHeaderHelper.ParseHttpHeader(header, headerItems);

@@ -99,11 +99,11 @@ namespace SuperSocket.SocketBase.Protocol
                 if(this.BufferSegments != null && this.BufferSegments.Count > 0)
                 {
                     this.AddArraySegment(readBuffer, offset - m_ParsedLengthInBuffer, findLen + m_ParsedLengthInBuffer, toBeCopied);
-                    requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                    requestInfo = ProcessMatchedRequest(BufferSegments, 0, BufferSegments.Count);
                 }
                 else
                 {
-                    requestInfo = Resolve(readBuffer, offset - m_ParsedLengthInBuffer, findLen + m_ParsedLengthInBuffer);
+                    requestInfo = ProcessMatchedRequest(readBuffer, offset - m_ParsedLengthInBuffer, findLen + m_ParsedLengthInBuffer);
                 }
             }
             else if (prevMatched > 0)
@@ -113,36 +113,36 @@ namespace SuperSocket.SocketBase.Protocol
                     if (m_ParsedLengthInBuffer < prevMatched)
                     {
                         BufferSegments.TrimEnd(prevMatched - m_ParsedLengthInBuffer);
-                        requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                        requestInfo = ProcessMatchedRequest(BufferSegments, 0, BufferSegments.Count);
                     }
                     else
                     {
                         if (this.BufferSegments != null && this.BufferSegments.Count > 0)
                         {
                             this.AddArraySegment(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer - prevMatched, toBeCopied);
-                            requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                            requestInfo = ProcessMatchedRequest(BufferSegments, 0, BufferSegments.Count);
                         }
                         else
                         {
-                            requestInfo = Resolve(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer - prevMatched);
+                            requestInfo = ProcessMatchedRequest(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer - prevMatched);
                         }
                     }
                 }
                 else
                 {
                     BufferSegments.TrimEnd(prevMatched);
-                    requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                    requestInfo = ProcessMatchedRequest(BufferSegments, 0, BufferSegments.Count);
                 }
             }
             else
             {
                 if (this.BufferSegments != null && this.BufferSegments.Count > 0)
                 {
-                    requestInfo = Resolve(BufferSegments, 0, BufferSegments.Count);
+                    requestInfo = ProcessMatchedRequest(BufferSegments, 0, BufferSegments.Count);
                 }
                 else
                 {
-                    requestInfo = Resolve(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer);
+                    requestInfo = ProcessMatchedRequest(readBuffer, offset - m_ParsedLengthInBuffer, m_ParsedLengthInBuffer);
                 }
             }
 
@@ -183,7 +183,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo Resolve(IList<byte> data, int offset, int length);
+        protected abstract TRequestInfo ProcessMatchedRequest(IList<byte> data, int offset, int length);
 
         
         private int m_OffsetDelta;
@@ -191,6 +191,29 @@ namespace SuperSocket.SocketBase.Protocol
         int IOffsetAdapter.OffsetDelta
         {
             get { return m_OffsetDelta; }
+        }
+
+        /// <summary>
+        /// Decodes the byte list to string with the specific encoding.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
+        protected string DecodeString(IList<byte> data, int offset, int length, Encoding encoding)
+        {
+            var segmentList = data as ArraySegmentList;
+
+            if (segmentList != null)
+                return ((ArraySegmentList)data).Decode(encoding, offset, length);
+
+            var array = data as byte[];
+
+            if (array != null)
+                return encoding.GetString(array, offset, length);
+
+            return encoding.GetString(data.CloneRange(offset, length));
         }
     }
 
@@ -234,22 +257,12 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected override StringRequestInfo Resolve(IList<byte> data, int offset, int length)
+        protected override StringRequestInfo ProcessMatchedRequest(IList<byte> data, int offset, int length)
         {
             if(length == 0)
                 return m_RequestParser.ParseRequestInfo(string.Empty);
 
-            var segmentList = data as ArraySegmentList;
-
-            if (segmentList != null)
-                return m_RequestParser.ParseRequestInfo(((ArraySegmentList)data).Decode(m_Encoding, offset, length));
-
-            var array = data as byte[];
-
-            if (array != null)
-                return m_RequestParser.ParseRequestInfo(m_Encoding.GetString(array, offset, length));
-
-            return m_RequestParser.ParseRequestInfo(m_Encoding.GetString(data.CloneRange(offset, length)));
+            return m_RequestParser.ParseRequestInfo(DecodeString(data, offset, length, m_Encoding));
         }
     }
 }
