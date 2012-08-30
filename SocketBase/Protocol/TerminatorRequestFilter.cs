@@ -176,6 +176,13 @@ namespace SuperSocket.SocketBase.Protocol
             m_OffsetDelta = 0;
         }
 
+        
+        private TRequestInfo ProcessMatchedRequest(ArraySegmentList data, int offset, int length)
+        {
+            var targetData = data.ToArrayData(offset, length);
+            return ProcessMatchedRequest(targetData, 0, length);
+        }
+
         /// <summary>
         /// Resolves the specified data to TRequestInfo.
         /// </summary>
@@ -183,7 +190,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo ProcessMatchedRequest(IList<byte> data, int offset, int length);
+        protected abstract TRequestInfo ProcessMatchedRequest(byte[] data, int offset, int length);
 
         
         private int m_OffsetDelta;
@@ -191,29 +198,6 @@ namespace SuperSocket.SocketBase.Protocol
         int IOffsetAdapter.OffsetDelta
         {
             get { return m_OffsetDelta; }
-        }
-
-        /// <summary>
-        /// Decodes the byte list to string with the specific encoding.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="encoding">The encoding.</param>
-        /// <returns></returns>
-        protected string DecodeString(IList<byte> data, int offset, int length, Encoding encoding)
-        {
-            var segmentList = data as ArraySegmentList;
-
-            if (segmentList != null)
-                return ((ArraySegmentList)data).Decode(encoding, offset, length);
-
-            var array = data as byte[];
-
-            if (array != null)
-                return encoding.GetString(array, offset, length);
-
-            return encoding.GetString(data.CloneRange(offset, length));
         }
     }
 
@@ -257,12 +241,12 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <returns></returns>
-        protected override StringRequestInfo ProcessMatchedRequest(IList<byte> data, int offset, int length)
+        protected override StringRequestInfo ProcessMatchedRequest(byte[] data, int offset, int length)
         {
             if(length == 0)
                 return m_RequestParser.ParseRequestInfo(string.Empty);
 
-            return m_RequestParser.ParseRequestInfo(DecodeString(data, offset, length, m_Encoding));
+            return m_RequestParser.ParseRequestInfo(m_Encoding.GetString(data, offset, length));
         }
     }
 }
