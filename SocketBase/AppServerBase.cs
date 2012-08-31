@@ -1183,7 +1183,8 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The reason.</param>
         private void OnSocketSessionClosed(ISocketSession session, CloseReason reason)
         {
-            if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)
+            //Even if LogBasicSessionActivity is false, we also log the unexpected closing because the close reason probably be useful
+            if (Logger.IsInfoEnabled && (Config.LogBasicSessionActivity || (reason != CloseReason.ServerClosing && reason != CloseReason.ClientClosing && reason != CloseReason.ServerShutdown)))
                 Logger.Info(session, string.Format("This session was closed for {0}!", reason));
 
             OnSessionClosed((TAppSession)session.AppSession, reason);
