@@ -1109,7 +1109,7 @@ namespace SuperSocket.SocketBase
             appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this, appSession, socketSession.RemoteEndPoint));
             socketSession.Closed += OnSocketSessionClosed;
 
-            if (Logger.IsInfoEnabled)
+            if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)
                 Logger.InfoFormat("A new session connected!");
 
             OnNewSessionConnected(appSession);
@@ -1183,7 +1183,7 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The reason.</param>
         private void OnSocketSessionClosed(ISocketSession session, CloseReason reason)
         {
-            if (Logger.IsInfoEnabled)
+            if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)
                 Logger.Info(session, string.Format("This session was closed for {0}!", reason));
 
             OnSessionClosed((TAppSession)session.AppSession, reason);

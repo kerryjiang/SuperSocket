@@ -155,6 +155,19 @@ namespace SuperSocket.SocketEngine.Configuration
             get { return (bool)this["logCommand"]; }
         }
 
+
+        /// <summary>
+        /// Gets a value indicating whether [log basic session activity like connected and disconnected].
+        /// </summary>
+        /// <value>
+        /// 	<c>true</c> if [log basic session activity]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("logBasicSessionActivity", IsRequired = false, DefaultValue = true)]
+        public bool LogBasicSessionActivity
+        {
+            get { return (bool)this["logBasicSessionActivity"]; }
+        }
+
         /// <summary>
         /// Gets a value indicating whether clear idle session.
         /// </summary>
