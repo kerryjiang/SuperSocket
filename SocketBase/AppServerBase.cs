@@ -634,31 +634,36 @@ namespace SuperSocket.SocketBase
                     return false;
                 }
 
-                if (configProtocol != SslProtocols.None)
-                {
-                    try
-                    {
-                        var certificate = GetCertificate(config);
-
-                        if (certificate == null)
-                            return false;
-
-                        Certificate = certificate;
-                    }
-                    catch (Exception e)
-                    {
-                        if (Logger.IsErrorEnabled)
-                            Logger.Error("Failed to initialize certificate!", e);
-
-                        return false;
-                    }
-                }
-
                 BasicSecurity = configProtocol;
             }
             else
             {
                 BasicSecurity = SslProtocols.None;
+            }
+
+            try
+            {
+                var certificate = GetCertificate(config);
+
+                if (certificate != null)
+                {
+                    Certificate = certificate;
+                }
+                else if(BasicSecurity != SslProtocols.None)
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("Certificate is required in this security mode!");
+
+                    return false;
+                }
+                
+            }
+            catch (Exception e)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Failed to initialize certificate!", e);
+
+                return false;
             }
 
             return true;
@@ -674,7 +679,7 @@ namespace SuperSocket.SocketBase
             if (config.Certificate == null)
             {
                 if (Logger.IsErrorEnabled)
-                    Logger.Error("There is no certificate defined!");
+                    Logger.Error("There is no certificate configured!");
                 return null;
             }
 
