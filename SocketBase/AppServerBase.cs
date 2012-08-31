@@ -237,9 +237,6 @@ namespace SuperSocket.SocketBase
                         Logger.LogError("There is no certificate defined and enabled!");
                         return false;
                     }
-
-                    if (!SetupCertificate(config))
-                        return false;
                 }
 
                 BasicSecurity = configProtocol;
@@ -247,6 +244,17 @@ namespace SuperSocket.SocketBase
             else
             {
                 BasicSecurity = SslProtocols.None;
+            }
+
+            if (config.Certificate != null && !string.IsNullOrEmpty(config.Certificate.FilePath) && config.Certificate.IsEnabled)
+            {
+                SetupCertificate(config);
+            }
+
+            if(BasicSecurity != SslProtocols.None && Certificate == null)
+            {
+                Logger.LogError("Certificate is required in this security mode!");
+                return false;
             }
 
             return true;
