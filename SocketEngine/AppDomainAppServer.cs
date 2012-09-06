@@ -152,10 +152,6 @@ namespace SuperSocket.SocketEngine
                 m_AppServer.Stop();
                 m_AppServer = null;
             }
-            catch (Exception)
-            {
-                throw;
-            }
             finally
             {
                 try
