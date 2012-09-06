@@ -14,9 +14,9 @@ namespace SuperSocket.SocketBase.Protocol
         /// Initializes a new instance of the <see cref="BinaryRequestInfo"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
-        /// <param name="data">The data.</param>
-        public BinaryRequestInfo(string key, byte[] data)
-            : base(key, data)
+        /// <param name="body">The body.</param>
+        public BinaryRequestInfo(string key, byte[] body)
+            : base(key, body)
         {
 
         }
