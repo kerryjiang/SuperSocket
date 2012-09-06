@@ -643,7 +643,7 @@ namespace SuperSocket.SocketBase
 
             try
             {
-                var certificate = GetCertificate(config);
+                var certificate = GetCertificate(config.Certificate);
 
                 if (certificate != null)
                 {
@@ -672,26 +672,26 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the certificate from server configuguration.
         /// </summary>
-        /// <param name="config">The config.</param>
+        /// <param name="certificate">The certificate config.</param>
         /// <returns></returns>
-        protected virtual X509Certificate GetCertificate(IServerConfig config)
+        protected virtual X509Certificate GetCertificate(ICertificateConfig certificate)
         {
-            if (config.Certificate == null)
+            if (certificate == null)
             {
-                if (Logger.IsErrorEnabled)
+                if (BasicSecurity != SslProtocols.None && Logger.IsErrorEnabled)
                     Logger.Error("There is no certificate configured!");
                 return null;
             }
 
-            if (string.IsNullOrEmpty(config.Certificate.FilePath) && string.IsNullOrEmpty(config.Certificate.Thumbprint))
+            if (string.IsNullOrEmpty(certificate.FilePath) && string.IsNullOrEmpty(certificate.Thumbprint))
             {
-                if (Logger.IsErrorEnabled)
+                if (BasicSecurity != SslProtocols.None && Logger.IsErrorEnabled)
                     Logger.Error("You should define certificate node and either attribute 'filePath' or 'thumbprint' is required!");
 
                 return null;
             }
 
-            return CertificateManager.Initialize(config.Certificate);
+            return CertificateManager.Initialize(certificate);
         }
 
         /// <summary>
