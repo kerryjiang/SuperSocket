@@ -41,4 +41,37 @@ namespace SuperSocket.Facility.Protocol
     {
 
     }
+
+    /// <summary>
+    /// RequestFilterFactory for CountSpliterRequestFilter
+    /// </summary>
+    public class  CountSpliterRequestFilterFactory : IRequestFilterFactory<StringRequestInfo>
+    {
+        private readonly byte m_Spliter;
+
+        private readonly int m_SpliterCount;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CountSpliterRequestFilterFactory"/> class.
+        /// </summary>
+        /// <param name="spliter">The spliter.</param>
+        /// <param name="count">The count.</param>
+        public CountSpliterRequestFilterFactory(byte spliter, int count)
+        {
+            m_Spliter = spliter;
+            m_SpliterCount = count;
+        }
+
+        /// <summary>
+        /// Creates the filter.
+        /// </summary>
+        /// <param name="appServer">The app server.</param>
+        /// <param name="appSession">The app session.</param>
+        /// <param name="remoteEndPoint">The remote end point.</param>
+        /// <returns></returns>
+        public IRequestFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        {
+            return new CountSpliterRequestFilter(m_Spliter, m_SpliterCount);
+        }
+    }
 }
