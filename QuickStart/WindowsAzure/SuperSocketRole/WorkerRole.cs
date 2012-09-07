@@ -42,9 +42,7 @@ namespace SuperSocket.SuperSocketRole
             // For information on handling configuration changes
             // see the MSDN topic at http://go.microsoft.com/fwlink/?LinkId=166357.
 
-            var serverConfig = ConfigurationManager.GetSection("socketServer") as SocketServiceConfig;
-
-            m_Bootstrap = BootstrapFactory.CreateBootstrap(serverConfig);
+            m_Bootstrap = BootstrapFactory.CreateBootstrap();
 
             if (!m_Bootstrap.Initialize(RoleEnvironment.CurrentRoleInstance.InstanceEndpoints.ToDictionary(p => p.Key, p => p.Value.IPEndpoint)))
             {
