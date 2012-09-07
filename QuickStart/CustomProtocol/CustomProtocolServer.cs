@@ -12,7 +12,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
     /// It's a protocol like that:
     /// +-------+---+-------------------------------+
     /// |request| l |                               |
-    /// | name  | e |    request data               |
+    /// | name  | e |    request body               |
     /// |  (4)  | n |                               |
     /// |       |(2)|                               |
     /// +-------+---+-------------------------------+
