@@ -187,6 +187,16 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
+        /// Initializes the bootstrap with a listen endpoint replacement dictionary
+        /// </summary>
+        /// <param name="listenEndPointReplacement">The listen end point replacement.</param>
+        /// <returns></returns>
+        public bool Initialize(IDictionary<string, System.Net.IPEndPoint> listenEndPointReplacement)
+        {
+            return m_InnerBootstrap.Initialize(listenEndPointReplacement);
+        }
+
+        /// <summary>
         /// Initializes the bootstrap with the configuration
         /// </summary>
         /// <param name="serverConfigResolver">The server config resolver.</param>

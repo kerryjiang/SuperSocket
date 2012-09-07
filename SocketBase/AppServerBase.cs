@@ -746,10 +746,11 @@ namespace SuperSocket.SocketBase
                 }
                 else
                 {
+                    //Port is not configured, but ip is configured
                     if (!string.IsNullOrEmpty(config.Ip))
                     {
                         if (Logger.IsErrorEnabled)
-                            Logger.Error("Ip is required in config!");
+                            Logger.Error("Port is required in config!");
 
                         return false;
                     }
@@ -760,10 +761,10 @@ namespace SuperSocket.SocketBase
                 {
                     //But ip and port were configured in server node
                     //We don't allow this case
-                    if (listeners.Count > 0)
+                    if (listeners.Any())
                     {
                         if (Logger.IsErrorEnabled)
-                            Logger.Error("If you configured Ip and Port in server node, you cannot defined listeners any more!");
+                            Logger.Error("If you configured Ip and Port in server node, you cannot defined listener in listeners node any more!");
 
                         return false;
                     }
@@ -784,10 +785,10 @@ namespace SuperSocket.SocketBase
                             return false;
                         }
 
-                        if (configProtocol != SslProtocols.None && (config.Certificate == null))
+                        if (configProtocol != SslProtocols.None && (Certificate == null))
                         {
                             if (Logger.IsErrorEnabled)
-                                Logger.Error("There is no certificate defined and enabled!");
+                                Logger.Error("There is no certificate loaded, but there is a secure listener defined!");
                             return false;
                         }
 

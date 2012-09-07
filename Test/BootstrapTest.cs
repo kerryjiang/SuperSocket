@@ -30,7 +30,7 @@ namespace SuperSocket.Test
             }
         }
 
-        private IConfigurationSource SetupBootstrap(string configFile)
+        private IConfigurationSource CreateBootstrap(string configFile)
         {
             var fileMap = new ExeConfigurationFileMap();
             fileMap.ExeConfigFilename = Path.Combine(@"Config", configFile);
@@ -39,6 +39,13 @@ namespace SuperSocket.Test
             var configSource = config.GetSection("socketServer") as IConfigurationSource;
 
             m_BootStrap = BootstrapFactory.CreateBootstrap(configSource);
+
+            return configSource;
+        }
+
+        private IConfigurationSource SetupBootstrap(string configFile)
+        {
+            var configSource = CreateBootstrap(configFile);
 
             Assert.IsTrue(m_BootStrap.Initialize());
 
@@ -212,6 +219,38 @@ namespace SuperSocket.Test
             Assert.AreEqual(8848, ChildrenConfigTestServer.ChildConfigGlobalValue);
             Assert.AreEqual(10 + 20 + 30, ChildrenConfigTestServer.ChildConfigValueSum);
             Assert.AreEqual(10 * 20 * 30, ChildrenConfigTestServer.ChildConfigValueMultiplyProduct);
+        }
+
+        [Test]
+        public void TestListenEndPointReplacement()
+        {
+            CreateBootstrap("Basic.config");
+
+            var endPointReplacement = new Dictionary<string, IPEndPoint>(StringComparer.OrdinalIgnoreCase);
+            endPointReplacement.Add("TestServer_2012", new IPEndPoint(IPAddress.Any, 3012));
+
+            m_BootStrap.Initialize(endPointReplacement);
+
+            var appServer = m_BootStrap.AppServers.OfType<IAppServer>().FirstOrDefault();
+
+            Assert.AreEqual(1, appServer.Listeners.Length);
+
+            Assert.AreEqual(3012, appServer.Listeners[0].EndPoint.Port);
+
+            CreateBootstrap("Listeners.config");
+
+            endPointReplacement = new Dictionary<string, IPEndPoint>(StringComparer.OrdinalIgnoreCase);
+            endPointReplacement.Add("TestServer_2012", new IPEndPoint(IPAddress.Any, 3012));
+            endPointReplacement.Add("TestServer_2013", new IPEndPoint(IPAddress.Any, 3013));
+
+            m_BootStrap.Initialize(endPointReplacement);
+
+            appServer = m_BootStrap.AppServers.OfType<IAppServer>().FirstOrDefault();
+
+            Assert.AreEqual(2, appServer.Listeners.Length);
+
+            Assert.AreEqual(3012, appServer.Listeners[0].EndPoint.Port);
+            Assert.AreEqual(3013, appServer.Listeners[1].EndPoint.Port);
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
@@ -49,7 +50,7 @@ namespace SuperSocket.SocketEngine
             get { return m_AppServers; }
         }
 
-        private IRootConfig m_RootConfig;
+        private readonly IRootConfig m_RootConfig;
 
         /// <summary>
         /// Gets the config.
@@ -201,6 +202,63 @@ namespace SuperSocket.SocketEngine
         {
             return new WorkItemFactoryInfoLoader(config, logFactory);
         }
+
+        /// <summary>
+        /// Initializes the bootstrap with a listen endpoint replacement dictionary
+        /// </summary>
+        /// <param name="listenEndPointReplacement">The listen end point replacement.</param>
+        /// <returns></returns>
+        public virtual bool Initialize(IDictionary<string, IPEndPoint> listenEndPointReplacement)
+        {
+            return Initialize((c) => ReplaceListenEndPoint(c, listenEndPointReplacement));
+        }
+
+        private IServerConfig ReplaceListenEndPoint(IServerConfig serverConfig, IDictionary<string, IPEndPoint> listenEndPointReplacement)
+        {
+            var config = new ServerConfig(serverConfig);
+
+            if (serverConfig.Port > 0)
+            {
+                var endPointKey = serverConfig.Name + "_" + serverConfig.Port;
+
+                IPEndPoint instanceEndpoint;
+
+                if(!listenEndPointReplacement.TryGetValue(endPointKey, out instanceEndpoint))
+                {
+                    throw new Exception(string.Format("Failed to find Input Endpoint configuration {0}!", endPointKey));
+                }
+
+                config.Ip = instanceEndpoint.Address.ToString();
+                config.Port = instanceEndpoint.Port;
+            }
+
+            if (config.Listeners != null && config.Listeners.Any())
+            {
+                var listeners = config.Listeners.ToArray();
+
+                for (var i = 0; i < listeners.Length; i++)
+                {
+                    var listener = (ListenerConfig)listeners[i];
+
+                    var endPointKey = serverConfig.Name + "_" + listener.Port;
+
+                    IPEndPoint instanceEndpoint;
+
+                    if (!listenEndPointReplacement.TryGetValue(endPointKey, out instanceEndpoint))
+                    {
+                        throw new Exception(string.Format("Failed to find Input Endpoint configuration {0}!", endPointKey));
+                    }
+
+                    listener.Ip = instanceEndpoint.Address.ToString();
+                    listener.Port = instanceEndpoint.Port;
+                }
+
+                config.Listeners = listeners;
+            }
+
+            return config;
+        }
+
 
         /// <summary>
         /// Initializes the bootstrap with the configuration, config resolver and log factory.

@@ -46,7 +46,7 @@ namespace SuperSocket.SuperSocketRole
 
             m_Bootstrap = BootstrapFactory.CreateBootstrap(serverConfig);
 
-            if (!m_Bootstrap.Initialize(ResolveServerConfig))
+            if (!m_Bootstrap.Initialize(RoleEnvironment.CurrentRoleInstance.InstanceEndpoints.ToDictionary(p => p.Key, p => p.Value.IPEndpoint)))
             {
                 Trace.WriteLine("Failed to initialize SuperSocket!", "Error");
                 return false;
@@ -74,58 +74,6 @@ namespace SuperSocket.SuperSocketRole
             }
 
             return base.OnStart();
-        }
-
-        private IServerConfig ResolveServerConfig(IServerConfig serverConfig)
-        {
-            var config = new ServerConfig();
-            serverConfig.CopyPropertiesTo(config);
-
-            if (serverConfig.Port > 0)
-            {
-                var endPointKey = serverConfig.Name + "_" + serverConfig.Port;
-                var instanceEndpoint = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[endPointKey];
-                if (instanceEndpoint == null)
-                {
-                    Trace.WriteLine(string.Format("Failed to find Input Endpoint configuration {0}!", endPointKey), "Error");
-                    return serverConfig;
-                }
-
-                var ipEndpoint = instanceEndpoint.IPEndpoint;
-                config.Ip = ipEndpoint.Address.ToString();
-                config.Port = ipEndpoint.Port;
-            }
-
-            if(config.Listeners != null && config.Listeners.Any())
-            {
-                var listeners = config.Listeners.ToArray();
-
-                var newListeners = new List<ListenerConfig>(listeners.Length);
-
-                for (var i = 0; i < listeners.Length; i++)
-                {
-                    var listener = listeners[i];
-
-                    var endPointKey = serverConfig.Name + "_" + listener.Port;
-                    var instanceEndpoint = RoleEnvironment.CurrentRoleInstance.InstanceEndpoints[endPointKey];
-                    if (instanceEndpoint == null)
-                    {
-                        Trace.WriteLine(string.Format("Failed to find Input Endpoint configuration {0}!", endPointKey), "Error");
-                        return serverConfig;
-                    }
-
-                    var newListener = new ListenerConfig();
-                    newListener.Ip = instanceEndpoint.IPEndpoint.Address.ToString();
-                    newListener.Port = instanceEndpoint.IPEndpoint.Port;
-                    newListener.Backlog = listener.Backlog;
-
-                    newListeners.Add(newListener);
-                }
-
-                config.Listeners = newListeners;
-            }
-
-            return config;
         }
 
         public override void OnStop()

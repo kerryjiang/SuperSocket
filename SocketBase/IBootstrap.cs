@@ -6,6 +6,7 @@ using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
+using System.Net;
 
 namespace SuperSocket.SocketBase
 {
@@ -53,6 +54,13 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         bool Initialize();
 
+
+        /// <summary>
+        /// Initializes the bootstrap with a listen endpoint replacement dictionary
+        /// </summary>
+        /// <param name="listenEndPointReplacement">The listen end point replacement.</param>
+        /// <returns></returns>
+        bool Initialize(IDictionary<string, IPEndPoint> listenEndPointReplacement);
 
         /// <summary>
         /// Initializes the bootstrap with the configuration
