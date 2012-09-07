@@ -92,10 +92,6 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\QuickStart\EchoService\EchoService.csproj">
-      <Project>{6967B4E6-474F-4D79-BD4D-BD701A8A6085}</Project>
-      <Name>EchoService</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\QuickStart\RemoteProcessService\RemoteProcessService.csproj">
       <Project>{CA67AA73-42D0-4A08-85C4-61FB569231A8}</Project>
       <Name>RemoteProcessService</Name>
