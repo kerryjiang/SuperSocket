@@ -50,11 +50,11 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset of the current received data in this read buffer.</param>
         /// <param name="length">The length of the current received data.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left, the length of the data which hasn't been parsed.</param>
+        /// <param name="rest">The rest, the length of the data which hasn't been parsed.</param>
         /// <returns>return the parsed TRequestInfo</returns>
-        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
         {
-            left = 0;
+            rest = 0;
 
             int prevMatched = m_SearchState.Matched;
 
@@ -90,7 +90,7 @@ namespace SuperSocket.SocketBase.Protocol
 
             var findLen = result - offset;
 
-            left = length - findLen - (m_SearchState.Mark.Length - prevMatched);
+            rest = length - findLen - (m_SearchState.Mark.Length - prevMatched);
 
             TRequestInfo requestInfo;
 
@@ -148,13 +148,13 @@ namespace SuperSocket.SocketBase.Protocol
 
             InternalReset();
 
-            if(left == 0)
+            if(rest == 0)
             {
                 m_OffsetDelta = 0;
             }
             else
             {
-                m_OffsetDelta += (length - left);
+                m_OffsetDelta += (length - rest);
             }
 
             return requestInfo;

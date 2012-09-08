@@ -9,9 +9,9 @@ namespace SuperSocket.Test.Udp
 {
     class MyRequestFilter : IRequestFilter<MyUdpRequestInfo>
     {
-        public MyUdpRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public MyUdpRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
         {
-            left = 0;
+            rest = 0;
 
             if (length <= 40)
                 return null;

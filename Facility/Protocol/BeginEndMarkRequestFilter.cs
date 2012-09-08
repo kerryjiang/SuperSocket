@@ -41,11 +41,11 @@ namespace SuperSocket.Facility.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
+        /// <param name="rest">The rest.</param>
         /// <returns></returns>
-        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
         {
-            left = 0;
+            rest = 0;
 
             if (!m_FoundBegin)
             {
@@ -78,7 +78,7 @@ namespace SuperSocket.Facility.Protocol
                 }
 
                 int parsedLen = endPos - pos + m_EndSearchState.Mark.Length;
-                left = length - parsedLen;
+                rest = length - parsedLen;
 
                 var requestInfo = ProcessMatchedRequest(readBuffer, pos, parsedLen);
 
@@ -98,7 +98,7 @@ namespace SuperSocket.Facility.Protocol
 
                 //Found end mark
                 int parsedLen = endPos - offset + m_EndSearchState.Mark.Length;
-                left = length - parsedLen;
+                rest = length - parsedLen;
 
                 byte[] commandData = new byte[BufferSegments.Count + parsedLen];
 

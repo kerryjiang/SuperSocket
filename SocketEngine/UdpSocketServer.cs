@@ -76,11 +76,11 @@ namespace SuperSocket.SocketEngine
             
             string sessionID;
 
-            int left;
+            int rest;
 
             try
             {
-                requestInfo = this.m_UdpRequestFilter.Filter(receivedData, 0, receivedData.Length, false, out left);
+                requestInfo = this.m_UdpRequestFilter.Filter(receivedData, 0, receivedData.Length, false, out rest);
             }
             catch (Exception exc)
             {
@@ -91,10 +91,10 @@ namespace SuperSocket.SocketEngine
 
             var udpRequestInfo = requestInfo as UdpRequestInfo;
 
-            if (left > 0)
+            if (rest > 0)
             {
                 if (AppServer.Logger.IsErrorEnabled)
-                    AppServer.Logger.Error("The output parameter left must be zero in this case!");
+                    AppServer.Logger.Error("The output parameter rest must be zero in this case!");
                 return;
             }
 

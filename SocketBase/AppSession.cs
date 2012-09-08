@@ -525,19 +525,19 @@ namespace SuperSocket.SocketBase
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left, the size of the data which has not been processed</param>
+        /// <param name="rest">The rest, the size of the data which has not been processed</param>
         /// <param name="offsetDelta">return offset delta of next receiving buffer.</param>
         /// <returns></returns>
-        TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left, out int offsetDelta)
+        TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest, out int offsetDelta)
         {
             if (!AppServer.OnRawDataReceived(this, readBuffer, offset, length))
             {
-                left = 0;
+                rest = 0;
                 offsetDelta = 0;
                 return null;
             }
 
-            var requestInfo = m_RequestFilter.Filter(readBuffer, offset, length, toBeCopied, out left);
+            var requestInfo = m_RequestFilter.Filter(readBuffer, offset, length, toBeCopied, out rest);
 
             var offsetAdapter = m_RequestFilter as IOffsetAdapter;
 
@@ -574,11 +574,11 @@ namespace SuperSocket.SocketBase
         /// </returns>
         int IAppSession.ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied)
         {
-            int left, offsetDelta;
+            int rest, offsetDelta;
 
             while (true)
             {
-                var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out left, out offsetDelta);
+                var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out rest, out offsetDelta);
 
                 if (requestInfo != null)
                 {
@@ -592,14 +592,14 @@ namespace SuperSocket.SocketBase
                     }
                 }
 
-                if (left <= 0)
+                if (rest <= 0)
                 {
                     return offsetDelta;
                 }
 
                 //Still have data has not been processed
-                offset = offset + length - left;
-                length = left;
+                offset = offset + length - rest;
+                length = rest;
             }
         }
 

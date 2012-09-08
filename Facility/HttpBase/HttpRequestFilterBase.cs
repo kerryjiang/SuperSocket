@@ -48,17 +48,17 @@ namespace SuperSocket.Facility.HttpBase
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
+        /// <param name="rest">The rest.</param>
         /// <returns></returns>
-        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
         {
             if (!m_HeaderParsed)
             {
-                return base.Filter(readBuffer, offset, length, toBeCopied, out left);
+                return base.Filter(readBuffer, offset, length, toBeCopied, out rest);
             }
             else
             {
-                return FilterRequestBody(readBuffer, offset, length, toBeCopied, out left);
+                return FilterRequestBody(readBuffer, offset, length, toBeCopied, out rest);
             }
         }
 
@@ -69,9 +69,9 @@ namespace SuperSocket.Facility.HttpBase
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
+        /// <param name="rest">The rest data size.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo FilterRequestBody(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
+        protected abstract TRequestInfo FilterRequestBody(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest);
 
         /// <summary>
         /// Resolves the specified data.

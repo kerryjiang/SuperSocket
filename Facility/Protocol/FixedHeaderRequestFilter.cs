@@ -40,12 +40,12 @@ namespace SuperSocket.Facility.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
+        /// <param name="rest">The rest.</param>
         /// <returns></returns>
-        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public override TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
         {
             if (!m_FoundHeader)
-                return base.Filter(readBuffer, offset, length, toBeCopied, out left);
+                return base.Filter(readBuffer, offset, length, toBeCopied, out rest);
 
             if (m_BodyBuffer == null || m_BodyBuffer.Count == 0)
             {
@@ -55,18 +55,18 @@ namespace SuperSocket.Facility.Protocol
                         m_BodyBuffer = new ArraySegmentList();
 
                     m_BodyBuffer.AddSegment(readBuffer, offset, length, toBeCopied);
-                    left = 0;
+                    rest = 0;
                     return NullRequestInfo;
                 }
                 else if (length == m_BodyLength)
                 {
-                    left = 0;
+                    rest = 0;
                     m_FoundHeader = false;
                     return ResolveRequestInfo(m_Header, readBuffer, offset, length);
                 }
                 else
                 {
-                    left = length - m_BodyLength;
+                    rest = length - m_BodyLength;
                     m_FoundHeader = false;
                     return ResolveRequestInfo(m_Header, readBuffer, offset, m_BodyLength);
                 }
@@ -78,13 +78,13 @@ namespace SuperSocket.Facility.Protocol
                 if (length < required)
                 {
                     m_BodyBuffer.AddSegment(readBuffer, offset, length, toBeCopied);
-                    left = 0;
+                    rest = 0;
                     return NullRequestInfo;
                 }
                 else if (length == required)
                 {
                     m_BodyBuffer.AddSegment(readBuffer, offset, length, toBeCopied);
-                    left = 0;
+                    rest = 0;
                     m_FoundHeader = false;
                     var requestInfo = ResolveRequestInfo(m_Header, m_BodyBuffer.ToArrayData());
                     m_BodyBuffer.ClearSegements();
@@ -93,7 +93,7 @@ namespace SuperSocket.Facility.Protocol
                 else
                 {
                     m_BodyBuffer.AddSegment(readBuffer, offset, required, toBeCopied);
-                    left = length - required;
+                    rest = length - required;
                     m_FoundHeader = false;
                     var requestInfo = ResolveRequestInfo(m_Header, m_BodyBuffer.ToArrayData(0, m_BodyLength));
                     m_BodyBuffer.ClearSegements();

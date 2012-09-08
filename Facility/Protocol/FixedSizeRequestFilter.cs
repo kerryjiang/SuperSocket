@@ -46,13 +46,13 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left.</param>
+        /// <param name="rest">The rest.</param>
         /// <returns></returns>
-        public virtual TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left)
+        public virtual TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
         {
-            left = m_ParsedLength + length - m_Size;
+            rest = m_ParsedLength + length - m_Size;
 
-            if (left >= 0)
+            if (rest >= 0)
             {
                 var requestInfo = ProcessMatchedRequest(readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied);
                 InternalReset();
@@ -62,7 +62,7 @@ namespace SuperSocket.SocketBase.Protocol
             {
                 m_ParsedLength += length;
                 m_OffsetDelta = m_ParsedLength;
-                left = 0;
+                rest = 0;
                 return NullRequestInfo;
             }
         }
@@ -78,10 +78,10 @@ namespace SuperSocket.SocketBase.Protocol
         protected abstract TRequestInfo ProcessMatchedRequest(byte[] buffer, int offset, int length, bool toBeCopied);
 
         /// <summary>
-        /// Gets the size of the left buffer.
+        /// Gets the size of the rest buffer.
         /// </summary>
         /// <value>
-        /// The size of the left buffer.
+        /// The size of the rest buffer.
         /// </value>
         public int LeftBufferSize
         {

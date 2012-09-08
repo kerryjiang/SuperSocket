@@ -59,13 +59,13 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="offset">The offset of the current received data in this read buffer.</param>
         /// <param name="length">The length of the current received data.</param>
         /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="left">The left, the length of the data which hasn't been parsed.</param>
+        /// <param name="rest">The rest, the length of the data which hasn't been parsed.</param>
         /// <returns></returns>
-        public abstract TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int left);
+        public abstract TRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest);
 
 
         /// <summary>
-        /// Gets the left buffer.
+        /// Gets the rest buffer.
         /// </summary>
         /// <returns></returns>
         [Obsolete]
@@ -75,10 +75,10 @@ namespace SuperSocket.SocketBase.Protocol
         }
 
         /// <summary>
-        /// Gets the size of the left buffer.
+        /// Gets the size of the rest buffer.
         /// </summary>
         /// <value>
-        /// The size of the left buffer.
+        /// The size of the rest buffer.
         /// </value>
         public int LeftBufferSize
         {
