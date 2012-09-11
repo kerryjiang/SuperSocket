@@ -74,8 +74,8 @@ namespace SuperSocket.Facility.PolicyServer
             }
 
             PolicyResponse = SetupPolicyResponse(File.ReadAllBytes(m_PolicyFile));
-            
-            this.RequestHandler += new RequestHandler<PolicySession, BinaryRequestInfo>(PolicyServer_RequestHandler);
+
+            this.NewRequestReceived += new RequestHandler<PolicySession, BinaryRequestInfo>(PolicyServer_NewRequestReceived);
 
             return true;
         }
@@ -100,7 +100,7 @@ namespace SuperSocket.Facility.PolicyServer
             return PolicyResponse;
         }
 
-        void PolicyServer_RequestHandler(PolicySession session, BinaryRequestInfo requestInfo)
+        void PolicyServer_NewRequestReceived(PolicySession session, BinaryRequestInfo requestInfo)
         {
             ProcessRequest(session, requestInfo.Body);
         }

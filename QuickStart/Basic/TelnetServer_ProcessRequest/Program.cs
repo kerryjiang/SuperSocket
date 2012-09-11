@@ -30,7 +30,7 @@ namespace TelnetServer_ProcessRequest
             }
 
             appServer.NewSessionConnected += new Action<AppSession>(appServer_NewSessionConnected);
-            appServer.RequestHandler += new RequestHandler<AppSession, StringRequestInfo>(appServer_RequestHandler);
+            appServer.NewRequestReceived += new RequestHandler<AppSession, StringRequestInfo>(appServer_NewRequestReceived);
 
             Console.WriteLine();
 
@@ -57,7 +57,7 @@ namespace TelnetServer_ProcessRequest
             Console.ReadKey();
         }
 
-        static void appServer_RequestHandler(AppSession session, StringRequestInfo requestInfo)
+        static void appServer_NewRequestReceived(AppSession session, StringRequestInfo requestInfo)
         {
             switch (requestInfo.Key.ToUpper())
             {

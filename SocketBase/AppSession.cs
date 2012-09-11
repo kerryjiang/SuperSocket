@@ -249,6 +249,11 @@ namespace SuperSocket.SocketBase
             HandleUnknownRequest(requestInfo);
         }
 
+        internal void InternalHandleExcetion(Exception e)
+        {
+            HandleException(e);
+        }
+
         /// <summary>
         /// Closes the session by the specified reason.
         /// </summary>

@@ -954,7 +954,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Occurs when a full request item received.
         /// </summary>
-        public event RequestHandler<TAppSession, TRequestInfo> RequestHandler
+        public event RequestHandler<TAppSession, TRequestInfo> NewRequestReceived
         {
             add { m_RequestHandler += value; }
             remove { m_RequestHandler -= value; }
@@ -1031,7 +1031,16 @@ namespace SuperSocket.SocketBase
             else
             {
                 session.CurrentCommand = requestInfo.Key;
-                m_RequestHandler(session, requestInfo);
+
+                try
+                {
+                    m_RequestHandler(session, requestInfo);
+                }
+                catch (Exception e)
+                {
+                    session.InternalHandleExcetion(e);
+                }
+                
                 session.PrevCommand = requestInfo.Key;
                 session.LastActiveTime = DateTime.Now;
 

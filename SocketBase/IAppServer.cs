@@ -204,7 +204,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Occurs when [request comming].
         /// </summary>
-        event RequestHandler<TAppSession, TRequestInfo> RequestHandler;
+        event RequestHandler<TAppSession, TRequestInfo> NewRequestReceived;
     }
 
     /// <summary>
