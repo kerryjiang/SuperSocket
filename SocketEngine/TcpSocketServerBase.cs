@@ -64,8 +64,6 @@ namespace SuperSocket.SocketEngine
             if (appSession == null)
                 return null;
 
-            session.Initialize(appSession);
-
             return session;
         }
 

@@ -127,8 +127,6 @@ namespace SuperSocket.SocketEngine
                 if (appSession == null)
                     return;
 
-                socketSession.Initialize(appSession);
-
                 Interlocked.Increment(ref m_ConnectionCount);
 
                 socketSession.Closed += OnSocketSessionClosed;
@@ -160,8 +158,6 @@ namespace SuperSocket.SocketEngine
 
                 if (appSession == null)
                     return;
-
-                socketSession.Initialize(appSession);
 
                 Interlocked.Increment(ref m_ConnectionCount);
                 socketSession.Closed += OnSocketSessionClosed;

@@ -1118,6 +1118,8 @@ namespace SuperSocket.SocketBase
             if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)
                 Logger.InfoFormat("A new session connected!");
 
+            socketSession.Initialize(appSession);
+
             OnNewSessionConnected(appSession);
 
             return appSession;
