@@ -193,13 +193,16 @@ namespace SuperSocket.SocketEngine
                     {
                         if (m_SocketEventArgSend.BufferList != null)
                             m_SocketEventArgSend.BufferList = null;
-                    }
-                    catch (Exception e) //a strange NullReference exception
+                    }//Supress this exception
+                    //catch (Exception e) //a strange NullReference exception
+                    //{
+                    //    if (AppSession.Logger.IsErrorEnabled)
+                    //        AppSession.Logger.Error(AppSession, e);
+                    //}
+                    finally
                     {
-                        AppSession.Logger.Error(AppSession, e);
+                        m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
                     }
-
-                    m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
                 }
 
                 var client = Client;
