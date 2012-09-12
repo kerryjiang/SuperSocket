@@ -80,8 +80,9 @@ namespace SuperSocket.QuickStart.CustomProtocol
                     return null;
                 }
             }
-            else
+            else//length == leftLength
             {
+                BufferSegments.ClearSegements();
                 NextCommandReader = GetMyCommandDataReader(commandName, commandDataLength);
                 return null;
             }
