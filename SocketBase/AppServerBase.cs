@@ -38,6 +38,11 @@ namespace SuperSocket.SocketBase
         private string m_Name;
 
         /// <summary>
+        /// Indicate this server instance whether has been setup
+        /// </summary>
+        private bool m_Initialized = false;
+
+        /// <summary>
         /// Gets the certificate of current server.
         /// </summary>
         public X509Certificate Certificate { get; private set; }
@@ -429,7 +434,11 @@ namespace SuperSocket.SocketBase
             if (!Setup(rootConfig, config))
                 return false;
 
-            return SetupFinal();
+            if(!SetupFinal())
+                return false;
+
+            m_Initialized = true;
+            return true;
         }
 
         private T GetProviderInstance<T>(object[] providers)
@@ -486,7 +495,11 @@ namespace SuperSocket.SocketBase
             if (!Setup(rootConfig, config))
                 return false;
 
-            return SetupFinal();
+            if (!SetupFinal())
+                return false;
+
+            m_Initialized = true;
+            return true;
         }
 
         /// <summary>
@@ -840,6 +853,9 @@ namespace SuperSocket.SocketBase
         /// </returns>
         public virtual bool Start()
         {
+            if (!m_Initialized)
+                throw new Exception("You cannot start a AppServer which has not been setup yet.");
+
             if (this.IsRunning)
             {
                 if (Logger.IsErrorEnabled)
