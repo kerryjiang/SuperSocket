@@ -96,10 +96,6 @@ namespace SuperSocket.SocketBase
         /// </summary>
         void Stop();
 
-        /// <summary>
-        /// Occurs when [performance data collected].
-        /// </summary>
-        event EventHandler<PermformanceDataEventArgs> PerformanceDataCollected;
 
         /// <summary>
         /// Gets the startup config file.

@@ -14,7 +14,6 @@ namespace SuperSocket.Facility.PolicyServer
         /// Initializes a new instance of the <see cref="FlashPolicyServer"/> class.
         /// </summary>
         public FlashPolicyServer()
-            : base()
         {
 
         }

@@ -87,6 +87,8 @@
     <Compile Include="Config\TypeProvider.cs" />
     <Compile Include="Config\TypeProviderCollection.cs" />
     <Compile Include="Config\TypeProviderConfig.cs" />
+    <Compile Include="DisplayAttribute.cs" />
+    <Compile Include="GlobalPerformanceData.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="IBootstrap.cs" />
@@ -107,9 +109,6 @@
     <Compile Include="Logging\Log4NetLog.cs" />
     <Compile Include="Logging\Log4NetLogFactory.cs" />
     <Compile Include="Logging\LogFactoryBase.cs" />
-    <Compile Include="PerformanceData.cs" />
-    <Compile Include="PerformanceDataInfo.cs" />
-    <Compile Include="PermformanceDataEventArgs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="Protocol\BinaryRequestInfo.cs" />
@@ -131,6 +130,7 @@
     <Compile Include="Provider\ProviderKey.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="ServerState.cs" />
     <Compile Include="SocketMode.cs" />
   </ItemGroup>
   <ItemGroup>

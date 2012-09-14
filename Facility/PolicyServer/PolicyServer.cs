@@ -33,7 +33,6 @@ namespace SuperSocket.Facility.PolicyServer
         /// Initializes a new instance of the <see cref="PolicyServer"/> class.
         /// </summary>
         public PolicyServer()
-            : base()
         {
 
         }

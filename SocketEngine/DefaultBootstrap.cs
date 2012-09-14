@@ -123,7 +123,6 @@ namespace SuperSocket.SocketEngine
             if (!rootConfig.DisablePerformanceDataCollector)
             {
                 m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, logFactory);
-                m_PerfMonitor.Collected += new EventHandler<PermformanceDataEventArgs>(m_PerfMonitor_Collected);
             }
 
             m_Initialized = true;
@@ -344,7 +343,6 @@ namespace SuperSocket.SocketEngine
             if (!m_Config.DisablePerformanceDataCollector)
             {
                 m_PerfMonitor = new PerformanceMonitor(m_Config, m_AppServers, logFactory);
-                m_PerfMonitor.Collected += new EventHandler<PermformanceDataEventArgs>(m_PerfMonitor_Collected);
             }
 
             m_Initialized = true;
@@ -449,18 +447,5 @@ namespace SuperSocket.SocketEngine
             if (m_PerfMonitor != null)
                 m_PerfMonitor.Stop();
         }
-
-        void m_PerfMonitor_Collected(object sender, PermformanceDataEventArgs e)
-        {
-            var handler = PerformanceDataCollected;
-
-            if (handler != null)
-                handler(sender, e);
-        }
-
-        /// <summary>
-        /// Occurs when [performance data collected].
-        /// </summary>
-        public event EventHandler<PermformanceDataEventArgs> PerformanceDataCollected;
     }
 }

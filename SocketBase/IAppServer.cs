@@ -15,16 +15,16 @@ using SuperSocket.SocketBase.Provider;
 namespace SuperSocket.SocketBase
 {
     /// <summary>
-    /// The interface for who will react with performance collecting
+    /// The interface for who will react with server state collecting
     /// </summary>
-    public interface IPerformanceDataSource
+    public interface IServerStateSource
     {
         /// <summary>
-        /// Collects the performance data.
+        /// Collects the state of the server.
         /// </summary>
         /// <param name="globalPerfData">The global perf data.</param>
         /// <returns></returns>
-        PerformanceData CollectPerformanceData(GlobalPerformanceData globalPerfData);
+        ServerState CollectServerState(GlobalPerformanceData globalPerfData);
     }
 
     /// <summary>

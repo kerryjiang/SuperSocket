@@ -7,6 +7,7 @@ using System.Threading;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
+using System.Reflection;
 
 namespace SuperSocket.SocketEngine
 {
@@ -22,9 +23,11 @@ namespace SuperSocket.SocketEngine
 
         private int m_CpuCores = 1;
 
-        private EventHandler<PermformanceDataEventArgs> m_Collected;
-
         private IWorkItem[] m_AppServers;
+
+        private Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>> m_StateMetadataDict = new Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>>();
+
+        private static readonly object[] m_ParaArray = new object[0];
 
         public PerformanceMonitor(IRootConfig config, IEnumerable<IWorkItem> appServers, ILogFactory logFactory)
         {
@@ -41,19 +44,10 @@ namespace SuperSocket.SocketEngine
             m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
             m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", instanceName);
 
-            m_PerfLog = logFactory.GetLog("performance");
+            m_PerfLog = logFactory.GetLog("Performance");
 
             m_TimerInterval = config.PerformanceDataCollectInterval * 1000;
             m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
-        }
-
-        /// <summary>
-        /// Occurs when [performance data collected].
-        /// </summary>
-        public event EventHandler<PermformanceDataEventArgs> Collected
-        {
-            add { m_Collected += value; }
-            remove { m_Collected -= value; }
         }
 
         public void Start()
@@ -64,6 +58,29 @@ namespace SuperSocket.SocketEngine
         public void Stop()
         {
             m_PerformanceTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
+
+        private List<KeyValuePair<PropertyInfo, DisplayAttribute>> GetStateTypeMetatdata(Type stateType)
+        {
+            List<KeyValuePair<PropertyInfo, DisplayAttribute>> stateMetadata;
+
+            if (m_StateMetadataDict.TryGetValue(stateType, out stateMetadata))
+                return stateMetadata;
+
+            stateMetadata = new List<KeyValuePair<PropertyInfo, DisplayAttribute>>();
+
+            foreach (var p in stateType.GetProperties())
+            {
+                var att = p.GetCustomAttributes(false).FirstOrDefault() as DisplayAttribute;
+
+                if (att != null)
+                {
+                    stateMetadata.Add(new KeyValuePair<PropertyInfo, DisplayAttribute>(p, att));
+                }
+            }
+
+            m_StateMetadataDict.Add(stateType, stateMetadata.OrderBy(s => s.Value.Order).ToList());
+            return stateMetadata;
         }
 
         private void OnPerformanceTimerCallback(object state)
@@ -93,34 +110,30 @@ namespace SuperSocket.SocketEngine
             perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads));
             perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData.MaxWorkingThreads, globalPerfData.MaxCompletionPortThreads));
 
-            var instancesData = new PerformanceDataInfo[m_AppServers.Length];
-
             for (var i = 0; i < m_AppServers.Length; i++)
             {
                 var s = m_AppServers[i];
 
-                var perfSource = s as IPerformanceDataSource;
-                if (perfSource != null)
+                var serverStateSource = s as IServerStateSource;
+                if (serverStateSource != null)
                 {
-                    var perfData = perfSource.CollectPerformanceData(globalPerfData);
+                    var serverState = serverStateSource.CollectServerState(globalPerfData);
+                    var stateTypeMetadata = GetStateTypeMetatdata(serverState.GetType());
 
-                    instancesData[i] = new PerformanceDataInfo { ServerName = s.Name, Data = perfData };
+                    perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
 
-                    perfBuilder.AppendLine(string.Format("{0} - Total Connections: {1}, Total Handled Requests: {2}, Request Handling Speed: {3:f0}/s",
-                        s.Name,
-                        perfData.CurrentRecord.TotalConnections,
-                        perfData.CurrentRecord.TotalHandledRequests,
-                        (perfData.CurrentRecord.TotalHandledRequests - perfData.PreviousRecord.TotalHandledRequests) / perfData.CurrentRecord.RecordSpan));
+                    for (var j = 0; j < stateTypeMetadata.Count; j++)
+                    {
+                        var property = stateTypeMetadata[j];
+                        if (!string.IsNullOrEmpty(property.Value.Format))
+                            perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, string.Format(property.Value.Format, property.Key.GetValue(serverState, m_ParaArray))));
+                        else
+                            perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, property.Key.GetValue(serverState, m_ParaArray)));
+                    }
                 }
             }
 
             m_PerfLog.Info(perfBuilder.ToString());
-
-            var handler = m_Collected;
-            if (handler == null)
-                return;
-
-            handler.BeginInvoke(this, new PermformanceDataEventArgs(globalPerfData, instancesData), null, null);
         }
 
         public void Dispose()

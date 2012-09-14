@@ -226,14 +226,5 @@ namespace SuperSocket.SocketEngine
         {
             m_InnerBootstrap.Stop();
         }
-
-        /// <summary>
-        /// Occurs when [performance data collected].
-        /// </summary>
-        public event EventHandler<PermformanceDataEventArgs> PerformanceDataCollected
-        {
-            add { m_InnerBootstrap.PerformanceDataCollected += value; }
-            remove { m_InnerBootstrap.PerformanceDataCollected -= value; }
-        }
     }
 }
