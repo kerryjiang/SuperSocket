@@ -568,7 +568,11 @@ namespace SuperSocket.SocketBase
             if (!Setup(rootConfig, config))
                 return false;
 
-            return SetupFinal();
+            if (!SetupFinal())
+                return false;
+
+            m_Initialized = true;
+            return true;
         }
 
 
