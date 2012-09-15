@@ -36,7 +36,7 @@ namespace SuperSocket.Test
             fileMap.ExeConfigFilename = Path.Combine(@"Config", configFile);
 
             var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
-            var configSource = config.GetSection("socketServer") as IConfigurationSource;
+            var configSource = config.GetSection("superSocket") as IConfigurationSource;
 
             m_BootStrap = BootstrapFactory.CreateBootstrap(configSource);
 

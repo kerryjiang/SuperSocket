@@ -67,9 +67,13 @@ namespace SuperSocket.SocketEngine
             fileMap.ExeConfigFilename = configFile;
 
             var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
-            var configSource = config.GetSection("socketServer") as IConfigurationSource;
 
-            return CreateBootstrap(configSource);
+            var configSection = config.GetSection("superSocket");
+
+            if (configSection == null)
+                configSection = config.GetSection("socketServer");
+
+            return CreateBootstrap(configSection as IConfigurationSource);
         }
     }
 }
