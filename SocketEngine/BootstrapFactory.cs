@@ -33,7 +33,12 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public static IBootstrap CreateBootstrap()
         {
-            return CreateBootstrap("socketServer");
+            var configSection = ConfigurationManager.GetSection("superSocket");
+
+            if (configSection == null)//to keep compatible with old version
+                configSection = ConfigurationManager.GetSection("socketServer");
+
+            return CreateBootstrap(configSection as IConfigurationSource);
         }
 
         /// <summary>
@@ -43,7 +48,12 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public static IBootstrap CreateBootstrap(string configSectionName)
         {
-            return CreateBootstrap(ConfigurationManager.GetSection(configSectionName) as IConfigurationSource);
+            var configSource = ConfigurationManager.GetSection(configSectionName) as IConfigurationSource;
+
+            if (configSource == null)
+                throw new ArgumentException("Invalid section name.");
+
+            return CreateBootstrap(configSource);
         }
 
         /// <summary>
