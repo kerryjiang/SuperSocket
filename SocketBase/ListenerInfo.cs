@@ -10,6 +10,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// Listener inforamtion
     /// </summary>
+    [Serializable]
     public class ListenerInfo
     {
         /// <summary>

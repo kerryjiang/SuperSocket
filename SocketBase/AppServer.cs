@@ -294,9 +294,9 @@ namespace SuperSocket.SocketBase
         /// Gets the state of the server.
         /// </summary>
         /// <value>
-        /// The state of the server.
+        /// The state data of the server.
         /// </value>
-        public ServerState ServerState
+        public override ServerState State
         {
             get { return m_ServerState; }
         }
@@ -317,11 +317,12 @@ namespace SuperSocket.SocketBase
             newServerState.StartedTime = this.StartedTime;
             newServerState.IsRunning = this.IsRunning;
             newServerState.TotalConnections = m_SessionDict.Count;
+            newServerState.MaxConnectionNumber = Config.MaxConnectionNumber;
             newServerState.TotalHandledRequests = this.TotalHandledRequests;
             newServerState.RequestHandlingSpeed = m_ServerState == null ?
                         (this.TotalHandledRequests / now.Subtract(StartedTime).TotalSeconds)
                             : ((this.TotalHandledRequests - m_ServerState.TotalHandledRequests) / now.Subtract(m_ServerState.CollectedTime).TotalSeconds);
-
+            newServerState.Listeners = Listeners;
             //User can process the performance data by self
             this.AsyncRun(() => OnServerStateCollected(globalPerfData, newServerState), e => Logger.Error(e));
 

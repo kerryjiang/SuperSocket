@@ -71,6 +71,15 @@ namespace SuperSocket.SocketBase
         /// Gets the total session count.
         /// </summary>
         int SessionCount { get; }
+
+
+        /// <summary>
+        /// Gets the state of the server.
+        /// </summary>
+        /// <value>
+        /// The state of the server.
+        /// </value>
+        ServerState State { get; }
     }
 
     /// <summary>

@@ -46,13 +46,23 @@ namespace SuperSocket.SocketBase
         [Display("Total Connections", Order = 2)]
         public int TotalConnections { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets the maximum allowed connection number.
+        /// </summary>
+        /// <value>
+        /// The max connection number.
+        /// </value>
+        [Display("Maximum Allowed Connection Number", Order = 3)]
+        public int MaxConnectionNumber { get; set; }
+
         /// <summary>
         /// Gets or sets the total handled requests count.
         /// </summary>
         /// <value>
         /// The total handled requests count.
         /// </value>
-        [Display("Total Handled Requests", Format = "{0:N0}", Order = 3)]
+        [Display("Total Handled Requests", Format = "{0:N0}", Order = 4)]
         public long TotalHandledRequests { get; set; }
 
         /// <summary>
@@ -61,7 +71,16 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The request handling speed.
         /// </value>
-        [Display("Request Handling Speed", Format = "{0:f0}/s", Order = 4)]
+        [Display("Request Handling Speed", Format = "{0:f0}/s", Order = 5)]
         public double RequestHandlingSpeed { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the listeners.
+        /// </summary>
+        /// <value>
+        /// The listeners.
+        /// </value>
+        public ListenerInfo[] Listeners { get; set; }
     }
 }

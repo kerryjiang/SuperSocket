@@ -196,5 +196,23 @@ namespace SuperSocket.SocketEngine
                 return m_AppServer.SessionCount;
             }
         }
+
+
+        /// <summary>
+        /// Gets the state data of the server.
+        /// </summary>
+        /// <value>
+        /// The state of the server.
+        /// </value>
+        public ServerState State
+        {
+            get
+            {
+                if (m_AppServer == null)
+                    return null;
+
+                return m_AppServer.State;
+            }
+        }
     }
 }

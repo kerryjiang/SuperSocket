@@ -1314,6 +1314,20 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        /// <summary>
+        /// Gets the state data of the server.
+        /// </summary>
+        /// <value>
+        /// The state of the server.
+        /// </value>
+        public virtual ServerState State
+        {
+            get
+            {
+                throw new NotSupportedException();
+            }
+        }
+
         #region IDisposable Members
 
         /// <summary>

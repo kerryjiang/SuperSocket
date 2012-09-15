@@ -80,5 +80,11 @@ namespace SuperSocket.SocketEngine
         {
             get { return m_AppServer.SessionCount; }
         }
+
+
+        public ServerState State
+        {
+            get { return m_AppServer.State; }
+        }
     }
 }
