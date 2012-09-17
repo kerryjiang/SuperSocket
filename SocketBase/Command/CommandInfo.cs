@@ -5,14 +5,14 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Command
 {
-    class CommandProxy<TCommand>
+    class CommandInfo<TCommand>
         where TCommand : ICommand
     {
         public TCommand Command { get; private set; }
 
         public CommandFilterAttribute[] Filters { get; private set; }
 
-        public CommandProxy(TCommand command, IEnumerable<CommandFilterAttribute> globalFilters)
+        public CommandInfo(TCommand command, IEnumerable<CommandFilterAttribute> globalFilters)
         {
             Command = command;
 

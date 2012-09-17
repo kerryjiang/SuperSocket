@@ -65,7 +65,7 @@ namespace SuperSocket.SocketBase
 
         private List<ICommandLoader> m_CommandLoaders;
 
-        private Dictionary<string, CommandProxy<ICommand<TAppSession, TRequestInfo>>> m_CommandContainer;
+        private Dictionary<string, CommandInfo<ICommand<TAppSession, TRequestInfo>>> m_CommandContainer;
 
         private CommandFilterAttribute[] m_GlobalCommandFilters;
 
@@ -365,12 +365,12 @@ namespace SuperSocket.SocketBase
 
         private void OnCommandSetup(IDictionary<string, ICommand<TAppSession, TRequestInfo>> discoveredCommands)
         {
-            var commandContainer = new Dictionary<string, CommandProxy<ICommand<TAppSession, TRequestInfo>>>(StringComparer.OrdinalIgnoreCase);
+            var commandContainer = new Dictionary<string, CommandInfo<ICommand<TAppSession, TRequestInfo>>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var command in discoveredCommands.Values)
             {
                 commandContainer.Add(command.Name,
-                    new CommandProxy<ICommand<TAppSession, TRequestInfo>>(command, m_GlobalCommandFilters));
+                    new CommandInfo<ICommand<TAppSession, TRequestInfo>>(command, m_GlobalCommandFilters));
             }
 
             Interlocked.Exchange(ref m_CommandContainer, commandContainer);
@@ -950,9 +950,9 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="commandName">Name of the command.</param>
         /// <returns></returns>
-        private CommandProxy<ICommand<TAppSession, TRequestInfo>> GetCommandByName(string commandName)
+        private CommandInfo<ICommand<TAppSession, TRequestInfo>> GetCommandByName(string commandName)
         {
-            CommandProxy<ICommand<TAppSession, TRequestInfo>> commandProxy;
+            CommandInfo<ICommand<TAppSession, TRequestInfo>> commandProxy;
 
             if (m_CommandContainer.TryGetValue(commandName, out commandProxy))
                 return commandProxy;
