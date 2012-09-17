@@ -981,29 +981,6 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Executes the command filters.
-        /// </summary>
-        /// <param name="filters">The filters.</param>
-        /// <param name="session">The session.</param>
-        /// <param name="command">The command.</param>
-        /// <param name="filterAction">The filter action.</param>
-        private void ExecuteCommandFilters(List<CommandFilterAttribute> filters, TAppSession session, ICommand command, Action<CommandFilterAttribute, TAppSession, ICommand> filterAction)
-        {
-            if (filters == null || filters.Count <= 0)
-                return;
-
-            for (var i = 0; i < filters.Count; i++)
-            {
-                var filter = filters[i];
-                filterAction(filter, session, command);
-            }
-        }
-
-        private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutingAction = (f, s, c) => f.OnCommandExecuting(s, c);
-
-        private Action<CommandFilterAttribute, TAppSession, ICommand> m_CommandFilterExecutedAction = (f, s, c) => f.OnCommandExecuted(s, c);
-
-        /// <summary>
         /// Executes the command.
         /// </summary>
         /// <param name="session">The session.</param>
@@ -1023,23 +1000,49 @@ namespace SuperSocket.SocketBase
 
                     session.CurrentCommand = requestInfo.Key;
 
-                    if (commandFilters != null)
-                        ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutingAction);
+                    var cancelled = false;
 
-                    //Command filter may close the session,
-                    //so detect whether session is connected before execute command
-                    if (session.Connected)
+                    if (commandFilters == null || !commandFilters.Any())
                     {
                         command.ExecuteCommand(session, requestInfo);
+                    }
+                    else
+                    {
+                        var commandContext = new CommandExecutingContext(session, requestInfo, command);
 
-                        if (commandFilters != null)
-                            ExecuteCommandFilters(commandFilters, session, command, m_CommandFilterExecutedAction);
+                        for (var i = 0; i < commandFilters.Count; i++)
+                        {
+                            var filter = commandFilters[i];
+                            filter.OnCommandExecuting(commandContext);
+
+                            if (commandContext.Cancel)
+                            {
+                                cancelled = true;
+                                if(Logger.IsInfoEnabled)
+                                    Logger.Info(session, string.Format("The executing of the command {0} was cancelled by the command filter {1}.", command.Name, filter.GetType().ToString()));
+                                break;
+                            }
+                        }
+
+                        if (!cancelled)
+                        {
+                            command.ExecuteCommand(session, requestInfo);
+
+                            for (var i = 0; i < commandFilters.Count; i++)
+                            {
+                                var filter = commandFilters[i];
+                                filter.OnCommandExecuted(commandContext);
+                            }
+                        }
                     }
 
-                    session.PrevCommand = requestInfo.Key;
+                    if(!cancelled)
+                    {
+                        session.PrevCommand = requestInfo.Key;
 
-                    if (Config.LogCommand && Logger.IsInfoEnabled)
-                        Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
+                        if (Config.LogCommand && Logger.IsInfoEnabled)
+                            Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
+                    }
                 }
                 else
                 {

@@ -63,6 +63,7 @@
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="Async.cs" />
+    <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />

@@ -72,6 +72,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="Async.cs" />
+    <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
     <Compile Include="Command\CommandUpdateEventArgs.cs" />

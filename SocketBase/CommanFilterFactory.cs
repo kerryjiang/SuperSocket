@@ -33,7 +33,7 @@ namespace SuperSocket.SocketBase
                 if(commandAttrs.Length > 0)
                     applyAttrs.AddRange(commandAttrs);
                 if(applyAttrs.Count > 0)
-                    library.Add(command.Name, applyAttrs);
+                    library.Add(command.Name, applyAttrs.OrderBy(f => f.Order).ToList());
             }
             
             return library;
