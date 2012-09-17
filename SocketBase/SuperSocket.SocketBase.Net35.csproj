@@ -67,13 +67,13 @@
     <Compile Include="CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
+    <Compile Include="Command\CommandProxy.cs" />
     <Compile Include="Command\CommandUpdateEventArgs.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandLoader.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
-    <Compile Include="CommanFilterFactory.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ConfigurationSource.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
@@ -93,7 +93,6 @@
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="IBootstrap.cs" />
-    <Compile Include="ICommandSource.cs" />
     <Compile Include="IConnectionFilter.cs" />
     <Compile Include="ILoggerProvider.cs" />
     <Compile Include="ISessionBase.cs" />
