@@ -26,6 +26,8 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -38,6 +40,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Debug\SuperSocket.SocketBase.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -49,6 +52,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <DocumentationFile>bin\Release\SuperSocket.SocketBase.XML</DocumentationFile>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -146,9 +150,9 @@
     <Compile Include="Command\StringCommandBase.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common\SuperSocket.Common.csproj">
+    <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
-      <Name>SuperSocket.Common</Name>
+      <Name>SuperSocket.Common.Net45</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

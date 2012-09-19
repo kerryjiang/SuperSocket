@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService", "SocketService\SuperSocket.SocketService.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService.Net45", "SocketService\SuperSocket.SocketService.Net45.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common", "Common\SuperSocket.Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common.Net45", "Common\SuperSocket.Common.Net45.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Test", "Test\SuperSocket.Test.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Test.Net45", "Test\SuperSocket.Test.Net45.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase", "SocketBase\SuperSocket.SocketBase.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase.Net45", "SocketBase\SuperSocket.SocketBase.Net45.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine", "SocketEngine\SuperSocket.SocketEngine.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine.Net45", "SocketEngine\SuperSocket.SocketEngine.Net45.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BEAF6CBD-16DD-456B-A889-421E0DFAB783}"
 	ProjectSection(SolutionItems) = preProject
@@ -28,9 +28,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net40", "Net40", "{ACCCC9EB
 		Solution Items\Net40\App.config = Solution Items\Net40\App.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility", "Facility\SuperSocket.Facility.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility.Net45", "Facility\SuperSocket.Facility.Net45.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr", "Dlr\SuperSocket.Dlr.csproj", "{55BAA051-CE62-4D4A-81B6-68B042CC78E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr.Net45", "Dlr\SuperSocket.Dlr.Net45.csproj", "{55BAA051-CE62-4D4A-81B6-68B042CC78E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
