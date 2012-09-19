@@ -1,25 +1,25 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SuperSocket", "SuperSocket", "{2E6E656A-D747-4A69-B300-8C82573A76B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common", "..\Common\SuperSocket.Common.Net40.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common.Net40", "..\Common\SuperSocket.Common.Net40.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService", "..\SocketService\SuperSocket.SocketService.Net40.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService.Net40", "..\SocketService\SuperSocket.SocketService.Net40.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteProcessService", "RemoteProcessService\RemoteProcessService.csproj", "{CA67AA73-42D0-4A08-85C4-61FB569231A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BroadcastService", "BroadcastService\BroadcastService.csproj", "{083155D6-A0A2-4703-AC43-7C6496A9B607}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Test", "..\Test\SuperSocket.Test.Net40.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Test.Net40", "..\Test\SuperSocket.Test.Net40.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase", "..\SocketBase\SuperSocket.SocketBase.Net40.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase.Net40", "..\SocketBase\SuperSocket.SocketBase.Net40.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine", "..\SocketEngine\SuperSocket.SocketEngine.Net40.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine.Net40", "..\SocketEngine\SuperSocket.SocketEngine.Net40.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomProtocol", "CustomProtocol\CustomProtocol.csproj", "{FB261628-26FD-48B5-9D3D-C9E34B4728CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility", "..\Facility\SuperSocket.Facility.Net40.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility.Net40", "..\Facility\SuperSocket.Facility.Net40.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPSSocketServer", "GPSSocketServer\GPSSocketServer.csproj", "{2B1DD784-5A9D-4177-9291-ADEB3213A938}"
 EndProject
@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectionFilter", "Connect
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultipleAppServer", "MultipleAppServer\MultipleAppServer.csproj", "{22A610A1-5F55-449E-8831-A832D692DAEC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr", "..\Dlr\SuperSocket.Dlr.Net40.csproj", "{55BAA051-CE62-4D4A-81B6-68B042CC78E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr.Net40", "..\Dlr\SuperSocket.Dlr.Net40.csproj", "{55BAA051-CE62-4D4A-81B6-68B042CC78E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronSocketServer", "IronSocketServer\IronSocketServer.csproj", "{9510FE4C-52ED-419F-B32D-61F18C487A64}"
 EndProject

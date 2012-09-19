@@ -3,28 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Command;
-using System.Threading;
 
 namespace SuperSocket.QuickStart.CommandFilter
 {
-    public class CountCommandFilter : CommandFilterAttribute
+    public class LoggedInValidationFilter : CommandFilterAttribute
     {
-        private long m_Total = 0;
-
         public override void OnCommandExecuting(CommandExecutingContext commandContext)
         {
+            var session = commandContext.Session as MyAppSession;
 
+            //If the session is not logged in, cancel the executing of the command
+            if (!session.IsLoggedIn)
+                commandContext.Cancel = true;
         }
 
         public override void OnCommandExecuted(CommandExecutingContext commandContext)
         {
-            Interlocked.Increment(ref m_Total);
-        }
 
-        public long Total
-        {
-            get { return m_Total; }
         }
     }
 }

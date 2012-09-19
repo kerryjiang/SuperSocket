@@ -6,9 +6,8 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.QuickStart.CommandFilter
 {
-    [CountCommandFilter]//Global command filter
-    public class MyAppServer : AppServer<MyAppSession>
+    public class MyAppSession : AppSession<MyAppSession>
     {
-
+        public bool IsLoggedIn { internal set; get; }
     }
 }

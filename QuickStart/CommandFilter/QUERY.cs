@@ -8,10 +8,11 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CommandFilter
 {
-    [LogTimeCommandFilter]
-    public class QUERY : StringCommandBase
+    [LoggedInValidationFilter(Order = 0)]
+    [LogTimeCommandFilter(Order = 1)]
+    public class QUERY : StringCommandBase<MyAppSession>
     {
-        public override void ExecuteCommand(AppSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(MyAppSession session, StringRequestInfo requestInfo)
         {
             //Your code
         }

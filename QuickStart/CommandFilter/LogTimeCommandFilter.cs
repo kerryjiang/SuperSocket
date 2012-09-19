@@ -10,19 +10,20 @@ namespace SuperSocket.QuickStart.CommandFilter
 {
     public class LogTimeCommandFilter : CommandFilterAttribute
     {
-        public override void OnCommandExecuting(IAppSession session, ICommand command)
+        public override void OnCommandExecuting(CommandExecutingContext commandContext)
         {
-            session.Items["StartTime"] = DateTime.Now;
+            commandContext.Session.Items["StartTime"] = DateTime.Now;
         }
 
-        public override void OnCommandExecuted(IAppSession session, ICommand command)
+        public override void OnCommandExecuted(CommandExecutingContext commandContext)
         {
+            var session = commandContext.Session;
             var startTime = session.Items.GetValue<DateTime>("StartTime");
             var ts = DateTime.Now.Subtract(startTime);
 
             if (ts.TotalSeconds > 5 && session.Logger.IsInfoEnabled)
             {
-                session.Logger.InfoFormat("A command '{0}' took {1} seconds!", command.Name, ts.ToString());
+                session.Logger.InfoFormat("A command '{0}' took {1} seconds!", commandContext.CurrentCommand.Name, ts.ToString());
             }
         }
     }
