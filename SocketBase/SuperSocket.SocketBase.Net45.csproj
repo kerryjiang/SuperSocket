@@ -88,6 +88,7 @@
     <Compile Include="Config\TypeProviderCollection.cs" />
     <Compile Include="Config\TypeProviderConfig.cs" />
     <Compile Include="DisplayAttribute.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="GlobalPerformanceData.cs" />
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ILoggerProvider.cs" />
