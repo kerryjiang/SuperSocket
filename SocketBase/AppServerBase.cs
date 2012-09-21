@@ -998,7 +998,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Occurs when a full request item received.
         /// </summary>
-        public event RequestHandler<TAppSession, TRequestInfo> NewRequestReceived
+        public virtual event RequestHandler<TAppSession, TRequestInfo> NewRequestReceived
         {
             add { m_RequestHandler += value; }
             remove { m_RequestHandler -= value; }
