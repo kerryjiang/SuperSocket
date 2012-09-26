@@ -169,6 +169,18 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets a value indicating whether [log all socket exception].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [log all socket exception]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("logAllSocketException", IsRequired = false, DefaultValue = false)]
+        public bool LogAllSocketException
+        {
+            get { return (bool)this["logAllSocketException"]; }
+        }
+
+        /// <summary>
         /// Gets a value indicating whether clear idle session.
         /// </summary>
         /// <value><c>true</c> if clear idle session; otherwise, <c>false</c>.</value>

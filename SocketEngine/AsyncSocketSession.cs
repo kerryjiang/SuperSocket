@@ -68,10 +68,11 @@ namespace SuperSocket.SocketEngine
 
             if (e.SocketError != SocketError.Success)
             {
-                if (e.SocketError != SocketError.ConnectionAborted
-                    && e.SocketError != SocketError.ConnectionReset
-                    && e.SocketError != SocketError.Interrupted
-                    && e.SocketError != SocketError.Shutdown)
+                if (Config.LogAllSocketException ||
+                        (e.SocketError != SocketError.ConnectionAborted
+                            && e.SocketError != SocketError.ConnectionReset
+                            && e.SocketError != SocketError.Interrupted
+                            && e.SocketError != SocketError.Shutdown))
                 {
                     AppSession.Logger.Error(AppSession, new SocketException((int)e.SocketError));
                 }
@@ -98,6 +99,9 @@ namespace SuperSocket.SocketEngine
 
             if (e is SocketException)
             {
+                if (Config.LogAllSocketException)
+                    return false;
+
                 var se = e as SocketException;
 
                 if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
@@ -194,11 +198,11 @@ namespace SuperSocket.SocketEngine
                         if (m_SocketEventArgSend.BufferList != null)
                             m_SocketEventArgSend.BufferList = null;
                     }//Supress this exception
-                    //catch (Exception e) //a strange NullReference exception
-                    //{
-                    //    if (AppSession.Logger.IsErrorEnabled)
-                    //        AppSession.Logger.Error(AppSession, e);
-                    //}
+                    catch (Exception) //a strange NullReference exception
+                    {
+                        //if (AppSession.Logger.IsErrorEnabled)
+                        //    AppSession.Logger.Error(AppSession, e);
+                    }
                     finally
                     {
                         m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);

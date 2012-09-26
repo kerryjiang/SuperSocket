@@ -299,6 +299,14 @@ namespace SuperSocket.SocketBase.Config
         /// </value>
         public bool LogBasicSessionActivity { get; set; }
 
+        /// <summary>
+        /// Gets/sets a value indicating whether [log all socket exception].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [log all socket exception]; otherwise, <c>false</c>.
+        /// </value>
+        public bool LogAllSocketException { get; set; }
+
         #endregion
     }
 }
