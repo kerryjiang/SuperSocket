@@ -314,6 +314,7 @@ namespace SuperSocket.SocketBase
             var newServerState = CreateServerState();
 
             newServerState.CollectedTime = now;
+            newServerState.Name = this.Name;
             newServerState.StartedTime = this.StartedTime;
             newServerState.IsRunning = this.IsRunning;
             newServerState.TotalConnections = m_SessionDict.Count;
