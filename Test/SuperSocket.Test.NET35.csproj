@@ -81,6 +81,7 @@
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
     <Compile Include="Command\SEND.cs" />
+    <Compile Include="Command\SESS.cs" />
     <Compile Include="Common\ArraySegmentTest.cs" />
     <Compile Include="Common\AssemblyUtilTest.cs" />
     <Compile Include="Common\BatchQueueTest.cs" />

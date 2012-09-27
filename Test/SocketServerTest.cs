@@ -189,6 +189,58 @@ namespace SuperSocket.Test
             }
         }
 
+        [Test]
+        public void TestSessionConnectedState()
+        {
+            StartServer();
+
+            var server = ServerX as IAppServer;
+
+            //AppDomain isolation
+            if (server == null)
+                return;
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = GetSocketStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    reader.ReadLine();
+                    writer.WriteLine("SESS");
+                    writer.Flush();
+
+                    var sessionID = reader.ReadLine();
+                    var session = server.GetAppSessionByID(sessionID);
+
+                    if (session == null)
+                        Assert.Fail("Failed to get session by sessionID");
+
+                    Assert.IsTrue(session.Connected);
+
+                    try
+                    {
+                        socket.Shutdown(SocketShutdown.Both);
+                    }
+                    catch { }
+                    finally
+                    {
+                        try
+                        {
+                            socket.Close();
+                        }
+                        catch { }
+                    }
+
+                    Thread.Sleep(100);
+                    Assert.IsFalse(session.Connected);
+                }
+            }
+        }
+
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {
             var defaultConfig = DefaultServerConfig;
