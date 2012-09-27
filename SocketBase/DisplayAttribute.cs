@@ -14,6 +14,14 @@ namespace SuperSocket.SocketBase
         public string Name { get; private set; }
 
         /// <summary>
+        /// Gets or sets the short name.
+        /// </summary>
+        /// <value>
+        /// The short name.
+        /// </value>
+        public string ShortName { get; set; }
+
+        /// <summary>
         /// Gets or sets the format.
         /// </summary>
         /// <value>
@@ -29,6 +37,15 @@ namespace SuperSocket.SocketBase
         /// </value>
         public int Order { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [output in perf log].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [output in perf log]; otherwise, <c>false</c>.
+        /// </value>
+        public bool OutputInPerfLog { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DisplayAttribute"/> class.
         /// </summary>
@@ -36,6 +53,7 @@ namespace SuperSocket.SocketBase
         public DisplayAttribute(string name)
         {
             Name = name;
+            OutputInPerfLog = true;
         }
     }
 }

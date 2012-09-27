@@ -73,7 +73,7 @@ namespace SuperSocket.SocketEngine
             {
                 var att = p.GetCustomAttributes(false).FirstOrDefault() as DisplayAttribute;
 
-                if (att != null)
+                if (att != null && att.OutputInPerfLog)
                 {
                     stateMetadata.Add(new KeyValuePair<PropertyInfo, DisplayAttribute>(p, att));
                 }

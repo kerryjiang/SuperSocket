@@ -60,7 +60,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The max connection number.
         /// </value>
-        [Display("Maximum Allowed Connection Number", Order = 3)]
+        [Display("Maximum Allowed Connection Number", ShortName = "Max Allowed Connections", Order = 3)]
         public int MaxConnectionNumber { get; set; }
 
         /// <summary>
@@ -78,7 +78,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The request handling speed.
         /// </value>
-        [Display("Request Handling Speed", Format = "{0:f0}/s", Order = 5)]
+        [Display("Request Handling Speed (#/second)", Format = "{0:f0}", Order = 5)]
         public double RequestHandlingSpeed { get; set; }
 
 
@@ -88,6 +88,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The listeners.
         /// </value>
+        [Display("Listeners", Order = 6, OutputInPerfLog = false)]
         public ListenerInfo[] Listeners { get; set; }
     }
 }
