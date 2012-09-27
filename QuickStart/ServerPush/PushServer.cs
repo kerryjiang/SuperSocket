@@ -29,7 +29,7 @@ namespace SuperSocket.QuickStart.ServerPush
             }
             catch (Exception e)
             {
-
+                Logger.Error(e);
             }
             finally
             {
