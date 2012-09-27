@@ -201,7 +201,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Starts the session.
         /// </summary>
-        public void StartSession()
+        void IAppSession.StartSession()
         {
             OnSessionStarted();
         }
