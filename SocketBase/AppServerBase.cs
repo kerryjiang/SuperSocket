@@ -1249,7 +1249,9 @@ namespace SuperSocket.SocketBase
             if (Logger.IsInfoEnabled && (Config.LogBasicSessionActivity || (reason != CloseReason.ServerClosing && reason != CloseReason.ClientClosing && reason != CloseReason.ServerShutdown)))
                 Logger.Info(session, string.Format("This session was closed for {0}!", reason));
 
-            OnSessionClosed((TAppSession)session.AppSession, reason);
+            var appSession = session.AppSession as TAppSession;
+            appSession.Connected = false;
+            OnSessionClosed(appSession, reason);
         }
 
         private Action<TAppSession, CloseReason> m_SessionClosed;
@@ -1269,8 +1271,6 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The reason.</param>
         protected virtual void OnSessionClosed(TAppSession session, CloseReason reason)
         {
-            session.Connected = false;
-
             var handler = m_SessionClosed;
 
             if (handler != null)

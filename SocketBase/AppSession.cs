@@ -23,7 +23,7 @@ namespace SuperSocket.SocketBase
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
         where TRequestInfo : class, IRequestInfo
     {
-        #region Attributes
+        #region Properties
 
         /// <summary>
         /// Gets the app server instance assosiated with the session.
@@ -62,13 +62,20 @@ namespace SuperSocket.SocketBase
             }
         }
 
+
+        private bool m_Connected = false;
+
         /// <summary>
         /// Gets a value indicating whether this <see cref="IAppSession"/> is connected.
         /// </summary>
         /// <value>
         ///   <c>true</c> if connected; otherwise, <c>false</c>.
         /// </value>
-        public bool Connected { get; internal set; }
+        public bool Connected
+        {
+            get { return m_Connected; }
+            internal set { m_Connected = value; }
+        }
 
         /// <summary>
         /// Gets or sets the previous command.
@@ -186,7 +193,7 @@ namespace SuperSocket.SocketBase
             AppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
-            Connected = true;
+            m_Connected = true;
             m_RequestFilter = requestFilter;
             OnInit();
         }
@@ -271,7 +278,7 @@ namespace SuperSocket.SocketBase
             Close(CloseReason.ServerClosing);
         }
 
-        #region sending processing
+        #region Sending processing
 
         private IBatchQueue<ArraySegment<byte>> m_SendingQueue;
 
@@ -370,8 +377,13 @@ namespace SuperSocket.SocketBase
             Send(data, offset, length);
         }
 
+        private const string CANNOT_SEND_NOT_CONNECTED = "You cannot send data any more, because this session is not connected.";
+
         private bool InternalTrySend(ArraySegment<byte> segment)
         {
+            if (!m_Connected)
+                throw new Exception(CANNOT_SEND_NOT_CONNECTED);
+
             if (!GetSendingQueue().Enqueue(segment))
                 return false;
 
@@ -399,7 +411,7 @@ namespace SuperSocket.SocketBase
 
             var spinWait = new SpinWait();
 
-            while (this.Connected)
+            while (m_Connected)
             {
                 spinWait.SpinOnce();
 
@@ -431,6 +443,9 @@ namespace SuperSocket.SocketBase
 
         private bool InternalTrySend(IList<ArraySegment<byte>> segments)
         {
+            if (!m_Connected)
+                throw new Exception(CANNOT_SEND_NOT_CONNECTED);
+
             if (!GetSendingQueue().Enqueue(segments))
                 return false;
 
@@ -457,7 +472,7 @@ namespace SuperSocket.SocketBase
 
             var spinWait = new SpinWait();
 
-            while (this.Connected)
+            while (m_Connected)
             {
                 spinWait.SpinOnce();
 
@@ -512,7 +527,7 @@ namespace SuperSocket.SocketBase
 
         #endregion
 
-        #region receiving processing
+        #region Receiving processing
 
         /// <summary>
         /// Sets the next request filter which will be used when next data block received
