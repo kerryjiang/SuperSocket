@@ -45,13 +45,14 @@ namespace SuperSocket.SocketEngine
         public override void Start()
         {
             SocketAsyncProxy.Initialize(this);
-            StartReceive(SocketAsyncProxy.SocketEventArgs);
 
             if (!SyncSend)
             {
                 m_SocketEventArgSend = new SocketAsyncEventArgs();
                 m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
             }
+
+            StartReceive(SocketAsyncProxy.SocketEventArgs);
 
             if (!m_IsReset)
                 StartSession();
