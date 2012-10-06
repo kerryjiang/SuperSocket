@@ -1191,12 +1191,12 @@ namespace SuperSocket.SocketBase
         }
 
 
-        private Action<TAppSession> m_NewSessionConnected;
+        private SessionHandler<TAppSession> m_NewSessionConnected;
 
         /// <summary>
         /// The action which will be executed after a new session connect
         /// </summary>
-        public event Action<TAppSession> NewSessionConnected
+        public event SessionHandler<TAppSession> NewSessionConnected
         {
             add { m_NewSessionConnected += value; }
             remove { m_NewSessionConnected -= value; }
@@ -1254,11 +1254,11 @@ namespace SuperSocket.SocketBase
             OnSessionClosed(appSession, reason);
         }
 
-        private Action<TAppSession, CloseReason> m_SessionClosed;
+        private SessionHandler<TAppSession, CloseReason> m_SessionClosed;
         /// <summary>
         /// Gets/sets the session closed event handler.
         /// </summary>
-        public event Action<TAppSession, CloseReason> SessionClosed
+        public event SessionHandler<TAppSession, CloseReason> SessionClosed
         {
             add { m_SessionClosed += value; }
             remove { m_SessionClosed -= value; }

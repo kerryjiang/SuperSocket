@@ -29,7 +29,7 @@ namespace TelnetServer_ProcessRequest
                 return;
             }
 
-            appServer.NewSessionConnected += new Action<AppSession>(appServer_NewSessionConnected);
+            appServer.NewSessionConnected += new SessionHandler<AppSession>(appServer_NewSessionConnected);
             appServer.NewRequestReceived += new RequestHandler<AppSession, StringRequestInfo>(appServer_NewRequestReceived);
 
             Console.WriteLine();

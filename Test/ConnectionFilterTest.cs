@@ -37,7 +37,7 @@ namespace SuperSocket.Test
                 };
 
             m_Server = new TestServer();
-            m_Server.NewSessionConnected += new Action<TestSession>(m_Server_NewSessionConnected);
+            m_Server.NewSessionConnected += new SessionHandler<TestSession>(m_Server_NewSessionConnected);
             m_Server.Setup(new RootConfig(), m_ServerConfig, null, null, new ConsoleLogFactory(), new IConnectionFilter[] { new TestConnectionFilter() }, null);
         }
 

@@ -193,12 +193,12 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets/sets the new session connected event handler.
         /// </summary>
-        event Action<TAppSession> NewSessionConnected;
+        event SessionHandler<TAppSession> NewSessionConnected;
 
         /// <summary>
         /// Gets/sets the session closed event handler.
         /// </summary>
-        event Action<TAppSession, CloseReason> SessionClosed;
+        event SessionHandler<TAppSession, CloseReason> SessionClosed;
     }
 
     /// <summary>
