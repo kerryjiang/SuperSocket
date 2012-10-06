@@ -1219,7 +1219,7 @@ namespace SuperSocket.SocketBase
         {
             try
             {
-                var handler = (Action<TAppSession>)result.AsyncState;
+                var handler = (SessionHandler<TAppSession>)result.AsyncState;
                 handler.EndInvoke(result);
             }
             catch (Exception e)
@@ -1285,7 +1285,7 @@ namespace SuperSocket.SocketBase
         {
             try
             {
-                var handler = (Action<TAppSession, CloseReason>)result.AsyncState;
+                var handler = (SessionHandler<TAppSession, CloseReason>)result.AsyncState;
                 handler.EndInvoke(result);
             }
             catch (Exception e)
