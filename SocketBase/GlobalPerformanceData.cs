@@ -62,7 +62,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The max working threads.
         /// </value>
-        [Display(Name = "Maximum Working Threads", , Order = 5)]
+        [Display(Name = "Maximum Working Threads", Order = 5)]
         public int MaxWorkingThreads { get; set; }
 
         /// <summary>
