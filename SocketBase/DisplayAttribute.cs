@@ -11,7 +11,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the name.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Gets or sets the short name.
@@ -45,6 +45,15 @@ namespace SuperSocket.SocketBase
         ///   <c>true</c> if [output in perf log]; otherwise, <c>false</c>.
         /// </value>
         public bool OutputInPerfLog { get; set; }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DisplayAttribute" /> class.
+        /// </summary>
+        public DisplayAttribute()
+        {
+
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DisplayAttribute"/> class.
