@@ -38,7 +38,7 @@ namespace SuperSocket.SocketEngine
             m_CpuCores = Environment.ProcessorCount;
 
             var isUnix = Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
-            var instanceName = isUnix ? string.Format("{0}/{1}", process.Id, process.ProcessName) : process.ProcessName;
+            var instanceName = isUnix ? string.Format("{0}/{1}", process.Id, process.ProcessName) : GetPerformanceCounterInstanceName(process);
 
             m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", instanceName);
             m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
@@ -48,6 +48,27 @@ namespace SuperSocket.SocketEngine
 
             m_TimerInterval = config.PerformanceDataCollectInterval * 1000;
             m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
+        }
+
+        //Tt is only used in windows
+        private static string GetPerformanceCounterInstanceName(Process process)
+        {
+            var processId = process.Id;
+            var processCategory = new PerformanceCounterCategory("Process");
+            var runnedInstances = processCategory.GetInstanceNames();
+
+            foreach (string runnedInstance in runnedInstances)
+            {
+                using (var performanceCounter = new PerformanceCounter("Process", "ID Process", runnedInstance, true))
+                {
+                    if ((int)performanceCounter.RawValue == processId)
+                    {
+                        return runnedInstance;
+                    }
+                }
+            }
+
+            return process.ProcessName;
         }
 
         public void Start()
