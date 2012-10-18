@@ -407,8 +407,6 @@ namespace SuperSocket.SocketEngine
                 else
                 {
                     succeeded++;
-                    if (m_GlobalLog.IsErrorEnabled)
-                        m_GlobalLog.Info(server.Name + " has been started");
                 }
             }
 
@@ -438,9 +436,6 @@ namespace SuperSocket.SocketEngine
                 if (server.IsRunning)
                 {
                     server.Stop();
-
-                    if (m_GlobalLog.IsInfoEnabled)
-                        m_GlobalLog.Info(server.Name + " has been stopped");
                 }
             }
 

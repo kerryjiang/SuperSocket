@@ -10,7 +10,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// AppDomainAppServer
     /// </summary>
-    public class AppDomainAppServer : IWorkItem
+    public class AppDomainAppServer : MarshalByRefObject, IWorkItem
     {
         private IWorkItem m_AppServer;
 
@@ -136,7 +136,7 @@ namespace SuperSocket.SocketEngine
                     m_AppServer = null;
                 }
 
-                throw;
+                return false;
             }
 
             return m_AppServer.Start();
@@ -213,6 +213,21 @@ namespace SuperSocket.SocketEngine
 
                 return m_AppServer.State;
             }
+        }
+
+        ServerState IServerStateSource.CollectServerState(GlobalPerformanceData globalPerfData)
+        {
+            if (m_AppServer == null)
+            {
+                return new ServerState
+                {
+                    Name = Name,
+                    IsRunning = false,
+                    CollectedTime = DateTime.Now
+                };
+            }
+
+            return m_AppServer.CollectServerState(globalPerfData);
         }
     }
 }

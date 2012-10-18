@@ -86,5 +86,10 @@ namespace SuperSocket.SocketEngine
         {
             get { return m_AppServer.State; }
         }
+
+        ServerState IServerStateSource.CollectServerState(GlobalPerformanceData globalPerfData)
+        {
+            return m_AppServer.CollectServerState(globalPerfData);   
+        }
     }
 }

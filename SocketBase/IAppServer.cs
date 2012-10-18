@@ -30,7 +30,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// An item can be started and stopped
     /// </summary>
-    public interface IWorkItem
+    public interface IWorkItem : IServerStateSource
     {
         /// <summary>
         /// Gets the name.

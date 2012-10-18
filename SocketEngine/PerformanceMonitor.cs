@@ -135,22 +135,18 @@ namespace SuperSocket.SocketEngine
             {
                 var s = m_AppServers[i];
 
-                var serverStateSource = s as IServerStateSource;
-                if (serverStateSource != null)
+                var serverState = s.CollectServerState(globalPerfData);
+                var stateTypeMetadata = GetStateTypeMetatdata(serverState.GetType());
+
+                perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
+
+                for (var j = 0; j < stateTypeMetadata.Count; j++)
                 {
-                    var serverState = serverStateSource.CollectServerState(globalPerfData);
-                    var stateTypeMetadata = GetStateTypeMetatdata(serverState.GetType());
-
-                    perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
-
-                    for (var j = 0; j < stateTypeMetadata.Count; j++)
-                    {
-                        var property = stateTypeMetadata[j];
-                        if (!string.IsNullOrEmpty(property.Value.Format))
-                            perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, string.Format(property.Value.Format, property.Key.GetValue(serverState, m_ParaArray))));
-                        else
-                            perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, property.Key.GetValue(serverState, m_ParaArray)));
-                    }
+                    var property = stateTypeMetadata[j];
+                    if (!string.IsNullOrEmpty(property.Value.Format))
+                        perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, string.Format(property.Value.Format, property.Key.GetValue(serverState, m_ParaArray))));
+                    else
+                        perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, property.Key.GetValue(serverState, m_ParaArray)));
                 }
             }
 
