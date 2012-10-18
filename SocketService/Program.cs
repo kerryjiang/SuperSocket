@@ -43,54 +43,74 @@ namespace SuperSocket.SocketService
                 Console.WriteLine("Invalid argument!");
                 return;
             }
-
-            Console.WriteLine("Press any key to start the SuperSocket Server Engine!");
-            Console.ReadKey();
-            Console.WriteLine();
+            
             RunAsConsole();
             Console.ReadKey();
         }
 
         static void RunAsConsole()
         {
+            Console.WriteLine("Press any key to start the SuperSocket ServiceEngine!");
+            Console.ReadKey();
+            Console.WriteLine();
+
+            Console.WriteLine("Initializing...");
+
             IBootstrap bootstrap = BootstrapFactory.CreateBootstrap();
 
             if (!bootstrap.Initialize())
             {
-                Console.WriteLine("Failed to initialize SuperSocket server! Please check error log for more information!");
+                Console.WriteLine("Failed to initialize SuperSocket ServiceEngine! Please check error log for more information!");
                 return;
             }
 
+            Console.WriteLine("Starting...");
+
             var result = bootstrap.Start();
+
+            Console.WriteLine("-------------------------------------------------------------------");
 
             foreach (var server in bootstrap.AppServers)
             {
                 if (server.IsRunning)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("- {0} has been started", server.Name);
+                }
                 else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("- {0} failed to start", server.Name);
+                }
             }
+
+            Console.ResetColor();
+            Console.WriteLine("-------------------------------------------------------------------");
 
             switch(result)
             {
                 case(StartResult.None):
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("No server is configured, please check you configuration!");
                     break;
 
                 case(StartResult.Success):
-                    Console.WriteLine("The server engine has been started!");
+                    Console.WriteLine("The SuperSocket ServiceEngine has been started!");
                     break;
 
                 case (StartResult.Failed):
-                    Console.WriteLine("Failed to start the server engine! Please check error log for more information!");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Failed to start the SuperSocket ServiceEngine! Please check error log for more information!");
                     break;
 
                 case (StartResult.PartialSuccess):
-                    Console.WriteLine("Some server instances were started successfully, but the others failed to start! Please check error log for more information!");
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Some server instances were started successfully, but the others failed! Please check error log for more information!");
                     break;
             }
 
-            Console.WriteLine("Press key 'q' to stop the server engine.");
+            Console.ResetColor();
+            Console.WriteLine("Press key 'q' to stop the ServiceEngine.");
 
             while (Console.ReadKey().Key != ConsoleKey.Q)
             {
@@ -101,7 +121,7 @@ namespace SuperSocket.SocketService
             bootstrap.Stop();
 
             Console.WriteLine();
-            Console.WriteLine("The server engine has been stopped!");
+            Console.WriteLine("The SuperSocket ServiceEngine has been stopped!");
         }
 
         static void RunAsService()
