@@ -209,25 +209,48 @@ namespace SuperSocket.SocketEngine
             get
             {
                 if (m_AppServer == null)
-                    return null;
+                {
+                    return GetStoppedState();
+                }
 
                 return m_AppServer.State;
             }
+        }
+
+        private ServerState m_PrevState;
+        private ServerState m_StoppedState;
+
+        private ServerState GetStoppedState()
+        {
+            if (m_StoppedState != null)
+            {
+                m_StoppedState = new ServerState
+                {
+                    Name = Name,
+                    IsRunning = false
+                };
+
+                if (m_PrevState != null)
+                {
+                    m_StoppedState.Listeners = m_PrevState.Listeners;
+                }
+            }
+
+            return m_StoppedState;
         }
 
         ServerState IServerStateSource.CollectServerState(GlobalPerformanceData globalPerfData)
         {
             if (m_AppServer == null)
             {
-                return new ServerState
-                {
-                    Name = Name,
-                    IsRunning = false,
-                    CollectedTime = DateTime.Now
-                };
+                var stoppedState = GetStoppedState();
+                stoppedState.CollectedTime = DateTime.Now;
+                return stoppedState;
             }
 
-            return m_AppServer.CollectServerState(globalPerfData);
+            var currentState = m_AppServer.CollectServerState(globalPerfData);
+            m_PrevState = currentState;
+            return currentState;
         }
     }
 }
