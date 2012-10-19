@@ -1,7 +1,2 @@
-﻿import clr
-clr.AddReference("System")
-
-from System import *
-
-def execute(session, request):
-	session.Send((Convert.ToInt32(request[0]) + Convert.ToInt32(request[1])).ToString())
+﻿def execute(session, request):
+	session.Send(str(int(request[0]) + int(request[1])))
