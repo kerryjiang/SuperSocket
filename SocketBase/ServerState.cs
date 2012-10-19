@@ -33,7 +33,7 @@ namespace SuperSocket.SocketBase
         /// The started time.
         /// </value>
         [Display("Started Time", Order = 0)]
-        public DateTime StartedTime { get; set; }
+        public DateTime? StartedTime { get; set; }
 
         /// <summary>
         /// Gets or sets a value indicating whether this instance is running.

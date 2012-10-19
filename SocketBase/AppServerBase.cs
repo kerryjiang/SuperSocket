@@ -391,6 +391,18 @@ namespace SuperSocket.SocketBase
                 Config = plainConfig;
             }
 
+            try
+            {
+                m_ServerState = CreateServerState();
+            }
+            catch (Exception e)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Failed to create ServerState instance!", e);
+
+                return false;
+            }
+
             return SetupSocketServer();
         }
 
@@ -897,6 +909,9 @@ namespace SuperSocket.SocketBase
 
             StartedTime = DateTime.Now;
 
+            m_ServerState.StartedTime = StartedTime;
+            m_ServerState.IsRunning = true;
+
             OnStartup();
 
             if (Logger.IsInfoEnabled)
@@ -929,6 +944,9 @@ namespace SuperSocket.SocketBase
             Dispose(true);
             GC.SuppressFinalize(this);
             OnStopped();
+
+            m_ServerState.IsRunning = false;
+            m_ServerState.StartedTime = null;
 
             if (Logger.IsInfoEnabled)
                 Logger.Info(string.Format("The server instance {0} has been stopped!", Name));
@@ -1337,15 +1355,33 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the total session count.
         /// </summary>
-        public virtual int SessionCount
+        public abstract int SessionCount { get; }
+
+        #region Server state
+
+        private ServerState CreateServerState()
+        {
+            var type = ServerStateType;
+            var serverState = (ServerState)Activator.CreateInstance(type);
+            serverState.Name = Name;
+            serverState.Listeners = Listeners;
+            serverState.MaxConnectionNumber = Config.MaxConnectionNumber;
+            return serverState;
+        }
+
+        /// <summary>
+        /// Gets the type of the server state. The type must inherit from ServerState
+        /// </summary>
+        /// <value>
+        /// The type of the server state.
+        /// </value>
+        protected virtual Type ServerStateType
         {
             get
             {
-                throw new NotSupportedException();
+                return typeof(ServerState);
             }
         }
-
-        #region Server state
 
         private ServerState m_ServerState;
 
@@ -1362,40 +1398,26 @@ namespace SuperSocket.SocketBase
 
         ServerState IServerStateSource.CollectServerState(GlobalPerformanceData globalPerfData)
         {
-            m_ServerState = CollectServerState(globalPerfData);
+            UpdateServerState(m_ServerState);
+            this.AsyncRun(() => OnServerStateCollected(globalPerfData, m_ServerState), e => Logger.Error(e));
             return m_ServerState;
         }
 
-        private ServerState CollectServerState(GlobalPerformanceData globalPerfData)
+        /// <summary>
+        /// Updates the state of the server.
+        /// </summary>
+        /// <param name="serverState">State of the server.</param>
+        protected virtual void UpdateServerState(ServerState serverState)
         {
             DateTime now = DateTime.Now;
+            
+            serverState.IsRunning = this.IsRunning;
+            serverState.TotalConnections = this.SessionCount;
 
-            var newServerState = CreateServerState();
-
-            newServerState.CollectedTime = now;
-            newServerState.Name = this.Name;
-            newServerState.StartedTime = this.StartedTime;
-            newServerState.IsRunning = this.IsRunning;
-            newServerState.TotalConnections = this.SessionCount;
-            newServerState.MaxConnectionNumber = Config.MaxConnectionNumber;
-            newServerState.TotalHandledRequests = this.TotalHandledRequests;
-            newServerState.RequestHandlingSpeed = m_ServerState == null ?
-                        (this.TotalHandledRequests / now.Subtract(StartedTime).TotalSeconds)
-                            : ((this.TotalHandledRequests - m_ServerState.TotalHandledRequests) / now.Subtract(m_ServerState.CollectedTime).TotalSeconds);
-            newServerState.Listeners = Listeners;
-            //User can process the performance data by self
-            this.AsyncRun(() => OnServerStateCollected(globalPerfData, newServerState), e => Logger.Error(e));
-
-            return newServerState;
-        }
-
-        /// <summary>
-        /// Creates the state of the server, you can override this method to return your own ServerState instance.
-        /// </summary>
-        /// <returns></returns>
-        protected virtual ServerState CreateServerState()
-        {
-            return new ServerState();
+            serverState.RequestHandlingSpeed = ((this.TotalHandledRequests - serverState.TotalHandledRequests) / now.Subtract(serverState.CollectedTime).TotalSeconds);
+            serverState.TotalHandledRequests = this.TotalHandledRequests;
+            
+            serverState.CollectedTime = now;
         }
 
         /// <summary>
