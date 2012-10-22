@@ -105,6 +105,9 @@ namespace SuperSocket.SocketEngine
 
             foreach (string runnedInstance in runnedInstances)
             {
+                if (!runnedInstance.StartsWith(process.ProcessName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 using (var performanceCounter = new PerformanceCounter("Process", "ID Process", runnedInstance, true))
                 {
                     if ((int)performanceCounter.RawValue == processId)
