@@ -204,53 +204,53 @@ namespace SuperSocket.SocketEngine
         /// <value>
         /// The state of the server.
         /// </value>
-        public ServerState State
+        public ServerSummary Summary
         {
             get
             {
                 if (m_AppServer == null)
                 {
-                    return GetStoppedState();
+                    return GetStoppedSummary();
                 }
 
-                return m_AppServer.State;
+                return m_AppServer.Summary;
             }
         }
 
-        private ServerState m_PrevState;
-        private ServerState m_StoppedState;
+        private ServerSummary m_PrevSummary;
+        private ServerSummary m_StoppedSummary;
 
-        private ServerState GetStoppedState()
+        private ServerSummary GetStoppedSummary()
         {
-            if (m_StoppedState != null)
+            if (m_StoppedSummary != null)
             {
-                m_StoppedState = new ServerState
+                m_StoppedSummary = new ServerSummary
                 {
                     Name = Name,
                     IsRunning = false
                 };
 
-                if (m_PrevState != null)
+                if (m_PrevSummary != null)
                 {
-                    m_StoppedState.Listeners = m_PrevState.Listeners;
+                    m_StoppedSummary.Listeners = m_PrevSummary.Listeners;
                 }
             }
 
-            return m_StoppedState;
+            return m_StoppedSummary;
         }
 
-        ServerState IServerStateSource.CollectServerState(GlobalPerformanceData globalPerfData)
+        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
         {
             if (m_AppServer == null)
             {
-                var stoppedState = GetStoppedState();
-                stoppedState.CollectedTime = DateTime.Now;
-                return stoppedState;
+                var stoppedSummary = GetStoppedSummary();
+                stoppedSummary.CollectedTime = DateTime.Now;
+                return stoppedSummary;
             }
 
-            var currentState = m_AppServer.CollectServerState(globalPerfData);
-            m_PrevState = currentState;
-            return currentState;
+            var currentSummary = m_AppServer.CollectServerSummary(nodeSummary);
+            m_PrevSummary = currentSummary;
+            return currentSummary;
         }
     }
 }

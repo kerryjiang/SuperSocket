@@ -9,7 +9,7 @@ namespace SuperSocket.SocketBase
     /// GlobalPerformanceData class
     /// </summary>
     [Serializable]
-    public class GlobalPerformanceData
+    public class NodeSummary
     {
         /// <summary>
         /// Gets or sets the cpu usage.

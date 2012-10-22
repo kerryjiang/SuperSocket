@@ -25,7 +25,7 @@ namespace SuperSocket.SocketEngine
 
         private IWorkItem[] m_AppServers;
 
-        private Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>> m_StateMetadataDict = new Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>>();
+        private Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>> m_SummaryMetadataDict = new Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>>();
 
         private static readonly object[] m_ParaArray = new object[0];
 
@@ -59,6 +59,9 @@ namespace SuperSocket.SocketEngine
 
             foreach (string runnedInstance in runnedInstances)
             {
+                if (!runnedInstance.StartsWith(process.ProcessName, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 using (var performanceCounter = new PerformanceCounter("Process", "ID Process", runnedInstance, true))
                 {
                     if ((int)performanceCounter.RawValue == processId)
@@ -81,16 +84,16 @@ namespace SuperSocket.SocketEngine
             m_PerformanceTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private List<KeyValuePair<PropertyInfo, DisplayAttribute>> GetStateTypeMetatdata(Type stateType)
+        private List<KeyValuePair<PropertyInfo, DisplayAttribute>> GetSummaryTypeMetatdata(Type summaryType)
         {
             List<KeyValuePair<PropertyInfo, DisplayAttribute>> stateMetadata;
 
-            if (m_StateMetadataDict.TryGetValue(stateType, out stateMetadata))
+            if (m_SummaryMetadataDict.TryGetValue(summaryType, out stateMetadata))
                 return stateMetadata;
 
             stateMetadata = new List<KeyValuePair<PropertyInfo, DisplayAttribute>>();
 
-            foreach (var p in stateType.GetProperties())
+            foreach (var p in summaryType.GetProperties())
             {
                 var att = p.GetCustomAttributes(false).FirstOrDefault() as DisplayAttribute;
 
@@ -100,7 +103,7 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            m_StateMetadataDict.Add(stateType, stateMetadata.OrderBy(s => s.Value.Order).ToList());
+            m_SummaryMetadataDict.Add(summaryType, stateMetadata.OrderBy(s => s.Value.Order).ToList());
             return stateMetadata;
         }
 
@@ -113,7 +116,7 @@ namespace SuperSocket.SocketEngine
             int maxCompletionPortThreads;
             ThreadPool.GetMaxThreads(out maxWorkingThreads, out maxCompletionPortThreads);
 
-            var globalPerfData = new GlobalPerformanceData
+            var globalPerfData = new NodeSummary
             {
                 AvailableWorkingThreads = availableWorkingThreads,
                 AvailableCompletionPortThreads = availableCompletionPortThreads,
@@ -135,8 +138,8 @@ namespace SuperSocket.SocketEngine
             {
                 var s = m_AppServers[i];
 
-                var serverState = s.CollectServerState(globalPerfData);
-                var stateTypeMetadata = GetStateTypeMetatdata(serverState.GetType());
+                var serverState = s.CollectServerSummary(globalPerfData);
+                var stateTypeMetadata = GetSummaryTypeMetatdata(serverState.GetType());
 
                 perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
 

@@ -9,7 +9,7 @@ namespace SuperSocket.SocketBase
     /// Server State
     /// </summary>
     [Serializable]
-    public class ServerState
+    public class ServerSummary
     {
         /// <summary>
         /// Gets or sets the name.

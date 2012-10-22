@@ -82,14 +82,14 @@ namespace SuperSocket.SocketEngine
         }
 
 
-        public ServerState State
+        public ServerSummary Summary
         {
-            get { return m_AppServer.State; }
+            get { return m_AppServer.Summary; }
         }
 
-        ServerState IServerStateSource.CollectServerState(GlobalPerformanceData globalPerfData)
+        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
         {
-            return m_AppServer.CollectServerState(globalPerfData);   
+            return m_AppServer.CollectServerSummary(nodeSummary);   
         }
     }
 }

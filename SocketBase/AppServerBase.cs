@@ -393,12 +393,12 @@ namespace SuperSocket.SocketBase
 
             try
             {
-                m_ServerState = CreateServerState();
+                m_ServerSummary = CreateServerSummary();
             }
             catch (Exception e)
             {
                 if (Logger.IsErrorEnabled)
-                    Logger.Error("Failed to create ServerState instance!", e);
+                    Logger.Error("Failed to create ServerSummary instance!", e);
 
                 return false;
             }
@@ -909,8 +909,8 @@ namespace SuperSocket.SocketBase
 
             StartedTime = DateTime.Now;
 
-            m_ServerState.StartedTime = StartedTime;
-            m_ServerState.IsRunning = true;
+            m_ServerSummary.StartedTime = StartedTime;
+            m_ServerSummary.IsRunning = true;
 
             OnStartup();
 
@@ -945,8 +945,8 @@ namespace SuperSocket.SocketBase
             GC.SuppressFinalize(this);
             OnStopped();
 
-            m_ServerState.IsRunning = false;
-            m_ServerState.StartedTime = null;
+            m_ServerSummary.IsRunning = false;
+            m_ServerSummary.StartedTime = null;
 
             if (Logger.IsInfoEnabled)
                 Logger.Info(string.Format("The server instance {0} has been stopped!", Name));
@@ -1359,14 +1359,14 @@ namespace SuperSocket.SocketBase
 
         #region Server state
 
-        private ServerState CreateServerState()
+        private ServerSummary CreateServerSummary()
         {
-            var type = ServerStateType;
-            var serverState = (ServerState)Activator.CreateInstance(type);
-            serverState.Name = Name;
-            serverState.Listeners = Listeners;
-            serverState.MaxConnectionNumber = Config.MaxConnectionNumber;
-            return serverState;
+            var type = ServerSummaryType;
+            var serverSummary = (ServerSummary)Activator.CreateInstance(type);
+            serverSummary.Name = Name;
+            serverSummary.Listeners = Listeners;
+            serverSummary.MaxConnectionNumber = Config.MaxConnectionNumber;
+            return serverSummary;
         }
 
         /// <summary>
@@ -1375,15 +1375,15 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The type of the server state.
         /// </value>
-        protected virtual Type ServerStateType
+        protected virtual Type ServerSummaryType
         {
             get
             {
-                return typeof(ServerState);
+                return typeof(ServerSummary);
             }
         }
 
-        private ServerState m_ServerState;
+        private ServerSummary m_ServerSummary;
 
         /// <summary>
         /// Gets the state of the server.
@@ -1391,41 +1391,41 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The state data of the server.
         /// </value>
-        public ServerState State
+        public ServerSummary Summary
         {
-            get { return m_ServerState; }
+            get { return m_ServerSummary; }
         }
 
-        ServerState IServerStateSource.CollectServerState(GlobalPerformanceData globalPerfData)
+        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
         {
-            UpdateServerState(m_ServerState);
-            this.AsyncRun(() => OnServerStateCollected(globalPerfData, m_ServerState), e => Logger.Error(e));
-            return m_ServerState;
+            UpdateServerSummary(m_ServerSummary);
+            this.AsyncRun(() => OnServerSummaryCollected(nodeSummary, m_ServerSummary), e => Logger.Error(e));
+            return m_ServerSummary;
         }
 
         /// <summary>
-        /// Updates the state of the server.
+        /// Updates the summary of the server.
         /// </summary>
-        /// <param name="serverState">State of the server.</param>
-        protected virtual void UpdateServerState(ServerState serverState)
+        /// <param name="serverSummary">The server summary.</param>
+        protected virtual void UpdateServerSummary(ServerSummary serverSummary)
         {
             DateTime now = DateTime.Now;
-            
-            serverState.IsRunning = this.IsRunning;
-            serverState.TotalConnections = this.SessionCount;
 
-            serverState.RequestHandlingSpeed = ((this.TotalHandledRequests - serverState.TotalHandledRequests) / now.Subtract(serverState.CollectedTime).TotalSeconds);
-            serverState.TotalHandledRequests = this.TotalHandledRequests;
-            
-            serverState.CollectedTime = now;
+            serverSummary.IsRunning = this.IsRunning;
+            serverSummary.TotalConnections = this.SessionCount;
+
+            serverSummary.RequestHandlingSpeed = ((this.TotalHandledRequests - serverSummary.TotalHandledRequests) / now.Subtract(serverSummary.CollectedTime).TotalSeconds);
+            serverSummary.TotalHandledRequests = this.TotalHandledRequests;
+
+            serverSummary.CollectedTime = now;
         }
 
         /// <summary>
-        /// Called when [performance data collected], you can override this method to get collected performance data
+        /// Called when [summary data collected], you can override this method to get collected performance data
         /// </summary>
-        /// <param name="globalPerfData">The global perf data.</param>
-        /// <param name="state">The state.</param>
-        protected virtual void OnServerStateCollected(GlobalPerformanceData globalPerfData, ServerState state)
+        /// <param name="nodeSummary">The node summary.</param>
+        /// <param name="serverSummary">The server summary.</param>
+        protected virtual void OnServerSummaryCollected(NodeSummary nodeSummary, ServerSummary serverSummary)
         {
 
         }
