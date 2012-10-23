@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
-using System.Reflection;
 
 namespace SuperSocket.SocketEngine
 {
@@ -38,7 +39,7 @@ namespace SuperSocket.SocketEngine
             m_CpuCores = Environment.ProcessorCount;
 
             var isUnix = Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
-            var instanceName = isUnix ? string.Format("{0}/{1}", process.Id, process.ProcessName) : GetPerformanceCounterInstanceName(process);
+            var instanceName = (isUnix || Platform.IsMono) ? string.Format("{0}/{1}", process.Id, process.ProcessName) : GetPerformanceCounterInstanceName(process);
 
             m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", instanceName);
             m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
