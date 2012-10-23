@@ -346,6 +346,14 @@ namespace SuperSocket.SocketBase
             if (requestFilterFactory != null)
                 RequestFilterFactory = requestFilterFactory;
 
+            if (RequestFilterFactory == null)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("RequestFilterFactory is required!");
+
+                return false;
+            }
+
             if (connectionFilters != null && connectionFilters.Any())
             {
                 if (m_ConnectionFilters == null)
