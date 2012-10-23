@@ -132,7 +132,9 @@ namespace SuperSocket.SocketEngine
                 var predictOffset = m_OrigOffset + offsetDelta;
 
                 if (e.Offset != predictOffset)
+                {
                     e.SetBuffer(predictOffset, Config.ReceiveBufferSize - offsetDelta);
+                }
 
                 willRaiseEvent = Client.ReceiveAsync(e);
             }
@@ -254,6 +256,14 @@ namespace SuperSocket.SocketEngine
         public override void ApplySecureProtocol()
         {
             //TODO: Implement async socket SSL/TLS encryption
+        }
+
+        protected override void OnClose(CloseReason reason)
+        {
+            if (m_OrigOffset != SocketAsyncProxy.SocketEventArgs.Offset)
+                SocketAsyncProxy.SocketEventArgs.SetBuffer(m_OrigOffset, Config.ReceiveBufferSize);
+
+            base.OnClose(reason);
         }
     }
 }
