@@ -52,14 +52,14 @@ namespace SuperSocket.Test
         [TearDown]
         public void StopServer()
         {
-            if (m_Server.IsRunning)
+            if (m_Server.State == ServerState.Running)
                 m_Server.Stop();
         }
 
         [Test]
         public void TestAllow()
         {
-            if (!m_Server.IsRunning)
+            if (m_Server.State != ServerState.Running)
                 m_Server.Start();
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_ServerConfig.Port);
@@ -90,7 +90,7 @@ namespace SuperSocket.Test
         [Test]
         public void TestDisallow()
         {
-            if (!m_Server.IsRunning)
+            if (m_Server.State != ServerState.Running)
                 m_Server.Start();
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_ServerConfig.Port);

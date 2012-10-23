@@ -433,7 +433,7 @@ namespace SuperSocket.SocketEngine
         {
             foreach (var server in m_AppServers)
             {
-                if (server.IsRunning)
+                if (server.State == ServerState.Running)
                 {
                     server.Stop();
                 }

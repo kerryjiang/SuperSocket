@@ -284,56 +284,48 @@ namespace SuperSocket.SocketBase
             return SessionSource.Select(p => p.Value);
         }
 
-        #endregion        
-
-        #region IDisposable Members
-
         /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
+        /// Stops this instance.
         /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected override void Dispose(bool disposing)
+        public override void Stop()
         {
-            base.Dispose(disposing);
+            base.Stop();
 
-            if (disposing)
-            {                
-                if (m_SessionSnapshotTimer != null)
+            if (m_SessionSnapshotTimer != null)
+            {
+                m_SessionSnapshotTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                m_SessionSnapshotTimer.Dispose();
+                m_SessionSnapshotTimer = null;
+            }
+
+            if (m_ClearIdleSessionTimer != null)
+            {
+                m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                m_ClearIdleSessionTimer.Dispose();
+                m_ClearIdleSessionTimer = null;
+            }
+
+            var sessions = m_SessionDict.ToArray();
+
+            if (sessions.Length > 0)
+            {
+                var tasks = new Task[sessions.Length];
+
+                for (var i = 0; i < tasks.Length; i++)
                 {
-                    m_SessionSnapshotTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    m_SessionSnapshotTimer.Dispose();
-                    m_SessionSnapshotTimer = null;
-                }
-
-                if (m_ClearIdleSessionTimer != null)
-                {
-                    m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
-                    m_ClearIdleSessionTimer.Dispose();
-                    m_ClearIdleSessionTimer = null;
-                }
-
-                var sessions = m_SessionDict.ToArray();
-
-                if(sessions.Length > 0)
-                {
-                    var tasks = new Task[sessions.Length];
-                    
-                    for(var i = 0; i < tasks.Length; i++)
+                    tasks[i] = Task.Factory.StartNew((s) =>
                     {
-                        tasks[i] = Task.Factory.StartNew((s) =>
-                            {
-                                var session = s as TAppSession;
+                        var session = s as TAppSession;
 
-                                if (session != null)
-                                {
-                                    session.Close(CloseReason.ServerShutdown);
-                                }
+                        if (session != null)
+                        {
+                            session.Close(CloseReason.ServerShutdown);
+                        }
 
-                            }, sessions[i].Value);
-                    }
-
-                    Task.WaitAll(tasks);
+                    }, sessions[i].Value);
                 }
+
+                Task.WaitAll(tasks);
             }
         }
 

@@ -63,14 +63,14 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is running.
+        /// Gets the current state of the work item.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
+        /// The state.
         /// </value>
-        public bool IsRunning
+        public ServerState State
         {
-            get { return m_AppServer.IsRunning; }
+            get { return m_AppServer.State; }
         }
 
         /// <summary>

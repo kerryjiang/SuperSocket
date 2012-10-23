@@ -111,9 +111,9 @@ namespace SuperSocket.Test
         public void TestStartStop()
         {
             StartServer();
-            Assert.IsTrue(ServerX.IsRunning);
+            Assert.IsTrue(ServerX.State == ServerState.Running);
             StopServer();
-            Assert.IsFalse(ServerX.IsRunning);
+            Assert.IsTrue(ServerX.State == ServerState.NotStarted);
         }
 
         private bool CanConnect()
@@ -136,7 +136,7 @@ namespace SuperSocket.Test
 
         protected void StartServer()
         {
-            if (ServerX.IsRunning)
+            if (ServerX.State == ServerState.Running)
                 ServerX.Stop();
 
             ServerX.Start();
@@ -146,13 +146,13 @@ namespace SuperSocket.Test
         [TearDown]
         public void StopServer()
         {
-            if (ServerX.IsRunning)
+            if (ServerX.State == ServerState.Running)
             {
                 ServerX.Stop();
                 Console.WriteLine("Socket server X has been stopped!");
             }
 
-            if (ServerY != null && ServerY.IsRunning)
+            if (ServerY != null && ServerY.State == ServerState.Running)
             {
                 ServerY.Stop();
                 Console.WriteLine("Socket server Y has been stopped!");
@@ -617,7 +617,7 @@ namespace SuperSocket.Test
         [Test, Repeat(3)]
         public void TestCommandParser()
         {
-            if (ServerY.IsRunning)
+            if (ServerY.State == ServerState.Running)
                 ServerY.Stop();
 
             ServerY.Start();

@@ -114,7 +114,7 @@ namespace SuperSocket.Test
 
         private void StopServer()
         {
-            if (m_Server.IsRunning)
+            if (m_Server.State == ServerState.Running)
             {
                 m_Server.Stop();
                 Console.WriteLine("The UDP Socket server is stopped!");
@@ -125,10 +125,10 @@ namespace SuperSocket.Test
         public void TestStartStop()
         {
             StartServer();
-            Assert.IsTrue(m_Server.IsRunning);
+            Assert.IsTrue(m_Server.State == ServerState.Running);
 
             StopServer();
-            Assert.IsFalse(m_Server.IsRunning);
+            Assert.IsFalse(m_Server.State == ServerState.Running);
         }
 
         [Test, Timeout(10000)]
@@ -372,7 +372,7 @@ namespace SuperSocket.Test
             }
             finally
             {
-                if (server.IsRunning)
+                if (server.State == ServerState.Running)
                     server.Stop();
             }
         }

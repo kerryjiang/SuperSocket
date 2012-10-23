@@ -72,7 +72,7 @@ namespace SuperSocket.SocketService
 
             foreach (var server in bootstrap.AppServers)
             {
-                if (server.IsRunning)
+                if (server.State == ServerState.Running)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("- {0} has been started", server.Name);

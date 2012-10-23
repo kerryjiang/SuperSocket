@@ -35,12 +35,12 @@ namespace SuperSocket.SocketBase
 
 
         /// <summary>
-        /// Gets a value indicating whether this instance is running.
+        /// Gets the current state of the work item.
         /// </summary>
         /// <value>
-        /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
+        /// The state.
         /// </value>
-        bool IsRunning { get; }
+        ServerState State { get; }
 
         /// <summary>
         /// Stops this server instance.

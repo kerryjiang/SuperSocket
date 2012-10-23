@@ -38,9 +38,24 @@ namespace SuperSocket.SocketBase
         private string m_Name;
 
         /// <summary>
-        /// Indicate this server instance whether has been setup
+        /// the current state's code
         /// </summary>
-        private bool m_Initialized = false;
+        private int m_StateCode = ServerStateConst.NotInitialized;
+
+        /// <summary>
+        /// Gets the current state of the work item.
+        /// </summary>
+        /// <value>
+        /// The state.
+        /// </value>
+        public ServerState State
+        {
+            get
+            {
+                return (ServerState)m_StateCode;
+            }
+        }
+
 
         /// <summary>
         /// Gets the certificate of current server.
@@ -416,6 +431,15 @@ namespace SuperSocket.SocketBase
             return Setup("Any", port);
         }
 
+        private void TrySetInitializedState()
+        {
+            if (Interlocked.CompareExchange(ref m_StateCode, ServerStateConst.Initializing, ServerStateConst.NotInitialized)
+                    != ServerStateConst.NotInitialized)
+            {
+                throw new Exception("The server has been initialized already, you cannot initialize it again!");
+            }
+        }
+
 #if NET_35
 
         /// <summary>
@@ -454,6 +478,8 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         public bool Setup(IRootConfig rootConfig, IServerConfig config, params object[] providers)
         {
+            TrySetInitializedState();
+
             SetupBasic(rootConfig, config, GetProviderInstance<ISocketServerFactory>(providers));
 
             if (!SetupLogFactory(GetProviderInstance<ILogFactory>(providers)))
@@ -473,7 +499,7 @@ namespace SuperSocket.SocketBase
             if(!SetupFinal())
                 return false;
 
-            m_Initialized = true;
+            m_StateCode = ServerStateConst.NotStarted;
             return true;
         }
 
@@ -515,6 +541,8 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory = null, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
         {
+            TrySetInitializedState();
+
             SetupBasic(rootConfig, config, socketServerFactory);
 
             if (!SetupLogFactory(logFactory))
@@ -534,7 +562,7 @@ namespace SuperSocket.SocketBase
             if (!SetupFinal())
                 return false;
 
-            m_Initialized = true;
+            m_StateCode = ServerStateConst.NotStarted;
             return true;
         }
 
@@ -581,6 +609,8 @@ namespace SuperSocket.SocketBase
             if (factories == null)
                 throw new ArgumentNullException("factories");
 
+            TrySetInitializedState();
+
             var rootConfig = bootstrap.Config;
 
             SetupBasic(rootConfig, config, GetSingleProviderInstance<ISocketServerFactory>(factories, ProviderKey.SocketServerFactory));
@@ -607,7 +637,7 @@ namespace SuperSocket.SocketBase
             if (!SetupFinal())
                 return false;
 
-            m_Initialized = true;
+            m_StateCode = ServerStateConst.NotStarted;
             return true;
         }
 
@@ -893,21 +923,27 @@ namespace SuperSocket.SocketBase
         /// </returns>
         public virtual bool Start()
         {
-            if (!m_Initialized)
-                throw new Exception("You cannot start a AppServer which has not been setup yet.");
+            var origStateCode = Interlocked.CompareExchange(ref m_StateCode, ServerStateConst.Starting, ServerStateConst.NotStarted);
 
-            if (this.IsRunning)
+            if (origStateCode != ServerStateConst.NotStarted)
             {
+                if (origStateCode < ServerStateConst.NotStarted)
+                    throw new Exception("You cannot start a server instance which has not been setup yet.");
+
                 if (Logger.IsErrorEnabled)
-                    Logger.Error("This socket server is running already, you needn't start it.");
+                    Logger.ErrorFormat("This server instance is in the state {0}, you cannot start it now.", (ServerState)origStateCode);
 
                 return false;
             }
 
             if (!m_SocketServer.Start())
+            {
+                m_StateCode = ServerStateConst.NotStarted;
                 return false;
+            }
 
             StartedTime = DateTime.Now;
+            m_StateCode = ServerStateConst.Running;
 
             m_ServerSummary.StartedTime = StartedTime;
             m_ServerSummary.IsRunning = true;
@@ -941,8 +977,16 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public virtual void Stop()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            if (Interlocked.CompareExchange(ref m_StateCode, ServerStateConst.Stopping, ServerStateConst.Running)
+                    != ServerStateConst.Running)
+            {
+                return;
+            }
+
+            m_SocketServer.Stop();
+
+            m_StateCode = ServerStateConst.NotStarted;
+
             OnStopped();
 
             m_ServerSummary.IsRunning = false;
@@ -950,23 +994,6 @@ namespace SuperSocket.SocketBase
 
             if (Logger.IsInfoEnabled)
                 Logger.Info(string.Format("The server instance {0} has been stopped!", Name));
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is running.
-        /// </summary>
-        /// <value>
-        /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
-        /// </value>
-        public bool IsRunning
-        {
-            get
-            {
-                if (m_SocketServer == null)
-                    return false;
-
-                return m_SocketServer.IsRunning;
-            }
         }
 
         /// <summary>
@@ -1411,7 +1438,7 @@ namespace SuperSocket.SocketBase
         {
             DateTime now = DateTime.Now;
 
-            serverSummary.IsRunning = this.IsRunning;
+            serverSummary.IsRunning = (m_StateCode == ServerStateConst.Running);
             serverSummary.TotalConnections = this.SessionCount;
 
             serverSummary.RequestHandlingSpeed = ((this.TotalHandledRequests - serverSummary.TotalHandledRequests) / now.Subtract(serverSummary.CollectedTime).TotalSeconds);
@@ -1439,23 +1466,8 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public void Dispose()
         {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        /// <summary>
-        /// Releases unmanaged and - optionally - managed resources
-        /// </summary>
-        /// <param name="disposing"><c>true</c> to release both managed and unmanaged resources; <c>false</c> to release only unmanaged resources.</param>
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                if (IsRunning)
-                {
-                    m_SocketServer.Stop();
-                }
-            }
+            if (m_StateCode == ServerStateConst.Running)
+                Stop();
         }
 
         #endregion

@@ -30,6 +30,7 @@ namespace SuperSocket.SocketEngine
             try
             {
                 m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+                m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 m_ListenSocket.Bind(this.EndPoint);
 
                 //Mono doesn't support it

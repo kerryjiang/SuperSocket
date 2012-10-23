@@ -144,6 +144,7 @@
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="Protocol\IRequestInfoParser.cs" />
     <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="ServerState.cs" />
     <Compile Include="ServerSummary.cs" />
     <Compile Include="SessionHandler.cs" />
     <Compile Include="SocketMode.cs" />

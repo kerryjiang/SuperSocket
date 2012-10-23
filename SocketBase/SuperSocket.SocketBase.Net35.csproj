@@ -132,6 +132,7 @@
     <Compile Include="Provider\ProviderKey.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="ServerState.cs" />
     <Compile Include="ServerSummary.cs" />
     <Compile Include="SessionHandler.cs" />
     <Compile Include="SocketMode.cs" />
