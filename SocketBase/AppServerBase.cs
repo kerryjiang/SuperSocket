@@ -225,6 +225,9 @@ namespace SuperSocket.SocketBase
                             return false;
                         }
 
+                        if (Logger.IsDebugEnabled)
+                            Logger.DebugFormat("The command {0}({1}) has been discovered", castedCommand.Name, castedCommand.ToString());
+
                         discoveredCommands.Add(c.Name, castedCommand);
                     }
                 }

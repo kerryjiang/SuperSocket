@@ -56,5 +56,10 @@ namespace SuperSocket.Dlr
         public string Name { get; private set; }
 
         #endregion
+
+        public override string ToString()
+        {
+            return Source.Tag;
+        }
     }
 }
