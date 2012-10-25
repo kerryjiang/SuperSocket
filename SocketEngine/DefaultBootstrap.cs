@@ -437,7 +437,7 @@ namespace SuperSocket.SocketEngine
             {
                 if (m_AppServers.Count == succeeded)
                     result = StartResult.Success;
-                else if (m_AppServers.Count == 0)
+                else if (succeeded == 0)
                     result = StartResult.Failed;
                 else
                     result = StartResult.PartialSuccess;
