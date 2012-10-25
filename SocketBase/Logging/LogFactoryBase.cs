@@ -18,6 +18,14 @@ namespace SuperSocket.SocketBase.Logging
         protected string ConfigFile { get; private set; }
 
         /// <summary>
+        /// Gets a value indicating whether this instance is isolated.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is isolated; otherwise, <c>false</c>.
+        /// </value>
+        protected bool IsSharedConfig { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="LogFactoryBase"/> class.
         /// </summary>
         /// <param name="configFile">The config file.</param>
@@ -86,6 +94,7 @@ namespace SuperSocket.SocketBase.Logging
                 if (File.Exists(filePath))
                 {
                     ConfigFile = filePath;
+                    IsSharedConfig = true;
                     return;
                 }
 
@@ -105,6 +114,7 @@ namespace SuperSocket.SocketBase.Logging
                 if (File.Exists(filePath))
                 {
                     ConfigFile = filePath;
+                    IsSharedConfig = true;
                     return;
                 }
 
