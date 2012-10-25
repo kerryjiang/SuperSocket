@@ -45,7 +45,6 @@ namespace SuperSocket.SocketService
             }
             
             RunAsConsole();
-            Console.ReadKey();
         }
 
         static void RunAsConsole()
@@ -61,6 +60,7 @@ namespace SuperSocket.SocketService
             if (!bootstrap.Initialize())
             {
                 Console.WriteLine("Failed to initialize SuperSocket ServiceEngine! Please check error log for more information!");
+                Console.ReadKey();
                 return;
             }
 
@@ -92,7 +92,8 @@ namespace SuperSocket.SocketService
                 case(StartResult.None):
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("No server is configured, please check you configuration!");
-                    break;
+                    Console.ReadKey();
+                    return;
 
                 case(StartResult.Success):
                     Console.WriteLine("The SuperSocket ServiceEngine has been started!");
@@ -101,7 +102,8 @@ namespace SuperSocket.SocketService
                 case (StartResult.Failed):
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Failed to start the SuperSocket ServiceEngine! Please check error log for more information!");
-                    break;
+                    Console.ReadKey();
+                    return;
 
                 case (StartResult.PartialSuccess):
                     Console.ForegroundColor = ConsoleColor.Red;
