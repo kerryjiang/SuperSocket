@@ -322,7 +322,6 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     setupResult = SetupWorkItemInstance(appServer, factoryInfo);
-                    setupResult = true;
                 }
                 catch (Exception e)
                 {
