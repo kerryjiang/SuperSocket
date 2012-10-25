@@ -24,7 +24,7 @@ namespace SuperSocket.SocketEngine
 
         private AppDomain m_HostDomain;
 
-        private const string m_WorkingDir = "WorkRoot";
+        private const string m_WorkingDir = "InstancesRoot";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppDomainAppServer"/> class.
