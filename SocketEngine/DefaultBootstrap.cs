@@ -123,7 +123,13 @@ namespace SuperSocket.SocketEngine
             if (!rootConfig.DisablePerformanceDataCollector)
             {
                 m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, logFactory);
+
+                if (m_GlobalLog.IsDebugEnabled)
+                    m_GlobalLog.Debug("The PerformanceMonitor has been initialized!");
             }
+
+            if (m_GlobalLog.IsDebugEnabled)
+                m_GlobalLog.Debug("The Bootstrap has been initialized!");
 
             m_Initialized = true;
         }
@@ -308,6 +314,9 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     appServer = CreateWorkItemInstance(factoryInfo.ServerType);
+
+                    if (m_GlobalLog.IsDebugEnabled)
+                        m_GlobalLog.DebugFormat("The server instance {0} has been created!", factoryInfo.Config.Name);
                 }
                 catch (Exception e)
                 {
@@ -322,6 +331,9 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     setupResult = SetupWorkItemInstance(appServer, factoryInfo);
+
+                    if (m_GlobalLog.IsDebugEnabled)
+                        m_GlobalLog.DebugFormat("The server instance {0} has been initialized!", appServer.Name);
                 }
                 catch (Exception e)
                 {
@@ -342,7 +354,13 @@ namespace SuperSocket.SocketEngine
             if (!m_Config.DisablePerformanceDataCollector)
             {
                 m_PerfMonitor = new PerformanceMonitor(m_Config, m_AppServers, logFactory);
+
+                if (m_GlobalLog.IsDebugEnabled)
+                    m_GlobalLog.Debug("The PerformanceMonitor has been initialized!");
             }
+
+            if (m_GlobalLog.IsDebugEnabled)
+                m_GlobalLog.Debug("The Bootstrap has been initialized!");
 
             m_Initialized = true;
 
@@ -401,11 +419,17 @@ namespace SuperSocket.SocketEngine
                 if (!server.Start())
                 {
                     if (m_GlobalLog.IsErrorEnabled)
-                        m_GlobalLog.Error("Failed to start " + server.Name + " server!");
+                        m_GlobalLog.InfoFormat("The server instance {0} has failed to be started!", server.Name);
                 }
                 else
                 {
                     succeeded++;
+
+                    if (Config.Isolation != IsolationMode.None)
+                    {
+                        if (m_GlobalLog.IsInfoEnabled)
+                            m_GlobalLog.InfoFormat("The server instance {0} has been started!", server.Name);
+                    }
                 }
             }
 
@@ -420,7 +444,12 @@ namespace SuperSocket.SocketEngine
             }
 
             if (m_PerfMonitor != null)
+            {
                 m_PerfMonitor.Start();
+
+                if (m_GlobalLog.IsDebugEnabled)
+                    m_GlobalLog.Debug("The PerformanceMonitor has been started!");
+            }
 
             return result;
         }
@@ -435,11 +464,22 @@ namespace SuperSocket.SocketEngine
                 if (server.State == ServerState.Running)
                 {
                     server.Stop();
+
+                    if (Config.Isolation != IsolationMode.None)
+                    {
+                        if (m_GlobalLog.IsInfoEnabled)
+                            m_GlobalLog.InfoFormat("The server instance {0} has been stopped!", server.Name);
+                    }
                 }
             }
 
             if (m_PerfMonitor != null)
+            {
                 m_PerfMonitor.Stop();
+
+                if (m_GlobalLog.IsDebugEnabled)
+                    m_GlobalLog.Debug("The PerformanceMonitor has been stoppped!");
+            }
         }
     }
 }
