@@ -75,6 +75,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleA", "AppDomainIsolati
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleB", "AppDomainIsolation\SampleB\SampleB.csproj", "{7123AE78-0C7B-4E7B-9F38-B5044271F6F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleC", "AppDomainIsolation\SampleC\SampleC.csproj", "{1D82DB60-8411-4000-845A-537644C4C2A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -355,6 +357,16 @@ Global
 		{7123AE78-0C7B-4E7B-9F38-B5044271F6F4}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{7123AE78-0C7B-4E7B-9F38-B5044271F6F4}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{7123AE78-0C7B-4E7B-9F38-B5044271F6F4}.Release|x86.ActiveCfg = Release|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{1D82DB60-8411-4000-845A-537644C4C2A9}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -388,5 +400,6 @@ Global
 		{674A646C-9F14-498A-9825-7AF8494A1C8C} = {AB1825DD-8588-418E-8043-70CEDB49265E}
 		{AF2F6B65-9B04-44D0-9325-6918A3C22860} = {5B555A9B-2CE7-4F13-B0F1-788B8582E61C}
 		{7123AE78-0C7B-4E7B-9F38-B5044271F6F4} = {5B555A9B-2CE7-4F13-B0F1-788B8582E61C}
+		{1D82DB60-8411-4000-845A-537644C4C2A9} = {5B555A9B-2CE7-4F13-B0F1-788B8582E61C}
 	EndGlobalSection
 EndGlobal
