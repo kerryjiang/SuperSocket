@@ -37,6 +37,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomRequestInfoParser", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "4-ConfigSample", "4-ConfigSample", "{863EC855-457E-484A-A7F4-2C787EB16E63}"
 	ProjectSection(SolutionItems) = preProject
+		ConfigSample\CustomLogFactory.config = ConfigSample\CustomLogFactory.config
 		ConfigSample\MultipleListenersA.exe.config = ConfigSample\MultipleListenersA.exe.config
 		ConfigSample\MultipleListenersB.exe.config = ConfigSample\MultipleListenersB.exe.config
 		ConfigSample\MultipleListenersC.exe.config = ConfigSample\MultipleListenersC.exe.config
