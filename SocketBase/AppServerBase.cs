@@ -349,14 +349,6 @@ namespace SuperSocket.SocketBase
             if (requestFilterFactory != null)
                 RequestFilterFactory = requestFilterFactory;
 
-            if (RequestFilterFactory == null)
-            {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error("RequestFilterFactory is required!");
-
-                return false;
-            }
-
             if (connectionFilters != null && connectionFilters.Any())
             {
                 if (m_ConnectionFilters == null)
@@ -404,6 +396,15 @@ namespace SuperSocket.SocketBase
 
         private bool SetupFinal()
         {
+            //Check RequestFilterFactory
+            if (RequestFilterFactory == null)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("RequestFilterFactory is required!");
+
+                return false;
+            }
+
             var plainConfig = Config as ServerConfig;
 
             if (plainConfig == null)
@@ -568,7 +569,7 @@ namespace SuperSocket.SocketBase
                 return false;
 
             if (!Setup(rootConfig, config))
-                return false;
+                return false;            
 
             if (!SetupFinal())
                 return false;
