@@ -164,8 +164,16 @@ namespace SuperSocket.Common
         /// <returns></returns>
         public static IEnumerable<Assembly> GetAssembliesFromString(string assemblyDef)
         {
-            string[] assemblies = assemblyDef.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            return GetAssembliesFromStrings(assemblyDef.Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries));
+        }
 
+        /// <summary>
+        /// Gets the assemblies from strings.
+        /// </summary>
+        /// <param name="assemblies">The assemblies.</param>
+        /// <returns></returns>
+        public static IEnumerable<Assembly> GetAssembliesFromStrings(string[] assemblies)
+        {
             List<Assembly> result = new List<Assembly>(assemblies.Length);
 
             foreach (var a in assemblies)

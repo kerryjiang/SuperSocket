@@ -48,6 +48,11 @@ namespace SuperSocket.SocketBase.Config
             {
                 this.Listeners = serverConfig.Listeners.Select(l => l.CopyPropertiesTo(new ListenerConfig()));
             }
+
+            if (serverConfig.CommandAssemblies != null && serverConfig.CommandAssemblies.Any())
+            {
+                this.CommandAssemblies = serverConfig.CommandAssemblies.Select(c => c.CopyPropertiesTo(new CommandAssemblyConfig()));
+            }
         }
 
         /// <summary>
@@ -306,6 +311,14 @@ namespace SuperSocket.SocketBase.Config
         /// <c>true</c> if [log all socket exception]; otherwise, <c>false</c>.
         /// </value>
         public bool LogAllSocketException { get; set; }
+
+        /// <summary>
+        /// Gets the command assemblies configuration.
+        /// </summary>
+        /// <value>
+        /// The command assemblies.
+        /// </value>
+        public IEnumerable<ICommandAssemblyConfig> CommandAssemblies { get; set; }
 
         #endregion
     }

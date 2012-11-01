@@ -16,7 +16,6 @@ namespace SuperSocket.SocketEngine.Configuration
     /// <summary>
     /// Server configuration
     /// </summary>
-    [Serializable]
     public class Server : ConfigurationElementBase, IServerConfig
     {
         /// <summary>
@@ -409,6 +408,26 @@ namespace SuperSocket.SocketEngine.Configuration
             {
                 return this.Listeners;
             }
+        }
+
+        /// <summary>
+        /// Gets the command assemblies configuration.
+        /// </summary>
+        /// <value>
+        /// The command assemblies.
+        /// </value>
+        [ConfigurationProperty("commandAssemblies", IsRequired = false)]
+        public CommandAssemblyCollection CommandAssemblies
+        {
+            get
+            {
+                return this["commandAssemblies"] as CommandAssemblyCollection;
+            }
+        }
+
+        IEnumerable<ICommandAssemblyConfig> IServerConfig.CommandAssemblies
+        {
+            get { return this.CommandAssemblies; }
         }
 
         /// <summary>

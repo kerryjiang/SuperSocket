@@ -93,6 +93,7 @@
     <Compile Include="AsyncStreamSocketSession.cs" />
     <Compile Include="BootstrapFactory.cs" />
     <Compile Include="Configuration\CertificateConfig.cs" />
+    <Compile Include="Configuration\CommandAssembly.cs" />
     <Compile Include="Configuration\Listener.cs" />
     <Compile Include="Configuration\Server.cs" />
     <Compile Include="Configuration\ServerCollection.cs" />

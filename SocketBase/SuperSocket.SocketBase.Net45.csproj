@@ -81,6 +81,8 @@
     <Compile Include="Command\CommandLoaderBase.cs" />
     <Compile Include="Command\CommandInfo.cs" />
     <Compile Include="Command\CommandUpdateEventArgs.cs" />
+    <Compile Include="Config\CommandAssemblyConfig.cs" />
+    <Compile Include="Config\ICommandAssemblyConfig.cs" />
     <Compile Include="Config\IConfigurationSource.cs" />
     <Compile Include="Config\ITypeProvider.cs" />
     <Compile Include="Config\ConfigurationSource.cs" />

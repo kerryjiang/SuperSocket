@@ -50,9 +50,16 @@ namespace SuperSocket.SocketBase.Command
 
             if (!string.IsNullOrEmpty(commandAssembly))
             {
+                OnError("The configuration attribute 'commandAssembly' is not in used, please try to use the child node 'commandAssemblies' instead!");
+                return false;
+            }
+
+
+            if (m_AppServer.Config.CommandAssemblies != null && m_AppServer.Config.CommandAssemblies.Any())
+            {
                 try
                 {
-                    var definedAssemblies = AssemblyUtil.GetAssembliesFromString(commandAssembly);
+                    var definedAssemblies = AssemblyUtil.GetAssembliesFromStrings(m_AppServer.Config.CommandAssemblies.Select(a => a.Assembly).ToArray());
 
                     if (definedAssemblies.Any())
                         commandAssemblies.AddRange(definedAssemblies);

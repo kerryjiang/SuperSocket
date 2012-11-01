@@ -250,5 +250,14 @@ namespace SuperSocket.SocketBase.Config
         /// <c>true</c> if [log all socket exception]; otherwise, <c>false</c>.
         /// </value>
         bool LogAllSocketException { get; }
+
+
+        /// <summary>
+        /// Gets the command assemblies configuration.
+        /// </summary>
+        /// <value>
+        /// The command assemblies.
+        /// </value>
+        IEnumerable<ICommandAssemblyConfig> CommandAssemblies { get; }
     }
 }

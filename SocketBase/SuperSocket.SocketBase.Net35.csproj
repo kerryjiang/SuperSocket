@@ -75,8 +75,10 @@
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
+    <Compile Include="Config\CommandAssemblyConfig.cs" />
     <Compile Include="Config\ConfigurationSource.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
+    <Compile Include="Config\ICommandAssemblyConfig.cs" />
     <Compile Include="Config\IConfigurationSource.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
