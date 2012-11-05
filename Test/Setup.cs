@@ -11,39 +11,23 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Test
 {
-    [SetUpFixture]
-    public class Setup
+    public static class Setup
     {
-        [SetUp]
-        public void RunBeforeAllTest()
+        public static void LoadConfigFileFromResource(string filePath)
         {
-            Console.WriteLine("RunBeforeAllTest");
-
-            //Extract all resource
             var currentAssembly = typeof(Setup).Assembly;
-            var assemblyName = currentAssembly.GetName().Name;
-            var names = currentAssembly.GetManifestResourceNames();
-
-            foreach (var name in names)
+            var resourceName = currentAssembly.GetName().Name + "." + filePath.Replace(Path.DirectorySeparatorChar, '.');
+            using (var stream = currentAssembly.GetManifestResourceStream(resourceName))
             {
-                var fileName = name.Substring(assemblyName.Length + 1);
-                var fileNameSegments = fileName.Split('.');
-                var filePath = string.Join(Path.DirectorySeparatorChar.ToString(), fileNameSegments, 0, fileNameSegments.Length -1) + "." + fileNameSegments[fileNameSegments.Length - 1];
-
-                if(File.Exists(filePath))
-                    continue;
-
+                var buffer = new byte[stream.Length];
+                stream.Read(buffer, 0, buffer.Length);
+                
                 var dir = Path.GetDirectoryName(filePath);
 
                 if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
 
-                using(var stream  = currentAssembly.GetManifestResourceStream(name))
-                {
-                    var buffer = new byte[stream.Length];
-                    stream.Read(buffer, 0, buffer.Length);
-                    File.WriteAllBytes(filePath, buffer);
-                }
+                File.WriteAllBytes(filePath, buffer);
             }
         }
 
