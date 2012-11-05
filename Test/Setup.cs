@@ -13,24 +13,6 @@ namespace SuperSocket.Test
 {
     public static class Setup
     {
-        public static void LoadConfigFileFromResource(string filePath)
-        {
-            var currentAssembly = typeof(Setup).Assembly;
-            var resourceName = currentAssembly.GetName().Name + "." + filePath.Replace(Path.DirectorySeparatorChar, '.');
-            using (var stream = currentAssembly.GetManifestResourceStream(resourceName))
-            {
-                var buffer = new byte[stream.Length];
-                stream.Read(buffer, 0, buffer.Length);
-                
-                var dir = Path.GetDirectoryName(filePath);
-
-                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                File.WriteAllBytes(filePath, buffer);
-            }
-        }
-
         public static string GetResourceContent(string fileName)
         {
             var currentAssembly = typeof(Setup).Assembly;

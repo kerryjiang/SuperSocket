@@ -51,18 +51,6 @@ namespace SuperSocket.Test
 
         private bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            if (sslPolicyErrors != SslPolicyErrors.None)
-            {
-                Console.WriteLine("SSL Certificate Validation Error!");
-                Console.WriteLine(sslPolicyErrors.ToString());
-                Console.WriteLine("Chain status:");
-                foreach (var s in chain.ChainStatus)
-                {
-                    Console.WriteLine("\t" + s.Status + " : " + s.StatusInformation);
-                }
-                return false;
-            }
-
             return true;
         }
     }

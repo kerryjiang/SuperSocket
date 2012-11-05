@@ -35,7 +35,6 @@ namespace SuperSocket.Test
             var fileMap = new ExeConfigurationFileMap();
             var filePath = Path.Combine(@"Config", configFile);
             fileMap.ExeConfigFilename = filePath;
-            Setup.LoadConfigFileFromResource(filePath);
             var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
             var configSource = config.GetSection("superSocket") as IConfigurationSource;
 

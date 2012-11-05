@@ -124,41 +124,61 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Command\ADD.py" />
-    <EmbeddedResource Include="Command\MULT.py" />
+    <None Include="Command\ADD.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Command\MULT.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <EmbeddedResource Include="Strings.txt" />
     <Content Include="supersocket.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\Basic.config" />
-    <EmbeddedResource Include="Config\Listeners.config" />
+    <None Include="Config\Basic.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\Listeners.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\AppDomain.config">
+    <None Include="Config\AppDomain.config">
       <SubType>Designer</SubType>
-    </EmbeddedResource>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\DLR.config" />
+    <None Include="Config\DLR.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\ChildConfigA.config">
+    <None Include="Config\ChildConfigA.config">
       <SubType>Designer</SubType>
-    </EmbeddedResource>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\ChildConfigB.config" />
+    <None Include="Config\ChildConfigB.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\ChildConfigC.config" />
+    <None Include="Config\ChildConfigC.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\ChildConfigD.config" />
+    <None Include="Config\ChildConfigD.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Config\ServerType.config" />
+    <None Include="Config\ServerType.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
