@@ -636,6 +636,8 @@ namespace SuperSocket.SocketBase
 
         private bool m_AppendNewLineForResponse = false;
 
+        private static string m_NewLine = "\r\n";
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession&gt;"/> class.
         /// </summary>
@@ -676,8 +678,8 @@ namespace SuperSocket.SocketBase
             if (AppServer.Config.Mode == SocketMode.Udp)
                 return rawMessage;
 
-            if (string.IsNullOrEmpty(rawMessage) || !rawMessage.EndsWith(Environment.NewLine))
-                return rawMessage + Environment.NewLine;
+            if (string.IsNullOrEmpty(rawMessage) || !rawMessage.EndsWith(m_NewLine))
+                return rawMessage + m_NewLine;
             else
                 return rawMessage;
         }
