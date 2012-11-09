@@ -181,7 +181,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
                     Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, m_Config.Name), welcomeString);
@@ -207,7 +207,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
                     writer.WriteLine("SESS");
@@ -330,7 +330,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
 
@@ -364,7 +364,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
 
@@ -403,7 +403,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
 
@@ -452,7 +452,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
 
@@ -501,7 +501,7 @@ namespace SuperSocket.Test
             socket.Connect(serverAddress);
             Stream socketStream = GetSocketStream(socket);
             using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-            using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+            using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
             {
                 string welcomeString = reader.ReadLine();
                 Console.WriteLine(welcomeString);
@@ -577,7 +577,7 @@ namespace SuperSocket.Test
             socket.Connect(serverAddress);
             Stream socketStream = GetSocketStream(socket);
             using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-            using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+            using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
             {
                 reader.ReadLine();
             }
@@ -601,7 +601,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
                     string param = Guid.NewGuid().ToString();
@@ -630,7 +630,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
                     string command = string.Format("Hello World ({0})!", Guid.NewGuid().ToString());
@@ -658,7 +658,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = GetSocketStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
                     writer.WriteLine("SEND");

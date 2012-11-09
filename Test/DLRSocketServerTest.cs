@@ -72,7 +72,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
 
@@ -119,7 +119,7 @@ namespace SuperSocket.Test
                 socket.Connect(serverAddress);
                 Stream socketStream = new NetworkStream(socket);
                 using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (StreamWriter writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
 

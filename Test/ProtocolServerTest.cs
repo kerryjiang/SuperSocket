@@ -39,7 +39,7 @@ namespace SuperSocket.Test
                     socket.Connect(serverAddress);
                     var socketStream = new NetworkStream(socket);
                     using (var reader = new StreamReader(socketStream, m_Encoding, true))
-                    using (var writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                    using (var writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                     {
                         var welcomeString = reader.ReadLine();
                         Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, appServer.Name), welcomeString);
@@ -89,12 +89,12 @@ namespace SuperSocket.Test
                     socket.Connect(serverAddress);
                     var socketStream = new NetworkStream(socket);
                     using (var reader = new StreamReader(socketStream, m_Encoding, true))
-                    using (var writer = new StreamWriter(socketStream, m_Encoding, 1024 * 8))
+                    using (var writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                     {
                         var welcomeString = reader.ReadLine();
                         Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, appServer.Name), welcomeString);
 
-                        var actions = new Action<StreamWriter, string>[]
+                        var actions = new Action<ConsoleWriter, string>[]
                             {
                                 (w, r) => SendRequestA(w, r),
                                 (w, r) => SendRequestB(w, r),
@@ -120,7 +120,7 @@ namespace SuperSocket.Test
             }
         }
 
-        private void SendRequestA(StreamWriter writer, string line)
+        private void SendRequestA(ConsoleWriter writer, string line)
         {
             writer.Write("ECHO " + line);
             writer.Flush();
@@ -131,7 +131,7 @@ namespace SuperSocket.Test
             writer.Flush();
         }
 
-        private void SendRequestB(StreamWriter writer, string line)
+        private void SendRequestB(ConsoleWriter writer, string line)
         {
             writer.Write("ECHO " + line);
             writer.Flush();
@@ -147,7 +147,7 @@ namespace SuperSocket.Test
             writer.Flush();
         }
 
-        private void SendRequestC(StreamWriter writer, string line)
+        private void SendRequestC(ConsoleWriter writer, string line)
         {
             writer.Write("ECHO " + line.Substring(0, line.Length - 1));
             writer.Flush();
