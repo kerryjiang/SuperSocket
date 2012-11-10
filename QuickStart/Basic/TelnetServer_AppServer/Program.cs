@@ -55,9 +55,7 @@ namespace SuperSocket.QuickStart.TelnetServer_AppServer
             //Stop the appServer
             appServer.Stop();
 
-            Console.WriteLine();
             Console.WriteLine("The server was stopped!");
-            Console.ReadKey();
         }
     }
 }

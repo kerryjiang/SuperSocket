@@ -49,12 +49,11 @@ namespace SuperSocket.QuickStart.TelnetServer
                 continue;
             }
 
+            Console.WriteLine();
             //Stop the appServer
             appServer.Stop();
 
-            Console.WriteLine();
             Console.WriteLine("The server was stopped!");
-            Console.ReadKey();
         }
 
         static void appServer_NewSessionConnected(AppSession session)
