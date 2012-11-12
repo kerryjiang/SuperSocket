@@ -1,22 +1,24 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
 
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// DefaultRequestFilterFactory
+    /// Receive filter factory interface
     /// </summary>
-    /// <typeparam name="TRequestFilter">The type of the request filter.</typeparam>
+    public interface IReceiveFilterFactory
+    {
+
+    }
+    /// <summary>
+    /// Receive filter factory interface
+    /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public class DefaultRequestFilterFactory<TRequestFilter, TRequestInfo> : IRequestFilterFactory<TRequestInfo>
+    public interface IReceiveFilterFactory<TRequestInfo> : IReceiveFilterFactory
         where TRequestInfo : IRequestInfo
-        where TRequestFilter : IRequestFilter<TRequestInfo>, new()
     {
         /// <summary>
-        /// Creates the request filter.
+        /// Creates the Receive filter.
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="appSession">The app session.</param>
@@ -24,9 +26,6 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns>
         /// the new created request filer assosiated with this socketSession
         /// </returns>
-        public virtual IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
-        {
-            return new TRequestFilter();
-        }
+        IReceiveFilter<TRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint);
     }
 }

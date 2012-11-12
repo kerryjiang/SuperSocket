@@ -7,10 +7,10 @@ using SuperSocket.Common;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// Request filter base class
+    /// Receive filter base class
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class RequestFilterBase<TRequestInfo> : IRequestFilter<TRequestInfo>
+    public abstract class ReceiveFilterBase<TRequestInfo> : IReceiveFilter<TRequestInfo>
         where TRequestInfo : IRequestInfo
     {
         private ArraySegmentList m_BufferSegments;
@@ -24,32 +24,32 @@ namespace SuperSocket.SocketBase.Protocol
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestFilterBase&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="ReceiveFilterBase&lt;TRequestInfo&gt;"/> class.
         /// </summary>
-        protected RequestFilterBase()
+        protected ReceiveFilterBase()
         {
             m_BufferSegments = new ArraySegmentList();
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestFilterBase&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="ReceiveFilterBase&lt;TRequestInfo&gt;"/> class.
         /// </summary>
-        /// <param name="previousRequestFilter">The previous request filter.</param>
-        protected RequestFilterBase(RequestFilterBase<TRequestInfo> previousRequestFilter)
+        /// <param name="previousRequestFilter">The previous Receive filter.</param>
+        protected ReceiveFilterBase(ReceiveFilterBase<TRequestInfo> previousRequestFilter)
         {
             Initialize(previousRequestFilter);
         }
 
         /// <summary>
-        /// Initializes the specified previous request filter.
+        /// Initializes the specified previous Receive filter.
         /// </summary>
-        /// <param name="previousRequestFilter">The previous request filter.</param>
-        public void Initialize(RequestFilterBase<TRequestInfo> previousRequestFilter)
+        /// <param name="previousRequestFilter">The previous Receive filter.</param>
+        public void Initialize(ReceiveFilterBase<TRequestInfo> previousRequestFilter)
         {
             m_BufferSegments = previousRequestFilter.BufferSegments;
         }
 
-        #region IRequestFilter<TRequestInfo> Members
+        #region IReceiveFilter<TRequestInfo> Members
 
 
         /// <summary>
@@ -86,12 +86,12 @@ namespace SuperSocket.SocketBase.Protocol
         }
 
         /// <summary>
-        /// Gets or sets the next request filter.
+        /// Gets or sets the next Receive filter.
         /// </summary>
         /// <value>
-        /// The next request filter.
+        /// The next Receive filter.
         /// </value>
-        public IRequestFilter<TRequestInfo> NextRequestFilter { get; protected set; }
+        public IReceiveFilter<TRequestInfo> NextRequestFilter { get; protected set; }
 
         #endregion
 

@@ -41,7 +41,7 @@ namespace SuperSocket.SocketBase.Provider
             SocketServerFactory = new ProviderKey { Name = "SocketServerFactory", Type = typeof(ISocketServerFactory) };
             ConnectionFilter = new ProviderKey { Name = "ConnectionFilter", Type = typeof(IConnectionFilter) };
             LogFactory = new ProviderKey { Name = "LogFactory", Type = typeof(ILogFactory) };
-            RequestFilterFactory = new ProviderKey { Name = "RequestFilterFactory", Type = typeof(IRequestFilterFactory) };
+            ReceiveFilterFactory = new ProviderKey { Name = "ReceiveFilterFactory", Type = typeof(IReceiveFilterFactory) };
             CommandLoader = new ProviderKey { Name = "CommandLoader", Type = typeof(ICommandLoader) };
         }
 
@@ -66,9 +66,9 @@ namespace SuperSocket.SocketBase.Provider
         public static ProviderKey LogFactory { get; private set; }
 
         /// <summary>
-        /// Gets the request filter factory.
+        /// Gets the Receive filter factory.
         /// </summary>
-        public static ProviderKey RequestFilterFactory { get; private set; }
+        public static ProviderKey ReceiveFilterFactory { get; private set; }
 
         /// <summary>
         /// Gets the command loader.

@@ -35,9 +35,9 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServer"/> class.
         /// </summary>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
-        public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
-            : base(requestFilterFactory)
+        /// <param name="receiveFilterFactory">The Receive filter factory.</param>
+        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory)
+            : base(receiveFilterFactory)
         {
 
         }
@@ -54,7 +54,7 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
         /// </summary>
         public AppServer()
-            : base(new CommandLineRequestFilterFactory())
+            : base(new CommandLineReceiveFilterFactory())
         {
 
         }
@@ -62,9 +62,9 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
         /// </summary>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
-        public AppServer(IRequestFilterFactory<StringRequestInfo> requestFilterFactory)
-            : base(requestFilterFactory)
+        /// <param name="receiveFilterFactory">The Receive filter factory.</param>
+        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory)
+            : base(receiveFilterFactory)
         {
 
         }
@@ -93,7 +93,7 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="protocol">The protocol.</param>
-        protected AppServer(IRequestFilterFactory<TRequestInfo> protocol)
+        protected AppServer(IReceiveFilterFactory<TRequestInfo> protocol)
             : base(protocol)
         {
    

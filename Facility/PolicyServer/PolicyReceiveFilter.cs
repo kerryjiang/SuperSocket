@@ -7,17 +7,17 @@ using SuperSocket.SocketBase.Protocol;
 namespace SuperSocket.Facility.PolicyServer
 {
     /// <summary>
-    /// PolicyRequestFilter
+    /// PolicyReceiveFilter
     /// </summary>
-    class PolicyRequestFilter : FixedSizeRequestFilter<BinaryRequestInfo>
+    class PolicyReceiveFilter : FixedSizeReceiveFilter<BinaryRequestInfo>
     {
         private const string m_DefaultRequestInfoKey = "REQU";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PolicyRequestFilter"/> class.
+        /// Initializes a new instance of the <see cref="PolicyReceiveFilter"/> class.
         /// </summary>
         /// <param name="size">The size.</param>
-        public PolicyRequestFilter(int size)
+        public PolicyReceiveFilter(int size)
             : base(size)
         {
 

@@ -51,7 +51,7 @@ namespace SuperSocket.Facility.PolicyServer
 
             m_ExpectedReceivedLength = Encoding.UTF8.GetByteCount(m_PolicyRequest);
 
-            RequestFilterFactory = new PolicyRequestFilterFactory(m_ExpectedReceivedLength);
+            ReceiveFilterFactory = new PolicyReceiveFilterFactory(m_ExpectedReceivedLength);
 
             m_PolicyFile = config.Options.GetValue("policyFile");
 

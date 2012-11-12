@@ -90,9 +90,9 @@ namespace SuperSocket.SocketBase.Config
         public string ServerType { get; set; }
 
         /// <summary>
-        /// Gets/sets the request filter factory.
+        /// Gets/sets the Receive filter factory.
         /// </summary>
-        public string RequestFilterFactory { get; set; }
+        public string ReceiveFilterFactory { get; set; }
 
         /// <summary>
         /// Gets/sets the ip.

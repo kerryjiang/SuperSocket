@@ -22,7 +22,7 @@ namespace SuperSocket.SocketEngine
 
         private bool m_IsUdpRequestInfo = false;
 
-        private IRequestFilter<TRequestInfo> m_UdpRequestFilter;
+        private IReceiveFilter<TRequestInfo> m_UdpRequestFilter;
 
         private int m_ConnectionCount = 0;
 
@@ -43,7 +43,7 @@ namespace SuperSocket.SocketEngine
 
             m_IsUdpRequestInfo = typeof(TRequestInfo).IsSubclassOf(typeof(UdpRequestInfo));
 
-            m_UdpRequestFilter = ((IRequestFilterFactory<TRequestInfo>)appServer.RequestFilterFactory).CreateFilter(appServer, null, null);
+            m_UdpRequestFilter = ((IReceiveFilterFactory<TRequestInfo>)appServer.ReceiveFilterFactory).CreateFilter(appServer, null, null);
         }
 
         /// <summary>

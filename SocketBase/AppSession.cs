@@ -162,12 +162,12 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Gets or sets the m_ request filter.
+        /// Gets or sets the m_ Receive filter.
         /// </summary>
         /// <value>
-        /// The m_ request filter.
+        /// The m_ Receive filter.
         /// </value>
-        IRequestFilter<TRequestInfo> m_RequestFilter { get; set; }
+        IReceiveFilter<TRequestInfo> m_RequestFilter { get; set; }
 
         #endregion
 
@@ -187,8 +187,8 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
-        /// <param name="requestFilter">The request filter.</param>
-        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter)
+        /// <param name="requestFilter">The Receive filter.</param>
+        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IReceiveFilter<TRequestInfo> requestFilter)
         {
             AppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
             SocketSession = socketSession;
@@ -530,10 +530,10 @@ namespace SuperSocket.SocketBase
         #region Receiving processing
 
         /// <summary>
-        /// Sets the next request filter which will be used when next data block received
+        /// Sets the next Receive filter which will be used when next data block received
         /// </summary>
-        /// <param name="nextRequestFilter">The next request filter.</param>
-        protected void SetNextRequestFilter(IRequestFilter<TRequestInfo> nextRequestFilter)
+        /// <param name="nextRequestFilter">The next Receive filter.</param>
+        protected void SetNextRequestFilter(IReceiveFilter<TRequestInfo> nextRequestFilter)
         {
             m_RequestFilter = nextRequestFilter;
         }
@@ -575,7 +575,7 @@ namespace SuperSocket.SocketBase
                 }
             }
 
-            //If next request filter wasn't set, still use current request filter in next round received data processing
+            //If next Receive filter wasn't set, still use current Receive filter in next round received data processing
             if (m_RequestFilter.NextRequestFilter != null)
                 m_RequestFilter = m_RequestFilter.NextRequestFilter;
 

@@ -12,7 +12,7 @@ namespace SuperSocket.QuickStart.CountSpliterProtocol
     public class CountSpliterAppServer : AppServer
     {
         public CountSpliterAppServer()
-            : base(new CountSpliterRequestFilterFactory((byte)'#', 8))
+            : base(new CountSpliterReceiveFilterFactory((byte)'#', 8))
         {
             
         }

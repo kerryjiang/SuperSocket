@@ -15,7 +15,7 @@ namespace SuperSocket.Test.Udp
     class UdpAppServer : AppServer<UdpTestSession, MyUdpRequestInfo>, ITestSetup
     {
         public UdpAppServer()
-            : base(new DefaultRequestFilterFactory<MyRequestFilter, MyUdpRequestInfo>())
+            : base(new DefaultReceiveFilterFactory<MyReceiveFilter, MyUdpRequestInfo>())
         {
 
         }

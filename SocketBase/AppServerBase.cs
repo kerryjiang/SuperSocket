@@ -63,19 +63,19 @@ namespace SuperSocket.SocketBase
         public X509Certificate Certificate { get; private set; }
 
         /// <summary>
-        /// Gets or sets the request filter factory.
+        /// Gets or sets the receive filter factory.
         /// </summary>
         /// <value>
-        /// The request filter factory.
+        /// The receive filter factory.
         /// </value>
-        public virtual IRequestFilterFactory<TRequestInfo> RequestFilterFactory { get; protected set; }
+        public virtual IReceiveFilterFactory<TRequestInfo> ReceiveFilterFactory { get; protected set; }
 
         /// <summary>
-        /// Gets the request filter factory.
+        /// Gets the Receive filter factory.
         /// </summary>
-        object IAppServer.RequestFilterFactory
+        object IAppServer.ReceiveFilterFactory
         {
-            get { return this.RequestFilterFactory; }
+            get { return this.ReceiveFilterFactory; }
         }
 
         private List<ICommandLoader> m_CommandLoaders;
@@ -161,10 +161,10 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
         /// </summary>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
-        public AppServerBase(IRequestFilterFactory<TRequestInfo> requestFilterFactory)
+        /// <param name="receiveFilterFactory">The Receive filter factory.</param>
+        public AppServerBase(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory)
         {
-            this.RequestFilterFactory = requestFilterFactory;
+            this.ReceiveFilterFactory = receiveFilterFactory;
         }
 
         /// <summary>
@@ -344,10 +344,10 @@ namespace SuperSocket.SocketBase
             m_SocketServerFactory = socketServerFactory;
         }
 
-        private bool SetupMedium(IRequestFilterFactory<TRequestInfo> requestFilterFactory, IEnumerable<IConnectionFilter> connectionFilters, IEnumerable<ICommandLoader> commandLoaders)
+        private bool SetupMedium(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory, IEnumerable<IConnectionFilter> connectionFilters, IEnumerable<ICommandLoader> commandLoaders)
         {
-            if (requestFilterFactory != null)
-                RequestFilterFactory = requestFilterFactory;
+            if (receiveFilterFactory != null)
+                ReceiveFilterFactory = receiveFilterFactory;
 
             if (connectionFilters != null && connectionFilters.Any())
             {
@@ -396,11 +396,11 @@ namespace SuperSocket.SocketBase
 
         private bool SetupFinal()
         {
-            //Check RequestFilterFactory
-            if (RequestFilterFactory == null)
+            //Check receiveFilterFactory
+            if (ReceiveFilterFactory == null)
             {
                 if (Logger.IsErrorEnabled)
-                    Logger.Error("RequestFilterFactory is required!");
+                    Logger.Error("receiveFilterFactory is required!");
 
                 return false;
             }
@@ -499,7 +499,7 @@ namespace SuperSocket.SocketBase
 
             Logger = CreateLogger(this.Name);
 
-            if (!SetupMedium(GetProviderInstance<IRequestFilterFactory<TRequestInfo>>(providers), GetProviderInstance<IEnumerable<IConnectionFilter>>(providers), GetProviderInstance<IEnumerable<ICommandLoader>>(providers)))
+            if (!SetupMedium(GetProviderInstance<IReceiveFilterFactory<TRequestInfo>>(providers), GetProviderInstance<IEnumerable<IConnectionFilter>>(providers), GetProviderInstance<IEnumerable<ICommandLoader>>(providers)))
                 return false;
 
             if (!SetupAdvanced(config))
@@ -530,14 +530,14 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="config">The server config.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <param name="receiveFilterFactory">The receive filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory = null, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
         {
-            return Setup(new RootConfig(), config, socketServerFactory, requestFilterFactory, logFactory, connectionFilters, commandLoaders);
+            return Setup(new RootConfig(), config, socketServerFactory, receiveFilterFactory, logFactory, connectionFilters, commandLoaders);
         }
 
         /// <summary>
@@ -546,12 +546,12 @@ namespace SuperSocket.SocketBase
         /// <param name="rootConfig">The root config.</param>
         /// <param name="config">The server config.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <param name="receiveFilterFactory">The Receive filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory = null, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
         {
             TrySetInitializedState();
 
@@ -562,7 +562,7 @@ namespace SuperSocket.SocketBase
 
             Logger = CreateLogger(this.Name);
 
-            if (!SetupMedium(requestFilterFactory, connectionFilters, commandLoaders))
+            if (!SetupMedium(receiveFilterFactory, connectionFilters, commandLoaders))
                 return false;
 
             if (!SetupAdvanced(config))
@@ -584,12 +584,12 @@ namespace SuperSocket.SocketBase
         /// <param name="ip">The ip.</param>
         /// <param name="port">The port.</param>
         /// <param name="socketServerFactory">The socket server factory.</param>
-        /// <param name="requestFilterFactory">The request filter factory.</param>
+        /// <param name="receiveFilterFactory">The Receive filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns>return setup result</returns>
-        public bool Setup(string ip, int port, ISocketServerFactory socketServerFactory = null, IRequestFilterFactory<TRequestInfo> requestFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(string ip, int port, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
         {
             return Setup(new ServerConfig
                             {
@@ -597,7 +597,7 @@ namespace SuperSocket.SocketBase
                                 Port = port
                             },
                           socketServerFactory,
-                          requestFilterFactory,
+                          receiveFilterFactory,
                           logFactory,
                           connectionFilters,
                           commandLoaders);
@@ -633,7 +633,7 @@ namespace SuperSocket.SocketBase
             Logger = CreateLogger(this.Name);
 
             if (!SetupMedium(
-                    GetSingleProviderInstance<IRequestFilterFactory<TRequestInfo>>(factories, ProviderKey.RequestFilterFactory),
+                    GetSingleProviderInstance<IReceiveFilterFactory<TRequestInfo>>(factories, ProviderKey.ReceiveFilterFactory),
                     GetProviderInstances<IConnectionFilter>(factories, ProviderKey.ConnectionFilter),
                     GetProviderInstances<ICommandLoader>(factories, ProviderKey.CommandLoader)))
             {
@@ -1229,7 +1229,7 @@ namespace SuperSocket.SocketBase
             if (!RegisterSession(socketSession.SessionID, appSession))
                 return NullAppSession;
 
-            appSession.Initialize(this, socketSession, RequestFilterFactory.CreateFilter(this, appSession, socketSession.RemoteEndPoint));
+            appSession.Initialize(this, socketSession, ReceiveFilterFactory.CreateFilter(this, appSession, socketSession.RemoteEndPoint));
             socketSession.Closed += OnSocketSessionClosed;
 
             if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)

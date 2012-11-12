@@ -140,7 +140,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="socketSession">The socket session.</param>
-        /// <param name="requestFilter">The request filter.</param>
-        void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession, IRequestFilter<TRequestInfo> requestFilter);
+        /// <param name="requestFilter">The Receive filter.</param>
+        void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession, IReceiveFilter<TRequestInfo> requestFilter);
     }
 }

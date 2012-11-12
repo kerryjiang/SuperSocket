@@ -23,7 +23,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
     class CustomProtocolServer : AppServer<CustomProtocolSession, BinaryRequestInfo>
     {
         public CustomProtocolServer()
-            : base(new DefaultRequestFilterFactory<MyRequestFilter, BinaryRequestInfo>())
+            : base(new DefaultReceiveFilterFactory<MyReceiveFilter, BinaryRequestInfo>())
         {
 
         }

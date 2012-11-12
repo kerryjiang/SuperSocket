@@ -7,10 +7,10 @@ using SuperSocket.Common;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// Terminator Request Filter
+    /// Terminator Receive filter
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class TerminatorRequestFilter<TRequestInfo> : RequestFilterBase<TRequestInfo>, IOffsetAdapter
+    public abstract class TerminatorReceiveFilter<TRequestInfo> : ReceiveFilterBase<TRequestInfo>, IOffsetAdapter
         where TRequestInfo : IRequestInfo
     {
         private readonly SearchMarkState<byte> m_SearchState;
@@ -18,7 +18,7 @@ namespace SuperSocket.SocketBase.Protocol
         private readonly IAppSession m_Session;
 
         /// <summary>
-        /// Gets the session assosiated with the request filter.
+        /// Gets the session assosiated with the Receive filter.
         /// </summary>
         protected IAppSession Session
         {
@@ -33,11 +33,11 @@ namespace SuperSocket.SocketBase.Protocol
         private int m_ParsedLengthInBuffer = 0;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TerminatorRequestFilter&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="TerminatorReceiveFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
-        protected TerminatorRequestFilter(IAppSession session, byte[] terminator)
+        protected TerminatorReceiveFilter(IAppSession session, byte[] terminator)
         {
             m_Session = session;
             m_SearchState = new SearchMarkState<byte>(terminator);
@@ -204,30 +204,30 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// TerminatorRequestFilter
     /// </summary>
-    public class TerminatorRequestFilter : TerminatorRequestFilter<StringRequestInfo>
+    public class TerminatorReceiveFilter : TerminatorReceiveFilter<StringRequestInfo>
     {
         private readonly Encoding m_Encoding;
         private readonly IRequestInfoParser<StringRequestInfo> m_RequestParser;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TerminatorRequestFilter"/> class.
+        /// Initializes a new instance of the <see cref="TerminatorReceiveFilter"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
-        public TerminatorRequestFilter(IAppSession session, byte[] terminator, Encoding encoding)
+        public TerminatorReceiveFilter(IAppSession session, byte[] terminator, Encoding encoding)
             : this(session, terminator, encoding, BasicRequestInfoParser.DefaultInstance)
         {
             
         }
         /// <summary>
-        /// Initializes a new instance of the <see cref="TerminatorRequestFilter"/> class.
+        /// Initializes a new instance of the <see cref="TerminatorReceiveFilter"/> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="requestParser">The request parser.</param>
-        public TerminatorRequestFilter(IAppSession session, byte[] terminator, Encoding encoding, IRequestInfoParser<StringRequestInfo> requestParser)
+        public TerminatorReceiveFilter(IAppSession session, byte[] terminator, Encoding encoding, IRequestInfoParser<StringRequestInfo> requestParser)
             : base(session, terminator)
         {
             m_Encoding = encoding;

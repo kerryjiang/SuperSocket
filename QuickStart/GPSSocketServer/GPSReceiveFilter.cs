@@ -13,12 +13,12 @@ namespace SuperSocket.QuickStart.GPSSocketServer
     /// if data[15] = 0x10, the command is a keep alive one
     /// if data[15] = 0x1a, the command is position one
     /// </summary>
-    class GPSRequestFilter : BeginEndMarkRequestFilter<BinaryRequestInfo>
+    class GPSReceiveFilter : BeginEndMarkReceiveFilter<BinaryRequestInfo>
     {
         private readonly static byte[] BeginMark = new byte[] { 0x68, 0x68 };
         private readonly static byte[] EndMark = new byte[] { 0x0d, 0x0a };
 
-        public GPSRequestFilter()
+        public GPSReceiveFilter()
             : base(BeginMark, EndMark)
         {
 

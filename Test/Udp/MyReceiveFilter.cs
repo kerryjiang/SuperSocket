@@ -7,7 +7,7 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Test.Udp
 {
-    class MyRequestFilter : IRequestFilter<MyUdpRequestInfo>
+    class MyReceiveFilter : IReceiveFilter<MyUdpRequestInfo>
     {
         public MyUdpRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
         {
@@ -29,7 +29,7 @@ namespace SuperSocket.Test.Udp
             get { return 0; }
         }
 
-        public IRequestFilter<MyUdpRequestInfo> NextRequestFilter
+        public IReceiveFilter<MyUdpRequestInfo> NextRequestFilter
         {
             get { return this; }
         }

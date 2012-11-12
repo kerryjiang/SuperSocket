@@ -8,7 +8,7 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    class PolicyRequestFilterFactory : IRequestFilterFactory<BinaryRequestInfo>
+    class PolicyReceiveFilterFactory : IReceiveFilterFactory<BinaryRequestInfo>
     {
         /// <summary>
         /// Gets the size of the fix request.
@@ -19,10 +19,10 @@ namespace SuperSocket.Facility.PolicyServer
         public int FixRequestSize { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="PolicyRequestFilterFactory"/> class.
+        /// Initializes a new instance of the <see cref="PolicyReceiveFilterFactory"/> class.
         /// </summary>
         /// <param name="fixRequestSize">Size of the fix request.</param>
-        public PolicyRequestFilterFactory(int fixRequestSize)
+        public PolicyReceiveFilterFactory(int fixRequestSize)
         {
             FixRequestSize = fixRequestSize;
         }
@@ -34,9 +34,9 @@ namespace SuperSocket.Facility.PolicyServer
         /// <param name="appSession">The app session.</param>
         /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IRequestFilter<BinaryRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        public IReceiveFilter<BinaryRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
-            return new PolicyRequestFilter(FixRequestSize);
+            return new PolicyReceiveFilter(FixRequestSize);
         }
     }
 }

@@ -66,12 +66,12 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the logfactory name of the bootstrap.
         /// </summary>
-        [ConfigurationProperty("requestFilterFactories", IsRequired = false)]
-        public TypeProviderCollection RequestFilterFactories
+        [ConfigurationProperty("receiveFilterFactories", IsRequired = false)]
+        public TypeProviderCollection ReceiveFilterFactories
         {
             get
             {
-                return this["requestFilterFactories"] as TypeProviderCollection;
+                return this["receiveFilterFactories"] as TypeProviderCollection;
             }
         }
 
@@ -263,11 +263,11 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
-        IEnumerable<ITypeProvider> IConfigurationSource.RequestFilterFactories
+        IEnumerable<ITypeProvider> IConfigurationSource.ReceiveFilterFactories
         {
             get
             {
-                return this.RequestFilterFactories;
+                return this.ReceiveFilterFactories;
             }
         }
 

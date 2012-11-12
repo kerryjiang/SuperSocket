@@ -6,7 +6,7 @@ using System.Text;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// The interface for a request filter to adapt receiving buffer offset
+    /// The interface for a Receive filter to adapt receiving buffer offset
     /// </summary>
     public interface IOffsetAdapter
     {

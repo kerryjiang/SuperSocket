@@ -11,10 +11,10 @@ using SuperSocket.SocketBase.Protocol;
 namespace SuperSocket.Facility.HttpBase
 {
     /// <summary>
-    /// HttpRequestFilterBase
+    /// HttpReceiveFilterBase
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class HttpRequestFilterBase<TRequestInfo> : TerminatorRequestFilter<TRequestInfo>
+    public abstract class HttpReceiveFilterBase<TRequestInfo> : TerminatorReceiveFilter<TRequestInfo>
         where TRequestInfo : IRequestInfo
     {
         /// <summary>
@@ -33,9 +33,9 @@ namespace SuperSocket.Facility.HttpBase
         protected NameValueCollection HeaderItems { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpRequestFilterBase&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="HttpReceiveFilterBase&lt;TRequestInfo&gt;"/> class.
         /// </summary>
-        protected HttpRequestFilterBase(IAppSession session)
+        protected HttpReceiveFilterBase(IAppSession session)
             : base(session, NewLine)
         {
             

@@ -7,10 +7,10 @@ using SuperSocket.SocketBase.Protocol;
 namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
-    /// RequestFilter for the protocol that each request has bengin and end mark
+    /// ReceiveFilter for the protocol that each request has bengin and end mark
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class BeginEndMarkRequestFilter<TRequestInfo> : RequestFilterBase<TRequestInfo>
+    public abstract class BeginEndMarkReceiveFilter<TRequestInfo> : ReceiveFilterBase<TRequestInfo>
         where TRequestInfo : IRequestInfo
     {
         private readonly SearchMarkState<byte> m_BeginSearchState;
@@ -24,11 +24,11 @@ namespace SuperSocket.Facility.Protocol
         protected TRequestInfo NullRequestInfo = default(TRequestInfo);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BeginEndMarkRequestFilter&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="BeginEndMarkReceiveFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="beginMark">The begin mark.</param>
         /// <param name="endMark">The end mark.</param>
-        protected BeginEndMarkRequestFilter(byte[] beginMark, byte[] endMark)
+        protected BeginEndMarkReceiveFilter(byte[] beginMark, byte[] endMark)
         {
             m_BeginSearchState = new SearchMarkState<byte>(beginMark);
             m_EndSearchState = new SearchMarkState<byte>(endMark);

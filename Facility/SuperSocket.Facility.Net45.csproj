@@ -54,21 +54,21 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="HttpBase\HttpRequestFilterBase.cs" />
+    <Compile Include="HttpBase\HttpReceiveFilterBase.cs" />
     <Compile Include="HttpBase\HttpRequestInfoBase.cs" />
     <Compile Include="HttpBase\MimeHeaderHelper.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
-    <Compile Include="PolicyServer\PolicyRequestFilter.cs" />
-    <Compile Include="PolicyServer\PolicyRequestFilterFactory.cs" />
+    <Compile Include="PolicyServer\PolicyReceiveFilter.cs" />
+    <Compile Include="PolicyServer\PolicyReceiveFilterFactory.cs" />
     <Compile Include="PolicyServer\PolicyServer.cs" />
     <Compile Include="PolicyServer\PolicySession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PolicyServer\SilverlightPolicyServer.cs" />
-    <Compile Include="Protocol\BeginEndMarkRequestFilter.cs" />
-    <Compile Include="Protocol\CountSpliterRequestFilter.cs" />
-    <Compile Include="Protocol\CountSpliterRequestFilterFactory.cs" />
-    <Compile Include="Protocol\FixedHeaderRequestFilter.cs" />
-    <Compile Include="Protocol\FixedSizeRequestFilter.cs" />
+    <Compile Include="Protocol\BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="Protocol\CountSpliterReceiveFilter.cs" />
+    <Compile Include="Protocol\CountSpliterReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\FixedHeaderReceiveFilter.cs" />
+    <Compile Include="Protocol\FixedSizeReceiveFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">

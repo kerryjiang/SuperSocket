@@ -30,7 +30,7 @@ namespace SuperSocket.Test
         }
 
         public TestServer(IRequestInfoParser<StringRequestInfo> requestInfoParser)
-            : base(new CommandLineRequestFilterFactory(Encoding.UTF8, requestInfoParser))
+            : base(new CommandLineReceiveFilterFactory(Encoding.UTF8, requestInfoParser))
         {
             
         }

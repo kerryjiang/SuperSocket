@@ -37,9 +37,9 @@ namespace SuperSocket.SocketBase
         ListenerInfo[] Listeners { get; }
 
         /// <summary>
-        /// Gets the request filter factory.
+        /// Gets the Receive filter factory.
         /// </summary>
-        object RequestFilterFactory { get; }
+        object ReceiveFilterFactory { get; }
         
 
         /// <summary>

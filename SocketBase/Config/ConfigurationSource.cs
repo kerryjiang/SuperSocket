@@ -47,9 +47,9 @@ namespace SuperSocket.SocketBase.Config
                 this.LogFactories = source.LogFactories.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
             }
 
-            if (source.RequestFilterFactories != null && source.RequestFilterFactories.Any())
+            if (source.ReceiveFilterFactories != null && source.ReceiveFilterFactories.Any())
             {
-                this.RequestFilterFactories = source.RequestFilterFactories.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
+                this.ReceiveFilterFactories = source.ReceiveFilterFactories.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
             }
 
             if (source.CommandLoaders != null && source.CommandLoaders.Any())
@@ -80,9 +80,9 @@ namespace SuperSocket.SocketBase.Config
         public IEnumerable<ITypeProvider> LogFactories { get; set; }
 
         /// <summary>
-        /// Gets/sets the request filter factories definition.
+        /// Gets/sets the Receive filter factories definition.
         /// </summary>
-        public IEnumerable<ITypeProvider> RequestFilterFactories { get; set; }
+        public IEnumerable<ITypeProvider> ReceiveFilterFactories { get; set; }
 
         /// <summary>
         /// Gets/sets the command loaders definition.

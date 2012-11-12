@@ -11,7 +11,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer
     public class GPSServer : AppServer<GPSSession, BinaryRequestInfo>
     {
         public GPSServer()
-            : base(new DefaultRequestFilterFactory<GPSRequestFilter, BinaryRequestInfo>())
+            : base(new DefaultReceiveFilterFactory<GPSReceiveFilter, BinaryRequestInfo>())
         {
             DefaultResponse = new byte[] { 0x54, 0x68, 0x1a, 0x0d, 0x0a};
         }

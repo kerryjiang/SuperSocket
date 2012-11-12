@@ -43,12 +43,12 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
-        /// Gets the request filter factory.
+        /// Gets the Receive filter factory.
         /// </summary>
-        [ConfigurationProperty("requestFilterFactory", IsRequired = false)]
-        public string RequestFilterFactory
+        [ConfigurationProperty("receiveFilterFactory", IsRequired = false)]
+        public string ReceiveFilterFactory
         {
-            get { return this["requestFilterFactory"] as string; }
+            get { return this["receiveFilterFactory"] as string; }
         }
 
         /// <summary>

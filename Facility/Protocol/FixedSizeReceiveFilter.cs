@@ -7,10 +7,10 @@ using SuperSocket.SocketBase.Protocol;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// FixedSizeRequestFilter
+    /// FixedSizeReceiveFilter
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class FixedSizeRequestFilter<TRequestInfo> : IRequestFilter<TRequestInfo>, IOffsetAdapter
+    public abstract class FixedSizeReceiveFilter<TRequestInfo> : IReceiveFilter<TRequestInfo>, IOffsetAdapter
         where TRequestInfo : IRequestInfo
     {
         private int m_ParsedLength;
@@ -18,7 +18,7 @@ namespace SuperSocket.SocketBase.Protocol
         private int m_Size;
 
         /// <summary>
-        /// Gets the size of the fixed size request filter.
+        /// Gets the size of the fixed size Receive filter.
         /// </summary>
         public int Size
         {
@@ -31,10 +31,10 @@ namespace SuperSocket.SocketBase.Protocol
         protected readonly static TRequestInfo NullRequestInfo = default(TRequestInfo);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="FixedSizeRequestFilter&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="FixedSizeReceiveFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="size">The size.</param>
-        protected FixedSizeRequestFilter(int size)
+        protected FixedSizeReceiveFilter(int size)
         {
             m_Size = size;
         }
@@ -89,9 +89,9 @@ namespace SuperSocket.SocketBase.Protocol
         }
 
         /// <summary>
-        /// Gets the next request filter.
+        /// Gets the next Receive filter.
         /// </summary>
-        public virtual IRequestFilter<TRequestInfo> NextRequestFilter
+        public virtual IReceiveFilter<TRequestInfo> NextRequestFilter
         {
             get { return null; }
         }

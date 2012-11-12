@@ -15,7 +15,7 @@ namespace SuperSocket.QuickStart.TerminatorProtocol
     public class TerminatorProtocolServer : AppServer
     {
         public TerminatorProtocolServer()
-            : base(new TerminatorRequestFilterFactory("##"))
+            : base(new TerminatorReceiveFilterFactory("##"))
         {
             
         }

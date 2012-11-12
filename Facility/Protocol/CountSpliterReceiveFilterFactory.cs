@@ -6,12 +6,12 @@ using SuperSocket.SocketBase.Protocol;
 namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
-    /// RequestFilterFactory for CountSpliterRequestFilter
+    /// ReceiveFilterFactory for CountSpliterReceiveFilter
     /// </summary>
-    /// <typeparam name="TRequestFilter">The type of the request filter.</typeparam>
+    /// <typeparam name="TRequestFilter">The type of the Receive filter.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public class CountSpliterRequestFilterFactory<TRequestFilter, TRequestInfo> : IRequestFilterFactory<TRequestInfo>
-        where TRequestFilter : CountSpliterRequestFilter<TRequestInfo>, new()
+    public class CountSpliterReceiveFilterFactory<TRequestFilter, TRequestInfo> : IReceiveFilterFactory<TRequestInfo>
+        where TRequestFilter : CountSpliterReceiveFilter<TRequestInfo>, new()
         where TRequestInfo : IRequestInfo
     {
         /// <summary>
@@ -21,7 +21,7 @@ namespace SuperSocket.Facility.Protocol
         /// <param name="appSession">The app session.</param>
         /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IRequestFilter<TRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        public IReceiveFilter<TRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             var config = appServer.Config;
 
@@ -33,30 +33,30 @@ namespace SuperSocket.Facility.Protocol
     }
 
     /// <summary>
-    /// RequestFilterFactory for CountSpliterRequestFilter
+    /// ReceiveFilterFactory for CountSpliterReceiveFilter
     /// </summary>
-    /// <typeparam name="TRequestFilter">The type of the request filter.</typeparam>
-    public class CountSpliterRequestFilterFactory<TRequestFilter> : CountSpliterRequestFilterFactory<TRequestFilter, StringRequestInfo>
-        where TRequestFilter : CountSpliterRequestFilter<StringRequestInfo>, new()
+    /// <typeparam name="TRequestFilter">The type of the Receive filter.</typeparam>
+    public class CountSpliterReceiveFilterFactory<TRequestFilter> : CountSpliterReceiveFilterFactory<TRequestFilter, StringRequestInfo>
+        where TRequestFilter : CountSpliterReceiveFilter<StringRequestInfo>, new()
     {
 
     }
 
     /// <summary>
-    /// RequestFilterFactory for CountSpliterRequestFilter
+    /// receiveFilterFactory for CountSpliterRequestFilter
     /// </summary>
-    public class  CountSpliterRequestFilterFactory : IRequestFilterFactory<StringRequestInfo>
+    public class  CountSpliterReceiveFilterFactory : IReceiveFilterFactory<StringRequestInfo>
     {
         private readonly byte m_Spliter;
 
         private readonly int m_SpliterCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CountSpliterRequestFilterFactory"/> class.
+        /// Initializes a new instance of the <see cref="CountSpliterReceiveFilterFactory"/> class.
         /// </summary>
         /// <param name="spliter">The spliter.</param>
         /// <param name="count">The count.</param>
-        public CountSpliterRequestFilterFactory(byte spliter, int count)
+        public CountSpliterReceiveFilterFactory(byte spliter, int count)
         {
             m_Spliter = spliter;
             m_SpliterCount = count;
@@ -69,9 +69,9 @@ namespace SuperSocket.Facility.Protocol
         /// <param name="appSession">The app session.</param>
         /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IRequestFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        public IReceiveFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
-            return new CountSpliterRequestFilter(m_Spliter, m_SpliterCount);
+            return new CountSpliterReceiveFilter(m_Spliter, m_SpliterCount);
         }
     }
 }

@@ -6,9 +6,9 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
-    class MyRequestFilter : FixedHeaderRequestFilter<BinaryRequestInfo>
+    class MyReceiveFilter : FixedHeaderReceiveFilter<BinaryRequestInfo>
     {
-        public MyRequestFilter()
+        public MyReceiveFilter()
             : base(6)
         {
 

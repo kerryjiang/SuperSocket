@@ -74,8 +74,8 @@ namespace SuperSocket.SocketEngine
             //Initialize log factories
             var logFactoryFactories = InitializeProviderFactories(ProviderKey.LogFactory, m_Config.LogFactories, m_DefaultLogFactory);
 
-            //Initialize request filter factories
-            var requestFilterFactories = InitializeProviderFactories(ProviderKey.RequestFilterFactory, m_Config.RequestFilterFactories);
+            //Initialize Receive filter factories
+            var receiveFilterFactories = InitializeProviderFactories(ProviderKey.ReceiveFilterFactory, m_Config.ReceiveFilterFactories);
 
 
             //Initialize command loader factories
@@ -156,15 +156,15 @@ namespace SuperSocket.SocketEngine
 
                 factories.Add(workItemFactory.LogFactory);
 
-                //Initialize request filter factory
-                if (!string.IsNullOrEmpty(serverConfig.RequestFilterFactory))
+                //Initialize Receive filter factory
+                if (!string.IsNullOrEmpty(serverConfig.ReceiveFilterFactory))
                 {
-                    var currentRequestFilterFactory = requestFilterFactories.FirstOrDefault(p => p.Name.Equals(serverConfig.RequestFilterFactory, StringComparison.OrdinalIgnoreCase));
+                    var currentReceiveFilterFactory = receiveFilterFactories.FirstOrDefault(p => p.Name.Equals(serverConfig.ReceiveFilterFactory, StringComparison.OrdinalIgnoreCase));
 
-                    if (currentRequestFilterFactory == null)
-                        throw new Exception(string.Format("the specific request filter factory '{0}' cannot be found!", serverConfig.RequestFilterFactory));
+                    if (currentReceiveFilterFactory == null)
+                        throw new Exception(string.Format("the specific Receive filter factory '{0}' cannot be found!", serverConfig.ReceiveFilterFactory));
 
-                    factories.Add(currentRequestFilterFactory);
+                    factories.Add(currentReceiveFilterFactory);
                 }
 
                 workItemFactory.ProviderFactories = factories;

@@ -7,10 +7,10 @@ using SuperSocket.SocketBase.Command;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// Request filter interface
+    /// Receive filter interface
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IRequestFilter<TRequestInfo>
+    public interface IReceiveFilter<TRequestInfo>
         where TRequestInfo : IRequestInfo
     {
         /// <summary>
@@ -33,9 +33,9 @@ namespace SuperSocket.SocketBase.Protocol
         int LeftBufferSize { get; }
 
         /// <summary>
-        /// Gets the next request filter.
+        /// Gets the next Receive filter.
         /// </summary>
-        IRequestFilter<TRequestInfo> NextRequestFilter { get; }
+        IReceiveFilter<TRequestInfo> NextRequestFilter { get; }
 
         /// <summary>
         /// Resets this instance to initial state.

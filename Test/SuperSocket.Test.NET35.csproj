@@ -102,7 +102,7 @@
     <Compile Include="TestServer.cs" />
     <Compile Include="TestSession.cs" />
     <Compile Include="UdpSocketServerTest.cs" />
-    <Compile Include="Udp\MyRequestFilter.cs" />
+    <Compile Include="Udp\MyReceiveFilter.cs" />
     <Compile Include="Udp\MyUdpProtocol.cs" />
     <Compile Include="Udp\SESS.cs" />
     <Compile Include="Udp\UdpAppServer.cs" />

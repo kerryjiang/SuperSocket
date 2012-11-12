@@ -6,13 +6,13 @@ using SuperSocket.SocketBase.Protocol;
 namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
-    /// This request filter is designed for this kind protocol:
+    /// This Receive filter is designed for this kind protocol:
     /// each request has fixed count part which splited by a char(byte)
     /// for instance, request is defined like this "#12122#23343#4545456565#343435446#",
-    /// because this request is splited into many parts by 5 '#', we can create a request filter by CountSpliterRequestFilter((byte)'#', 5)
+    /// because this request is splited into many parts by 5 '#', we can create a Receive filter by CountSpliterRequestFilter((byte)'#', 5)
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class CountSpliterRequestFilter<TRequestInfo> : IRequestFilter<TRequestInfo>, IOffsetAdapter
+    public abstract class CountSpliterReceiveFilter<TRequestInfo> : IReceiveFilter<TRequestInfo>, IOffsetAdapter
         where TRequestInfo : IRequestInfo
     {
         private int m_Total;
@@ -29,11 +29,11 @@ namespace SuperSocket.Facility.Protocol
         protected static readonly TRequestInfo NullRequestInfo = default(TRequestInfo);
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CountSpliterRequestFilter&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="CountSpliterReceiveFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="spliter">The spliter.</param>
         /// <param name="spliterCount">The spliter count.</param>
-        protected CountSpliterRequestFilter(byte spliter, int spliterCount)
+        protected CountSpliterReceiveFilter(byte spliter, int spliterCount)
         {
             m_Spliter = spliter;
             m_SpliterCount = spliterCount;
@@ -127,9 +127,9 @@ namespace SuperSocket.Facility.Protocol
         }
 
         /// <summary>
-        /// Gets the next request filter.
+        /// Gets the next Receive filter.
         /// </summary>
-        public IRequestFilter<TRequestInfo> NextRequestFilter
+        public IReceiveFilter<TRequestInfo> NextRequestFilter
         {
             get { return null; }
         }
@@ -156,12 +156,12 @@ namespace SuperSocket.Facility.Protocol
     }
 
     /// <summary>
-    /// This request filter is designed for this kind protocol:
+    /// This Receive filter is designed for this kind protocol:
     /// each request has fixed count part which splited by a char(byte)
     /// for instance, request is defined like this "#12122#23343#4545456565#343435446#",
-    /// because this request is splited into many parts by 5 '#', we can create a request filter by CountSpliterRequestFilter((byte)'#', 5)
+    /// because this request is splited into many parts by 5 '#', we can create a Receive filter by CountSpliterRequestFilter((byte)'#', 5)
     /// </summary>
-    public class CountSpliterRequestFilter : CountSpliterRequestFilter<StringRequestInfo>
+    public class CountSpliterReceiveFilter : CountSpliterReceiveFilter<StringRequestInfo>
     {
         private readonly Encoding m_Encoding;
 
@@ -170,36 +170,36 @@ namespace SuperSocket.Facility.Protocol
         private readonly char m_Spliter;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CountSpliterRequestFilter"/> class.
+        /// Initializes a new instance of the <see cref="CountSpliterReceiveFilter"/> class.
         /// </summary>
         /// <param name="spliter">The spliter.</param>
         /// <param name="spliterCount">The spliter count.</param>
-        public CountSpliterRequestFilter(byte spliter, int spliterCount)
+        public CountSpliterReceiveFilter(byte spliter, int spliterCount)
             : this(spliter, spliterCount, Encoding.ASCII)
         {
             
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CountSpliterRequestFilter"/> class.
+        /// Initializes a new instance of the <see cref="CountSpliterReceiveFilter"/> class.
         /// </summary>
         /// <param name="spliter">The spliter.</param>
         /// <param name="spliterCount">The spliter count.</param>
         /// <param name="encoding">The encoding.</param>
-        public CountSpliterRequestFilter(byte spliter, int spliterCount, Encoding encoding)
+        public CountSpliterReceiveFilter(byte spliter, int spliterCount, Encoding encoding)
             : this(spliter, spliterCount, encoding, 0)
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CountSpliterRequestFilter"/> class.
+        /// Initializes a new instance of the <see cref="CountSpliterReceiveFilter"/> class.
         /// </summary>
         /// <param name="spliter">The spliter.</param>
         /// <param name="spliterCount">The spliter count.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="keyIndex">Index of the key.</param>
-        public CountSpliterRequestFilter(byte spliter, int spliterCount, Encoding encoding, int keyIndex)
+        public CountSpliterReceiveFilter(byte spliter, int spliterCount, Encoding encoding, int keyIndex)
             : base(spliter, spliterCount)
         {
             m_Encoding = encoding;

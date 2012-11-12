@@ -30,9 +30,9 @@ namespace SuperSocket.SocketBase.Config
         IEnumerable<ITypeProvider> LogFactories { get; }
 
         /// <summary>
-        /// Gets the request filter factories definition.
+        /// Gets the Receive filter factories definition.
         /// </summary>
-        IEnumerable<ITypeProvider> RequestFilterFactories { get; }
+        IEnumerable<ITypeProvider> ReceiveFilterFactories { get; }
 
         /// <summary>
         /// Gets the command loaders definition.

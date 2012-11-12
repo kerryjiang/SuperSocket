@@ -27,7 +27,7 @@ namespace SuperSocket.Test
             {
 
                 var setupResult = appServer.Setup("127.0.0.1", 2012,
-                    null, new TerminatorRequestFilterFactory("##", m_Encoding), new ConsoleLogFactory(), null, null);
+                    null, new TerminatorReceiveFilterFactory("##", m_Encoding), new ConsoleLogFactory(), null, null);
 
                 Assert.IsTrue(setupResult);
                 Assert.IsTrue(appServer.Start());
@@ -77,7 +77,7 @@ namespace SuperSocket.Test
             {
 
                 var setupResult = appServer.Setup("127.0.0.1", 2012,
-                    null, new TerminatorRequestFilterFactory("##", m_Encoding), new ConsoleLogFactory(), null, null);
+                    null, new TerminatorReceiveFilterFactory("##", m_Encoding), new ConsoleLogFactory(), null, null);
 
                 Assert.IsTrue(setupResult);
                 Assert.IsTrue(appServer.Start());
