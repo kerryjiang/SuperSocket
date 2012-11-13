@@ -91,7 +91,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <value>
         /// The next Receive filter.
         /// </value>
-        public IReceiveFilter<TRequestInfo> NextRequestFilter { get; protected set; }
+        public IReceiveFilter<TRequestInfo> NextReceiveFilter { get; protected set; }
 
         #endregion
 

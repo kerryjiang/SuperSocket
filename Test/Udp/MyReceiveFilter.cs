@@ -29,7 +29,7 @@ namespace SuperSocket.Test.Udp
             get { return 0; }
         }
 
-        public IReceiveFilter<MyUdpRequestInfo> NextRequestFilter
+        public IReceiveFilter<MyUdpRequestInfo> NextReceiveFilter
         {
             get { return this; }
         }

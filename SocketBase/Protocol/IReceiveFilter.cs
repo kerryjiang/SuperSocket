@@ -35,7 +35,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Gets the next Receive filter.
         /// </summary>
-        IReceiveFilter<TRequestInfo> NextRequestFilter { get; }
+        IReceiveFilter<TRequestInfo> NextReceiveFilter { get; }
 
         /// <summary>
         /// Resets this instance to initial state.

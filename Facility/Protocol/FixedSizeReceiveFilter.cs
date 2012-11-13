@@ -91,7 +91,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Gets the next Receive filter.
         /// </summary>
-        public virtual IReceiveFilter<TRequestInfo> NextRequestFilter
+        public virtual IReceiveFilter<TRequestInfo> NextReceiveFilter
         {
             get { return null; }
         }

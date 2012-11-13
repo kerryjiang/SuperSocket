@@ -129,7 +129,7 @@ namespace SuperSocket.Facility.Protocol
         /// <summary>
         /// Gets the next Receive filter.
         /// </summary>
-        public IReceiveFilter<TRequestInfo> NextRequestFilter
+        public IReceiveFilter<TRequestInfo> NextReceiveFilter
         {
             get { return null; }
         }

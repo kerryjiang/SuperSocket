@@ -576,8 +576,8 @@ namespace SuperSocket.SocketBase
             }
 
             //If next Receive filter wasn't set, still use current Receive filter in next round received data processing
-            if (m_RequestFilter.NextRequestFilter != null)
-                m_RequestFilter = m_RequestFilter.NextRequestFilter;
+            if (m_RequestFilter.NextReceiveFilter != null)
+                m_RequestFilter = m_RequestFilter.NextReceiveFilter;
 
             return requestInfo;
         }
