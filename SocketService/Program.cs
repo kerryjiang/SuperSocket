@@ -59,6 +59,7 @@ namespace SuperSocket.SocketService
 
             if (!bootstrap.Initialize())
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Failed to initialize SuperSocket ServiceEngine! Please check error log for more information!");
                 Console.ReadKey();
                 return;
