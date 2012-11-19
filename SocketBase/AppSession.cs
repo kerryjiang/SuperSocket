@@ -161,13 +161,7 @@ namespace SuperSocket.SocketBase
             get { return AppServer.Config; }
         }
 
-        /// <summary>
-        /// Gets or sets the m_ Receive filter.
-        /// </summary>
-        /// <value>
-        /// The m_ Receive filter.
-        /// </value>
-        IReceiveFilter<TRequestInfo> m_RequestFilter { get; set; }
+        IReceiveFilter<TRequestInfo> m_ReceiveFilter;
 
         #endregion
 
@@ -187,14 +181,14 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
-        /// <param name="requestFilter">The Receive filter.</param>
-        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IReceiveFilter<TRequestInfo> requestFilter)
+        /// <param name="receiveFilter">The receive filter.</param>
+        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IReceiveFilter<TRequestInfo> receiveFilter)
         {
             AppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;
-            m_RequestFilter = requestFilter;
+            m_ReceiveFilter = receiveFilter;
             OnInit();
         }
 
@@ -309,6 +303,7 @@ namespace SuperSocket.SocketBase
         {
             return GetSendingQueue().TryDequeue(segments);
         }
+
 
         /// <summary>
         /// Try to send the message to client.
@@ -532,10 +527,10 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Sets the next Receive filter which will be used when next data block received
         /// </summary>
-        /// <param name="nextRequestFilter">The next Receive filter.</param>
-        protected void SetNextRequestFilter(IReceiveFilter<TRequestInfo> nextRequestFilter)
+        /// <param name="nextReceiveFilter">The next receive filter.</param>
+        protected void SetNextReceiveFilter(IReceiveFilter<TRequestInfo> nextReceiveFilter)
         {
-            m_RequestFilter = nextRequestFilter;
+            m_ReceiveFilter = nextReceiveFilter;
         }
 
         /// <summary>
@@ -557,15 +552,15 @@ namespace SuperSocket.SocketBase
                 return null;
             }
 
-            var requestInfo = m_RequestFilter.Filter(readBuffer, offset, length, toBeCopied, out rest);
+            var requestInfo = m_ReceiveFilter.Filter(readBuffer, offset, length, toBeCopied, out rest);
 
-            var offsetAdapter = m_RequestFilter as IOffsetAdapter;
+            var offsetAdapter = m_ReceiveFilter as IOffsetAdapter;
 
             offsetDelta = offsetAdapter != null ? offsetAdapter.OffsetDelta : 0;
 
             if (requestInfo == null)
             {
-                int leftBufferCount = m_RequestFilter.LeftBufferSize;
+                int leftBufferCount = m_ReceiveFilter.LeftBufferSize;
                 if (leftBufferCount >= AppServer.Config.MaxRequestLength)
                 {
                     if (Logger.IsErrorEnabled)
@@ -576,8 +571,8 @@ namespace SuperSocket.SocketBase
             }
 
             //If next Receive filter wasn't set, still use current Receive filter in next round received data processing
-            if (m_RequestFilter.NextReceiveFilter != null)
-                m_RequestFilter = m_RequestFilter.NextReceiveFilter;
+            if (m_ReceiveFilter.NextReceiveFilter != null)
+                m_ReceiveFilter = m_ReceiveFilter.NextReceiveFilter;
 
             return requestInfo;
         }
