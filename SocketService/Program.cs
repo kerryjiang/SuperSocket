@@ -47,8 +47,32 @@ namespace SuperSocket.SocketService
             RunAsConsole();
         }
 
+        private static bool setConsoleColor;
+
+        static void CheckCanSetConsoleColor()
+        {
+            try
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.ResetColor();
+                setConsoleColor = true;
+            }
+            catch
+            {
+                setConsoleColor = false;
+            }
+        }
+
+        private static void SetConsoleColor(ConsoleColor color)
+        {
+            if (setConsoleColor)
+                Console.ForegroundColor = color;
+        }
+
         static void RunAsConsole()
         {
+            CheckCanSetConsoleColor();
+
             Console.WriteLine("Press any key to start the SuperSocket ServiceEngine!");
             Console.ReadKey();
             Console.WriteLine();
@@ -59,7 +83,8 @@ namespace SuperSocket.SocketService
 
             if (!bootstrap.Initialize())
             {
-                Console.ForegroundColor = ConsoleColor.Red;
+                SetConsoleColor(ConsoleColor.Red);
+
                 Console.WriteLine("Failed to initialize SuperSocket ServiceEngine! Please check error log for more information!");
                 Console.ReadKey();
                 return;
@@ -75,12 +100,12 @@ namespace SuperSocket.SocketService
             {
                 if (server.State == ServerState.Running)
                 {
-                    Console.ForegroundColor = ConsoleColor.Green;
+                    SetConsoleColor(ConsoleColor.Green);
                     Console.WriteLine("- {0} has been started", server.Name);
                 }
                 else
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    SetConsoleColor(ConsoleColor.Red);
                     Console.WriteLine("- {0} failed to start", server.Name);
                 }
             }
@@ -91,7 +116,7 @@ namespace SuperSocket.SocketService
             switch(result)
             {
                 case(StartResult.None):
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    SetConsoleColor(ConsoleColor.Red);
                     Console.WriteLine("No server is configured, please check you configuration!");
                     Console.ReadKey();
                     return;
@@ -101,13 +126,13 @@ namespace SuperSocket.SocketService
                     break;
 
                 case (StartResult.Failed):
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    SetConsoleColor(ConsoleColor.Red);
                     Console.WriteLine("Failed to start the SuperSocket ServiceEngine! Please check error log for more information!");
                     Console.ReadKey();
                     return;
 
                 case (StartResult.PartialSuccess):
-                    Console.ForegroundColor = ConsoleColor.Red;
+                    SetConsoleColor(ConsoleColor.Red);
                     Console.WriteLine("Some server instances were started successfully, but the others failed! Please check error log for more information!");
                     break;
             }
