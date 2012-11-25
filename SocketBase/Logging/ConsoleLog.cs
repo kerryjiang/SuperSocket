@@ -104,7 +104,7 @@ namespace SuperSocket.SocketBase.Logging
         /// <param name="exception">The exception.</param>
         public void Debug(object message, Exception exception)
         {
-            Console.WriteLine(m_MessageTemplate, m_Name, m_Debug, message + Environment.NewLine + exception.Message + Environment.StackTrace);
+            Console.WriteLine(m_MessageTemplate, m_Name, m_Debug, message + Environment.NewLine + exception.Message + exception.StackTrace);
         }
 
         /// <summary>
@@ -177,7 +177,7 @@ namespace SuperSocket.SocketBase.Logging
         /// <param name="exception">The exception.</param>
         public void Error(object message, Exception exception)
         {
-            Console.WriteLine(m_MessageTemplate, m_Name, m_Error, message + Environment.NewLine + exception.Message + Environment.StackTrace);
+            Console.WriteLine(m_MessageTemplate, m_Name, m_Error, message + Environment.NewLine + exception.Message + exception.StackTrace);
         }
 
         /// <summary>
@@ -250,7 +250,7 @@ namespace SuperSocket.SocketBase.Logging
         /// <param name="exception">The exception.</param>
         public void Fatal(object message, Exception exception)
         {
-            Console.WriteLine(m_MessageTemplate, m_Name, m_Fatal, message + Environment.NewLine + exception.Message + Environment.StackTrace);
+            Console.WriteLine(m_MessageTemplate, m_Name, m_Fatal, message + Environment.NewLine + exception.Message + exception.StackTrace);
         }
 
         /// <summary>
@@ -323,7 +323,7 @@ namespace SuperSocket.SocketBase.Logging
         /// <param name="exception">The exception.</param>
         public void Info(object message, Exception exception)
         {
-            Console.WriteLine(m_MessageTemplate, m_Name, m_Info, message + Environment.NewLine + exception.Message + Environment.StackTrace);
+            Console.WriteLine(m_MessageTemplate, m_Name, m_Info, message + Environment.NewLine + exception.Message + exception.StackTrace);
         }
 
         /// <summary>
@@ -396,7 +396,7 @@ namespace SuperSocket.SocketBase.Logging
         /// <param name="exception">The exception.</param>
         public void Warn(object message, Exception exception)
         {
-            Console.WriteLine(m_MessageTemplate, m_Name, m_Warn, message + Environment.NewLine + exception.Message + Environment.StackTrace);
+            Console.WriteLine(m_MessageTemplate, m_Name, m_Warn, message + Environment.NewLine + exception.Message + exception.StackTrace);
         }
 
         /// <summary>
