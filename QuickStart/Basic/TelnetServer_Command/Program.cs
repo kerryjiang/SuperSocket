@@ -24,7 +24,11 @@ namespace TelnetServer_Command
             //Setup with config model, which provides more options
             var serverConfig = new ServerConfig
             {
-                Port = 2012 //set the listening port
+                Port = 2012, //set the listening port
+                //Other configuration options
+                //Mode = SocketMode.Udp,
+                //MaxConnectionNumber = 100,
+                //...
             };
 
             //Setup the appServer
