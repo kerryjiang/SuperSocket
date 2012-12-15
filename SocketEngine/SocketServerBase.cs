@@ -88,8 +88,6 @@ namespace SuperSocket.SocketEngine
 
         void OnListenerError(ISocketListener listener, Exception e)
         {
-            listener.Stop();
-
             var logger = this.AppServer.Logger;
 
             if(!logger.IsErrorEnabled)
