@@ -109,7 +109,7 @@ namespace SuperSocket.Facility.Protocol
 
                 var requestInfo = ProcessMatchedRequest(commandData, 0, commandData.Length);
 
-                if (requestInfo == NullRequestInfo)
+                if (ReferenceEquals(requestInfo, NullRequestInfo))
                 {
                     AddArraySegment(readBuffer, offset, length, toBeCopied);
                     return NullRequestInfo;
