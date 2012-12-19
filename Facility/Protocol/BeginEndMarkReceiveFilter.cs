@@ -69,55 +69,84 @@ namespace SuperSocket.Facility.Protocol
 
                 int searchEndMarkLength = offset + length - searchEndMarkOffset;
 
-                var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
-
-                if (endPos < 0)
+                while (true)
                 {
+                    var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
+
+                    if (endPos < 0)
+                    {
+                        rest = 0;
+                        AddArraySegment(readBuffer, pos, length + offset - pos, toBeCopied);
+                        return NullRequestInfo;
+                    }
+
+                    int parsedLen = endPos - pos + m_EndSearchState.Mark.Length;
+                    rest = length - parsedLen;
+
+                    var requestInfo = ProcessMatchedRequest(readBuffer, pos, parsedLen);
+
+                    if (!ReferenceEquals(requestInfo, NullRequestInfo))
+                    {
+                        Reset();
+                        return requestInfo;
+                    }
+
+                    if (rest > 0)
+                    {
+                        searchEndMarkOffset = endPos + m_EndSearchState.Mark.Length;
+                        searchEndMarkLength = rest;
+                        continue;
+                    }
+
                     AddArraySegment(readBuffer, pos, length + offset - pos, toBeCopied);
                     return NullRequestInfo;
                 }
-
-                int parsedLen = endPos - pos + m_EndSearchState.Mark.Length;
-                rest = length - parsedLen;
-
-                var requestInfo = ProcessMatchedRequest(readBuffer, pos, parsedLen);
-
-                Reset();
-
-                return requestInfo;
             }
             else
             {
-                var endPos = readBuffer.SearchMark(offset, length, m_EndSearchState);
-                //Haven't found end mark
-                if (endPos < 0)
+                int searchEndMarkOffset = offset;
+                int searchEndMarkLength = length;
+
+                while (true)
                 {
+                    var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
+                    //Haven't found end mark
+                    if (endPos < 0)
+                    {
+                        rest = 0;
+                        AddArraySegment(readBuffer, offset, length, toBeCopied);
+                        return NullRequestInfo;
+                    }
+
+                    //Found end mark
+                    int parsedLen = endPos - offset + m_EndSearchState.Mark.Length;
+                    rest = length - parsedLen;
+
+                    byte[] commandData = new byte[BufferSegments.Count + parsedLen];
+
+                    if (BufferSegments.Count > 0)
+                        BufferSegments.CopyTo(commandData, 0, 0, BufferSegments.Count);
+
+                    Array.Copy(readBuffer, offset, commandData, BufferSegments.Count, parsedLen);
+
+                    var requestInfo = ProcessMatchedRequest(commandData, 0, commandData.Length);
+
+                    if (!ReferenceEquals(requestInfo, NullRequestInfo))
+                    {
+                        Reset();
+                        return requestInfo;
+                    }
+
+                    if (rest > 0)
+                    {
+                        searchEndMarkOffset = endPos + m_EndSearchState.Mark.Length;
+                        searchEndMarkLength = rest;
+                        continue;
+                    }
+
                     AddArraySegment(readBuffer, offset, length, toBeCopied);
                     return NullRequestInfo;
                 }
-
-                //Found end mark
-                int parsedLen = endPos - offset + m_EndSearchState.Mark.Length;
-                rest = length - parsedLen;
-
-                byte[] commandData = new byte[BufferSegments.Count + parsedLen];
-
-                if (BufferSegments.Count > 0)
-                    BufferSegments.CopyTo(commandData, 0, 0, BufferSegments.Count);
-
-                Array.Copy(readBuffer, offset, commandData, BufferSegments.Count, parsedLen);
-
-                var requestInfo = ProcessMatchedRequest(commandData, 0, commandData.Length);
-
-                if (ReferenceEquals(requestInfo, NullRequestInfo))
-                {
-                    AddArraySegment(readBuffer, offset, length, toBeCopied);
-                    return NullRequestInfo;
-                }
-
-                Reset();
-
-                return requestInfo;
             }
         }
 
