@@ -4,7 +4,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
-namespace SuperSocket.SocketBase.Protocol
+namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
     /// FixedSizeReceiveFilter
