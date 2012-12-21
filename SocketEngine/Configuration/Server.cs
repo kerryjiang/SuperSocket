@@ -366,7 +366,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// The size of the sending queue.
         /// </value>
-        [ConfigurationProperty("sendingQueueSize", IsRequired = false, DefaultValue = 16)]
+        [ConfigurationProperty("sendingQueueSize", IsRequired = false, DefaultValue = ServerConfig.DefaultSendingQueueSize)]
         public int SendingQueueSize
         {
             get

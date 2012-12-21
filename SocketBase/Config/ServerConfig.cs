@@ -25,6 +25,12 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public const int DefaultMaxConnectionNumber = 100;
 
+
+        /// <summary>
+        /// Default sending queue size
+        /// </summary>
+        public const int DefaultSendingQueueSize = 5;
+
         /// <summary>
         /// Default MaxRequestLength
         /// </summary>
