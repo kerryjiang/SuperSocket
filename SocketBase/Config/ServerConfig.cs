@@ -74,6 +74,7 @@ namespace SuperSocket.SocketBase.Config
             KeepAliveInterval = 60;// 60 seconds
             ListenBacklog = 100;
             ReceiveBufferSize = DefaultReceiveBufferSize;
+            SendingQueueSize = DefaultSendingQueueSize;
         }
 
         #region IServerConfig Members
