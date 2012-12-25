@@ -18,7 +18,7 @@ namespace SuperSocket.Test
                 return new ServerConfig
                     {
                         Ip = "Any",
-                        LogCommand = true,
+                        LogCommand = false,
                         MaxConnectionNumber = 100,
                         Mode = SocketMode.Tcp,
                         Name = "Async Test Socket Server",

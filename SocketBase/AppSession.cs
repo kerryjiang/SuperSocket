@@ -274,37 +274,6 @@ namespace SuperSocket.SocketBase
 
         #region Sending processing
 
-        private IBatchQueue<ArraySegment<byte>> m_SendingQueue;
-
-        private IBatchQueue<ArraySegment<byte>> GetSendingQueue()
-        {
-            if (m_SendingQueue != null)
-                return m_SendingQueue;
-
-            lock (this)
-            {
-                if (m_SendingQueue != null)
-                    return m_SendingQueue;
-
-                //Sending queue size must be greater than 3
-                m_SendingQueue = new ConcurrentBatchQueue<ArraySegment<byte>>(Math.Max(Config.SendingQueueSize, 3), (t) => t.Array == null);
-                return m_SendingQueue;
-            }
-        }
-
-        /// <summary>
-        /// Tries to get the data segment to be sent.
-        /// </summary>
-        /// <param name="segments">The segments.</param>
-        /// <returns>
-        /// return whether has data to send
-        /// </returns>
-        bool IAppSession.TryGetSendingData(IList<ArraySegment<byte>> segments)
-        {
-            return GetSendingQueue().TryDequeue(segments);
-        }
-
-
         /// <summary>
         /// Try to send the message to client.
         /// </summary>
@@ -379,12 +348,10 @@ namespace SuperSocket.SocketBase
             if (!m_Connected)
                 throw new Exception(CANNOT_SEND_NOT_CONNECTED);
 
-            if (!GetSendingQueue().Enqueue(segment))
+            if (!SocketSession.TrySend(segment))
                 return false;
 
-            SocketSession.StartSend();
             LastActiveTime = DateTime.Now;
-
             return true;
         }
 
@@ -441,12 +408,10 @@ namespace SuperSocket.SocketBase
             if (!m_Connected)
                 throw new Exception(CANNOT_SEND_NOT_CONNECTED);
 
-            if (!GetSendingQueue().Enqueue(segments))
+            if (!SocketSession.TrySend(segments))
                 return false;
 
-            SocketSession.StartSend();
             LastActiveTime = DateTime.Now;
-
             return true;
         }
 

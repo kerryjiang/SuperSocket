@@ -1,15 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
-using System.Collections;
 using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketBase
@@ -161,5 +161,19 @@ namespace SuperSocket.SocketBase
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
         void ExecuteCommand(IAppSession session, TRequestInfo requestInfo);
+    }
+
+    /// <summary>
+    /// SocketServer Accessor interface
+    /// </summary>
+    public interface ISocketServerAccessor
+    {
+        /// <summary>
+        /// Gets the socket server.
+        /// </summary>
+        /// <value>
+        /// The socket server.
+        /// </value>
+        ISocketServer SocketServer { get; }
     }
 }

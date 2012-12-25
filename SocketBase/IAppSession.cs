@@ -114,16 +114,6 @@ namespace SuperSocket.SocketBase
         /// Starts the session.
         /// </summary>
         void StartSession();
-
-
-        /// <summary>
-        /// Tries to get the data segment to be sent.
-        /// </summary>
-        /// <param name="segments">The segments.</param>
-        /// <returns>
-        /// return whether has data to send
-        /// </returns>
-        bool TryGetSendingData(IList<ArraySegment<byte>> segments);
     }
 
     /// <summary>

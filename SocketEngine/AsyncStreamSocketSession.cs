@@ -225,13 +225,13 @@ namespace SuperSocket.SocketEngine
             m_Stream = sslStream;
         }
 
-        protected override void SendSync(IPosList<ArraySegment<byte>> items)
+        protected override void SendSync(SendingQueue queue)
         {
             try
             {
-                for (var i = 0; i < items.Count; i++)
+                for (var i = 0; i < queue.Count; i++)
                 {
-                    var item = items[i];
+                    var item = queue[i];
                     m_Stream.Write(item.Array, item.Offset, item.Count);
                 }
             }
@@ -244,10 +244,10 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            OnSendingCompleted();
+            OnSendingCompleted(queue);
         }
 
-        protected override void OnSendingCompleted()
+        protected override void OnSendingCompleted(SendingQueue queue)
         {
             try
             {
@@ -262,15 +262,15 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            base.OnSendingCompleted();
+            base.OnSendingCompleted(queue);
         }
 
-        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
+        protected override void SendAsync(SendingQueue queue)
         {
             try
             {
-                var item = items[items.Position];
-                m_Stream.BeginWrite(item.Array, item.Offset, item.Count, OnEndWrite, items);
+                var item = queue[queue.Position];
+                m_Stream.BeginWrite(item.Array, item.Offset, item.Count, OnEndWrite, queue);
             }
             catch (Exception e)
             {
@@ -296,18 +296,18 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            var items = result.AsyncState as IPosList<ArraySegment<byte>>;
-            var nextPos = items.Position + 1;
+            var queue = result.AsyncState as SendingQueue;
+            var nextPos = queue.Position + 1;
 
             //Has more data to send
-            if (nextPos < items.Count)
+            if (nextPos < queue.Count)
             {
-                items.Position = nextPos;
-                SendAsync(items);
+                queue.Position = nextPos;
+                SendAsync(queue);
                 return;
             }
 
-            OnSendingCompleted();
+            OnSendingCompleted(queue);
         }
 
         public override void ApplySecureProtocol()

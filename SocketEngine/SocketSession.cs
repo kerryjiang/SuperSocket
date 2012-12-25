@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -28,6 +29,8 @@ namespace SuperSocket.SocketEngine
 
         protected bool SyncSend { get; private set; }
 
+        private ISmartPool<SendingQueue> m_SendingQueuePool;
+
         public SocketSession(Socket client)
             : this(Guid.NewGuid().ToString())
         {
@@ -49,6 +52,14 @@ namespace SuperSocket.SocketEngine
             AppSession = appSession;
             Config = appSession.Config;
             SyncSend = Config.SyncSend;
+            m_SendingQueuePool = ((TcpSocketServerBase)((ISocketServerAccessor)appSession.AppServer).SocketServer).SendingQueuePool;
+
+            SendingQueue queue;
+            if (m_SendingQueuePool.TryGet(out queue))
+            {
+                m_SendingQueue = queue;
+                queue.StartEnqueue();
+            }
         }
 
         /// <summary>
@@ -85,8 +96,15 @@ namespace SuperSocket.SocketEngine
         protected virtual void OnClose(CloseReason reason)
         {
             m_IsClosed = true;
+            m_InSending = 0;
+            
+            var queue = m_SendingQueue;
 
-            Interlocked.CompareExchange(ref m_InSending, 0, 1);
+            if (queue != null)
+            {
+                queue.StopEnqueue();
+                m_SendingQueuePool.Push(queue);
+            }
 
             var closedHandler = Closed;
             if (closedHandler != null)
@@ -100,63 +118,138 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public Action<ISocketSession, CloseReason> Closed { get; set; }
 
-        IPosList<ArraySegment<byte>> m_SendingItems;
+        private SendingQueue m_SendingQueue;
 
-        private IPosList<ArraySegment<byte>> GetSendingItems()
+        /// <summary>
+        /// Tries to send array segment.
+        /// </summary>
+        /// <param name="segments">The segments.</param>
+        /// <returns></returns>
+        public bool TrySend(IList<ArraySegment<byte>> segments)
         {
-            if (m_SendingItems == null)
-            {
-                m_SendingItems = new PosList<ArraySegment<byte>>();
-            }
+            var queue = m_SendingQueue;
+            var trackID = queue.TrackID;
 
-            return m_SendingItems;
+            if (!queue.Enqueue(segments, trackID))
+                return false;
+
+            StartSend(queue, trackID, true);
+            return true;
         }
 
         /// <summary>
-        /// Starts the sending.
+        /// Tries to send array segment.
         /// </summary>
-        public void StartSend()
+        /// <param name="segment">The segment.</param>
+        /// <returns></returns>
+        public bool TrySend(ArraySegment<byte> segment)
         {
-            if (Interlocked.CompareExchange(ref m_InSending, 1, 0) == 1)
-                return;
+            var queue = m_SendingQueue;
+            var trackID = queue.TrackID;
 
-            var sendingItems = GetSendingItems();
+            if (!queue.Enqueue(segment, trackID))
+                return false;
 
-            if (!AppSession.TryGetSendingData(sendingItems))
-                Interlocked.Decrement(ref m_InSending);
-
-            Send(sendingItems);
+            StartSend(queue, trackID, true);
+            return true;
         }
 
-        protected abstract void SendAsync(IPosList<ArraySegment<byte>> items);
+        /// <summary>
+        /// Sends in async mode.
+        /// </summary>
+        /// <param name="queue">The queue.</param>
+        protected abstract void SendAsync(SendingQueue queue);
 
-        protected abstract void SendSync(IPosList<ArraySegment<byte>> items);
+        /// <summary>
+        /// Sends in sync mode.
+        /// </summary>
+        /// <param name="queue">The queue.</param>
+        protected abstract void SendSync(SendingQueue queue);
 
-        private void Send(IPosList<ArraySegment<byte>> items)
+        private void Send(SendingQueue queue)
         {
             if (SyncSend)
             {
-                SendSync(items);
+                SendSync(queue);
             }
             else
             {
-                SendAsync(items);
+                SendAsync(queue);
             }
         }
 
-        protected virtual void OnSendingCompleted()
+        private void StartSend(SendingQueue queue, int sendingTrackID, bool initial)
         {
-            var sendingItems = GetSendingItems();
-            sendingItems.Clear();
-            sendingItems.Position = 0;
-
-            if (AppSession.TryGetSendingData(sendingItems))
+            if (initial)
             {
-                Send(sendingItems);
+                if (Interlocked.CompareExchange(ref m_InSending, 1, 0) != 0)
+                {
+                    return;
+                }
+
+                var currentQueue = m_SendingQueue;
+
+                if (currentQueue != queue || sendingTrackID != currentQueue.TrackID)
+                {
+                    m_InSending = 0;
+                    return;
+                }
+            }
+
+            SendingQueue newQueue;
+
+            if (!m_SendingQueuePool.TryGet(out newQueue))
+            {
+                AppSession.Logger.Error("There is no enougth sending queue can be used.");
+                this.Close(CloseReason.InternalError);
+                return;
+            }
+
+            var oldQueue = Interlocked.CompareExchange(ref m_SendingQueue, newQueue, queue);
+
+            if (!ReferenceEquals(oldQueue, queue))
+            {
+                if (newQueue != null)
+                    m_SendingQueuePool.Push(newQueue);
+
+                AppSession.Logger.Error("Failed to switch the sending queue.");
+                this.Close(CloseReason.InternalError);
+                return;
+            }
+
+            //Start to allow enqueue
+            newQueue.StartEnqueue();
+            queue.StopEnqueue();
+
+            if (queue.Count == 0)
+            {
+                AppSession.Logger.Error("There is no data to be sent in the queue.");
+                this.Close(CloseReason.InternalError);
+                return;
+            }
+
+            Send(queue);
+        }
+
+        protected virtual void OnSendingCompleted(SendingQueue queue)
+        {
+            queue.Clear();
+            m_SendingQueuePool.Push(queue);
+
+            var newQueue = m_SendingQueue;
+
+            if (newQueue.Count == 0)
+            {
+                m_InSending = 0;
+
+                if (newQueue.Count > 0)
+                {
+                    StartSend(newQueue, newQueue.TrackID, true);
+                }
             }
             else
             {
-                Interlocked.Decrement(ref m_InSending);
+                StartSend(newQueue, newQueue.TrackID, false);
             }
         }
 
@@ -166,7 +259,6 @@ namespace SuperSocket.SocketEngine
         {
             return new NetworkStream(Client);
         }
-
 
         private Socket m_Client;
         /// <summary>

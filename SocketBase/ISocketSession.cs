@@ -51,6 +51,11 @@ namespace SuperSocket.SocketBase
         ProtocolError,
 
         /// <summary>
+        /// SuperSocket internal error
+        /// </summary>
+        InternalError,
+
+        /// <summary>
         /// The socket is closed for unknown reason
         /// </summary>
         Unknown
@@ -78,10 +83,18 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The reason.</param>
         void Close(CloseReason reason);
 
+
         /// <summary>
-        /// Starts the sending.
+        /// Tries to send array segment.
         /// </summary>
-        void StartSend();
+        /// <param name="segments">The segments.</param>
+        bool TrySend(IList<ArraySegment<byte>> segments);
+
+        /// <summary>
+        /// Tries to send array segment.
+        /// </summary>
+        /// <param name="segment">The segment.</param>
+        bool TrySend(ArraySegment<byte> segment);
 
         /// <summary>
         /// Applies the secure protocol.

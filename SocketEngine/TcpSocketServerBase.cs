@@ -16,6 +16,7 @@ namespace SuperSocket.SocketEngine
     abstract class TcpSocketServerBase : SocketServerBase
     {
         private readonly byte[] m_KeepAliveOptionValues;
+        private readonly byte[] m_KeepAliveOptionOutValues;
         private readonly int m_SendTimeOut;
         private readonly int m_ReceiveBufferSize;
         private readonly int m_SendBufferSize;
@@ -27,6 +28,7 @@ namespace SuperSocket.SocketEngine
 
             uint dummy = 0;
             m_KeepAliveOptionValues = new byte[Marshal.SizeOf(dummy) * 3];
+            m_KeepAliveOptionOutValues = new byte[m_KeepAliveOptionValues.Length];
             //whether enable KeepAlive
             BitConverter.GetBytes((uint)1).CopyTo(m_KeepAliveOptionValues, 0);
             //how long will start first keep alive
@@ -53,7 +55,7 @@ namespace SuperSocket.SocketEngine
             if(!Platform.SupportSocketIOControlByCodeEnum)
                 client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             else
-                client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, null);
+                client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, m_KeepAliveOptionOutValues);
 
             client.NoDelay = true;
             client.UseOnlyOverlappedIO = true;

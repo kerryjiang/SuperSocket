@@ -50,14 +50,14 @@ namespace SuperSocket.SocketEngine
             StartSession();
         }
 
-        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
+        protected override void SendAsync(SendingQueue queue)
         {
             var e = new SocketAsyncEventArgs();
             e.Completed += new EventHandler<SocketAsyncEventArgs>(SendingCompleted);
             e.RemoteEndPoint = RemoteEndPoint;
-            e.UserToken = items;
+            e.UserToken = queue;
 
-            var item = items[items.Position];
+            var item = queue[queue.Position];
             e.SetBuffer(item.Array, item.Offset, item.Count);
 
             m_ServerSocket.SendToAsync(e);
@@ -75,29 +75,30 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            var items = e.UserToken as IPosList<ArraySegment<byte>>;
+            var queue = e.UserToken as SendingQueue;
 
-            var newPos = items.Position + 1;
+            var newPos = queue.Position + 1;
 
-            if (newPos >= items.Count)
+            if (newPos >= queue.Count)
             {
-                OnSendingCompleted();
+                e.UserToken = null;
+                OnSendingCompleted(queue);
                 return;
             }
 
-            items.Position = newPos;
-            SendAsync(items);
+            queue.Position = newPos;
+            SendAsync(queue);
         }
 
-        protected override void SendSync(IPosList<ArraySegment<byte>> items)
+        protected override void SendSync(SendingQueue queue)
         {
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < queue.Count; i++)
             {
-                var item = items[i];
+                var item = queue[i];
                 m_ServerSocket.SendTo(item.Array, item.Offset, item.Count, SocketFlags.None, RemoteEndPoint);
             }
-                
-            OnSendingCompleted();
+
+            OnSendingCompleted(queue);
         }
 
         public override void ApplySecureProtocol()

@@ -90,7 +90,10 @@ namespace SuperSocket.SocketEngine
             if (!ProcessCompleted(e))
                 return;
 
-            base.OnSendingCompleted();
+            var queue = e.UserToken as SendingQueue;
+            e.UserToken = null;
+
+            base.OnSendingCompleted(queue);
         }
 
         private bool IsIgnorableException(Exception e)
@@ -153,13 +156,13 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected override void SendSync(IPosList<ArraySegment<byte>> items)
+        protected override void SendSync(SendingQueue queue)
         {
             try
             {
-                for (var i = 0; i < items.Count; i++)
+                for (var i = 0; i < queue.Count; i++)
                 {
-                    var item = items[i];
+                    var item = queue[i];
 
                     var client = Client;
 
@@ -178,39 +181,15 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            OnSendingCompleted();
+            OnSendingCompleted(queue);
         }
 
-        protected override void SendAsync(IPosList<ArraySegment<byte>> items)
+        protected override void SendAsync(SendingQueue queue)
         {
             try
             {
-                if (items.Count > 1)
-                {
-                    if (m_SocketEventArgSend.Buffer != null)
-                        m_SocketEventArgSend.SetBuffer(null, 0, 0);
-
-                    m_SocketEventArgSend.BufferList = items;
-                }
-                else
-                {
-                    var currentItem = items[0];
-
-                    try
-                    {
-                        if (m_SocketEventArgSend.BufferList != null)
-                            m_SocketEventArgSend.BufferList = null;
-                    }//Supress this exception
-                    catch (Exception) //a strange NullReference exception
-                    {
-                        //if (AppSession.Logger.IsErrorEnabled)
-                        //    AppSession.Logger.Error(AppSession, e);
-                    }
-                    finally
-                    {
-                        m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
-                    }
-                }
+                m_SocketEventArgSend.UserToken = queue;
+                m_SocketEventArgSend.BufferList = queue;
 
                 var client = Client;
 
@@ -228,6 +207,54 @@ namespace SuperSocket.SocketEngine
                 Close(CloseReason.SocketError);
             }
         }
+
+        //protected override void SendAsync(IPosList<ArraySegment<byte>> queue)
+        //{
+        //    try
+        //    {
+        //        if (queue.Count > 1)
+        //        {
+        //            if (m_SocketEventArgSend.Buffer != null)
+        //                m_SocketEventArgSend.SetBuffer(null, 0, 0);
+
+        //            m_SocketEventArgSend.BufferList = items;
+        //        }
+        //        else
+        //        {
+        //            var currentItem = items[0];
+
+        //            try
+        //            {
+        //                if (m_SocketEventArgSend.BufferList != null)
+        //                    m_SocketEventArgSend.BufferList = null;
+        //            }//Supress this exception
+        //            catch (Exception) //a strange NullReference exception
+        //            {
+        //                //if (AppSession.Logger.IsErrorEnabled)
+        //                //    AppSession.Logger.Error(AppSession, e);
+        //            }
+        //            finally
+        //            {
+        //                m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
+        //            }
+        //        }
+
+        //        var client = Client;
+
+        //        if (client == null)
+        //            return;
+
+        //        if (!client.SendAsync(m_SocketEventArgSend))
+        //            OnSendingCompleted(client, m_SocketEventArgSend);
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        if (!IsIgnorableException(e))
+        //            AppSession.Logger.Error(AppSession, e);
+
+        //        Close(CloseReason.SocketError);
+        //    }
+        //}
 
         public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
 

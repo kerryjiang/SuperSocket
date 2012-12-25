@@ -101,7 +101,7 @@ namespace SuperSocket.Test
             return appServer;
         }
 
-        [TestFixtureTearDown]
+        [TearDown]
         public void StopAllServers()
         {
             StopServer();
@@ -376,7 +376,7 @@ namespace SuperSocket.Test
 
                     StringBuilder sb = new StringBuilder();                   
 
-                    for (int i = 0; i < 100; i++)
+                    for (int i = 0; i < 1; i++)
                     {
                         sb.Append(chars[rd.Next(0, chars.Length - 1)]);
                         string command = sb.ToString();
@@ -642,7 +642,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Repeat(3)]
+        [Test, Repeat(1000)]
         public void TestConcurrentSending()
         {
             StartServer();
@@ -664,14 +664,23 @@ namespace SuperSocket.Test
                     writer.WriteLine("SEND");
                     writer.Flush();
 
-                    for (var i = 0; i < received.Length; i++)
+                    int i;
+
+                    for (i = 0; i < received.Length; i++)
                     {
                         var line = reader.ReadLine();
+                        if (line == null)
+                            break;
                         received[i] = line;
-                        Console.WriteLine(line);
                     }
+
+                    Assert.AreEqual(received.Length, i);
+                    Console.WriteLine("ROUND");
                 }
             }
+
+            if (received.Distinct().Count() != received.Length)
+                Assert.Fail("Duplicated record!");
 
             var dict = source.ToDictionary(i => i);
 
@@ -684,6 +693,58 @@ namespace SuperSocket.Test
             if (dict.Count > 0)
                 Assert.Fail();
         }
+
+
+        [Test]
+        public void TestFastSending()
+        {
+            StartServer();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+
+            string[] source = SEND.GetStringSource();
+
+            string[] received = new string[source.Length];
+
+            using (Socket socket = CreateClientSocket())
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = GetSocketStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    reader.ReadLine();
+
+                    string sendLine;
+
+                    int i = 0;
+                    int testRound = 1000;
+
+                    while (i < testRound)
+                    {
+                        sendLine = Guid.NewGuid().ToString();
+                        writer.Write("ECHO " + sendLine + "\r\n");
+                        writer.Flush();
+
+                        var line = reader.ReadLine();
+                        if (line == null)
+                        {
+                            i++;
+                            break;
+                        }
+
+                        Assert.AreEqual(sendLine, line);
+                        i++;
+                    }
+
+                    Console.WriteLine("Client sent: {0}", i);
+                    Console.WriteLine("Server sent: {0}", ECHO.Sent);
+                    Assert.AreEqual(testRound, i);
+                }
+            }
+        }
+
+
 
         private byte[] ReadStreamToBytes(Stream stream)
         {

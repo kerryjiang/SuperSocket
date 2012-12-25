@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, IDisposable
+    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IDisposable
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -926,6 +926,17 @@ namespace SuperSocket.SocketBase
         }
 
         private ISocketServer m_SocketServer;
+
+        /// <summary>
+        /// Gets the socket server.
+        /// </summary>
+        /// <value>
+        /// The socket server.
+        /// </value>
+        ISocketServer ISocketServerAccessor.SocketServer
+        {
+            get { return m_SocketServer; }
+        }
 
         /// <summary>
         /// Starts this server instance.

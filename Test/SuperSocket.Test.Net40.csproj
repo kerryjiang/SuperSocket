@@ -74,7 +74,6 @@
     <Compile Include="Command\MULTCS.cs" />
     <Compile Include="Command\SEND.cs" />
     <Compile Include="Command\SESS.cs" />
-    <Compile Include="Common\BatchQueueTest.cs" />
     <Compile Include="Config\ChildConfig.cs" />
     <Compile Include="ConnectionFilterTest.cs" />
     <Compile Include="ConnectionFilter\TestConnectionFilter.cs" />
