@@ -52,7 +52,7 @@ namespace SuperSocket.SocketEngine
             AppSession = appSession;
             Config = appSession.Config;
             SyncSend = Config.SyncSend;
-            m_SendingQueuePool = ((TcpSocketServerBase)((ISocketServerAccessor)appSession.AppServer).SocketServer).SendingQueuePool;
+            m_SendingQueuePool = ((SocketServerBase)((ISocketServerAccessor)appSession.AppServer).SocketServer).SendingQueuePool;
 
             SendingQueue queue;
             if (m_SendingQueuePool.TryGet(out queue))
