@@ -153,6 +153,14 @@ namespace SuperSocket.Facility.Protocol
         /// Gets the offset delta relative original receiving offset which will be used for next round receiving.
         /// </summary>
         public int OffsetDelta { get; private set; }
+
+        /// <summary>
+        /// Gets the filter state.
+        /// </summary>
+        /// <value>
+        /// The filter state.
+        /// </value>
+        public FilterState State { get; private set; }
     }
 
     /// <summary>

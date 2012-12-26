@@ -105,6 +105,7 @@
     <Compile Include="NodeSummary.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\FilterState.cs" />
     <Compile Include="Protocol\IOffsetAdapter.cs" />
     <Compile Include="Protocol\IReceiveFilter.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />

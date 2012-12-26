@@ -47,106 +47,107 @@ namespace SuperSocket.Facility.Protocol
         {
             rest = 0;
 
+            int searchEndMarkOffset;
+            int searchEndMarkLength;
+
+            //prev macthed begin mark length
+            int prevMatched = 0;
+
             if (!m_FoundBegin)
             {
-                var pos = readBuffer.SearchMark(offset, length, m_BeginSearchState);
-
-                //Don't cache invalid data
+                prevMatched = m_BeginSearchState.Matched;
+                int pos = readBuffer.SearchMark(offset, length, m_BeginSearchState);
+                
                 if (pos < 0)
+                {
+                    //Don't cache invalid data
+                    if (prevMatched > 0 || (m_BeginSearchState.Matched > 0 && length != m_BeginSearchState.Matched))
+                    {
+                        State = FilterState.Error;
+                        return NullRequestInfo;
+                    }
+
                     return NullRequestInfo;
+                }
+                else //Found the matched begin mark
+                {
+                    //But not at the beginning
+                    if(pos != offset)
+                    {
+                        State = FilterState.Error;
+                        return NullRequestInfo;
+                    }
+                }
 
                 //Found start mark
                 m_FoundBegin = true;
 
-                int searchEndMarkOffset = pos + m_BeginSearchState.Mark.Length;
+                searchEndMarkOffset = pos + m_BeginSearchState.Mark.Length - prevMatched;
 
-                //The end mark could not exist in this round received data
+                //This block only contain (part of)begin mark
                 if (offset + length <= searchEndMarkOffset)
                 {
                     AddArraySegment(m_BeginSearchState.Mark, 0, m_BeginSearchState.Mark.Length, false);
                     return NullRequestInfo;
                 }
 
-                int searchEndMarkLength = offset + length - searchEndMarkOffset;
-
-                while (true)
-                {
-                    var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
-
-                    if (endPos < 0)
-                    {
-                        rest = 0;
-                        AddArraySegment(readBuffer, pos, length + offset - pos, toBeCopied);
-                        return NullRequestInfo;
-                    }
-
-                    int parsedLen = endPos - pos + m_EndSearchState.Mark.Length;
-                    rest = length - parsedLen;
-
-                    var requestInfo = ProcessMatchedRequest(readBuffer, pos, parsedLen);
-
-                    if (!ReferenceEquals(requestInfo, NullRequestInfo))
-                    {
-                        Reset();
-                        return requestInfo;
-                    }
-
-                    if (rest > 0)
-                    {
-                        searchEndMarkOffset = endPos + m_EndSearchState.Mark.Length;
-                        searchEndMarkLength = rest;
-                        continue;
-                    }
-
-                    AddArraySegment(readBuffer, pos, length + offset - pos, toBeCopied);
-                    return NullRequestInfo;
-                }
+                searchEndMarkLength = offset + length - searchEndMarkOffset;
             }
-            else
+            else//Already found begin mark
             {
-                int searchEndMarkOffset = offset;
-                int searchEndMarkLength = length;
+                searchEndMarkOffset = offset;
+                searchEndMarkLength = length;
+            }
 
-                while (true)
+            while (true)
+            {
+                var prevEndMarkMatched = m_EndSearchState.Matched;
+                var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
+
+                //Haven't found end mark
+                if (endPos < 0)
                 {
-                    var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
-                    //Haven't found end mark
-                    if (endPos < 0)
-                    {
-                        rest = 0;
-                        AddArraySegment(readBuffer, offset, length, toBeCopied);
-                        return NullRequestInfo;
-                    }
-
-                    //Found end mark
-                    int parsedLen = endPos - offset + m_EndSearchState.Mark.Length;
-                    rest = length - parsedLen;
-
-                    byte[] commandData = new byte[BufferSegments.Count + parsedLen];
-
-                    if (BufferSegments.Count > 0)
-                        BufferSegments.CopyTo(commandData, 0, 0, BufferSegments.Count);
-
-                    Array.Copy(readBuffer, offset, commandData, BufferSegments.Count, parsedLen);
-
-                    var requestInfo = ProcessMatchedRequest(commandData, 0, commandData.Length);
-
-                    if (!ReferenceEquals(requestInfo, NullRequestInfo))
-                    {
-                        Reset();
-                        return requestInfo;
-                    }
-
-                    if (rest > 0)
-                    {
-                        searchEndMarkOffset = endPos + m_EndSearchState.Mark.Length;
-                        searchEndMarkLength = rest;
-                        continue;
-                    }
-
+                    rest = 0;
+                    if(prevMatched > 0)//Also cache the prev matched begin mark
+                        AddArraySegment(m_BeginSearchState.Mark, 0, prevMatched, false);
                     AddArraySegment(readBuffer, offset, length, toBeCopied);
                     return NullRequestInfo;
                 }
+
+                //Found end mark
+                int parsedLen = endPos - offset + m_EndSearchState.Mark.Length - prevEndMarkMatched;
+                rest = length - parsedLen;
+
+                byte[] commandData = new byte[BufferSegments.Count + prevMatched + parsedLen];
+
+                if (BufferSegments.Count > 0)
+                    BufferSegments.CopyTo(commandData, 0, 0, BufferSegments.Count);
+
+                if(prevMatched > 0)
+                    Array.Copy(m_BeginSearchState.Mark, 0, commandData, BufferSegments.Count, prevMatched);
+
+                Array.Copy(readBuffer, offset, commandData, BufferSegments.Count + prevMatched, parsedLen);
+
+                var requestInfo = ProcessMatchedRequest(commandData, 0, commandData.Length);
+
+                if (!ReferenceEquals(requestInfo, NullRequestInfo))
+                {
+                    Reset();
+                    return requestInfo;
+                }
+
+                if (rest > 0)
+                {
+                    searchEndMarkOffset = endPos + m_EndSearchState.Mark.Length;
+                    searchEndMarkLength = rest;
+                    continue;
+                }
+
+                //Not match
+                if(prevMatched > 0)//Also cache the prev matched begin mark
+                    AddArraySegment(m_BeginSearchState.Mark, 0, prevMatched, false);
+                AddArraySegment(readBuffer, offset, length, toBeCopied);
+                return NullRequestInfo;
             }
         }
 

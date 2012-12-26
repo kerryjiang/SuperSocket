@@ -107,6 +107,14 @@ namespace SuperSocket.Facility.Protocol
             get { return m_OffsetDelta; }
         }
 
+        /// <summary>
+        /// Gets the filter state.
+        /// </summary>
+        /// <value>
+        /// The filter state.
+        /// </value>
+        public FilterState State { get; private set; }
+
         private void InternalReset()
         {
             m_ParsedLength = 0;

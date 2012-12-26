@@ -34,6 +34,14 @@ namespace SuperSocket.Test.Udp
             get { return this; }
         }
 
+        /// <summary>
+        /// Gets the filter state.
+        /// </summary>
+        /// <value>
+        /// The filter state.
+        /// </value>
+        public FilterState State { get; private set; }
+
         public void Reset()
         {
             

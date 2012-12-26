@@ -41,5 +41,14 @@ namespace SuperSocket.SocketBase.Protocol
         /// Resets this instance to initial state.
         /// </summary>
         void Reset();
+
+
+        /// <summary>
+        /// Gets the filter state.
+        /// </summary>
+        /// <value>
+        /// The filter state.
+        /// </value>
+        FilterState State { get; }
     }
 }

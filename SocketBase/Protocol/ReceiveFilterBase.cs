@@ -123,5 +123,13 @@ namespace SuperSocket.SocketBase.Protocol
             if(m_BufferSegments != null && m_BufferSegments.Count > 0)
                 m_BufferSegments.ClearSegements();
         }
+
+        /// <summary>
+        /// Gets the filter state.
+        /// </summary>
+        /// <value>
+        /// The state.
+        /// </value>
+        public FilterState State { get; protected set; }
     }
 }

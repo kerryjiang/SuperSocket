@@ -519,6 +519,14 @@ namespace SuperSocket.SocketBase
 
             var requestInfo = m_ReceiveFilter.Filter(readBuffer, offset, length, toBeCopied, out rest);
 
+            if (m_ReceiveFilter.State == FilterState.Error)
+            {
+                rest = 0;
+                offsetDelta = 0;
+                Close(CloseReason.ProtocolError);
+                return null;
+            }
+
             var offsetAdapter = m_ReceiveFilter as IOffsetAdapter;
 
             offsetDelta = offsetAdapter != null ? offsetAdapter.OffsetDelta : 0;
@@ -529,8 +537,8 @@ namespace SuperSocket.SocketBase
                 if (leftBufferCount >= AppServer.Config.MaxRequestLength)
                 {
                     if (Logger.IsErrorEnabled)
-                        Logger.ErrorFormat("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, leftBufferCount);
-                    Close(CloseReason.ServerClosing);
+                        Logger.Error(this, string.Format("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, leftBufferCount));
+                    Close(CloseReason.ProtocolError);
                     return null;
                 }
             }
