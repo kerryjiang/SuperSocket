@@ -27,8 +27,6 @@ namespace SuperSocket.Common
 
         private ushort m_TrackID = 1;
 
-        private SpinWait m_EnqueueSpinWait = new SpinWait();
-
         /// <summary>
         /// Gets the track ID.
         /// </summary>
@@ -51,14 +49,6 @@ namespace SuperSocket.Common
             m_GlobalQueue = globalQueue;
             m_Offset = offset;
             m_Capacity = capacity;
-        }
-
-        /// <summary>
-        /// Spinwait once.
-        /// </summary>
-        public void SpinWait()
-        {
-            m_EnqueueSpinWait.SpinOnce();
         }
 
         private bool TryEnqueue(ArraySegment<byte> item, out bool conflict, ushort trackID)
@@ -199,10 +189,17 @@ namespace SuperSocket.Common
 
             m_ReadOnly = true;
 
+            if (m_UpdatingCount <= 0)
+                return;
+
+            var spinWait = new SpinWait();
+
+            spinWait.SpinOnce();
+
             //Wait until all insertings are finished
             while (m_UpdatingCount > 0)
             {
-                m_EnqueueSpinWait.SpinOnce();
+                spinWait.SpinOnce();
             }
         }
 
