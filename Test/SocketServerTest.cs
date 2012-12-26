@@ -662,7 +662,7 @@ namespace SuperSocket.Test
                 {
                     reader.ReadLine();
 
-                    for (var j = 0; j < 100; j++)
+                    for (var j = 0; j < 1000; j++)
                     {
                         writer.WriteLine("SEND");
                         writer.Flush();
@@ -722,7 +722,7 @@ namespace SuperSocket.Test
                     string sendLine;
 
                     int i = 0;
-                    int testRound = 1000;
+                    int testRound = 50000;
 
                     while (i < testRound)
                     {
