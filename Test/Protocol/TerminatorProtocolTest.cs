@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using SuperSocket.SocketBase.Protocol;
+
+namespace SuperSocket.Test.Protocol
+{
+    public class TerminatorProtocolTest : ProtocolTestBase
+    {
+        private readonly Encoding m_Encoding = new ASCIIEncoding();
+
+        protected override IReceiveFilterFactory<StringRequestInfo> CurrentReceiveFilterFactory
+        {
+            get { return new TerminatorReceiveFilterFactory("##", m_Encoding); }
+        }
+
+        protected override string CreateRequest(string sourceLine)
+        {
+            return string.Format("ECHO {0}##", sourceLine);
+        }
+    }
+}

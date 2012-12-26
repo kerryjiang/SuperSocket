@@ -642,7 +642,7 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Repeat(1000)]
+        [Test, Repeat(5)]
         public void TestConcurrentSending()
         {
             StartServer();
@@ -661,21 +661,25 @@ namespace SuperSocket.Test
                 using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     reader.ReadLine();
-                    writer.WriteLine("SEND");
-                    writer.Flush();
 
-                    int i;
-
-                    for (i = 0; i < received.Length; i++)
+                    for (var j = 0; j < 100; j++)
                     {
-                        var line = reader.ReadLine();
-                        if (line == null)
-                            break;
-                        received[i] = line;
-                    }
+                        writer.WriteLine("SEND");
+                        writer.Flush();
 
-                    Assert.AreEqual(received.Length, i);
-                    Console.WriteLine("ROUND");
+                        int i;
+
+                        for (i = 0; i < received.Length; i++)
+                        {
+                            var line = reader.ReadLine();
+                            if (line == null)
+                                break;
+                            received[i] = line;
+                        }
+
+                        Assert.AreEqual(received.Length, i);
+                        Console.WriteLine("ROUND");
+                    }
                 }
             }
 
