@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NUnit.Framework;
 using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Protocol
 {
+    [TestFixture]
     public class CountSpliterProtocolTest : ProtocolTestBase
     {
         class TestReceiveFilter : CountSpliterReceiveFilter<StringRequestInfo>

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using NUnit.Framework;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Protocol
 {
+    [TestFixture]
     public class TerminatorProtocolTest : ProtocolTestBase
     {
         private readonly Encoding m_Encoding = new ASCIIEncoding();
