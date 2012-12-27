@@ -706,10 +706,6 @@ namespace SuperSocket.Test
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
 
-            string[] source = SEND.GetStringSource();
-
-            string[] received = new string[source.Length];
-
             using (Socket socket = CreateClientSocket())
             {
                 socket.Connect(serverAddress);
