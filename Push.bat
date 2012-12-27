@@ -1,3 +1,3 @@
-git push origin
-git push github
+git push origin master:master
+git push github master:master
 pause
