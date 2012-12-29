@@ -94,6 +94,11 @@ namespace SuperSocket.SocketEngine
 
                     m_Stream.BeginRead(m_ReadBuffer, 0, m_ReadBuffer.Length, OnStreamEndRead, m_Stream);
                 }
+                else
+                {
+                    this.Close(CloseReason.ClientClosing);
+                    return;
+                }
             }
             catch (ObjectDisposedException)
             {

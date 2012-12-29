@@ -11,6 +11,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
+using System.Threading.Tasks;
 
 
 namespace SuperSocket.Test
@@ -178,6 +179,39 @@ namespace SuperSocket.Test
             }
         }
 
+        private bool TestConnectAbility(EndPoint serverAddress)
+        {
+            var task = Task.Factory.StartNew(() =>
+            {
+                using (Socket trySocket = CreateClientSocket())
+                {
+                    trySocket.Connect(serverAddress);
+
+                    var innerSocketStream = GetSocketStream(trySocket);
+                    innerSocketStream.ReadTimeout = 500;
+
+                    using (StreamReader tryReader = new StreamReader(innerSocketStream, m_Encoding, true))
+                    {
+                        string welcome = tryReader.ReadLine();
+                        Console.WriteLine(welcome);
+                        return true;
+                    }
+                }
+            });
+
+            try
+            {
+                if (!task.Wait(1500))
+                    return false;
+
+                return task.Result;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {
             var server = new TestServer();
@@ -215,26 +249,19 @@ namespace SuperSocket.Test
                     sockets.Add(socket);
                 }
 
-                try
-                {
-                    using (Socket trySocket = CreateClientSocket())
-                    {
-                        trySocket.Connect(serverAddress);
-                        var innerSocketStream = new NetworkStream(trySocket);
-                        innerSocketStream.ReadTimeout = 500;
+                Assert.AreEqual(maxConnectionNumber, server.SessionCount);
 
-                        using (StreamReader tryReader = new StreamReader(innerSocketStream, m_Encoding, true))
-                        {
-                            string welcome = tryReader.ReadLine();
-                            Console.WriteLine(welcome);
-                            return true;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    return true;
-                }
+                if (TestConnectAbility(serverAddress))
+                    return false;
+
+                var closingSocket = sockets[0];
+                closingSocket.SafeCloseClientSocket();
+
+                Thread.Sleep(500);
+
+                Assert.AreEqual(maxConnectionNumber - 1, server.SessionCount);
+
+                return TestConnectAbility(serverAddress);
             }
             catch (Exception e)
             {
