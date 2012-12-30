@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
@@ -241,6 +242,36 @@ namespace SuperSocket.Test
             }
         }
 
+        private bool TryConnect(EndPoint serverAddress)
+        {
+            var task = Task.Factory.StartNew(() =>
+                {
+                    using (Socket trySocket = CreateClientSocket())
+                    {
+                        trySocket.Connect(serverAddress);
+                        var innerSocketStream = GetSocketStream(trySocket);
+                        innerSocketStream.ReadTimeout = 500;
+
+                        using (var tryReader = new StreamReader(innerSocketStream, m_Encoding, true))
+                        {
+                            return tryReader.ReadLine() != null;
+                        }
+                    }
+                });
+
+            try
+            {
+                if (!task.Wait(1500))
+                    return false;
+            }
+            catch
+            {
+                return false;
+            }
+
+            return task.Result;
+        }
+
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {
             var defaultConfig = DefaultServerConfig;
@@ -277,31 +308,22 @@ namespace SuperSocket.Test
                     sockets.Add(socket);
                 }
 
-                try
-                {
-                    using (Socket trySocket = CreateClientSocket())
-                    {
-                        trySocket.Connect(serverAddress);
-                        var innerSocketStream = new NetworkStream(trySocket);
-                        innerSocketStream.ReadTimeout = 500;
+                Assert.AreEqual(maxConnectionNumber, server.SessionCount);
 
-                        using (StreamReader tryReader = new StreamReader(innerSocketStream, m_Encoding, true))
-                        {
-                            string welcome = tryReader.ReadLine();
-                            Console.WriteLine(welcome);
-                            return true;
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    return true;
-                }
+                Assert.IsFalse(TryConnect(serverAddress));
+
+                sockets[0].SafeClose();
+
+                Thread.Sleep(500);
+
+                Assert.AreEqual(maxConnectionNumber - 1, server.SessionCount);
+
+                return TryConnect(serverAddress);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message + " " + e.StackTrace);
-                return false;
+                throw e;
             }
             finally
             {
