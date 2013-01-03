@@ -25,4 +25,4 @@ Unless required by applicable law or agreed to in writing, software distributed 
 See the License for the specific language governing permissions and limitations under the License.
 
 
-Copyright 2012 Kerry Jiang (kerry-jiang@hotmail.com)
+Copyright 2010-2013 Kerry Jiang (kerry-jiang@hotmail.com)
