@@ -81,6 +81,7 @@
     <Compile Include="ITestSetup.cs" />
     <Compile Include="Protocol\BeginEndMarkProtocolTest.cs" />
     <Compile Include="Protocol\CountSpliterProtocolTest.cs" />
+    <Compile Include="Protocol\FixedHeaderProtocolTest.cs" />
     <Compile Include="Protocol\ProtocolTestBase.cs" />
     <Compile Include="Protocol\TerminatorProtocolTest.cs" />
     <Compile Include="TcpSocketServerTest.cs" />
