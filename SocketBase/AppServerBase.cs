@@ -1240,7 +1240,7 @@ namespace SuperSocket.SocketBase
             if (!RegisterSession(socketSession.SessionID, appSession))
                 return NullAppSession;
 
-            appSession.Initialize(this, socketSession, ReceiveFilterFactory.CreateFilter(this, appSession, socketSession.RemoteEndPoint));
+            appSession.Initialize(this, socketSession);
             socketSession.Closed += OnSocketSessionClosed;
 
             if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)

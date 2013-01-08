@@ -181,14 +181,14 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
-        /// <param name="receiveFilter">The receive filter.</param>
-        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession, IReceiveFilter<TRequestInfo> receiveFilter)
+        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession)
         {
-            AppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
+            var castedAppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
+            AppServer = castedAppServer;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;
-            m_ReceiveFilter = receiveFilter;
+            m_ReceiveFilter = castedAppServer.ReceiveFilterFactory.CreateFilter(appServer, this, socketSession.RemoteEndPoint);
             OnInit();
         }
 
