@@ -13,7 +13,7 @@ namespace SuperSocket.SocketBase.Config
     /// Root configuration model
     /// </summary>
     [Serializable]
-    public class RootConfig : IRootConfig
+    public partial class RootConfig : IRootConfig
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="RootConfig"/> class.

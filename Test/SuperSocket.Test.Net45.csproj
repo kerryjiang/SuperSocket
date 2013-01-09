@@ -72,6 +72,7 @@
     <Compile Include="BootstrapTest.cs" />
     <Compile Include="ChildConfigTestServer.cs" />
     <Compile Include="Command\ADDCS.cs" />
+    <Compile Include="Command\CULT.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
     <Compile Include="Command\SEND.cs" />
@@ -144,6 +145,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Config\Basic.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\DefaultCultureC.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\DefaultCultureB.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\DefaultCultureA.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\Listeners.config">

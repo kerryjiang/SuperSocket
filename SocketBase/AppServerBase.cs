@@ -303,6 +303,8 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
+        partial void SetDefaultCulture(IRootConfig rootConfig, IServerConfig config);
+
         private void SetupBasic(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
         {
             if (rootConfig == null)
@@ -319,6 +321,8 @@ namespace SuperSocket.SocketBase
                 m_Name = string.Format("{0}-{1}", this.GetType().Name, Math.Abs(this.GetHashCode()));
 
             Config = config;
+
+            SetDefaultCulture(rootConfig, config);
 
             if (!m_ThreadPoolConfigured)
             {

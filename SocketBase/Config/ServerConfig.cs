@@ -13,7 +13,7 @@ namespace SuperSocket.SocketBase.Config
     /// Server configruation model
     /// </summary>
     [Serializable]
-    public class ServerConfig : IServerConfig
+    public partial class ServerConfig : IServerConfig
     {
         /// <summary>
         /// Default ReceiveBufferSize

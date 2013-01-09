@@ -16,7 +16,7 @@ namespace SuperSocket.SocketEngine.Configuration
     /// <summary>
     /// Server configuration
     /// </summary>
-    public class Server : ConfigurationElementBase, IServerConfig
+    public partial class Server : ConfigurationElementBase, IServerConfig
     {
         /// <summary>
         /// Gets the name of the server type this appServer want to use.

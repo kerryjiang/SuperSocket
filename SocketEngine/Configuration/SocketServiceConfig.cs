@@ -13,7 +13,7 @@ namespace SuperSocket.SocketEngine.Configuration
     /// <summary>
     /// SuperSocket's root configuration node
     /// </summary>
-    public class SocketServiceConfig : ConfigurationSection, IConfigurationSource
+    public partial class SocketServiceConfig : ConfigurationSection, IConfigurationSource
     {
         /// <summary>
         /// Gets all the server configurations

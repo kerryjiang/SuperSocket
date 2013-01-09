@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Server instance configuation interface
     /// </summary>
-    public interface IServerConfig
+    public partial interface IServerConfig
     {
         /// <summary>
         /// Gets the name of the server type this appServer want to use.

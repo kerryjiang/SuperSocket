@@ -252,5 +252,68 @@ namespace SuperSocket.Test
             Assert.AreEqual(3012, appServer.Listeners[0].EndPoint.Port);
             Assert.AreEqual(3013, appServer.Listeners[1].EndPoint.Port);
         }
+
+        [Test]
+        public void TestDefaultCulture()
+        {
+            TestDefaultCultureA();
+            ClearBootstrap();
+
+            TestDefaultCultureB();
+            ClearBootstrap();
+
+            TestDefaultCultureC();
+            ClearBootstrap();
+        }
+
+        private void ValidateCulture(int port, string culture)
+        {
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    reader.ReadLine();
+                    writer.WriteLine("CULT");
+                    writer.Flush();
+                    var realCult = reader.ReadLine();
+                    Console.WriteLine(realCult);
+                    Assert.AreEqual(culture, realCult);
+                }
+            }
+        }
+
+        private void TestDefaultCultureA()
+        {
+            var configSource = SetupBootstrap("DefaultCultureA.config");
+
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            ValidateCulture(serverConfig.Port, "zh-CN");
+        }
+
+        private void TestDefaultCultureB()
+        {
+            var configSource = SetupBootstrap("DefaultCultureB.config");
+
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            ValidateCulture(serverConfig.Port, "zh-CN");
+        }
+
+        private void TestDefaultCultureC()
+        {
+            var configSource = SetupBootstrap("DefaultCultureC.config");
+
+            var serverConfigA = configSource.Servers.FirstOrDefault(s => s.Name == "TestServerA");
+            ValidateCulture(serverConfigA.Port, "zh-TW");
+
+            var serverConfigB = configSource.Servers.FirstOrDefault(s => s.Name == "TestServerB");
+            ValidateCulture(serverConfigB.Port, "zh-CN");
+        }
     }
 }

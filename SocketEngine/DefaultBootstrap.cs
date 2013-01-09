@@ -18,7 +18,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// SuperSocket default bootstrap
     /// </summary>
-    public class DefaultBootstrap : IBootstrap
+    public partial class DefaultBootstrap : IBootstrap
     {
         private List<IWorkItem> m_AppServers;
 
@@ -73,6 +73,8 @@ namespace SuperSocket.SocketEngine
 
         private PerformanceMonitor m_PerfMonitor;
 
+        partial void SetDefaultCulture(IRootConfig rootConfig);
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultBootstrap"/> class.
         /// </summary>
@@ -116,6 +118,8 @@ namespace SuperSocket.SocketEngine
 
             m_RootConfig = rootConfig;
 
+            SetDefaultCulture(rootConfig);
+
             m_AppServers = appServers.ToList();
 
             m_GlobalLog = logFactory.GetLog(this.GetType().Name);
@@ -143,6 +147,8 @@ namespace SuperSocket.SocketEngine
             if (config == null)
                 throw new ArgumentNullException("config");
 
+            SetDefaultCulture(config);
+
             var fileConfigSource = config as ConfigurationSection;
 
             if (fileConfigSource != null)
@@ -160,6 +166,8 @@ namespace SuperSocket.SocketEngine
         {
             if (config == null)
                 throw new ArgumentNullException("config");
+
+            SetDefaultCulture(config);
 
             if (!string.IsNullOrEmpty(startupConfigFile))
                 StartupConfigFile = startupConfigFile;

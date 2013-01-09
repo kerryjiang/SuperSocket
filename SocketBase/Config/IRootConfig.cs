@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// The root configuration interface
     /// </summary>
-    public interface IRootConfig
+    public partial interface IRootConfig
     {
         /// <summary>
         /// Gets the max working threads.
