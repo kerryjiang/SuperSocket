@@ -69,8 +69,13 @@ namespace SuperSocket.SocketEngine
         {
             if (e.SocketError != SocketError.Success)
             {
-                OnError(new SocketException((int)e.SocketError));
-                return;
+                var errorCode = (int)e.SocketError;
+
+                //The listen socket was closed
+                if (errorCode == 995 || errorCode == 10004 || errorCode == 10038)
+                    return;
+
+                OnError(new SocketException(errorCode));
             }
 
             if (e.LastOperation == SocketAsyncOperation.ReceiveFrom)
