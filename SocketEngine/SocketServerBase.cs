@@ -110,17 +110,6 @@ namespace SuperSocket.SocketEngine
             if(!logger.IsErrorEnabled)
                 return;
 
-            if (e is ObjectDisposedException || e is NullReferenceException)
-                return;
-
-            var socketException = e as SocketException;
-
-            if (socketException != null)
-            {
-                if (socketException.ErrorCode == 995 || socketException.ErrorCode == 10004 || socketException.ErrorCode == 10038)
-                    return;
-            }
-
             logger.ErrorFormat(string.Format("Listener ({0}) error: {1}", listener.EndPoint, e.Message), e);
         }
 
