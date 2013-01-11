@@ -76,8 +76,10 @@ namespace SuperSocket.SocketEngine
 
                 OnError(new SocketException(errorCode));
             }
-
-            OnNewClientAccepted(e.AcceptSocket, null);
+            else
+            {
+                OnNewClientAccepted(e.AcceptSocket, null);
+            }
 
             e.AcceptSocket = null;
 
