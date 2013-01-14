@@ -34,8 +34,6 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -50,6 +48,19 @@
       <Project>{40b77789-ea11-4c05-8f52-86711d7bcaaf}</Project>
       <Name>SuperSocket.SocketBase.Net40</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SocketEngine\SuperSocket.SocketEngine.Net40.csproj">
+      <Project>{153fef72-191c-43d9-be71-2b351c7ac760}</Project>
+      <Name>SuperSocket.SocketEngine.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SocketService\SuperSocket.SocketService.Net40.csproj">
+      <Project>{b9113694-7226-4152-938d-3172b11571a1}</Project>
+      <Name>SuperSocket.SocketService.Net40</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="SuperSocket.SocketService.exe.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

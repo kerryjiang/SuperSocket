@@ -11,7 +11,7 @@ namespace SuperSocket.QuickStart.ServerPush
     {
         private Timer m_PushTimer;
 
-        private int m_Interval = 60 * 1000 * 5; //5 minutes
+        private int m_Interval = 60 * 1000; //1 minute
 
         protected override void OnStartup()
         {
