@@ -1108,7 +1108,8 @@ namespace SuperSocket.SocketBase
                     }
                     else
                     {
-                        var commandContext = new CommandExecutingContext(session, requestInfo, command);
+                        var commandContext = new CommandExecutingContext();
+                        commandContext.Initialize(session, requestInfo, command);
 
                         for (var i = 0; i < commandFilters.Length; i++)
                         {

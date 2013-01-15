@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// Command Executing Context
     /// </summary>
-    public class CommandExecutingContext
+    public struct CommandExecutingContext
     {
         /// <summary>
         /// Gets the session.
@@ -36,12 +36,12 @@ namespace SuperSocket.SocketBase
         public bool Cancel { get; set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CommandExecutingContext"/> class.
+        /// Initializes a new instance of the <see cref="CommandExecutingContext" /> class.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
         /// <param name="command">The command.</param>
-        public CommandExecutingContext(IAppSession session, IRequestInfo requestInfo, ICommand command)
+        public void Initialize(IAppSession session, IRequestInfo requestInfo, ICommand command)
         {
             Session = session;
             RequestInfo = requestInfo;
