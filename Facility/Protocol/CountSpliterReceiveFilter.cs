@@ -160,7 +160,7 @@ namespace SuperSocket.Facility.Protocol
         /// <value>
         /// The filter state.
         /// </value>
-        public FilterState State { get; private set; }
+        public FilterState State { get; protected set; }
     }
 
     /// <summary>
