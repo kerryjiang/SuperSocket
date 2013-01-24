@@ -13,52 +13,52 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// CloseReason enum
     /// </summary>
-    public enum CloseReason
+    public enum CloseReason : int
     {
+        /// <summary>
+        /// The socket is closed for unknown reason
+        /// </summary>
+        Unknown = 0,
+
         /// <summary>
         /// Close for server shutdown
         /// </summary>
-        ServerShutdown,
+        ServerShutdown = 1,
 
         /// <summary>
         /// The client close the socket
         /// </summary>
-        ClientClosing,
+        ClientClosing = 2,
 
         /// <summary>
         /// The server side close the socket
         /// </summary>
-        ServerClosing,
+        ServerClosing = 3,
 
         /// <summary>
         /// Application error
         /// </summary>
-        ApplicationError,
+        ApplicationError = 4,
 
         /// <summary>
         /// The socket is closed for a socket error
         /// </summary>
-        SocketError,
+        SocketError = 5,
 
         /// <summary>
         /// The socket is closed by server for timeout
         /// </summary>
-        TimeOut,
+        TimeOut = 6,
 
         /// <summary>
         /// Protocol error 
         /// </summary>
-        ProtocolError,
+        ProtocolError = 7,
 
         /// <summary>
         /// SuperSocket internal error
         /// </summary>
-        InternalError,
-
-        /// <summary>
-        /// The socket is closed for unknown reason
-        /// </summary>
-        Unknown
+        InternalError = 8,
     }
 
     /// <summary>
