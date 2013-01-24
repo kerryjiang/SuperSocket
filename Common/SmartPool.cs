@@ -9,20 +9,10 @@ using System.Threading;
 namespace SuperSocket.Common
 {
     /// <summary>
-    /// The basic interface of smart pool
+    /// The pool information class
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public interface ISmartPool<T>
+    public interface IPoolInfo
     {
-        /// <summary>
-        /// Initializes the specified min pool size.
-        /// </summary>
-        /// <param name="minPoolSize">The min size of the pool.</param>
-        /// <param name="maxPoolSize">The max size of the pool.</param>
-        /// <param name="sourceCreator">The source creator.</param>
-        /// <returns></returns>
-        void Initialize(int minPoolSize, int maxPoolSize, ISmartPoolSourceCreator<T> sourceCreator);
-
         /// <summary>
         /// Gets the min size of the pool.
         /// </summary>
@@ -47,6 +37,31 @@ namespace SuperSocket.Common
         /// The avialable items count.
         /// </value>
         int AvialableItemsCount { get; }
+
+
+        /// <summary>
+        /// Gets the total items count, include items in the pool and outside the pool.
+        /// </summary>
+        /// <value>
+        /// The total items count.
+        /// </value>
+        int TotalItemsCount { get; }
+    }
+
+    /// <summary>
+    /// The basic interface of smart pool
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public interface ISmartPool<T> : IPoolInfo
+    {
+        /// <summary>
+        /// Initializes the specified min pool size.
+        /// </summary>
+        /// <param name="minPoolSize">The min size of the pool.</param>
+        /// <param name="maxPoolSize">The max size of the pool.</param>
+        /// <param name="sourceCreator">The source creator.</param>
+        /// <returns></returns>
+        void Initialize(int minPoolSize, int maxPoolSize, ISmartPoolSourceCreator<T> sourceCreator);        
 
         /// <summary>
         /// Pushes the specified item into the pool.
@@ -186,6 +201,19 @@ namespace SuperSocket.Common
             }
         }
 
+        private int m_TotalItemsCount;
+
+        /// <summary>
+        /// Gets the total items count, include items in the pool and outside the pool.
+        /// </summary>
+        /// <value>
+        /// The total items count.
+        /// </value>
+        public int TotalItemsCount
+        {
+            get { return m_TotalItemsCount; }
+        }
+
         /// <summary>
         /// Initializes the specified min and max pool size.
         /// </summary>
@@ -228,7 +256,11 @@ namespace SuperSocket.Common
             {
                 m_GlobalStack.Push(items[i]);
             }
+
+            m_TotalItemsCount = m_MinPoolSize;
         }
+
+        private int m_IsIncreasing = 0;
 
         /// <summary>
         /// Pushes the specified item into the pool.
@@ -237,6 +269,24 @@ namespace SuperSocket.Common
         public void Push(T item)
         {
             m_GlobalStack.Push(item);
+        }
+
+        bool TryPopWithWait(out T item, int waitTicks)
+        {
+            var spinWait = new SpinWait();
+
+            while (true)
+            {
+                spinWait.SpinOnce();
+
+                if (m_GlobalStack.TryPop(out item))
+                    return true;
+
+                if (spinWait.Count >= waitTicks)
+                {
+                    return false;
+                }
+            }
         }
 
         /// <summary>
@@ -253,42 +303,43 @@ namespace SuperSocket.Common
             var currentSourceCount = m_CurrentSourceCount;
 
             if (currentSourceCount >= m_ItemsSource.Length)
+            {
+                return TryPopWithWait(out item, 100);
+            }
+
+            var isIncreasing = m_IsIncreasing;
+
+            if (isIncreasing == 1)
+                return TryPopWithWait(out item, 100);
+
+            if (Interlocked.CompareExchange(ref m_IsIncreasing, 1, isIncreasing) != isIncreasing)
+                return TryPopWithWait(out item, 100);
+
+            IncreaseCapacity();
+
+            m_IsIncreasing = 0;
+
+            if (!m_GlobalStack.TryPop(out item))
+            {
                 return false;
-
-            if (Interlocked.CompareExchange(ref m_CurrentSourceCount, currentSourceCount + 1, currentSourceCount) != currentSourceCount)
-            {
-                var spinWait = new SpinWait();
-
-                while (true)
-                {
-                    spinWait.SpinOnce();
-
-                    if (m_GlobalStack.TryPop(out item))
-                        return true;
-
-                    if (spinWait.Count >= 100)
-                        return false;
-                }
             }
 
-            int totalItemsCount = 0;
+            return true;
+        }
 
-            for (var i = 0; i < currentSourceCount; i++)
-            {
-                totalItemsCount += m_ItemsSource[i].Count;
-            }
-
-            totalItemsCount = Math.Min(totalItemsCount, m_MaxPoolSize - totalItemsCount);
+        private void IncreaseCapacity()
+        {
+            var newItemsCount = Math.Min(m_TotalItemsCount, m_MaxPoolSize - m_TotalItemsCount);
 
             T[] items;
-            m_ItemsSource[currentSourceCount] = m_SourceCreator.Create(totalItemsCount, out items);
+            m_ItemsSource[m_CurrentSourceCount] = m_SourceCreator.Create(newItemsCount, out items);
+
+            m_TotalItemsCount += newItemsCount;
 
             for (var i = 0; i < items.Length; i++)
             {
                 m_GlobalStack.Push(items[i]);
             }
-
-            return m_GlobalStack.TryPop(out item);
         }
     }
 }
