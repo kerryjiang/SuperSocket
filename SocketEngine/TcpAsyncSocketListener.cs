@@ -66,6 +66,8 @@ namespace SuperSocket.SocketEngine
 
         void ProcessAccept(SocketAsyncEventArgs e)
         {
+            Socket socket = null;
+
             if (e.SocketError != SocketError.Success)
             {
                 var errorCode = (int)e.SocketError;
@@ -78,7 +80,7 @@ namespace SuperSocket.SocketEngine
             }
             else
             {
-                OnNewClientAccepted(e.AcceptSocket, null);
+                socket = e.AcceptSocket;
             }
 
             e.AcceptSocket = null;
@@ -89,11 +91,29 @@ namespace SuperSocket.SocketEngine
             {
                 willRaiseEvent = m_ListenSocket.AcceptAsync(e);
             }
+            catch (ObjectDisposedException)
+            {
+                //The listener was stopped
+                //Do nothing
+                //make sure ProcessAccept won't be executed in this thread
+                willRaiseEvent = true;
+            }
+            catch (NullReferenceException)
+            {
+                //The listener was stopped
+                //Do nothing
+                //make sure ProcessAccept won't be executed in this thread
+                willRaiseEvent = true;
+            }
             catch (Exception exc)
             {
                 OnError(exc);
-                return;
+                //make sure ProcessAccept won't be executed in this thread
+                willRaiseEvent = true;
             }
+
+            if (socket != null)
+                OnNewClientAccepted(socket, null);
 
             if (!willRaiseEvent)
                 ProcessAccept(e);
