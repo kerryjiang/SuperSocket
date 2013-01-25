@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Security.Authentication;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase
 {
@@ -31,6 +32,14 @@ namespace SuperSocket.SocketBase
         /// 	<c>true</c> if this instance is running; otherwise, <c>false</c>.
         /// </value>
         bool IsRunning { get; }
+
+        /// <summary>
+        /// Gets the information of the sending queue pool.
+        /// </summary>
+        /// <value>
+        /// The sending queue pool.
+        /// </value>
+        IPoolInfo SendingQueuePool { get; }
 
         /// <summary>
         /// Stops this instance.

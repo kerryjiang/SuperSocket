@@ -39,6 +39,11 @@ namespace SuperSocket.SocketEngine
         /// </value>
         internal ISmartPool<SendingQueue> SendingQueuePool { get; private set; }
 
+        IPoolInfo ISocketServer.SendingQueuePool
+        {
+            get { return this.SendingQueuePool; }
+        }
+
         public SocketServerBase(IAppServer appServer, ListenerInfo[] listeners)
         {
             AppServer = appServer;

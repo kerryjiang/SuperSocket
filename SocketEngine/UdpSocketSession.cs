@@ -65,6 +65,8 @@ namespace SuperSocket.SocketEngine
 
         void SendingCompleted(object sender, SocketAsyncEventArgs e)
         {
+            var queue = e.UserToken as SendingQueue;
+
             if (e.SocketError != SocketError.Success)
             {
                 var log = AppSession.Logger;
@@ -72,10 +74,10 @@ namespace SuperSocket.SocketEngine
                 if (log.IsErrorEnabled)
                     log.Error(new SocketException((int)e.SocketError));
 
+                e.UserToken = null;
+                OnSendError(queue, CloseReason.SocketError);
                 return;
             }
-
-            var queue = e.UserToken as SendingQueue;
 
             var newPos = queue.Position + 1;
 
@@ -109,7 +111,7 @@ namespace SuperSocket.SocketEngine
         public override void Close(CloseReason reason)
         {
             if (!IsClosed)
-                OnClose(reason);
+                OnClosed(reason);
         }
     }
 }
