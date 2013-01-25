@@ -161,10 +161,6 @@
     <None Include="Config\TestServer.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Config\ListenerTest.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="Config\Listeners.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
