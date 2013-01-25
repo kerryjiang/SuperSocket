@@ -20,28 +20,21 @@ namespace SuperSocket.Test
     [TestFixture]
     public class AppDomainSocketServerTest : TcpSocketServerTest
     {
-        protected override IWorkItem CreateAppServer<T>(IRootConfig rootConfig, IServerConfig serverConfig)
+        protected override string DefaultServerConfig
         {
-            var appServer = new AppDomainAppServer(typeof(T));
-
-            var config = new ConfigurationSource();
-            rootConfig.CopyPropertiesTo(config);
-
-            appServer.Setup(new AppDomainBootstrap(config), serverConfig, new ProviderFactoryInfo[]
+            get
             {
-                new ProviderFactoryInfo(ProviderKey.SocketServerFactory, ProviderKey.SocketServerFactory.Name, typeof(SocketServerFactory)),
-                new ProviderFactoryInfo(ProviderKey.LogFactory, ProviderKey.LogFactory.Name, typeof(ConsoleLogFactory))
-            });
-
-            return appServer;
+                return "AppDomainTestServer.config";
+            }
         }
 
         [Test]
         public void TestAppDomain()
         {
-            StartServer();
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -59,7 +52,7 @@ namespace SuperSocket.Test
 
                     var line = reader.ReadLine();
 
-                    Assert.AreEqual(m_Config.Name, line);
+                    Assert.AreEqual(serverConfig.Name, line);
                 }
             }
         }

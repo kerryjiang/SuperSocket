@@ -16,29 +16,11 @@ namespace SuperSocket.Test
     [TestFixture]
     public class SecureTcpSocketServerTest : SocketServerTest
     {
-        protected override IServerConfig DefaultServerConfig
+        protected override string DefaultServerConfig
         {
             get
             {
-                return new ServerConfig
-                {
-                    Ip = "Any",
-                    LogCommand = true,
-                    MaxConnectionNumber = 100,
-                    Mode = SocketMode.Tcp,
-                    Name = "Secure Test Socket Server",
-                    Port = 2012,
-                    ClearIdleSession = true,
-                    ClearIdleSessionInterval = 1,
-                    IdleSessionTimeOut = 5,
-                    Security = "Tls",
-                    SendingQueueSize = 100,
-                    Certificate = new CertificateConfig
-                    {
-                        Password = "supersocket",
-                        FilePath = "supersocket.pfx"
-                    }
-                };
+                return "SecureTestServer.config";
             }
         }
 

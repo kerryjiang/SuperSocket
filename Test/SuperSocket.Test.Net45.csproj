@@ -70,8 +70,11 @@
   <ItemGroup>
     <Compile Include="AppDomainSocketServerTest.cs" />
     <Compile Include="BootstrapTest.cs" />
+    <Compile Include="BootstrapTest.Net45.cs" />
+    <Compile Include="BootstrapTestBase.cs" />
     <Compile Include="ChildConfigTestServer.cs" />
     <Compile Include="Command\ADDCS.cs" />
+    <Compile Include="Command\CLOSE.cs" />
     <Compile Include="Command\CULT.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
@@ -142,8 +145,14 @@
     <Content Include="supersocket.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Config\TestServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Config\AppDomainTestServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\Basic.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -193,6 +202,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Config\SecureTestServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\ServerType.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

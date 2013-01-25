@@ -14,47 +14,9 @@ using SuperSocket.SocketEngine;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class BootstrapTest
+    public partial class BootstrapTest : BootstrapTestBase
     {
-        private IBootstrap m_BootStrap;
-
         private Encoding m_Encoding = new UTF8Encoding();
-
-        [TearDown]
-        public void ClearBootstrap()
-        {
-            if(m_BootStrap != null)
-            {
-                m_BootStrap.Stop();
-                m_BootStrap = null;
-            }
-        }
-
-        private IConfigurationSource CreateBootstrap(string configFile)
-        {
-            var fileMap = new ExeConfigurationFileMap();
-            var filePath = Path.Combine(@"Config", configFile);
-            fileMap.ExeConfigFilename = filePath;
-            var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
-            var configSource = config.GetSection("superSocket") as IConfigurationSource;
-
-            m_BootStrap = BootstrapFactory.CreateBootstrap(configSource);
-
-            return configSource;
-        }
-
-        private IConfigurationSource SetupBootstrap(string configFile)
-        {
-            var configSource = CreateBootstrap(configFile);
-
-            Assert.IsTrue(m_BootStrap.Initialize());
-
-            var result = m_BootStrap.Start();
-
-            Assert.AreEqual(StartResult.Success, result);
-
-            return configSource;
-        }
 
         [Test]
         public void TestBasicConfig()
@@ -64,7 +26,7 @@ namespace SuperSocket.Test
 
         private void TestBasicConfig(string configFile)
         {
-            var configSource = SetupBootstrap(configFile);
+            var configSource = StartBootstrap(configFile);
 
             EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), configSource.Servers.FirstOrDefault().Port);
 
@@ -98,7 +60,7 @@ namespace SuperSocket.Test
         [Test]
         public void TestListenersConfig()
         {
-            var configSource = SetupBootstrap("Listeners.config");
+            var configSource = StartBootstrap("Listeners.config");
 
             var serverConfig = configSource.Servers.FirstOrDefault();
 
@@ -130,7 +92,7 @@ namespace SuperSocket.Test
         [Test]
         public void TestAppDomainConfig()
         {
-            var configSource = SetupBootstrap("AppDomain.config");
+            var configSource = StartBootstrap("AppDomain.config");
 
             var serverConfig = configSource.Servers.FirstOrDefault();
             
@@ -155,7 +117,7 @@ namespace SuperSocket.Test
         [Test]
         public void TestDLRConfig()
         {
-            var configSource = SetupBootstrap("DLR.config");
+            var configSource = StartBootstrap("DLR.config");
 
             var serverConfig = configSource.Servers.FirstOrDefault();
 
@@ -229,9 +191,9 @@ namespace SuperSocket.Test
             var endPointReplacement = new Dictionary<string, IPEndPoint>(StringComparer.OrdinalIgnoreCase);
             endPointReplacement.Add("TestServer_2012", new IPEndPoint(IPAddress.Any, 3012));
 
-            m_BootStrap.Initialize(endPointReplacement);
+            BootStrap.Initialize(endPointReplacement);
 
-            var appServer = m_BootStrap.AppServers.OfType<IAppServer>().FirstOrDefault();
+            var appServer = BootStrap.AppServers.OfType<IAppServer>().FirstOrDefault();
 
             Assert.AreEqual(1, appServer.Listeners.Length);
 
@@ -243,77 +205,14 @@ namespace SuperSocket.Test
             endPointReplacement.Add("TestServer_2012", new IPEndPoint(IPAddress.Any, 3012));
             endPointReplacement.Add("TestServer_2013", new IPEndPoint(IPAddress.Any, 3013));
 
-            m_BootStrap.Initialize(endPointReplacement);
+            BootStrap.Initialize(endPointReplacement);
 
-            appServer = m_BootStrap.AppServers.OfType<IAppServer>().FirstOrDefault();
+            appServer = BootStrap.AppServers.OfType<IAppServer>().FirstOrDefault();
 
             Assert.AreEqual(2, appServer.Listeners.Length);
 
             Assert.AreEqual(3012, appServer.Listeners[0].EndPoint.Port);
             Assert.AreEqual(3013, appServer.Listeners[1].EndPoint.Port);
-        }
-
-        [Test]
-        public void TestDefaultCulture()
-        {
-            TestDefaultCultureA();
-            ClearBootstrap();
-
-            TestDefaultCultureB();
-            ClearBootstrap();
-
-            TestDefaultCultureC();
-            ClearBootstrap();
-        }
-
-        private void ValidateCulture(int port, string culture)
-        {
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
-
-            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
-            {
-                socket.Connect(serverAddress);
-                Stream socketStream = new NetworkStream(socket);
-                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
-                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
-                {
-                    reader.ReadLine();
-                    writer.WriteLine("CULT");
-                    writer.Flush();
-                    var realCult = reader.ReadLine();
-                    Console.WriteLine(realCult);
-                    Assert.AreEqual(culture, realCult);
-                }
-            }
-        }
-
-        private void TestDefaultCultureA()
-        {
-            var configSource = SetupBootstrap("DefaultCultureA.config");
-
-            var serverConfig = configSource.Servers.FirstOrDefault();
-
-            ValidateCulture(serverConfig.Port, "zh-CN");
-        }
-
-        private void TestDefaultCultureB()
-        {
-            var configSource = SetupBootstrap("DefaultCultureB.config");
-
-            var serverConfig = configSource.Servers.FirstOrDefault();
-
-            ValidateCulture(serverConfig.Port, "zh-CN");
-        }
-
-        private void TestDefaultCultureC()
-        {
-            var configSource = SetupBootstrap("DefaultCultureC.config");
-
-            var serverConfigA = configSource.Servers.FirstOrDefault(s => s.Name == "TestServerA");
-            ValidateCulture(serverConfigA.Port, "zh-TW");
-
-            var serverConfigB = configSource.Servers.FirstOrDefault(s => s.Name == "TestServerB");
-            ValidateCulture(serverConfigB.Port, "zh-CN");
         }
     }
 }

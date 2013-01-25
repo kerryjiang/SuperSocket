@@ -68,7 +68,7 @@ namespace SuperSocket.Test
                     {
                         Ip = "127.0.0.1",
                         LogCommand = true,
-                        MaxConnectionNumber = 100,
+                        MaxConnectionNumber = 1000,
                         Mode = SocketMode.Udp,
                         Name = "Udp Test Socket Server",
                         Port = 2196,
