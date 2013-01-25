@@ -341,13 +341,8 @@ namespace SuperSocket.SocketBase
             Send(data, offset, length);
         }
 
-        private const string CANNOT_SEND_NOT_CONNECTED = "You cannot send data any more, because this session is not connected.";
-
         private bool InternalTrySend(ArraySegment<byte> segment)
         {
-            if (!m_Connected)
-                throw new Exception(CANNOT_SEND_NOT_CONNECTED);
-
             if (!SocketSession.TrySend(segment))
                 return false;
 
@@ -362,12 +357,18 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(ArraySegment<byte> segment)
         {
+            if (!m_Connected)
+                return false;
+
             return InternalTrySend(segment);
         }
 
 
         private void InternalSend(ArraySegment<byte> segment)
         {
+            if (!m_Connected)
+                return;
+
             if (InternalTrySend(segment))
                 return;
 
@@ -395,7 +396,7 @@ namespace SuperSocket.SocketBase
         /// Sends the response.
         /// </summary>
         /// <param name="segment">The segment which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        /// <returns>Indicate whether the message was pushed into the sending queue; if it returns false, the sending queue may be full or the socket is not connected</returns>
         [Obsolete("Use 'Send(ArraySegment<byte> segment)' instead")]
         public virtual void SendResponse(ArraySegment<byte> segment)
         {
@@ -405,9 +406,6 @@ namespace SuperSocket.SocketBase
 
         private bool InternalTrySend(IList<ArraySegment<byte>> segments)
         {
-            if (!m_Connected)
-                throw new Exception(CANNOT_SEND_NOT_CONNECTED);
-
             if (!SocketSession.TrySend(segments))
                 return false;
 
@@ -419,14 +417,20 @@ namespace SuperSocket.SocketBase
         /// Try to send the data segments to clinet.
         /// </summary>
         /// <param name="segments">The segments.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        /// <returns>Indicate whether the message was pushed into the sending queue; if it returns false, the sending queue may be full or the socket is not connected</returns>
         public virtual bool TrySend(IList<ArraySegment<byte>> segments)
         {
+            if (!m_Connected)
+                return false;
+
             return InternalTrySend(segments);
         }
 
         private void InternalSend(IList<ArraySegment<byte>> segments)
         {
+            if (!m_Connected)
+                return;
+
             if (InternalTrySend(segments))
                 return;
 
