@@ -133,12 +133,19 @@ namespace SuperSocket.SocketEngine
         void SessionClosed(ISocketSession session, CloseReason reason)
         {
             var socketSession = session as IAsyncSocketSessionBase;
+
             if (socketSession != null && this.m_ReadWritePool != null)
             {
-                socketSession.SocketAsyncProxy.Reset();
+                var proxy = socketSession.SocketAsyncProxy;
+                proxy.Reset();
+
+                if (proxy.OrigOffset != proxy.SocketEventArgs.Offset)
+                {
+                    proxy.SocketEventArgs.SetBuffer(proxy.OrigOffset, AppServer.Config.ReceiveBufferSize);
+                }
 
                 if (m_ReadWritePool != null)
-                    m_ReadWritePool.Push(socketSession.SocketAsyncProxy);
+                    m_ReadWritePool.Push(proxy);
             }
         }
 

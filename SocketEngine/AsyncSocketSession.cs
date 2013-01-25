@@ -21,8 +21,6 @@ namespace SuperSocket.SocketEngine
 
         private SocketAsyncEventArgs m_SocketEventArgSend;
 
-        private int m_OrigOffset;
-
         public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy)
             : this(client, socketAsyncProxy, false)
         {
@@ -33,7 +31,6 @@ namespace SuperSocket.SocketEngine
             : base(client)
         {
             SocketAsyncProxy = socketAsyncProxy;
-            m_OrigOffset = socketAsyncProxy.SocketEventArgs.Offset;
             m_IsReset = isReset;
         }
 
@@ -60,38 +57,39 @@ namespace SuperSocket.SocketEngine
 
         bool ProcessCompleted(SocketAsyncEventArgs e)
         {
-            // check if the remote host closed the connection
-            if (e.BytesTransferred <= 0)
+            if (e.SocketError == SocketError.Success)
             {
-                Close(CloseReason.ClientClosing);
-                return false;
+                if (e.BytesTransferred > 0)
+                {
+                    return true;
+                }
             }
-
-            if (e.SocketError != SocketError.Success)
+            else
             {
                 if (Config.LogAllSocketException ||
-                        (e.SocketError != SocketError.ConnectionAborted
-                            && e.SocketError != SocketError.ConnectionReset
-                            && e.SocketError != SocketError.Interrupted
-                            && e.SocketError != SocketError.Shutdown))
+                            (e.SocketError != SocketError.ConnectionAborted
+                                && e.SocketError != SocketError.ConnectionReset
+                                && e.SocketError != SocketError.Interrupted
+                                && e.SocketError != SocketError.Shutdown
+                                && e.SocketError != SocketError.OperationAborted))
                 {
                     AppSession.Logger.Error(AppSession, new SocketException((int)e.SocketError));
                 }
-
-                Close(CloseReason.SocketError);
-                return false;
             }
 
-            return true;
+            return false;
         }
 
         void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
         {
-            if (!ProcessCompleted(e))
-                return;
-
             var queue = e.UserToken as SendingQueue;
             e.UserToken = null;
+
+            if (!ProcessCompleted(e))
+            {
+                OnSendError(queue, CloseReason.SocketError);
+                return;
+            }
 
             base.OnSendingCompleted(queue);
         }
@@ -122,9 +120,6 @@ namespace SuperSocket.SocketEngine
 
         private void StartReceive(SocketAsyncEventArgs e, int offsetDelta)
         {
-            if (IsClosed)
-                return;
-
             bool willRaiseEvent = false;
 
             try
@@ -132,13 +127,17 @@ namespace SuperSocket.SocketEngine
                 if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
                     throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
 
-                var predictOffset = m_OrigOffset + offsetDelta;
+                var predictOffset = SocketAsyncProxy.OrigOffset + offsetDelta;
 
                 if (e.Offset != predictOffset)
                 {
                     e.SetBuffer(predictOffset, Config.ReceiveBufferSize - offsetDelta);
                 }
 
+                if (IsInClosingOrClosed)
+                    return;
+
+                OnReceiveStarted();
                 willRaiseEvent = Client.ReceiveAsync(e);
             }
             catch (Exception exc)
@@ -146,7 +145,7 @@ namespace SuperSocket.SocketEngine
                 if (!IsIgnorableException(exc))
                     AppSession.Logger.Error(AppSession, exc);
 
-                Close(CloseReason.SocketError);
+                OnReceiveError(CloseReason.SocketError);
                 return;
             }
 
@@ -171,17 +170,17 @@ namespace SuperSocket.SocketEngine
 
                     client.Send(item.Array, item.Offset, item.Count, SocketFlags.None);
                 }
+
+                OnSendingCompleted(queue);
             }
             catch (Exception e)
             {
                 if (!IsIgnorableException(e))
                     AppSession.Logger.Error(AppSession, e);
 
-                Close(CloseReason.SocketError);
+                OnSendError(queue, CloseReason.SocketError);
                 return;
             }
-
-            OnSendingCompleted(queue);
         }
 
         protected override void SendAsync(SendingQueue queue)
@@ -194,7 +193,10 @@ namespace SuperSocket.SocketEngine
                 var client = Client;
 
                 if (client == null)
+                {
+                    OnSendError(queue, CloseReason.SocketError);
                     return;
+                }
 
                 if (!client.SendAsync(m_SocketEventArgSend))
                     OnSendingCompleted(client, m_SocketEventArgSend);
@@ -204,64 +206,21 @@ namespace SuperSocket.SocketEngine
                 if (!IsIgnorableException(e))
                     AppSession.Logger.Error(AppSession, e);
 
-                Close(CloseReason.SocketError);
+                OnSendError(queue, CloseReason.SocketError);
             }
         }
-
-        //protected override void SendAsync(IPosList<ArraySegment<byte>> queue)
-        //{
-        //    try
-        //    {
-        //        if (queue.Count > 1)
-        //        {
-        //            if (m_SocketEventArgSend.Buffer != null)
-        //                m_SocketEventArgSend.SetBuffer(null, 0, 0);
-
-        //            m_SocketEventArgSend.BufferList = items;
-        //        }
-        //        else
-        //        {
-        //            var currentItem = items[0];
-
-        //            try
-        //            {
-        //                if (m_SocketEventArgSend.BufferList != null)
-        //                    m_SocketEventArgSend.BufferList = null;
-        //            }//Supress this exception
-        //            catch (Exception) //a strange NullReference exception
-        //            {
-        //                //if (AppSession.Logger.IsErrorEnabled)
-        //                //    AppSession.Logger.Error(AppSession, e);
-        //            }
-        //            finally
-        //            {
-        //                m_SocketEventArgSend.SetBuffer(currentItem.Array, 0, currentItem.Count);
-        //            }
-        //        }
-
-        //        var client = Client;
-
-        //        if (client == null)
-        //            return;
-
-        //        if (!client.SendAsync(m_SocketEventArgSend))
-        //            OnSendingCompleted(client, m_SocketEventArgSend);
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        if (!IsIgnorableException(e))
-        //            AppSession.Logger.Error(AppSession, e);
-
-        //        Close(CloseReason.SocketError);
-        //    }
-        //}
 
         public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
 
         public void ProcessReceive(SocketAsyncEventArgs e)
         {
             if (!ProcessCompleted(e))
+            {
+                OnReceiveError(CloseReason.ClientClosing);
                 return;
+            }
+
+            OnReceiveEnded();
 
             int offsetDelta;
 
@@ -283,14 +242,6 @@ namespace SuperSocket.SocketEngine
         public override void ApplySecureProtocol()
         {
             //TODO: Implement async socket SSL/TLS encryption
-        }
-
-        protected override void OnClose(CloseReason reason)
-        {
-            if (m_OrigOffset != SocketAsyncProxy.SocketEventArgs.Offset)
-                SocketAsyncProxy.SocketEventArgs.SetBuffer(m_OrigOffset, Config.ReceiveBufferSize);
-
-            base.OnClose(reason);
         }
     }
 }

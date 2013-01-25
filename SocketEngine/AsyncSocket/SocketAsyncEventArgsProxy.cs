@@ -12,6 +12,8 @@ namespace SuperSocket.SocketEngine.AsyncSocket
     {
         public SocketAsyncEventArgs SocketEventArgs { get; private set; }
 
+        public int OrigOffset { get; private set; }
+
         private SocketAsyncEventArgsProxy()
         {
 
@@ -20,6 +22,7 @@ namespace SuperSocket.SocketEngine.AsyncSocket
         public SocketAsyncEventArgsProxy(SocketAsyncEventArgs socketEventArgs)
         {
             SocketEventArgs = socketEventArgs;
+            OrigOffset = socketEventArgs.Offset;
             SocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(SocketEventArgs_Completed);
         }
 

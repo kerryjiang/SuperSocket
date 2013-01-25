@@ -52,7 +52,7 @@ namespace SuperSocket.SocketEngine
             if (m_SendBufferSize > 0)
                 client.SendBufferSize = m_SendBufferSize;
 
-            if(!Platform.SupportSocketIOControlByCodeEnum)
+            if (!Platform.SupportSocketIOControlByCodeEnum)
                 client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
             else
                 client.IOControl(IOControlCode.KeepAliveValues, m_KeepAliveOptionValues, m_KeepAliveOptionOutValues);
