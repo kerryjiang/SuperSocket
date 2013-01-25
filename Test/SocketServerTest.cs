@@ -18,108 +18,37 @@ using SuperSocket.Test.Command;
 
 namespace SuperSocket.Test
 {
-    public abstract class SocketServerTest
+    public abstract class SocketServerTest : BootstrapTestBase
     {
-        private static Dictionary<IServerConfig, IWorkItem[]> m_Servers = new Dictionary<IServerConfig, IWorkItem[]>();
-
-        protected readonly IServerConfig m_Config;
-
-        private IRootConfig m_RootConfig;
-        
         protected Encoding m_Encoding;
 
         public SocketServerTest()
         {
-            m_Config = DefaultServerConfig;
-            m_RootConfig = new RootConfig
-            {
-                MaxWorkingThreads = 500,
-                MaxCompletionPortThreads = 500,
-                MinWorkingThreads = 5,
-                MinCompletionPortThreads = 5,
-                DisablePerformanceDataCollector = true
-            };
-            
             m_Encoding = new UTF8Encoding();
         }
 
-        private IWorkItem GetServerByIndex(int index)
-        {
-            IWorkItem[] servers = new IWorkItem[0];
+        protected abstract string DefaultServerConfig { get; }
 
-            if (!m_Servers.TryGetValue(m_Config, out servers))
-                return null;
-
-            return servers[index];
-        }
-
-        private IWorkItem ServerX
-        {
-            get
-            {
-                return GetServerByIndex(0);
-            }
-        }
-
-        private IWorkItem ServerY
-        {
-            get
-            {
-                return GetServerByIndex(1);
-            }
-        }
-
-        protected abstract IServerConfig DefaultServerConfig { get; }
-
-        [TestFixtureSetUp]
-        public void Setup()
-        {
-            if (m_Servers.ContainsKey(m_Config))
-                return;
-
-            var serverX = CreateAppServer<TestServer>();
-
-            var serverY = CreateAppServer<TestServerWithCustomRequestFilter>();
-
-            m_Servers[m_Config] = new IWorkItem[]
-            {
-                serverX,
-                serverY
-            };
-        }
-
-        private IWorkItem CreateAppServer<T>()
-            where T : IWorkItem, ITestSetup, new()
-        {
-            return CreateAppServer<T>(m_RootConfig, m_Config);
-        }
-
-        protected virtual IWorkItem CreateAppServer<T>(IRootConfig rootConfig, IServerConfig serverConfig)
-            where T : IWorkItem, ITestSetup, new()
-        {
-            var appServer = new T();
-            appServer.Setup(rootConfig, serverConfig);
-            return appServer;
-        }
-
-        [TearDown]
-        public void StopAllServers()
-        {
-            StopServer();
-        }
-
-        [Test, Repeat(10)]
+        [Test, Repeat(3)]
         public void TestStartStop()
         {
-            StartServer();
-            Assert.IsTrue(ServerX.State == ServerState.Running);
-            StopServer();
-            Assert.IsTrue(ServerX.State == ServerState.NotStarted);
+            SetupBootstrap(DefaultServerConfig);
+            var bootstrap = BootStrap;
+            var server = bootstrap.GetServerByName("TestServer");
+
+            bootstrap.Start();
+            Assert.IsTrue(server.State == ServerState.Running);
+
+            bootstrap.Stop();
+            Assert.IsTrue(server.State == ServerState.NotStarted);
+
+            bootstrap.Start();
+            Assert.IsTrue(server.State == ServerState.Running);
         }
 
-        private bool CanConnect()
+        private bool CanConnect(int port)
         {
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -132,31 +61,6 @@ namespace SuperSocket.Test
                 {
                     return false;
                 }                
-            }
-        }
-
-        protected void StartServer()
-        {
-            if (ServerX.State == ServerState.Running)
-                ServerX.Stop();
-
-            ServerX.Start();
-            Console.WriteLine("Socket server X has been started!");
-        }
-
-        [TearDown]
-        public void StopServer()
-        {
-            if (ServerX.State == ServerState.Running)
-            {
-                ServerX.Stop();
-                Console.WriteLine("Socket server X has been stopped!");
-            }
-
-            if (ServerY != null && ServerY.State == ServerState.Running)
-            {
-                ServerY.Stop();
-                Console.WriteLine("Socket server Y has been stopped!");
             }
         }
 
@@ -173,9 +77,9 @@ namespace SuperSocket.Test
         [Test, Repeat(3)]
         public void TestWelcomeMessage()
         {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -185,7 +89,7 @@ namespace SuperSocket.Test
                 using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     string welcomeString = reader.ReadLine();
-                    Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, m_Config.Name), welcomeString);
+                    Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, serverConfig.Name), welcomeString);
                 }
             }
         }
@@ -193,15 +97,21 @@ namespace SuperSocket.Test
         [Test]
         public void TestSessionConnectedState()
         {
-            StartServer();
+            byte[] data = new byte[] { 0xff, 0xff, 0xff, 0xf0 };
 
-            var server = ServerX as IAppServer;
+            Console.WriteLine(BitConverter.ToInt32(data, 0));
 
-            //AppDomain isolation
-            if (server == null)
+            var configSource = SetupBootstrap(DefaultServerConfig);
+
+            if (configSource.Isolation != IsolationMode.None)
                 return;
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
+
+            BootStrap.Start();
+
+            var server = BootStrap.AppServers.FirstOrDefault() as IAppServer;
 
             using (Socket socket = CreateClientSocket())
             {
@@ -236,8 +146,13 @@ namespace SuperSocket.Test
                         catch { }
                     }
 
-                    Thread.Sleep(100);
-                    Assert.IsFalse(session.Connected);
+                    while (true)
+                    {
+                        Thread.Sleep(5000);
+
+                        if (!session.Connected)
+                            break;
+                    }
                 }
             }
         }
@@ -274,30 +189,24 @@ namespace SuperSocket.Test
 
         private bool TestMaxConnectionNumber(int maxConnectionNumber)
         {
-            var defaultConfig = DefaultServerConfig;
+            var configSource = SetupBootstrap(DefaultServerConfig, new Func<IServerConfig, IServerConfig>(c =>
+                {
+                    var nc = new ServerConfig(c);
+                    nc.MaxConnectionNumber = maxConnectionNumber;
+                    return nc;
+                }));
 
-            var config = new ServerConfig
-            {
-                Ip = defaultConfig.Ip,
-                LogCommand = defaultConfig.LogCommand,
-                MaxConnectionNumber = maxConnectionNumber,
-                Mode = defaultConfig.Mode,
-                Name = defaultConfig.Name,
-                Port = defaultConfig.Port,
-                Security = defaultConfig.Security,
-                Certificate = defaultConfig.Certificate
-            };
+            BootStrap.Start();
 
-            var server = CreateAppServer<TestServer>(m_RootConfig, config);
+            var config = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), config.Port);
 
             List<Socket> sockets = new List<Socket>();
 
+            var server = BootStrap.AppServers.FirstOrDefault();
+
             try
             {
-                server.Start();
-
-                EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
-
                 for (int i = 0; i < maxConnectionNumber; i++)
                 {
                     Socket socket = CreateClientSocket();
@@ -327,7 +236,7 @@ namespace SuperSocket.Test
             }
             finally
             {
-                server.Stop();
+                ClearBootstrap();
             }
         }
 
@@ -343,9 +252,9 @@ namespace SuperSocket.Test
         [Test, Repeat(2)]
         public void TestUnknownCommand()
         {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -377,9 +286,9 @@ namespace SuperSocket.Test
         [Test]
         public void TestEchoMessage()
         {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -416,9 +325,9 @@ namespace SuperSocket.Test
         [Test]
         public void TestCommandCombining()
         {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -465,9 +374,9 @@ namespace SuperSocket.Test
         [Test]
         public void TestBrokenCommandBlock()
         {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -515,9 +424,9 @@ namespace SuperSocket.Test
             }
         }
 
-        private bool RunEchoMessage(int runIndex)
+        private bool RunEchoMessage(int port, int runIndex)
         {
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), port);
 
             Socket socket = CreateClientSocket();
             socket.Connect(serverAddress);
@@ -555,7 +464,12 @@ namespace SuperSocket.Test
         [Test, Repeat(3), Category("Concurrency")]
         public void TestConcurrencyCommunication()
         {
-            StartServer();
+            var configSource = StartBootstrap(DefaultServerConfig, c => new ServerConfig(c)
+                {
+                    IdleSessionTimeOut = 180
+                });
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             int concurrencyCount = 100;
 
@@ -565,7 +479,7 @@ namespace SuperSocket.Test
 
             System.Threading.Tasks.Parallel.For(0, concurrencyCount, i =>
             {
-                resultArray[i] = RunEchoMessage(i);
+                resultArray[i] = RunEchoMessage(serverConfig.Port, i);
                 semaphore.Release();
             });
 
@@ -591,9 +505,15 @@ namespace SuperSocket.Test
         [Test, Repeat(5)]
         public virtual void TestClearTimeoutSession()
         {
-            StartServer();
+            var configSource = StartBootstrap(DefaultServerConfig, c => new ServerConfig(c)
+            {
+                ClearIdleSession = true
+            });
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
+
+            var server = BootStrap.AppServers.FirstOrDefault();
 
             Socket socket = CreateClientSocket();
             socket.Connect(serverAddress);
@@ -604,19 +524,19 @@ namespace SuperSocket.Test
                 reader.ReadLine();
             }
 
-            Assert.AreEqual(1, ServerX.SessionCount);
+            Assert.AreEqual(1, server.SessionCount);
             Thread.Sleep(2000);
-            Assert.AreEqual(1, ServerX.SessionCount);
+            Assert.AreEqual(1, server.SessionCount);
             Thread.Sleep(5000);
-            Assert.AreEqual(0, ServerX.SessionCount);
+            Assert.AreEqual(0, server.SessionCount);
         }
 
         [Test]
         public void TestCustomCommandName()
         {
-            StartServer();
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -639,13 +559,14 @@ namespace SuperSocket.Test
         [Test, Repeat(3)]
         public void TestCommandParser()
         {
-            if (ServerY.State == ServerState.Running)
-                ServerY.Stop();
+            var configSource = StartBootstrap(DefaultServerConfig, c =>
+                new ServerConfig(c)
+                {
+                    ServerType = "SuperSocket.Test.TestServerWithCustomRequestFilter, SuperSocket.Test"
+                });
 
-            ServerY.Start();
-            Console.WriteLine("Socket server Y has been started!");
-
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {
@@ -664,12 +585,116 @@ namespace SuperSocket.Test
             }
         }
 
+        [Test]
+        public void TestCloseFromClient()
+        {
+            var configSource = StartBootstrap(DefaultServerConfig, c =>
+                new ServerConfig(c)
+                {
+                    LogBasicSessionActivity = false,
+                    ClearIdleSession = false,
+                    MaxConnectionNumber = 1000,
+                });
+
+            var n = 100;
+            var sockets = new List<Socket>(n);
+            var server = BootStrap.AppServers.FirstOrDefault();
+
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
+
+            for (var i = 0; i < n; i++)
+            {
+                Socket socket = CreateClientSocket();
+                socket.Connect(serverAddress);
+                sockets.Add(socket);
+            }
+
+            Console.WriteLine(sockets.Count);
+            Thread.Sleep(500);
+            Assert.AreEqual(n, server.SessionCount);
+
+            for (var i = n - 1; i >= 0; i--)
+            {
+                var s = sockets[i];
+
+                s.SafeClose();
+
+                Thread.Sleep(100);
+
+                if (i != server.SessionCount)
+                {
+                    Thread.Sleep(500);
+                    Assert.AreEqual(i, server.SessionCount);
+                }
+                
+                Console.WriteLine("Conn: {0}", i);
+            }
+        }
+
+        [Test]
+        public void TestCloseFromServer()
+        {
+            var configSource = StartBootstrap(DefaultServerConfig, c =>
+                new ServerConfig(c)
+                {
+                    LogBasicSessionActivity = false,
+                    ClearIdleSession = false,
+                    MaxConnectionNumber = 1000,
+                });
+
+            var n = 100;
+            var sockets = new List<Socket>(n);
+            var server = BootStrap.AppServers.FirstOrDefault();
+
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
+
+            for (var i = 0; i < n; i++)
+            {
+                Socket socket = CreateClientSocket();
+                socket.Connect(serverAddress);
+                sockets.Add(socket);
+            }
+
+            Console.WriteLine(sockets.Count);
+            Thread.Sleep(500);
+            Assert.AreEqual(n, server.SessionCount);
+
+            for (var i = n - 1; i >= 0; i--)
+            {
+                var s = sockets[i];
+
+                Stream socketStream = GetSocketStream(s);
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    writer.WriteLine("CLOSE");
+                    writer.Flush();
+                }
+
+                Thread.Sleep(100);
+
+                if (i != server.SessionCount)
+                {
+                    Thread.Sleep(500);
+                    Assert.AreEqual(i, server.SessionCount);
+                }
+
+                Console.WriteLine("Conn: {0}", i);
+            }
+        }
+
         [Test, Repeat(5)]
         public void TestConcurrentSending()
         {
-            StartServer();
+            var configSource = StartBootstrap(DefaultServerConfig, c => new ServerConfig(c)
+                {
+                    SendingQueueSize = 100
+                });
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             string[] source = SEND.GetStringSource();
 
@@ -724,9 +749,15 @@ namespace SuperSocket.Test
         [Test]
         public void TestFastSending()
         {
-            StartServer();
+            var configSource = StartBootstrap(DefaultServerConfig, c => new ServerConfig(c)
+                {
+                    LogBasicSessionActivity = false,
+                    SendingQueueSize = 100
+                });
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_Config.Port);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = CreateClientSocket())
             {

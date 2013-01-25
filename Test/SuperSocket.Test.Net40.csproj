@@ -36,6 +36,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\supersocket.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="IronPython">
       <HintPath>..\Reference\IronPython\Net40\IronPython.dll</HintPath>
@@ -68,8 +74,10 @@
   <ItemGroup>
     <Compile Include="AppDomainSocketServerTest.cs" />
     <Compile Include="BootstrapTest.cs" />
+    <Compile Include="BootstrapTestBase.cs" />
     <Compile Include="ChildConfigTestServer.cs" />
     <Compile Include="Command\ADDCS.cs" />
+    <Compile Include="Command\CLOSE.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
     <Compile Include="Command\SEND.cs" />
@@ -144,6 +152,15 @@
     <None Include="Config\Basic.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Config\AppDomainTestServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\SecureTestServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\TestServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\Listeners.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -157,6 +174,7 @@
   <ItemGroup>
     <None Include="Config\DLR.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.Dlr;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
@@ -35,9 +36,19 @@ namespace SuperSocket.Test
             
         }
 
-        void ITestSetup.Setup(IRootConfig rootConfig, IServerConfig serverConfig)
+        protected override bool Setup(IRootConfig rootConfig, IServerConfig serverConfig)
         {
+            var sendWelcome = true;
+            bool.TryParse(serverConfig.Options.GetValue("sendWelcome", "true"), out sendWelcome);
+            SendWelcome = sendWelcome;
+            return true;
+        }
+
+        void ITestSetup.Setup(IRootConfig rootConfig, IServerConfig serverConfig)
+        {            
             base.Setup(rootConfig, serverConfig, null, null, new ConsoleLogFactory(), null);
         }
+
+        internal bool SendWelcome { get; private set; }
     }
 }

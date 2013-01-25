@@ -11,23 +11,11 @@ namespace SuperSocket.Test
     [TestFixture]
     public class TcpSocketServerTest : SocketServerTest
     {
-        protected override IServerConfig DefaultServerConfig
+        protected override string DefaultServerConfig
         {
             get
             {
-                return new ServerConfig
-                    {
-                        Ip = "Any",
-                        LogCommand = false,
-                        MaxConnectionNumber = 100,
-                        Mode = SocketMode.Tcp,
-                        Name = "Async Test Socket Server",
-                        Port = 2012,
-                        ClearIdleSession = true,
-                        ClearIdleSessionInterval = 1,
-                        IdleSessionTimeOut = 5,
-                        SendingQueueSize = 100
-                    };
+                return "TestServer.config";
             }
         }
     }

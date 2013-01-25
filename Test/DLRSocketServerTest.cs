@@ -18,54 +18,18 @@ using SuperSocket.SocketEngine;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class DLRSocketServerTest
+    public class DLRSocketServerTest : BootstrapTestBase
     {
-        private TestServer m_Server;
-
-        private IServerConfig m_ServerConfig;
-
-        private Encoding m_Encoding;
-
-        [TestFixtureSetUp]
-        public void Setup()
-        {
-            m_Encoding = new UTF8Encoding();
-            m_ServerConfig = new ServerConfig
-                {
-                    Ip = "Any",
-                    LogCommand = false,
-                    MaxConnectionNumber = 100,
-                    Mode = SocketMode.Tcp,
-                    Name = "DLR Socket Server",
-                    Port = 2012,
-                    ClearIdleSession = true
-                };
-
-            m_Server = new TestServer();
-            var scriptRuntime = new ScriptRuntime(new ScriptRuntimeSetup
-                {
-                    LanguageSetups =
-                    {
-                        new LanguageSetup("IronPython.Runtime.PythonContext, IronPython", "IronPython", "IronPython;Python;py".Split(';'), new string[] { ".py" })
-                    }
-                });
-            m_Server.Setup(new RootConfig(), m_ServerConfig, null, null, new ConsoleLogFactory(), null, new ICommandLoader[] { new DynamicCommandLoader(scriptRuntime) });
-        }
-
-        [TearDown]
-        public void StopServer()
-        {
-            if (m_Server.State == ServerState.Running)
-                m_Server.Stop();
-        }
+        private Encoding m_Encoding = new UTF8Encoding();
 
         [Test]
         public void TestCommands()
         {
-            if (m_Server.State != ServerState.Running)
-                m_Server.Start();
+            var configSource = StartBootstrap("DLR.config");
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_ServerConfig.Port);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -109,10 +73,11 @@ namespace SuperSocket.Test
         [Test]
         public void TestPerformance()
         {
-            if (m_Server.State != ServerState.Running)
-                m_Server.Start();
+            var configSource = StartBootstrap("DLR.config");
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_ServerConfig.Port);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
