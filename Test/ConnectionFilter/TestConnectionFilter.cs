@@ -9,9 +9,12 @@ namespace SuperSocket.Test.ConnectionFilter
 {
     public class TestConnectionFilter : IConnectionFilter
     {
+        internal IAppServer AppServer { get; private set; }
+
         public bool Initialize(string name, IAppServer appServer)
         {
             Name = name;
+            AppServer = appServer;
             return true;
         }
 

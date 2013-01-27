@@ -16,32 +16,8 @@ using SuperSocket.Test.ConnectionFilter;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class ConnectionFilterTest
+    public class ConnectionFilterTest : BootstrapTestBase
     {
-        private TestServer m_Server;
-
-        private IServerConfig m_ServerConfig;
-
-        [TestFixtureSetUp]
-        public void Setup()
-        {
-            m_ServerConfig = new ServerConfig
-                {
-                    Ip = "Any",
-                    LogCommand = false,
-                    MaxConnectionNumber = 1,
-                    Mode = SocketMode.Tcp,
-                    Name = "TestServer",
-                    Port = 2012,
-                    ClearIdleSession = false
-                };
-
-            m_Server = new TestServer();
-            m_Server.NewSessionConnected += new SessionHandler<TestSession>(m_Server_NewSessionConnected);
-            m_Server.Setup(new RootConfig(), m_ServerConfig, null, null, new ConsoleLogFactory(), new IConnectionFilter[] { new TestConnectionFilter() }, null);
-        }
-
-
         private AutoResetEvent m_NewSessionConnectedEvent = new AutoResetEvent(false);
 
         void m_Server_NewSessionConnected(TestSession obj)
@@ -49,20 +25,28 @@ namespace SuperSocket.Test
             m_NewSessionConnectedEvent.Set();
         }
 
-        [TearDown]
-        public void StopServer()
+        [Test]
+        public void TestInitialize()
         {
-            if (m_Server.State == ServerState.Running)
-                m_Server.Stop();
+            var configSource = StartBootstrap("ConnectionFilter.config");
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            var appServer = BootStrap.AppServers.FirstOrDefault() as TestServer;
+            
+            var connectionFilter = appServer.ConnectionFilters.FirstOrDefault() as TestConnectionFilter;
+
+            Assert.AreEqual("TestFilter", connectionFilter.Name);
+            Assert.AreEqual(appServer, connectionFilter.AppServer);
         }
 
         [Test]
         public void TestAllow()
         {
-            if (m_Server.State != ServerState.Running)
-                m_Server.Start();
+            var configSource = StartBootstrap("ConnectionFilter.config");
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            var appServer = BootStrap.AppServers.FirstOrDefault() as TestServer;
+            appServer.NewSessionConnected += m_Server_NewSessionConnected;
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_ServerConfig.Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
@@ -90,10 +74,12 @@ namespace SuperSocket.Test
         [Test]
         public void TestDisallow()
         {
-            if (m_Server.State != ServerState.Running)
-                m_Server.Start();
+            var configSource = StartBootstrap("ConnectionFilter.config");
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            var appServer = BootStrap.AppServers.FirstOrDefault() as TestServer;
+            appServer.NewSessionConnected += m_Server_NewSessionConnected;
 
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), m_ServerConfig.Port);
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
             {
