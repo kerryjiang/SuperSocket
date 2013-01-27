@@ -632,9 +632,27 @@ namespace SuperSocket.SocketBase
 
             Logger = CreateLogger(this.Name);
 
+            IEnumerable<IConnectionFilter> connectionFilters = null;
+
+            if (!TryGetProviderInstances(factories, ProviderKey.ConnectionFilter, out connectionFilters,
+                    (p, f) =>
+                    {
+                        var ret = p.Initialize(f.Name, this);
+
+                        if(!ret)
+                        {
+                            Logger.ErrorFormat("Failed to initialize the connection filter: {0}.", f.Name);
+                        }
+
+                        return ret;
+                    }))
+            {
+                return false;
+            }
+
             if (!SetupMedium(
                     GetSingleProviderInstance<IReceiveFilterFactory<TRequestInfo>>(factories, ProviderKey.ReceiveFilterFactory),
-                    GetProviderInstances<IConnectionFilter>(factories, ProviderKey.ConnectionFilter),
+                    connectionFilters,
                     GetProviderInstances<ICommandLoader>(factories, ProviderKey.CommandLoader)))
             {
                 return false;
@@ -664,15 +682,40 @@ namespace SuperSocket.SocketBase
             return factory.ExportFactory.CreateExport<TProvider>();
         }
 
-        private IEnumerable<TProvider> GetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key)
+        private bool TryGetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key, out IEnumerable<TProvider> providers, Func<TProvider, ProviderFactoryInfo, bool> initializer)
             where TProvider : class
         {
             IEnumerable<ProviderFactoryInfo> selectedFactories = factories.Where(p => p.Key.Name == key.Name);
 
             if (!selectedFactories.Any())
-                return null;
+            {
+                providers = null;
+                return true;
+            }
 
-            return selectedFactories.Select(f => f.ExportFactory.CreateExport<TProvider>());
+            providers = new List<TProvider>();
+
+            var list = (List<TProvider>)providers;
+
+            foreach (var f in selectedFactories)
+            {
+                var provider = f.ExportFactory.CreateExport<TProvider>();
+
+                if (!initializer(provider, f))
+                    return false;
+
+                list.Add(provider);
+            }
+
+            return true;
+        }
+
+        private IEnumerable<TProvider> GetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key)
+            where TProvider : class
+        {
+            IEnumerable<TProvider> providers;
+            TryGetProviderInstances<TProvider>(factories, key, out providers, (p, f) => true);
+            return providers;
         }
 
         private bool SetupLogFactory(ILogFactory logFactory)

@@ -155,6 +155,9 @@
     <None Include="Config\AppDomainTestServer.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Include="Config\ConnectionFilter.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\SecureTestServer.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
