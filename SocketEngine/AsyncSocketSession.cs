@@ -82,6 +82,7 @@ namespace SuperSocket.SocketEngine
 
         void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
         {
+            e.BufferList = null;
             var queue = e.UserToken as SendingQueue;
             e.UserToken = null;
 
