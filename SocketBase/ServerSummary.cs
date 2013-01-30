@@ -90,5 +90,24 @@ namespace SuperSocket.SocketBase
         /// </value>
         [Display("Listeners", Order = 6, OutputInPerfLog = false)]
         public ListenerInfo[] Listeners { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the avialable sending queue items.
+        /// </summary>
+        /// <value>
+        /// The avialable sending queue items.
+        /// </value>
+        [Display("Avialable Sending Queue Items", Format = "{0:N0}", Order = 7)]
+        public int AvialableSendingQueueItems { get; set; }
+
+        /// <summary>
+        /// Gets or sets the total sending queue items.
+        /// </summary>
+        /// <value>
+        /// The total sending queue items.
+        /// </value>
+        [Display("Total Sending Queue Items", Format = "{0:N0}", Order = 8)]
+        public int TotalSendingQueueItems { get; set; }
     }
 }

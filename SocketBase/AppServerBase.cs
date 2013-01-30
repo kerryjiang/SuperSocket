@@ -1514,6 +1514,8 @@ namespace SuperSocket.SocketBase
 
             serverSummary.RequestHandlingSpeed = ((this.TotalHandledRequests - serverSummary.TotalHandledRequests) / now.Subtract(serverSummary.CollectedTime).TotalSeconds);
             serverSummary.TotalHandledRequests = this.TotalHandledRequests;
+            serverSummary.AvialableSendingQueueItems = m_SocketServer.SendingQueuePool.AvialableItemsCount;
+            serverSummary.TotalSendingQueueItems = m_SocketServer.SendingQueuePool.TotalItemsCount;
 
             serverSummary.CollectedTime = now;
         }
