@@ -82,17 +82,32 @@ namespace SuperSocket.SocketEngine
 
         void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
         {
-            e.BufferList = null;
             var queue = e.UserToken as SendingQueue;
-            e.UserToken = null;
 
             if (!ProcessCompleted(e))
             {
+                ClearPrevSendState(e);
                 OnSendError(queue, CloseReason.SocketError);
                 return;
             }
 
+            ClearPrevSendState(e);
             base.OnSendingCompleted(queue);
+        }
+
+        private void ClearPrevSendState(SocketAsyncEventArgs e)
+        {
+            e.UserToken = null;
+
+            //Clear previous sending buffer of sae to avoid memory leak
+            if (e.Buffer != null)
+            {
+                e.SetBuffer(null, 0, 0);
+            }
+            else if (e.BufferList != null)
+            {
+                e.BufferList = null;
+            }
         }
 
         private bool IsIgnorableException(Exception e)
@@ -189,7 +204,14 @@ namespace SuperSocket.SocketEngine
             try
             {
                 m_SocketEventArgSend.UserToken = queue;
-                m_SocketEventArgSend.BufferList = queue;
+
+                if (queue.Count > 1)
+                    m_SocketEventArgSend.BufferList = queue;
+                else
+                {
+                    var item = queue[0];
+                    m_SocketEventArgSend.SetBuffer(item.Array, item.Offset, item.Count);
+                }
 
                 var client = Client;
 
@@ -207,6 +229,7 @@ namespace SuperSocket.SocketEngine
                 if (!IsIgnorableException(e))
                     AppSession.Logger.Error(AppSession, e);
 
+                ClearPrevSendState(m_SocketEventArgSend);
                 OnSendError(queue, CloseReason.SocketError);
             }
         }
