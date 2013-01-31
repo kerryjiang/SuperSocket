@@ -32,6 +32,8 @@ namespace SuperSocket.SocketEngine
 
         public PerformanceMonitor(IRootConfig config, IEnumerable<IWorkItem> appServers, ILogFactory logFactory)
         {
+            m_PerfLog = logFactory.GetLog("Performance");
+
             m_AppServers = appServers.ToArray();
 
             Process process = Process.GetCurrentProcess();
@@ -41,14 +43,17 @@ namespace SuperSocket.SocketEngine
             var isUnix = Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
             var instanceName = (isUnix || Platform.IsMono) ? string.Format("{0}/{1}", process.Id, process.ProcessName) : GetPerformanceCounterInstanceName(process);
 
-            m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", instanceName);
-            m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
-            m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", instanceName);
-
-            m_PerfLog = logFactory.GetLog("Performance");
+            SetupPerformanceCounters(instanceName);
 
             m_TimerInterval = config.PerformanceDataCollectInterval * 1000;
             m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
+        }
+
+        private void SetupPerformanceCounters(string instanceName)
+        {
+            m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", instanceName);
+            m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
+            m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", instanceName);
         }
 
         //Tt is only used in windows
@@ -117,16 +122,44 @@ namespace SuperSocket.SocketEngine
             int maxCompletionPortThreads;
             ThreadPool.GetMaxThreads(out maxWorkingThreads, out maxCompletionPortThreads);
 
-            var globalPerfData = new NodeSummary
+            NodeSummary globalPerfData = null;
+
+            var retry = false;
+
+            while(true)
             {
-                AvailableWorkingThreads = availableWorkingThreads,
-                AvailableCompletionPortThreads = availableCompletionPortThreads,
-                MaxCompletionPortThreads = maxCompletionPortThreads,
-                MaxWorkingThreads = maxWorkingThreads,
-                CpuUsage = m_CpuUsagePC.NextValue() / m_CpuCores,
-                TotalThreadCount = (int)m_ThreadCountPC.NextValue(),
-                WorkingSet = (long)m_WorkingSetPC.NextValue()
-            };
+                try
+                {
+                    globalPerfData = new NodeSummary
+                    {
+                        AvailableWorkingThreads = availableWorkingThreads,
+                        AvailableCompletionPortThreads = availableCompletionPortThreads,
+                        MaxCompletionPortThreads = maxCompletionPortThreads,
+                        MaxWorkingThreads = maxWorkingThreads,
+                        CpuUsage = m_CpuUsagePC.NextValue() / m_CpuCores,
+                        TotalThreadCount = (int)m_ThreadCountPC.NextValue(),
+                        WorkingSet = (long)m_WorkingSetPC.NextValue()
+                    };
+
+                    break;
+                }
+                catch (InvalidOperationException e)
+                {
+                    //Only re-get performance counter one time
+                    if (retry)
+                        throw e;
+
+                    //Only re-get performance counter for .NET/Windows
+                    if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX || Platform.IsMono)
+                        throw e;
+
+                    //If a same name process exited, this process's performance counters instance name could be changed,
+                    //so if the old performance counter cannot be access, get the performance counter's name again
+                    var newInstanceName = GetPerformanceCounterInstanceName(Process.GetCurrentProcess());
+                    SetupPerformanceCounters(newInstanceName);
+                    retry = true;
+                }
+            }
 
             var perfBuilder = new StringBuilder();
 
