@@ -10,7 +10,7 @@ namespace SuperSocket.Facility.Protocol
     /// FixedSizeReceiveFilter
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class FixedSizeReceiveFilter<TRequestInfo> : IReceiveFilter<TRequestInfo>, IOffsetAdapter
+    public abstract class FixedSizeReceiveFilter<TRequestInfo> : IReceiveFilter<TRequestInfo>, IOffsetAdapter, IReceiveFilterInitializer
         where TRequestInfo : IRequestInfo
     {
         private int m_ParsedLength;
@@ -39,6 +39,13 @@ namespace SuperSocket.Facility.Protocol
             m_Size = size;
         }
 
+        private int m_OrigOffset;
+
+        void IReceiveFilterInitializer.Initialize(IAppServer appServer, IAppSession session)
+        {
+            m_OrigOffset = session.SocketSession.OrigReceiveOffset;
+        }
+
         /// <summary>
         /// Filters the specified session.
         /// </summary>
@@ -54,7 +61,7 @@ namespace SuperSocket.Facility.Protocol
 
             if (rest >= 0)
             {
-                var requestInfo = ProcessMatchedRequest(readBuffer, offset - m_ParsedLength, m_ParsedLength + length, toBeCopied);
+                var requestInfo = ProcessMatchedRequest(readBuffer, offset - m_ParsedLength, m_Size, toBeCopied);
                 InternalReset();
                 return requestInfo;
             }
@@ -63,6 +70,15 @@ namespace SuperSocket.Facility.Protocol
                 m_ParsedLength += length;
                 m_OffsetDelta = m_ParsedLength;
                 rest = 0;
+
+                var expectedOffset = offset + length;
+                var newOffset = m_OrigOffset + m_OffsetDelta;
+
+                if (newOffset < expectedOffset)
+                {
+                    Buffer.BlockCopy(readBuffer, offset - m_ParsedLength + length, readBuffer, m_OrigOffset, m_ParsedLength);
+                }
+
                 return NullRequestInfo;
             }
         }

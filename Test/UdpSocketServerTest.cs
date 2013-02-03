@@ -6,16 +6,16 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine;
 using SuperSocket.Test.Udp;
-using SuperSocket.SocketBase.Logging;
-using System.Threading.Tasks;
 
 namespace SuperSocket.Test
 {

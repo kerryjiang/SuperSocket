@@ -114,6 +114,7 @@
     <Compile Include="Protocol\IOffsetAdapter.cs" />
     <Compile Include="Protocol\IReceiveFilter.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\IReceiveFilterInitializer.cs" />
     <Compile Include="Protocol\ReceiveFilterBase.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />

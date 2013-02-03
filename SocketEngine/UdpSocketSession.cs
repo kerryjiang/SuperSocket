@@ -113,5 +113,10 @@ namespace SuperSocket.SocketEngine
             if (!IsClosed)
                 OnClosed(reason);
         }
+
+        public override int OrigReceiveOffset
+        {
+            get { return 0; }
+        }
     }
 }
