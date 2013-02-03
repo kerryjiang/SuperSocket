@@ -334,5 +334,10 @@ namespace SuperSocket.SocketEngine
         {
             get { return AppSession.Logger; }
         }
+
+        public override int OrigReceiveOffset
+        {
+            get { return SocketAsyncProxy.OrigOffset; }
+        }
     }
 }

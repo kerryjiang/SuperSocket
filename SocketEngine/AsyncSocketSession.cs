@@ -267,5 +267,10 @@ namespace SuperSocket.SocketEngine
         {
             //TODO: Implement async socket SSL/TLS encryption
         }
+
+        public override int OrigReceiveOffset
+        {
+            get { return SocketAsyncProxy.OrigOffset; }
+        }
     }
 }

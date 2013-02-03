@@ -471,5 +471,7 @@ namespace SuperSocket.SocketEngine
                 Close(closeReason);
             }
         }
+
+        public abstract int OrigReceiveOffset { get; }
     }
 }

@@ -128,5 +128,14 @@ namespace SuperSocket.SocketBase
         /// Gets the app session assosiated with this socket session.
         /// </summary>
         IAppSession AppSession { get; }
+
+
+        /// <summary>
+        /// Gets the original receive buffer offset.
+        /// </summary>
+        /// <value>
+        /// The original receive buffer offset.
+        /// </value>
+        int OrigReceiveOffset { get; }
     }
 }

@@ -189,6 +189,11 @@ namespace SuperSocket.SocketBase
             SessionID = socketSession.SessionID;
             m_Connected = true;
             m_ReceiveFilter = castedAppServer.ReceiveFilterFactory.CreateFilter(appServer, this, socketSession.RemoteEndPoint);
+
+            var filterInitializer = m_ReceiveFilter as IReceiveFilterInitializer;
+            if (filterInitializer != null)
+                filterInitializer.Initialize(castedAppServer, this);
+
             OnInit();
         }
 
