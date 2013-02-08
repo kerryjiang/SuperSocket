@@ -42,7 +42,15 @@ namespace SuperSocket.SocketBase.Logging
                 configFile = Path.GetFileNameWithoutExtension(configFile) + ".unix" + Path.GetExtension(configFile);
             }
 
-            if (AppDomain.CurrentDomain.IsDefaultAppDomain())
+            var currentAppDomain = AppDomain.CurrentDomain;
+            var isolation = IsolationMode.None;
+
+            var isolationValue = currentAppDomain.GetData(typeof(IsolationMode).Name);
+
+            if (isolationValue != null)
+                isolation = (IsolationMode)isolationValue;
+
+            if (isolation == IsolationMode.None)
             {
                 var filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, configFile);
 

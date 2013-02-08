@@ -111,6 +111,8 @@ namespace SuperSocket.SocketEngine
                         null,
                         new object[0]);
 
+                m_HostDomain.SetData(typeof(IsolationMode).Name, IsolationMode.AppDomain);
+
                 m_AppServer = (IWorkItem)m_HostDomain.CreateInstanceAndUnwrap(marshalServerType.Assembly.FullName,
                         marshalServerType.FullName,
                         true,
