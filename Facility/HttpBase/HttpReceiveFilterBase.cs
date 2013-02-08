@@ -90,6 +90,8 @@ namespace SuperSocket.Facility.HttpBase
 
             OnHeaderParsed(headerItems);
 
+            m_HeaderParsed = true;
+
             return NullRequestInfo;
         }
 
