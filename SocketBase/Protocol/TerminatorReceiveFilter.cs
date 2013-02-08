@@ -10,12 +10,12 @@ namespace SuperSocket.SocketBase.Protocol
     /// Terminator Receive filter
     /// </summary>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class TerminatorReceiveFilter<TRequestInfo> : ReceiveFilterBase<TRequestInfo>, IOffsetAdapter
+    public abstract class TerminatorReceiveFilter<TRequestInfo> : ReceiveFilterBase<TRequestInfo>, IOffsetAdapter, IReceiveFilterInitializer
         where TRequestInfo : IRequestInfo
     {
         private readonly SearchMarkState<byte> m_SearchState;
 
-        private readonly IAppSession m_Session;
+        private IAppSession m_Session;
 
         /// <summary>
         /// Gets the session assosiated with the Receive filter.
@@ -35,12 +35,15 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorReceiveFilter&lt;TRequestInfo&gt;"/> class.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
-        protected TerminatorReceiveFilter(IAppSession session, byte[] terminator)
+        protected TerminatorReceiveFilter(byte[] terminator)
+        {
+            m_SearchState = new SearchMarkState<byte>(terminator);
+        }
+
+        void IReceiveFilterInitializer.Initialize(IAppServer appServer, IAppSession session)
         {
             m_Session = session;
-            m_SearchState = new SearchMarkState<byte>(terminator);
         }
 
         /// <summary>
@@ -212,23 +215,21 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorReceiveFilter"/> class.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
-        public TerminatorReceiveFilter(IAppSession session, byte[] terminator, Encoding encoding)
-            : this(session, terminator, encoding, BasicRequestInfoParser.DefaultInstance)
+        public TerminatorReceiveFilter(byte[] terminator, Encoding encoding)
+            : this(terminator, encoding, BasicRequestInfoParser.DefaultInstance)
         {
             
         }
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorReceiveFilter"/> class.
         /// </summary>
-        /// <param name="session">The session.</param>
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="requestParser">The request parser.</param>
-        public TerminatorReceiveFilter(IAppSession session, byte[] terminator, Encoding encoding, IRequestInfoParser<StringRequestInfo> requestParser)
-            : base(session, terminator)
+        public TerminatorReceiveFilter(byte[] terminator, Encoding encoding, IRequestInfoParser<StringRequestInfo> requestParser)
+            : base(terminator)
         {
             m_Encoding = encoding;
             m_RequestParser = requestParser;

@@ -60,7 +60,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// </returns>
         public virtual IReceiveFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
-            return new TerminatorReceiveFilter(appSession, m_Terminator, m_Encoding, m_RequestInfoParser);
+            return new TerminatorReceiveFilter(m_Terminator, m_Encoding, m_RequestInfoParser);
         }
     }
 }
