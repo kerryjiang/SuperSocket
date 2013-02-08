@@ -35,8 +35,8 @@ namespace SuperSocket.Facility.HttpBase
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpReceiveFilterBase&lt;TRequestInfo&gt;"/> class.
         /// </summary>
-        protected HttpReceiveFilterBase(IAppSession session)
-            : base(session, NewLine)
+        protected HttpReceiveFilterBase()
+            : base(NewLine)
         {
             
         }
