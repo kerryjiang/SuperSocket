@@ -8,7 +8,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
-namespace SuperSocket.Facility.HttpBase
+namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
     /// HttpReceiveFilterBase

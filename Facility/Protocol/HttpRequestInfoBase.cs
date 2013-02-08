@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
-using System.Collections.Specialized;
 
-namespace SuperSocket.Facility.HttpBase
+namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
     /// IHttpRequestInfo

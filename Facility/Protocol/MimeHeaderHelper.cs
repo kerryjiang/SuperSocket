@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace SuperSocket.Facility.HttpBase
+namespace SuperSocket.Facility.Protocol
 {
     /// <summary>
     /// MimeHeader Helper class
