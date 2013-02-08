@@ -58,7 +58,15 @@ namespace SuperSocket.Facility.Protocol
             }
             else
             {
-                return FilterRequestBody(readBuffer, offset, length, toBeCopied, out rest);
+                var requestInfo = FilterRequestBody(readBuffer, offset, length, toBeCopied, out rest);
+
+                if (!ReferenceEquals(requestInfo, NullRequestInfo))
+                {
+                    //Reset the filter if one request info has been parsed
+                    Reset();
+                }
+
+                return requestInfo;
             }
         }
 
@@ -88,20 +96,30 @@ namespace SuperSocket.Facility.Protocol
             MimeHeaderHelper.ParseHttpHeader(header, headerItems);
             HeaderItems = headerItems;
 
-            OnHeaderParsed(headerItems);
+            var requestInfo = FilterRequestHeader(headerItems);
 
-            m_HeaderParsed = true;
+            if (ReferenceEquals(requestInfo, NullRequestInfo))
+            {
+                m_HeaderParsed = true;
+                return requestInfo;
+            }
 
-            return NullRequestInfo;
+            //Reset the filter if one request info has been parsed
+            Reset();
+            return requestInfo;
         }
 
+
         /// <summary>
-        /// Called when [header parsed].
+        /// Filters the request header.
         /// </summary>
         /// <param name="header">The header.</param>
-        protected virtual void OnHeaderParsed(NameValueCollection header)
+        /// <returns>
+        /// return the parsed request info from header; if the request has body, this method should return null
+        /// </returns>
+        protected virtual TRequestInfo FilterRequestHeader(NameValueCollection header)
         {
-            
+            return NullRequestInfo;
         }
 
         /// <summary>
