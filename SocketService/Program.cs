@@ -27,24 +27,51 @@ namespace SuperSocket.SocketService
                 return;
             }
 
-            if (args != null && args.Length > 0)
-            {
-                if (args[0].Equals("-i", StringComparison.OrdinalIgnoreCase))
-                {
-                    SelfInstaller.InstallMe();
-                    return;
-                }
-                else if (args[0].Equals("-u", StringComparison.OrdinalIgnoreCase))
-                {
-                    SelfInstaller.UninstallMe();
-                    return;
-                }
+            string exeArg = string.Empty;
 
-                Console.WriteLine("Invalid argument!");
-                return;
+            if (args == null || args.Length < 1)
+            {
+                Console.WriteLine("The following parameters are expected:");
+                Console.WriteLine("  /c: Run this application as a console application;");
+                Console.WriteLine("  /i: Install this application as a Windows Service;");
+                Console.WriteLine("  /u: Uninstall this Windows Service application;");
+                Console.WriteLine("Please enter a parameter and then press the 'Enter' key:");
+
+                while (true)
+                {
+                    exeArg = Console.ReadLine();
+
+                    if (Run(exeArg))
+                        break;
+                }
             }
-            
-            RunAsConsole();
+            else
+            {
+                exeArg = args[0];
+                Run(exeArg);
+            }
+        }
+
+        private static bool Run(string exeArg)
+        {
+            switch (exeArg.ToLower())
+            {
+                case ("/i"):
+                    SelfInstaller.InstallMe();
+                    return true;
+
+                case ("/u"):
+                    SelfInstaller.UninstallMe();
+                    return true;
+
+                case ("/c"):
+                    RunAsConsole();
+                    return true;
+
+                default:
+                    Console.WriteLine("Invalid argument!");
+                    return false;
+            }
         }
 
         private static bool setConsoleColor;
@@ -72,10 +99,6 @@ namespace SuperSocket.SocketService
         static void RunAsConsole()
         {
             CheckCanSetConsoleColor();
-
-            Console.WriteLine("Press any key to start the SuperSocket ServiceEngine!");
-            Console.ReadKey();
-            Console.WriteLine();
 
             Console.WriteLine("Initializing...");
 
