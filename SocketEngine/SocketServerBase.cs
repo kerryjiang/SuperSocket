@@ -115,7 +115,7 @@ namespace SuperSocket.SocketEngine
             if(!logger.IsErrorEnabled)
                 return;
 
-            logger.ErrorFormat(string.Format("Listener ({0}) error: {1}", listener.EndPoint, e.Message), e);
+            logger.Error(string.Format("Listener ({0}) error: {1}", listener.EndPoint, e.Message), e);
         }
 
         void OnListenerStopped(object sender, EventArgs e)
