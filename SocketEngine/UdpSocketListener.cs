@@ -82,7 +82,15 @@ namespace SuperSocket.SocketEngine
             {
                 try
                 {
-                    OnNewClientAccepted(m_ListenSocket, new object[] { e.Buffer.CloneRange(e.Offset, e.BytesTransferred), e.RemoteEndPoint.Serialize() });
+                    OnNewClientAcceptedAsync(m_ListenSocket, new object[] { e.Buffer.CloneRange(e.Offset, e.BytesTransferred), e.RemoteEndPoint.Serialize() });
+                }
+                catch (Exception exc)
+                {
+                    OnError(exc);
+                }
+
+                try
+                {
                     m_ListenSocket.ReceiveFromAsync(e);
                 }
                 catch (Exception exc)
