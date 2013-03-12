@@ -60,13 +60,21 @@ namespace SuperSocket.SocketEngine
             var socketAddress = paramArray[1] as SocketAddress;
             var remoteEndPoint = (socketAddress.Family == AddressFamily.InterNetworkV6 ? m_EndPointIPv6.Create(socketAddress) : m_EndPointIPv4.Create(socketAddress)) as IPEndPoint;
 
-            if (m_IsUdpRequestInfo)
+            try
             {
-                ProcessPackageWithSessionID(client, remoteEndPoint, receivedData);
+                if (m_IsUdpRequestInfo)
+                {
+                    ProcessPackageWithSessionID(client, remoteEndPoint, receivedData);
+                }
+                else
+                {
+                    ProcessPackageWithoutSessionID(client, remoteEndPoint, receivedData);
+                }
             }
-            else
+            catch (Exception e)
             {
-                ProcessPackageWithoutSessionID(client, remoteEndPoint, receivedData);
+                if (AppServer.Logger.IsErrorEnabled)
+                    AppServer.Logger.Error("Process UDP package error!", e);
             }
         }
 
