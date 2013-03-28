@@ -39,16 +39,23 @@ namespace SuperSocket.SocketEngine
             get { return AppSession.Logger; }
         }
 
-        public override void Start()
+        public override void Initialize(IAppSession appSession)
         {
+            base.Initialize(appSession);
+
+            //Initialize SocketAsyncProxy for receiving
             SocketAsyncProxy.Initialize(this);
 
             if (!SyncSend)
             {
+                //Initialize SocketAsyncEventArgs for sending
                 m_SocketEventArgSend = new SocketAsyncEventArgs();
                 m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
             }
+        }
 
+        public override void Start()
+        {
             StartReceive(SocketAsyncProxy.SocketEventArgs);
 
             if (!m_IsReset)

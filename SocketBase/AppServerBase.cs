@@ -1284,21 +1284,31 @@ namespace SuperSocket.SocketBase
                 return NullAppSession;
 
             var appSession = new TAppSession();
-
-            if (!RegisterSession(socketSession.SessionID, appSession))
-                return NullAppSession;
-
+            
             appSession.Initialize(this, socketSession);
-            socketSession.Closed += OnSocketSessionClosed;
+
+            return appSession;
+        }
+
+        /// <summary>
+        /// Registers the new created app session into the appserver's session container.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        bool IAppServer.RegisterSession(IAppSession session)
+        {
+            var appSession = session as TAppSession;
+
+            if (!RegisterSession(appSession.SessionID, appSession))
+                return false;
+
+            appSession.SocketSession.Closed += OnSocketSessionClosed;
 
             if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)
                 Logger.InfoFormat("A new session connected!");
 
-            socketSession.Initialize(appSession);
-
             OnNewSessionConnected(appSession);
-
-            return appSession;
+            return true;
         }
 
         /// <summary>

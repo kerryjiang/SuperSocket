@@ -94,14 +94,16 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            ISocketSession session;
+            ISocketSession socketSession;
 
             var security = listener.Info.Security;
 
             if (security == SslProtocols.None)
-                session = RegisterSession(client, new AsyncSocketSession(client, socketEventArgsProxy));
+                socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
             else
-                session = RegisterSession(client, new AsyncStreamSocketSession(client, security, socketEventArgsProxy));
+                socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
+
+            var session = CreateSession(client, socketSession);
 
             if (session == null)
             {
@@ -111,8 +113,48 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            session.Closed += SessionClosed;
-            AppServer.AsyncRun(() => session.Start());
+            socketSession.Closed += SessionClosed;
+
+            var negotiateSession = socketSession as INegotiateSocketSession;
+
+            if (negotiateSession == null)
+            {
+                if (RegisterSession(session))
+                {
+                    AppServer.AsyncRun(() => socketSession.Start());
+                }
+
+                return;
+            }
+
+            negotiateSession.NegotiateCompleted += OnSocketSessionNegotiateCompleted;
+            negotiateSession.Negotiate();
+        }
+
+        private void OnSocketSessionNegotiateCompleted(object sender, EventArgs e)
+        {
+            var socketSession = sender as ISocketSession;
+            var negotiateSession = socketSession as INegotiateSocketSession;
+
+            if (!negotiateSession.Result)
+            {
+                socketSession.Close(CloseReason.SocketError);
+                return;
+            }
+
+            if (RegisterSession(negotiateSession.AppSession))
+            {
+                AppServer.AsyncRun(() => socketSession.Start());
+            }
+        }
+
+        private bool RegisterSession(IAppSession appSession)
+        {
+            if (AppServer.RegisterSession(appSession))
+                return true;
+
+            appSession.SocketSession.Close(CloseReason.InternalError);
+            return false;
         }
 
         public override void ResetSessionSecurity(IAppSession session, SslProtocols security)

@@ -64,6 +64,14 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         IAppSession CreateAppSession(ISocketSession socketSession);
 
+
+        /// <summary>
+        /// Registers the new created app session into the appserver's session container.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        bool RegisterSession(IAppSession session);
+
         /// <summary>
         /// Gets the app session by ID.
         /// </summary>

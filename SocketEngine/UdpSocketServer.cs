@@ -135,6 +135,12 @@ namespace SuperSocket.SocketEngine
                 if (appSession == null)
                     return;
 
+                if (!DetectConnectionNumber(remoteEndPoint))
+                    return;
+
+                if (!AppServer.RegisterSession(appSession))
+                    return;
+
                 Interlocked.Increment(ref m_ConnectionCount);
 
                 socketSession.Closed += OnSocketSessionClosed;
@@ -165,6 +171,12 @@ namespace SuperSocket.SocketEngine
                 appSession = AppServer.CreateAppSession(socketSession);
 
                 if (appSession == null)
+                    return;
+
+                if (!DetectConnectionNumber(remoteEndPoint))
+                    return;
+
+                if (!AppServer.RegisterSession(appSession))
                     return;
 
                 Interlocked.Increment(ref m_ConnectionCount);

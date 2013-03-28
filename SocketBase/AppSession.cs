@@ -194,6 +194,8 @@ namespace SuperSocket.SocketBase
             if (filterInitializer != null)
                 filterInitializer.Initialize(castedAppServer, this);
 
+            socketSession.Initialize(this);
+
             OnInit();
         }
 

@@ -6,6 +6,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
+using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
@@ -15,7 +16,40 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncStreamSocketSession : SocketSession, IAsyncSocketSessionBase
+    /// <summary>
+    /// The interface for socket session which requires negotiation before communication
+    /// </summary>
+    interface INegotiateSocketSession
+    {
+        /// <summary>
+        /// Start negotiates
+        /// </summary>
+        void Negotiate();
+
+        /// <summary>
+        /// Gets a value indicating whether this <see cref="INegotiateSocketSession" /> is result.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if result; otherwise, <c>false</c>.
+        /// </value>
+        bool Result { get; }
+
+
+        /// <summary>
+        /// Gets the app session.
+        /// </summary>
+        /// <value>
+        /// The app session.
+        /// </value>
+        IAppSession AppSession { get; }
+
+        /// <summary>
+        /// Occurs when [negotiate completed].
+        /// </summary>
+        event EventHandler NegotiateCompleted;
+    }
+
+    class AsyncStreamSocketSession : SocketSession, IAsyncSocketSessionBase, INegotiateSocketSession
     {
         private byte[] m_ReadBuffer;
         private int m_Offset;
@@ -76,22 +110,7 @@ namespace SuperSocket.SocketEngine
             if (IsClosed)
                 return;
 
-            try
-            {
-                var asyncResult = BeginInitStream(OnBeginInitStreamOnSessionStarted);
-
-                //If the operation is synchronous
-                if (asyncResult == null)
-                    OnSessionStarting();
-            }
-            catch (Exception e)
-            {
-                if(!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
-                Close(CloseReason.SocketError);
-                return;
-            }
+            OnSessionStarting();
         }
 
         private void OnSessionStarting()
@@ -201,15 +220,17 @@ namespace SuperSocket.SocketEngine
             return result;
         }
 
-        private void OnBeginInitStreamOnSessionStarted(IAsyncResult result)
+        private void OnBeginInitStreamOnSessionConnected(IAsyncResult result)
         {
-            OnBeginInitStream(result);
-
-            if (m_Stream != null)
-                OnSessionStarting();
+            OnBeginInitStream(result, true);
         }
 
         private void OnBeginInitStream(IAsyncResult result)
+        {
+            OnBeginInitStream(result, false);
+        }
+
+        private void OnBeginInitStream(IAsyncResult result, bool connect)
         {
             var sslStream = result.AsyncState as SslStream;
 
@@ -217,9 +238,17 @@ namespace SuperSocket.SocketEngine
             {
                 sslStream.EndAuthenticateAsServer(result);
             }
-            catch (IOException)
+            catch (IOException exc)
             {
-                this.Close(CloseReason.SocketError);
+                Console.WriteLine("Exception: {0}", exc.Message);
+
+                if (!IsIgnorableException(exc))
+                    AppSession.Logger.Error(AppSession, exc);
+
+                if (!connect)//Session was already registered
+                    this.Close(CloseReason.SocketError);
+
+                OnNegotiateCompleted(false);
                 return;
             }
             catch (Exception e)
@@ -227,11 +256,15 @@ namespace SuperSocket.SocketEngine
                 if (!IsIgnorableException(e))
                     AppSession.Logger.Error(AppSession, e);
 
-                this.Close(CloseReason.SocketError);
+                if (!connect)//Session was already registered
+                    this.Close(CloseReason.SocketError);
+
+                OnNegotiateCompleted(false);
                 return;
             }
 
             m_Stream = sslStream;
+            OnNegotiateCompleted(true);
         }
 
         protected override void SendSync(SendingQueue queue)
@@ -338,6 +371,58 @@ namespace SuperSocket.SocketEngine
         public override int OrigReceiveOffset
         {
             get { return SocketAsyncProxy.OrigOffset; }
+        }
+
+        private bool m_NegotiateResult = false;
+
+        void INegotiateSocketSession.Negotiate()
+        {
+            IAsyncResult asyncResult;
+
+            try
+            {
+                asyncResult = BeginInitStream(OnBeginInitStreamOnSessionConnected);
+            }
+            catch (Exception e)
+            {
+                if (!IsIgnorableException(e))
+                    AppSession.Logger.Error(AppSession, e);
+
+                OnNegotiateCompleted(false);
+                return;
+            }
+
+            if (asyncResult == null)
+            {
+                OnNegotiateCompleted(true);
+                return;
+            }
+        }
+
+        bool INegotiateSocketSession.Result
+        {
+            get { return m_NegotiateResult; }
+        }
+
+        private EventHandler m_NegotiateCompleted;
+
+        event EventHandler INegotiateSocketSession.NegotiateCompleted
+        {
+            add { m_NegotiateCompleted += value; }
+            remove { m_NegotiateCompleted -= value; }
+        }
+
+        private void OnNegotiateCompleted(bool negotiateResult)
+        {
+            m_NegotiateResult = negotiateResult;
+
+            //One time event handler
+            var handler = Interlocked.Exchange<EventHandler>(ref m_NegotiateCompleted, null);
+
+            if (handler == null)
+                return;
+
+            handler(this, EventArgs.Empty);
         }
     }
 }

@@ -41,7 +41,7 @@ namespace SuperSocket.SocketEngine
             m_SendBufferSize = config.SendBufferSize;
         }
 
-        protected ISocketSession RegisterSession(Socket client, ISocketSession session)
+        protected IAppSession CreateSession(Socket client, ISocketSession session)
         {
             if (m_SendTimeOut > 0)
                 client.SendTimeout = m_SendTimeOut;
@@ -61,12 +61,7 @@ namespace SuperSocket.SocketEngine
             client.UseOnlyOverlappedIO = true;
             client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
-            IAppSession appSession = this.AppServer.CreateAppSession(session);
-
-            if (appSession == null)
-                return null;
-
-            return session;
+            return this.AppServer.CreateAppSession(session);
         }
 
         protected override ISocketListener CreateListener(ListenerInfo listenerInfo)

@@ -598,6 +598,7 @@ namespace SuperSocket.Test
 
             var n = 100;
             var sockets = new List<Socket>(n);
+            var streams = new List<Stream>(n);
             var server = BootStrap.AppServers.FirstOrDefault();
 
             var serverConfig = configSource.Servers.FirstOrDefault();
@@ -608,10 +609,23 @@ namespace SuperSocket.Test
                 Socket socket = CreateClientSocket();
                 socket.Connect(serverAddress);
                 sockets.Add(socket);
+                streams.Add(GetSocketStream(socket));
             }
 
             Console.WriteLine(sockets.Count);
-            Thread.Sleep(500);
+
+            int waitRound = 10;
+
+            while (waitRound > 0)
+            {
+                Thread.Sleep(1000);
+
+                waitRound--;
+
+                if (n == server.SessionCount)
+                    break;
+            }
+
             Assert.AreEqual(n, server.SessionCount);
 
             for (var i = n - 1; i >= 0; i--)
@@ -645,6 +659,7 @@ namespace SuperSocket.Test
 
             var n = 100;
             var sockets = new List<Socket>(n);
+            var streams = new List<Stream>(n);
             var server = BootStrap.AppServers.FirstOrDefault();
 
             var serverConfig = configSource.Servers.FirstOrDefault();
@@ -655,6 +670,7 @@ namespace SuperSocket.Test
                 Socket socket = CreateClientSocket();
                 socket.Connect(serverAddress);
                 sockets.Add(socket);
+                streams.Add(GetSocketStream(socket));
             }
 
             Console.WriteLine(sockets.Count);
@@ -665,7 +681,7 @@ namespace SuperSocket.Test
             {
                 var s = sockets[i];
 
-                Stream socketStream = GetSocketStream(s);
+                Stream socketStream = streams[i];
                 using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
                     writer.WriteLine("CLOSE");
