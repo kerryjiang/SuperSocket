@@ -37,10 +37,11 @@ namespace SuperSocket.Test
             data.AddRange(Encoding.ASCII.GetBytes(SessionID));
 
             int expectedLen = 36 + 4;
+            int maxLen = expectedLen - data.Count;
 
-            if (data.Count < expectedLen)
+            if (maxLen > 0)
             {
-                for (var i = 0; i < expectedLen - data.Count; i++)
+                for (var i = 0; i < maxLen; i++)
                 {
                     data.Add(0x00);
                 }
