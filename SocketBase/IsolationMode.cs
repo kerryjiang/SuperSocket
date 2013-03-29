@@ -17,6 +17,11 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Isolation by AppDomain
         /// </summary>
-        AppDomain
+        AppDomain,
+
+        /// <summary>
+        /// Isolation by process
+        /// </summary>
+        Process
     }
 }
