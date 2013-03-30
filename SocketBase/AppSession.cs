@@ -172,7 +172,6 @@ namespace SuperSocket.SocketBase
         {
             this.StartTime = DateTime.Now;
             this.LastActiveTime = this.StartTime;
-            this.Charset = Encoding.UTF8;
         }
 
 
@@ -185,6 +184,7 @@ namespace SuperSocket.SocketBase
         {
             var castedAppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
             AppServer = castedAppServer;
+            Charset = castedAppServer.TextEncoding;
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;

@@ -253,6 +253,15 @@ namespace SuperSocket.SocketBase.Config
 
 
         /// <summary>
+        /// Gets the default text encoding.
+        /// </summary>
+        /// <value>
+        /// The text encoding.
+        /// </value>
+        string TextEncoding { get; }
+
+
+        /// <summary>
         /// Gets the command assemblies configuration.
         /// </summary>
         /// <value>

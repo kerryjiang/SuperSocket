@@ -388,6 +388,21 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets the default text encoding.
+        /// </summary>
+        /// <value>
+        /// The text encoding.
+        /// </value>
+        [ConfigurationProperty("textEncoding", IsRequired = false, DefaultValue = "")]
+        public string TextEncoding
+        {
+            get
+            {
+                return (string)this["textEncoding"];
+            }
+        }
+
+        /// <summary>
         /// Gets the listeners' configuration.
         /// </summary>
         [ConfigurationProperty("listeners", IsRequired = false)]

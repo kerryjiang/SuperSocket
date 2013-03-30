@@ -54,7 +54,7 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
         /// </summary>
         public AppServer()
-            : base(new CommandLineReceiveFilterFactory())
+            : base()
         {
 
         }
@@ -67,6 +67,11 @@ namespace SuperSocket.SocketBase
             : base(receiveFilterFactory)
         {
 
+        }
+
+        internal override IReceiveFilterFactory<StringRequestInfo> CreateDefaultReceiveFilterFactory()
+        {
+            return new CommandLineReceiveFilterFactory(TextEncoding);
         }
     }
 
@@ -97,6 +102,11 @@ namespace SuperSocket.SocketBase
             : base(protocol)
         {
    
+        }
+
+        internal override IReceiveFilterFactory<TRequestInfo> CreateDefaultReceiveFilterFactory()
+        {
+            return null;
         }
 
         /// <summary>

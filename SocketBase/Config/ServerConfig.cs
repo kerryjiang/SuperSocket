@@ -320,6 +320,14 @@ namespace SuperSocket.SocketBase.Config
         public bool LogAllSocketException { get; set; }
 
         /// <summary>
+        /// Gets/sets the default text encoding.
+        /// </summary>
+        /// <value>
+        /// The text encoding.
+        /// </value>
+        public string TextEncoding { get; set; }
+
+        /// <summary>
         /// Gets the command assemblies configuration.
         /// </summary>
         /// <value>

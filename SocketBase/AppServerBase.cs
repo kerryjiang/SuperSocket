@@ -4,14 +4,15 @@ using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 using System.Threading;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketBase.Security;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Security;
 
 namespace SuperSocket.SocketBase
 {
@@ -149,6 +150,15 @@ namespace SuperSocket.SocketBase
         /// The log factory.
         /// </value>
         public ILogFactory LogFactory { get; private set; }
+
+
+        /// <summary>
+        /// Gets the default text encoding.
+        /// </summary>
+        /// <value>
+        /// The text encoding.
+        /// </value>
+        public Encoding TextEncoding { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
@@ -346,6 +356,12 @@ namespace SuperSocket.SocketBase
             }
 
             m_SocketServerFactory = socketServerFactory;
+
+            //Read text encoding from the configuration
+            if (!string.IsNullOrEmpty(config.TextEncoding))
+                TextEncoding = Encoding.GetEncoding(config.TextEncoding);
+            else
+                TextEncoding = new ASCIIEncoding();
         }
 
         private bool SetupMedium(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory, IEnumerable<IConnectionFilter> connectionFilters, IEnumerable<ICommandLoader> commandLoaders)
@@ -398,15 +414,22 @@ namespace SuperSocket.SocketBase
             Interlocked.Exchange(ref m_CommandContainer, commandContainer);
         }
 
+        internal abstract IReceiveFilterFactory<TRequestInfo> CreateDefaultReceiveFilterFactory();
+
         private bool SetupFinal()
         {
             //Check receiveFilterFactory
             if (ReceiveFilterFactory == null)
             {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error("receiveFilterFactory is required!");
+                ReceiveFilterFactory = CreateDefaultReceiveFilterFactory();
 
-                return false;
+                if (ReceiveFilterFactory == null)
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("receiveFilterFactory is required!");
+
+                    return false;
+                }
             }
 
             var plainConfig = Config as ServerConfig;
