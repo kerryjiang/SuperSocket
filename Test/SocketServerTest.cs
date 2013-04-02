@@ -469,7 +469,6 @@ namespace SuperSocket.Test
                     IdleSessionTimeOut = 180
                 });
             var serverConfig = configSource.Servers.FirstOrDefault();
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
             int concurrencyCount = 100;
 
@@ -679,8 +678,6 @@ namespace SuperSocket.Test
 
             for (var i = n - 1; i >= 0; i--)
             {
-                var s = sockets[i];
-
                 Stream socketStream = streams[i];
                 using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
                 {
