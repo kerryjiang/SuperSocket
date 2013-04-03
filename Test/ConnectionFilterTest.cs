@@ -28,8 +28,8 @@ namespace SuperSocket.Test
         [Test]
         public void TestInitialize()
         {
-            var configSource = StartBootstrap("ConnectionFilter.config");
-            var serverConfig = configSource.Servers.FirstOrDefault();
+            StartBootstrap("ConnectionFilter.config");
+
             var appServer = BootStrap.AppServers.FirstOrDefault() as TestServer;
             
             var connectionFilter = appServer.ConnectionFilters.FirstOrDefault() as TestConnectionFilter;

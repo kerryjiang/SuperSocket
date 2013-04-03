@@ -32,8 +32,6 @@ namespace SuperSocket.Test.Protocol
             }
         }
 
-        private readonly Encoding m_Encoding = new ASCIIEncoding();
-
         protected override IReceiveFilterFactory<StringRequestInfo> CurrentReceiveFilterFactory
         {
             get { return new DefaultReceiveFilterFactory<TestReceiveFilter, StringRequestInfo>(); }
