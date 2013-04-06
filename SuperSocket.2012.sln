@@ -34,6 +34,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr.Net45", "Dl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Http", "Http\SuperSocket.Http.csproj", "{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Agent.Net45", "Agent\SuperSocket.Agent.Net45.csproj", "{49BA8E71-4F97-40D6-BBE7-22B71D222486}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -87,6 +89,12 @@ Global
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}.Release|Any CPU.Build.0 = Release|Any CPU
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}.Test|Any CPU.Build.0 = Release|Any CPU
+		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

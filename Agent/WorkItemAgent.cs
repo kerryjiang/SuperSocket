@@ -12,18 +12,30 @@ namespace SuperSocket.Agent
     /// <summary>
     /// The service exposed to bootstrap to control the agent
     /// </summary>
-    public class WorkItemAgent : IRemoteWorkItem
+    public class WorkItemAgent : MarshalByRefObject, IRemoteWorkItem
     {
+        private IWorkItem m_AppServer;
+
+        private AssemblyImport m_AssemblyImporter;
+
         /// <summary>
-        /// Setups the specified config.
+        /// Initializes a new instance of the <see cref="WorkItemAgent" /> class.
         /// </summary>
-        /// <param name="config">The config.</param>
-        /// <param name="factories">The factories.</param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public bool Setup(IServerConfig config, ProviderFactoryInfo[] factories)
+        public WorkItemAgent()
         {
-            throw new NotImplementedException();
+
+        }
+
+        public bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories)
+        {
+            m_AssemblyImporter = new AssemblyImport(assemblyImportRoot);
+
+            var serviceType = Type.GetType(serverType);
+            m_AppServer = (IWorkItem)Activator.CreateInstance(serviceType);
+
+            var bootstrap = (IBootstrap)Activator.GetObject(typeof(IBootstrap), bootstrapUri);
+
+            return m_AppServer.Setup(bootstrap, config, factories);
         }
 
         /// <summary>
@@ -33,7 +45,7 @@ namespace SuperSocket.Agent
         /// <exception cref="System.NotImplementedException"></exception>
         public bool Start()
         {
-            throw new NotImplementedException();
+            return m_AppServer.Start();
         }
 
         /// <summary>
@@ -42,7 +54,7 @@ namespace SuperSocket.Agent
         /// <exception cref="System.NotImplementedException"></exception>
         public void Stop()
         {
-            throw new NotImplementedException();
+            m_AppServer.Stop();
         }
 
         /// <summary>
@@ -53,7 +65,18 @@ namespace SuperSocket.Agent
         /// <exception cref="System.NotImplementedException"></exception>
         public ServerSummary CollectServerSummary(NodeSummary nodeSummary)
         {
-            throw new NotImplementedException();
+            return m_AppServer.CollectServerSummary(nodeSummary);
+        }
+
+        /// <summary>
+        /// Gets the session count.
+        /// </summary>
+        /// <value>
+        /// The session count.
+        /// </value>
+        public int SessionCount
+        {
+            get { return m_AppServer.SessionCount; }
         }
     }
 }

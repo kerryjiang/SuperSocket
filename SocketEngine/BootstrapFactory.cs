@@ -23,6 +23,8 @@ namespace SuperSocket.SocketEngine
         {
             if (config.Isolation == IsolationMode.AppDomain)
                 return new AppDomainBootstrap(config);
+            else if (config.Isolation == IsolationMode.Process)
+                return new ProcessBootstrap(config);
             else
                 return new DefaultBootstrap(config);
         }

@@ -80,6 +80,7 @@
     <Compile Include="Command\CLOSE.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
+    <Compile Include="Command\PROC.cs" />
     <Compile Include="Command\SEND.cs" />
     <Compile Include="Command\SESS.cs" />
     <Compile Include="Config\ChildConfig.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="ConnectionFilter\TestConnectionFilter.cs" />
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
+    <Compile Include="ProcessSocketServerTest.cs" />
     <Compile Include="Protocol\BeginEndMarkProtocolTest.cs" />
     <Compile Include="Protocol\CountSpliterProtocolTest.cs" />
     <Compile Include="Protocol\FixedHeaderProtocolTest.cs" />
@@ -116,6 +118,10 @@
     <Compile Include="Udp\UdpTestSession.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Agent\SuperSocket.Agent.Net40.csproj">
+      <Project>{49BA8E71-4F97-40D6-BBE7-22B71D222486}</Project>
+      <Name>SuperSocket.Agent.Net40</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net40.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net40</Name>
@@ -157,6 +163,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\ConnectionFilter.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\ProcessTestServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\ProcessIsolation.config">
+      <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\SecureTestServer.config">

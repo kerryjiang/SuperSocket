@@ -115,6 +115,31 @@ namespace SuperSocket.Test
         }
 
         [Test]
+        public void TestProcessIsolationConfig()
+        {
+            var configSource = StartBootstrap("ProcessIsolation.config");
+
+            var serverConfig = configSource.Servers.FirstOrDefault();
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
+
+            using (Socket socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp))
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = new NetworkStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    reader.ReadLine();
+
+                    writer.WriteLine("PROC");
+                    writer.Flush();
+                    Assert.AreEqual("SuperSocket.Agent", reader.ReadLine());
+                }
+            }
+        }
+
+        [Test]
         public void TestDLRConfig()
         {
             var configSource = StartBootstrap("DLR.config");

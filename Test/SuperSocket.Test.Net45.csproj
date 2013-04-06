@@ -85,6 +85,7 @@
     <Compile Include="ConnectionFilter\TestConnectionFilter.cs" />
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
+    <Compile Include="ProcessSocketServerTest.cs" />
     <Compile Include="Protocol\BeginEndMarkProtocolTest.cs" />
     <Compile Include="Protocol\CountSpliterProtocolTest.cs" />
     <Compile Include="Protocol\FixedHeaderProtocolTest.cs" />
@@ -114,6 +115,10 @@
     <Compile Include="Udp\UdpTestSession.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Agent\SuperSocket.Agent.Net45.csproj">
+      <Project>{49ba8e71-4f97-40d6-bbe7-22b71d222486}</Project>
+      <Name>SuperSocket.Agent.Net45</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net45</Name>
@@ -147,6 +152,12 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="Config\ConnectionFilter.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\ProcessIsolation.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\ProcessTestServer.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\TestServer.config">

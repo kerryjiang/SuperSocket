@@ -71,6 +71,7 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -85,6 +86,9 @@
     <Compile Include="Configuration\Server.Net45.cs" />
     <Compile Include="Configuration\SocketServiceConfig.Net45.cs" />
     <Compile Include="DefaultBootstrap.Net45.cs" />
+    <Compile Include="IRemoteWorkItem.cs" />
+    <Compile Include="ProcessAppServer.cs" />
+    <Compile Include="ProcessBootstrap.cs" />
     <Compile Include="WorkItemFactoryInfoLoader.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="DefaultBootstrap.cs" />

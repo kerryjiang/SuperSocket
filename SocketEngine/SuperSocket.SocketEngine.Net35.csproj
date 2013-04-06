@@ -68,6 +68,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Threading, Version=1.0.2787.102, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Reference\System.Threading.dll</HintPath>
@@ -101,9 +102,12 @@
     <Compile Include="DefaultBootstrap.cs" />
     <Compile Include="Extensions.Net35.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
+    <Compile Include="IRemoteWorkItem.cs" />
     <Compile Include="ISocketListener.cs" />
     <Compile Include="MarshalAppServer.cs" />
     <Compile Include="PerformanceMonitor.cs" />
+    <Compile Include="ProcessAppServer.cs" />
+    <Compile Include="ProcessBootstrap.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketListenerBase.cs" />
     <Compile Include="SocketServerFactory.cs" />
