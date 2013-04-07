@@ -93,7 +93,7 @@ namespace SuperSocket.SocketEngine
 
                     var se = e.InnerException as SocketException;
 
-                    if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058 || se.ErrorCode == -1073741299)
+                    if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058 || se.ErrorCode == 995 || se.ErrorCode == -1073741299)
                         return true;
                 }
             }

@@ -129,7 +129,7 @@ namespace SuperSocket.SocketEngine
 
                 var se = e as SocketException;
 
-                if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058)
+                if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058 || se.ErrorCode == 995)
                     return true;
             }
 
