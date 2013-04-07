@@ -19,17 +19,6 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="session">The session.</param>
-        /// <param name="e">The e.</param>
-        public static void Error(this ILog logger, ISessionBase session, Exception e)
-        {
-            logger.Error(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint), e);
-        }
-
-        /// <summary>
-        /// Logs the error
-        /// </summary>
-        /// <param name="logger">The logger.</param>
-        /// <param name="session">The session.</param>
         /// <param name="title">The title.</param>
         /// <param name="e">The e.</param>
         public static void Error(this ILog logger, ISessionBase session, string title, Exception e)
