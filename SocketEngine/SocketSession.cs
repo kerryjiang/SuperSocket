@@ -29,7 +29,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    abstract class SocketSession : ISocketSession
+    abstract partial class SocketSession : ISocketSession
     {
         public IAppSession AppSession { get; private set; }
 
@@ -473,5 +473,52 @@ namespace SuperSocket.SocketEngine
         }
 
         public abstract int OrigReceiveOffset { get; }
+
+        protected virtual bool IsIgnorableSocketError(int socketErrorCode)
+        {
+            if (socketErrorCode == 10004
+                || socketErrorCode == 10053
+                || socketErrorCode == 10054
+                || socketErrorCode == 10058
+                || socketErrorCode == 995
+                || socketErrorCode == -1073741299)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        protected virtual bool IsIgnorableException(Exception e, out int socketErrorCode)
+        {
+            socketErrorCode = 0;
+
+            if (e is ObjectDisposedException || e is NullReferenceException)
+                return true;
+
+            SocketException socketException = null;
+
+            if (e is IOException)
+            {
+                if (e.InnerException is ObjectDisposedException || e.InnerException is NullReferenceException)
+                    return true;
+
+                socketException = e.InnerException as SocketException;
+            }
+            else
+            {
+                socketException = e as SocketException;
+            }
+
+            if (socketException == null)
+                return false;
+
+            socketErrorCode = socketException.ErrorCode;
+
+            if (Config.LogAllSocketException)
+                return false;
+
+            return IsIgnorableSocketError(socketErrorCode);
+        }
     }
 }
