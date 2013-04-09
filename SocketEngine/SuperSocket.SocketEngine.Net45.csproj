@@ -89,6 +89,7 @@
     <Compile Include="IRemoteWorkItem.cs" />
     <Compile Include="ProcessAppServer.cs" />
     <Compile Include="ProcessBootstrap.cs" />
+    <Compile Include="SocketSession.Net45.cs" />
     <Compile Include="WorkItemFactoryInfoLoader.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="DefaultBootstrap.cs" />

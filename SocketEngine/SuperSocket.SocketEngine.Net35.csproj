@@ -113,6 +113,7 @@
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerBase.cs" />
     <Compile Include="SocketSession.cs" />
+    <Compile Include="SocketSession.Net.cs" />
     <Compile Include="TcpAsyncSocketListener.cs" />
     <Compile Include="TcpSocketServerBase.cs" />
     <Compile Include="UdpSocketListener.cs" />

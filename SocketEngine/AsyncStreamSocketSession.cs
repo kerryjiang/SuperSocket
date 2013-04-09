@@ -76,31 +76,6 @@ namespace SuperSocket.SocketEngine
             m_IsReset = isReset;
         }
 
-        private bool IsIgnorableException(Exception e)
-        {
-            if (e is ObjectDisposedException)
-                return true;
-
-            if (e is IOException)
-            {
-                if (e.InnerException is ObjectDisposedException)
-                    return true;
-
-                if (e.InnerException is SocketException)
-                {
-                    if (Config.LogAllSocketException)
-                        return false;
-
-                    var se = e.InnerException as SocketException;
-
-                    if (se.ErrorCode == 10004 || se.ErrorCode == 10053 || se.ErrorCode == 10054 || se.ErrorCode == 10058 || se.ErrorCode == 995 || se.ErrorCode == -1073741299)
-                        return true;
-                }
-            }
-
-            return false;
-        }
-
         /// <summary>
         /// Starts this session communication.
         /// </summary>
@@ -122,8 +97,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
+                LogError(e);
 
                 OnReceiveError(CloseReason.SocketError);
                 return;
@@ -145,8 +119,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
+                LogError(e);
 
                 OnReceiveError(CloseReason.SocketError);
                 return;
@@ -168,7 +141,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception ex)
             {
-                AppSession.Logger.Error(AppSession, "protocol error", ex);
+                LogError("Protocol error", ex);
                 this.Close(CloseReason.ProtocolError);
                 return;
             }
@@ -186,9 +159,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception exc)
             {
-                if (!IsIgnorableException(exc))
-                    AppSession.Logger.Error(AppSession, exc);
-
+                LogError(exc);
                 OnReceiveError(CloseReason.SocketError);
                 return;
             }
@@ -240,10 +211,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (IOException exc)
             {
-                Console.WriteLine("Exception: {0}", exc.Message);
-
-                if (!IsIgnorableException(exc))
-                    AppSession.Logger.Error(AppSession, exc);
+                LogError(exc);
 
                 if (!connect)//Session was already registered
                     this.Close(CloseReason.SocketError);
@@ -253,8 +221,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
+                LogError(e);
 
                 if (!connect)//Session was already registered
                     this.Close(CloseReason.SocketError);
@@ -281,9 +248,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
+                LogError(e);
                 OnSendError(queue, CloseReason.SocketError);
                 return;
             }
@@ -297,9 +262,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
+                LogError(e);
                 OnSendError(queue, CloseReason.SocketError);
                 return;
             }
@@ -316,9 +279,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
+                LogError(e);
                 OnSendError(queue, CloseReason.SocketError);
             }
         }
@@ -333,9 +294,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
+                LogError(e);
                 OnSendError(queue, CloseReason.SocketError);
                 return;
             }
@@ -385,9 +344,7 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
-                if (!IsIgnorableException(e))
-                    AppSession.Logger.Error(AppSession, e);
-
+                LogError(e);
                 OnNegotiateCompleted(false);
                 return;
             }
