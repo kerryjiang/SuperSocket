@@ -84,6 +84,19 @@ namespace SuperSocket.SocketEngine
     {
         internal const string BootstrapIpcPort = "SuperSocket.Bootstrap";
 
+        static ProcessBootstrap()
+        {
+            // Create the channel.
+            var clientChannel = new IpcClientChannel();
+            // Register the channel.
+            System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(clientChannel, false);
+
+            var serverChannel = new IpcServerChannel("Bootstrap", BootstrapIpcPort);
+            System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(serverChannel, false);
+
+            RemotingConfiguration.RegisterWellKnownServiceType(typeof(ProcessBootstrapProxy), "Bootstrap.rem", WellKnownObjectMode.Singleton);
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessBootstrap" /> class.
         /// </summary>
@@ -91,18 +104,6 @@ namespace SuperSocket.SocketEngine
         public ProcessBootstrap(IConfigurationSource config)
             : base(config)
         {
-            // Create the channel.
-            var clientChannel = new IpcClientChannel();
-
-            // Register the channel.
-            System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(clientChannel, false);
-
-            var serverChannel = new IpcServerChannel("Bootstrap", BootstrapIpcPort);
-
-            System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(serverChannel, false);
-
-            RemotingConfiguration.RegisterWellKnownServiceType(typeof(ProcessBootstrapProxy), "Bootstrap.rem", WellKnownObjectMode.Singleton);
-
             ProcessBootstrapProxy.Bootstrap = this;
         }
 
