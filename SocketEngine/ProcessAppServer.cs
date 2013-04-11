@@ -19,7 +19,7 @@ namespace SuperSocket.SocketEngine
 
         private const string m_AgentUri = "ipc://{0}/WorkItemAgent.rem";
 
-        private const string m_PortNameTemplate = "SuperSocket.Agent.{0}[{1}]";
+        private const string m_PortNameTemplate = "SuperSocket.Agent[{0}[{1}]]";
 
         private IServerConfig m_Config;
 
@@ -93,7 +93,7 @@ namespace SuperSocket.SocketEngine
                     while (!output.EndOfStream)
                     {
                         var line = output.ReadLine();
-                        Console.WriteLine(line);
+                        Console.WriteLine(portName + ":" + line);
                     }
                 }, TaskCreationOptions.LongRunning);
 
@@ -112,7 +112,15 @@ namespace SuperSocket.SocketEngine
 
             State = ret ? ServerState.Running : ServerState.NotStarted;
 
+            m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
+
             return ret;
+        }
+
+        void m_WorkingProcess_Exited(object sender, EventArgs e)
+        {
+            m_RemoteWorkItem = null;
+            State = ServerState.NotStarted;
         }
 
         public ServerState State { get; private set; }
@@ -162,14 +170,59 @@ namespace SuperSocket.SocketEngine
             }
         }
 
+        /// <summary>
+        /// Gets the state data of the server.
+        /// </summary>
+        /// <value>
+        /// The state of the server.
+        /// </value>
         public ServerSummary Summary
         {
-            get { throw new NotImplementedException(); }
+            get
+            {
+                if (m_RemoteWorkItem == null)
+                {
+                    return GetStoppedSummary();
+                }
+
+                return m_PrevSummary;
+            }
         }
 
-        public ServerSummary CollectServerSummary(NodeSummary nodeSummary)
+        private ServerSummary m_PrevSummary;
+        private ServerSummary m_StoppedSummary;
+
+        private ServerSummary GetStoppedSummary()
         {
-            throw new NotImplementedException();
+            if (m_StoppedSummary != null)
+            {
+                m_StoppedSummary = new ServerSummary
+                {
+                    Name = Name,
+                    IsRunning = false
+                };
+
+                if (m_PrevSummary != null)
+                {
+                    m_StoppedSummary.Listeners = m_PrevSummary.Listeners;
+                }
+            }
+
+            return m_StoppedSummary;
+        }
+
+        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
+        {
+            if (m_RemoteWorkItem == null)
+            {
+                var stoppedSummary = GetStoppedSummary();
+                stoppedSummary.CollectedTime = DateTime.Now;
+                return stoppedSummary;
+            }
+
+            var currentSummary = m_RemoteWorkItem.CollectServerSummary(nodeSummary);
+            m_PrevSummary = currentSummary;
+            return currentSummary;
         }
 
         public void Dispose()
