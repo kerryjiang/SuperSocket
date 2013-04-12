@@ -73,7 +73,7 @@
     </Compile>
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
-    <Compile Include="CommandFilterAttribute.cs" />
+    <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
     <Compile Include="Command\CommandInfo.cs" />
     <Compile Include="Command\CommandUpdateEventArgs.cs" />
@@ -85,7 +85,7 @@
     <Compile Include="Config\TypeProvider.cs" />
     <Compile Include="Config\TypeProviderCollection.cs" />
     <Compile Include="Config\TypeProviderConfig.cs" />
-    <Compile Include="DisplayAttribute.cs" />
+    <Compile Include="Metadata\DisplayAttribute.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IWorkItem.cs" />
     <Compile Include="NodeSummary.cs" />

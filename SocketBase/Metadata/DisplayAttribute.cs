@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 
-namespace SuperSocket.SocketBase
+namespace SuperSocket.SocketBase.Metadata
 {
     /// <summary>
     /// Display attribute

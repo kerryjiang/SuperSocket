@@ -2,7 +2,7 @@ using System;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 
-namespace SuperSocket.SocketBase
+namespace SuperSocket.SocketBase.Metadata
 {
     /// <summary>
     /// Command filter attribute

@@ -13,6 +13,7 @@ using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Security;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketBase
 {
