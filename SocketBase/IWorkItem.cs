@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// An item can be started and stopped
     /// </summary>
-    public interface IWorkItem
+    public interface IWorkItem : IStatusInfoSource
     {
         /// <summary>
         /// Gets the name.
@@ -51,22 +51,5 @@ namespace SuperSocket.SocketBase
         /// Gets the total session count.
         /// </summary>
         int SessionCount { get; }
-
-
-        /// <summary>
-        /// Gets the state of the server.
-        /// </summary>
-        /// <value>
-        /// The state of the server.
-        /// </value>
-        ServerSummary Summary { get; }
-
-
-        /// <summary>
-        /// Collects the server summary.
-        /// </summary>
-        /// <param name="nodeSummary">The node summary.</param>
-        /// <returns></returns>
-        ServerSummary CollectServerSummary(NodeSummary nodeSummary);
     }
 }

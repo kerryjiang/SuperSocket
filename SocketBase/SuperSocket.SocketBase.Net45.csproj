@@ -97,6 +97,7 @@
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ILoggerProvider.cs" />
     <Compile Include="IsolationMode.cs" />
+    <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="IWorkItem.cs" />
     <Compile Include="Logging\ConsoleLog.cs" />
     <Compile Include="Logging\ConsoleLogFactory.cs" />
@@ -105,9 +106,13 @@
     <Compile Include="Logging\Log4NetLog.cs" />
     <Compile Include="Logging\Log4NetLogFactory.cs" />
     <Compile Include="Logging\LogFactoryBase.cs" />
+    <Compile Include="MetadataExtensions.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Metadata\DisplayAttribute.cs" />
-    <Compile Include="NodeSummary.cs" />
+    <Compile Include="Metadata\ProcessStatusInfoMetadata.cs" />
+    <Compile Include="Metadata\ServerStatusInfoMetadata.cs" />
+    <Compile Include="Metadata\StatusInfoAttribute.cs" />
+    <Compile Include="Metadata\StatusInfoMetadataAttribute.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\FilterState.cs" />
@@ -154,13 +159,13 @@
     <Compile Include="Protocol\IRequestInfoParser.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="ServerState.cs" />
-    <Compile Include="ServerSummary.cs" />
     <Compile Include="SessionHandler.cs" />
     <Compile Include="SocketMode.cs" />
     <Compile Include="AppServer.cs" />
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
+    <Compile Include="StatusInfoCollection.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">

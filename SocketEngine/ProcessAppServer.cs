@@ -8,10 +8,11 @@ using System.Threading.Tasks;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
-    class ProcessAppServer : MarshalByRefObject, IWorkItem, IDisposable
+    class ProcessAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource, IDisposable
     {
         private string m_ServiceTypeName;
 
@@ -170,59 +171,43 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        /// <summary>
-        /// Gets the state data of the server.
-        /// </summary>
-        /// <value>
-        /// The state of the server.
-        /// </value>
-        public ServerSummary Summary
+        private StatusInfoCollection m_PrevStatus;
+        private StatusInfoCollection m_StoppedStatus;
+
+        private StatusInfoCollection GetStoppedStatus()
         {
-            get
+            if (m_StoppedStatus != null)
             {
-                if (m_RemoteWorkItem == null)
+                m_StoppedStatus = new StatusInfoCollection();
+                m_StoppedStatus.Name = Name;
+                m_StoppedStatus[ServerStatusInfoMetadata.IsRunning] = false;
+
+                if (m_PrevStatus != null)
                 {
-                    return GetStoppedSummary();
-                }
-
-                return m_PrevSummary;
-            }
-        }
-
-        private ServerSummary m_PrevSummary;
-        private ServerSummary m_StoppedSummary;
-
-        private ServerSummary GetStoppedSummary()
-        {
-            if (m_StoppedSummary != null)
-            {
-                m_StoppedSummary = new ServerSummary
-                {
-                    Name = Name,
-                    IsRunning = false
-                };
-
-                if (m_PrevSummary != null)
-                {
-                    m_StoppedSummary.Listeners = m_PrevSummary.Listeners;
+                    m_StoppedStatus[ServerStatusInfoMetadata.Listeners] = m_PrevStatus[ServerStatusInfoMetadata.Listeners];
                 }
             }
 
-            return m_StoppedSummary;
+            return m_StoppedStatus;
         }
 
-        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
+        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
         {
             if (m_RemoteWorkItem == null)
             {
-                var stoppedSummary = GetStoppedSummary();
-                stoppedSummary.CollectedTime = DateTime.Now;
-                return stoppedSummary;
+                var stoppedStatus = GetStoppedStatus();
+                stoppedStatus.CollectedTime = DateTime.Now;
+                return stoppedStatus;
             }
 
-            var currentSummary = m_RemoteWorkItem.CollectServerSummary(nodeSummary);
-            m_PrevSummary = currentSummary;
-            return currentSummary;
+            var currentStatus = m_RemoteWorkItem.CollectServerStatus(nodeStatus);
+            m_PrevStatus = currentStatus;
+            return currentStatus;
+        }
+
+        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        {
+            return m_RemoteWorkItem.GetServerStatusMetadata();
         }
 
         public void Dispose()

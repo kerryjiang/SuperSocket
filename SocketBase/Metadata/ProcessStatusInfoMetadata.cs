@@ -2,15 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Metadata;
 
-namespace SuperSocket.SocketBase
+namespace SuperSocket.SocketBase.Metadata
 {
     /// <summary>
-    /// GlobalPerformanceData class
+    /// ProcessStatusInfoMetadata
     /// </summary>
-    [Serializable]
-    public class NodeSummary
+    public class ProcessStatusInfoMetadata
     {
         /// <summary>
         /// Gets or sets the cpu usage.
@@ -18,8 +16,8 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The cpu usage.
         /// </value>
-        [Display(Name = "CPU Usage", Format = "{0:0.00}%", Order = 0)]
-        public double CpuUsage { get; set; }
+        [StatusInfo("CPU Usage", Format = "{0:0.00}%", Order = 0, DataType = typeof(double))]
+        public const string CpuUsage = "CpuUsage";
 
         /// <summary>
         /// Gets or sets the working set.
@@ -27,8 +25,8 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The working set.
         /// </value>
-        [Display(Name = "Physical Memory Usage", Format = "{0:N}", Order = 1)]
-        public long WorkingSet { get; set; }
+        [StatusInfo("Physical Memory Usage", Format = "{0:N}", Order = 1, DataType = typeof(long))]
+        public const string WorkingSet = "WorkingSet";
 
 
         /// <summary>
@@ -37,16 +35,16 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The total thread count.
         /// </value>
-        [Display(Name = "Total Thread Count", Order = 2)]
-        public int TotalThreadCount { get; set; }
+        [StatusInfo("Total Thread Count", Order = 2, DataType = typeof(int))]
+        public const string TotalThreadCount = "TotalThreadCount";
         /// <summary>
         /// Gets or sets the available working threads.
         /// </summary>
         /// <value>
         /// The available working threads.
         /// </value>
-        [Display(Name = "Available Working Threads", Order = 3)]
-        public int AvailableWorkingThreads { get; set; }
+        [StatusInfo("Available Working Threads", Order = 3, DataType = typeof(int))]
+        public const string AvailableWorkingThreads = "AvailableWorkingThreads";
 
         /// <summary>
         /// Gets or sets the available completion port threads.
@@ -54,8 +52,8 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The available completion port threads.
         /// </value>
-        [Display(Name = "Available Completion Port Threads", Order = 4)]
-        public int AvailableCompletionPortThreads { get; set; }
+        [StatusInfo("Available Completion Port Threads", Order = 4, DataType = typeof(int))]
+        public const string AvailableCompletionPortThreads = "AvailableCompletionPortThreads";
 
         /// <summary>
         /// Gets or sets the max working threads.
@@ -63,8 +61,8 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The max working threads.
         /// </value>
-        [Display(Name = "Maximum Working Threads", Order = 5)]
-        public int MaxWorkingThreads { get; set; }
+        [StatusInfo("Maximum Working Threads", Order = 5, DataType = typeof(int))]
+        public const string MaxWorkingThreads = "MaxWorkingThreads";
 
         /// <summary>
         /// Gets or sets the max completion port threads.
@@ -72,7 +70,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The max completion port threads.
         /// </value>
-        [Display(Name = "Maximum Completion Port Threads", Order = 6)]
-        public int MaxCompletionPortThreads { get; set; }
+        [StatusInfo("Maximum Completion Port Threads", Order = 6, DataType = typeof(int))]
+        public const string MaxCompletionPortThreads = "MaxCompletionPortThreads";
     }
 }

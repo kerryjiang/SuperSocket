@@ -6,13 +6,14 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketEngine;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.Agent
 {
     /// <summary>
     /// The service exposed to bootstrap to control the agent
     /// </summary>
-    public class WorkItemAgent : MarshalByRefObject, IRemoteWorkItem
+    public class WorkItemAgent : MarshalByRefObject, IRemoteWorkItem, IStatusInfoSource
     {
         private IWorkItem m_AppServer;
 
@@ -42,7 +43,6 @@ namespace SuperSocket.Agent
         /// Starts this instance.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
         public bool Start()
         {
             return m_AppServer.Start();
@@ -51,21 +51,9 @@ namespace SuperSocket.Agent
         /// <summary>
         /// Stops this instance.
         /// </summary>
-        /// <exception cref="System.NotImplementedException"></exception>
         public void Stop()
         {
             m_AppServer.Stop();
-        }
-
-        /// <summary>
-        /// Collects the server summary.
-        /// </summary>
-        /// <param name="nodeSummary">The node summary.</param>
-        /// <returns></returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        public ServerSummary CollectServerSummary(NodeSummary nodeSummary)
-        {
-            return m_AppServer.CollectServerSummary(nodeSummary);
         }
 
         /// <summary>
@@ -77,6 +65,16 @@ namespace SuperSocket.Agent
         public int SessionCount
         {
             get { return m_AppServer.SessionCount; }
+        }
+
+        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        {
+            return m_AppServer.GetServerStatusMetadata();
+        }
+
+        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
+        {
+            return m_AppServer.CollectServerStatus(nodeStatus);
         }
     }
 }

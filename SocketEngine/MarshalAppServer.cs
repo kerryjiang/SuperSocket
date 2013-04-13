@@ -6,10 +6,11 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Config;
 using System.Reflection;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
-    class MarshalAppServer : MarshalByRefObject, IWorkItem
+    class MarshalAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource
     {
         private IWorkItem m_AppServer;
 
@@ -81,15 +82,14 @@ namespace SuperSocket.SocketEngine
             get { return m_AppServer.SessionCount; }
         }
 
-
-        public ServerSummary Summary
+        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
         {
-            get { return m_AppServer.Summary; }
+            return m_AppServer.GetServerStatusMetadata();
         }
 
-        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
+        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
         {
-            return m_AppServer.CollectServerSummary(nodeSummary);   
+            return m_AppServer.CollectServerStatus(nodeStatus);
         }
     }
 }

@@ -4,13 +4,14 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Provider;
 using System.IO;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
     /// <summary>
     /// AppDomainAppServer
     /// </summary>
-    public class AppDomainAppServer : MarshalByRefObject, IWorkItem
+    public class AppDomainAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource
     {
         private IWorkItem m_AppServer;
 
@@ -199,60 +200,43 @@ namespace SuperSocket.SocketEngine
             }
         }
 
+        private StatusInfoCollection m_PrevStatus;
+        private StatusInfoCollection m_StoppedStatus;
 
-        /// <summary>
-        /// Gets the state data of the server.
-        /// </summary>
-        /// <value>
-        /// The state of the server.
-        /// </value>
-        public ServerSummary Summary
+        private StatusInfoCollection GetStoppedStatus()
         {
-            get
+            if (m_StoppedStatus != null)
             {
-                if (m_AppServer == null)
+                m_StoppedStatus = new StatusInfoCollection();
+                m_StoppedStatus.Name = Name;
+                m_StoppedStatus[ServerStatusInfoMetadata.IsRunning] = false;
+
+                if (m_PrevStatus != null)
                 {
-                    return GetStoppedSummary();
-                }
-
-                return m_AppServer.Summary;
-            }
-        }
-
-        private ServerSummary m_PrevSummary;
-        private ServerSummary m_StoppedSummary;
-
-        private ServerSummary GetStoppedSummary()
-        {
-            if (m_StoppedSummary != null)
-            {
-                m_StoppedSummary = new ServerSummary
-                {
-                    Name = Name,
-                    IsRunning = false
-                };
-
-                if (m_PrevSummary != null)
-                {
-                    m_StoppedSummary.Listeners = m_PrevSummary.Listeners;
+                    m_StoppedStatus[ServerStatusInfoMetadata.Listeners] = m_PrevStatus[ServerStatusInfoMetadata.Listeners];
                 }
             }
 
-            return m_StoppedSummary;
+            return m_StoppedStatus;
         }
 
-        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
+        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
         {
             if (m_AppServer == null)
             {
-                var stoppedSummary = GetStoppedSummary();
-                stoppedSummary.CollectedTime = DateTime.Now;
-                return stoppedSummary;
+                var stoppedStatus = GetStoppedStatus();
+                stoppedStatus.CollectedTime = DateTime.Now;
+                return stoppedStatus;
             }
 
-            var currentSummary = m_AppServer.CollectServerSummary(nodeSummary);
-            m_PrevSummary = currentSummary;
-            return currentSummary;
+            var currentStatus = m_AppServer.CollectServerStatus(nodeStatus);
+            m_PrevStatus = currentStatus;
+            return currentStatus;
+        }
+
+        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        {
+            return m_AppServer.GetServerStatusMetadata();
         }
     }
 }

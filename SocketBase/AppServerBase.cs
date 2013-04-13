@@ -22,7 +22,8 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IDisposable
+    [StatusInfoMetadata(typeof(ServerStatusInfoMetadata))]
+    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IDisposable
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -448,7 +449,9 @@ namespace SuperSocket.SocketBase
 
             try
             {
-                m_ServerSummary = CreateServerSummary();
+                m_ServerStatus = new StatusInfoCollection();
+                m_ServerStatus.Name = Name;
+                m_ServerStatus[ServerStatusInfoMetadata.MaxConnectionNumber] = Config.MaxConnectionNumber;
             }
             catch (Exception e)
             {
@@ -1039,8 +1042,8 @@ namespace SuperSocket.SocketBase
             StartedTime = DateTime.Now;
             m_StateCode = ServerStateConst.Running;
 
-            m_ServerSummary.StartedTime = StartedTime;
-            m_ServerSummary.IsRunning = true;
+            m_ServerStatus[ServerStatusInfoMetadata.IsRunning] = true;
+            m_ServerStatus[ServerStatusInfoMetadata.StartedTime] = StartedTime;
 
             OnStartup();
 
@@ -1083,8 +1086,8 @@ namespace SuperSocket.SocketBase
 
             OnStopped();
 
-            m_ServerSummary.IsRunning = false;
-            m_ServerSummary.StartedTime = null;
+            m_ServerStatus[ServerStatusInfoMetadata.IsRunning] = false;
+            m_ServerStatus[ServerStatusInfoMetadata.StartedTime] = null;
 
             if (Logger.IsInfoEnabled)
                 Logger.Info(string.Format("The server instance {0} has been stopped!", Name));
@@ -1489,82 +1492,56 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public abstract int SessionCount { get; }
 
-        #region Server state
+        #region IStatusInfoSource
 
-        private ServerSummary CreateServerSummary()
+        private StatusInfoCollection m_ServerStatus;
+
+        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
         {
-            var type = ServerSummaryType;
-            var serverSummary = (ServerSummary)Activator.CreateInstance(type);
-            serverSummary.Name = Name;
-            serverSummary.Listeners = Listeners;
-            serverSummary.MaxConnectionNumber = Config.MaxConnectionNumber;
-            return serverSummary;
+            return this.GetAllStatusInfoAtttributes();
         }
 
-        /// <summary>
-        /// Gets the type of the server state. The type must inherit from ServerState
-        /// </summary>
-        /// <value>
-        /// The type of the server state.
-        /// </value>
-        protected virtual Type ServerSummaryType
+        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
         {
-            get
-            {
-                return typeof(ServerSummary);
-            }
-        }
-
-        private ServerSummary m_ServerSummary;
-
-        /// <summary>
-        /// Gets the state of the server.
-        /// </summary>
-        /// <value>
-        /// The state data of the server.
-        /// </value>
-        public ServerSummary Summary
-        {
-            get { return m_ServerSummary; }
-        }
-
-        ServerSummary IWorkItem.CollectServerSummary(NodeSummary nodeSummary)
-        {
-            UpdateServerSummary(m_ServerSummary);
-            this.AsyncRun(() => OnServerSummaryCollected(nodeSummary, m_ServerSummary), e => Logger.Error(e));
-            return m_ServerSummary;
+            UpdateServerStatus(m_ServerStatus);
+            this.AsyncRun(() => OnServerStatusCollected(nodeStatus, m_ServerStatus), e => Logger.Error(e));
+            return m_ServerStatus;
         }
 
         /// <summary>
         /// Updates the summary of the server.
         /// </summary>
-        /// <param name="serverSummary">The server summary.</param>
-        protected virtual void UpdateServerSummary(ServerSummary serverSummary)
+        /// <param name="serverStatus">The server status.</param>
+        protected virtual void UpdateServerStatus(StatusInfoCollection serverStatus)
         {
             DateTime now = DateTime.Now;
 
-            serverSummary.IsRunning = (m_StateCode == ServerStateConst.Running);
-            serverSummary.TotalConnections = this.SessionCount;
+            serverStatus[ServerStatusInfoMetadata.IsRunning] = m_StateCode == ServerStateConst.Running;
+            serverStatus[ServerStatusInfoMetadata.TotalConnections] = this.SessionCount;
 
-            serverSummary.RequestHandlingSpeed = ((this.TotalHandledRequests - serverSummary.TotalHandledRequests) / now.Subtract(serverSummary.CollectedTime).TotalSeconds);
-            serverSummary.TotalHandledRequests = this.TotalHandledRequests;
-            serverSummary.AvialableSendingQueueItems = m_SocketServer.SendingQueuePool.AvialableItemsCount;
-            serverSummary.TotalSendingQueueItems = m_SocketServer.SendingQueuePool.TotalItemsCount;
+            var totalHandledRequests0 = serverStatus.GetValue<long>(ServerStatusInfoMetadata.TotalHandledRequests, 0);
 
-            serverSummary.CollectedTime = now;
+            var totalHandledRequests = this.TotalHandledRequests;
+
+            serverStatus[ServerStatusInfoMetadata.RequestHandlingSpeed] = ((totalHandledRequests - totalHandledRequests0) / now.Subtract(serverStatus.CollectedTime).TotalSeconds);
+            serverStatus[ServerStatusInfoMetadata.TotalHandledRequests] = totalHandledRequests;
+            serverStatus[ServerStatusInfoMetadata.AvialableSendingQueueItems] = m_SocketServer.SendingQueuePool.AvialableItemsCount;
+            serverStatus[ServerStatusInfoMetadata.TotalSendingQueueItems] = m_SocketServer.SendingQueuePool.TotalItemsCount;
+
+            serverStatus.CollectedTime = now;
         }
 
         /// <summary>
-        /// Called when [summary data collected], you can override this method to get collected performance data
+        /// Called when [server status collected].
         /// </summary>
-        /// <param name="nodeSummary">The node summary.</param>
-        /// <param name="serverSummary">The server summary.</param>
-        protected virtual void OnServerSummaryCollected(NodeSummary nodeSummary, ServerSummary serverSummary)
+        /// <param name="nodeStatus">The node status.</param>
+        /// <param name="serverStatus">The server status.</param>
+        protected virtual void OnServerStatusCollected(StatusInfoCollection nodeStatus, StatusInfoCollection serverStatus)
         {
 
         }
 
-        #endregion
+        #endregion IStatusInfoSource
 
         #region IDisposable Members
 

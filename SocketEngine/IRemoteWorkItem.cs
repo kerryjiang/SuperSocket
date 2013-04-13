@@ -12,7 +12,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// IRemoteWorkItem
     /// </summary>
-    public interface IRemoteWorkItem
+    public interface IRemoteWorkItem : IStatusInfoSource
     {
         /// <summary>
         /// Setups the specified config.
@@ -43,12 +43,5 @@ namespace SuperSocket.SocketEngine
         /// The session count.
         /// </value>
         int SessionCount { get; }
-
-        /// <summary>
-        /// Collects the server summary.
-        /// </summary>
-        /// <param name="nodeSummary">The node summary.</param>
-        /// <returns></returns>
-        ServerSummary CollectServerSummary(NodeSummary nodeSummary);
     }
 }

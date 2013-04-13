@@ -27,7 +27,7 @@ namespace SuperSocket.SocketEngine
 
         private IWorkItem[] m_AppServers;
 
-        private Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>> m_SummaryMetadataDict = new Dictionary<Type, List<KeyValuePair<PropertyInfo, DisplayAttribute>>>();
+        private StatusInfoAttribute[][] m_ServerStatusMetadatas;
 
         private static readonly object[] m_ParaArray = new object[0];
 
@@ -36,6 +36,8 @@ namespace SuperSocket.SocketEngine
             m_PerfLog = logFactory.GetLog("Performance");
 
             m_AppServers = appServers.ToArray();
+
+            SetupServerStatusMetadata();
 
             Process process = Process.GetCurrentProcess();
 
@@ -48,6 +50,16 @@ namespace SuperSocket.SocketEngine
 
             m_TimerInterval = config.PerformanceDataCollectInterval * 1000;
             m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
+        }
+
+        private void SetupServerStatusMetadata()
+        {
+            m_ServerStatusMetadatas = new StatusInfoAttribute[m_AppServers.Length][];
+
+            for (var i = 0; i < m_AppServers.Length; i++)
+            {
+                m_ServerStatusMetadatas[i] = m_AppServers[i].GetServerStatusMetadata();
+            }
         }
 
         private void SetupPerformanceCounters(string instanceName)
@@ -91,29 +103,6 @@ namespace SuperSocket.SocketEngine
             m_PerformanceTimer.Change(Timeout.Infinite, Timeout.Infinite);
         }
 
-        private List<KeyValuePair<PropertyInfo, DisplayAttribute>> GetSummaryTypeMetatdata(Type summaryType)
-        {
-            List<KeyValuePair<PropertyInfo, DisplayAttribute>> stateMetadata;
-
-            if (m_SummaryMetadataDict.TryGetValue(summaryType, out stateMetadata))
-                return stateMetadata;
-
-            stateMetadata = new List<KeyValuePair<PropertyInfo, DisplayAttribute>>();
-
-            foreach (var p in summaryType.GetProperties())
-            {
-                var att = p.GetCustomAttributes(false).FirstOrDefault() as DisplayAttribute;
-
-                if (att != null && att.OutputInPerfLog)
-                {
-                    stateMetadata.Add(new KeyValuePair<PropertyInfo, DisplayAttribute>(p, att));
-                }
-            }
-
-            m_SummaryMetadataDict.Add(summaryType, stateMetadata.OrderBy(s => s.Value.Order).ToList());
-            return stateMetadata;
-        }
-
         private void OnPerformanceTimerCallback(object state)
         {
             int availableWorkingThreads, availableCompletionPortThreads;
@@ -123,7 +112,7 @@ namespace SuperSocket.SocketEngine
             int maxCompletionPortThreads;
             ThreadPool.GetMaxThreads(out maxWorkingThreads, out maxCompletionPortThreads);
 
-            NodeSummary globalPerfData = null;
+            StatusInfoCollection globalPerfData = null;
 
             var retry = false;
 
@@ -131,17 +120,15 @@ namespace SuperSocket.SocketEngine
             {
                 try
                 {
-                    globalPerfData = new NodeSummary
-                    {
-                        AvailableWorkingThreads = availableWorkingThreads,
-                        AvailableCompletionPortThreads = availableCompletionPortThreads,
-                        MaxCompletionPortThreads = maxCompletionPortThreads,
-                        MaxWorkingThreads = maxWorkingThreads,
-                        CpuUsage = m_CpuUsagePC.NextValue() / m_CpuCores,
-                        TotalThreadCount = (int)m_ThreadCountPC.NextValue(),
-                        WorkingSet = (long)m_WorkingSetPC.NextValue()
-                    };
+                    globalPerfData = new StatusInfoCollection();
 
+                    globalPerfData[ProcessStatusInfoMetadata.AvailableWorkingThreads] = availableWorkingThreads;
+                    globalPerfData[ProcessStatusInfoMetadata.AvailableCompletionPortThreads] = availableCompletionPortThreads;
+                    globalPerfData[ProcessStatusInfoMetadata.MaxCompletionPortThreads] = maxCompletionPortThreads;
+                    globalPerfData[ProcessStatusInfoMetadata.MaxWorkingThreads] = maxWorkingThreads;
+                    globalPerfData[ProcessStatusInfoMetadata.TotalThreadCount] = (int)m_ThreadCountPC.NextValue();
+                    globalPerfData[ProcessStatusInfoMetadata.CpuUsage] = m_CpuUsagePC.NextValue() / m_CpuCores;
+                    globalPerfData[ProcessStatusInfoMetadata.WorkingSet] = (long)m_WorkingSetPC.NextValue();
                     break;
                 }
                 catch (InvalidOperationException e)
@@ -165,26 +152,29 @@ namespace SuperSocket.SocketEngine
             var perfBuilder = new StringBuilder();
 
             perfBuilder.AppendLine("---------------------------------------------------");
-            perfBuilder.AppendLine(string.Format("CPU Usage: {0}%, Physical Memory Usage: {1:N}, Total Thread Count: {2}", globalPerfData.CpuUsage.ToString("0.00"), globalPerfData.WorkingSet, globalPerfData.TotalThreadCount));
-            perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData.AvailableWorkingThreads, globalPerfData.AvailableCompletionPortThreads));
-            perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData.MaxWorkingThreads, globalPerfData.MaxCompletionPortThreads));
+            perfBuilder.AppendLine(string.Format("CPU Usage: {0:0.00}%, Physical Memory Usage: {1:N}, Total Thread Count: {2}", globalPerfData[ProcessStatusInfoMetadata.CpuUsage], globalPerfData[ProcessStatusInfoMetadata.WorkingSet], globalPerfData[ProcessStatusInfoMetadata.TotalThreadCount]));
+            perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData[ProcessStatusInfoMetadata.AvailableWorkingThreads], globalPerfData[ProcessStatusInfoMetadata.AvailableCompletionPortThreads]));
+            perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData[ProcessStatusInfoMetadata.MaxWorkingThreads], globalPerfData[ProcessStatusInfoMetadata.MaxCompletionPortThreads]));
 
             for (var i = 0; i < m_AppServers.Length; i++)
             {
                 var s = m_AppServers[i];
 
-                var serverState = s.CollectServerSummary(globalPerfData);
-                var stateTypeMetadata = GetSummaryTypeMetatdata(serverState.GetType());
+                var serverStatus = s.CollectServerStatus(globalPerfData);
+                var metadata = m_ServerStatusMetadatas[i];
 
                 perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
 
-                for (var j = 0; j < stateTypeMetadata.Count; j++)
+                for (var j = 0; j < metadata.Length; j++)
                 {
-                    var property = stateTypeMetadata[j];
-                    if (!string.IsNullOrEmpty(property.Value.Format))
-                        perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, string.Format(property.Value.Format, property.Key.GetValue(serverState, m_ParaArray))));
-                    else
-                        perfBuilder.AppendLine(string.Format("{0}: {1}", property.Value.Name, property.Key.GetValue(serverState, m_ParaArray)));
+                    var statusInfoAtt = metadata[j];
+
+                    if (!statusInfoAtt.OutputInPerfLog)
+                        continue;
+
+                    perfBuilder.AppendLine(
+                        string.Format("{0}: {1}", statusInfoAtt.Name,
+                        string.IsNullOrEmpty(statusInfoAtt.Format) ? serverStatus[statusInfoAtt.Key] : string.Format(statusInfoAtt.Format, serverStatus[statusInfoAtt.Key])));
                 }
             }
 

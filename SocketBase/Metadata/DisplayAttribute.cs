@@ -38,13 +38,7 @@ namespace SuperSocket.SocketBase.Metadata
         public int Order { get; set; }
 
 
-        /// <summary>
-        /// Gets or sets a value indicating whether [output in perf log].
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if [output in perf log]; otherwise, <c>false</c>.
-        /// </value>
-        public bool OutputInPerfLog { get; set; }
+        
 
 
         /// <summary>
@@ -62,7 +56,6 @@ namespace SuperSocket.SocketBase.Metadata
         public DisplayAttribute(string name)
         {
             Name = name;
-            OutputInPerfLog = true;
         }
     }
 }
