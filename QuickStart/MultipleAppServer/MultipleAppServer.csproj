@@ -57,6 +57,10 @@
       <Project>{153FEF72-191C-43D9-BE71-2B351C7AC760}</Project>
       <Name>SuperSocket.SocketEngine.Net40</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\SocketService\SuperSocket.SocketService.Net40.csproj">
+      <Project>{B9113694-7226-4152-938D-3172B11571A1}</Project>
+      <Name>SuperSocket.SocketService.Net40</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="SuperSocket.SocketService.exe.config">
