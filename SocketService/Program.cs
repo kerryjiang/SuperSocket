@@ -27,19 +27,21 @@ namespace SuperSocket.SocketService
                 return;
             }
 
+            Console.WriteLine("Welcome to SuperSocket SocketService!");
+
             string exeArg = string.Empty;
 
             if (args == null || args.Length < 1)
             {
-                Console.WriteLine("The following parameters are expected:");
-                Console.WriteLine("  /c: Run this application as a console application;");
-                Console.WriteLine("  /i: Install this application as a Windows Service;");
-                Console.WriteLine("  /u: Uninstall this Windows Service application;");
-                Console.WriteLine("Please enter a parameter and then press the 'Enter' key:");
+                Console.WriteLine("Please press a key to continue...");
+                Console.WriteLine("c: Run this application as a console application;");
+                Console.WriteLine("i: Install this application as a Windows Service;");
+                Console.WriteLine("u: Uninstall this Windows Service application;");
 
                 while (true)
                 {
-                    exeArg = Console.ReadLine();
+                    exeArg = Console.ReadKey().KeyChar.ToString();
+                    Console.WriteLine();
 
                     if (Run(exeArg))
                         break;
@@ -48,6 +50,10 @@ namespace SuperSocket.SocketService
             else
             {
                 exeArg = args[0];
+
+                if (!string.IsNullOrEmpty(exeArg))
+                    exeArg = exeArg.TrimStart('-');
+
                 Run(exeArg);
             }
         }
@@ -56,15 +62,15 @@ namespace SuperSocket.SocketService
         {
             switch (exeArg.ToLower())
             {
-                case ("/i"):
+                case ("i"):
                     SelfInstaller.InstallMe();
                     return true;
 
-                case ("/u"):
+                case ("u"):
                     SelfInstaller.UninstallMe();
                     return true;
 
-                case ("/c"):
+                case ("c"):
                     RunAsConsole();
                     return true;
 
