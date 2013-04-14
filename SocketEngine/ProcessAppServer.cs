@@ -30,6 +30,8 @@ namespace SuperSocket.SocketEngine
 
         private IRemoteWorkItem m_RemoteWorkItem;
 
+        private string m_ServerTag;
+
         public ProcessAppServer(string serviceTypeName)
         {
             m_ServiceTypeName = serviceTypeName;
@@ -114,6 +116,7 @@ namespace SuperSocket.SocketEngine
             State = ret ? ServerState.Running : ServerState.NotStarted;
 
             m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
+            m_ServerTag = string.Format("{0}/{1}:{2}", Name, m_WorkingProcess.ProcessName, m_WorkingProcess.Id);
 
             return ret;
         }
@@ -180,6 +183,7 @@ namespace SuperSocket.SocketEngine
             {
                 m_StoppedStatus = new StatusInfoCollection();
                 m_StoppedStatus.Name = Name;
+                m_StoppedStatus.Tag = m_PrevStatus.Tag;
                 m_StoppedStatus[ServerStatusInfoMetadata.IsRunning] = false;
 
                 if (m_PrevStatus != null)
@@ -197,6 +201,7 @@ namespace SuperSocket.SocketEngine
             {
                 var stoppedStatus = GetStoppedStatus();
                 stoppedStatus.CollectedTime = DateTime.Now;
+                stoppedStatus.Tag = m_ServerTag;
                 return stoppedStatus;
             }
 
