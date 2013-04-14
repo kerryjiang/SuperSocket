@@ -451,6 +451,7 @@ namespace SuperSocket.SocketBase
             {
                 m_ServerStatus = new StatusInfoCollection();
                 m_ServerStatus.Name = Name;
+                m_ServerStatus.Tag = Name;
                 m_ServerStatus[ServerStatusInfoMetadata.MaxConnectionNumber] = Config.MaxConnectionNumber;
             }
             catch (Exception e)

@@ -24,6 +24,15 @@ namespace SuperSocket.SocketBase
         /// </value>
         public string Name { get; set; }
 
+
+        /// <summary>
+        /// Gets or sets the tag.
+        /// </summary>
+        /// <value>
+        /// The tag.
+        /// </value>
+        public string Tag { get; set; }
+
         /// <summary>
         /// Gets or sets the collected time.
         /// </summary>

@@ -163,7 +163,7 @@ namespace SuperSocket.SocketEngine
                 var serverStatus = s.CollectServerStatus(globalPerfData);
                 var metadata = m_ServerStatusMetadatas[i];
 
-                perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
+                perfBuilder.AppendLine(string.Format("{0} ----------------------------------", serverStatus.Tag));
 
                 for (var j = 0; j < metadata.Length; j++)
                 {
