@@ -141,6 +141,11 @@ namespace SuperSocket.SocketBase.Protocol
             {
                 if (this.BufferSegments != null && this.BufferSegments.Count > 0)
                 {
+                    if (m_ParsedLengthInBuffer > 0)
+                    {
+                        this.BufferSegments.AddSegment(readBuffer, offset, m_ParsedLengthInBuffer);
+                    }
+
                     requestInfo = ProcessMatchedRequest(BufferSegments, 0, BufferSegments.Count);
                 }
                 else
