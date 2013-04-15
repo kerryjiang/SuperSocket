@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SuperSocket.WebSocket</RootNamespace>
+    <AssemblyName>SuperSocket.WebSocket</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\Reference\Json.NET\Net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="Command\Binary.cs" />
+    <Compile Include="Command\Close.cs" />
+    <Compile Include="Command\Continuation.cs" />
+    <Compile Include="Command\FragmentCommand.cs" />
+    <Compile Include="Command\HandShake.cs" />
+    <Compile Include="Command\Ping.cs" />
+    <Compile Include="Command\Plain.cs" />
+    <Compile Include="Command\Pong.cs" />
+    <Compile Include="Command\Text.cs" />
+    <Compile Include="Config\CommandConfig.cs" />
+    <Compile Include="Config\CommandConfigCollection.cs" />
+    <Compile Include="Config\SubProtocolConfig.cs" />
+    <Compile Include="Config\SubProtocolConfigCollection.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="IBinaryDataConverter.cs" />
+    <Compile Include="JsonWebSocketSession.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Protocol\CloseStatusCodeHybi10.cs" />
+    <Compile Include="Protocol\CloseStatusCodeRfc6455.cs" />
+    <Compile Include="Protocol\DraftHybi00Processor.cs" />
+    <Compile Include="Protocol\DraftHybi10Processor.cs" />
+    <Compile Include="Protocol\FramePartReader\DataFramePartReader.cs" />
+    <Compile Include="Protocol\FramePartReader\ExtendedLenghtReader.cs" />
+    <Compile Include="Protocol\FramePartReader\FixPartReader.cs" />
+    <Compile Include="Protocol\FramePartReader\IDataFramePartReader.cs" />
+    <Compile Include="Protocol\FramePartReader\MaskKeyReader.cs" />
+    <Compile Include="Protocol\FramePartReader\PayloadDataReader.cs" />
+    <Compile Include="Protocol\HandshakeRequest.cs" />
+    <Compile Include="Protocol\ICloseStatusCode.cs" />
+    <Compile Include="Protocol\IProtocolProcessor.cs" />
+    <Compile Include="Protocol\IWebSocketFragment.cs" />
+    <Compile Include="Protocol\MultipleProtocolSwitchProcessor.cs" />
+    <Compile Include="Protocol\OpCode.cs" />
+    <Compile Include="Protocol\PlainFragment.cs" />
+    <Compile Include="Protocol\ProtocolProcessorBase..cs" />
+    <Compile Include="Protocol\Rfc6455Processor.cs" />
+    <Compile Include="Protocol\WebSocketDataFrame.cs" />
+    <Compile Include="Protocol\WebSocketDataFrameReceiveFilter.cs" />
+    <Compile Include="Protocol\WebSocketDataReceiveFilter.cs" />
+    <Compile Include="Protocol\WebSocketHeaderReceiveFilter.cs" />
+    <Compile Include="Protocol\WebSocketReceiveFilterBase.cs" />
+    <Compile Include="Protocol\WebSocketSecKey3ReceiveFilter.cs" />
+    <Compile Include="SubProtocol\AsyncJsonSubCommand.cs" />
+    <Compile Include="SubProtocol\BasicSubCommandParser.cs" />
+    <Compile Include="SubProtocol\BasicSubProtocol.cs" />
+    <Compile Include="SubProtocol\ISubCommand.cs" />
+    <Compile Include="SubProtocol\ISubCommandFilterLoader.cs" />
+    <Compile Include="SubProtocol\ISubProtocol.cs" />
+    <Compile Include="SubProtocol\ISubRequestInfo.cs" />
+    <Compile Include="SubProtocol\JsonSubCommand.cs" />
+    <Compile Include="SubProtocol\JsonSubCommandBase.cs" />
+    <Compile Include="SubProtocol\SubCommandBase.cs" />
+    <Compile Include="SubProtocol\SubCommandFilterAttribute.cs" />
+    <Compile Include="SubProtocol\SubProtocolBase.cs" />
+    <Compile Include="SubProtocol\SubRequestInfo.cs" />
+    <Compile Include="TextEncodingBinaryDataConverter.cs" />
+    <Compile Include="WebSocketConst.cs" />
+    <Compile Include="WebSocketProtocol.cs" />
+    <Compile Include="WebSocketServer.cs" />
+    <Compile Include="WebSocketSession.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\SuperSocket.Common.Net45.csproj">
+      <Project>{a24f4d38-ba9c-4fd6-95b7-4980de36131a}</Project>
+      <Name>SuperSocket.Common.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SocketBase\SuperSocket.SocketBase.Net45.csproj">
+      <Project>{40b77789-ea11-4c05-8f52-86711d7bcaaf}</Project>
+      <Name>SuperSocket.SocketBase.Net45</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
