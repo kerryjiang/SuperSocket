@@ -15,13 +15,13 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets all status info atttributes.
         /// </summary>
-        /// <param name="source">The source.</param>
+        /// <param name="sourceType">Type of the source.</param>
         /// <returns></returns>
-        public static StatusInfoAttribute[] GetAllStatusInfoAtttributes(this IStatusInfoSource source)
+        public static StatusInfoAttribute[] GetAllStatusInfoAtttributes(Type sourceType)
         {
             var atts = new List<StatusInfoAttribute>();
 
-            var metadatas = source.GetType().GetCustomAttributes(typeof(StatusInfoMetadataAttribute), true);
+            var metadatas = sourceType.GetCustomAttributes(typeof(StatusInfoMetadataAttribute), true);
 
             var statusInfoAttType = typeof(StatusInfoAttribute);
 
@@ -53,6 +53,16 @@ namespace SuperSocket.SocketBase
             }
 
             return atts.OrderBy(a => a.Order).ToArray();
+        }
+
+        /// <summary>
+        /// Gets all status info atttributes.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <returns></returns>
+        public static StatusInfoAttribute[] GetAllStatusInfoAtttributes(this IStatusInfoSource source)
+        {
+            return GetAllStatusInfoAtttributes(source.GetType());
         }
     }
 }

@@ -12,54 +12,30 @@ using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
-    class ProcessAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource, IDisposable
+    class ProcessAppServer : IsolationAppServer
     {
-        private string m_ServiceTypeName;
-
-        private const string m_WorkingDir = "InstancesRoot";
-
         private const string m_AgentUri = "ipc://{0}/WorkItemAgent.rem";
 
         private const string m_PortNameTemplate = "SuperSocket.Agent[{0}[{1}]]";
 
-        private IServerConfig m_Config;
-
-        private ProviderFactoryInfo[] m_Factories;
-
         private Process m_WorkingProcess;
-
-        private IRemoteWorkItem m_RemoteWorkItem;
 
         private string m_ServerTag;
 
-        public ProcessAppServer(string serviceTypeName)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProcessAppServer" /> class.
+        /// </summary>
+        /// <param name="serverTypeName">Name of the server type.</param>
+        public ProcessAppServer(string serverTypeName)
+            : base(serverTypeName)
         {
-            m_ServiceTypeName = serviceTypeName;
-            State = ServerState.NotInitialized;
+
         }
 
-        public string Name { get; private set; }
-
-        public bool Setup(IBootstrap bootstrap, IServerConfig config, ProviderFactoryInfo[] factories)
+        protected override IWorkItemBase Start()
         {
-            State = ServerState.Initializing;
-
-            Name = config.Name;
-
-            m_Config = config;
-            m_Factories = factories;
-
-            State = ServerState.NotStarted;
-
-            return true;
-        }
-
-        public bool Start()
-        {
-            State = ServerState.Starting;
-
             var currentDomain = AppDomain.CurrentDomain;
-            var workingDir = Path.Combine(Path.Combine(currentDomain.BaseDirectory, m_WorkingDir), Name);
+            var workingDir = Path.Combine(Path.Combine(currentDomain.BaseDirectory, WorkingDir), Name);
 
             var portName = string.Format(m_PortNameTemplate, Name, Guid.NewGuid().ToString().GetHashCode());
             var args = new string[] { Name, portName };
@@ -77,8 +53,7 @@ namespace SuperSocket.SocketEngine
             }
             catch
             {
-                State = ServerState.NotStarted;
-                return false;
+                return null;
             }
 
             var output = m_WorkingProcess.StandardOutput;
@@ -87,8 +62,7 @@ namespace SuperSocket.SocketEngine
 
             if (!"Ok".Equals(startResult, StringComparison.OrdinalIgnoreCase))
             {
-                State = ServerState.NotStarted;
-                return false;
+                return null;
             }
 
             Task.Factory.StartNew(() =>
@@ -101,151 +75,66 @@ namespace SuperSocket.SocketEngine
                 }, TaskCreationOptions.LongRunning);
 
             var remoteUri = string.Format(m_AgentUri, portName);
-            m_RemoteWorkItem = (IRemoteWorkItem)Activator.GetObject(typeof(IRemoteWorkItem), remoteUri);
+            var appServer = (IRemoteWorkItem)Activator.GetObject(typeof(IRemoteWorkItem), remoteUri);
 
-            var ret = m_RemoteWorkItem.Setup(m_ServiceTypeName, "ipc://" + ProcessBootstrap.BootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, m_Config, m_Factories);
+            var ret = appServer.Setup(ServerTypeName, "ipc://" + ProcessBootstrap.BootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig, Factories);
 
             if (!ret)
             {
-                State = ServerState.NotStarted;
-                return false;
+                ShutdownProcess();
+                return null;
             }
 
-            ret = m_RemoteWorkItem.Start();
+            ret = appServer.Start();
 
-            State = ret ? ServerState.Running : ServerState.NotStarted;
+            if (!ret)
+            {
+                ShutdownProcess();
+                return null;
+            }
 
             m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
             m_ServerTag = string.Format("{0}/{1}:{2}", Name, m_WorkingProcess.ProcessName, m_WorkingProcess.Id);
 
-            return ret;
+            return appServer;
         }
 
         void m_WorkingProcess_Exited(object sender, EventArgs e)
         {
-            m_RemoteWorkItem = null;
-            State = ServerState.NotStarted;
+            OnStopped();
         }
 
-        public ServerState State { get; private set; }
-
-        public void Stop()
+        protected override void OnStopped()
         {
-            State = ServerState.Stopping;
-
-            try
-            {
-                if (m_RemoteWorkItem != null)
-                    m_RemoteWorkItem.Stop();
-            }
-            catch
-            {
-            }
-            finally
-            {
-                if (m_WorkingProcess != null)
-                {
-                    try
-                    {
-                        m_WorkingProcess.Kill();
-                    }
-                    catch
-                    {
-
-                    }
-                    finally
-                    {
-                        m_WorkingProcess = null;
-                    }
-                }
-            }
-
-            State = ServerState.NotStarted;
+            base.OnStopped();
+            m_WorkingProcess = null;
         }
 
-        public int SessionCount
-        {
-            get
-            {
-                if (m_RemoteWorkItem == null)
-                    return 0;
-
-                return m_RemoteWorkItem.SessionCount;
-            }
-        }
-
-        private StatusInfoCollection m_PrevStatus;
-        private StatusInfoCollection m_StoppedStatus;
-
-        private StatusInfoCollection GetStoppedStatus()
-        {
-            if (m_StoppedStatus != null)
-            {
-                m_StoppedStatus = new StatusInfoCollection();
-                m_StoppedStatus.Name = Name;
-                m_StoppedStatus.Tag = m_PrevStatus.Tag;
-                m_StoppedStatus[ServerStatusInfoMetadata.IsRunning] = false;
-
-                if (m_PrevStatus != null)
-                {
-                    m_StoppedStatus[ServerStatusInfoMetadata.Listeners] = m_PrevStatus[ServerStatusInfoMetadata.Listeners];
-                }
-            }
-
-            return m_StoppedStatus;
-        }
-
-        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
-        {
-            if (m_RemoteWorkItem == null)
-            {
-                var stoppedStatus = GetStoppedStatus();
-                stoppedStatus.CollectedTime = DateTime.Now;
-                stoppedStatus.Tag = m_ServerTag;
-                return stoppedStatus;
-            }
-
-            var currentStatus = m_RemoteWorkItem.CollectServerStatus(nodeStatus);
-            m_PrevStatus = currentStatus;
-            return currentStatus;
-        }
-
-        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
-        {
-            return m_RemoteWorkItem.GetServerStatusMetadata();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-
-            // Use SupressFinalize in case a subclass 
-            // of this type implements a finalizer.
-            GC.SuppressFinalize(this);
-        }
-
-        private void Dispose(bool disposing)
+        private void ShutdownProcess()
         {
             if (m_WorkingProcess != null)
             {
                 try
                 {
-                    m_WorkingProcess.Close();
+                    m_WorkingProcess.Kill();
                 }
                 catch
                 {
 
                 }
-                finally
-                {
-                    m_WorkingProcess = null;
-                }
             }
         }
 
-        ~ProcessAppServer()
+        protected override void Stop()
         {
-            Dispose(false);
+            ShutdownProcess();
+        }
+
+        public override StatusInfoCollection CollectServerStatus(StatusInfoCollection nodeStatus)
+        {
+            var status = base.CollectServerStatus(nodeStatus);
+            status.Tag = m_ServerTag;
+            return status;
         }
     }
 }

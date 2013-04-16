@@ -104,6 +104,7 @@
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="IRemoteWorkItem.cs" />
     <Compile Include="ISocketListener.cs" />
+    <Compile Include="IsolationAppServer.cs" />
     <Compile Include="MarshalAppServer.cs" />
     <Compile Include="PerformanceMonitor.cs" />
     <Compile Include="ProcessAppServer.cs" />

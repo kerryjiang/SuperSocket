@@ -12,7 +12,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// IRemoteWorkItem
     /// </summary>
-    public interface IRemoteWorkItem : IStatusInfoSource
+    public interface IRemoteWorkItem : IWorkItemBase, IStatusInfoSource
     {
         /// <summary>
         /// Setups the specified config.
@@ -24,24 +24,5 @@ namespace SuperSocket.SocketEngine
         /// <param name="factories">The factories.</param>
         /// <returns></returns>
         bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories);
-
-        /// <summary>
-        /// Starts this instance.
-        /// </summary>
-        /// <returns></returns>
-        bool Start();
-
-        /// <summary>
-        /// Stops this instance.
-        /// </summary>
-        void Stop();
-
-        /// <summary>
-        /// Gets the session count.
-        /// </summary>
-        /// <value>
-        /// The session count.
-        /// </value>
-        int SessionCount { get; }
     }
 }

@@ -76,5 +76,13 @@ namespace SuperSocket.Agent
         {
             return m_AppServer.CollectServerStatus(nodeStatus);
         }
+
+        /// <summary>
+        /// Gets the name.
+        /// </summary>
+        public string Name
+        {
+            get { return m_AppServer.Name; }
+        }
     }
 }
