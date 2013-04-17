@@ -15,7 +15,7 @@ namespace SuperSocket.Test.Config
         }
     }
 
-    [ConfigurationCollection(typeof(ChildConfig))]
+    [ConfigurationCollection(typeof(ChildConfig), AddItemName = "child")]
     public class ChildConfigCollection : ConfigurationElementCollection
     {
         [ConfigurationProperty("globalValue", IsRequired = true)]

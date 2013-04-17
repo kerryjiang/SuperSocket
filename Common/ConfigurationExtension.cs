@@ -58,6 +58,24 @@ namespace SuperSocket.Common
         public static void Deserialize<TElement>(this TElement section, XmlReader reader)
             where TElement : ConfigurationElement
         {
+            if (section is ConfigurationElementCollection)
+            {
+                var collectionType = section.GetType();
+                var att = collectionType.GetCustomAttributes(typeof(ConfigurationCollectionAttribute), true).FirstOrDefault() as ConfigurationCollectionAttribute;
+
+                if (att != null)
+                {
+                    var property = collectionType.GetProperty("AddElementName", BindingFlags.NonPublic | BindingFlags.Instance);
+                    property.SetValue(section, att.AddItemName, null);
+
+                    property = collectionType.GetProperty("RemoveElementName", BindingFlags.NonPublic | BindingFlags.Instance);
+                    property.SetValue(section, att.RemoveItemName, null);
+
+                    property = collectionType.GetProperty("ClearElementName", BindingFlags.NonPublic | BindingFlags.Instance);
+                    property.SetValue(section, att.ClearItemsName, null);
+                }
+            }
+
             var deserializeElementMethod = typeof(TElement).GetMethod("DeserializeElement", BindingFlags.NonPublic | BindingFlags.Instance);
             deserializeElementMethod.Invoke(section, new object[] { reader, false });
         }
