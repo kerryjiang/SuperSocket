@@ -93,15 +93,9 @@ namespace SuperSocket.SocketEngine
                 return null;
             }
 
-            m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
             m_ServerTag = string.Format("{0}/{1}:{2}", Name, m_WorkingProcess.ProcessName, m_WorkingProcess.Id);
 
             return appServer;
-        }
-
-        void m_WorkingProcess_Exited(object sender, EventArgs e)
-        {
-            OnStopped();
         }
 
         protected override void OnStopped()
@@ -121,6 +115,20 @@ namespace SuperSocket.SocketEngine
                 catch
                 {
 
+                }
+                finally
+                {
+                    var waitExitRound = 0;
+
+                    while (!m_WorkingProcess.HasExited && waitExitRound < 5)
+                    {
+                        if (m_WorkingProcess.WaitForExit(1000))
+                            break;
+
+                        waitExitRound++;
+                    }
+
+                    OnStopped();
                 }
             }
         }
