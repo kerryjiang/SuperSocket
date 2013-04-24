@@ -262,7 +262,8 @@ namespace SuperSocket.SocketEngine
                 LogUtil.LogInfo(server.Name + " has been stopped");
             }
 
-            StopPerformanceLog();
+            if (!m_Config.DisablePerformanceDataCollector)
+                StopPerformanceLog();
         }
 
         public static IServiceConfig GetServiceConfig(string name)
