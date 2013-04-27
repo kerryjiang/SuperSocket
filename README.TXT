@@ -11,6 +11,7 @@ you must be able to use SuperSocket to build your socket application as a part o
 
 
 Project homepage:	http://supersocket.codeplex.com/
+Documentation:		http://docs.supersocket.net/
 Git URL:		https://git01.codeplex.com/supersocket
 Author email address:	kerry-jiang@hotmail.com
 Releases download:	http://supersocket.codeplex.com/releases/
