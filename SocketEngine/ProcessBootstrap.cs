@@ -78,6 +78,12 @@ namespace SuperSocket.SocketEngine
         {
             get { return Bootstrap.StartupConfigFile; }
         }
+
+        public override object InitializeLifetimeService()
+        {
+            //Never expire
+            return null;
+        }
     }
 
     class ProcessBootstrap : AppDomainBootstrap
