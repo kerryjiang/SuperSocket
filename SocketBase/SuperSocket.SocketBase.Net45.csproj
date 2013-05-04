@@ -106,13 +106,9 @@
     <Compile Include="Logging\Log4NetLog.cs" />
     <Compile Include="Logging\Log4NetLogFactory.cs" />
     <Compile Include="Logging\LogFactoryBase.cs" />
-    <Compile Include="MetadataExtensions.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
-    <Compile Include="Metadata\DisplayAttribute.cs" />
-    <Compile Include="Metadata\ProcessStatusInfoMetadata.cs" />
-    <Compile Include="Metadata\ServerStatusInfoMetadata.cs" />
-    <Compile Include="Metadata\StatusInfoAttribute.cs" />
-    <Compile Include="Metadata\StatusInfoMetadataAttribute.cs" />
+    <Compile Include="Metadata\StatusInfoKeys.cs" />
+    <Compile Include="Metadata\StatusInfoMetadata.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\FilterState.cs" />

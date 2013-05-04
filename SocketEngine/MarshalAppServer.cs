@@ -82,7 +82,7 @@ namespace SuperSocket.SocketEngine
             get { return m_AppServer.SessionCount; }
         }
 
-        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        StatusInfoMetadata[] IStatusInfoSource.GetServerStatusMetadata()
         {
             return m_AppServer.GetServerStatusMetadata();
         }

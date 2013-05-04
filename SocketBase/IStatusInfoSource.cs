@@ -15,7 +15,7 @@ namespace SuperSocket.SocketBase
         /// Gets the server status metadata.
         /// </summary>
         /// <returns></returns>
-        StatusInfoAttribute[] GetServerStatusMetadata();
+        StatusInfoMetadata[] GetServerStatusMetadata();
 
         /// <summary>
         /// Collects the server status.

@@ -8,6 +8,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Metadata;
 using System.Runtime.Remoting.Lifetime;
+using SuperSocket.SocketBase.Logging;
 
 namespace SuperSocket.Agent
 {
@@ -19,6 +20,8 @@ namespace SuperSocket.Agent
         private IWorkItem m_AppServer;
 
         private AssemblyImport m_AssemblyImporter;
+
+        private ILog m_Log;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="WorkItemAgent" /> class.
@@ -37,7 +40,23 @@ namespace SuperSocket.Agent
 
             var bootstrap = (IBootstrap)Activator.GetObject(typeof(IBootstrap), bootstrapUri);
 
-            return m_AppServer.Setup(bootstrap, config, factories);
+            var ret = m_AppServer.Setup(bootstrap, config, factories);
+
+            if (ret)
+            {
+                m_Log = ((IAppServer)m_AppServer).Logger;
+                AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+            }
+
+            return ret;
+        }
+
+        void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (m_Log != null)
+            {
+                m_Log.Error((Exception)e.ExceptionObject);
+            }
         }
 
         /// <summary>
@@ -68,7 +87,7 @@ namespace SuperSocket.Agent
             get { return m_AppServer.SessionCount; }
         }
 
-        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        StatusInfoMetadata[] IStatusInfoSource.GetServerStatusMetadata()
         {
             return m_AppServer.GetServerStatusMetadata();
         }

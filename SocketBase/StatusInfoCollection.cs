@@ -103,6 +103,9 @@ namespace SuperSocket.SocketBase
             if (m_InternalList == null || m_InternalList.Count <= 0)
                 return;
 
+            if (m_Values == null)
+                m_Values = new Dictionary<string, object>();
+
             foreach (var entry in m_InternalList)
             {
                 m_Values.Add(entry.Key, entry.Value);

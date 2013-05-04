@@ -25,7 +25,7 @@ namespace SuperSocket.Agent
             if (args == null)
                 throw new ArgumentNullException("args");
 
-            if(args.Length != 2)
+            if(args.Length != 3)
                 throw new ArgumentException("Arguments number doesn't match!", "args");
 
             var name = args[0];
@@ -42,6 +42,12 @@ namespace SuperSocket.Agent
 
             channelPort = channelPort.Trim('"');
 
+            var root = args[2];
+
+            if (string.IsNullOrEmpty(root))
+                throw new Exception("Root cannot be null or empty.");
+
+            AppDomain.CurrentDomain.SetData("APPBASE", root);
             AppDomain.CurrentDomain.SetData(typeof(IsolationMode).Name, IsolationMode.Process);
 
             try

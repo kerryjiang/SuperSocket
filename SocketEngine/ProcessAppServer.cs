@@ -37,13 +37,16 @@ namespace SuperSocket.SocketEngine
             var currentDomain = AppDomain.CurrentDomain;
             var workingDir = Path.Combine(Path.Combine(currentDomain.BaseDirectory, WorkingDir), Name);
 
-            var portName = string.Format(m_PortNameTemplate, Name, Guid.NewGuid().ToString().GetHashCode());
-            var args = new string[] { Name, portName };
+            if (!Directory.Exists(workingDir))
+                Directory.CreateDirectory(workingDir);
 
-            var startInfo = new ProcessStartInfo(Path.Combine(currentDomain.BaseDirectory, "SuperSocket.Agent.exe"), string.Join(" ", args.Select(a => "\"" + a + "\"").ToArray()));
+            var portName = string.Format(m_PortNameTemplate, Name, Guid.NewGuid().ToString().GetHashCode());
+            var args = new string[] { Name, portName, workingDir };
+
+            var startInfo = new ProcessStartInfo("SuperSocket.Agent.exe", string.Join(" ", args.Select(a => "\"" + a + "\"").ToArray()));
             startInfo.CreateNoWindow = true;
             startInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            startInfo.WorkingDirectory = workingDir;
+            startInfo.WorkingDirectory = currentDomain.BaseDirectory;
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
 
@@ -93,7 +96,7 @@ namespace SuperSocket.SocketEngine
                 return null;
             }
 
-            m_ServerTag = string.Format("{0}/{1}:{2}", Name, m_WorkingProcess.ProcessName, m_WorkingProcess.Id);
+            m_ServerTag = string.Format("{0}[{1}:{2}]", Name, m_WorkingProcess.ProcessName, m_WorkingProcess.Id);
 
             return appServer;
         }
