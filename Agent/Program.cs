@@ -41,6 +41,7 @@ namespace SuperSocket.Agent
                 throw new Exception("Channel port cannot be null or empty.");
 
             channelPort = channelPort.Trim('"');
+            channelPort = string.Format(channelPort, Process.GetCurrentProcess().Id);
 
             var root = args[2];
 

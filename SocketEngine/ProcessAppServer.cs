@@ -16,7 +16,7 @@ namespace SuperSocket.SocketEngine
     {
         private const string m_AgentUri = "ipc://{0}/WorkItemAgent.rem";
 
-        private const string m_PortNameTemplate = "SuperSocket.Agent[{0}[{1}]]";
+        private const string m_PortNameTemplate = "{0}[SuperSocket.Agent:{1}]";
 
         private Process m_WorkingProcess;
 
@@ -40,7 +40,7 @@ namespace SuperSocket.SocketEngine
             if (!Directory.Exists(workingDir))
                 Directory.CreateDirectory(workingDir);
 
-            var portName = string.Format(m_PortNameTemplate, Name, Guid.NewGuid().ToString().GetHashCode());
+            var portName = string.Format(m_PortNameTemplate, Name, "{0}");
             var args = new string[] { Name, portName, workingDir };
 
             var startInfo = new ProcessStartInfo("SuperSocket.Agent.exe", string.Join(" ", args.Select(a => "\"" + a + "\"").ToArray()));
@@ -59,6 +59,8 @@ namespace SuperSocket.SocketEngine
                 return null;
             }
 
+            portName = string.Format(portName, m_WorkingProcess.Id);
+
             var output = m_WorkingProcess.StandardOutput;
 
             var startResult = output.ReadLine();
@@ -72,8 +74,7 @@ namespace SuperSocket.SocketEngine
                 {
                     while (!output.EndOfStream)
                     {
-                        var line = output.ReadLine();
-                        Console.WriteLine(portName + ":" + line);
+                        output.ReadLine();
                     }
                 }, TaskCreationOptions.LongRunning);
 
@@ -96,7 +97,7 @@ namespace SuperSocket.SocketEngine
                 return null;
             }
 
-            m_ServerTag = string.Format("{0}[{1}:{2}]", Name, m_WorkingProcess.ProcessName, m_WorkingProcess.Id);
+            m_ServerTag = portName;
 
             return appServer;
         }
