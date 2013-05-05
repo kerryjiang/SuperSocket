@@ -34,9 +34,9 @@ namespace SuperSocket.SocketService
             if (args == null || args.Length < 1)
             {
                 Console.WriteLine("Please press a key to continue...");
-                Console.WriteLine("c: Run this application as a console application;");
-                Console.WriteLine("i: Install this application as a Windows Service;");
-                Console.WriteLine("u: Uninstall this Windows Service application;");
+                Console.WriteLine("-[c]: Run this application as a console application;");
+                Console.WriteLine("-[i]: Install this application as a Windows Service;");
+                Console.WriteLine("-[u]: Uninstall this Windows Service application;");
 
                 while (true)
                 {
