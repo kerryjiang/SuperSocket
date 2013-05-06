@@ -152,7 +152,7 @@ namespace SuperSocket.WebSocket
         /// <summary>
         /// Gets the origin.
         /// </summary>
-        public string Origin { get { return this.Items.GetValue<string>(WebSocketConstant.Origin, string.Empty); } }
+        public string Origin { get; internal set; }
 
         /// <summary>
         /// Gets the upgrade.

@@ -34,6 +34,9 @@ namespace SuperSocket.WebSocket.Protocol
 
             session.ProtocolProcessor = this;
 
+            if (!session.AppServer.ValidateHandshake(session, session.Items.GetValue<string>(WebSocketConstant.Origin, string.Empty)))
+                return false;
+
             var secKey3 = session.Items.GetValue<byte[]>(WebSocketConstant.SecWebSocketKey3, m_ZeroKeyBytes);
 
             var responseBuilder = new StringBuilder();

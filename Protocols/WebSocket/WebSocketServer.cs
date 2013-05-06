@@ -32,6 +32,16 @@ namespace SuperSocket.WebSocket
         /// Gets the web socket protocol processor.
         /// </summary>
         IProtocolProcessor WebSocketProtocolProcessor { get; }
+
+        /// <summary>
+        /// Validates the handshake request.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="origin">The origin.</param>
+        /// <returns>
+        /// the validation result
+        /// </returns>
+        bool ValidateHandshake(IWebSocketSession session, string origin);
     }
 
     /// <summary>
@@ -194,6 +204,24 @@ namespace SuperSocket.WebSocket
             {
                 return (WebSocketProtocol)base.ReceiveFilterFactory;
             }
+        }
+
+        bool IWebSocketServer.ValidateHandshake(IWebSocketSession session, string origin)
+        {
+            var s = (TWebSocketSession)session;
+            s.Origin = origin;
+            return ValidateHandshake(s, origin);
+        }
+
+        /// <summary>
+        /// Validates the handshake request.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="origin">The origin in the handshake request.</param>
+        /// <returns></returns>
+        protected virtual bool ValidateHandshake(TWebSocketSession session, string origin)
+        {
+            return true;
         }
 
         bool RegisterSubProtocol(ISubProtocol<TWebSocketSession> subProtocol)

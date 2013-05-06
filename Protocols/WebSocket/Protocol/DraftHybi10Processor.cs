@@ -31,6 +31,13 @@ namespace SuperSocket.WebSocket.Protocol
 
         }
 
+        private const string m_OriginKey = "Sec-WebSocket-Origin";
+
+        protected virtual string OriginKey
+        {
+            get { return m_OriginKey; }
+        }
+
         public override bool Handshake(IWebSocketSession session, WebSocketReceiveFilterBase previousFilter, out IReceiveFilter<IWebSocketFragment> dataFrameReader)
         {
             if (!VersionTag.Equals(session.SecWebSocketVersion) && NextProcessor != null)
@@ -41,6 +48,9 @@ namespace SuperSocket.WebSocket.Protocol
             dataFrameReader = null;
 
             session.ProtocolProcessor = this;
+
+            if (!session.AppServer.ValidateHandshake(session, session.Items.GetValue<string>(OriginKey, string.Empty)))
+                return false;
 
             var secWebSocketKey = session.Items.GetValue<string>(WebSocketConstant.SecWebSocketKey, string.Empty);
 
