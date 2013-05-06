@@ -18,11 +18,8 @@ namespace SuperSocket.SocketBase.Logging
         protected string ConfigFile { get; private set; }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is isolated.
+        /// Gets a value indicating whether the server instance is running in isolation mode and the multiple server instances share the same logging configuration.
         /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is isolated; otherwise, <c>false</c>.
-        /// </value>
         protected bool IsSharedConfig { get; private set; }
 
         /// <summary>
