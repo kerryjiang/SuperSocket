@@ -16,13 +16,8 @@ namespace SuperSocket.SocketBase.Logging
         /// Gets the config file file path.
         /// </summary>
         protected string ConfigFile { get; private set; }
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is isolated.
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if this instance is isolated; otherwise, <c>false</c>.
-        /// </value>
+        
+		/// Gets a value indicating whether the server instance is running in isolation mode and the multiple server instances share the same logging configuration.
         protected bool IsSharedConfig { get; private set; }
 
         /// <summary>
