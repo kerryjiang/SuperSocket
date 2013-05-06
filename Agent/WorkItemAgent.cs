@@ -55,7 +55,7 @@ namespace SuperSocket.Agent
         {
             if (m_Log != null)
             {
-                m_Log.Error((Exception)e.ExceptionObject);
+                m_Log.Error("The process crashed for an unhandled exception!", (Exception)e.ExceptionObject);
             }
         }
 
