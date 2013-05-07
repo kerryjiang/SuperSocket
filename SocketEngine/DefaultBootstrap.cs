@@ -124,6 +124,8 @@ namespace SuperSocket.SocketEngine
 
             m_GlobalLog = logFactory.GetLog(this.GetType().Name);
 
+            AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
+
             if (!rootConfig.DisablePerformanceDataCollector)
             {
                 m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, logFactory);
