@@ -27,6 +27,8 @@ namespace SuperSocket.WebSocket.Protocol
             var secKey1 = session.Items.GetValue<string>(WebSocketConstant.SecWebSocketKey1, string.Empty);
             var secKey2 = session.Items.GetValue<string>(WebSocketConstant.SecWebSocketKey2, string.Empty);
 
+            dataFrameReader = null;
+
             if (string.IsNullOrEmpty(secKey1) && string.IsNullOrEmpty(secKey2) && NextProcessor != null)
             {
                 return NextProcessor.Handshake(session, previousFilter, out dataFrameReader);
