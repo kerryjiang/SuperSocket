@@ -99,13 +99,29 @@ namespace SuperSocket.SocketEngine
 
             m_ServerTag = portName;
 
+            m_WorkingProcess.EnableRaisingEvents = true;
+            m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
+
             return appServer;
+        }
+
+        void m_WorkingProcess_Exited(object sender, EventArgs e)
+        {
+            OnStopped();
         }
 
         protected override void OnStopped()
         {
+            var unexpectedShutdown = (State == ServerState.Running);
+
             base.OnStopped();
             m_WorkingProcess = null;
+
+            if (unexpectedShutdown)
+            {
+                //auto restart if meet a unexpected shutdown
+                ((IWorkItemBase)this).Start();
+            }
         }
 
         private void ShutdownProcess()
@@ -119,20 +135,6 @@ namespace SuperSocket.SocketEngine
                 catch
                 {
 
-                }
-                finally
-                {
-                    var waitExitRound = 0;
-
-                    while (!m_WorkingProcess.HasExited && waitExitRound < 5)
-                    {
-                        if (m_WorkingProcess.WaitForExit(1000))
-                            break;
-
-                        waitExitRound++;
-                    }
-
-                    OnStopped();
                 }
             }
         }
