@@ -88,17 +88,27 @@ namespace SuperSocket.SocketEngine
 
     class ProcessBootstrap : AppDomainBootstrap
     {
-        internal const string BootstrapIpcPort = "SuperSocket.Bootstrap";
+        internal static readonly string BootstrapIpcPort;
 
         static ProcessBootstrap()
         {
+            BootstrapIpcPort = string.Format("SuperSocket.Bootstrap[{0}]", Math.Abs(AppDomain.CurrentDomain.BaseDirectory.GetHashCode()));
             // Create the channel.
             var clientChannel = new IpcClientChannel();
             // Register the channel.
             System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(clientChannel, false);
 
-            var serverChannel = new IpcServerChannel("Bootstrap", BootstrapIpcPort);
-            System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(serverChannel, false);
+            try
+            {
+                var serverChannel = new IpcServerChannel("Bootstrap", BootstrapIpcPort);
+                System.Runtime.Remoting.Channels.ChannelServices.RegisterChannel(serverChannel, false);
+            }
+            catch(RemotingException) //The channel already has been registered
+            {
+                Console.WriteLine("A boostrap process is already running");
+                Environment.Exit(1);
+                return;
+            }
 
             RemotingConfiguration.RegisterWellKnownServiceType(typeof(ProcessBootstrapProxy), "Bootstrap.rem", WellKnownObjectMode.Singleton);
         }
