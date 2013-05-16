@@ -277,13 +277,17 @@ namespace SuperSocket.SocketEngine
             }
 
             if (IsInClosingOrClosed)
+            {
+                RemoveStateFlag(SocketState.InSending);
                 return;
+            }
 
             SendingQueue newQueue;
 
             if (!m_SendingQueuePool.TryGet(out newQueue))
             {
                 AppSession.Logger.Error("There is no enougth sending queue can be used.");
+                RemoveStateFlag(SocketState.InSending);
                 this.Close(CloseReason.InternalError);
                 return;
             }
