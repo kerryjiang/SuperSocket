@@ -102,6 +102,8 @@ namespace SuperSocket.SocketEngine
 
         private void OnPerformanceTimerCallback(object state)
         {
+            var nodeStatus = new NodeStatus();
+
             int availableWorkingThreads, availableCompletionPortThreads;
             ThreadPool.GetAvailableThreads(out availableWorkingThreads, out availableCompletionPortThreads);
 
@@ -109,7 +111,7 @@ namespace SuperSocket.SocketEngine
             int maxCompletionPortThreads;
             ThreadPool.GetMaxThreads(out maxWorkingThreads, out maxCompletionPortThreads);
 
-            StatusInfoCollection globalPerfData = null;
+            StatusInfoCollection bootstrapStatus = null;
 
             var retry = false;
 
@@ -117,15 +119,17 @@ namespace SuperSocket.SocketEngine
             {
                 try
                 {
-                    globalPerfData = new StatusInfoCollection();
+                    bootstrapStatus = new StatusInfoCollection();
 
-                    globalPerfData[StatusInfoKeys.AvailableWorkingThreads] = availableWorkingThreads;
-                    globalPerfData[StatusInfoKeys.AvailableCompletionPortThreads] = availableCompletionPortThreads;
-                    globalPerfData[StatusInfoKeys.MaxCompletionPortThreads] = maxCompletionPortThreads;
-                    globalPerfData[StatusInfoKeys.MaxWorkingThreads] = maxWorkingThreads;
-                    globalPerfData[StatusInfoKeys.TotalThreadCount] = (int)m_ThreadCountPC.NextValue();
-                    globalPerfData[StatusInfoKeys.CpuUsage] = m_CpuUsagePC.NextValue() / m_CpuCores;
-                    globalPerfData[StatusInfoKeys.WorkingSet] = (long)m_WorkingSetPC.NextValue();
+                    bootstrapStatus[StatusInfoKeys.AvailableWorkingThreads] = availableWorkingThreads;
+                    bootstrapStatus[StatusInfoKeys.AvailableCompletionPortThreads] = availableCompletionPortThreads;
+                    bootstrapStatus[StatusInfoKeys.MaxCompletionPortThreads] = maxCompletionPortThreads;
+                    bootstrapStatus[StatusInfoKeys.MaxWorkingThreads] = maxWorkingThreads;
+                    bootstrapStatus[StatusInfoKeys.TotalThreadCount] = (int)m_ThreadCountPC.NextValue();
+                    bootstrapStatus[StatusInfoKeys.CpuUsage] = m_CpuUsagePC.NextValue() / m_CpuCores;
+                    bootstrapStatus[StatusInfoKeys.WorkingSet] = (long)m_WorkingSetPC.NextValue();
+
+                    nodeStatus.BootstrapStatus = bootstrapStatus;
                     break;
                 }
                 catch (InvalidOperationException e)
@@ -146,12 +150,14 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
+            var instancesStatus = new List<StatusInfoCollection>(m_AppServers.Length);
+
             var perfBuilder = new StringBuilder();
 
             perfBuilder.AppendLine("---------------------------------------------------");
-            perfBuilder.AppendLine(string.Format("CPU Usage: {0:0.00}%, Physical Memory Usage: {1:N}, Total Thread Count: {2}", globalPerfData[StatusInfoKeys.CpuUsage], globalPerfData[StatusInfoKeys.WorkingSet], globalPerfData[StatusInfoKeys.TotalThreadCount]));
-            perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", globalPerfData[StatusInfoKeys.AvailableWorkingThreads], globalPerfData[StatusInfoKeys.AvailableCompletionPortThreads]));
-            perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", globalPerfData[StatusInfoKeys.MaxWorkingThreads], globalPerfData[StatusInfoKeys.MaxCompletionPortThreads]));
+            perfBuilder.AppendLine(string.Format("CPU Usage: {0:0.00}%, Physical Memory Usage: {1:N}, Total Thread Count: {2}", bootstrapStatus[StatusInfoKeys.CpuUsage], bootstrapStatus[StatusInfoKeys.WorkingSet], bootstrapStatus[StatusInfoKeys.TotalThreadCount]));
+            perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", bootstrapStatus[StatusInfoKeys.AvailableWorkingThreads], bootstrapStatus[StatusInfoKeys.AvailableCompletionPortThreads]));
+            perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", bootstrapStatus[StatusInfoKeys.MaxWorkingThreads], bootstrapStatus[StatusInfoKeys.MaxCompletionPortThreads]));
 
             for (var i = 0; i < m_AppServers.Length; i++)
             {
@@ -177,7 +183,9 @@ namespace SuperSocket.SocketEngine
                 }
                 else
                 {
-                    var serverStatus = s.CollectServerStatus(globalPerfData);
+                    var serverStatus = s.CollectServerStatus(bootstrapStatus);
+
+                    instancesStatus.Add(serverStatus);
 
                     perfBuilder.AppendLine(string.Format("{0} ----------------------------------", serverStatus.Tag));
 
@@ -201,6 +209,15 @@ namespace SuperSocket.SocketEngine
             }
 
             m_PerfLog.Info(perfBuilder.ToString());
+
+            try
+            {
+                nodeStatus.Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "status.bin"));
+            }
+            catch (Exception e)
+            {
+                m_PerfLog.Error(e);
+            }
         }
 
         public void Dispose()

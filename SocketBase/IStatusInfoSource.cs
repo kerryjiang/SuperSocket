@@ -18,10 +18,10 @@ namespace SuperSocket.SocketBase
         StatusInfoMetadata[] GetServerStatusMetadata();
 
         /// <summary>
-        /// Collects the server status.
+        /// Collects the bootstrap status.
         /// </summary>
-        /// <param name="nodeStatus">The node status.</param>
+        /// <param name="bootstrapStatus">The bootstrap status.</param>
         /// <returns></returns>
-        StatusInfoCollection CollectServerStatus(StatusInfoCollection nodeStatus);
+        StatusInfoCollection CollectServerStatus(StatusInfoCollection bootstrapStatus);
     }
 }

@@ -114,6 +114,7 @@
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Metadata\StatusInfoKeys.cs" />
     <Compile Include="Metadata\StatusInfoMetadata.cs" />
+    <Compile Include="NodeStatus.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="Protocol\BinaryRequestInfo.cs" />

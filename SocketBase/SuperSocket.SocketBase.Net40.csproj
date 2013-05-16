@@ -99,6 +99,7 @@
     <Compile Include="Logging\Log4NetLog.cs" />
     <Compile Include="Logging\Log4NetLogFactory.cs" />
     <Compile Include="Logging\LogFactoryBase.cs" />
+    <Compile Include="NodeStatus.cs" />
     <Compile Include="Protocol\FilterState.cs" />
     <Compile Include="Protocol\IReceiveFilterInitializer.cs" />
     <Compile Include="Protocol\IOffsetAdapter.cs" />

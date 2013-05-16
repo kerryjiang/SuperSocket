@@ -109,6 +109,7 @@
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Metadata\StatusInfoKeys.cs" />
     <Compile Include="Metadata\StatusInfoMetadata.cs" />
+    <Compile Include="NodeStatus.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\FilterState.cs" />

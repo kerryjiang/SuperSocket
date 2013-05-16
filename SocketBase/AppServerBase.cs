@@ -1525,10 +1525,10 @@ namespace SuperSocket.SocketBase
 
         }
 
-        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
+        StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection bootstrapStatus)
         {
             UpdateServerStatus(m_ServerStatus);
-            this.AsyncRun(() => OnServerStatusCollected(nodeStatus, m_ServerStatus), e => Logger.Error(e));
+            this.AsyncRun(() => OnServerStatusCollected(bootstrapStatus, m_ServerStatus), e => Logger.Error(e));
             return m_ServerStatus;
         }
 
@@ -1558,9 +1558,9 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Called when [server status collected].
         /// </summary>
-        /// <param name="nodeStatus">The node status.</param>
+        /// <param name="bootstrapStatus">The bootstrapStatus status.</param>
         /// <param name="serverStatus">The server status.</param>
-        protected virtual void OnServerStatusCollected(StatusInfoCollection nodeStatus, StatusInfoCollection serverStatus)
+        protected virtual void OnServerStatusCollected(StatusInfoCollection bootstrapStatus, StatusInfoCollection serverStatus)
         {
 
         }
