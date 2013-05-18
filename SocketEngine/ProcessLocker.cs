@@ -29,7 +29,15 @@ namespace SuperSocket.SocketEngine
                 return null;
             }
 
-            return Process.GetProcessById(processId);
+            try
+            {
+                return Process.GetProcessById(processId);
+            }
+            catch
+            {
+                File.Delete(m_LockFilePath);
+                return null;
+            }
         }
 
         public void SaveLock(Process process)
