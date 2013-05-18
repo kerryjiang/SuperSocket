@@ -11,6 +11,8 @@ using SuperSocket.SocketBase.Protocol;
 using SuperSocket.WebSocket;
 using SuperSocket.WebSocket.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
+using System.IO;
+using System.Threading;
 
 namespace SuperSocket.Management.Server
 {
@@ -22,6 +24,8 @@ namespace SuperSocket.Management.Server
         private Dictionary<string, UserConfig> m_UsersDict;
 
         private string[] m_ExcludedServers;
+
+        private FileSystemWatcher m_StatusFileWatcher;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ManagementServer"/> class.
@@ -63,6 +67,86 @@ namespace SuperSocket.Management.Server
                 new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
 
             return true;
+        }
+
+        private long m_LastModifiedTime = 0;
+
+        protected override void OnStarted()
+        {
+            m_StatusFileWatcher = new FileSystemWatcher(Path.Combine(Bootstrap.BaseDirectory), "status.bin");
+            m_StatusFileWatcher.NotifyFilter = NotifyFilters.LastWrite;
+            m_StatusFileWatcher.Changed += new FileSystemEventHandler(m_StatusFileWatcher_Changed);
+            m_StatusFileWatcher.EnableRaisingEvents = true;
+
+            base.OnStarted();
+        }
+
+        void m_StatusFileWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            m_StatusFileWatcher.EnableRaisingEvents = false;
+
+            if(!FireStatusFileChanged(e))
+                m_StatusFileWatcher.EnableRaisingEvents = true;
+        }
+
+        private bool FireStatusFileChanged(FileSystemEventArgs e)
+        {
+            long currentTicks = 0;
+
+            try
+            {
+                currentTicks = File.GetLastWriteTime(e.FullPath).Ticks;
+            }
+            catch (Exception exc)
+            {
+                Logger.Error("One exception was thrown when get the status file's last write time.", exc);
+                return false;
+            }
+
+            var prevTicks = m_LastModifiedTime;
+
+            if (currentTicks == prevTicks)
+                return false;
+
+            //Already updated
+            if (Interlocked.CompareExchange(ref m_LastModifiedTime, currentTicks, prevTicks) != prevTicks)
+                return false;
+
+            ThreadPool.QueueUserWorkItem(HandleUpdatedStatusFile, e.FullPath);
+
+            return true;
+        }
+
+        private void HandleUpdatedStatusFile(object state)
+        {
+            var filePath = (string)state;
+
+            Thread.Sleep(500);
+
+            NodeStatus nodeStatus;
+
+            try
+            {
+                nodeStatus = NodeStatus.LoadFrom(filePath);
+                Logger.Info(JsonConvert.SerializeObject(nodeStatus, m_IPEndPointConverter));
+            }
+            catch (Exception exc)
+            {
+                Logger.Error("One exception was thrown when load the status data file.", exc);
+            }
+            finally
+            {
+                m_StatusFileWatcher.EnableRaisingEvents = true;
+            }
+        }
+
+        protected override void OnStopped()
+        {
+            m_StatusFileWatcher.EnableRaisingEvents = false;
+            m_StatusFileWatcher.Dispose();
+            m_StatusFileWatcher = null;
+
+            base.OnStopped();
         }
 
         private static JsonConverter m_IPEndPointConverter = new ListenersJsonConverter();
