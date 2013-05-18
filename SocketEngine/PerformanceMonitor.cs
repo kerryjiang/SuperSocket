@@ -212,6 +212,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
+                nodeStatus.InstancesStatus = instancesStatus.ToArray();
                 nodeStatus.Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "status.bin"));
             }
             catch (Exception e)

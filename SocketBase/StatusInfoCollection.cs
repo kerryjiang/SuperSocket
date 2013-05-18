@@ -16,6 +16,18 @@ namespace SuperSocket.SocketBase
         [NonSerialized]
         private Dictionary<string, object> m_Values = new Dictionary<string, object>();
 
+
+        /// <summary>
+        /// Gets the values.
+        /// </summary>
+        /// <value>
+        /// The values.
+        /// </value>
+        public Dictionary<string, object> Values
+        {
+            get { return m_Values; }
+        }
+
         /// <summary>
         /// Gets or sets the name.
         /// </summary>
