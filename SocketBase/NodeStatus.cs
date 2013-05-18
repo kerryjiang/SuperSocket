@@ -41,6 +41,7 @@ namespace SuperSocket.SocketBase
             using (var stream = File.Create(filePath))
             {
                 serializer.Serialize(stream, this);
+                stream.Flush();
                 stream.Close();
             }
         }
@@ -54,7 +55,7 @@ namespace SuperSocket.SocketBase
         {
             var serializer = new BinaryFormatter();
 
-            using (var stream = File.Create(filePath))
+            using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read))
             {
                 var status = serializer.Deserialize(stream) as NodeStatus;
                 stream.Close();
