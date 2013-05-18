@@ -79,6 +79,11 @@ namespace SuperSocket.SocketEngine
             get { return Bootstrap.StartupConfigFile; }
         }
 
+        public string BaseDirectory
+        {
+            get { return Bootstrap.BaseDirectory; }
+        }
+
         public override object InitializeLifetimeService()
         {
             //Never expire

@@ -101,5 +101,14 @@ namespace SuperSocket.SocketBase
         /// Gets the startup config file.
         /// </summary>
         string StartupConfigFile { get; }
+
+
+        /// <summary>
+        /// Gets the base directory.
+        /// </summary>
+        /// <value>
+        /// The base directory.
+        /// </value>
+        string BaseDirectory { get; }
     }
 }

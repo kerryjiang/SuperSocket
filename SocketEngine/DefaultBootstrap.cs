@@ -73,6 +73,22 @@ namespace SuperSocket.SocketEngine
 
         private PerformanceMonitor m_PerfMonitor;
 
+        private readonly string m_BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
+
+        /// <summary>
+        /// Gets the base directory.
+        /// </summary>
+        /// <value>
+        /// The base directory.
+        /// </value>
+        public string BaseDirectory
+        {
+            get
+            {
+                return m_BaseDirectory;
+            }
+        }
+
         partial void SetDefaultCulture(IRootConfig rootConfig);
 
         /// <summary>

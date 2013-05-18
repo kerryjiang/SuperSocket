@@ -231,5 +231,10 @@ namespace SuperSocket.SocketEngine
         {
             m_InnerBootstrap.Stop();
         }
+
+        public string BaseDirectory
+        {
+            get { return m_InnerBootstrap.BaseDirectory; }
+        }
     }
 }
