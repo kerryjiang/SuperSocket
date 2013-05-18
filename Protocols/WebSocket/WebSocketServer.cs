@@ -403,12 +403,12 @@ namespace SuperSocket.WebSocket
         }
 
         /// <summary>
-        /// Called when [startup].
+        /// Called when [started].
         /// </summary>
-        protected override void OnStartup()
+        protected override void OnStarted()
         {
             m_HandshakePendingQueueCheckingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, m_HandshakePendingQueueCheckingInterval * 1000, m_HandshakePendingQueueCheckingInterval * 1000);
-            base.OnStartup();
+            base.OnStarted();
         }
 
         private void HandshakePendingQueueCheckingCallback(object state)

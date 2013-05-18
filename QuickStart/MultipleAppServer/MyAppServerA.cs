@@ -11,10 +11,10 @@ namespace SuperSocket.QuickStart.MultipleAppServer
     {
         private IDespatchServer m_DespatchServer;
 
-        protected override void OnStartup()
+        protected override void OnStarted()
         {
             m_DespatchServer = this.Bootstrap.GetServerByName("ServerB") as IDespatchServer;
-            base.OnStartup();
+            base.OnStarted();
         }
 
         internal void DespatchMessage(string targetSessionKey, string message)
