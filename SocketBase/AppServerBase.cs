@@ -1046,10 +1046,27 @@ namespace SuperSocket.SocketBase
             m_ServerStatus[StatusInfoKeys.IsRunning] = true;
             m_ServerStatus[StatusInfoKeys.StartedTime] = StartedTime;
 
-            OnStartup();
+            try
+            {
+                //Will be removed in the next version
+#pragma warning disable 0612, 618
+                OnStartup();
+#pragma warning restore 0612, 618
 
-            if (Logger.IsInfoEnabled)
-                Logger.Info(string.Format("The server instance {0} has been started!", Name));
+                OnStarted();
+            }
+            catch (Exception e)
+            {
+                if (Logger.IsErrorEnabled)
+                {
+                    Logger.Error("One exception wa thrown in the method 'OnStartup()'.", e);
+                }
+            }
+            finally
+            {
+                if (Logger.IsInfoEnabled)
+                    Logger.Info(string.Format("The server instance {0} has been started!", Name));
+            }
 
             return true;
         }
@@ -1057,7 +1074,16 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Called when [startup].
         /// </summary>
+        [Obsolete("Use OnStarted() instead")]
         protected virtual void OnStartup()
+        {
+
+        }
+
+        /// <summary>
+        /// Called when [started].
+        /// </summary>
+        protected virtual void OnStarted()
         {
 
         }
