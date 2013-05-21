@@ -401,6 +401,7 @@ namespace SuperSocket.SocketEngine
 
         public virtual void Close(CloseReason reason)
         {
+            //Already in closing procedure
             if (!TryAddStateFlag(SocketState.InClosing))
                 return;
 
@@ -444,6 +445,10 @@ namespace SuperSocket.SocketEngine
             RemoveStateFlag(SocketState.InReceiving);
         }
 
+        /// <summary>
+        /// Validates the socket is not in the sending or receiving operation.
+        /// </summary>
+        /// <returns></returns>
         private bool ValidateNotInSendingReceiving()
         {
             var oldState = m_State;

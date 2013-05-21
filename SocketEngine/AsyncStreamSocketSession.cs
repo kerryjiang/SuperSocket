@@ -5,11 +5,13 @@ using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
@@ -167,21 +169,47 @@ namespace SuperSocket.SocketEngine
 
         private Stream m_Stream;
 
+        private SslStream CreateSslStream(ICertificateConfig certConfig)
+        {
+            //Enable client certificate function only if ClientCertificateRequired is true in the configuration
+            if(!certConfig.ClientCertificateRequired)
+                return new SslStream(new NetworkStream(Client), false);
+
+            //Subscribe the client validation callback
+            return new SslStream(new NetworkStream(Client), false, ValidateClientCertificate);
+        }
+
+        private bool ValidateClientCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        {
+            var session = AppSession;
+
+            //Invoke the AppServer's method ValidateClientCertificate
+            var clientCertificateValidator = session.AppServer as IRemoteCertificateValidator;
+
+            if (clientCertificateValidator != null)
+                return clientCertificateValidator.Validate(session, sender, certificate, chain, sslPolicyErrors);
+
+            //Return the native validation result
+            return sslPolicyErrors == SslPolicyErrors.None;
+        }
+
         private IAsyncResult BeginInitStream(AsyncCallback asyncCallback)
         {
             IAsyncResult result = null;
+
+            var certConfig = AppSession.Config.Certificate;
 
             switch (SecureProtocol)
             {
                 case (SslProtocols.Default):
                 case (SslProtocols.Tls):
                 case (SslProtocols.Ssl3):
-                    SslStream sslStream = new SslStream(new NetworkStream(Client), false);
-                    result = sslStream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, false, SslProtocols.Default, false, asyncCallback, sslStream);
+                    SslStream sslStream = CreateSslStream(certConfig);
+                    result = sslStream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, certConfig.ClientCertificateRequired, SslProtocols.Default, false, asyncCallback, sslStream);
                     break;
                 case (SslProtocols.Ssl2):
-                    SslStream ssl2Stream = new SslStream(new NetworkStream(Client), false);
-                    result = ssl2Stream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, false, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
+                    SslStream ssl2Stream = CreateSslStream(certConfig);
+                    result = ssl2Stream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, certConfig.ClientCertificateRequired, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
                     break;
                 default:
                     m_Stream = new NetworkStream(Client);

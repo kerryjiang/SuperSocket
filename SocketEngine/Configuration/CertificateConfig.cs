@@ -64,6 +64,21 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether [client certificate required].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [client certificate required]; otherwise, <c>false</c>.
+        /// </value>
+        [ConfigurationProperty("clientCertificateRequired", IsRequired = false, DefaultValue = false)]
+        public bool ClientCertificateRequired
+        {
+            get
+            {
+                return (bool)this["clientCertificateRequired"];
+            }
+        }
+
         #endregion ICertificateConfig Members
     }
 }

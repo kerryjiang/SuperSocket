@@ -36,6 +36,14 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public string Thumbprint { get; set; }
 
+        /// <summary>
+        /// Gets/sets a value indicating whether [client certificate required].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [client certificate required]; otherwise, <c>false</c>.
+        /// </value>
+        public bool ClientCertificateRequired { get; set; }
+
         #endregion
     }
 }
