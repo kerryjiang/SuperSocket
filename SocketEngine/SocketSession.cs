@@ -20,10 +20,10 @@ namespace SuperSocket.SocketEngine
     {
         public const int Normal = 0;//0000 0000
         public const int InClosing = 16;//0001 0000  >= 16
-        public const int Closed = 8 * 16;//1000 0000 > 128
+        public static int Closed = 16777216;//256 * 256 * 256; 0x01 0x00 0x00 0x00
         public const int InSending = 1;//0000 0001  > 1
         public const int InReceiving = 2;//0000 0010 > 2
-        public const int InSendingReceivingMask = -251658241;// 0xff 0xff 0xff 0xf0
+        public const int InSendingReceivingMask = -4;// ~(InSending | InReceiving); 0xf0 0xff 0xff 0xff
     }
 
     /// <summary>
@@ -36,7 +36,10 @@ namespace SuperSocket.SocketEngine
         protected readonly object SyncRoot = new object();
 
         //0x00 0x00 0x00 0x00
-        //Last byte: 0000 0000
+        //1st byte: Closed(Y/N)
+        //2nd byte: N/A
+        //3th byte: CloseReason
+        //Last byte: 0000 0000 - normal state
         //bit 7: closed 
         //bit 6: in sending
         //bit 5: in receiving
@@ -271,14 +274,14 @@ namespace SuperSocket.SocketEngine
                 if (currentQueue != queue || sendingTrackID != currentQueue.TrackID)
                 {
                     //Has been sent
-                    RemoveStateFlag(SocketState.InSending);
+                    OnSendEnd(false);
                     return;
                 }
             }
 
             if (IsInClosingOrClosed)
             {
-                RemoveStateFlag(SocketState.InSending);
+                OnSendEnd(true);
                 return;
             }
 
@@ -287,7 +290,7 @@ namespace SuperSocket.SocketEngine
             if (!m_SendingQueuePool.TryGet(out newQueue))
             {
                 AppSession.Logger.Error("There is no enougth sending queue can be used.");
-                RemoveStateFlag(SocketState.InSending);
+                OnSendEnd(false);
                 this.Close(CloseReason.InternalError);
                 return;
             }
@@ -299,10 +302,13 @@ namespace SuperSocket.SocketEngine
                 if (newQueue != null)
                     m_SendingQueuePool.Push(newQueue);
 
-                RemoveStateFlag(SocketState.InSending);
-
-                if (!IsInClosingOrClosed)
+                if (IsInClosingOrClosed)
                 {
+                    OnSendEnd(true);
+                }
+                else
+                {
+                    OnSendEnd(false);
                     AppSession.Logger.Error("Failed to switch the sending queue.");
                     this.Close(CloseReason.InternalError);
                 }
@@ -318,12 +324,25 @@ namespace SuperSocket.SocketEngine
             {
                 AppSession.Logger.Error("There is no data to be sent in the queue.");
                 m_SendingQueuePool.Push(queue);
-                RemoveStateFlag(SocketState.InSending);
+                OnSendEnd(false);
                 this.Close(CloseReason.InternalError);
                 return;
             }
 
             Send(queue);
+        }
+
+        private void OnSendEnd(bool isInClosingOrClosed)
+        {
+            RemoveStateFlag(SocketState.InSending);
+
+            if (isInClosingOrClosed)
+            {
+                if (ValidateNotInSendingReceiving())
+                {
+                    FireCloseEvent();
+                }
+            }
         }
 
         protected virtual void OnSendingCompleted(SendingQueue queue)
@@ -333,7 +352,7 @@ namespace SuperSocket.SocketEngine
 
             if (IsInClosingOrClosed)
             {
-                RemoveStateFlag(SocketState.InSending);
+                OnSendEnd(true);
                 return;
             }
 
@@ -341,7 +360,7 @@ namespace SuperSocket.SocketEngine
 
             if (newQueue.Count == 0)
             {
-                RemoveStateFlag(SocketState.InSending);
+                OnSendEnd(false);
 
                 if (newQueue.Count > 0)
                 {
@@ -416,7 +435,9 @@ namespace SuperSocket.SocketEngine
                 client.SafeClose();
 
                 if (ValidateNotInSendingReceiving())
+                {
                     OnClosed(reason);
+                }
             }
         }
 
@@ -424,7 +445,7 @@ namespace SuperSocket.SocketEngine
         {
             queue.Clear();
             m_SendingQueuePool.Push(queue);
-            RemoveStateFlag(SocketState.InSending);
+            OnSendEnd(false);
             ValidateClosed(closeReason);
         }
 
@@ -458,6 +479,11 @@ namespace SuperSocket.SocketEngine
 
         private const int m_CloseReasonMagic = 256;
 
+        private void FireCloseEvent()
+        {
+            OnClosed((CloseReason)(m_State / m_CloseReasonMagic - 1));
+        }
+
         private void ValidateClosed(CloseReason closeReason)
         {
             if (IsClosed)
@@ -467,7 +493,7 @@ namespace SuperSocket.SocketEngine
             {
                 if (ValidateNotInSendingReceiving())
                 {
-                    OnClosed((CloseReason)(m_State / m_CloseReasonMagic - 1));
+                    FireCloseEvent();
                 }
             }
             else
