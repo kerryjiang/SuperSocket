@@ -14,9 +14,9 @@ namespace SuperSocket.QuickStart.TelnetServer_AppServer
             return base.Setup(rootConfig, config);
         }
 
-        protected override void OnStartup()
+        protected override void OnStarted()
         {
-            base.OnStartup();
+            base.OnStarted();
         }
 
         protected override void OnStopped()

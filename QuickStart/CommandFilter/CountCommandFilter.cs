@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using System.Threading;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.QuickStart.CommandFilter
 {

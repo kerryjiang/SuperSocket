@@ -13,11 +13,11 @@ namespace SuperSocket.QuickStart.ServerPush
 
         private int m_Interval = 60 * 1000; //1 minute
 
-        protected override void OnStartup()
+        protected override void OnStarted()
         {
             m_PushTimer = new Timer(OnPushTimerCallback);
             m_PushTimer.Change(m_Interval, m_Interval);
-            base.OnStartup();
+            base.OnStarted();
         }
 
         private void OnPushTimerCallback(object state)
