@@ -92,6 +92,31 @@ namespace SuperSocket.Test.Protocol
         }
 
         [Test]
+        public void TestMiddleBreak()
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                using (var socket = CreateClient())
+                {
+                    var socketStream = new NetworkStream(socket);
+                    using (var reader = new StreamReader(socketStream, Encoding.ASCII, true))
+                    using (var writer = new ConsoleWriter(socketStream, Encoding.ASCII, 1024 * 8))
+                    {
+                        reader.ReadLine();
+
+                        var line = Guid.NewGuid().ToString();
+                        var sendingLine = CreateRequest(line);
+                        writer.Write(sendingLine.Substring(0, sendingLine.Length / 2));
+                        writer.Flush();
+
+                        var s = m_Server.GetAllSessions().FirstOrDefault();
+                        s.Close();
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void TestFragmentRequest()
         {
             using (var socket = CreateClient())
