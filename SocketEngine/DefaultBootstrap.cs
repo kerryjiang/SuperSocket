@@ -353,6 +353,11 @@ namespace SuperSocket.SocketEngine
                     return false;
                 }
 
+                var exceptionSource = appServer as IExceptionSource;
+
+                if(exceptionSource != null)
+                    exceptionSource.ExceptionThrown += new EventHandler<ErrorEventArgs>(exceptionSource_ExceptionThrown);
+
 
                 var setupResult = false;
 
@@ -393,6 +398,11 @@ namespace SuperSocket.SocketEngine
             m_Initialized = true;
 
             return true;
+        }
+
+        void exceptionSource_ExceptionThrown(object sender, ErrorEventArgs e)
+        {
+            m_GlobalLog.Error(string.Format("The server {0} threw an exception.", ((IWorkItemBase)sender).Name), e.Exception);
         }
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

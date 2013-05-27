@@ -102,6 +102,7 @@
     <Compile Include="DefaultBootstrap.cs" />
     <Compile Include="Extensions.Net35.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
+    <Compile Include="IExceptionSource.cs" />
     <Compile Include="IRemoteWorkItem.cs" />
     <Compile Include="ISocketListener.cs" />
     <Compile Include="IsolationAppServer.cs" />

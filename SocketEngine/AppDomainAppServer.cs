@@ -53,16 +53,22 @@ namespace SuperSocket.SocketEngine
                         new object[0]);
 
                 if (!appServer.Setup(Bootstrap, ServerConfig, Factories))
-                    throw new Exception("Failed to setup MarshalAppServer");
+                {
+                    OnExceptionThrown(new Exception("Failed to setup MarshalAppServer"));
+                    return null;
+                }
 
-                if(!appServer.Start())
-                    throw new Exception("Failed to start MarshalAppServer");
+                if (!appServer.Start())
+                {
+                    OnExceptionThrown(new Exception("Failed to start MarshalAppServer"));
+                    return null;
+                }
 
                 m_HostDomain.DomainUnload += new EventHandler(m_HostDomain_DomainUnload);
 
                 return appServer;
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 if (m_HostDomain != null)
                 {
@@ -70,6 +76,7 @@ namespace SuperSocket.SocketEngine
                     m_HostDomain = null;
                 }
 
+                OnExceptionThrown(e);
                 return null;
             }
         }

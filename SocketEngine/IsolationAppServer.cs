@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class IsolationAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource, IDisposable
+    abstract class IsolationAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource, IExceptionSource, IDisposable
     {
         protected const string WorkingDir = "InstancesRoot";
 
@@ -227,6 +227,18 @@ namespace SuperSocket.SocketEngine
         ~IsolationAppServer()
         {
             Dispose(false);
+        }
+
+        public event EventHandler<SuperSocket.Common.ErrorEventArgs> ExceptionThrown;
+
+        protected void OnExceptionThrown(Exception exc)
+        {
+            var handler = ExceptionThrown;
+
+            if (handler == null)
+                return;
+
+            handler(this, new SuperSocket.Common.ErrorEventArgs(exc));
         }
     }
 }

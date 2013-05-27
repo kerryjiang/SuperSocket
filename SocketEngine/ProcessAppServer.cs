@@ -64,8 +64,9 @@ namespace SuperSocket.SocketEngine
                 {
                     m_WorkingProcess = Process.Start(startInfo);
                 }
-                catch
+                catch (Exception e)
                 {
+                    OnExceptionThrown(e);
                     return null;
                 }
             }
@@ -87,6 +88,7 @@ namespace SuperSocket.SocketEngine
 
                 if (!"Ok".Equals(startResult, StringComparison.OrdinalIgnoreCase))
                 {
+                    OnExceptionThrown(new Exception("The Agent process didn't start successfully!"));
                     return null;
                 }
 
@@ -105,6 +107,7 @@ namespace SuperSocket.SocketEngine
                 if (!ret)
                 {
                     ShutdownProcess();
+                    OnExceptionThrown(new Exception("The remote work item failed to setup!"));
                     return null;
                 }
 
@@ -113,6 +116,7 @@ namespace SuperSocket.SocketEngine
                 if (!ret)
                 {
                     ShutdownProcess();
+                    OnExceptionThrown(new Exception("The remote work item failed to start!"));
                     return null;
                 }
 

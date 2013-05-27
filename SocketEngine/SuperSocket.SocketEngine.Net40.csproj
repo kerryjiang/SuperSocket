@@ -82,6 +82,7 @@
     <Compile Include="BootstrapFactory.cs" />
     <Compile Include="Configuration\CommandAssembly.cs" />
     <Compile Include="Configuration\SocketServiceConfig.cs" />
+    <Compile Include="IExceptionSource.cs" />
     <Compile Include="IRemoteWorkItem.cs" />
     <Compile Include="IsolationAppServer.cs" />
     <Compile Include="ProcessAppServer.cs" />
