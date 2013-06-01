@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using System.Threading;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Metadata;
-using System.IO;
-using System.Reflection;
+using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketEngine
 {
@@ -28,6 +29,8 @@ namespace SuperSocket.SocketEngine
         public string Name { get; private set; }
 
         private StatusInfoMetadata[] m_ServerStatusMetadata;
+
+        private AutoResetEvent m_StopResetEvent = new AutoResetEvent(false);
 
         protected IsolationAppServer(string serverTypeName)
         {
@@ -123,12 +126,14 @@ namespace SuperSocket.SocketEngine
             State = ServerState.Stopping;
             appServer.Stop();
             Stop();
+            m_StopResetEvent.WaitOne();
         }
 
         protected virtual void OnStopped()
         {
             State = ServerState.NotStarted;
             AppServer = null;
+            m_StopResetEvent.Set();
         }
 
         public int SessionCount
