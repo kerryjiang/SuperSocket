@@ -245,5 +245,15 @@ namespace SuperSocket.SocketEngine
 
             handler(this, new SuperSocket.Common.ErrorEventArgs(exc));
         }
+
+        public void TransferSystemMessage(string messageType, object messageData)
+        {
+            var appServer = AppServer;
+
+            if (appServer == null)
+                OnExceptionThrown(new Exception("You cannot send system message to the instance who is not started."));
+
+            appServer.TransferSystemMessage(messageType, messageData);
+        }
     }
 }

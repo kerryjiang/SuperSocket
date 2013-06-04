@@ -91,5 +91,10 @@ namespace SuperSocket.SocketEngine
         {
             return m_AppServer.CollectServerStatus(nodeStatus);
         }
+
+        public void TransferSystemMessage(string messageType, object messageData)
+        {
+            m_AppServer.TransferSystemMessage(messageType, messageData);
+        }
     }
 }

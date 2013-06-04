@@ -119,5 +119,15 @@ namespace SuperSocket.Agent
         {
             return null;
         }
+
+        /// <summary>
+        /// Transfers the system message.
+        /// </summary>
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="messageData">The message data.</param>
+        public void TransferSystemMessage(string messageType, object messageData)
+        {
+            m_AppServer.TransferSystemMessage(messageType, messageData);
+        }
     }
 }

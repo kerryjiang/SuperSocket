@@ -76,6 +76,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AppServerBase.Net45.cs" />
+    <Compile Include="AppServerBase.SystemEndPoint.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
@@ -98,6 +99,7 @@
     <Compile Include="ILoggerProvider.cs" />
     <Compile Include="IsolationMode.cs" />
     <Compile Include="IStatusInfoSource.cs" />
+    <Compile Include="ISystemEndPoint.cs" />
     <Compile Include="IWorkItem.cs" />
     <Compile Include="Logging\ConsoleLog.cs" />
     <Compile Include="Logging\ConsoleLogFactory.cs" />

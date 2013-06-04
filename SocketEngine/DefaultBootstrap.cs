@@ -144,7 +144,7 @@ namespace SuperSocket.SocketEngine
 
             if (!rootConfig.DisablePerformanceDataCollector)
             {
-                m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, logFactory);
+                m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, null, logFactory);
 
                 if (m_GlobalLog.IsDebugEnabled)
                     m_GlobalLog.Debug("The PerformanceMonitor has been initialized!");
@@ -334,6 +334,9 @@ namespace SuperSocket.SocketEngine
             }
 
             m_AppServers = new List<IWorkItem>(m_Config.Servers.Count());
+
+            IWorkItem serverManager = null;
+
             //Initialize servers
             foreach (var factoryInfo in workItemFactories)
             {
@@ -342,6 +345,9 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     appServer = CreateWorkItemInstance(factoryInfo.ServerType);
+
+                    if ("true".Equals(factoryInfo.Config.Options.GetValue("serverManager"), StringComparison.OrdinalIgnoreCase))
+                        serverManager = appServer;
 
                     if (m_GlobalLog.IsDebugEnabled)
                         m_GlobalLog.DebugFormat("The server instance {0} has been created!", factoryInfo.Config.Name);
@@ -386,7 +392,7 @@ namespace SuperSocket.SocketEngine
 
             if (!m_Config.DisablePerformanceDataCollector)
             {
-                m_PerfMonitor = new PerformanceMonitor(m_Config, m_AppServers, logFactory);
+                m_PerfMonitor = new PerformanceMonitor(m_Config, m_AppServers, serverManager, logFactory);
 
                 if (m_GlobalLog.IsDebugEnabled)
                     m_GlobalLog.Debug("The PerformanceMonitor has been initialized!");

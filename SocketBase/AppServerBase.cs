@@ -59,7 +59,6 @@ namespace SuperSocket.SocketBase
             }
         }
 
-
         /// <summary>
         /// Gets the certificate of current server.
         /// </summary>

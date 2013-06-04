@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// An item can be started and stopped
     /// </summary>
-    public interface IWorkItemBase : IStatusInfoSource
+    public interface IWorkItemBase : IStatusInfoSource, ISystemEndPoint
     {
         /// <summary>
         /// Gets the name.

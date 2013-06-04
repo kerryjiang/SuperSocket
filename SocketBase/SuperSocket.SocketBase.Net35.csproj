@@ -61,6 +61,7 @@
     </Compile>
     <Compile Include="AppServer.cs" />
     <Compile Include="AppServerBase.cs" />
+    <Compile Include="AppServerBase.SystemEndPoint.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="ISocketSession.cs" />
     <Compile Include="IsolationMode.cs" />
     <Compile Include="IStatusInfoSource.cs" />
+    <Compile Include="ISystemEndPoint.cs" />
     <Compile Include="IWorkItem.cs" />
     <Compile Include="ListenerInfo.cs" />
     <Compile Include="LoggerExtension.cs" />

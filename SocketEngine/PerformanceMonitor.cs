@@ -27,13 +27,17 @@ namespace SuperSocket.SocketEngine
 
         private IWorkItem[] m_AppServers;
 
+        private IWorkItem m_ServerManager;
+
         private StatusInfoMetadata[][] m_ServerStatusMetadatas;
 
-        public PerformanceMonitor(IRootConfig config, IEnumerable<IWorkItem> appServers, ILogFactory logFactory)
+        public PerformanceMonitor(IRootConfig config, IEnumerable<IWorkItem> appServers, IWorkItem serverManager, ILogFactory logFactory)
         {
             m_PerfLog = logFactory.GetLog("Performance");
 
             m_AppServers = appServers.ToArray();
+
+            m_ServerManager = serverManager;
 
             Process process = Process.GetCurrentProcess();
 
@@ -210,14 +214,11 @@ namespace SuperSocket.SocketEngine
 
             m_PerfLog.Info(perfBuilder.ToString());
 
-            try
+            nodeStatus.InstancesStatus = instancesStatus.ToArray();
+
+            if (m_ServerManager != null && m_ServerManager.State == ServerState.Running)
             {
-                nodeStatus.InstancesStatus = instancesStatus.ToArray();
-                nodeStatus.Save(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "status.bin"));
-            }
-            catch (Exception e)
-            {
-                m_PerfLog.Error(e);
+                m_ServerManager.TransferSystemMessage("ServerStatusCollected", nodeStatus);
             }
         }
 
