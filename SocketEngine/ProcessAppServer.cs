@@ -83,7 +83,6 @@ namespace SuperSocket.SocketEngine
             else
             {
                 m_WorkingProcess = process;
-                Console.WriteLine("xxxx");
             }
 
             portName = string.Format(portName, m_WorkingProcess.Id);
