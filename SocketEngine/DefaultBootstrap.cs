@@ -4,6 +4,9 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Channels;
+using System.Runtime.Remoting.Channels.Ipc;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
@@ -173,6 +176,8 @@ namespace SuperSocket.SocketEngine
                 StartupConfigFile = fileConfigSource.GetConfigSource();
 
             m_Config = config;
+
+            AppDomain.CurrentDomain.SetData("Bootstrap", this);
         }
 
         /// <summary>
@@ -191,6 +196,8 @@ namespace SuperSocket.SocketEngine
                 StartupConfigFile = startupConfigFile;
 
             m_Config = config;
+
+            AppDomain.CurrentDomain.SetData("Bootstrap", this);
         }
 
         /// <summary>
@@ -401,6 +408,18 @@ namespace SuperSocket.SocketEngine
             if (m_GlobalLog.IsDebugEnabled)
                 m_GlobalLog.Debug("The Bootstrap has been initialized!");
 
+            try
+            {
+                RegisterRemotingService();
+            }
+            catch (Exception e)
+            {
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error("Failed to register remoting access service!", e);
+
+                return false;
+            }
+
             m_Initialized = true;
 
             return true;
@@ -529,6 +548,28 @@ namespace SuperSocket.SocketEngine
                 if (m_GlobalLog.IsDebugEnabled)
                     m_GlobalLog.Debug("The PerformanceMonitor has been stoppped!");
             }
+        }
+
+        /// <summary>
+        /// Registers the bootstrap remoting access service.
+        /// </summary>
+        protected virtual void RegisterRemotingService()
+        {
+            var bootstrapIpcPort = string.Format("SuperSocket.Bootstrap[{0}]", Math.Abs(AppDomain.CurrentDomain.BaseDirectory.GetHashCode()));
+
+            var serverChannelName = "Bootstrap";
+
+            var serverChannel = ChannelServices.RegisteredChannels.FirstOrDefault(c => c.ChannelName == serverChannelName);
+
+            if (serverChannel != null)
+                ChannelServices.UnregisterChannel(serverChannel);
+
+            serverChannel = new IpcServerChannel(serverChannelName, bootstrapIpcPort);
+            ChannelServices.RegisterChannel(serverChannel, false);
+
+            AppDomain.CurrentDomain.SetData("BootstrapIpcPort", bootstrapIpcPort);
+
+            RemotingConfiguration.RegisterWellKnownServiceType(typeof(RemoteBootstrapProxy), "Bootstrap.rem", WellKnownObjectMode.Singleton);
         }
     }
 }

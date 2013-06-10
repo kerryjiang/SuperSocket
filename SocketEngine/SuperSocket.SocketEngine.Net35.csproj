@@ -112,6 +112,7 @@
     <Compile Include="ProcessBootstrap.cs" />
     <Compile Include="ProcessLocker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemoteBootstrapProxy.cs" />
     <Compile Include="SocketListenerBase.cs" />
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerBase.cs" />

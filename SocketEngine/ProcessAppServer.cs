@@ -106,8 +106,13 @@ namespace SuperSocket.SocketEngine
                     return null;
                 }
 
+                var bootstrapIpcPort = AppDomain.CurrentDomain.GetData("BootstrapIpcPort") as string;
+
+                if (string.IsNullOrEmpty(bootstrapIpcPort))
+                    throw new Exception("The bootstrap's remoting service has not been started.");
+
                 //Setup and then start the remote server instance
-                var ret = appServer.Setup(ServerTypeName, "ipc://" + ProcessBootstrap.BootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig, Factories);
+                var ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig, Factories);
 
                 if (!ret)
                 {

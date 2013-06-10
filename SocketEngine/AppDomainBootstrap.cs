@@ -155,6 +155,8 @@ namespace SuperSocket.SocketEngine
 
             //Still use raw configuration type to bootstrap
             m_InnerBootstrap = CreateBootstrapWrap(this, config, startupConfigFile);
+
+            AppDomain.CurrentDomain.SetData("Bootstrap", this);
         }
 
         protected virtual IBootstrap CreateBootstrapWrap(IBootstrap bootstrap, IConfigurationSource config, string startupConfigFile)
