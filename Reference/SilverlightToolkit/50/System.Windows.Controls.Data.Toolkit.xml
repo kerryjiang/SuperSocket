@@ -1,0 +1,359 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>System.Windows.Controls.Data.Toolkit</name>
+    </assembly>
+    <members>
+        <member name="T:System.Windows.Controls.CollectionHelper">
+            <summary>
+            A set of extension methods for manipulating collections.
+            </summary>
+            <QualityBand>Experimental</QualityBand>
+        </member>
+        <member name="M:System.Windows.Controls.CollectionHelper.IsReadOnly(System.Collections.IEnumerable)">
+            <summary>
+            Returns a value indicating whether a collection is read-only.
+            </summary>
+            <param name="collection">The collection to examine.</param>
+            <returns>A value indicating whether a collection is read-only.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.CollectionHelper.CanInsert(System.Collections.IEnumerable,System.Object)">
+            <summary>
+            Returns a value Indicating whether an item can be inserted in a 
+            collection.
+            </summary>
+            <param name="collection">The collection.</param>
+            <param name="item">The item to be inserted.</param>
+            <returns>A value Indicating whether an item can be inserted in a 
+            collection.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.CollectionHelper.Insert(System.Collections.IEnumerable,System.Int32,System.Object)">
+            <summary>
+            Inserts an item into the collection at an index.
+            </summary>
+            <param name="collection">The collection.</param>
+            <param name="index">The index at which to insert the item.</param> 
+            <param name="item">The item to be inserted.</param>
+        </member>
+        <member name="M:System.Windows.Controls.CollectionHelper.Count(System.Collections.IEnumerable)">
+            <summary>
+            Gets the number of items in the collection.
+            </summary>
+            <param name="collection">The collection.</param>
+            <returns>The number of items in the collection.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.CollectionHelper.Add(System.Collections.IEnumerable,System.Object)">
+            <summary>
+            Adds an item to the collection.
+            </summary>
+            <param name="collection">The collection.</param>
+            <param name="item">The item to be added.</param>
+        </member>
+        <member name="M:System.Windows.Controls.CollectionHelper.Remove(System.Collections.IEnumerable,System.Object)">
+            <summary>
+            Removes an item from the collection.
+            </summary>
+            <param name="collection">The collection.</param>
+            <param name="item">The item to be removed.</param>
+        </member>
+        <member name="M:System.Windows.Controls.CollectionHelper.RemoveAt(System.Collections.IEnumerable,System.Int32)">
+            <summary>
+            Removes an item at a given index from the collection.
+            </summary>
+            <param name="collection">The collection.</param>
+            <param name="index">The index of the item to be removed.</param>
+        </member>
+        <member name="T:System.Windows.Controls.EnumerableExtensions">
+            <summary>
+            A set of extension methods for the sequence class.
+            </summary>
+        </member>
+        <member name="M:System.Windows.Controls.EnumerableExtensions.Iterate``1(``0,System.Func{``0,``0})">
+            <summary>
+            Produces a sequence of items using a seed value and iteration 
+            method.
+            </summary>
+            <typeparam name="T">The type of the sequence.</typeparam>
+            <param name="value">The initial value.</param>
+            <param name="next">The iteration function.</param>
+            <returns>A sequence of items using a seed value and iteration 
+            method.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.EnumerableExtensions.Prepend``1(System.Collections.Generic.IEnumerable{``0},``0)">
+            <summary>
+            Prepend an item to a sequence.
+            </summary>
+            <typeparam name="T">The type of the sequence.</typeparam>
+            <param name="that">The sequence to append the item to.</param>
+            <param name="value">The item to append to the sequence.</param>
+            <returns>A new sequence.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.EnumerableExtensions.Zip``3(System.Collections.Generic.IEnumerable{``0},System.Collections.Generic.IEnumerable{``1},System.Func{``0,``1,``2})">
+            <summary>
+            Accepts two sequences and applies a function to the corresponding 
+            values in the two sequences.
+            </summary>
+            <typeparam name="T0">The type of the first sequence.</typeparam>
+            <typeparam name="T1">The type of the second sequence.</typeparam>
+            <typeparam name="R">The return type of the function.</typeparam>
+            <param name="enumerable0">The first sequence.</param>
+            <param name="enumerable1">The second sequence.</param>
+            <param name="func">The function to apply to the corresponding values
+            from the two sequences.</param>
+            <returns>A sequence of transformed values from both sequences.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.EnumerableExtensions.MaxOrNull``1(System.Collections.Generic.IEnumerable{``0},System.Func{``0,System.IComparable})">
+            <summary>
+            Returns the maximum value in the stream based on the result of a
+            project function.
+            </summary>
+            <typeparam name="T">The stream type.</typeparam>
+            <param name="that">The stream.</param>
+            <param name="projectionFunction">The function that transforms the
+            item.</param>
+            <returns>The maximum value or null.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.EnumerableExtensions.MaxOrNullable``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Returns the maximum value or null if sequence is empty.
+            </summary>
+            <typeparam name="T">The type of the sequence.</typeparam>
+            <param name="that">The sequence to retrieve the maximum value from.
+            </param>
+            <returns>The maximum value or null.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.EnumerableExtensions.MinOrNullable``1(System.Collections.Generic.IEnumerable{``0})">
+            <summary>
+            Returns the minimum value or null if sequence is empty.
+            </summary>
+            <typeparam name="T">The type of the sequence.</typeparam>
+            <param name="that">The sequence to retrieve the minimum value from.
+            </param>
+            <returns>The minimum value or null.</returns>
+        </member>
+        <member name="T:System.Windows.Controls.CardPanel">
+            <summary>
+            Lays out elements by overlapping each successive item on top of the other.
+            </summary>
+            <QualityBand>Experimental</QualityBand>
+        </member>
+        <member name="F:System.Windows.Controls.CardPanel.HorizontalMarginProperty">
+            <summary>
+            Identifies the HorizontalMargin dependency property.
+            </summary>
+        </member>
+        <member name="M:System.Windows.Controls.CardPanel.OnHorizontalMarginPropertyChanged(System.Windows.DependencyObject,System.Windows.DependencyPropertyChangedEventArgs)">
+            <summary>
+            Called when the value of the HorizontalMargin property changes.
+            </summary>
+            <param name="d">Control that changed its HorizontalMargin.</param>
+            <param name="e">Event arguments.</param>
+        </member>
+        <member name="M:System.Windows.Controls.CardPanel.OnHorizontalMarginPropertyChanged(System.Double,System.Double)">
+            <summary>
+            Called when the value of the HorizontalMargin property changes.
+            </summary>
+            <param name="oldValue">The value to be replaced.</param>
+            <param name="newValue">The new value.</param>
+        </member>
+        <member name="F:System.Windows.Controls.CardPanel.VerticalMarginProperty">
+            <summary>
+            Identifies the VerticalMargin dependency property.
+            </summary>
+        </member>
+        <member name="M:System.Windows.Controls.CardPanel.OnVerticalMarginPropertyChanged(System.Windows.DependencyObject,System.Windows.DependencyPropertyChangedEventArgs)">
+            <summary>
+            Called when the value of the VerticalMargin property changes.
+            </summary>
+            <param name="d">Control that changed its VerticalMargin.</param>
+            <param name="e">Event arguments.</param>
+        </member>
+        <member name="M:System.Windows.Controls.CardPanel.OnVerticalMarginPropertyChanged(System.Double,System.Double)">
+            <summary>
+            Called when the value of the VerticalMargin property changes.
+            </summary>
+            <param name="oldValue">The value to be replaced.</param>
+            <param name="newValue">The new value.</param>
+        </member>
+        <member name="M:System.Windows.Controls.CardPanel.MeasureOverride(System.Windows.Size)">
+            <summary>
+            Measures the children of the panel.
+            </summary>
+            <param name="availableSize">The available size.</param>
+            <returns>The size required by the children.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.CardPanel.ArrangeOverride(System.Windows.Size)">
+            <summary>
+            Arranges the children of the panel.
+            </summary>
+            <param name="finalSize">The final size.</param>
+            <returns>The size required by the children.</returns>
+        </member>
+        <member name="P:System.Windows.Controls.CardPanel.HorizontalMargin">
+            <summary>
+            Gets or sets the horizontal margin between items.
+            </summary>
+        </member>
+        <member name="P:System.Windows.Controls.CardPanel.VerticalMargin">
+            <summary>
+            Gets or sets the horizontal margin between items.
+            </summary>
+        </member>
+        <member name="T:System.Windows.Controls.DataGridDragDropTarget">
+            <summary>
+            A control that enabled drag and drop operations on an Chart.
+            </summary>
+            <QualityBand>Experimental</QualityBand>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.#ctor">
+            <summary>
+            Initializes a new instance of the DataGridDragDropTarget class.
+            </summary>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.CanAddItem(System.Windows.Controls.DataGrid,System.Object)">
+            <summary>
+            Returns a value indicating whether an item can be added to the
+            items control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="data">The data to be added.</param>
+            <returns>A value indicating whether an item can be added to the
+            items control.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.GetItemCount(System.Windows.Controls.DataGrid)">
+            <summary>
+            Gets the number of items in an items control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <returns>The number of items in the items control.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.ContainerFromIndex(System.Windows.Controls.DataGrid,System.Int32)">
+            <summary>
+            Retrieves the item container at a given index.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="index">The index at which to retrieve the container.
+            </param>
+            <returns>The item container at a given index.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.IndexFromContainer(System.Windows.Controls.DataGrid,System.Windows.Controls.DataGridRow)">
+            <summary>
+            Retrieves the index of an item container.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="itemContainer">The item container.</param>
+            <returns>The index of an item container.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.GetItemsHost(System.Windows.Controls.DataGrid)">
+            <summary>
+            Retrieves the items host for a given items control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <returns>The items host for a given items control.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.CanRemove(System.Windows.Controls.DataGrid)">
+            <summary>
+            Returns a value indicating whether an item can be removed from the
+            items control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <returns>A value indicating whether an item can be removed from the
+            items control.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.AddItem(System.Windows.Controls.DataGrid,System.Object)">
+            <summary>
+            Adds an item to an items control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="data">The data to be inserted.</param>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.RemoveItem(System.Windows.Controls.DataGrid,System.Object)">
+            <summary>
+            Removes an item from an items control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="data">The data to be removed.</param>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.InsertItem(System.Windows.Controls.DataGrid,System.Int32,System.Object)">
+            <summary>
+            Inserts an item into an items control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="index">The index at which to insert the item.</param>
+            <param name="data">The data to be inserted.</param>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.IsItemContainerOfItemsControl(System.Windows.Controls.DataGrid,System.Windows.DependencyObject)">
+            <summary>
+            Returns a value indicating whether a container belongs to an items 
+            control.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="itemContainer">The item container.</param>
+            <returns>A value indicating whether a container belongs to an items 
+            control.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.ItemFromContainer(System.Windows.Controls.DataGrid,System.Windows.Controls.DataGridRow)">
+            <summary>
+            Gets the item from an item container.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <param name="itemContainer">The item container.</param>
+            <returns>The data contained by the item container.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.OnItemDragStarting(System.Windows.Controls.ItemDragEventArgs)">
+            <summary>
+            Adds all selected items when drag operation begins.
+            </summary>
+            <param name="eventArgs">Information about the event.</param>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.OnContentChanged(System.Object,System.Object)">
+            <summary>
+            Ensures the content of control is a DataGrid.
+            </summary>
+            <param name="oldContent">The old content.</param>
+            <param name="newContent">The new content.</param>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.CanScroll(System.Windows.Controls.DataGrid)">
+            <summary>
+            Returns a value indicating whether a given items control
+            can scroll.
+            </summary>
+            <param name="itemsControl">The items control.</param>
+            <returns>The value indicating whether the given items control
+            can scroll.</returns>
+        </member>
+        <member name="M:System.Windows.Controls.DataGridDragDropTarget.ScrollIntoView(System.Windows.Controls.DataGrid,System.Windows.Controls.DataGridRow)">
+            <summary>
+            Scrolls a DataGridRow into view.
+            </summary>
+            <param name="itemsControl">The DataGrid containing the row.</param>
+            <param name="itemContainer">The DataGridRow object.</param>
+        </member>
+        <member name="P:System.Windows.Controls.DataGridDragDropTarget.DataGrid">
+            <summary>
+            Gets the ListBox that is the drag drop target.
+            </summary>
+        </member>
+        <member name="T:System.Windows.Controls.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:System.Windows.Controls.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:System.Windows.Controls.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:System.Windows.Controls.Properties.Resources.DataGridDragDropTarget_OnContentChanged_ContentMustBeADataGrid">
+            <summary>
+              Looks up a localized string similar to The content property must be a DataGrid..
+            </summary>
+        </member>
+    </members>
+</doc>
