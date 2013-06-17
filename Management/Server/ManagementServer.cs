@@ -11,8 +11,6 @@ using SuperSocket.SocketBase.Protocol;
 using SuperSocket.WebSocket;
 using SuperSocket.WebSocket.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
-using System.IO;
-using System.Threading;
 
 namespace SuperSocket.Management.Server
 {

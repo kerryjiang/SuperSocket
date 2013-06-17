@@ -49,6 +49,7 @@
     <Compile Include="ListenersJsonConverter.cs" />
     <Compile Include="ManagementServer.cs" />
     <Compile Include="ManagementSession.cs" />
+    <Compile Include="Model\CommandName.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
