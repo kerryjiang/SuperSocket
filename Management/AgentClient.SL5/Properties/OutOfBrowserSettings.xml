@@ -1,0 +1,7 @@
+<OutOfBrowserSettings ShortName="SuperSocket ServerManager ClientAgent" EnableGPUAcceleration="False" ShowInstallMenuItem="True">
+  <OutOfBrowserSettings.Blurb>SuperSocket ServerManager ClientAgent on your desktop; at home, at work or on the go.</OutOfBrowserSettings.Blurb>
+  <OutOfBrowserSettings.WindowSettings>
+    <WindowSettings Title="SuperSocket ServerManager ClientAgent" />
+  </OutOfBrowserSettings.WindowSettings>
+  <OutOfBrowserSettings.Icons />
+</OutOfBrowserSettings>

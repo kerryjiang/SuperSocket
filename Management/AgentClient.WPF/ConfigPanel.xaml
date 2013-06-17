@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="SuperSocket.Management.AgentClient.ConfigPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:c="clr-namespace:SuperSocket.Management.AgentClient.Controls"
+             xmlns:vm="clr-namespace:SuperSocket.Management.AgentClient.ViewModel"
+             xmlns:cf="clr-namespace:SuperSocket.Management.AgentClient.Config"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:ia="http://schemas.microsoft.com/expression/2010/interactions"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="600">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="7*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" ></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0">
+            <TextBlock Text="Nodes:" FontSize="15" FontWeight="Bold" Margin="5"></TextBlock>
+        </StackPanel>
+        <ListBox ItemsSource="{Binding Nodes}"
+                 Grid.Column="0" Grid.Row="1" Margin="5"
+                 SelectedValue="{Binding Path=SelectedNode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock x:Name="NodeName" Text="{Binding Name}"></TextBlock>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <Grid Grid.Column="1" Grid.Row="1"
+              Margin="30"
+              DataContext="{Binding SelectedNodeViewModel}"
+              DataContextChanged="Grid_DataContextChanged">
+            <Grid.Resources>
+                <Style TargetType="TextBlock" BasedOn="{StaticResource FormLabel}" ></Style>
+                <Style TargetType="TextBox" BasedOn="{StaticResource FormTextBox}" ></Style>
+                <Style TargetType="Button" BasedOn="{StaticResource FormButton}" ></Style>
+            </Grid.Resources>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*"></ColumnDefinition>
+                <ColumnDefinition Width="7*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="30"></RowDefinition>
+                <RowDefinition Height="*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Name:" Grid.Column="0" Grid.Row="0"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="0"
+                     Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock Text="URI:" Grid.Column="0" Grid.Row="1"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="1"
+                     Text="{Binding Uri, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock Text="User Name:" Grid.Column="0" Grid.Row="2"></TextBlock>
+            <TextBox Grid.Column="1" Grid.Row="2"
+                     Text="{Binding UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock Text="Password:" Grid.Column="0" Grid.Row="3"></TextBlock>
+            <PasswordBox Grid.Column="1" Grid.Row="3" x:Name="Password"
+                         Style="{StaticResource FormPassword}"
+                         c:PasswordHelper.Attach="True"
+                         c:PasswordHelper.Password="{Binding Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            </PasswordBox>
+            <StackPanel HorizontalAlignment="Right"
+                        VerticalAlignment="Bottom"
+                        Margin="5"
+                        Grid.Column="0" Grid.Row="4"
+                        Grid.ColumnSpan="2" Orientation="Horizontal">
+                <Button Content="Save"
+                        Command="{Binding SaveCommand}"></Button>
+                <Button Content="Remove"
+                        Command="{Binding RemoveCommand}"></Button>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

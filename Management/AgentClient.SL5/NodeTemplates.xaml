@@ -1,0 +1,97 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:ia="http://schemas.microsoft.com/expression/2010/interactions"
+    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
+    xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
+    xmlns:b="clr-namespace:SuperSocket.Management.AgentClient.Behaviors"
+    xmlns:cv="clr-namespace:SuperSocket.Management.AgentClient.Converters"
+    xmlns:c="clr-namespace:SuperSocket.Management.AgentClient">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="NodeTemplatesCommon.xaml"></ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+    <cv:ToStringConverter x:Key="ToStringConverter"></cv:ToStringConverter>
+    <DataTemplate x:Key="NodeTemplateConnected">
+        <StackPanel Orientation="Vertical">
+            <c:NodeInfo></c:NodeInfo>
+            <sdk:DataGrid VerticalAlignment="Stretch"
+                          SelectionMode="Single"
+                          AutoGenerateColumns="False"
+                          ItemsSource="{Binding Path=Instances}">
+                <i:Interaction.Behaviors>
+                    <b:SelectRowOnRightClickBehavior/>
+                </i:Interaction.Behaviors>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Loaded">
+                        <ia:CallMethodAction TargetObject="{Binding}" MethodName="DataGridLoaded"></ia:CallMethodAction>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <sdk:DataGrid.Columns>
+                    <sdk:DataGridTemplateColumn Header="Name" IsReadOnly="True" SortMemberPath="[Name]">
+                        <sdk:DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Rectangle VerticalAlignment="Center" Name="StatusFlag" Margin="5" Width="10" Height="10" Fill="Green">
+                                        <i:Interaction.Triggers>
+                                            <ia:DataTrigger Binding="{Binding Path=[IsRunning], Converter={StaticResource ToStringConverter}}" Value="False">
+                                                <ia:DataTrigger.Actions>
+                                                    <ia:ChangePropertyAction PropertyName="Fill" Value="Gray" />
+                                                </ia:DataTrigger.Actions>
+                                            </ia:DataTrigger>
+                                            <ia:DataTrigger Binding="{Binding Path=[IsRunning], Converter={StaticResource ToStringConverter}}" Value="True">
+                                                <ia:DataTrigger.Actions>
+                                                    <ia:ChangePropertyAction PropertyName="Fill" Value="Green" />
+                                                </ia:DataTrigger.Actions>
+                                            </ia:DataTrigger>
+                                        </i:Interaction.Triggers>
+                                    </Rectangle>
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding [Name]}"></TextBlock>
+                                </StackPanel>
+                            </DataTemplate>
+                        </sdk:DataGridTemplateColumn.CellTemplate>
+                    </sdk:DataGridTemplateColumn>
+                    <sdk:DataGridTextColumn Header="Is Running" Binding="{Binding [IsRunning]}"
+                                            Visibility="Collapsed"
+                                            SortMemberPath="[IsRunning]" />
+                </sdk:DataGrid.Columns>
+            </sdk:DataGrid>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="NodeContainerTemplate">
+        <StackPanel Orientation="Vertical">
+            <c:NodeHeader></c:NodeHeader>
+            <ContentControl Name="PlaceHolderContainer" Content="{Binding}"
+                            ContentTemplate="{StaticResource NodeTemplateState}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch">
+            </ContentControl>
+            <i:Interaction.Triggers>
+                <ia:DataTrigger Binding="{Binding State}" Value="Connecting">
+                    <ia:DataTrigger.Actions>
+                        <ia:ChangePropertyAction
+                                TargetName="PlaceHolderContainer"
+                                PropertyName="ContentTemplate"
+                                Value="{StaticResource NodeTemplateState}" />
+                    </ia:DataTrigger.Actions>
+                </ia:DataTrigger>
+                <ia:DataTrigger Binding="{Binding State}" Value="Connected">
+                    <ia:DataTrigger.Actions>
+                        <ia:ChangePropertyAction
+                                TargetName="PlaceHolderContainer"
+                                PropertyName="ContentTemplate"
+                                Value="{StaticResource NodeTemplateConnected}" />
+                    </ia:DataTrigger.Actions>
+                </ia:DataTrigger>
+                <ia:DataTrigger Binding="{Binding State}" Value="Offline">
+                    <ia:DataTrigger.Actions>
+                        <ia:ChangePropertyAction
+                                TargetName="PlaceHolderContainer"
+                                PropertyName="ContentTemplate"
+                                Value="{StaticResource NodeTemplateOffline}" />
+                    </ia:DataTrigger.Actions>
+                </ia:DataTrigger>
+            </i:Interaction.Triggers>
+        </StackPanel>
+    </DataTemplate>
+</ResourceDictionary>

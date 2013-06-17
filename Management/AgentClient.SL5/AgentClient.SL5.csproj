@@ -1,0 +1,255 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BF5E608C-6216-41C3-86AA-E6380B0A8888}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SuperSocket.Management.AgentClient</RootNamespace>
+    <AssemblyName>SuperSocket.Management.AgentClient</AssemblyName>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>true</SilverlightApplication>
+    <SupportedCultures>
+    </SupportedCultures>
+    <XapOutputs>true</XapOutputs>
+    <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
+    <XapFilename>AgentClient.SL5.xap</XapFilename>
+    <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
+    <SilverlightAppEntry>SuperSocket.Management.AgentClient.App</SilverlightAppEntry>
+    <TestPageFileName>AgentClient.SL5TestPage.html</TestPageFileName>
+    <CreateTestPage>true</CreateTestPage>
+    <ValidateXaml>true</ValidateXaml>
+    <EnableOutOfBrowser>true</EnableOutOfBrowser>
+    <OutOfBrowserSettingsFile>Properties\OutOfBrowserSettings.xml</OutOfBrowserSettingsFile>
+    <UsePlatformExtensions>false</UsePlatformExtensions>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <LinkedServerProject>
+    </LinkedServerProject>
+  </PropertyGroup>
+  <!-- This property group is only here to support building this project using the 
+       MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
+       to set the TargetFrameworkVersion to v3.5 -->
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Bin\Release</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="DynamicViewModel.SL">
+      <HintPath>..\..\Reference\DynamicViewModel\SL\DynamicViewModel.SL.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Expression.Interactions, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="mscorlib" />
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Windows" />
+    <Reference Include="system" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Controls, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Controls.Data, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Controls.Input.Toolkit, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Windows.Browser" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Serialization, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="WebSocket4Net">
+      <HintPath>..\..\Reference\WebSocket4Net\sl50\$(Configuration)\WebSocket4Net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\AgentClient.WPF\AgentWebSocket.cs">
+      <Link>AgentWebSocket.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Command\DelegateCommand.cs">
+      <Link>Command\DelegateCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Command\GenericDelegateCommand.cs">
+      <Link>Command\GenericDelegateCommand.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\ConfigPanel.xaml.cs">
+      <Link>ConfigPanel.xaml.cs</Link>
+      <DependentUpon>ConfigPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Config\AgentConfig.cs">
+      <Link>Config\AgentConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Config\NodeConfig.cs">
+      <Link>Config\NodeConfig.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Controls\CircleProgressBar.xaml.cs">
+      <Link>Controls\CircleProgressBar.xaml.cs</Link>
+      <DependentUpon>CircleProgressBar.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Controls\PasswordHelper.cs">
+      <Link>Controls\PasswordHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\DebugConverter.cs">
+      <Link>Converters\DebugConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\IsNullConverter.cs">
+      <Link>Converters\IsNullConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\NodeStateVisibilityConverter.cs">
+      <Link>Converters\NodeStateVisibilityConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Converters\ToStringConverter.cs">
+      <Link>Converters\ToStringConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Extensions.cs">
+      <Link>Extensions.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\MainPanel.xaml.cs">
+      <Link>MainPanel.xaml.cs</Link>
+      <DependentUpon>MainPanel.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Metadata\ClientFieldAttribute.cs">
+      <Link>Metadata\ClientFieldAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\Metadata\StateFieldMetadata.cs">
+      <Link>Metadata\StateFieldMetadata.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\NodeHeader.xaml.cs">
+      <Link>NodeHeader.xaml.cs</Link>
+      <DependentUpon>NodeHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\NodeInfo.xaml.cs">
+      <Link>NodeInfo.xaml.cs</Link>
+      <DependentUpon>NodeInfo.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\ViewModel\ConfigViewModel.cs">
+      <Link>ViewModel\ConfigViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\ViewModel\MainViewModel.cs">
+      <Link>ViewModel\MainViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\ViewModel\NodeConfigViewModel.cs">
+      <Link>ViewModel\NodeConfigViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\ViewModel\NodeMasterViewModel.cs">
+      <Link>ViewModel\NodeMasterViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\ViewModel\NodeState.cs">
+      <Link>ViewModel\NodeState.cs</Link>
+    </Compile>
+    <Compile Include="..\AgentClient.WPF\ViewModel\ViewModelBase.cs">
+      <Link>ViewModel\ViewModelBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Server\Model\CommandName.cs">
+      <Link>CommandName.cs</Link>
+    </Compile>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Behaviors\SelectRowOnRightClickBehavior.cs" />
+    <Compile Include="MainPage.xaml.cs">
+      <DependentUpon>MainPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ViewModel\NodeMasterViewModel.SL.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </ApplicationDefinition>
+    <Page Include="..\AgentClient.WPF\ConfigPanel.xaml">
+      <Link>ConfigPanel.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\AgentClient.WPF\Controls\CircleProgressBar.xaml">
+      <Link>Controls\CircleProgressBar.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\AgentClient.WPF\MainPanel.xaml">
+      <Link>MainPanel.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\AgentClient.WPF\NodeHeader.xaml">
+      <Link>NodeHeader.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\AgentClient.WPF\NodeInfo.xaml">
+      <Link>NodeInfo.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\AgentClient.WPF\NodeTemplatesCommon.xaml">
+      <Link>NodeTemplatesCommon.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="..\AgentClient.WPF\Themes\Default\Basic.xaml">
+      <Link>Themes\Default\Basic.xaml</Link>
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NodeTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Default\Grid.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Themes\Default\Skin.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\AppManifest.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\OutOfBrowserSettings.xml" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+</Project>

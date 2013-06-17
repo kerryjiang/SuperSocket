@@ -1,0 +1,7 @@
+﻿<Window x:Class="SuperSocket.Management.AgentClient.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:SuperSocket.Management.AgentClient"
+        Title="SuperSocket ServerManager ClientAgent" Height="350" Width="525">
+    <c:MainPanel></c:MainPanel>
+</Window>

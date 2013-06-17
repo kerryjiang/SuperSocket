@@ -1,0 +1,100 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:ia="http://schemas.microsoft.com/expression/2010/interactions"
+                    xmlns:vsm="clr-namespace:System.Windows;assembly=System.Windows"
+                    xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit">
+    <!--Cell-->
+    <Style x:Key="CellStyle" TargetType="sdk:DataGridCell" >
+        <Setter Property="Padding" Value="2 5 2 5" />
+    </Style>    
+    <ControlTemplate x:Key="RowTemplate" TargetType="sdk:DataGridRow">
+        <sdk:DataGridFrozenGrid Name="Root">
+            <toolkit:ContextMenuService.ContextMenu>
+                <toolkit:ContextMenu>
+                    <toolkit:MenuItem Header="Start" Command="{Binding [StartCommand]}" CommandParameter="{Binding}" />
+                    <toolkit:MenuItem Header="Stop" Command="{Binding [StopCommand]}" CommandParameter="{Binding}" />
+                </toolkit:ContextMenu>
+            </toolkit:ContextMenuService.ContextMenu>
+            <vsm:VisualStateManager.VisualStateGroups>
+                <vsm:VisualStateGroup x:Name="CommonStates">
+                    <vsm:VisualState x:Name="Normal"/>
+                    <vsm:VisualState x:Name="NormalAlternatingRow">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="BackgroundRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="0"/>
+                        </Storyboard>
+                    </vsm:VisualState>
+                    <vsm:VisualState x:Name="MouseOver">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="BackgroundRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To=".5"/>
+                        </Storyboard>
+                    </vsm:VisualState>
+                    <vsm:VisualState x:Name="NormalSelected">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="BackgroundRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="1"/>
+                        </Storyboard>
+                    </vsm:VisualState>
+                    <vsm:VisualState x:Name="MouseOverSelected">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="BackgroundRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="1"/>
+                        </Storyboard>
+                    </vsm:VisualState>
+                    <vsm:VisualState x:Name="UnfocusedSelected">
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetName="BackgroundRectangle" Storyboard.TargetProperty="Opacity" Duration="0" To="1"/>
+                            <ColorAnimation Duration="0" Storyboard.TargetName="BackgroundRectangle" Storyboard.TargetProperty="(Fill).Color" To="#FFE1E7EC"/>
+                        </Storyboard>
+                    </vsm:VisualState>
+                </vsm:VisualStateGroup>
+                <vsm:VisualStateGroup x:Name="ValidationStates">
+                    <vsm:VisualState x:Name="Valid"/>
+                    <vsm:VisualState x:Name="Invalid">
+                        <Storyboard>
+                            <ObjectAnimationUsingKeyFrames Duration="0" Storyboard.TargetName="BackgroundRectangle" Storyboard.TargetProperty="Visibility">
+                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
+                            </ObjectAnimationUsingKeyFrames>
+                            <DoubleAnimation Storyboard.TargetName="InvalidVisualElement" Storyboard.TargetProperty="Opacity" Duration="0" To="1"/>
+                        </Storyboard>
+                    </vsm:VisualState>
+                </vsm:VisualStateGroup>
+            </vsm:VisualStateManager.VisualStateGroups>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.Resources>
+                <Storyboard x:Key="DetailsVisibleTransition">
+                    <DoubleAnimation Storyboard.TargetName="DetailsPresenter" Storyboard.TargetProperty="ContentHeight" Duration="00:00:0.1" />
+                </Storyboard>
+            </Grid.Resources>
+
+            <Rectangle x:Name="BackgroundRectangle" Grid.RowSpan="2" Grid.ColumnSpan="2" Opacity="0" Fill="#FFBADDE9"/>
+            <Rectangle x:Name="InvalidVisualElement" Grid.RowSpan="2" Grid.ColumnSpan="2" Opacity="0" Fill="#FFF7D8DB"/>
+
+            <sdk:DataGridRowHeader Grid.RowSpan="3" Name="RowHeader" sdk:DataGridFrozenGrid.IsFrozen="True" />
+            <sdk:DataGridCellsPresenter Grid.Column="1" Name="CellsPresenter" sdk:DataGridFrozenGrid.IsFrozen="True" />
+            <sdk:DataGridDetailsPresenter Grid.Row="1" Grid.Column="1" Name="DetailsPresenter" />
+            <Rectangle Grid.Row="2" Grid.Column="1" Name="BottomGridLine" HorizontalAlignment="Stretch" Height="1" />
+        </sdk:DataGridFrozenGrid>
+    </ControlTemplate>
+    <!--DataGrid -->
+    <Style TargetType="sdk:DataGrid">
+        <Setter Property='CellStyle' Value='{StaticResource CellStyle}' />
+        <Setter Property='FontSize' Value='11' />
+        <Setter Property='FontFamily' Value='Verdana' />
+        <!--<Setter Property="RowStyle">
+            <Setter.Value>
+                <Style TargetType="sdk:DataGridRow">
+                    <Setter Property="Template" Value="{StaticResource RowTemplate}"></Setter>
+                </Style>
+            </Setter.Value>
+        </Setter>-->
+    </Style>
+</ResourceDictionary>

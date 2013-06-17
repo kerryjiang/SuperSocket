@@ -1,0 +1,83 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:ia="http://schemas.microsoft.com/expression/2010/interactions"
+                    xmlns:b="clr-namespace:SuperSocket.Management.AgentClient.Behaviors"
+                    xmlns:cv="clr-namespace:SuperSocket.Management.AgentClient.Converters"
+                    xmlns:c="clr-namespace:SuperSocket.Management.AgentClient">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="NodeTemplatesCommon.xaml"></ResourceDictionary>
+    </ResourceDictionary.MergedDictionaries>
+    <cv:ToStringConverter x:Key="ToStringConverter"></cv:ToStringConverter>
+    <DataTemplate x:Key="NodeTemplateConnected">
+        <StackPanel Orientation="Vertical">
+            <c:NodeInfo></c:NodeInfo>
+            <DataGrid SelectionMode="Single"
+                    VerticalAlignment="Stretch"
+                    IsReadOnly="True"
+                    SelectionUnit="FullRow"
+                    ItemsSource="{Binding Instances}">
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="Loaded">
+                        <ia:CallMethodAction TargetObject="{Binding}" MethodName="DataGridLoaded"></ia:CallMethodAction>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                <DataGrid.Resources>
+                    <!--ContextMenu-->
+                    <ContextMenu x:Key="InstanceRowContextMenu">
+                        <i:Interaction.Behaviors>
+                            <b:ContextMenuBehavior></b:ContextMenuBehavior>
+                        </i:Interaction.Behaviors>
+                        <MenuItem Header="Start" Command="{Binding StartCommand}" CommandParameter="{Binding}"/>
+                        <MenuItem Header="Stop" Command="{Binding StopCommand}" CommandParameter="{Binding}"/>
+                    </ContextMenu>
+                </DataGrid.Resources>
+                <DataGrid.RowStyle>
+                    <Style x:Name="RowWithContextMenu" TargetType="DataGridRow" BasedOn="{StaticResource RowStyle}">
+                        <Setter Property="ContextMenu" Value="{StaticResource InstanceRowContextMenu}"></Setter>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Name" IsReadOnly="True" SortMemberPath="Name" Width="Auto">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Rectangle VerticalAlignment="Center" Name="StatusFlag" Margin="5" Width="10" Height="10" Fill="Green" />
+                                    <TextBlock VerticalAlignment="Center" Text="{Binding Name}"></TextBlock>
+                                </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding Path=IsRunning, Converter={StaticResource ToStringConverter}}" Value="False">
+                                        <Setter TargetName="StatusFlag" Property="Fill" Value="Gray" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Is Running" Binding="{Binding IsRunning}" Visibility="Collapsed" SortMemberPath="IsRunning" />
+                </DataGrid.Columns>
+            </DataGrid>
+        </StackPanel>
+    </DataTemplate>
+    <DataTemplate x:Key="NodeContainerTemplate">
+        <StackPanel Orientation="Vertical">
+            <c:NodeHeader></c:NodeHeader>
+            <ContentControl Name="PlaceHolderContainer" Content="{Binding}"
+                            ContentTemplate="{StaticResource NodeTemplateState}"
+                            HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Stretch">
+            </ContentControl>
+        </StackPanel>
+        <DataTemplate.Triggers>            
+            <DataTrigger Binding="{Binding State}" Value="Connected">
+                <Setter TargetName="PlaceHolderContainer"
+                                    Property="ContentTemplate"
+                                    Value="{StaticResource NodeTemplateConnected}"></Setter>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding State}" Value="Offline">
+                <Setter TargetName="PlaceHolderContainer"
+                                    Property="ContentTemplate"
+                                    Value="{StaticResource NodeTemplateOffline}"></Setter>
+            </DataTrigger>
+        </DataTemplate.Triggers>
+    </DataTemplate>
+</ResourceDictionary>

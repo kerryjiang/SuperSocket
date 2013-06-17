@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="SuperSocket.Management.AgentClient.NodeHeader"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+             xmlns:ia="http://schemas.microsoft.com/expression/2010/interactions"
+             xmlns:cv="clr-namespace:SuperSocket.Management.AgentClient.Converters"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="600">
+    <UserControl.Resources>
+        <cv:NodeStateVisibilityConverter x:Key="NodeStateVisibilityConverter"></cv:NodeStateVisibilityConverter>
+    </UserControl.Resources>
+    <Grid Background="{StaticResource HoverGradient}" HorizontalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"></ColumnDefinition>
+            <ColumnDefinition Width="5*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <StackPanel Orientation="Horizontal"
+                    VerticalAlignment="Center" Grid.Column="0">
+            <TextBlock Style="{StaticResource NodeTitle}"
+                       Text="{Binding Name}" Grid.Row="0"></TextBlock>
+            <TextBlock Style="{StaticResource NodeStatus}"
+                       Text="{Binding State, StringFormat=' [\{0\}]'}" Grid.Row="0"></TextBlock>
+        </StackPanel>
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    Margin="0,0,10,0">
+            <TextBlock Visibility="{Binding State, Converter={StaticResource NodeStateVisibilityConverter}, ConverterParameter='Connected'}"
+                       Text="{Binding LastUpdatedTime, StringFormat='Last Updated Time: \{0\}'}"></TextBlock>
+            <Button Visibility="{Binding State, Converter={StaticResource NodeStateVisibilityConverter}, ConverterParameter='Offline'}"
+                    Content="Connect"
+                    Command="{Binding ConnectCommand}"></Button>
+        </StackPanel>
+    </Grid>
+</UserControl>

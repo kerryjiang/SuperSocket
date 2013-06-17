@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:c="clr-namespace:SuperSocket.Management.AgentClient.Controls"
+                    xmlns:cv="clr-namespace:SuperSocket.Management.AgentClient.Converters">
+    <cv:IsNullConverter x:Key="IsNullConverter"></cv:IsNullConverter>
+    <DataTemplate x:Key="NodeTemplateState">
+        <c:CircleProgressBar Grid.Row="1"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Margin="10"
+                    ProgressText="{Binding Path=State, StringFormat='\{0\}...'}">
+        </c:CircleProgressBar>
+    </DataTemplate>
+    <DataTemplate x:Key="NodeTemplateOffline">
+        <Grid HorizontalAlignment="Stretch" Height="100">
+            <TextBlock Text="{Binding ErrorMessage, Converter={StaticResource IsNullConverter}, ConverterParameter='Offline'}"
+                       VerticalAlignment="Center" HorizontalAlignment="Center"
+                       Style="{StaticResource NodeError}"></TextBlock>
+        </Grid>
+    </DataTemplate>
+</ResourceDictionary>
