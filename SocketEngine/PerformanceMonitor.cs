@@ -29,7 +29,7 @@ namespace SuperSocket.SocketEngine
 
         private IWorkItem m_ServerManager;
 
-        private StatusInfoMetadata[][] m_ServerStatusMetadatas;
+        private StatusInfoAttribute[][] m_ServerStatusMetadatas;
 
         public PerformanceMonitor(IRootConfig config, IEnumerable<IWorkItem> appServers, IWorkItem serverManager, ILogFactory logFactory)
         {
@@ -54,7 +54,7 @@ namespace SuperSocket.SocketEngine
 
         private void SetupServerStatusMetadata()
         {
-            m_ServerStatusMetadatas = new StatusInfoMetadata[m_AppServers.Length][];
+            m_ServerStatusMetadatas = new StatusInfoAttribute[m_AppServers.Length][];
 
             for (var i = 0; i < m_AppServers.Length; i++)
             {

@@ -23,6 +23,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
+    [AppServerMetadataType(typeof(DefaultAppServerMetadata))]
     public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IDisposable
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
@@ -1542,32 +1543,9 @@ namespace SuperSocket.SocketBase
 
         private StatusInfoCollection m_ServerStatus;
 
-        StatusInfoMetadata[] IStatusInfoSource.GetServerStatusMetadata()
+        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
         {
-            var statusMetadata = new List<StatusInfoMetadata>();
-
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.StartedTime, Name = "Started Time", DataType = typeof(DateTime), Order = 0 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.IsRunning, Name = "Is Running", DataType = typeof(bool), Order = 1 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.TotalConnections, Name = "TotalConnections", DataType = typeof(int), Order = 2 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.MaxConnectionNumber, Name = "Maximum Allowed Connection Number", ShortName = "Max Allowed Connections", DataType = typeof(int), Order = 3 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.TotalHandledRequests, Name = "Total Handled Requests", Format = "{0:N0}", DataType = typeof(long), Order = 4 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.RequestHandlingSpeed, Name = "Request Handling Speed (#/second)", Format = "{0:f0}", DataType = typeof(double), Order = 5 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.Listeners, Name = "Listeners", DataType = typeof(ListenerInfo[]), OutputInPerfLog = false, Order = 6 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.AvialableSendingQueueItems, Name = "Avialable Sending Queue Items", DataType = typeof(int), Format = "{0:N0}", Order = 7 });
-            statusMetadata.Add(new StatusInfoMetadata { Key = StatusInfoKeys.TotalSendingQueueItems, Name = "Total Sending Queue Items", DataType = typeof(int), Format = "{0:N0}", Order = 8 });
-
-            OnServerStatusMetadataLoaded(statusMetadata);
-
-            return statusMetadata.ToArray();
-        }
-
-        /// <summary>
-        /// Called when [server status metadata loaded].
-        /// </summary>
-        /// <param name="metadataSource">The metadata source.</param>
-        protected virtual void OnServerStatusMetadataLoaded(List<StatusInfoMetadata> metadataSource)
-        {
-
+            return this.GetType().GetStatusInfoMetadata();
         }
 
         StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection bootstrapStatus)

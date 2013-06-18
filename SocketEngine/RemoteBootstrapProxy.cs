@@ -49,7 +49,7 @@ namespace SuperSocket.SocketEngine
                 get { throw new NotSupportedException(); }
             }
 
-            public SocketBase.Metadata.StatusInfoMetadata[] GetServerStatusMetadata()
+            public SocketBase.Metadata.StatusInfoAttribute[] GetServerStatusMetadata()
             {
                 throw new NotSupportedException();
             }

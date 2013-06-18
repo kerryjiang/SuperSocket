@@ -19,8 +19,9 @@ namespace SuperSocket.SocketEngine
         /// Initializes a new instance of the <see cref="AppDomainAppServer" /> class.
         /// </summary>
         /// <param name="serverTypeName">Name of the server type.</param>
-        public AppDomainAppServer(string serverTypeName)
-            : base(serverTypeName)
+        /// <param name="serverStatusMetadata">The server status metadata.</param>
+        public AppDomainAppServer(string serverTypeName, StatusInfoAttribute[] serverStatusMetadata)
+            : base(serverTypeName, serverStatusMetadata)
         {
 
         }

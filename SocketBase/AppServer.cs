@@ -218,6 +218,7 @@ namespace SuperSocket.SocketBase
                     DateTime timeOut = now.AddSeconds(0 - Config.IdleSessionTimeOut);
 
                     var timeOutSessions = SessionSource.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
+
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                         {
                             if (Logger.IsInfoEnabled)

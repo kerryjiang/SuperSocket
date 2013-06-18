@@ -28,14 +28,15 @@ namespace SuperSocket.SocketEngine
 
         public string Name { get; private set; }
 
-        private StatusInfoMetadata[] m_ServerStatusMetadata;
+        private StatusInfoAttribute[] m_ServerStatusMetadata;
 
         private AutoResetEvent m_StopResetEvent = new AutoResetEvent(false);
 
-        protected IsolationAppServer(string serverTypeName)
+        protected IsolationAppServer(string serverTypeName, StatusInfoAttribute[] serverStatusMetadata)
         {
             State = ServerState.NotInitialized;
             ServerTypeName = serverTypeName;
+            m_ServerStatusMetadata = serverStatusMetadata;
         }
 
         protected AppDomain CreateHostAppDomain()
@@ -99,10 +100,6 @@ namespace SuperSocket.SocketEngine
             if (AppServer != null)
             {
                 State = ServerState.Running;
-
-                var metadata = AppServer.GetServerStatusMetadata().ToList();
-                OnServerStatusMetadataLoaded(metadata);
-                m_ServerStatusMetadata = metadata.ToArray();
                 return true;
             }
             else
@@ -149,18 +146,9 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public StatusInfoMetadata[] GetServerStatusMetadata()
+        public StatusInfoAttribute[] GetServerStatusMetadata()
         {
             return m_ServerStatusMetadata;
-        }
-
-        /// <summary>
-        /// Called when [server status metadata loaded].
-        /// </summary>
-        /// <param name="metadataSource">The metadata source.</param>
-        protected virtual void OnServerStatusMetadataLoaded(List<StatusInfoMetadata> metadataSource)
-        {
-
         }
 
         private StatusInfoCollection m_PrevStatus;

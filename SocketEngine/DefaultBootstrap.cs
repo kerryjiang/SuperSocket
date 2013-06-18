@@ -15,6 +15,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketEngine.Configuration;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
@@ -204,8 +205,9 @@ namespace SuperSocket.SocketEngine
         /// Creates the work item instance.
         /// </summary>
         /// <param name="serviceTypeName">Name of the service type.</param>
+        /// <param name="serverStatusMetadata">The server status metadata.</param>
         /// <returns></returns>
-        protected virtual IWorkItem CreateWorkItemInstance(string serviceTypeName)
+        protected virtual IWorkItem CreateWorkItemInstance(string serviceTypeName, StatusInfoAttribute[] serverStatusMetadata)
         {
             var serviceType = Type.GetType(serviceTypeName, true);
             return Activator.CreateInstance(serviceType) as IWorkItem;
@@ -351,7 +353,7 @@ namespace SuperSocket.SocketEngine
 
                 try
                 {
-                    appServer = CreateWorkItemInstance(factoryInfo.ServerType);
+                    appServer = CreateWorkItemInstance(factoryInfo.ServerType, factoryInfo.StatusInfoMetadata);
 
                     if ("true".Equals(factoryInfo.Config.Options.GetValue("serverManager"), StringComparison.OrdinalIgnoreCase))
                         serverManager = appServer;

@@ -9,6 +9,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
@@ -20,9 +21,9 @@ namespace SuperSocket.SocketEngine
 
         }
 
-        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName)
+        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName, StatusInfoAttribute[] serverStatusMetadata)
         {
-            return new ProcessAppServer(serviceTypeName);
+            return new ProcessAppServer(serviceTypeName, serverStatusMetadata);
         }
     }
 

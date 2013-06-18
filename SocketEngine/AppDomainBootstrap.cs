@@ -9,6 +9,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketEngine.Configuration;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
@@ -30,6 +31,21 @@ namespace SuperSocket.SocketEngine
                 }
 
                 return type != null;
+            }
+
+            public StatusInfoAttribute[] GetAppServerTypeStatusInfoMetadata(string typeName)
+            {
+                Type type = null;
+
+                try
+                {
+                    type = Type.GetType(typeName, false);
+                    return type.GetStatusInfoMetadata();
+                }
+                catch
+                {
+                    return null;
+                }
             }
         }
 
@@ -65,6 +81,11 @@ namespace SuperSocket.SocketEngine
             return typeName;
         }
 
+        protected override StatusInfoAttribute[] GetAppServerTypeStatusInfoMetadata(string typeName)
+        {
+            return m_Validator.GetAppServerTypeStatusInfoMetadata(typeName);
+        }
+
         public override void Dispose()
         {
             if (m_ValidationAppDomain != null)
@@ -87,9 +108,9 @@ namespace SuperSocket.SocketEngine
             m_Bootstrap = bootstrap;
         }
 
-        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName)
+        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName, StatusInfoAttribute[] serverStatusMetadata)
         {
-            return new AppDomainAppServer(serviceTypeName);
+            return new AppDomainAppServer(serviceTypeName, serverStatusMetadata);
         }
 
         internal override bool SetupWorkItemInstance(IWorkItem workItem, WorkItemFactoryInfo factoryInfo)

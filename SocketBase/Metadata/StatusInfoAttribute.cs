@@ -9,14 +9,25 @@ namespace SuperSocket.SocketBase.Metadata
     /// StatusInfo Metadata
     /// </summary>
     [Serializable]
-    public class StatusInfoMetadata
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class StatusInfoAttribute : Attribute
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="StatusInfoMetadata" /> class.
+        /// Initializes a new instance of the <see cref="StatusInfoAttribute" /> class.
         /// </summary>
-        public StatusInfoMetadata()
+        public StatusInfoAttribute()
         {
             OutputInPerfLog = true;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StatusInfoAttribute" /> class.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        public StatusInfoAttribute(string key)
+            : this()
+        {
+            Key = key;
         }
 
         /// <summary>
