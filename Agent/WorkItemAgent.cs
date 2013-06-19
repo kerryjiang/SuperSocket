@@ -87,7 +87,7 @@ namespace SuperSocket.Agent
             get { return m_AppServer.SessionCount; }
         }
 
-        StatusInfoMetadata[] IStatusInfoSource.GetServerStatusMetadata()
+        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
         {
             return m_AppServer.GetServerStatusMetadata();
         }
