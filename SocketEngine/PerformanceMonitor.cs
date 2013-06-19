@@ -29,7 +29,7 @@ namespace SuperSocket.SocketEngine
 
         private IWorkItem m_ServerManager;
 
-        private StatusInfoAttribute[][] m_ServerStatusMetadatas;
+        private List<KeyValuePair<string, StatusInfoAttribute[]>> m_ServerStatusMetadataSource;
 
         public PerformanceMonitor(IRootConfig config, IEnumerable<IWorkItem> appServers, IWorkItem serverManager, ILogFactory logFactory)
         {
@@ -54,11 +54,18 @@ namespace SuperSocket.SocketEngine
 
         private void SetupServerStatusMetadata()
         {
-            m_ServerStatusMetadatas = new StatusInfoAttribute[m_AppServers.Length][];
+            m_ServerStatusMetadataSource = new List<KeyValuePair<string, StatusInfoAttribute[]>>(m_AppServers.Length);
 
             for (var i = 0; i < m_AppServers.Length; i++)
             {
-                m_ServerStatusMetadatas[i] = m_AppServers[i].GetServerStatusMetadata();
+                var server = m_AppServers[i];
+                m_ServerStatusMetadataSource.Add(
+                    new KeyValuePair<string, StatusInfoAttribute[]>(server.Name, server.GetServerStatusMetadata()));
+            }
+
+            if (m_ServerManager != null && m_ServerManager.State == ServerState.Running)
+            {
+                m_ServerManager.TransferSystemMessage("ServerMetadataCollected", m_ServerStatusMetadataSource);
             }
         }
 
@@ -167,18 +174,7 @@ namespace SuperSocket.SocketEngine
             {
                 var s = m_AppServers[i];
 
-                var metadata = m_ServerStatusMetadatas[i];
-
-                if (s is IsolationAppServer)
-                {
-                    var newMetadata = s.GetServerStatusMetadata();
-
-                    if (newMetadata != metadata)
-                    {
-                        m_ServerStatusMetadatas[i] = newMetadata;
-                        metadata = newMetadata;
-                    }
-                }
+                var metadata = m_ServerStatusMetadataSource[i].Value;
 
                 if (metadata == null)
                 {
