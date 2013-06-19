@@ -44,12 +44,18 @@
     <Compile Include="..\..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Command\LOGIN.cs" />
+    <Compile Include="Command\START.cs" />
+    <Compile Include="Command\STOP.cs" />
     <Compile Include="Config\UserConfig.cs" />
     <Compile Include="Config\UserConfigCollection.cs" />
     <Compile Include="ListenersJsonConverter.cs" />
     <Compile Include="ManagementServer.cs" />
     <Compile Include="ManagementSession.cs" />
     <Compile Include="Model\CommandName.cs" />
+    <Compile Include="Model\LoginInfo.cs" />
+    <Compile Include="Model\LoginResult.cs" />
+    <Compile Include="Model\CommandResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -11,6 +11,7 @@ using SuperSocket.SocketBase.Protocol;
 using SuperSocket.WebSocket;
 using SuperSocket.WebSocket.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.Management.Server
 {
@@ -22,6 +23,32 @@ namespace SuperSocket.Management.Server
         private Dictionary<string, UserConfig> m_UsersDict;
 
         private string[] m_ExcludedServers;
+
+        private List<KeyValuePair<string, StatusInfoAttribute[]>> m_ServerStatusMetadataSource;
+
+        /// <summary>
+        /// Gets the server status metadata source.
+        /// </summary>
+        /// <value>
+        /// The server status metadata source.
+        /// </value>
+        internal List<KeyValuePair<string, StatusInfoAttribute[]>> ServerStatusMetadataSource
+        {
+            get { return m_ServerStatusMetadataSource; }
+        }
+
+        private NodeStatus m_CurrentNodeStatus;
+
+        /// <summary>
+        /// Gets the current node status.
+        /// </summary>
+        /// <value>
+        /// The current node status.
+        /// </value>
+        internal NodeStatus CurrentNodeStatus
+        {
+            get { return m_CurrentNodeStatus; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ManagementServer"/> class.
@@ -65,8 +92,31 @@ namespace SuperSocket.Management.Server
             return true;
         }
 
+        /// <summary>
+        /// Gets the name of the server by.
+        /// </summary>
+        /// <param name="serverName">Name of the server.</param>
+        /// <returns></returns>
+        internal IWorkItem GetServerByName(string serverName)
+        {
+            return Bootstrap.AppServers.FirstOrDefault(s => s.Name.Equals(serverName, StringComparison.OrdinalIgnoreCase));
+        }
+
+        /// <summary>
+        /// Gets the name of the user by.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        internal UserConfig GetUserByName(string name)
+        {
+            UserConfig user;
+            m_UsersDict.TryGetValue(name, out user);
+            return user;
+        }
+
         private void OnServerStatusCollected(object status)
         {
+            m_CurrentNodeStatus = (NodeStatus)status;
             Logger.Info(JsonSerialize(status));
         }
 
@@ -75,6 +125,10 @@ namespace SuperSocket.Management.Server
             if (messageType == "ServerStatusCollected")
             {
                 this.AsyncRun(OnServerStatusCollected, messageData);
+            }
+            else if (messageType == "ServerMetadataCollected")
+            {
+                m_ServerStatusMetadataSource = (List<KeyValuePair<string, StatusInfoAttribute[]>>)messageData;
             }
         }
 
