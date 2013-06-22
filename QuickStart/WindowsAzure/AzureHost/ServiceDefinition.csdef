@@ -1,15 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceDefinition name="AzureHost" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition">
+<ServiceDefinition name="AzureHost" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2012-10.1.8">
   <WorkerRole name="SuperSocketRole">
     <Imports>
       <Import moduleName="Diagnostics" />
     </Imports>
-    <ConfigurationSettings>
-    </ConfigurationSettings>
+    <ConfigurationSettings></ConfigurationSettings>
     <Endpoints>
       <InputEndpoint name="RemoteProcessServer_2012" protocol="tcp" port="2012" />
     </Endpoints>
-    <LocalResources>
-    </LocalResources>
+    <LocalResources></LocalResources>
   </WorkerRole>
 </ServiceDefinition>

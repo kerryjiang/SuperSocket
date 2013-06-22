@@ -11,11 +11,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "QuickStart", "QuickStart", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteProcessService", "..\RemoteProcessService\RemoteProcessService.csproj", "{CA67AA73-42D0-4A08-85C4-61FB569231A8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common", "..\..\Common\SuperSocket.Common.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase.Net40", "..\..\SocketBase\SuperSocket.SocketBase.Net40.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase", "..\..\SocketBase\SuperSocket.SocketBase.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common.Net40", "..\..\Common\SuperSocket.Common.Net40.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine", "..\..\SocketEngine\SuperSocket.SocketEngine.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine.Net40", "..\..\SocketEngine\SuperSocket.SocketEngine.Net40.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,14 +35,14 @@ Global
 		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA67AA73-42D0-4A08-85C4-61FB569231A8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{40B77789-EA11-4C05-8F52-86711D7BCAAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{40B77789-EA11-4C05-8F52-86711D7BCAAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40B77789-EA11-4C05-8F52-86711D7BCAAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{40B77789-EA11-4C05-8F52-86711D7BCAAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -52,8 +52,8 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A} = {A59169C3-C141-42A9-B2FC-71908841E033}
 		{40B77789-EA11-4C05-8F52-86711D7BCAAF} = {A59169C3-C141-42A9-B2FC-71908841E033}
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A} = {A59169C3-C141-42A9-B2FC-71908841E033}
 		{153FEF72-191C-43D9-BE71-2B351C7AC760} = {A59169C3-C141-42A9-B2FC-71908841E033}
 		{CA67AA73-42D0-4A08-85C4-61FB569231A8} = {17469CB9-FBD3-490C-B502-D7F9C5B5C632}
 	EndGlobalSection
