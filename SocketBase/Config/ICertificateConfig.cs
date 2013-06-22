@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SuperSocket.SocketBase.Config
 {
@@ -31,6 +32,15 @@ namespace SuperSocket.SocketBase.Config
         /// Gets the thumbprint.
         /// </summary>
         string Thumbprint { get; }
+
+
+        /// <summary>
+        /// Gets the store location of the certificate.
+        /// </summary>
+        /// <value>
+        /// The store location.
+        /// </value>
+        StoreLocation StoreLocation { get; }
 
 
         /// <summary>

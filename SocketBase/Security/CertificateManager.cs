@@ -34,7 +34,7 @@ namespace SuperSocket.SocketBase.Security
                 if (string.IsNullOrEmpty(storeName))
                     storeName = "Root";
 
-                var store = new X509Store(storeName);
+                var store = new X509Store(storeName, cerConfig.StoreLocation);
 
                 store.Open(OpenFlags.ReadOnly);
 

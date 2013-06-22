@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Configuration;
 using SuperSocket.SocketBase.Config;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SuperSocket.SocketEngine.Configuration
 {
@@ -49,6 +50,21 @@ namespace SuperSocket.SocketEngine.Configuration
             get
             {
                 return this["storeName"] as string;
+            }
+        }
+
+        /// <summary>
+        /// Gets the store location of the certificate.
+        /// </summary>
+        /// <value>
+        /// The store location.
+        /// </value>
+        [ConfigurationProperty("storeLocation", IsRequired = false, DefaultValue = "CurrentUser")]
+        public StoreLocation StoreLocation
+        {
+            get
+            {
+                return (StoreLocation)this["storeLocation"];
             }
         }
 
