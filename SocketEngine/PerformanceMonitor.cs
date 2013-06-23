@@ -54,7 +54,20 @@ namespace SuperSocket.SocketEngine
 
         private void SetupServerStatusMetadata()
         {
-            m_ServerStatusMetadataSource = new List<KeyValuePair<string, StatusInfoAttribute[]>>(m_AppServers.Length);
+            m_ServerStatusMetadataSource = new List<KeyValuePair<string, StatusInfoAttribute[]>>(m_AppServers.Length + 1);
+
+            m_ServerStatusMetadataSource.Add(
+                new KeyValuePair<string, StatusInfoAttribute[]>(string.Empty, 
+                    new StatusInfoAttribute[]
+                    {
+                        new StatusInfoAttribute("CpuUsage") { Name = "CPU Usage", Format = "{0:0.00}%", Order = 0 },
+                        new StatusInfoAttribute("WorkingSet") { Name = "Physical Memory Usage", Format = "{0:N}", Order = 1 },
+                        new StatusInfoAttribute("TotalThreadCount") { Name = "Total Thread Count", Order = 2 },
+                        new StatusInfoAttribute("AvailableWorkingThreads") { Name = "Available Working Threads", Order = 3 },
+                        new StatusInfoAttribute("AvailableCompletionPortThreads") { Name = "Available Completion Port Threads", Order = 4 },
+                        new StatusInfoAttribute("MaxWorkingThreads") { Name = "Maximum Working Threads", Order = 5 },
+                        new StatusInfoAttribute("MaxCompletionPortThreads") { Name = "Maximum Completion Port Threads", Order = 6 }
+                    }));
 
             for (var i = 0; i < m_AppServers.Length; i++)
             {
@@ -174,7 +187,7 @@ namespace SuperSocket.SocketEngine
             {
                 var s = m_AppServers[i];
 
-                var metadata = m_ServerStatusMetadataSource[i].Value;
+                var metadata = m_ServerStatusMetadataSource[i + 1].Value;
 
                 if (metadata == null)
                 {
