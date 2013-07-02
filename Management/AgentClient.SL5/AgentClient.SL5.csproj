@@ -84,6 +84,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\SocketBase\Metadata\StatusInfoAttribute.cs">
+      <Link>Metadata\StatusInfoAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\AgentClient.WPF\AgentWebSocket.cs">
       <Link>AgentWebSocket.cs</Link>
     </Compile>
@@ -128,12 +131,6 @@
     <Compile Include="..\AgentClient.WPF\MainPanel.xaml.cs">
       <Link>MainPanel.xaml.cs</Link>
       <DependentUpon>MainPanel.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="..\AgentClient.WPF\Metadata\ClientFieldAttribute.cs">
-      <Link>Metadata\ClientFieldAttribute.cs</Link>
-    </Compile>
-    <Compile Include="..\AgentClient.WPF\Metadata\StateFieldMetadata.cs">
-      <Link>Metadata\StateFieldMetadata.cs</Link>
     </Compile>
     <Compile Include="..\AgentClient.WPF\NodeHeader.xaml.cs">
       <Link>NodeHeader.xaml.cs</Link>

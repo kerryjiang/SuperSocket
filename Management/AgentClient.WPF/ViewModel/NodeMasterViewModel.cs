@@ -18,9 +18,9 @@ using Newtonsoft.Json.Linq;
 using SuperSocket.ClientEngine;
 using SuperSocket.Management.AgentClient.Command;
 using SuperSocket.Management.AgentClient.Config;
-using SuperSocket.Management.AgentClient.Metadata;
 using SuperSocket.Management.Server.Model;
 using WebSocket4Net;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.Management.AgentClient.ViewModel
 {
@@ -28,13 +28,13 @@ namespace SuperSocket.Management.AgentClient.ViewModel
     {
         private AgentWebSocket m_WebSocket;
         private NodeConfig m_Config;
-        private StateFieldMetadata[] m_FieldMetadatas;
+        private List<KeyValuePair<string, StatusInfoAttribute[]>> m_ServerStatusMetadataSource;
 
         private bool m_LoginFailed = false;
 
-        private ClientFieldAttribute[] m_ColumnAttributes;
+        private StatusInfoAttribute[] m_ColumnAttributes;
 
-        private ClientFieldAttribute[] m_NodeDetailAttributes;
+        private StatusInfoAttribute[] m_NodeDetailAttributes;
 
         private Timer m_ReconnectTimer;
 
@@ -106,15 +106,36 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 #endif
         }
 
+
+        private StatusInfoAttribute[] GetCommonColumns(IList<StatusInfoAttribute[]> source)
+        {
+            var all = new List<StatusInfoAttribute>();
+
+            foreach (var list in source)
+            {
+                all.AddRange(list);
+            }
+
+            return all.GroupBy(c => c.Key)
+                .Where(g => g.Count() == source.Count)
+                .Select(g => g.FirstOrDefault()).ToArray();
+        }
+
         void OnLoggedIn(dynamic result)
         {
             if (result["Result"].ToObject<bool>())
-            {                
-                m_FieldMetadatas = result["FieldMetadatas"].ToObject<StateFieldMetadata[]>();
-                var nodeInfo = DynamicViewModelFactory.Create(result["NodeInfo"].ToString());
-                BuildGridColumns(m_FieldMetadatas);
-                GlobalInfo = nodeInfo.GlobalInfo;
-                var instances = nodeInfo.Instances as IEnumerable<DynamicViewModel.DynamicViewModel>;
+            {
+                m_ServerStatusMetadataSource = result["ServerMetadataSource"].ToObject<List<KeyValuePair<string, StatusInfoAttribute[]>>>();
+                
+                BuildGridColumns(
+                    m_ServerStatusMetadataSource.FirstOrDefault(p => string.IsNullOrEmpty(p.Key)).Value,
+                    GetCommonColumns(m_ServerStatusMetadataSource.Where(p => !string.IsNullOrEmpty(p.Key)).Select(c => c.Value).ToArray()));
+                
+                var nodeInfo = DynamicViewModelFactory.Create(result["NodeStatus"].ToString());
+
+                GlobalInfo = nodeInfo.BootstrapStatus;
+
+                var instances = nodeInfo.InstancesStatus as IEnumerable<DynamicViewModel.DynamicViewModel>;
                 Instances = new ObservableCollection<DynamicViewModel.DynamicViewModel>(instances.Select(i =>
                     {
                         var startCommand = new DelegateCommand<DynamicViewModel.DynamicViewModel>(ExecuteStartCommand, CanExecuteStartCommand);
@@ -149,7 +170,8 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 
         private bool CanExecuteStartCommand(DynamicViewModel.DynamicViewModel target)
         {
-            return "False".Equals(((JValue)target["IsRunning"]).Value.ToString(), StringComparison.OrdinalIgnoreCase);
+            var isRunning = ((JValue)((DynamicViewModel.DynamicViewModel)target["Values"])["IsRunning"]).ToString();
+            return "False".Equals(isRunning, StringComparison.OrdinalIgnoreCase);
         }
 
         private void ExecuteStartCommand(DynamicViewModel.DynamicViewModel target)
@@ -163,7 +185,8 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 
         private bool CanExecuteStopCommand(DynamicViewModel.DynamicViewModel target)
         {
-            return "True".Equals(((JValue)target["IsRunning"]).Value.ToString(), StringComparison.OrdinalIgnoreCase);
+            var isRunning = ((JValue)((DynamicViewModel.DynamicViewModel)target["Values"])["IsRunning"]).ToString();
+            return "True".Equals(isRunning, StringComparison.OrdinalIgnoreCase);
         }
 
         private void ExecuteStopCommand(DynamicViewModel.DynamicViewModel target)
@@ -183,9 +206,9 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 
         void OnServerUpdated(dynamic nodeInfo)
         {
-            this.GlobalInfo.UpdateProperties(nodeInfo.GlobalInfo);
+            this.GlobalInfo.UpdateProperties(nodeInfo.BootstrapStatus);
 
-            var instances = nodeInfo.Instances as IEnumerable<DynamicViewModel.DynamicViewModel>;
+            var instances = nodeInfo.InstancesStatus as IEnumerable<DynamicViewModel.DynamicViewModel>;
 
             foreach (var i in instances)
             {
@@ -216,28 +239,10 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             }
         }
 
-        void BuildGridColumns(StateFieldMetadata[] fieldMetadatas)
+        void BuildGridColumns(StatusInfoAttribute[] nodeAttributes, StatusInfoAttribute[] fieldAttributes)
         {
-            var dict = new Dictionary<string, ClientFieldAttribute>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var metadata in fieldMetadatas)
-            {
-                if(metadata.InstanceNames == null || metadata.InstanceNames.Count == 0)
-                {
-                    m_NodeDetailAttributes = metadata.Fields;
-                    continue;
-                }
-
-                foreach(var f in metadata.Fields)
-                {
-                    if (dict.ContainsKey(f.Name))
-                        continue;
-
-                    dict.Add(f.Name, f);
-                }
-            }
-
-            m_ColumnAttributes = dict.Values.OrderBy(a => a.Order).ToArray();
+            m_NodeDetailAttributes = nodeAttributes;
+            m_ColumnAttributes = fieldAttributes.OrderBy(a => a.Order).ToArray();
         }
 
         void WebSocket_Error(object sender, ClientEngine.ErrorEventArgs e)
@@ -370,14 +375,16 @@ namespace SuperSocket.Management.AgentClient.ViewModel
                 if (existingColumns.Contains(a.Name, StringComparer.OrdinalIgnoreCase))
                     continue;
 
+                var bindingPath = GetColumnValueBindingName("Values", a.Key);
+
                 grid.Columns.Add(new DataGridTextColumn()
                     {
                         Header = a.Name,
-                        Binding = new Binding(GetColumnValueBindingName(a.PropertyName))
+                        Binding = new Binding(bindingPath)
                             {
                                 StringFormat = string.IsNullOrEmpty(a.Format) ? "{0}" : a.Format
                             },
-                        SortMemberPath = a.Name
+                        SortMemberPath = bindingPath
                     });
             }
         }
@@ -417,7 +424,7 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 
                     var value = new TextBlock();
                     value.Style = App.Current.Resources["GlobalInfoValue"] as Style;
-                    value.SetBinding(TextBlock.TextProperty, new Binding(GetColumnValueBindingName(att.PropertyName))
+                    value.SetBinding(TextBlock.TextProperty, new Binding(GetColumnValueBindingName("Values", att.Key))
                     {
                         StringFormat = string.IsNullOrEmpty(att.Format) ? "{0}" : att.Format
                     });

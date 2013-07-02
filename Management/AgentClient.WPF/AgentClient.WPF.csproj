@@ -74,6 +74,12 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\..\SocketBase\ListenerInfo.cs">
+      <Link>ListenerInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\..\SocketBase\Metadata\StatusInfoAttribute.cs">
+      <Link>Metadata\StatusInfoAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\Server\Model\CommandName.cs">
       <Link>CommandName.cs</Link>
     </Compile>
@@ -95,8 +101,6 @@
     <Compile Include="MainPanel.xaml.cs">
       <DependentUpon>MainPanel.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Metadata\ClientFieldAttribute.cs" />
-    <Compile Include="Metadata\StateFieldMetadata.cs" />
     <Compile Include="NodeHeader.xaml.cs">
       <DependentUpon>NodeHeader.xaml</DependentUpon>
     </Compile>

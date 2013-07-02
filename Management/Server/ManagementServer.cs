@@ -117,7 +117,7 @@ namespace SuperSocket.Management.Server
         private void OnServerStatusCollected(object status)
         {
             m_CurrentNodeStatus = (NodeStatus)status;
-            Logger.Info(JsonSerialize(status));
+            //Logger.Info(JsonSerialize(status));
         }
 
         protected override void OnSystemMessageReceived(string messageType, object messageData)
@@ -128,11 +128,13 @@ namespace SuperSocket.Management.Server
             }
             else if (messageType == "ServerMetadataCollected")
             {
+                //Logger.Info(JsonSerialize(messageData));
                 m_ServerStatusMetadataSource = (List<KeyValuePair<string, StatusInfoAttribute[]>>)messageData;
             }
         }
 
         private static JsonConverter m_IPEndPointConverter = new ListenersJsonConverter();
+        private static DataTypeJsonConverter m_DataTypeJsonConverter = new DataTypeJsonConverter();
 
         /// <summary>
         /// Jsons the serialize.
@@ -141,7 +143,7 @@ namespace SuperSocket.Management.Server
         /// <returns></returns>
         public override string JsonSerialize(object target)
         {
-            return JsonConvert.SerializeObject(target, m_IPEndPointConverter);
+            return JsonConvert.SerializeObject(target, m_IPEndPointConverter, m_DataTypeJsonConverter);
         }
     }
 }
