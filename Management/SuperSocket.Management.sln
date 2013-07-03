@@ -210,6 +210,7 @@ Global
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Debug|Mixed Platforms.ActiveCfg = Debug|Any CPU
+		{22A610A1-5F55-449E-8831-A832D692DAEC}.Debug|Mixed Platforms.Build.0 = Debug|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Release|Any CPU.Build.0 = Release|Any CPU
@@ -219,7 +220,6 @@ Global
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Test|Any CPU.Build.0 = Release|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Test|Mixed Platforms.ActiveCfg = Release|Any CPU
-		{22A610A1-5F55-449E-8831-A832D692DAEC}.Test|Mixed Platforms.Build.0 = Release|Any CPU
 		{22A610A1-5F55-449E-8831-A832D692DAEC}.Test|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution

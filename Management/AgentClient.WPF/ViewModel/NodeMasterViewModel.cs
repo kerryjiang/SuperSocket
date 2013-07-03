@@ -230,7 +230,7 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             if (result["Result"].ToObject<bool>())
             {
-                var nodeInfo = ((JObject)result["NodeInfo"]).ToDynamic(new DynamicViewModel.DynamicViewModel());
+                var nodeInfo = ((JObject)result["NodeStatus"]).ToDynamic(new DynamicViewModel.DynamicViewModel());
                 Dispatcher.BeginInvoke((Action<dynamic>)OnServerUpdated, nodeInfo);
             }
             else

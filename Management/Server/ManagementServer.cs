@@ -134,7 +134,6 @@ namespace SuperSocket.Management.Server
         }
 
         private static JsonConverter m_IPEndPointConverter = new ListenersJsonConverter();
-        private static DataTypeJsonConverter m_DataTypeJsonConverter = new DataTypeJsonConverter();
 
         /// <summary>
         /// Jsons the serialize.
@@ -143,7 +142,7 @@ namespace SuperSocket.Management.Server
         /// <returns></returns>
         public override string JsonSerialize(object target)
         {
-            return JsonConvert.SerializeObject(target, m_IPEndPointConverter, m_DataTypeJsonConverter);
+            return JsonConvert.SerializeObject(target, m_IPEndPointConverter);
         }
     }
 }
