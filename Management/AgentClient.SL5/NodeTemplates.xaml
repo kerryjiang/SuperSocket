@@ -34,12 +34,12 @@
                                 <StackPanel Orientation="Horizontal">
                                     <Rectangle VerticalAlignment="Center" Name="StatusFlag" Margin="5" Width="10" Height="10" Fill="Green">
                                         <i:Interaction.Triggers>
-                                            <ia:DataTrigger Binding="{Binding Path=[IsRunning], Converter={StaticResource ToStringConverter}}" Value="False">
+                                            <ia:DataTrigger Binding="{Binding Path=[Values][IsRunning], Converter={StaticResource ToStringConverter}}" Value="False">
                                                 <ia:DataTrigger.Actions>
                                                     <ia:ChangePropertyAction PropertyName="Fill" Value="Gray" />
                                                 </ia:DataTrigger.Actions>
                                             </ia:DataTrigger>
-                                            <ia:DataTrigger Binding="{Binding Path=[IsRunning], Converter={StaticResource ToStringConverter}}" Value="True">
+                                            <ia:DataTrigger Binding="{Binding Path=[Values][IsRunning], Converter={StaticResource ToStringConverter}}" Value="True">
                                                 <ia:DataTrigger.Actions>
                                                     <ia:ChangePropertyAction PropertyName="Fill" Value="Green" />
                                                 </ia:DataTrigger.Actions>
@@ -51,9 +51,6 @@
                             </DataTemplate>
                         </sdk:DataGridTemplateColumn.CellTemplate>
                     </sdk:DataGridTemplateColumn>
-                    <sdk:DataGridTextColumn Header="Is Running" Binding="{Binding [IsRunning]}"
-                                            Visibility="Collapsed"
-                                            SortMemberPath="[IsRunning]" />
                 </sdk:DataGrid.Columns>
             </sdk:DataGrid>
         </StackPanel>

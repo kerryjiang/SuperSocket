@@ -391,6 +391,9 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 
         public void NodeDetailDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            if (m_NodeDetailAttributes == null)
+                return;
+
             var grid = sender as Grid;
 
             var columns = 4;

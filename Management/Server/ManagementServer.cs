@@ -12,6 +12,7 @@ using SuperSocket.WebSocket;
 using SuperSocket.WebSocket.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
 using SuperSocket.SocketBase.Metadata;
+using SuperSocket.Management.Server.Model;
 
 namespace SuperSocket.Management.Server
 {
@@ -114,10 +115,21 @@ namespace SuperSocket.Management.Server
             return user;
         }
 
+        private void BroadcastServerUpdate()
+        {
+            var message = string.Format("{0} {1}", CommandName.UPDATE, JsonSerialize(m_CurrentNodeStatus));
+
+            //Only push update to loged in sessions
+            foreach (var s in this.GetSessions(s => s.Connected && s.LoggedIn))
+            {
+                s.Send(message);
+            }
+        }
+
         private void OnServerStatusCollected(object status)
         {
             m_CurrentNodeStatus = (NodeStatus)status;
-            //Logger.Info(JsonSerialize(status));
+            BroadcastServerUpdate();
         }
 
         protected override void OnSystemMessageReceived(string messageType, object messageData)
@@ -128,7 +140,6 @@ namespace SuperSocket.Management.Server
             }
             else if (messageType == "ServerMetadataCollected")
             {
-                //Logger.Info(JsonSerialize(messageData));
                 m_ServerStatusMetadataSource = (List<KeyValuePair<string, StatusInfoAttribute[]>>)messageData;
             }
         }

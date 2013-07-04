@@ -46,14 +46,13 @@
                                     <TextBlock VerticalAlignment="Center" Text="{Binding Name}"></TextBlock>
                                 </StackPanel>
                                 <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding Path=IsRunning, Converter={StaticResource ToStringConverter}}" Value="False">
+                                    <DataTrigger Binding="{Binding Path=Values.IsRunning, Converter={StaticResource ToStringConverter}}" Value="False">
                                         <Setter TargetName="StatusFlag" Property="Fill" Value="Gray" />
                                     </DataTrigger>
                                 </DataTemplate.Triggers>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTextColumn Header="Is Running" Binding="{Binding IsRunning}" Visibility="Collapsed" SortMemberPath="IsRunning" />
                 </DataGrid.Columns>
             </DataGrid>
         </StackPanel>
