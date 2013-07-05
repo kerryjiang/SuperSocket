@@ -65,16 +65,6 @@ namespace SuperSocket.SocketBase.Protocol
 
 
         /// <summary>
-        /// Gets the rest buffer.
-        /// </summary>
-        /// <returns></returns>
-        [Obsolete]
-        protected byte[] GetLeftBuffer()
-        {
-            return m_BufferSegments.ToArrayData();
-        }
-
-        /// <summary>
         /// Gets the size of the rest buffer.
         /// </summary>
         /// <value>

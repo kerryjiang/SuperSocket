@@ -303,17 +303,6 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message)' instead")]
-        public virtual void SendResponse(string message)
-        {
-            Send(message);
-        }
-
-        /// <summary>
         /// Try to send the data to client.
         /// </summary>
         /// <param name="data">The data which will be sent.</param>
@@ -334,18 +323,6 @@ namespace SuperSocket.SocketBase
         public virtual void Send(byte[] data, int offset, int length)
         {
             InternalSend(new ArraySegment<byte>(data, offset, length));
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="data">The data which will be sent.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        [Obsolete("Use 'Send(byte[] data, int offset, int length)' instead")]
-        public virtual void SendResponse(byte[] data, int offset, int length)
-        {
-            Send(data, offset, length);
         }
 
         private bool InternalTrySend(ArraySegment<byte> segment)
@@ -414,18 +391,6 @@ namespace SuperSocket.SocketBase
         {
             InternalSend(segment);
         }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="segment">The segment which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue; if it returns false, the sending queue may be full or the socket is not connected</returns>
-        [Obsolete("Use 'Send(ArraySegment<byte> segment)' instead")]
-        public virtual void SendResponse(ArraySegment<byte> segment)
-        {
-            InternalSend(segment);
-        }
-
 
         private bool InternalTrySend(IList<ArraySegment<byte>> segments)
         {
@@ -496,33 +461,9 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Sends the response.
         /// </summary>
-        /// <param name="segments">The segments.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(IList<ArraySegment<byte>> segments)' instead")]
-        public virtual void SendResponse(IList<ArraySegment<byte>> segments)
-        {
-            InternalSend(segments);
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
         /// <param name="message">The message which will be sent.</param>
         /// <param name="paramValues">The parameter values.</param>
         public virtual void Send(string message, params object[] paramValues)
-        {
-            var data = this.Charset.GetBytes(string.Format(message, paramValues));
-            InternalSend(new ArraySegment<byte>(data, 0, data.Length));
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        /// <param name="paramValues">The parameter values.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message, params object[] paramValues)' instead")]
-        public virtual void SendResponse(string message, params object[] paramValues)
         {
             var data = this.Charset.GetBytes(string.Format(message, paramValues));
             InternalSend(new ArraySegment<byte>(data, 0, data.Length));
@@ -709,32 +650,9 @@ namespace SuperSocket.SocketBase
         /// Sends the response.
         /// </summary>
         /// <param name="message">The message.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message)' instead")]
-        public override void SendResponse(string message)
-        {
-            base.Send(ProcessSendingMessage(message));
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message.</param>
         /// <param name="paramValues">The param values.</param>
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public override void Send(string message, params object[] paramValues)
-        {
-            base.Send(ProcessSendingMessage(message), paramValues);
-        }
-
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="paramValues">The param values.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        [Obsolete("Use 'Send(string message, params object[] paramValues)' instead")]
-        public override void SendResponse(string message, params object[] paramValues)
         {
             base.Send(ProcessSendingMessage(message), paramValues);
         }
