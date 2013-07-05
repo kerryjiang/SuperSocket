@@ -30,5 +30,7 @@ namespace SuperSocket.WebSocket
         public const byte StartByte = 0x00;
         public const byte EndByte = 0xFF;
         public static byte[] ClosingHandshake = new byte[] { 0xFF, 0x00 };
+        public const string WsSchema = "ws";
+        public const string WssSchema = "wss";
     }
 }

@@ -181,13 +181,6 @@ namespace SuperSocket.WebSocket
                 return null;
         }
 
-        private string m_UriScheme;
-
-        internal string UriScheme
-        {
-            get { return m_UriScheme; }
-        }
-
         private IProtocolProcessor m_WebSocketProtocolProcessor;
 
         IProtocolProcessor IWebSocketServer.WebSocketProtocolProcessor
@@ -348,11 +341,6 @@ namespace SuperSocket.WebSocket
         {
             if (m_SubProtocols != null && m_SubProtocols.Count > 0)
                 DefaultSubProtocol = m_SubProtocols.Values.FirstOrDefault();
-
-            if (string.IsNullOrEmpty(config.Security) || "none".Equals(config.Security, StringComparison.OrdinalIgnoreCase))
-                m_UriScheme = "ws";
-            else
-                m_UriScheme = "wss";
 
             m_WebSocketProtocolProcessor = new DraftHybi10Processor
             {

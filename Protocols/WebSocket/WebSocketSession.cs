@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Security.Authentication;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
@@ -225,7 +226,13 @@ namespace SuperSocket.WebSocket
         /// </summary>
         public string UriScheme
         {
-            get { return AppServer.UriScheme; }
+            get
+            {
+                if (SocketSession.SecureProtocol == SslProtocols.None)
+                    return WebSocketConstant.WsSchema;
+                else
+                    return WebSocketConstant.WssSchema;
+            }
         }
 
         /// <summary>
