@@ -36,6 +36,12 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public const int DefaultMaxRequestLength = 1024;
 
+
+        /// <summary>
+        /// Default send timeout value, in milliseconds
+        /// </summary>
+        public const int DefaultSendTimeout = 5000;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
         /// </summary>
@@ -75,6 +81,7 @@ namespace SuperSocket.SocketBase.Config
             ListenBacklog = 100;
             ReceiveBufferSize = DefaultReceiveBufferSize;
             SendingQueueSize = DefaultSendingQueueSize;
+            SendTimeOut = DefaultSendTimeout;
         }
 
         #region IServerConfig Members

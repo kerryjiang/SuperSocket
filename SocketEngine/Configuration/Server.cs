@@ -93,7 +93,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the send time out.
         /// </summary>
-        [ConfigurationProperty("sendTimeOut", IsRequired = false, DefaultValue = 0)]
+        [ConfigurationProperty("sendTimeOut", IsRequired = false, DefaultValue = ServerConfig.DefaultSendTimeout)]
         public int SendTimeOut
         {
             get { return (int)this["sendTimeOut"]; }

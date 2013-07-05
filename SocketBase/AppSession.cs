@@ -379,6 +379,16 @@ namespace SuperSocket.SocketBase
             if (InternalTrySend(segment))
                 return;
 
+            var sendTimeOut = Config.SendTimeOut;
+
+            //Don't retry, timeout directly
+            if (sendTimeOut < 0)
+            {
+                throw new Exception("The sending attempt timed out");
+            }
+
+            var timeOutTime = sendTimeOut > 0 ? DateTime.Now.AddMilliseconds(sendTimeOut) : DateTime.Now;
+
             var spinWait = new SpinWait();
 
             while (m_Connected)
@@ -387,6 +397,12 @@ namespace SuperSocket.SocketBase
 
                 if (InternalTrySend(segment))
                     return;
+
+                //If sendTimeOut = 0, don't have timeout check
+                if (sendTimeOut > 0 && DateTime.Now >= timeOutTime)
+                {
+                    throw new Exception("The sending attempt timed out");
+                }
             }
         }
 
@@ -441,6 +457,16 @@ namespace SuperSocket.SocketBase
             if (InternalTrySend(segments))
                 return;
 
+            var sendTimeOut = Config.SendTimeOut;
+
+            //Don't retry, timeout directly
+            if (sendTimeOut < 0)
+            {
+                throw new Exception("The sending attempt timed out");
+            }
+
+            var timeOutTime = sendTimeOut > 0 ? DateTime.Now.AddMilliseconds(sendTimeOut) : DateTime.Now;
+
             var spinWait = new SpinWait();
 
             while (m_Connected)
@@ -449,6 +475,12 @@ namespace SuperSocket.SocketBase
 
                 if (InternalTrySend(segments))
                     return;
+
+                //If sendTimeOut = 0, don't have timeout check
+                if (sendTimeOut > 0 && DateTime.Now >= timeOutTime)
+                {
+                    throw new Exception("The sending attempt timed out");
+                }
             }
         }
 
