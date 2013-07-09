@@ -10,7 +10,7 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace SwitchReceiveFilter
+namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
     [TestFixture]
     public class Test

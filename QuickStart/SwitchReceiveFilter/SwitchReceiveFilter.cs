@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
 
-namespace SwitchReceiveFilter
+namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
     public class SwitchReceiveFilter : IReceiveFilter<StringRequestInfo>
     {

@@ -5,7 +5,7 @@ using System.Text;
 using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase.Protocol;
 
-namespace SwitchReceiveFilter
+namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
     class ReceiveFilterA : BeginEndMarkReceiveFilter<StringRequestInfo>
     {

@@ -6,7 +6,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
-namespace SwitchReceiveFilter
+namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
     public class ECHO : StringCommandBase
     {

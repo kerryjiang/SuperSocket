@@ -8,8 +8,8 @@
     <ProjectGuid>{E0205F1B-0C46-4CCD-B9D6-4A05291849D1}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SwitchReceiveFilter</RootNamespace>
-    <AssemblyName>SwitchReceiveFilter</AssemblyName>
+    <RootNamespace>SuperSocket.QuickStart.SwitchReceiveFilter</RootNamespace>
+    <AssemblyName>SuperSocket.QuickStart.SwitchReceiveFilter</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
