@@ -89,7 +89,9 @@
     <Compile Include="ProcessBootstrap.cs" />
     <Compile Include="ProcessLocker.cs" />
     <Compile Include="RemoteBootstrapProxy.cs" />
+    <Compile Include="ServerTypeMetadata.cs" />
     <Compile Include="SocketSession.Net.cs" />
+    <Compile Include="TypeValidator.cs" />
     <Compile Include="WorkItemFactoryInfoLoader.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="DefaultBootstrap.cs" />

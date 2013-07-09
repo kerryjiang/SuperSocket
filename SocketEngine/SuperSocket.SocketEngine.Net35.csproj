@@ -113,6 +113,7 @@
     <Compile Include="ProcessLocker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoteBootstrapProxy.cs" />
+    <Compile Include="ServerTypeMetadata.cs" />
     <Compile Include="SocketListenerBase.cs" />
     <Compile Include="SocketServerFactory.cs" />
     <Compile Include="SocketServerBase.cs" />
@@ -120,6 +121,7 @@
     <Compile Include="SocketSession.Net.cs" />
     <Compile Include="TcpAsyncSocketListener.cs" />
     <Compile Include="TcpSocketServerBase.cs" />
+    <Compile Include="TypeValidator.cs" />
     <Compile Include="UdpSocketListener.cs" />
     <Compile Include="UdpSocketServer.cs" />
     <Compile Include="UdpSocketSession.cs" />

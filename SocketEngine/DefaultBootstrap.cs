@@ -355,8 +355,14 @@ namespace SuperSocket.SocketEngine
                 {
                     appServer = CreateWorkItemInstance(factoryInfo.ServerType, factoryInfo.StatusInfoMetadata);
 
-                    if ("true".Equals(factoryInfo.Config.Options.GetValue("serverManager"), StringComparison.OrdinalIgnoreCase))
+                    if (factoryInfo.IsServerManager)
                         serverManager = appServer;
+                    else if (!(appServer is IsolationAppServer))//No isolation
+                    {
+                        //In isolation mode, cannot check whether is server manager in the factory info loader
+                        if (TypeValidator.IsServerManagerType(appServer.GetType()))
+                            serverManager = appServer;
+                    }
 
                     if (m_GlobalLog.IsDebugEnabled)
                         m_GlobalLog.DebugFormat("The server instance {0} has been created!", factoryInfo.Config.Name);

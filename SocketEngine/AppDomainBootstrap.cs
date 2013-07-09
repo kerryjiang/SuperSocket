@@ -15,40 +15,6 @@ namespace SuperSocket.SocketEngine
 {
     class AppDomainWorkItemFactoryInfoLoader : WorkItemFactoryInfoLoader
     {
-        class TypeValidator : MarshalByRefObject
-        {
-            public bool ValidateTypeName(string typeName)
-            {
-                Type type = null;
-
-                try
-                {
-                    type = Type.GetType(typeName, false);
-                }
-                catch
-                {
-
-                }
-
-                return type != null;
-            }
-
-            public StatusInfoAttribute[] GetAppServerTypeStatusInfoMetadata(string typeName)
-            {
-                Type type = null;
-
-                try
-                {
-                    type = Type.GetType(typeName, false);
-                    return type.GetStatusInfoMetadata();
-                }
-                catch
-                {
-                    return null;
-                }
-            }
-        }
-
         public AppDomainWorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory passedInLogFactory)
             : base(config, passedInLogFactory)
         {
@@ -81,9 +47,9 @@ namespace SuperSocket.SocketEngine
             return typeName;
         }
 
-        protected override StatusInfoAttribute[] GetAppServerTypeStatusInfoMetadata(string typeName)
+        protected override ServerTypeMetadata GetServerTypeMetadata(string typeName)
         {
-            return m_Validator.GetAppServerTypeStatusInfoMetadata(typeName);
+            return m_Validator.GetServerTypeMetadata(typeName);
         }
 
         public override void Dispose()

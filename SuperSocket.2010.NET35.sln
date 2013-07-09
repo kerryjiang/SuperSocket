@@ -40,6 +40,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket.Net35
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Http.Net35", "Protocols\Http\SuperSocket.Http.Net35.csproj", "{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Management", "Management", "{542E0F92-539A-499D-9199-199D5BC670AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Management.Server.Net35", "Management\Server\SuperSocket.Management.Server.Net35.csproj", "{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +109,12 @@ Global
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}.Release|Any CPU.Build.0 = Release|Any CPU
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00}.Test|Any CPU.Build.0 = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,5 +124,6 @@ Global
 		{0E2D03FA-3792-4F50-9CA4-77E4C4598746} = {310FD673-1D6B-41B3-9BFF-8E0F984B524C}
 		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B} = {D90ABF9C-7B70-4541-ADCB-30F236985B4B}
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00} = {D90ABF9C-7B70-4541-ADCB-30F236985B4B}
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5} = {542E0F92-539A-499D-9199-199D5BC670AE}
 	EndGlobalSection
 EndGlobal

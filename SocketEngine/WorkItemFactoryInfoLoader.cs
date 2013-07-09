@@ -112,7 +112,13 @@ namespace SuperSocket.SocketEngine
                 var workItemFactory = new WorkItemFactoryInfo();
                 workItemFactory.Config = serverConfig;
                 workItemFactory.ServerType = serverType;
-                workItemFactory.StatusInfoMetadata = GetAppServerTypeStatusInfoMetadata(serverType);
+
+                var serverTypeMeta = GetServerTypeMetadata(serverType);
+                if (serverTypeMeta != null)
+                {
+                    workItemFactory.StatusInfoMetadata = serverTypeMeta.StatusInfoMetadata;
+                    workItemFactory.IsServerManager = serverTypeMeta.IsServerManager;
+                }
 
                 var factories = new List<ProviderFactoryInfo>();
 
@@ -236,11 +242,11 @@ namespace SuperSocket.SocketEngine
         }
 
         /// <summary>
-        /// Gets the app server type status info metadata, the return value is not required in this mode.
+        /// Gets the app server type's metadata, the return value is not required in this mode.
         /// </summary>
         /// <param name="typeName">Name of the type.</param>
         /// <returns></returns>
-        protected virtual StatusInfoAttribute[] GetAppServerTypeStatusInfoMetadata(string typeName)
+        protected virtual ServerTypeMetadata GetServerTypeMetadata(string typeName)
         {
             return null;
         }

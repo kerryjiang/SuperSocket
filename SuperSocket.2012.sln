@@ -40,6 +40,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Http.Net45", "P
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket.Net45", "Protocols\WebSocket\SuperSocket.WebSocket.Net45.csproj", "{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Management", "Management", "{042B79BD-ED46-45E7-91E6-676F82704A1C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Management.Server.Net45", "Management\Server\SuperSocket.Management.Server.Net45.csproj", "{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +109,12 @@ Global
 		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Test|Any CPU.Build.0 = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -114,5 +124,6 @@ Global
 		{ACCCC9EB-6386-44DC-8147-D69751FC6D93} = {BEAF6CBD-16DD-456B-A889-421E0DFAB783}
 		{501872C5-FEB8-4D9C-BE91-5CABA06DDE00} = {236D68C8-35AA-4726-B552-0FAFC74B5935}
 		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B} = {236D68C8-35AA-4726-B552-0FAFC74B5935}
+		{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5} = {042B79BD-ED46-45E7-91E6-676F82704A1C}
 	EndGlobalSection
 EndGlobal

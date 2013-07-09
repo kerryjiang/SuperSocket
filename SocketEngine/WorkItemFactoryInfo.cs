@@ -12,6 +12,8 @@ namespace SuperSocket.SocketEngine
     {
         public string ServerType { get; set; }
 
+        public bool IsServerManager { get; set; }
+
         public StatusInfoAttribute[] StatusInfoMetadata { get; set; }
 
         public IServerConfig Config { get; set; }

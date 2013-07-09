@@ -87,8 +87,10 @@ namespace SuperSocket.Management.Server
                 m_UsersDict.Add(u.Name, u);
             }
 
-            m_ExcludedServers = config.Options.GetValue("excludedServers", string.Empty).Split(
-                new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+            m_ExcludedServers = config.Options
+                .GetValue("excludedServers", string.Empty)
+                .Split(new char[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+                .ToList().Union(new string[] { this.Name }).Distinct().ToArray();
 
             return true;
         }
@@ -128,7 +130,9 @@ namespace SuperSocket.Management.Server
 
         private void OnServerStatusCollected(object status)
         {
-            m_CurrentNodeStatus = (NodeStatus)status;
+            var nodeStatus = (NodeStatus)status;
+            nodeStatus.InstancesStatus = nodeStatus.InstancesStatus.Where(s => !m_ExcludedServers.Contains(s.Name)).ToArray();
+            m_CurrentNodeStatus = nodeStatus;
             BroadcastServerUpdate();
         }
 
@@ -140,7 +144,7 @@ namespace SuperSocket.Management.Server
             }
             else if (messageType == "ServerMetadataCollected")
             {
-                m_ServerStatusMetadataSource = (List<KeyValuePair<string, StatusInfoAttribute[]>>)messageData;
+                m_ServerStatusMetadataSource = ((List<KeyValuePair<string, StatusInfoAttribute[]>>)messageData).Where(s => !m_ExcludedServers.Contains(s.Key)).ToList();
             }
         }
 
