@@ -200,7 +200,6 @@ namespace SuperSocket.SocketService
 
             bootstrap.Stop();
 
-            Console.WriteLine();
             Console.WriteLine("The SuperSocket ServiceEngine has been stopped!");
         }
 
