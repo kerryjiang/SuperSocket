@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -36,13 +36,13 @@ namespace SuperSocket.SocketEngine
         protected readonly object SyncRoot = new object();
 
         //0x00 0x00 0x00 0x00
-        //1st byte: Closed(Y/N)
+        //1st byte: Closed(Y/N) - 0x01
         //2nd byte: N/A
         //3th byte: CloseReason
         //Last byte: 0000 0000 - normal state
-        //bit 7: closed 
-        //bit 6: in sending
-        //bit 5: in receiving
+        //0000 0001: in sending
+        //0000 0010: in receiving
+        //0001 0000: in closing
         private int m_State = 0;
 
         private void AddStateFlag(int stateValue)
@@ -276,12 +276,12 @@ namespace SuperSocket.SocketEngine
                 if (currentQueue != queue || sendingTrackID != currentQueue.TrackID)
                 {
                     //Has been sent
-                    OnSendEnd(false);
+                    OnSendEnd();
                     return;
                 }
             }
 
-            if (IsInClosingOrClosed)
+            if (IsInClosingOrClosed && m_Client == null)
             {
                 OnSendEnd(true);
                 return;
@@ -334,12 +334,32 @@ namespace SuperSocket.SocketEngine
             Send(queue);
         }
 
+        private void OnSendEnd()
+        {
+            OnSendEnd(IsInClosingOrClosed);
+        }
+
         private void OnSendEnd(bool isInClosingOrClosed)
         {
             RemoveStateFlag(SocketState.InSending);
 
             if (isInClosingOrClosed)
             {
+                var client = m_Client;
+                //The socket has not been closed, close it now
+                if (client != null)
+                {
+                    //No data to be sent
+                    if (m_SendingQueue.Count == 0)
+                    {
+                        //Not can close it now
+                        InternalClose(client, GetCloseReasonFromState(), false);
+                        return;
+                    }
+
+                    return;
+                }
+
                 if (ValidateNotInSendingReceiving())
                 {
                     FireCloseEvent();
@@ -352,17 +372,24 @@ namespace SuperSocket.SocketEngine
             queue.Clear();
             m_SendingQueuePool.Push(queue);
 
+            var newQueue = m_SendingQueue;
+
             if (IsInClosingOrClosed)
             {
+                //has data is being sent and the socket isn't closed
+                if (newQueue.Count > 0 && m_Client != null)
+                {
+                    StartSend(newQueue, newQueue.TrackID, false);
+                    return;
+                }
+
                 OnSendEnd(true);
                 return;
             }
 
-            var newQueue = m_SendingQueue;
-
             if (newQueue.Count == 0)
             {
-                OnSendEnd(false);
+                OnSendEnd();
 
                 if (newQueue.Count > 0)
                 {
@@ -432,9 +459,24 @@ namespace SuperSocket.SocketEngine
             if (client == null)
                 return;
 
+            //Some data is in sending
+            if (CheckState(SocketState.InSending))
+            {
+                //Set closing reason only, don't close the socket directly
+                AddStateFlag(GetCloseReasonValue(reason));
+                return;
+            }
+
+            InternalClose(client, reason, true);
+        }
+
+        private void InternalClose(Socket client, CloseReason reason, bool setCloseReason)
+        {
             if (Interlocked.CompareExchange(ref m_Client, null, client) == client)
             {
-                AddStateFlag(((int)reason + 1) * m_CloseReasonMagic);
+                if (setCloseReason)
+                    AddStateFlag(GetCloseReasonValue(reason));
+
                 client.SafeClose();
 
                 if (ValidateNotInSendingReceiving())
@@ -448,7 +490,7 @@ namespace SuperSocket.SocketEngine
         {
             queue.Clear();
             m_SendingQueuePool.Push(queue);
-            OnSendEnd(false);
+            OnSendEnd();
             ValidateClosed(closeReason);
         }
 
@@ -486,9 +528,19 @@ namespace SuperSocket.SocketEngine
 
         private const int m_CloseReasonMagic = 256;
 
+        private int GetCloseReasonValue(CloseReason reason)
+        {
+            return ((int)reason + 1) * m_CloseReasonMagic;
+        }
+
+        private CloseReason GetCloseReasonFromState()
+        {
+            return (CloseReason)(m_State / m_CloseReasonMagic - 1);
+        }
+
         private void FireCloseEvent()
         {
-            OnClosed((CloseReason)(m_State / m_CloseReasonMagic - 1));
+            OnClosed(GetCloseReasonFromState());
         }
 
         private void ValidateClosed(CloseReason closeReason)
@@ -513,11 +565,12 @@ namespace SuperSocket.SocketEngine
 
         protected virtual bool IsIgnorableSocketError(int socketErrorCode)
         {
-            if (socketErrorCode == 10004
-                || socketErrorCode == 10053
-                || socketErrorCode == 10054
-                || socketErrorCode == 10058
-                || socketErrorCode == 995
+            if (socketErrorCode == 10004 //Interrupted
+                || socketErrorCode == 10053 //ConnectionAborted
+                || socketErrorCode == 10054 //ConnectionReset
+                || socketErrorCode == 10058 //Shutdown
+                || socketErrorCode == 10060 //TimedOut
+                || socketErrorCode == 995 //OperationAborted
                 || socketErrorCode == -1073741299)
             {
                 return true;
