@@ -193,7 +193,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// Gets the clear idle session interval, in seconds.
         /// </summary>
         /// <value>The clear idle session interval.</value>
-        [ConfigurationProperty("clearIdleSessionInterval", IsRequired = false, DefaultValue = 120)]
+        [ConfigurationProperty("clearIdleSessionInterval", IsRequired = false, DefaultValue = ServerConfig.DefaultClearIdleSessionInterval)]
         public int ClearIdleSessionInterval
         {
             get { return (int)this["clearIdleSessionInterval"]; }
@@ -204,7 +204,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// Gets the idle session timeout time length, in seconds.
         /// </summary>
         /// <value>The idle session time out.</value>
-        [ConfigurationProperty("idleSessionTimeOut", IsRequired = false, DefaultValue = 300)]
+        [ConfigurationProperty("idleSessionTimeOut", IsRequired = false, DefaultValue = ServerConfig.DefaultIdleSessionTimeOut)]
         public int IdleSessionTimeOut
         {
             get { return (int)this["idleSessionTimeOut"]; }

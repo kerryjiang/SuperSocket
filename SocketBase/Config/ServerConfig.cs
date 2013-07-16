@@ -42,6 +42,18 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public const int DefaultSendTimeout = 5000;
 
+
+        /// <summary>
+        /// Default clear idle session interval
+        /// </summary>
+        public const int DefaultClearIdleSessionInterval = 120;
+
+
+        /// <summary>
+        /// Default idle session timeout
+        /// </summary>
+        public const int DefaultIdleSessionTimeOut = 300;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
         /// </summary>
@@ -82,6 +94,8 @@ namespace SuperSocket.SocketBase.Config
             ReceiveBufferSize = DefaultReceiveBufferSize;
             SendingQueueSize = DefaultSendingQueueSize;
             SendTimeOut = DefaultSendTimeout;
+            ClearIdleSessionInterval = DefaultClearIdleSessionInterval;
+            IdleSessionTimeOut = DefaultIdleSessionTimeOut;
         }
 
         #region IServerConfig Members
