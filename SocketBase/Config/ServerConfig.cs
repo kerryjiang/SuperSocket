@@ -37,6 +37,16 @@ namespace SuperSocket.SocketBase.Config
         public const int DefaultMaxRequestLength = 1024;
 
         /// <summary>
+        /// Default clear idle session interval
+        /// </summary>
+        public const int DefaultClearIdleSessionInterval = 120;
+
+        /// <summary>
+        /// Default idle session timeout
+        /// </summary>
+        public const int DefaultIdleSessionTimeOut = 300;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
         /// </summary>
         /// <param name="serverConfig">The server config.</param>
@@ -75,6 +85,8 @@ namespace SuperSocket.SocketBase.Config
             ListenBacklog = 100;
             ReceiveBufferSize = DefaultReceiveBufferSize;
             SendingQueueSize = DefaultSendingQueueSize;
+            ClearIdleSessionInterval = DefaultClearIdleSessionInterval;
+            IdleSessionTimeOut = DefaultIdleSessionTimeOut;
         }
 
         #region IServerConfig Members
