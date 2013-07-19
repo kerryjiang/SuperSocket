@@ -305,7 +305,7 @@ namespace SuperSocket.Test
 
                     Random rd = new Random(1);
 
-                    StringBuilder sb = new StringBuilder();                   
+                    StringBuilder sb = new StringBuilder();
 
                     for (int i = 0; i < 1; i++)
                     {
@@ -321,6 +321,33 @@ namespace SuperSocket.Test
             }
         }
 
+        [Test, Repeat(5)]
+        public void TestSendBeforeClose()
+        {
+            var configSource = StartBootstrap(DefaultServerConfig);
+            var serverConfig = configSource.Servers.FirstOrDefault();
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                socket.Connect(serverAddress);
+                Stream socketStream = GetSocketStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    reader.ReadLine();
+
+                    var line = Guid.NewGuid().ToString();
+
+                    writer.WriteLine("CLOSE " + line);
+                    writer.Flush();
+
+                    string echoMessage = reader.ReadLine();
+                    Console.WriteLine("C:" + echoMessage);
+                    Assert.AreEqual(line, echoMessage);
+                }
+            }
+        }
 
         [Test]
         public void TestCommandCombining()

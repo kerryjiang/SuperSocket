@@ -12,6 +12,9 @@ namespace SuperSocket.Test.Command
     {
         public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
         {
+            if (!string.IsNullOrEmpty(requestInfo.Body))
+                session.Send(requestInfo.Body);
+
             session.Close(CloseReason.ServerClosing);
         }
     }
