@@ -21,6 +21,9 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public static IBootstrap CreateBootstrap(IConfigurationSource config)
         {
+            if (config == null)
+                throw new ArgumentNullException("config");
+
             if (config.Isolation == IsolationMode.AppDomain)
                 return new AppDomainBootstrap(config);
             else if (config.Isolation == IsolationMode.Process)
@@ -40,7 +43,14 @@ namespace SuperSocket.SocketEngine
             if (configSection == null)//to keep compatible with old version
                 configSection = ConfigurationManager.GetSection("socketServer");
 
-            return CreateBootstrap(configSection as IConfigurationSource);
+            if(configSection == null)
+                throw new ConfigurationErrorsException("Missing 'superSocket' or 'socketServer' configuration section.");
+
+            var configSource = configSection as IConfigurationSource;
+            if(configSource == null)
+                throw new ConfigurationErrorsException("Invalid 'superSocket' or 'socketServer' configuration section.");
+
+            return CreateBootstrap(configSource);
         }
 
         /// <summary>
