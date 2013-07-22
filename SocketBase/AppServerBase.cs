@@ -81,7 +81,7 @@ namespace SuperSocket.SocketBase
             get { return this.ReceiveFilterFactory; }
         }
 
-        private List<ICommandLoader> m_CommandLoaders;
+        private List<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> m_CommandLoaders = new List<ICommandLoader<ICommand<TAppSession, TRequestInfo>>>();
 
         private Dictionary<string, CommandInfo<ICommand<TAppSession, TRequestInfo>>> m_CommandContainer;
 
@@ -200,16 +200,16 @@ namespace SuperSocket.SocketBase
             foreach (var loader in m_CommandLoaders)
             {
                 loader.Error += new EventHandler<ErrorEventArgs>(CommandLoaderOnError);
-                loader.Updated += new EventHandler<CommandUpdateEventArgs<ICommand>>(CommandLoaderOnCommandsUpdated);
+                loader.Updated += new EventHandler<CommandUpdateEventArgs<ICommand<TAppSession, TRequestInfo>>>(CommandLoaderOnCommandsUpdated);
 
-                if (!loader.Initialize<ICommand<TAppSession, TRequestInfo>>(RootConfig, this))
+                if (!loader.Initialize(RootConfig, this))
                 {
                     if (Logger.IsErrorEnabled)
                         Logger.ErrorFormat("Failed initialize the command loader {0}.", loader.ToString());
                     return false;
                 }
 
-                IEnumerable<ICommand> commands;
+                IEnumerable<ICommand<TAppSession, TRequestInfo>> commands;
                 if (!loader.TryLoadCommands(out commands))
                 {
                     if (Logger.IsErrorEnabled)
@@ -248,7 +248,7 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        void CommandLoaderOnCommandsUpdated(object sender, CommandUpdateEventArgs<ICommand> e)
+        void CommandLoaderOnCommandsUpdated(object sender, CommandUpdateEventArgs<ICommand<TAppSession, TRequestInfo>> e)
         {
             var workingDict = m_CommandContainer.Values.ToDictionary(c => c.Command.Name, c => c.Command, StringComparer.OrdinalIgnoreCase);
             var updatedCommands = 0;
@@ -258,31 +258,21 @@ namespace SuperSocket.SocketBase
                 if (c == null)
                     continue;
 
-                var castedCommand = c.Command as ICommand<TAppSession, TRequestInfo>;
-
-                if (castedCommand == null)
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.Error("Invalid command has been found! Command name: " + c.Command.Name);
-
-                    continue;
-                }
-
                 if (c.UpdateAction == CommandUpdateAction.Remove)
                 {
-                    workingDict.Remove(castedCommand.Name);
+                    workingDict.Remove(c.Command.Name);
                     if (Logger.IsInfoEnabled)
                         Logger.InfoFormat("The command '{0}' has been removed from this server!", c.Command.Name);
                 }
                 else if (c.UpdateAction == CommandUpdateAction.Add)
                 {
-                    workingDict.Add(castedCommand.Name, castedCommand);
+                    workingDict.Add(c.Command.Name, c.Command);
                     if (Logger.IsInfoEnabled)
                         Logger.InfoFormat("The command '{0}' has been added into this server!", c.Command.Name);
                 }
                 else
                 {
-                    workingDict[c.Command.Name] = castedCommand;
+                    workingDict[c.Command.Name] = c.Command;
                     if (Logger.IsInfoEnabled)
                         Logger.InfoFormat("The command '{0}' has been updated!", c.Command.Name);
                 }
@@ -366,7 +356,7 @@ namespace SuperSocket.SocketBase
                 TextEncoding = new ASCIIEncoding();
         }
 
-        private bool SetupMedium(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory, IEnumerable<IConnectionFilter> connectionFilters, IEnumerable<ICommandLoader> commandLoaders)
+        private bool SetupMedium(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory, IEnumerable<IConnectionFilter> connectionFilters, IEnumerable<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> commandLoaders)
         {
             if (receiveFilterFactory != null)
                 ReceiveFilterFactory = receiveFilterFactory;
@@ -379,9 +369,10 @@ namespace SuperSocket.SocketBase
                 m_ConnectionFilters.AddRange(connectionFilters);
             }
 
-            SetupCommandLoader(commandLoaders);
+            if (commandLoaders != null && commandLoaders.Any())
+                m_CommandLoaders.AddRange(commandLoaders);
 
-            return true;
+            return SetupCommandLoaders(m_CommandLoaders);
         }
 
         private bool SetupAdvanced(IServerConfig config)
@@ -532,7 +523,7 @@ namespace SuperSocket.SocketBase
 
             Logger = CreateLogger(this.Name);
 
-            if (!SetupMedium(GetProviderInstance<IReceiveFilterFactory<TRequestInfo>>(providers), GetProviderInstance<IEnumerable<IConnectionFilter>>(providers), GetProviderInstance<IEnumerable<ICommandLoader>>(providers)))
+            if (!SetupMedium(GetProviderInstance<IReceiveFilterFactory<TRequestInfo>>(providers), GetProviderInstance<IEnumerable<IConnectionFilter>>(providers), GetProviderInstance<IEnumerable<ICommandLoader<ICommand<TAppSession, TRequestInfo>>>>(providers)))
                 return false;
 
             if (!SetupAdvanced(config))
@@ -568,7 +559,7 @@ namespace SuperSocket.SocketBase
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> commandLoaders = null)
         {
             return Setup(new RootConfig(), config, socketServerFactory, receiveFilterFactory, logFactory, connectionFilters, commandLoaders);
         }
@@ -584,7 +575,7 @@ namespace SuperSocket.SocketBase
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> commandLoaders = null)
         {
             TrySetInitializedState();
 
@@ -602,7 +593,7 @@ namespace SuperSocket.SocketBase
                 return false;
 
             if (!Setup(rootConfig, config))
-                return false;            
+                return false;
 
             if (!SetupFinal())
                 return false;
@@ -622,7 +613,7 @@ namespace SuperSocket.SocketBase
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns>return setup result</returns>
-        public bool Setup(string ip, int port, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader> commandLoaders = null)
+        public bool Setup(string ip, int port, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TRequestInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> commandLoaders = null)
         {
             return Setup(new ServerConfig
                             {
@@ -667,7 +658,7 @@ namespace SuperSocket.SocketBase
 
             IEnumerable<IConnectionFilter> connectionFilters = null;
 
-            if (!TryGetProviderInstances(factories, ProviderKey.ConnectionFilter, out connectionFilters,
+            if (!TryGetProviderInstances(factories, ProviderKey.ConnectionFilter, null,
                     (p, f) =>
                     {
                         var ret = p.Initialize(f.Name, this);
@@ -678,7 +669,7 @@ namespace SuperSocket.SocketBase
                         }
 
                         return ret;
-                    }))
+                    }, out connectionFilters))
             {
                 return false;
             }
@@ -686,7 +677,10 @@ namespace SuperSocket.SocketBase
             if (!SetupMedium(
                     GetSingleProviderInstance<IReceiveFilterFactory<TRequestInfo>>(factories, ProviderKey.ReceiveFilterFactory),
                     connectionFilters,
-                    GetProviderInstances<ICommandLoader>(factories, ProviderKey.CommandLoader)))
+                    GetProviderInstances<ICommandLoader<ICommand<TAppSession, TRequestInfo>>>(
+                            factories,
+                            ProviderKey.CommandLoader,
+                            (t) => Activator.CreateInstance(t.MakeGenericType(typeof(ICommand<TAppSession, TRequestInfo>))))))
             {
                 return false;
             }
@@ -715,7 +709,7 @@ namespace SuperSocket.SocketBase
             return factory.ExportFactory.CreateExport<TProvider>();
         }
 
-        private bool TryGetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key, out IEnumerable<TProvider> providers, Func<TProvider, ProviderFactoryInfo, bool> initializer)
+        private bool TryGetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key, Func<Type, object> creator, Func<TProvider, ProviderFactoryInfo, bool> initializer, out IEnumerable<TProvider> providers)
             where TProvider : class
         {
             IEnumerable<ProviderFactoryInfo> selectedFactories = factories.Where(p => p.Key.Name == key.Name);
@@ -732,7 +726,7 @@ namespace SuperSocket.SocketBase
 
             foreach (var f in selectedFactories)
             {
-                var provider = f.ExportFactory.CreateExport<TProvider>();
+                var provider = creator == null ? f.ExportFactory.CreateExport<TProvider>() : f.ExportFactory.CreateExport<TProvider>(creator);
 
                 if (!initializer(provider, f))
                     return false;
@@ -746,8 +740,14 @@ namespace SuperSocket.SocketBase
         private IEnumerable<TProvider> GetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key)
             where TProvider : class
         {
+            return GetProviderInstances<TProvider>(factories, key, null);
+        }
+
+        private IEnumerable<TProvider> GetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key, Func<Type, object> creator)
+            where TProvider : class
+        {
             IEnumerable<TProvider> providers;
-            TryGetProviderInstances<TProvider>(factories, key, out providers, (p, f) => true);
+            TryGetProviderInstances<TProvider>(factories, key, creator, (p, f) => true, out providers);
             return providers;
         }
 
@@ -766,14 +766,14 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        private bool SetupCommandLoader(IEnumerable<ICommandLoader> commandLoaders)
+        /// <summary>
+        /// Setups the command loaders.
+        /// </summary>
+        /// <param name="commandLoaders">The command loaders.</param>
+        /// <returns></returns>
+        protected virtual bool SetupCommandLoaders(List<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> commandLoaders)
         {
-            m_CommandLoaders = new List<ICommandLoader>();
-            m_CommandLoaders.Add(new ReflectCommandLoader());
-
-            if (commandLoaders != null && commandLoaders.Any())
-                m_CommandLoaders.AddRange(commandLoaders);
-
+            commandLoaders.Add(new ReflectCommandLoader<ICommand<TAppSession, TRequestInfo>>());
             return true;
         }
 

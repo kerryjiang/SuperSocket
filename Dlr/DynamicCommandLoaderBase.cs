@@ -16,7 +16,8 @@ namespace SuperSocket.Dlr
     /// <summary>
     /// Which is used for loading dynamic script file
     /// </summary>
-    public abstract class DynamicCommandLoaderBase : CommandLoaderBase
+    public abstract class DynamicCommandLoaderBase<TCommand> : CommandLoaderBase<TCommand>
+        where TCommand : ICommand
     {
         class CommandFileEntity
         {
@@ -42,7 +43,7 @@ namespace SuperSocket.Dlr
         private ServerCommandState m_ServerCommandState;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicCommandLoaderBase"/> class.
+        /// Initializes a new instance of the <see cref="DynamicCommandLoaderBase{TCommand}"/> class.
         /// </summary>
         public DynamicCommandLoaderBase()
             : this(ScriptRuntime.CreateFromConfiguration())
@@ -51,7 +52,7 @@ namespace SuperSocket.Dlr
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicCommandLoaderBase"/> class.
+        /// Initializes a new instance of the <see cref="DynamicCommandLoaderBase{TCommand}"/> class.
         /// </summary>
         /// <param name="scriptRuntime">The script runtime.</param>
         public DynamicCommandLoaderBase(ScriptRuntime scriptRuntime)
@@ -68,26 +69,26 @@ namespace SuperSocket.Dlr
         /// <returns></returns>
         protected abstract IEnumerable<IScriptSource> GetScriptSources(IRootConfig rootConfig, IAppServer appServer);
 
-        private IEnumerable<CommandUpdateInfo<ICommand>> GetUpdatedCommands(IEnumerable<CommandUpdateInfo<IScriptSource>> updatedSources)
+        private IEnumerable<CommandUpdateInfo<TCommand>> GetUpdatedCommands(IEnumerable<CommandUpdateInfo<IScriptSource>> updatedSources)
         {
-            var updatedCommands = new List<CommandUpdateInfo<ICommand>>();
+            var updatedCommands = new List<CommandUpdateInfo<TCommand>>();
 
             foreach (var source in updatedSources)
             {
                 if (source.UpdateAction == CommandUpdateAction.Remove)
                 {
-                    updatedCommands.Add(new CommandUpdateInfo<ICommand>
+                    updatedCommands.Add(new CommandUpdateInfo<TCommand>
                     {
-                        Command = (ICommand)Activator.CreateInstance(m_MockupCommandType, source),
+                        Command = (TCommand)Activator.CreateInstance(m_MockupCommandType, source),
                         UpdateAction = source.UpdateAction
                     });
                 }
 
                 try
                 {
-                    var command = (ICommand)Activator.CreateInstance(m_DynamicCommandType, ScriptRuntime, source);
+                    var command = (TCommand)Activator.CreateInstance(m_DynamicCommandType, ScriptRuntime, source);
 
-                    updatedCommands.Add(new CommandUpdateInfo<ICommand>
+                    updatedCommands.Add(new CommandUpdateInfo<TCommand>
                     {
                         Command = command,
                         UpdateAction = source.UpdateAction
@@ -113,13 +114,12 @@ namespace SuperSocket.Dlr
         private Type m_MockupCommandType;
 
         /// <summary>
-        /// Initializes with the specified app server.
+        /// Initializes the command loader by the root config and the appserver instance.
         /// </summary>
-        /// <typeparam name="TCommand">The type of the command.</typeparam>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        public override bool Initialize<TCommand>(IRootConfig rootConfig, IAppServer appServer)
+        public override bool Initialize(IRootConfig rootConfig, IAppServer appServer)
         {
             m_RootConfig = rootConfig;
             m_AppServer = appServer;
@@ -135,9 +135,9 @@ namespace SuperSocket.Dlr
         /// </summary>
         /// <param name="commands">The commands.</param>
         /// <returns></returns>
-        public override bool TryLoadCommands(out IEnumerable<ICommand> commands)
+        public override bool TryLoadCommands(out IEnumerable<TCommand> commands)
         {
-            var outputCommands = new List<ICommand>();
+            var outputCommands = new List<TCommand>();
 
             if (m_ServerCommandState != null)
             {
@@ -158,11 +158,11 @@ namespace SuperSocket.Dlr
 
             foreach (var source in scriptSources)
             {
-                ICommand command;
+                TCommand command;
 
                 try
                 {
-                    command = (ICommand)Activator.CreateInstance(m_DynamicCommandType, ScriptRuntime, source);
+                    command = (TCommand)Activator.CreateInstance(m_DynamicCommandType, ScriptRuntime, source);
                     serverCommandState.Sources.Add(source);
                     outputCommands.Add(command);
                 }

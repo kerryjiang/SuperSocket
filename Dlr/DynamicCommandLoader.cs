@@ -6,18 +6,20 @@ using System.Text;
 using Microsoft.Scripting.Hosting;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.Dlr
 {
     /// <summary>
     /// DynamicCommandLoader
     /// </summary>
-    public class DynamicCommandLoader : DynamicCommandLoaderBase
+    public class DynamicCommandLoader<TCommand> : DynamicCommandLoaderBase<TCommand>
+        where TCommand : ICommand
     {
         private HashSet<string> m_ScriptFileExtensions;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicCommandLoader"/> class.
+        /// Initializes a new instance of the <see cref="DynamicCommandLoader{TCommand}"/> class.
         /// </summary>
         public DynamicCommandLoader()
             : base()
@@ -25,8 +27,9 @@ namespace SuperSocket.Dlr
             LoadScriptFileExtensions();
         }
 
+
         /// <summary>
-        /// Initializes a new instance of the <see cref="DynamicCommandLoader"/> class.
+        /// Initializes a new instance of the <see cref="DynamicCommandLoader{TCommand}"/> class.
         /// </summary>
         /// <param name="scriptRuntime">The script runtime.</param>
         public DynamicCommandLoader(ScriptRuntime scriptRuntime)

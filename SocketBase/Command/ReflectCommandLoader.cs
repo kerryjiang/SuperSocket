@@ -12,22 +12,29 @@ namespace SuperSocket.SocketBase.Command
     /// <summary>
     /// A command loader which loads commands from assembly by reflection
     /// </summary>
-    public class ReflectCommandLoader : CommandLoaderBase
+    public class ReflectCommandLoader<TCommand> : CommandLoaderBase<TCommand>
+        where TCommand : class, ICommand
     {
         private Type m_CommandType;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ReflectCommandLoader{TCommand}"/> class.
+        /// </summary>
+        public ReflectCommandLoader()
+        {
+            m_CommandType = typeof(TCommand);
+        }
 
         private IAppServer m_AppServer;
 
         /// <summary>
-        /// Initializes the command loader
+        /// Initializes the command loader by the root config and the server instance.
         /// </summary>
-        /// <typeparam name="TCommand">The type of the command.</typeparam>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="appServer">The app server.</param>
         /// <returns></returns>
-        public override bool Initialize<TCommand>(IRootConfig rootConfig, IAppServer appServer)
+        public override bool Initialize(IRootConfig rootConfig, IAppServer appServer)
         {
-            m_CommandType = typeof(TCommand);
             m_AppServer = appServer;
             return true;
         }
@@ -37,7 +44,7 @@ namespace SuperSocket.SocketBase.Command
         /// </summary>
         /// <param name="commands">The commands.</param>
         /// <returns></returns>
-        public override bool TryLoadCommands(out IEnumerable<ICommand> commands)
+        public override bool TryLoadCommands(out IEnumerable<TCommand> commands)
         {
             commands = null;
 
@@ -76,13 +83,13 @@ namespace SuperSocket.SocketBase.Command
                 commandAssemblies.Add(Assembly.GetEntryAssembly());
             }
 
-            var outputCommands = new List<ICommand>();
+            var outputCommands = new List<TCommand>();
 
             foreach (var assembly in commandAssemblies)
             {
                 try
                 {
-                    outputCommands.AddRange(assembly.GetImplementedObjectsByInterface<ICommand>(m_CommandType));
+                    outputCommands.AddRange(assembly.GetImplementedObjectsByInterface<TCommand>());
                 }
                 catch (Exception exc)
                 {

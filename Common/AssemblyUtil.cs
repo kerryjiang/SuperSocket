@@ -4,9 +4,9 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 using System.Linq;
+using System.Globalization;
 
-#if SILVERLIGHT
-#else
+#if !SILVERLIGHT
 using System.Runtime.Serialization.Formatters.Binary;
 #endif
 
@@ -49,6 +49,69 @@ namespace SuperSocket.Common
             result = (T)instance;
             return result;
         }
+
+        /// <summary>
+        /// Gets the type by the full name, also return matched generic type without checking generic type parameters in the name.
+        /// </summary>
+        /// <param name="fullTypeName">Full name of the type.</param>
+        /// <param name="throwOnError">if set to <c>true</c> [throw on error].</param>
+        /// <param name="ignoreCase">if set to <c>true</c> [ignore case].</param>
+        /// <returns></returns>
+#if !NET35
+        public static Type GetType(string fullTypeName, bool throwOnError, bool ignoreCase)
+        {
+            var targetType = Type.GetType(fullTypeName, false, ignoreCase);
+
+            if (targetType != null)
+                return targetType;
+
+            var names = fullTypeName.Split(',');
+            var assemblyName = names[1].Trim();
+
+            try
+            {
+                var assembly = Assembly.Load(assemblyName);
+
+                var typeNamePrefix = names[0].Trim() + "`";
+
+                var matchedTypes = assembly.GetExportedTypes().Where(t => t.IsGenericType
+                        && t.FullName.StartsWith(typeNamePrefix, ignoreCase, CultureInfo.InvariantCulture)).ToArray();
+
+                if (matchedTypes.Length != 1)
+                    return null;
+
+                return matchedTypes[0];
+            }
+            catch (Exception e)
+            {
+                if (throwOnError)
+                    throw e;
+
+                return null;
+            }
+        }
+#else
+        public static Type GetType(string fullTypeName, bool throwOnError, bool ignoreCase)
+        {
+            return Type.GetType(fullTypeName, null, (a, n, ign) =>
+                {
+                    var targetType = a.GetType(n, false, ign);
+
+                    if (targetType != null)
+                        return targetType;
+
+                    var typeNamePrefix = n + "`";
+
+                    var matchedTypes = a.GetExportedTypes().Where(t => t.IsGenericType
+                            && t.FullName.StartsWith(typeNamePrefix, ign, CultureInfo.InvariantCulture)).ToArray();
+
+                    if (matchedTypes.Length != 1)
+                        return null;
+
+                    return matchedTypes[0];
+                }, throwOnError, ignoreCase);
+        }
+#endif
 
         /// <summary>
         /// Gets the implement types from assembly.

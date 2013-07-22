@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.Common;
 
 namespace SuperSocket.SocketBase.Provider
 {
@@ -65,7 +66,7 @@ namespace SuperSocket.SocketBase.Provider
         {
             if (m_LoadedType == null)
             {
-                m_LoadedType = System.Type.GetType(TypeName, true);
+                m_LoadedType = AssemblyUtil.GetType(TypeName, true, true);
             }
 
             return Activator.CreateInstance(m_LoadedType);
@@ -82,6 +83,22 @@ namespace SuperSocket.SocketBase.Provider
                 return (T)m_Instance;
 
             return (T)CreateInstance();
+        }
+
+        /// <summary>
+        /// Creates the export type instance from the instance creator.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="creator">The creator.</param>
+        /// <returns></returns>
+        public T CreateExport<T>(Func<Type, object> creator)
+        {
+            if (m_LoadedType == null)
+            {
+                m_LoadedType = AssemblyUtil.GetType(TypeName, true, true);
+            }
+
+            return (T)creator(m_LoadedType);
         }
     }
 }

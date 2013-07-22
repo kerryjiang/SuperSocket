@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine
@@ -16,7 +19,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                type = Type.GetType(typeName, false);
+                type = AssemblyUtil.GetType(typeName, false, true);
             }
             catch
             {
