@@ -8,6 +8,7 @@ using SuperSocket.SocketEngine;
 using SuperSocket.SocketBase;
 using System.Configuration;
 using System.IO;
+using System.Threading;
 
 namespace SuperSocket.Test
 {
@@ -38,13 +39,21 @@ namespace SuperSocket.Test
 
         protected IConfigurationSource CreateBootstrap(string configFile)
         {
+            IBootstrap newBootstrap;
+            var configSrc = CreateBootstrap(configFile, out newBootstrap);
+            m_BootStrap = newBootstrap;
+            return configSrc;
+        }
+
+        protected IConfigurationSource CreateBootstrap(string configFile, out IBootstrap newBootstrap)
+        {
             var fileMap = new ExeConfigurationFileMap();
             var filePath = Path.Combine(@"Config", configFile);
             fileMap.ExeConfigFilename = filePath;
             var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
             var configSource = config.GetSection("superSocket") as IConfigurationSource;
 
-            m_BootStrap = BootstrapFactory.CreateBootstrap(configSource);
+            newBootstrap = BootstrapFactory.CreateBootstrap(configSource);
 
             return configSource;
         }

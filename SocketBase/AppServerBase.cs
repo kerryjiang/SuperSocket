@@ -7,6 +7,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
@@ -24,7 +25,7 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     [AppServerMetadataType(typeof(DefaultAppServerMetadata))]
-    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IDisposable
+    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, IDisposable
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -1538,6 +1539,23 @@ namespace SuperSocket.SocketBase
         /// Gets the total session count.
         /// </summary>
         public abstract int SessionCount { get; }
+
+
+        /// <summary>
+        /// Connect the remote endpoint actively.
+        /// </summary>
+        /// <param name="targetEndPoint">The target end point.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">This server cannot support active connect.</exception>
+        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
+        {
+            var activeConnector = m_SocketServer as IActiveConnector;
+
+            if (activeConnector == null)
+                throw new Exception("This server cannot support active connect.");
+
+            return activeConnector.ActiveConnect(targetEndPoint);
+        }
 
         #region IStatusInfoSource
 

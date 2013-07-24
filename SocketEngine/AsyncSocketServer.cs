@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
@@ -16,7 +17,7 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncSocketServer : TcpSocketServerBase
+    class AsyncSocketServer : TcpSocketServerBase, IActiveConnector
     {
         public AsyncSocketServer(IAppServer appServer, ListenerInfo[] listeners)
             : base(appServer, listeners)
@@ -83,6 +84,11 @@ namespace SuperSocket.SocketEngine
             if (IsStopped)
                 return;
 
+            ProcessNewClient(client, listener.Info.Security);
+        }
+
+        private IAppSession ProcessNewClient(Socket client, SslProtocols security)
+        {
             //Get the socket for the accepted client connection and put it into the 
             //ReadEventArg object user token
             SocketAsyncEventArgsProxy socketEventArgsProxy;
@@ -91,12 +97,11 @@ namespace SuperSocket.SocketEngine
                 AppServer.AsyncRun(client.SafeClose);
                 if (AppServer.Logger.IsErrorEnabled)
                     AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
-                return;
+
+                return null;
             }
 
             ISocketSession socketSession;
-
-            var security = listener.Info.Security;
 
             if (security == SslProtocols.None)
                 socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
@@ -110,7 +115,7 @@ namespace SuperSocket.SocketEngine
                 socketEventArgsProxy.Reset();
                 this.m_ReadWritePool.Push(socketEventArgsProxy);
                 AppServer.AsyncRun(client.SafeClose);
-                return;
+                return null;
             }
 
             socketSession.Closed += SessionClosed;
@@ -124,11 +129,13 @@ namespace SuperSocket.SocketEngine
                     AppServer.AsyncRun(() => socketSession.Start());
                 }
 
-                return;
+                return session;
             }
 
             negotiateSession.NegotiateCompleted += OnSocketSessionNegotiateCompleted;
             negotiateSession.Negotiate();
+
+            return null;
         }
 
         private void OnSocketSessionNegotiateCompleted(object sender, EventArgs e)
@@ -206,6 +213,49 @@ namespace SuperSocket.SocketEngine
                 m_ReadWritePool = null;
                 m_BufferManager = null;
                 IsRunning = false;
+            }
+        }
+
+        class ActiveConnectState
+        {
+            public TaskCompletionSource<ActiveConnectResult> TaskSource { get; private set; }
+
+            public Socket Socket { get; private set; }
+
+            public ActiveConnectState(TaskCompletionSource<ActiveConnectResult> taskSource, Socket socket)
+            {
+                TaskSource = taskSource;
+                Socket = socket;
+            }
+        }
+
+        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
+        {
+            var taskSource = new TaskCompletionSource<ActiveConnectResult>();
+            var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.BeginConnect(targetEndPoint, OnActiveConnectCallback, new ActiveConnectState(taskSource, socket));
+            return taskSource.Task;
+        }
+
+        private void OnActiveConnectCallback(IAsyncResult result)
+        {
+            var connectState = result.AsyncState as ActiveConnectState;
+
+            try
+            {
+                var socket = connectState.Socket;
+                socket.EndConnect(result);
+
+                var session = ProcessNewClient(socket, SslProtocols.None);
+
+                if (session == null)
+                    connectState.TaskSource.SetException(new Exception("Failed to create session for this socket."));
+                else
+                    connectState.TaskSource.SetResult(new ActiveConnectResult { Result = true, Session = session });
+            }
+            catch (Exception e)
+            {
+                connectState.TaskSource.SetException(e);
             }
         }
     }

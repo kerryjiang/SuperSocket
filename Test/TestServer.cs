@@ -10,6 +10,8 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine;
+using System.Threading.Tasks;
+using System.Net;
 
 namespace SuperSocket.Test
 {
@@ -50,5 +52,11 @@ namespace SuperSocket.Test
         }
 
         internal bool SendWelcome { get; private set; }
+
+        public Task<ActiveConnectResult> ActiveConnectRemote(EndPoint targetEndPoint)
+        {
+            var activeConnector = this as IActiveConnector;
+            return activeConnector.ActiveConnect(targetEndPoint);
+        }
     }
 }

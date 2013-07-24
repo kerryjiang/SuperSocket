@@ -76,12 +76,14 @@
     <Compile Include="BootstrapTestBase.cs" />
     <Compile Include="ChildConfigTestServer.cs" />
     <Compile Include="Command\ADDCS.cs" />
+    <Compile Include="Command\ADDR.cs" />
     <Compile Include="Command\CLOSE.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Command\MULTCS.cs" />
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
+    <Compile Include="Command\RESU.cs" />
     <Compile Include="Command\SEND.cs" />
     <Compile Include="Command\SESS.cs" />
     <Compile Include="Common\ArraySegmentTest.cs" />
@@ -125,6 +127,9 @@
     <Content Include="supersocket.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Config\ActiveConnectServer.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Config\ConnectionFilter.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

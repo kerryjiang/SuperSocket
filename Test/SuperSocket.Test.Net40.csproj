@@ -77,10 +77,12 @@
     <Compile Include="BootstrapTestBase.cs" />
     <Compile Include="ChildConfigTestServer.cs" />
     <Compile Include="Command\ADDCS.cs" />
+    <Compile Include="Command\ADDR.cs" />
     <Compile Include="Command\CLOSE.cs" />
     <Compile Include="Command\DOMAIN.cs" />
     <Compile Include="Command\MULTCS.cs" />
     <Compile Include="Command\PROC.cs" />
+    <Compile Include="Command\RESU.cs" />
     <Compile Include="Command\SEND.cs" />
     <Compile Include="Command\SESS.cs" />
     <Compile Include="Config\ChildConfig.cs" />
@@ -163,6 +165,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\ConnectionFilter.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Config\ActiveConnectServer.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Config\ProcessTestServer.config">
