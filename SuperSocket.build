@@ -1,0 +1,73 @@
+<?xml version="1.0" ?>
+<project name="SuperSocket" default="makeRelease" xmlns="http://nant.sf.net/schemas/nant.xsd">
+  <property name="build.dir" value="${project::get-base-directory()}" />
+  <property name="releaseVersion" overwrite="false" value=""></property>
+  
+  <target name="zipSourceCode" description="zip the source code">	
+    <zip zipfile="SuperSocket${releaseVersionTag}.Source.zip">		
+		<fileset basedir=".">
+			<include name="**/*" />
+			<exclude name="**/bin/**" />
+			<exclude name="**/obj/**" />
+			<exclude name="**/.git/**" />
+			<exclude name="**/*.user" />
+			<exclude name="**/*.suo" />
+			<exclude name="**/.gitignore" />
+			<exclude name="*Push.bat" />
+			<exclude name="*SuperSocket.build" />
+		</fileset>
+	</zip>
+  </target>
+  
+  <target name="zipBinaries" description="zip the binary output">	
+    <zip zipfile="SuperSocket${releaseVersionTag}.Binaries.zip">		
+		<fileset basedir="bin">
+			<include name="**/*" />
+		</fileset>
+	</zip>
+  </target>
+  
+  <target name="build" description="build the solution">
+	<msbuild project="SuperSocket.2010.sln" verbose="true">
+      <arg value="/t:Clean;Build" />
+      <arg value="/p:OutputPath=..\bin\${netFxVersion}\${configuration}" />
+    </msbuild>
+  </target>
+  
+  <target name="makeRelease" description="make the release package">
+	<property name="releaseVersionTag" value=""/>
+	<if test="${string::get-length(releaseVersion) > 0}">
+		<property name="releaseVersionTag" value="(${releaseVersion})"/>			
+	</if>
+	
+	<call target="zipSourceCode" />
+	
+	<property name="netFxVersion" value="Net35" />
+	<property name="configuration" value="Debug" />
+    <call target="build" />
+	
+	<property name="netFxVersion" value="Net35" />
+	<property name="configuration" value="Release" />
+    <call target="build" />
+	
+	<property name="netFxVersion" value="Net40" />
+	<property name="configuration" value="Debug" />
+    <call target="build" />
+	
+	<property name="netFxVersion" value="Net40" />
+	<property name="configuration" value="Release" />
+    <call target="build" />
+	
+	<property name="netFxVersion" value="Net45" />
+	<property name="configuration" value="Debug" />
+    <call target="build" />
+	
+	<property name="netFxVersion" value="Net45" />
+	<property name="configuration" value="Release" />
+    <call target="build" />
+	
+	<call target="zipBinaries" />
+	
+  </target>
+</project>
+
