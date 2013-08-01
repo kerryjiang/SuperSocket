@@ -8,8 +8,8 @@ using System.Runtime.InteropServices;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("1.6.0.2")]
-[assembly: AssemblyFileVersion("1.6.0.2")]
+[assembly: AssemblyVersion("1.6.0.3")]
+[assembly: AssemblyFileVersion("1.6.0.3")]
 [assembly: AssemblyCompany("SuperSocket")]
 [assembly: AssemblyProduct("SuperSocket")]
 [assembly: AssemblyCopyright("Copyright © supersocket.codeplex.com 2010-2013")]
