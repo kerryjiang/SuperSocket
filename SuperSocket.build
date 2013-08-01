@@ -28,7 +28,7 @@
   </target>
   
   <target name="build" description="build the solution">
-	<msbuild project="SuperSocket.2010.sln" verbose="true">
+	<msbuild project="${solutionFile}" verbose="true">
       <arg value="/t:Clean;Build" />
       <arg value="/p:OutputPath=..\bin\${netFxVersion}\${configuration}" />
     </msbuild>
@@ -44,26 +44,32 @@
 	
 	<property name="netFxVersion" value="Net35" />
 	<property name="configuration" value="Debug" />
+	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
     <call target="build" />
 	
 	<property name="netFxVersion" value="Net35" />
 	<property name="configuration" value="Release" />
+	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
     <call target="build" />
 	
 	<property name="netFxVersion" value="Net40" />
 	<property name="configuration" value="Debug" />
+	<property name="solutionFile" value="SuperSocket.2010.sln" />
     <call target="build" />
 	
 	<property name="netFxVersion" value="Net40" />
 	<property name="configuration" value="Release" />
+	<property name="solutionFile" value="SuperSocket.2010.sln" />
     <call target="build" />
 	
 	<property name="netFxVersion" value="Net45" />
 	<property name="configuration" value="Debug" />
+	<property name="solutionFile" value="SuperSocket.2012.sln" />
     <call target="build" />
 	
 	<property name="netFxVersion" value="Net45" />
 	<property name="configuration" value="Release" />
+	<property name="solutionFile" value="SuperSocket.2012.sln" />
     <call target="build" />
 	
 	<call target="zipBinaries" />
