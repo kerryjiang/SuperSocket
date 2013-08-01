@@ -1,38 +1,40 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService.Net35", "SocketService\SuperSocket.SocketService.Net35.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService.Net40", "..\..\SocketService\SuperSocket.SocketService.Net40.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common.Net35", "Common\SuperSocket.Common.Net35.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Common.Net40", "..\..\Common\SuperSocket.Common.Net40.csproj", "{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase.Net35", "SocketBase\SuperSocket.SocketBase.Net35.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketBase.Net40", "..\..\SocketBase\SuperSocket.SocketBase.Net40.csproj", "{40B77789-EA11-4C05-8F52-86711D7BCAAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine.Net35", "SocketEngine\SuperSocket.SocketEngine.Net35.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketEngine.Net40", "..\..\SocketEngine\SuperSocket.SocketEngine.Net40.csproj", "{153FEF72-191C-43D9-BE71-2B351C7AC760}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Test.NET35", "Test\SuperSocket.Test.NET35.csproj", "{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{310FD673-1D6B-41B3-9BFF-8E0F984B524C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BEAF6CBD-16DD-456B-A889-421E0DFAB783}"
 	ProjectSection(SolutionItems) = preProject
-		Solution Items\GlobalAssemblyInfo.cs = Solution Items\GlobalAssemblyInfo.cs
-		Solution Items\log4net.config = Solution Items\log4net.config
-		Solution Items\log4net.unix.config = Solution Items\log4net.unix.config
+		..\..\Solution Items\GlobalAssemblyInfo.cs = ..\..\Solution Items\GlobalAssemblyInfo.cs
+		..\..\Solution Items\log4net.config = ..\..\Solution Items\log4net.config
+		..\..\Solution Items\log4net.unix.config = ..\..\Solution Items\log4net.unix.config
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net40", "Net40", "{09AA86CA-0CF7-48CE-891C-F64BFD544AD4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net35", "Net35", "{FC181BA8-9DE5-444C-899F-9C554BC65629}"
 	ProjectSection(SolutionItems) = preProject
-		Solution Items\Net40\App.config = Solution Items\Net40\App.config
+		..\..\Solution Items\Net35\App.config = ..\..\Solution Items\Net35\App.config
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net35", "Net35", "{0E2D03FA-3792-4F50-9CA4-77E4C4598746}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Net40", "Net40", "{ACCCC9EB-6386-44DC-8147-D69751FC6D93}"
 	ProjectSection(SolutionItems) = preProject
-		Solution Items\Net35\App.config = Solution Items\Net35\App.config
+		..\..\Solution Items\Net40\App.config = ..\..\Solution Items\Net40\App.config
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility.Net35", "Facility\SuperSocket.Facility.Net35.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Facility.Net40", "..\..\Facility\SuperSocket.Facility.Net40.csproj", "{01987BAC-C498-44DD-B274-62EA2506B51D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr.Net35", "Dlr\SuperSocket.Dlr.Net35.csproj", "{55BAA051-CE62-4D4A-81B6-68B042CC78E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Dlr.Net40", "..\..\Dlr\SuperSocket.Dlr.Net40.csproj", "{55BAA051-CE62-4D4A-81B6-68B042CC78E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Agent.Net35", "Agent\SuperSocket.Agent.Net35.csproj", "{49BA8E71-4F97-40D6-BBE7-22B71D222486}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Agent.Net40", "..\..\Agent\SuperSocket.Agent.Net40.csproj", "{49BA8E71-4F97-40D6-BBE7-22B71D222486}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket.Net40", "SuperSocket.WebSocket.Net40.csproj", "{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SuperSocket", "SuperSocket", "{6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -65,10 +67,6 @@ Global
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Release|Any CPU.Build.0 = Release|Any CPU
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{153FEF72-191C-43D9-BE71-2B351C7AC760}.Test|Any CPU.Build.0 = Debug|Any CPU
-		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Test|Any CPU.ActiveCfg = Debug|Any CPU
-		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Test|Any CPU.Build.0 = Debug|Any CPU
 		{01987BAC-C498-44DD-B274-62EA2506B51D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{01987BAC-C498-44DD-B274-62EA2506B51D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{01987BAC-C498-44DD-B274-62EA2506B51D}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -87,12 +85,25 @@ Global
 		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Release|Any CPU.Build.0 = Release|Any CPU
 		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Test|Any CPU.ActiveCfg = Release|Any CPU
 		{49BA8E71-4F97-40D6-BBE7-22B71D222486}.Test|Any CPU.Build.0 = Release|Any CPU
+		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Test|Any CPU.ActiveCfg = Release|Any CPU
+		{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}.Test|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{09AA86CA-0CF7-48CE-891C-F64BFD544AD4} = {310FD673-1D6B-41B3-9BFF-8E0F984B524C}
-		{0E2D03FA-3792-4F50-9CA4-77E4C4598746} = {310FD673-1D6B-41B3-9BFF-8E0F984B524C}
+		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A} = {6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}
+		{40B77789-EA11-4C05-8F52-86711D7BCAAF} = {6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}
+		{153FEF72-191C-43D9-BE71-2B351C7AC760} = {6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}
+		{01987BAC-C498-44DD-B274-62EA2506B51D} = {6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}
+		{55BAA051-CE62-4D4A-81B6-68B042CC78E9} = {6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}
+		{49BA8E71-4F97-40D6-BBE7-22B71D222486} = {6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}
+		{B9113694-7226-4152-938D-3172B11571A1} = {6EFF2A9D-9D8A-4322-A0FB-C1FA3A668916}
+		{FC181BA8-9DE5-444C-899F-9C554BC65629} = {BEAF6CBD-16DD-456B-A889-421E0DFAB783}
+		{ACCCC9EB-6386-44DC-8147-D69751FC6D93} = {BEAF6CBD-16DD-456B-A889-421E0DFAB783}
 	EndGlobalSection
 EndGlobal
