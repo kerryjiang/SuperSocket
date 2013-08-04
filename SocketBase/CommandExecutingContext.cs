@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// Command Executing Context
     /// </summary>
-    public struct CommandExecutingContext
+    public class CommandExecutingContext
     {
         /// <summary>
         /// Gets the session.
