@@ -11,7 +11,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// AppDomainAppServer
     /// </summary>
-    class AppDomainAppServer : IsolationAppServer
+    partial class AppDomainAppServer : IsolationAppServer
     {
         private AppDomain m_HostDomain;
 

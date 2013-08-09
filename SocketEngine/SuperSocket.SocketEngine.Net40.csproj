@@ -77,6 +77,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AppDomainAppServer.cs" />
+    <Compile Include="AppDomainAppServer.StatusInfo.cs" />
     <Compile Include="AppDomainBootstrap.cs" />
     <Compile Include="AssemblyImport.cs" />
     <Compile Include="BootstrapFactory.cs" />
@@ -88,6 +89,7 @@
     <Compile Include="ProcessAppServer.cs" />
     <Compile Include="ProcessBootstrap.cs" />
     <Compile Include="ProcessLocker.cs" />
+    <Compile Include="ProcessPerformanceCounterHelper.cs" />
     <Compile Include="RemoteBootstrapProxy.cs" />
     <Compile Include="ServerTypeMetadata.cs" />
     <Compile Include="SocketSession.Net.cs" />

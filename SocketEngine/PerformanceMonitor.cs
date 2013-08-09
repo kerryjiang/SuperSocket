@@ -19,15 +19,11 @@ namespace SuperSocket.SocketEngine
         private int m_TimerInterval;
         private ILog m_PerfLog;
 
-        private PerformanceCounter m_CpuUsagePC;
-        private PerformanceCounter m_ThreadCountPC;
-        private PerformanceCounter m_WorkingSetPC;
-
-        private int m_CpuCores = 1;
-
         private IWorkItem[] m_AppServers;
 
         private IWorkItem m_ServerManager;
+
+        private ProcessPerformanceCounterHelper m_Helper;
 
         private List<KeyValuePair<string, StatusInfoAttribute[]>> m_ServerStatusMetadataSource;
 
@@ -39,14 +35,7 @@ namespace SuperSocket.SocketEngine
 
             m_ServerManager = serverManager;
 
-            Process process = Process.GetCurrentProcess();
-
-            m_CpuCores = Environment.ProcessorCount;
-
-            var isUnix = Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
-            var instanceName = (isUnix || Platform.IsMono) ? string.Format("{0}/{1}", process.Id, process.ProcessName) : GetPerformanceCounterInstanceName(process);
-
-            SetupPerformanceCounters(instanceName);
+            m_Helper = new ProcessPerformanceCounterHelper(Process.GetCurrentProcess());
 
             m_TimerInterval = config.PerformanceDataCollectInterval * 1000;
             m_PerformanceTimer = new Timer(OnPerformanceTimerCallback);
@@ -60,57 +49,26 @@ namespace SuperSocket.SocketEngine
                 new KeyValuePair<string, StatusInfoAttribute[]>(string.Empty, 
                     new StatusInfoAttribute[]
                     {
-                        new StatusInfoAttribute("CpuUsage") { Name = "CPU Usage", Format = "{0:0.00}%", Order = 0 },
-                        new StatusInfoAttribute("WorkingSet") { Name = "Physical Memory Usage", Format = "{0:N}", Order = 1 },
-                        new StatusInfoAttribute("TotalThreadCount") { Name = "Total Thread Count", Order = 2 },
-                        new StatusInfoAttribute("AvailableWorkingThreads") { Name = "Available Working Threads", Order = 3 },
-                        new StatusInfoAttribute("AvailableCompletionPortThreads") { Name = "Available Completion Port Threads", Order = 4 },
-                        new StatusInfoAttribute("MaxWorkingThreads") { Name = "Maximum Working Threads", Order = 5 },
-                        new StatusInfoAttribute("MaxCompletionPortThreads") { Name = "Maximum Completion Port Threads", Order = 6 }
+                        new StatusInfoAttribute(StatusInfoKeys.CpuUsage) { Name = "CPU Usage", Format = "{0:0.00}%", Order = 0 },
+                        new StatusInfoAttribute(StatusInfoKeys.MemoryUsage) { Name = "Physical Memory Usage", Format = "{0:N}", Order = 1 },
+                        new StatusInfoAttribute(StatusInfoKeys.TotalThreadCount) { Name = "Total Thread Count", Order = 2 },
+                        new StatusInfoAttribute(StatusInfoKeys.AvailableWorkingThreads) { Name = "Available Working Threads", Order = 3 },
+                        new StatusInfoAttribute(StatusInfoKeys.AvailableCompletionPortThreads) { Name = "Available Completion Port Threads", Order = 4 },
+                        new StatusInfoAttribute(StatusInfoKeys.MaxWorkingThreads) { Name = "Maximum Working Threads", Order = 5 },
+                        new StatusInfoAttribute(StatusInfoKeys.MaxCompletionPortThreads) { Name = "Maximum Completion Port Threads", Order = 6 }
                     }));
 
             for (var i = 0; i < m_AppServers.Length; i++)
             {
                 var server = m_AppServers[i];
                 m_ServerStatusMetadataSource.Add(
-                    new KeyValuePair<string, StatusInfoAttribute[]>(server.Name, server.GetServerStatusMetadata()));
+                    new KeyValuePair<string, StatusInfoAttribute[]>(server.Name, server.GetServerStatusMetadata().OrderBy(s => s.Order).ToArray()));
             }
 
             if (m_ServerManager != null && m_ServerManager.State == ServerState.Running)
             {
                 m_ServerManager.TransferSystemMessage("ServerMetadataCollected", m_ServerStatusMetadataSource);
             }
-        }
-
-        private void SetupPerformanceCounters(string instanceName)
-        {
-            m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", instanceName);
-            m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
-            m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", instanceName);
-        }
-
-        //Tt is only used in windows
-        private static string GetPerformanceCounterInstanceName(Process process)
-        {
-            var processId = process.Id;
-            var processCategory = new PerformanceCounterCategory("Process");
-            var runnedInstances = processCategory.GetInstanceNames();
-
-            foreach (string runnedInstance in runnedInstances)
-            {
-                if (!runnedInstance.StartsWith(process.ProcessName, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
-                using (var performanceCounter = new PerformanceCounter("Process", "ID Process", runnedInstance, true))
-                {
-                    if ((int)performanceCounter.RawValue == processId)
-                    {
-                        return runnedInstance;
-                    }
-                }
-            }
-
-            return process.ProcessName;
         }
 
         public void Start()
@@ -128,58 +86,17 @@ namespace SuperSocket.SocketEngine
         {
             var nodeStatus = new NodeStatus();
 
-            int availableWorkingThreads, availableCompletionPortThreads;
-            ThreadPool.GetAvailableThreads(out availableWorkingThreads, out availableCompletionPortThreads);
+            StatusInfoCollection bootstrapStatus = new StatusInfoCollection();
+            m_Helper.Collect(bootstrapStatus);
 
-            int maxWorkingThreads;
-            int maxCompletionPortThreads;
-            ThreadPool.GetMaxThreads(out maxWorkingThreads, out maxCompletionPortThreads);
-
-            StatusInfoCollection bootstrapStatus = null;
-
-            var retry = false;
-
-            while(true)
-            {
-                try
-                {
-                    bootstrapStatus = new StatusInfoCollection();
-
-                    bootstrapStatus[StatusInfoKeys.AvailableWorkingThreads] = availableWorkingThreads;
-                    bootstrapStatus[StatusInfoKeys.AvailableCompletionPortThreads] = availableCompletionPortThreads;
-                    bootstrapStatus[StatusInfoKeys.MaxCompletionPortThreads] = maxCompletionPortThreads;
-                    bootstrapStatus[StatusInfoKeys.MaxWorkingThreads] = maxWorkingThreads;
-                    bootstrapStatus[StatusInfoKeys.TotalThreadCount] = (int)m_ThreadCountPC.NextValue();
-                    bootstrapStatus[StatusInfoKeys.CpuUsage] = m_CpuUsagePC.NextValue() / m_CpuCores;
-                    bootstrapStatus[StatusInfoKeys.WorkingSet] = (long)m_WorkingSetPC.NextValue();
-
-                    nodeStatus.BootstrapStatus = bootstrapStatus;
-                    break;
-                }
-                catch (InvalidOperationException e)
-                {
-                    //Only re-get performance counter one time
-                    if (retry)
-                        throw e;
-
-                    //Only re-get performance counter for .NET/Windows
-                    if (Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX || Platform.IsMono)
-                        throw e;
-
-                    //If a same name process exited, this process's performance counters instance name could be changed,
-                    //so if the old performance counter cannot be access, get the performance counter's name again
-                    var newInstanceName = GetPerformanceCounterInstanceName(Process.GetCurrentProcess());
-                    SetupPerformanceCounters(newInstanceName);
-                    retry = true;
-                }
-            }
+            nodeStatus.BootstrapStatus = bootstrapStatus;
 
             var instancesStatus = new List<StatusInfoCollection>(m_AppServers.Length);
 
             var perfBuilder = new StringBuilder();
 
             perfBuilder.AppendLine("---------------------------------------------------");
-            perfBuilder.AppendLine(string.Format("CPU Usage: {0:0.00}%, Physical Memory Usage: {1:N}, Total Thread Count: {2}", bootstrapStatus[StatusInfoKeys.CpuUsage], bootstrapStatus[StatusInfoKeys.WorkingSet], bootstrapStatus[StatusInfoKeys.TotalThreadCount]));
+            perfBuilder.AppendLine(string.Format("CPU Usage: {0:0.00}%, Physical Memory Usage: {1:N}, Total Thread Count: {2}", bootstrapStatus[StatusInfoKeys.CpuUsage], bootstrapStatus[StatusInfoKeys.MemoryUsage], bootstrapStatus[StatusInfoKeys.TotalThreadCount]));
             perfBuilder.AppendLine(string.Format("AvailableWorkingThreads: {0}, AvailableCompletionPortThreads: {1}", bootstrapStatus[StatusInfoKeys.AvailableWorkingThreads], bootstrapStatus[StatusInfoKeys.AvailableCompletionPortThreads]));
             perfBuilder.AppendLine(string.Format("MaxWorkingThreads: {0}, MaxCompletionPortThreads: {1}", bootstrapStatus[StatusInfoKeys.MaxWorkingThreads], bootstrapStatus[StatusInfoKeys.MaxCompletionPortThreads]));
 
@@ -239,23 +156,7 @@ namespace SuperSocket.SocketEngine
                 m_PerformanceTimer = null;
             }
 
-            if (m_CpuUsagePC != null)
-            {
-                m_CpuUsagePC.Close();
-                m_CpuUsagePC = null;
-            }
-
-            if (m_ThreadCountPC != null)
-            {
-                m_ThreadCountPC.Close();
-                m_ThreadCountPC = null;
-            }
-
-            if (m_WorkingSetPC != null)
-            {
-                m_WorkingSetPC.Close();
-                m_WorkingSetPC = null;
-            }
+            m_Helper = null;
         }
     }
 }

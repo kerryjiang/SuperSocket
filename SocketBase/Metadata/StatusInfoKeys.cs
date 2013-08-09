@@ -11,6 +11,45 @@ namespace SuperSocket.SocketBase.Metadata
     /// </summary>
     public class StatusInfoKeys
     {
+        #region Shared
+
+        /// <summary>
+        /// The cpu usage
+        /// </summary>
+        public const string CpuUsage = "CpuUsage";
+
+        /// <summary>
+        /// The memory usage
+        /// </summary>
+        public const string MemoryUsage = "MemoryUsage";
+
+        /// <summary>
+        /// The total thread count
+        /// </summary>
+        public const string TotalThreadCount = "TotalThreadCount";
+
+        /// <summary>
+        /// The available working threads count
+        /// </summary>
+        public const string AvailableWorkingThreads = "AvailableWorkingThreads";
+
+        /// <summary>
+        /// The available completion port threads count
+        /// </summary>
+        public const string AvailableCompletionPortThreads = "AvailableCompletionPortThreads";
+
+        /// <summary>
+        /// The max working threads count
+        /// </summary>
+        public const string MaxWorkingThreads = "MaxWorkingThreads";
+
+        /// <summary>
+        /// The max completion port threads count
+        /// </summary>
+        public const string MaxCompletionPortThreads = "MaxCompletionPortThreads";
+
+        #endregion
+
         #region For server instance
 
         /// <summary>
@@ -62,45 +101,6 @@ namespace SuperSocket.SocketBase.Metadata
         /// The total sending queue items.
         /// </summary>
         public const string TotalSendingQueueItems = "TotalSendingQueueItems";
-
-        #endregion
-
-        #region For global service
-
-        /// <summary>
-        /// The cpu usage.
-        /// </summary>
-        public const string CpuUsage = "CpuUsage";
-
-        /// <summary>
-        /// The working set.
-        /// </summary>
-        public const string WorkingSet = "WorkingSet";
-
-        /// <summary>
-        /// The total thread count.
-        /// </summary>
-        public const string TotalThreadCount = "TotalThreadCount";
-
-        /// <summary>
-        /// The available working threads.
-        /// </summary>
-        public const string AvailableWorkingThreads = "AvailableWorkingThreads";
-
-        /// <summary>
-        /// The available completion port threads.
-        /// </summary>
-        public const string AvailableCompletionPortThreads = "AvailableCompletionPortThreads";
-
-        /// <summary>
-        /// The max working threads.
-        /// </summary>
-        public const string MaxWorkingThreads = "MaxWorkingThreads";
-
-        /// <summary>
-        /// The max completion port threads.
-        /// </summary>
-        public const string MaxCompletionPortThreads = "MaxCompletionPortThreads";
 
         #endregion
 

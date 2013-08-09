@@ -13,7 +13,14 @@ using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketEngine
 {
-    class ProcessAppServer : IsolationAppServer
+    [StatusInfo(StatusInfoKeys.CpuUsage, Name = "CPU Usage", Format = "{0:0.00}%", DataType = typeof(double), Order = 100)]
+    [StatusInfo(StatusInfoKeys.MemoryUsage, Name = "Physical Memory Usage", Format = "{0:N}", DataType = typeof(double), Order = 101)]
+    [StatusInfo(StatusInfoKeys.TotalThreadCount, Name = "Total Thread Count", Format = "{0}", DataType = typeof(double), Order = 102)]
+    [StatusInfo(StatusInfoKeys.AvailableWorkingThreads, Name = "Available Working Threads", Format = "{0}", DataType = typeof(double), Order = 103)]
+    [StatusInfo(StatusInfoKeys.AvailableCompletionPortThreads, Name = "Available Completion Port Threads", Format = "{0}", DataType = typeof(double), Order = 104)]
+    [StatusInfo(StatusInfoKeys.MaxWorkingThreads, Name = "Maximum Working Threads", Format = "{0}", DataType = typeof(double), Order = 105)]
+    [StatusInfo(StatusInfoKeys.MaxCompletionPortThreads, Name = "Maximum Completion Port Threads", Format = "{0}", DataType = typeof(double), Order = 106)]
+    partial class ProcessAppServer : IsolationAppServer
     {
         private const string m_AgentUri = "ipc://{0}/WorkItemAgent.rem";
 
@@ -28,6 +35,8 @@ namespace SuperSocket.SocketEngine
         private AutoResetEvent m_ProcessWorkEvent = new AutoResetEvent(false);
 
         private string m_ProcessWorkStatus = string.Empty;
+
+        private ProcessPerformanceCounterHelper m_PerformanceCounterHelper;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessAppServer" /> class.
@@ -137,6 +146,8 @@ namespace SuperSocket.SocketEngine
             m_WorkingProcess.EnableRaisingEvents = true;
             m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
 
+            m_PerformanceCounterHelper = new ProcessPerformanceCounterHelper(m_WorkingProcess);
+
             return appServer;
         }
 
@@ -165,6 +176,7 @@ namespace SuperSocket.SocketEngine
 
         void m_WorkingProcess_Exited(object sender, EventArgs e)
         {
+            m_PerformanceCounterHelper = null;
             m_Locker.CleanLock();
             OnStopped();
         }
@@ -208,6 +220,10 @@ namespace SuperSocket.SocketEngine
         {
             var status = base.CollectServerStatus(nodeStatus);
             status.Tag = m_ServerTag;
+
+            if(m_PerformanceCounterHelper != null)
+                m_PerformanceCounterHelper.Collect(status);
+
             return status;
         }
     }
