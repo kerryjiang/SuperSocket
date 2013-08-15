@@ -23,6 +23,37 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 
         public event PropertyChangedEventHandler PropertyChanged;
 
+
+#if SILVERLIGHT
+        private AsyncOperation m_AsyncOper = AsyncOperationManager.CreateOperation(null);
+
+        protected AsyncOperation AsyncOper
+        {
+            get { return m_AsyncOper; }
+        }
+
+        /// <summary>
+        /// Raises the property changed.
+        /// </summary>
+        /// <param name="propertyName">Name of the property.</param>
+        protected void RaisePropertyChanged(string propertyName)
+        {
+            if (m_AsyncOper.SynchronizationContext == DispatcherSynchronizationContext.Current)
+            {
+                InternalRaisePropertyChanged(propertyName);
+                return;
+            }
+
+            m_AsyncOper.Post((x) => InternalRaisePropertyChanged((string)x), propertyName);
+        }
+
+        private void InternalRaisePropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null)
+                handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+#else
         /// <summary>
         /// Raises the property changed.
         /// </summary>
@@ -33,5 +64,6 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             if (handler != null)
                 handler(this, new PropertyChangedEventArgs(propertyName));
         }
+#endif
     }
 }

@@ -14,28 +14,26 @@ namespace SuperSocket.Management.AgentClient.ViewModel
 {
     public partial class NodeMasterViewModel : ViewModelBase
     {
-        private static AsyncOperation m_AsyncOper = AsyncOperationManager.CreateOperation(null);
-
         public void OnLoggedInAsync(dynamic result)
         {
-            CreateAsyncOperation<dynamic>(OnLoggedIn)(result);
+            OnLoggedIn(result);
         }
 
         public void OnActionCallbackAsync(string token, dynamic result)
         {
-            CreateAsyncOperation<string, dynamic>(OnActionCallback)(token, result);
+            OnActionCallback(token, result);
         }
 
         public void OnServerUpdatedAsync(string result)
         {
-            CreateAsyncOperation<string>(OnServerUpdated)(result);
+            OnServerUpdated(result);
         }
 
         protected Action CreateAsyncOperation(Action operation)
         {
             return () =>
             {
-                m_AsyncOper.Post(x => operation(), null);
+                AsyncOper.Post(x => operation(), null);
             };
         }
 
@@ -43,7 +41,7 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             return (t) =>
             {
-                m_AsyncOper.Post(x => operation((T)x), t);
+                AsyncOper.Post(x => operation((T)x), t);
             };
         }
 
@@ -51,7 +49,7 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             return (t1, t2) =>
             {
-                m_AsyncOper.Post(x =>
+                AsyncOper.Post(x =>
                 {
                     var args = (Tuple<T1, T2>)x;
                     operation(args.Item1, args.Item2);
@@ -63,7 +61,7 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             return (t1, t2, t3) =>
             {
-                m_AsyncOper.Post(x =>
+                AsyncOper.Post(x =>
                 {
                     var args = (Tuple<T1, T2, T3>)x;
                     operation(args.Item1, args.Item2, args.Item3);

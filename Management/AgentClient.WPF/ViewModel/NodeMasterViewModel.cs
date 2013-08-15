@@ -21,6 +21,7 @@ using SuperSocket.Management.AgentClient.Config;
 using SuperSocket.Management.Server.Model;
 using WebSocket4Net;
 using SuperSocket.SocketBase.Metadata;
+using System.Threading.Tasks;
 
 namespace SuperSocket.Management.AgentClient.ViewModel
 {
@@ -48,14 +49,19 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             m_Config = config;
             Name = m_Config.Name;
             ConnectCommand = new DelegateCommand(ExecuteConnectCommand);
+            ThreadPool.QueueUserWorkItem((c) => InitializeWebSocket((NodeConfig)c), config);
+        }
 
+        void InitializeWebSocket(NodeConfig config)
+        {
             try
             {
                 m_WebSocket = new AgentWebSocket(config.Uri);
             }
             catch (Exception e)
             {
-                ErrorMessage = e.Message;
+                ErrorMessage = "Invalid server URI!";
+                State = NodeState.Offline;
                 return;
             }
 
@@ -67,9 +73,9 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             m_WebSocket.On<string>(CommandName.UPDATE, OnServerUpdated);
 #else
             m_WebSocket.ClientAccessPolicyProtocol = System.Net.Sockets.SocketClientAccessPolicyProtocol.Tcp;
-            m_WebSocket.Closed += new EventHandler(CreateAsyncOperation<object, EventArgs>(WebSocket_Closed));
-            m_WebSocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(CreateAsyncOperation<object, ClientEngine.ErrorEventArgs>(WebSocket_Error));
-            m_WebSocket.Opened += new EventHandler(CreateAsyncOperation<object, EventArgs>(WebSocket_Opened));
+            m_WebSocket.Closed += new EventHandler(WebSocket_Closed);
+            m_WebSocket.Error += new EventHandler<ClientEngine.ErrorEventArgs>(WebSocket_Error);
+            m_WebSocket.Opened += new EventHandler(WebSocket_Opened);
             m_WebSocket.On<string>(CommandName.UPDATE, OnServerUpdatedAsync);
 #endif
             StartConnect();
@@ -79,14 +85,10 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         {
             m_LoginFailed = false;
 
-#if !SILVERLIGHT
+            if (m_WebSocket == null)
+                return;
+
             State = NodeState.Connecting;
-#else
-            if (Dispatcher.CheckAccess())
-                State = NodeState.Connecting;
-            else
-                Dispatcher.BeginInvoke(() => State = NodeState.Connecting);
-#endif
             m_WebSocket.Open();
         }
 
@@ -105,7 +107,6 @@ namespace SuperSocket.Management.AgentClient.ViewModel
             websocket.Query<dynamic>(CommandName.LOGIN, (object)loginInfo, OnLoggedInAsync);
 #endif
         }
-
 
         private StatusInfoAttribute[] GetCommonColumns(IList<StatusInfoAttribute[]> source)
         {
@@ -367,6 +368,9 @@ namespace SuperSocket.Management.AgentClient.ViewModel
         public void DataGridLoaded(object sender, RoutedEventArgs e)
         {
             var grid = sender as DataGrid;
+
+            if (m_ColumnAttributes == null)
+                return;
 
             var existingColumns = grid.Columns.Select(c => c.Header.ToString()).ToArray();
 

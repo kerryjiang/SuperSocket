@@ -58,7 +58,7 @@
         </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="NodeContainerTemplate">
-        <StackPanel Orientation="Vertical">
+        <StackPanel Orientation="Vertical" Background="White">
             <c:NodeHeader></c:NodeHeader>
             <ContentControl Name="PlaceHolderContainer" Content="{Binding}"
                             ContentTemplate="{StaticResource NodeTemplateState}"

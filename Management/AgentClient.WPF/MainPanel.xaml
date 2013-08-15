@@ -35,15 +35,17 @@
             <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
                        Fill="#FFDACEEC" Height="5" VerticalAlignment="Bottom"></Rectangle>
         </Grid>
-        <ItemsControl Grid.Row="1"
+        <Border Grid.Row="1" VerticalAlignment="Stretch" Background="AliceBlue">
+            <ItemsControl
                       ItemsSource="{Binding Nodes}"
                       ItemTemplate="{StaticResource NodeContainerTemplate}">
-            <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <StackPanel Orientation="Vertical">
-                    </StackPanel>
-                </ItemsPanelTemplate>
-            </ItemsControl.ItemsPanel>
-        </ItemsControl>
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical">
+                        </StackPanel>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+            </ItemsControl>
+        </Border>
     </Grid>
 </UserControl>
