@@ -70,12 +70,12 @@ namespace SuperSocket.SocketBase.Config
 
             if (serverConfig.Listeners != null && serverConfig.Listeners.Any())
             {
-                this.Listeners = serverConfig.Listeners.Select(l => l.CopyPropertiesTo(new ListenerConfig()));
+                this.Listeners = serverConfig.Listeners.Select(l => l.CopyPropertiesTo(new ListenerConfig())).OfType<ListenerConfig>().ToArray();
             }
 
             if (serverConfig.CommandAssemblies != null && serverConfig.CommandAssemblies.Any())
             {
-                this.CommandAssemblies = serverConfig.CommandAssemblies.Select(c => c.CopyPropertiesTo(new CommandAssemblyConfig()));
+                this.CommandAssemblies = serverConfig.CommandAssemblies.Select(c => c.CopyPropertiesTo(new CommandAssemblyConfig())).OfType<CommandAssemblyConfig>().ToArray();
             }
         }
 
