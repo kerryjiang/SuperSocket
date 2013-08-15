@@ -8,6 +8,7 @@ namespace SuperSocket.SocketBase.Config
     /// <summary>
     /// Command assembly config
     /// </summary>
+    [Serializable]
     public class CommandAssemblyConfig : ICommandAssemblyConfig
     {
         /// <summary>
