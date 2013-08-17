@@ -270,7 +270,17 @@ namespace SuperSocket.Test
                     string command = sb.ToString();
 
                     socket.SendTo(m_Encoding.GetBytes("ECHO " + command + m_NewLine), serverAddress);
-                    string echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    string echoMessage = string.Empty;
+
+                    try
+                    {
+                        echoMessage = m_Encoding.GetString(ReceiveMessage(socket, serverAddress).ToArray());
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+
                     if (!string.Equals(command, echoMessage))
                     {
                         Console.WriteLine("Incorrect response: {0}, {1}", command, echoMessage);
@@ -418,7 +428,14 @@ namespace SuperSocket.Test
                     trySocket.SendTo(m_Encoding.GetBytes(Guid.NewGuid().ToString() + m_NewLine), serverAddress);
                     Thread thread = new Thread(new ThreadStart(() =>
                         {
-                            Console.WriteLine("C: " + m_Encoding.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
+                            try
+                            {
+                                Console.WriteLine("C: " + m_Encoding.GetString(ReceiveMessage(trySocket, serverAddress).ToArray()));
+                            }
+                            catch
+                            {
+
+                            }
                         }));
                     thread.Start();
                     if (thread.Join(500))
