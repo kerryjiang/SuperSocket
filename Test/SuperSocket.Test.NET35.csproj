@@ -83,6 +83,7 @@
     <Compile Include="Command\MULTCS.cs" />
     <Compile Include="Command\NUM.cs" />
     <Compile Include="Command\PARA.cs" />
+    <Compile Include="Command\PROC.cs" />
     <Compile Include="Command\RESU.cs" />
     <Compile Include="Command\SEND.cs" />
     <Compile Include="Command\SESS.cs" />

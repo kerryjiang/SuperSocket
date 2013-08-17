@@ -111,6 +111,7 @@
     <Compile Include="ProcessAppServer.cs" />
     <Compile Include="ProcessBootstrap.cs" />
     <Compile Include="ProcessLocker.cs" />
+    <Compile Include="ProcessPerformanceCounterHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RemoteBootstrapProxy.cs" />
     <Compile Include="ServerTypeMetadata.cs" />
