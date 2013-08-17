@@ -18,7 +18,7 @@ using SuperSocket.SocketEngine;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class AppDomainSocketServerTest : TcpSocketServerTest
+    public class AppDomainSocketServerTest : SocketServerTest
     {
         protected override string DefaultServerConfig
         {

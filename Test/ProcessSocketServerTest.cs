@@ -10,7 +10,7 @@ using System.IO;
 namespace SuperSocket.Test
 {
     [TestFixture]
-    public class ProcessSocketServerTest : TcpSocketServerTest
+    public class ProcessSocketServerTest : SocketServerTest
     {
         protected override string DefaultServerConfig
         {
