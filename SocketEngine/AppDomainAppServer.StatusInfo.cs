@@ -8,8 +8,8 @@ using SuperSocket.SocketBase;
 
 namespace SuperSocket.SocketEngine
 {
-    [StatusInfo(StatusInfoKeys.CpuUsage, Name = "CPU Usage", Format = "{0:0.00}%", DataType = typeof(double), Order = 100)]
-    [StatusInfo(StatusInfoKeys.MemoryUsage, Name = "Memory Usage", Format = "{0:0.00}%", DataType = typeof(double), Order = 101)]
+    [StatusInfo(StatusInfoKeys.CpuUsage, Name = "CPU Usage", Format = "{0:0.00}%", DataType = typeof(double), Order = 112)]
+    [StatusInfo(StatusInfoKeys.MemoryUsage, Name = "Memory Usage", Format = "{0:0.00}%", DataType = typeof(double), Order = 113)]
     partial class AppDomainAppServer
     {
         private static Process m_Process;
