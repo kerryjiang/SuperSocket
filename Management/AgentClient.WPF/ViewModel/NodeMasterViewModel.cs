@@ -7,6 +7,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,14 +17,13 @@ using System.Windows.Threading;
 using DynamicViewModel;
 using Newtonsoft.Json.Linq;
 using SuperSocket.ClientEngine;
-using SuperSocket.Management.AgentClient.Command;
-using SuperSocket.Management.AgentClient.Config;
-using SuperSocket.Management.Server.Model;
-using WebSocket4Net;
+using SuperSocket.ServerManager.Client.Command;
+using SuperSocket.ServerManager.Client.Config;
+using SuperSocket.ServerManager.Model;
 using SuperSocket.SocketBase.Metadata;
-using System.Threading.Tasks;
+using WebSocket4Net;
 
-namespace SuperSocket.Management.AgentClient.ViewModel
+namespace SuperSocket.ServerManager.Client.ViewModel
 {
     public partial class NodeMasterViewModel : ViewModelBase
     {

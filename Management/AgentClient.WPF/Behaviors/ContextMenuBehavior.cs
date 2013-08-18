@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Windows.Interactivity;
 using System.Windows.Controls;
-using SuperSocket.Management.AgentClient.Command;
+using SuperSocket.ServerManager.Client.Command;
 
-namespace SuperSocket.Management.AgentClient.Behaviors
+namespace SuperSocket.ServerManager.Client.Behaviors
 {
     public class ContextMenuBehavior : Behavior<ContextMenu>
     {

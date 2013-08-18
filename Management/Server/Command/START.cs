@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.Management.Server.Model;
+using SuperSocket.ServerManager.Model;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
 using SuperSocket.SocketBase.Metadata;
 
-namespace SuperSocket.Management.Server.Command
+namespace SuperSocket.ServerManager.Command
 {
     /// <summary>
     /// Start command, which is used for starting AppServer instance

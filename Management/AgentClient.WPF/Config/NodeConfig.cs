@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
 
-namespace SuperSocket.Management.AgentClient.Config
+namespace SuperSocket.ServerManager.Client.Config
 {
 #if !SILVERLIGHT
    [Serializable]

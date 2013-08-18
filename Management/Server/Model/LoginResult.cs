@@ -5,7 +5,7 @@ using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Metadata;
 
-namespace SuperSocket.Management.Server.Model
+namespace SuperSocket.ServerManager.Model
 {
     /// <summary>
     /// Login command result

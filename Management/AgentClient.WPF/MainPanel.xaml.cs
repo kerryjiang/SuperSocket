@@ -11,10 +11,10 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using SuperSocket.Management.AgentClient.ViewModel;
-using SuperSocket.Management.AgentClient.Config;
+using SuperSocket.ServerManager.Client.ViewModel;
+using SuperSocket.ServerManager.Client.Config;
 
-namespace SuperSocket.Management.AgentClient
+namespace SuperSocket.ServerManager.Client
 {
     /// <summary>
     /// Interaction logic for MainPanel.xaml

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using System.Net;
 using SuperSocket.SocketBase;
 
-namespace SuperSocket.Management.Server
+namespace SuperSocket.ServerManager
 {
     class ListenersJsonConverter : JsonConverter
     {

@@ -13,7 +13,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Media.Animation;
 
-namespace SuperSocket.Management.AgentClient.Controls
+namespace SuperSocket.ServerManager.Client.Controls
 {
     /// <summary>
     /// Interaction logic for CircleProgressBar.xaml

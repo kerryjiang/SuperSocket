@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using SuperSocket.Common;
-using SuperSocket.Management.Server.Config;
+using SuperSocket.ServerManager.Config;
+using SuperSocket.ServerManager.Model;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.WebSocket;
 using SuperSocket.WebSocket.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
-using SuperSocket.SocketBase.Metadata;
-using SuperSocket.Management.Server.Model;
 
-namespace SuperSocket.Management.Server
+namespace SuperSocket.ServerManager
 {
     /// <summary>
     /// Server manager app server

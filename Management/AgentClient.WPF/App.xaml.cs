@@ -5,10 +5,10 @@ using System.Data;
 using System.Linq;
 using System.Windows;
 using System.Threading;
-using SuperSocket.Management.AgentClient.Config;
-using SuperSocket.Management.AgentClient.ViewModel;
+using SuperSocket.ServerManager.Client.Config;
+using SuperSocket.ServerManager.Client.ViewModel;
 
-namespace SuperSocket.Management.AgentClient
+namespace SuperSocket.ServerManager.Client
 {
     /// <summary>
     /// Interaction logic for App.xaml

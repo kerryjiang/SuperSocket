@@ -10,9 +10,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using SuperSocket.Management.AgentClient.ViewModel;
+using SuperSocket.ServerManager.Client.ViewModel;
 
-namespace SuperSocket.Management.AgentClient.Converters
+namespace SuperSocket.ServerManager.Client.Converters
 {
     public class NodeStateVisibilityConverter : IValueConverter
     {

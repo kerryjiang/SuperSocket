@@ -1,7 +1,7 @@
-﻿<Application x:Class="SuperSocket.Management.AgentClient.App"
+﻿<Application x:Class="SuperSocket.ServerManager.Client.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:cv="clr-namespace:SuperSocket.Management.AgentClient.Converters">
+             xmlns:cv="clr-namespace:SuperSocket.ServerManager.Client.Converters">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -12,7 +12,7 @@ using System.Windows.Interactivity;
 using System.Linq;
 using System.Windows.Data;
 
-namespace SuperSocket.Management.AgentClient.Behaviors
+namespace SuperSocket.ServerManager.Client.Behaviors
 {
     public class SelectRowOnRightClickBehavior : Behavior<DataGrid>
     {

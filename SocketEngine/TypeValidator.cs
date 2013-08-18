@@ -11,7 +11,7 @@ namespace SuperSocket.SocketEngine
 {
     class TypeValidator : MarshalByRefObject
     {
-        private const string m_ServerManagerTypeName = "SuperSocket.Management.Server.ManagementServer";
+        private const string m_ServerManagerTypeName = "SuperSocket.ServerManager.ManagementServer";
 
         public bool ValidateTypeName(string typeName)
         {

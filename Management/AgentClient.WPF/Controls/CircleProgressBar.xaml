@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="SuperSocket.Management.AgentClient.Controls.CircleProgressBar"
+﻿<UserControl x:Class="SuperSocket.ServerManager.Client.Controls.CircleProgressBar"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 

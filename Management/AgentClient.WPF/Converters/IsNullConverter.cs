@@ -10,7 +10,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
-namespace SuperSocket.Management.AgentClient.Converters
+namespace SuperSocket.ServerManager.Client.Converters
 {
     public class IsNullConverter : IValueConverter
     {

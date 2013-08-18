@@ -9,8 +9,8 @@
     <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SuperSocket.Management.AgentClient</RootNamespace>
-    <AssemblyName>SuperSocket.Management.AgentClient</AssemblyName>
+    <RootNamespace>SuperSocket.ServerManager.Client</RootNamespace>
+    <AssemblyName>SuperSocket.ServerManager.Client</AssemblyName>
     <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
     <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
@@ -21,7 +21,7 @@
     <GenerateSilverlightManifest>true</GenerateSilverlightManifest>
     <XapFilename>AgentClient.SL5.xap</XapFilename>
     <SilverlightManifestTemplate>Properties\AppManifest.xml</SilverlightManifestTemplate>
-    <SilverlightAppEntry>SuperSocket.Management.AgentClient.App</SilverlightAppEntry>
+    <SilverlightAppEntry>SuperSocket.ServerManager.Client.App</SilverlightAppEntry>
     <TestPageFileName>AgentClient.SL5TestPage.html</TestPageFileName>
     <CreateTestPage>true</CreateTestPage>
     <ValidateXaml>true</ValidateXaml>
@@ -235,6 +235,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Properties\OutOfBrowserSettings.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\AgentClient.WPF\Resources\SS%2832%29.png">
+      <Link>Resources\SS%2832%29.png</Link>
+    </Resource>
+    <Resource Include="..\AgentClient.WPF\Resources\SS%2848%29.png">
+      <Link>Resources\SS%2848%29.png</Link>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

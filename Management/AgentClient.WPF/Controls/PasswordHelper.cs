@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace SuperSocket.Management.AgentClient.Controls
+namespace SuperSocket.ServerManager.Client.Controls
 {
     public static class PasswordHelper
     {

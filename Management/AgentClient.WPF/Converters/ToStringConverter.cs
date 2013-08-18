@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Data;
 
-namespace SuperSocket.Management.AgentClient.Converters
+namespace SuperSocket.ServerManager.Client.Converters
 {
     public class ToStringConverter : IValueConverter
     {

@@ -32,13 +32,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Agent.Net40", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket.Net40", "..\Protocols\WebSocket\SuperSocket.WebSocket.Net40.csproj", "{DB6DD6E8-ABDE-4C4A-A3E2-DF49C074433B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Management.Server.Net40", "Server\SuperSocket.Management.Server.Net40.csproj", "{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ServerManager.Net40", "Server\SuperSocket.ServerManager.Net40.csproj", "{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SuperSocket", "SuperSocket", "{4F5A2C5C-7813-4656-BB7B-5A4E9BCFCB26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentClient.WPF", "AgentClient.WPF\AgentClient.WPF.csproj", "{5FF240A5-2C62-4322-A0E1-335A04148603}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ServerManager.Client.WPF", "AgentClient.WPF\SuperSocket.ServerManager.Client.WPF.csproj", "{5FF240A5-2C62-4322-A0E1-335A04148603}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AgentClient.SL5", "AgentClient.SL5\AgentClient.SL5.csproj", "{BF5E608C-6216-41C3-86AA-E6380B0A8888}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ServerManager.Client.SL5", "AgentClient.SL5\SuperSocket.ServerManager.Client.SL5.csproj", "{BF5E608C-6216-41C3-86AA-E6380B0A8888}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Sample", "Sample", "{08ABC9B5-10F1-486D-A741-8652F874DF52}"
 EndProject

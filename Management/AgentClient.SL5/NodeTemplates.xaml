@@ -5,9 +5,9 @@
     xmlns:ia="http://schemas.microsoft.com/expression/2010/interactions"
     xmlns:sdk="http://schemas.microsoft.com/winfx/2006/xaml/presentation/sdk"
     xmlns:toolkit="clr-namespace:System.Windows.Controls;assembly=System.Windows.Controls.Input.Toolkit"
-    xmlns:b="clr-namespace:SuperSocket.Management.AgentClient.Behaviors"
-    xmlns:cv="clr-namespace:SuperSocket.Management.AgentClient.Converters"
-    xmlns:c="clr-namespace:SuperSocket.Management.AgentClient">
+    xmlns:b="clr-namespace:SuperSocket.ServerManager.Client.Behaviors"
+    xmlns:cv="clr-namespace:SuperSocket.ServerManager.Client.Converters"
+    xmlns:c="clr-namespace:SuperSocket.ServerManager.Client">
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="NodeTemplatesCommon.xaml"></ResourceDictionary>
     </ResourceDictionary.MergedDictionaries>

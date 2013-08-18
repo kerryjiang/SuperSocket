@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Dynamic;
 
-namespace SuperSocket.Management.AgentClient
+namespace SuperSocket.ServerManager.Client
 {
     class AgentWebSocket : JsonWebSocket
     {

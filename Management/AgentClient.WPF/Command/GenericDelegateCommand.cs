@@ -5,7 +5,7 @@ using System.Text;
 using System.Windows.Input;
 using System.Reflection;
 
-namespace SuperSocket.Management.AgentClient.Command
+namespace SuperSocket.ServerManager.Client.Command
 {
     /// <summary>
     /// Provide a command that can bind to ButtonBase.Command 

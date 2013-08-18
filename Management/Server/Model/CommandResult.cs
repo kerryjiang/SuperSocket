@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 
-namespace SuperSocket.Management.Server.Model
+namespace SuperSocket.ServerManager.Model
 {
     /// <summary>
     /// Start command result

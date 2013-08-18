@@ -4,10 +4,10 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Newtonsoft.Json;
-using SuperSocket.Management.Server.Model;
+using SuperSocket.ServerManager.Model;
 using SuperSocket.WebSocket.SubProtocol;
 
-namespace SuperSocket.Management.Server.Command
+namespace SuperSocket.ServerManager.Command
 {
     /// <summary>
     /// Login command, which used for login in

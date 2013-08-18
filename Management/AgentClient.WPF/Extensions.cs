@@ -5,7 +5,7 @@ using System.Text;
 using System.Xml.Serialization;
 using System.IO;
 
-namespace SuperSocket.Management.AgentClient
+namespace SuperSocket.ServerManager.Client
 {
     public static class Extensions
     {

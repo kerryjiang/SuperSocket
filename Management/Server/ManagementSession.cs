@@ -5,7 +5,7 @@ using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.WebSocket;
 
-namespace SuperSocket.Management.Server
+namespace SuperSocket.ServerManager
 {
     /// <summary>
     /// Management session

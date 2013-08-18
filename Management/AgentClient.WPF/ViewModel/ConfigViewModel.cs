@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.Management.AgentClient.Config;
+using SuperSocket.ServerManager.Client.Config;
 using System.Collections.ObjectModel;
 
-namespace SuperSocket.Management.AgentClient.ViewModel
+namespace SuperSocket.ServerManager.Client.ViewModel
 {
     public class NewNodeConfig : NodeConfig
     {

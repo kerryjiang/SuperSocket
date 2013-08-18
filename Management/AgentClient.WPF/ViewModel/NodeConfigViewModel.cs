@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.Management.AgentClient.Config;
+using SuperSocket.ServerManager.Client.Config;
 using System.Windows.Input;
-using SuperSocket.Management.AgentClient.Command;
+using SuperSocket.ServerManager.Client.Command;
 using System.Windows.Controls;
 
-namespace SuperSocket.Management.AgentClient.ViewModel
+namespace SuperSocket.ServerManager.Client.ViewModel
 {
     public class NodeConfigViewModel : ViewModelBase
     {

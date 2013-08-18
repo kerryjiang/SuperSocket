@@ -9,10 +9,10 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
-using SuperSocket.Management.AgentClient.ViewModel;
-using SuperSocket.Management.AgentClient.Config;
+using SuperSocket.ServerManager.Client.ViewModel;
+using SuperSocket.ServerManager.Client.Config;
 
-namespace SuperSocket.Management.AgentClient
+namespace SuperSocket.ServerManager.Client
 {
     public partial class App : Application
     {

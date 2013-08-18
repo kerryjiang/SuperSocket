@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Windows.Threading;
 using System.Windows;
 
-namespace SuperSocket.Management.AgentClient.ViewModel
+namespace SuperSocket.ServerManager.Client.ViewModel
 {
     public abstract class ViewModelBase : INotifyPropertyChanged
     {

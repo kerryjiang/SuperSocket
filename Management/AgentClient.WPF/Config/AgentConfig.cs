@@ -6,7 +6,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.IO.IsolatedStorage;
 
-namespace SuperSocket.Management.AgentClient.Config
+namespace SuperSocket.ServerManager.Client.Config
 {
 #if !SILVERLIGHT
    [Serializable]

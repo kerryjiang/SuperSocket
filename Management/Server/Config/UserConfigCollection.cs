@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Configuration;
 
-namespace SuperSocket.Management.Server.Config
+namespace SuperSocket.ServerManager.Config
 {
     /// <summary>
     /// User configuration collection
