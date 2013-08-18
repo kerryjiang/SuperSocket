@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}</ProjectGuid>
+    <ProjectGuid>{283DB895-CFDA-4EE0-A887-F9F46A745F09}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SuperSocket.Management.Server</RootNamespace>
-    <AssemblyName>SuperSocket.Management.Server</AssemblyName>
+    <RootNamespace>SuperSocket.ServerManager</RootNamespace>
+    <AssemblyName>SuperSocket.ServerManager</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
