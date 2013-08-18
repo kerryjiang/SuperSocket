@@ -47,6 +47,10 @@
     <Compile Include="SampleServer.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Agent\SuperSocket.Agent.Net40.csproj">
+      <Project>{49BA8E71-4F97-40D6-BBE7-22B71D222486}</Project>
+      <Name>SuperSocket.Agent.Net40</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Common\SuperSocket.Common.Net40.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net40</Name>
@@ -55,7 +59,7 @@
       <Project>{01987BAC-C498-44DD-B274-62EA2506B51D}</Project>
       <Name>SuperSocket.Facility.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Management\Server\SuperSocket.Management.Server.Net40.csproj">
+    <ProjectReference Include="..\..\Management\Server\SuperSocket.ServerManager.Net40.csproj">
       <Project>{49B6DFF1-D7A6-4BDE-90DB-9053416B0AA5}</Project>
       <Name>SuperSocket.Management.Server.Net40</Name>
     </ProjectReference>
