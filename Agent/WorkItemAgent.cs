@@ -19,7 +19,9 @@ namespace SuperSocket.Agent
     {
         private IWorkItem m_AppServer;
 
+#pragma warning disable 0414
         private AssemblyImport m_AssemblyImporter;
+#pragma warning restore 0414
 
         private ILog m_Log;
 

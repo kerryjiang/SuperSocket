@@ -15,14 +15,12 @@ namespace SuperSocket.SocketBase.Command
     public class ReflectCommandLoader<TCommand> : CommandLoaderBase<TCommand>
         where TCommand : class, ICommand
     {
-        private Type m_CommandType;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ReflectCommandLoader{TCommand}"/> class.
         /// </summary>
         public ReflectCommandLoader()
         {
-            m_CommandType = typeof(TCommand);
+
         }
 
         private IAppServer m_AppServer;

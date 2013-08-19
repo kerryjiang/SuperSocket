@@ -38,7 +38,7 @@ namespace SuperSocket.Test
         [Test]
         public void TestActiveConnect()
         {
-            var configSource = StartBootstrap(DefaultServerConfig);
+            StartBootstrap(DefaultServerConfig);
 
             IBootstrap activeServerBootstrap;
             var activeTargetServerConfig = CreateBootstrap("ActiveConnectServer.config", out activeServerBootstrap);
