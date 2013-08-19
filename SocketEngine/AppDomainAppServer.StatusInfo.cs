@@ -14,15 +14,37 @@ namespace SuperSocket.SocketEngine
     {
         private static Process m_Process;
 
+        private readonly static bool m_AppDomainMonitoringSupported = false;
+
         static AppDomainAppServer()
         {
+            try
+            {
+                AppDomain.MonitoringIsEnabled = true;
+                m_AppDomainMonitoringSupported = true;
+            }
+            catch (NotImplementedException)
+            {
+                return;
+            }
+
             m_Process = Process.GetCurrentProcess();
-            AppDomain.MonitoringIsEnabled = true;
+        }
+
+        protected override bool StatusMetadataExtended
+        {
+            get
+            {
+                return m_AppDomainMonitoringSupported;
+            }
         }
 
         public override StatusInfoCollection CollectServerStatus(StatusInfoCollection nodeStatus)
         {
             var statusCollection = base.CollectServerStatus(nodeStatus);
+
+            if (!m_AppDomainMonitoringSupported)
+                return statusCollection;
 
             if (statusCollection != null && m_HostDomain != null)
             {

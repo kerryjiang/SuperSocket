@@ -39,8 +39,22 @@ namespace SuperSocket.SocketEngine
             m_ServerStatusMetadata = PrepareStatusMetadata(serverStatusMetadata);
         }
 
+        /// <summary>
+        /// Gets a value indicating whether [status metadata extended].
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if [status metadata extended]; otherwise, <c>false</c>.
+        /// </value>
+        protected virtual bool StatusMetadataExtended
+        {
+            get { return false; }
+        }
+
         private StatusInfoAttribute[] PrepareStatusMetadata(StatusInfoAttribute[] serverStatusMetadata)
         {
+            if (!StatusMetadataExtended)
+                return serverStatusMetadata;
+
             var additionalAttrs = this.GetType()
                             .GetCustomAttributes(typeof(StatusInfoAttribute), true)
                             .OfType<StatusInfoAttribute>()

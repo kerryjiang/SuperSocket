@@ -216,6 +216,14 @@ namespace SuperSocket.SocketEngine
             ShutdownProcess();
         }
 
+        protected override bool StatusMetadataExtended
+        {
+            get
+            {
+                return true;
+            }
+        }
+
         public override StatusInfoCollection CollectServerStatus(StatusInfoCollection nodeStatus)
         {
             var status = base.CollectServerStatus(nodeStatus);
