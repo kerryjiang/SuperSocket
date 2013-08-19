@@ -1,5 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <SolidColorBrush x:Key="TopBackground" Color="#FF484848"/>
+    <SolidColorBrush x:Key="TopForeground" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="ThemeBackgroundBrush" Color="White" />
     <SolidColorBrush x:Key="ThemeForegroundBrush" Color="Black" />
     <Color x:Key="ItemOver1">#FFF4FAFD</Color>
@@ -12,13 +14,6 @@
     <SolidColorBrush x:Key="HorizontalVerticalGridLinesBrush">#59D6D7D6</SolidColorBrush>
     <SolidColorBrush x:Key="GridBorder" Color="#FFD6D7D6" />
     <SolidColorBrush x:Key="HoverStroke" Color="{StaticResource ItemOverStroke}"/>
-    <LinearGradientBrush x:Key="TopGradient" EndPoint="0.5,1" StartPoint="0.5,0">
-        <GradientStop Color="#FFE2F5FF" Offset="0.0"/>
-        <GradientStop Color="#FFC0E7FC" Offset="0.2"/>
-        <GradientStop Color="#FF9EDDFF" Offset="0.5"/>
-        <GradientStop Color="#FFC0E7FC" Offset="0.8"/>
-        <GradientStop Color="#FFE2F5FF" Offset="1"/>
-    </LinearGradientBrush>
     <LinearGradientBrush x:Key="HoverGradient" EndPoint="0.5,1" StartPoint="0.5,0">
         <GradientStop Color="{StaticResource ItemOver1}" Offset="0.5"/>
         <GradientStop Color="{StaticResource Over1}" Offset="0.5"/>
@@ -39,9 +34,9 @@
     <SolidColorBrush x:Key="SelectedStroke" Color="{StaticResource ItemSelectStroke}"/>
     <Style TargetType="TextBlock" x:Key="MainTitle">
         <Setter Property="FontSize" Value="20"></Setter>
-        <Setter Property="Margin" Value="20"></Setter>
+        <Setter Property="Margin" Value="5 20 20 20"></Setter>
         <Setter Property="FontWeight" Value="Bold"></Setter>
-        <Setter Property="Foreground" Value="#FF255B7C"></Setter>
+        <Setter Property="Foreground" Value="{StaticResource TopForeground}"></Setter>
         <Setter Property="FontFamily" Value="Verdana"></Setter>
     </Style>
     <Style TargetType="TextBlock" x:Key="NodeTitle">

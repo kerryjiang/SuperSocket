@@ -31,6 +31,8 @@
     <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
     <LinkedServerProject>
     </LinkedServerProject>
+    <InBrowserSettingsFile>Properties\InBrowserSettings.xml</InBrowserSettingsFile>
+    <RequireInBrowserElevation>false</RequireInBrowserElevation>
   </PropertyGroup>
   <!-- This property group is only here to support building this project using the 
        MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
@@ -64,7 +66,9 @@
       <HintPath>..\..\Reference\DynamicViewModel\SL\DynamicViewModel.SL.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="Microsoft.Expression.Interactions, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Expression.Interactions, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\Reference\Blend\sl50\Microsoft.Expression.Interactions.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\Reference\Json.NET\Portable\Newtonsoft.Json.dll</HintPath>
@@ -77,8 +81,10 @@
     <Reference Include="System.Windows.Controls, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Controls.Data, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Controls.Input.Toolkit, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Browser" />
+    <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\Reference\Blend\sl50\System.Windows.Interactivity</HintPath>
+    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Serialization, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="WebSocket4Net">
@@ -243,6 +249,9 @@
     <Resource Include="..\AgentClient.WPF\Resources\SS%2848%29.png">
       <Link>Resources\SS%2848%29.png</Link>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Properties\InBrowserSettings.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

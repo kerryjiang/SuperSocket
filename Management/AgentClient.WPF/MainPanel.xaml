@@ -13,8 +13,9 @@
             <RowDefinition Height="Auto"></RowDefinition>
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
-        <Grid Grid.Row="0" Background="{StaticResource TopGradient}" HorizontalAlignment="Stretch">
+        <Grid Grid.Row="0" Background="{StaticResource TopBackground}" HorizontalAlignment="Stretch">
             <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="Auto"></ColumnDefinition>
@@ -23,16 +24,17 @@
                 <RowDefinition></RowDefinition>
                 <RowDefinition Height="Auto"></RowDefinition>
             </Grid.RowDefinitions>
-            <TextBlock Grid.Column="0" Grid.Row="0"
+            <Image Grid.Column="0" Margin="10 0 5 0" Source="Resources/SS(32).png"></Image>
+            <TextBlock Grid.Column="1" Grid.Row="0"
                    Style="{StaticResource MainTitle}"
                    Text="SuperSocket ServerManager Client"></TextBlock>
-            <Button Content="Configure" Grid.Column="2"
+            <Button Content="Configure" Grid.Column="3"
                     Margin="5"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Click="Configure_Click"
                     Width="100"></Button>
-            <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="3"
+            <Rectangle Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4"
                        Fill="#FFDACEEC" Height="5" VerticalAlignment="Bottom"></Rectangle>
         </Grid>
         <Border Grid.Row="1" VerticalAlignment="Stretch" Background="AliceBlue">
