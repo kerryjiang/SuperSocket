@@ -43,7 +43,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the security option, None/Default/Tls/Ssl/...
         /// </summary>
-        [ConfigurationProperty("security", IsRequired = false, DefaultValue = "None")]
+        [ConfigurationProperty("security", IsRequired = false)]
         public string Security
         {
             get
