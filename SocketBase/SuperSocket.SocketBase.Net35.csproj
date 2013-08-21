@@ -61,7 +61,6 @@
     </Compile>
     <Compile Include="AppServer.cs" />
     <Compile Include="AppServerBase.cs" />
-    <Compile Include="AppServerBase.SystemEndPoint.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />

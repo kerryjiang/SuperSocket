@@ -25,7 +25,7 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     [AppServerMetadataType(typeof(DefaultAppServerMetadata))]
-    public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, IDisposable
+	public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, ISystemEndPoint, IDisposable
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -964,9 +964,9 @@ namespace SuperSocket.SocketBase
                     {
                         SslProtocols configProtocol;
 
-                        if (string.IsNullOrEmpty(l.Security) && BasicSecurity != SslProtocols.None)
+                        if (string.IsNullOrEmpty(l.Security))
                         {
-                            configProtocol = BasicSecurity;
+							configProtocol = BasicSecurity;
                         }
                         else if (!l.Security.TryParseEnum<SslProtocols>(true, out configProtocol))
                         {
@@ -1540,6 +1540,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public abstract int SessionCount { get; }
 
+        #region IActiveConnector
 
         /// <summary>
         /// Connect the remote endpoint actively.
@@ -1556,6 +1557,31 @@ namespace SuperSocket.SocketBase
 
             return activeConnector.ActiveConnect(targetEndPoint);
         }
+
+        #endregion IActiveConnector
+
+        #region ISystemEndPoint
+        /// <summary>
+        /// Transfers the system message
+        /// </summary>
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="messageData">The message data.</param>
+        void ISystemEndPoint.TransferSystemMessage(string messageType, object messageData)
+        {
+            OnSystemMessageReceived(messageType, messageData);
+        }
+
+        /// <summary>
+        /// Called when [system message received].
+        /// </summary>
+        /// <param name="messageType">Type of the message.</param>
+        /// <param name="messageData">The message data.</param>
+        protected virtual void OnSystemMessageReceived(string messageType, object messageData)
+        {
+
+        }
+
+        #endregion ISystemEndPoint
 
         #region IStatusInfoSource
 
