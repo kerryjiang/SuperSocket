@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Metadata;
@@ -25,6 +26,8 @@ namespace SuperSocket.SocketEngine
         private const string m_AgentUri = "ipc://{0}/WorkItemAgent.rem";
 
         private const string m_PortNameTemplate = "{0}[SuperSocket.Agent:{1}]";
+
+		private const string m_AgentAssemblyName = "SuperSocket.Agent.exe";
 
         private Process m_WorkingProcess;
 
@@ -66,9 +69,15 @@ namespace SuperSocket.SocketEngine
 
             if (process == null)
             {
-                var args = new string[] { Name, portName, workingDir };
+				var args = string.Join(" ", (new string[] { Name, portName, workingDir }).Select(a => "\"" + a + "\"").ToArray());
 
-                var startInfo = new ProcessStartInfo("SuperSocket.Agent.exe", string.Join(" ", args.Select(a => "\"" + a + "\"").ToArray()));
+				ProcessStartInfo startInfo;
+
+				if(!Platform.IsMono)
+					startInfo = new ProcessStartInfo(m_AgentAssemblyName, args);
+				else
+					startInfo = new ProcessStartInfo("mono.exe", "--runtime=v" + Environment.Version.ToString() + " \"" + Path.Combine(currentDomain.BaseDirectory, m_AgentAssemblyName) + "\" " + args);
+
                 startInfo.CreateNoWindow = true;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 startInfo.WorkingDirectory = currentDomain.BaseDirectory;
@@ -99,7 +108,8 @@ namespace SuperSocket.SocketEngine
             m_ServerTag = portName;
 
             var remoteUri = string.Format(m_AgentUri, portName);
-            var appServer = (IRemoteWorkItem)Activator.GetObject(typeof(IRemoteWorkItem), remoteUri);
+
+            IRemoteWorkItem appServer = null;
 
             if (process == null)
             {
@@ -115,6 +125,11 @@ namespace SuperSocket.SocketEngine
                     OnExceptionThrown(new Exception("The Agent process didn't start successfully!"));
                     return null;
                 }
+
+                appServer = GetRemoteServer(remoteUri);
+
+                if (appServer == null)
+                    return null;
 
                 var bootstrapIpcPort = AppDomain.CurrentDomain.GetData("BootstrapIpcPort") as string;
 
@@ -142,6 +157,13 @@ namespace SuperSocket.SocketEngine
 
                 m_Locker.SaveLock(m_WorkingProcess);
             }
+            else
+            {
+                appServer = GetRemoteServer(remoteUri);
+
+                if (appServer == null)
+                    return null;
+            }
 
             m_WorkingProcess.EnableRaisingEvents = true;
             m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
@@ -149,6 +171,20 @@ namespace SuperSocket.SocketEngine
             m_PerformanceCounterHelper = new ProcessPerformanceCounterHelper(m_WorkingProcess);
 
             return appServer;
+        }
+
+        IRemoteWorkItem GetRemoteServer(string remoteUri)
+        {
+            try
+            {
+                return (IRemoteWorkItem)Activator.GetObject(typeof(IRemoteWorkItem), remoteUri);
+            }
+            catch(Exception e)
+            {
+                ShutdownProcess();
+                OnExceptionThrown(new Exception("Failed to get server instance of a remote process!", e));
+                return null;
+            }
         }
 
         void m_WorkingProcess_OutputDataReceived(object sender, DataReceivedEventArgs e)
