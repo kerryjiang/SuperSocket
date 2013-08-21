@@ -577,7 +577,10 @@ namespace SuperSocket.SocketEngine
 
             AppDomain.CurrentDomain.SetData("BootstrapIpcPort", bootstrapIpcPort);
 
-            RemotingConfiguration.RegisterWellKnownServiceType(typeof(RemoteBootstrapProxy), "Bootstrap.rem", WellKnownObjectMode.Singleton);
+            var bootstrapProxyType = typeof(RemoteBootstrapProxy);
+
+            if (!RemotingConfiguration.GetRegisteredWellKnownServiceTypes().Any(s => s.ObjectType == bootstrapProxyType))
+                RemotingConfiguration.RegisterWellKnownServiceType(bootstrapProxyType, "Bootstrap.rem", WellKnownObjectMode.Singleton);
         }
     }
 }
