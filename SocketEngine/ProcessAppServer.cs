@@ -76,7 +76,7 @@ namespace SuperSocket.SocketEngine
                 if (!Platform.IsMono)
                     startInfo = new ProcessStartInfo(m_AgentAssemblyName, args);
                 else
-                    startInfo = new ProcessStartInfo((Path.DirectorySeparatorChar == '\\' ? "mono.exe" : "mono"), "--runtime=v" + Environment.Version.ToString() + " \"" + Path.Combine(currentDomain.BaseDirectory, m_AgentAssemblyName) + "\" " + args);
+                    startInfo = new ProcessStartInfo((Path.DirectorySeparatorChar == '\\' ? "mono.exe" : "mono"), "--runtime=v" + Environment.Version.ToString(2) + " \"" + m_AgentAssemblyName + "\" " + args);
 
                 startInfo.CreateNoWindow = true;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -136,22 +136,40 @@ namespace SuperSocket.SocketEngine
                 if (string.IsNullOrEmpty(bootstrapIpcPort))
                     throw new Exception("The bootstrap's remoting service has not been started.");
 
-                //Setup and then start the remote server instance
-                var ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig, Factories);
+                var ret = false;
+                Exception exc = null;
+
+                try
+                {
+                    //Setup and then start the remote server instance
+                    ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig, Factories);
+                }
+                catch (Exception e)
+                {
+                    exc = e;
+                }
 
                 if (!ret)
                 {
                     ShutdownProcess();
-                    OnExceptionThrown(new Exception("The remote work item failed to setup!"));
+                    OnExceptionThrown(new Exception("The remote work item failed to setup!", exc));
                     return null;
                 }
 
-                ret = appServer.Start();
+                try
+                {
+                    ret = appServer.Start();
+                }
+                catch (Exception e)
+                {
+                    ret = false;
+                    exc = e;
+                }
 
                 if (!ret)
                 {
                     ShutdownProcess();
-                    OnExceptionThrown(new Exception("The remote work item failed to start!"));
+                    OnExceptionThrown(new Exception("The remote work item failed to start!", exc));
                     return null;
                 }
 
