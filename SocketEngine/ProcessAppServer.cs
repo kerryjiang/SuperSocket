@@ -69,14 +69,14 @@ namespace SuperSocket.SocketEngine
 
             if (process == null)
             {
-				var args = string.Join(" ", (new string[] { Name, portName, workingDir }).Select(a => "\"" + a + "\"").ToArray());
+                var args = string.Join(" ", (new string[] { Name, portName, workingDir }).Select(a => "\"" + a + "\"").ToArray());
 
-				ProcessStartInfo startInfo;
+                ProcessStartInfo startInfo;
 
-				if(!Platform.IsMono)
-					startInfo = new ProcessStartInfo(m_AgentAssemblyName, args);
-				else
-					startInfo = new ProcessStartInfo("mono.exe", "--runtime=v" + Environment.Version.ToString() + " \"" + Path.Combine(currentDomain.BaseDirectory, m_AgentAssemblyName) + "\" " + args);
+                if (!Platform.IsMono)
+                    startInfo = new ProcessStartInfo(m_AgentAssemblyName, args);
+                else
+                    startInfo = new ProcessStartInfo((Path.DirectorySeparatorChar == '\\' ? "mono.exe" : "mono"), "--runtime=v" + Environment.Version.ToString() + " \"" + Path.Combine(currentDomain.BaseDirectory, m_AgentAssemblyName) + "\" " + args);
 
                 startInfo.CreateNoWindow = true;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
