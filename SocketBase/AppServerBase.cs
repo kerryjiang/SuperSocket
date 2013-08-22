@@ -911,7 +911,7 @@ namespace SuperSocket.SocketBase
                     {
                         SslProtocols configProtocol;
 
-                        if (string.IsNullOrEmpty(l.Security) && BasicSecurity != SslProtocols.None)
+                        if (string.IsNullOrEmpty(l.Security))
                         {
                             configProtocol = BasicSecurity;
                         }
