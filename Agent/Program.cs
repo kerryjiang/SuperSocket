@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using SuperSocket.SocketBase;
@@ -48,7 +49,18 @@ namespace SuperSocket.Agent
             if (string.IsNullOrEmpty(root))
                 throw new Exception("Root cannot be null or empty.");
 
-            AppDomain.CurrentDomain.SetData("APPBASE", root);
+            //Hack to change the default AppDomain's root
+            if (SuperSocket.Common.Platform.IsMono) //for Mono
+            {
+                var pro = typeof(AppDomain).GetProperty("SetupInformationNoCopy", BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetProperty);
+                var setupInfo = (AppDomainSetup)pro.GetValue(AppDomain.CurrentDomain, null);
+                setupInfo.ApplicationBase = root;
+            }
+            else // for .NET
+            {
+                AppDomain.CurrentDomain.SetData("APPBASE", root);
+            }
+
             AppDomain.CurrentDomain.SetData(typeof(IsolationMode).Name, IsolationMode.Process);
 
             try
@@ -69,7 +81,7 @@ namespace SuperSocket.Agent
             }
             catch
             {
-                Console.WriteLine("Failed");
+                Console.Write("Failed");
             }
         }
     }
