@@ -966,7 +966,7 @@ namespace SuperSocket.SocketBase
 
                         if (string.IsNullOrEmpty(l.Security))
                         {
-							configProtocol = BasicSecurity;
+                            configProtocol = BasicSecurity;
                         }
                         else if (!l.Security.TryParseEnum<SslProtocols>(true, out configProtocol))
                         {
