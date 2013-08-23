@@ -66,7 +66,6 @@ namespace SuperSocket.SocketEngine
 
             var process = m_Locker.GetLockedProcess();
 
-
             if (process == null)
             {
                 var args = string.Join(" ", (new string[] { Name, portName, workingDir }).Select(a => "\"" + a + "\"").ToArray());
@@ -74,9 +73,13 @@ namespace SuperSocket.SocketEngine
                 ProcessStartInfo startInfo;
 
                 if (!Platform.IsMono)
+                {
                     startInfo = new ProcessStartInfo(m_AgentAssemblyName, args);
+                }
                 else
+                {
                     startInfo = new ProcessStartInfo((Path.DirectorySeparatorChar == '\\' ? "mono.exe" : "mono"), "--runtime=v" + Environment.Version.ToString(2) + " \"" + m_AgentAssemblyName + "\" " + args);
+                }
 
                 startInfo.CreateNoWindow = true;
                 startInfo.WindowStyle = ProcessWindowStyle.Hidden;
@@ -88,10 +91,6 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     m_WorkingProcess = Process.Start(startInfo);
-                    m_WorkingProcess.ErrorDataReceived += new DataReceivedEventHandler(m_WorkingProcess_ErrorDataReceived);
-                    m_WorkingProcess.BeginErrorReadLine();
-                    m_WorkingProcess.OutputDataReceived += new DataReceivedEventHandler(m_WorkingProcess_OutputDataReceived);
-                    m_WorkingProcess.BeginOutputReadLine();
                 }
                 catch (Exception e)
                 {
@@ -104,6 +103,12 @@ namespace SuperSocket.SocketEngine
                 m_WorkingProcess = process;
             }
 
+            m_WorkingProcess.EnableRaisingEvents = true;
+            m_WorkingProcess.ErrorDataReceived += new DataReceivedEventHandler(m_WorkingProcess_ErrorDataReceived);
+            m_WorkingProcess.OutputDataReceived += new DataReceivedEventHandler(m_WorkingProcess_OutputDataReceived);
+            m_WorkingProcess.BeginErrorReadLine();
+            m_WorkingProcess.BeginOutputReadLine();
+
             portName = string.Format(portName, m_WorkingProcess.Id);
             m_ServerTag = portName;
 
@@ -113,7 +118,7 @@ namespace SuperSocket.SocketEngine
 
             if (process == null)
             {
-                if (!m_ProcessWorkEvent.WaitOne(5000))
+                if (!m_ProcessWorkEvent.WaitOne(10000))
                 {
                     ShutdownProcess();
                     OnExceptionThrown(new Exception("The remote work item was timeout to setup!"));
@@ -183,9 +188,7 @@ namespace SuperSocket.SocketEngine
                     return null;
             }
 
-            m_WorkingProcess.EnableRaisingEvents = true;
             m_WorkingProcess.Exited += new EventHandler(m_WorkingProcess_Exited);
-
             m_PerformanceCounterHelper = new ProcessPerformanceCounterHelper(m_WorkingProcess);
 
             return appServer;
@@ -212,12 +215,10 @@ namespace SuperSocket.SocketEngine
 
             if (string.IsNullOrEmpty(m_ProcessWorkStatus))
             {
-                m_ProcessWorkStatus = e.Data;
+                m_ProcessWorkStatus = e.Data.Trim();
                 m_ProcessWorkEvent.Set();
                 return;
             }
-
-            Console.WriteLine(string.Format("{0}: {1}", m_ServerTag, e.Data));
         }
 
         void m_WorkingProcess_ErrorDataReceived(object sender, DataReceivedEventArgs e)
@@ -240,6 +241,8 @@ namespace SuperSocket.SocketEngine
             var unexpectedShutdown = (State == ServerState.Running);
 
             base.OnStopped();
+            m_WorkingProcess.OutputDataReceived -= m_WorkingProcess_OutputDataReceived;
+            m_WorkingProcess.ErrorDataReceived -= m_WorkingProcess_ErrorDataReceived;
             m_WorkingProcess = null;
             m_ProcessWorkStatus = string.Empty;
 
