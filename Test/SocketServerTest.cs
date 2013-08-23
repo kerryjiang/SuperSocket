@@ -724,12 +724,13 @@ namespace SuperSocket.Test
             }
         }
 
-        [Test, Repeat(5)]
+        [Test]//[Test, Repeat(5)]
         public void TestConcurrentSending()
         {
             var configSource = StartBootstrap(DefaultServerConfig, c => new ServerConfig(c)
                 {
-                    SendingQueueSize = 100
+                    SendingQueueSize = 100,
+                    ClearIdleSession = false
                 });
 
             var serverConfig = configSource.Servers.FirstOrDefault();
@@ -754,6 +755,8 @@ namespace SuperSocket.Test
                         writer.WriteLine("SEND");
                         writer.Flush();
 
+						Console.WriteLine (j);
+
                         int i;
 
                         for (i = 0; i < received.Length; i++)
@@ -761,6 +764,8 @@ namespace SuperSocket.Test
                             var line = reader.ReadLine();
                             if (line == null)
                                 break;
+
+							//Console.WriteLine (i);
                             received[i] = line;
                         }
 

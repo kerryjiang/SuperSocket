@@ -109,7 +109,12 @@ namespace SuperSocket.Test
 
                     writer.WriteLine("DOMAIN");
                     writer.Flush();
-                    Assert.AreEqual(serverConfig.Name, reader.ReadLine());
+
+                    var line = reader.ReadLine();
+                    var pars = line.Split(',');
+                    var appDomainName = pars[0];
+
+                    Assert.AreEqual(serverConfig.Name, appDomainName);
                 }
             }
         }
@@ -134,7 +139,13 @@ namespace SuperSocket.Test
 
                     writer.WriteLine("PROC");
                     writer.Flush();
-                    Assert.AreEqual("SuperSocket.Agent", reader.ReadLine());
+
+                    var line = reader.ReadLine();
+
+                    var pars = line.Split(',');
+                    var appDomainName = pars[0];
+
+                    Assert.AreEqual("SuperSocket.Agent.exe", appDomainName);
                 }
             }
         }

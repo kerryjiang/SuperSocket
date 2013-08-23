@@ -44,7 +44,12 @@ namespace SuperSocket.Test
 
                     var line = reader.ReadLine();
 
-                    Assert.AreEqual("SuperSocket.Agent", line);
+                    var pars = line.Split(',');
+                    var appDomainName = pars[0];
+                    var appDomainRoot = pars[1];
+
+                    Assert.AreEqual("SuperSocket.Agent.exe", appDomainName);
+                    Assert.AreEqual(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InstancesRoot", serverConfig.Name), appDomainRoot);
                 }
             }
         }

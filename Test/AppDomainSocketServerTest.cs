@@ -52,7 +52,12 @@ namespace SuperSocket.Test
 
                     var line = reader.ReadLine();
 
-                    Assert.AreEqual(serverConfig.Name, line);
+                    var pars = line.Split(',');
+                    var appDomainName = pars[0];
+                    var appDomainRoot = pars[1];
+
+                    Assert.AreEqual(serverConfig.Name, appDomainName);
+                    Assert.AreEqual(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "InstancesRoot", serverConfig.Name), appDomainRoot);
                 }
             }
         }

@@ -12,7 +12,7 @@ namespace SuperSocket.Test.Command
     {
         public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
         {
-            session.Send(Process.GetCurrentProcess().ProcessName);
+            session.Send(AppDomain.CurrentDomain.FriendlyName + "," + AppDomain.CurrentDomain.BaseDirectory);
         }
     }
 }
