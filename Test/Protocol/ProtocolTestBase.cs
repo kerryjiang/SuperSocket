@@ -24,8 +24,7 @@ namespace SuperSocket.Test.Protocol
         [SetUp]
         public void Setup()
         {
-            var mode = TestContext.CurrentContext.Test.Name.Contains("Udp") ? SocketMode.Udp : SocketMode.Tcp;
-            m_Server = CreateServer(CurrentReceiveFilterFactory, mode);
+            m_Server = CreateServer(CurrentReceiveFilterFactory, SocketMode.Tcp);
         }
 
         [TearDown]
@@ -237,27 +236,6 @@ namespace SuperSocket.Test.Protocol
                     }
                 }
             }
-        }
-
-
-        [Test]
-        public void TestUdpRequest()
-        {
-            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2012);
-            var client = new Socket(serverAddress.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-
-            var line = Guid.NewGuid().ToString();
-
-            var data = Encoding.ASCII.GetBytes(CreateRequest(line));
-
-            client.SendTo(data, serverAddress);
-
-            var receiveData = new byte[data.Length];
-
-            var len = client.ReceiveFrom(receiveData, ref serverAddress);
-
-            Assert.AreEqual(line.Length, len);
-            Assert.AreEqual(line, Encoding.ASCII.GetString(receiveData, 0, len));
         }
     }
 }
