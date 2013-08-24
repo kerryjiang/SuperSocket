@@ -12,7 +12,7 @@ namespace SuperSocket.SocketBase.Security
 {
     static class CertificateManager
     {
-        internal static X509Certificate Initialize(ICertificateConfig cerConfig)
+        internal static X509Certificate Initialize(ICertificateConfig cerConfig, Func<string, string> relativePathHandler)
         {
             if (!string.IsNullOrEmpty(cerConfig.FilePath))
             {
@@ -23,7 +23,7 @@ namespace SuperSocket.SocketBase.Security
                     filePath = cerConfig.FilePath;
                 else
                 {
-                    filePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, cerConfig.FilePath);
+                    filePath = relativePathHandler(cerConfig.FilePath);
                 }
 
                 return new X509Certificate2(filePath, cerConfig.Password);

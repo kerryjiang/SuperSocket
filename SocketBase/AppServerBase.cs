@@ -863,7 +863,7 @@ namespace SuperSocket.SocketBase
                 return null;
             }
 
-            return CertificateManager.Initialize(certificate);
+            return CertificateManager.Initialize(certificate, GetFilePath);
         }
 
         bool IRemoteCertificateValidator.Validate(IAppSession session, object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -1539,6 +1539,28 @@ namespace SuperSocket.SocketBase
         /// Gets the total session count.
         /// </summary>
         public abstract int SessionCount { get; }
+
+        /// <summary>
+        /// Gets the physical file path by the relative file path,
+        /// search both in the appserver's root and in the supersocket root dir if the isolation level has been set other than 'None'.
+        /// </summary>
+        /// <param name="relativeFilePath">The relative file path.</param>
+        /// <returns></returns>
+        protected internal string GetFilePath(string relativeFilePath)
+        {
+            var filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativeFilePath);
+
+            if (!System.IO.File.Exists(filePath) && RootConfig != null && RootConfig.Isolation != IsolationMode.None)
+            {
+                var rootDir = System.IO.Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+                var rootFilePath = System.IO.Path.Combine(rootDir, relativeFilePath);
+
+                if (System.IO.File.Exists(rootFilePath))
+                    return rootFilePath;
+            }
+
+            return filePath;
+        }
 
         #region IActiveConnector
 
