@@ -1546,7 +1546,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="relativeFilePath">The relative file path.</param>
         /// <returns></returns>
-        protected internal string GetFilePath(string relativeFilePath)
+        public string GetFilePath(string relativeFilePath)
         {
             var filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, relativeFilePath);
 
