@@ -14,7 +14,7 @@ namespace SuperSocket.SocketEngine
 {
     abstract class IsolationAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource, IExceptionSource, IDisposable
     {
-        protected const string WorkingDir = "InstancesRoot";
+        protected const string WorkingDir = "AppRoot";
 
         protected string ServerTypeName { get; private set; }
 
