@@ -63,7 +63,7 @@ namespace SuperSocket.Facility.PolicyServer
             }
 
             if (!Path.IsPathRooted(m_PolicyFile))
-                m_PolicyFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, m_PolicyFile);
+                m_PolicyFile = GetFilePath(m_PolicyFile);
 
             if (!File.Exists(m_PolicyFile))
             {
