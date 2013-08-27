@@ -87,6 +87,7 @@ namespace SuperSocket.SocketEngine
                 startInfo.UseShellExecute = false;
                 startInfo.RedirectStandardOutput = true;
                 startInfo.RedirectStandardError = true;
+                startInfo.RedirectStandardInput = true;
 
                 try
                 {
