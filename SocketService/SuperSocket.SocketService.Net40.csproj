@@ -145,6 +145,9 @@
       <Link>App.config</Link>
       <SubType>Designer</SubType>
     </None>
+    <None Include="supersocket.sh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="supersocket.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
