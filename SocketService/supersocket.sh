@@ -1,2 +1,2 @@
 #!/bin/bash
-mono SuperSocket.SocketService.exe -c %1 %2
+mono SuperSocket.SocketService.exe -c $1 $2
