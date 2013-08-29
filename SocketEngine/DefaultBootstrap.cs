@@ -13,9 +13,9 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketEngine.Configuration;
-using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
@@ -563,7 +563,7 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         protected virtual void RegisterRemotingService()
         {
-            var bootstrapIpcPort = string.Format("SuperSocket.Bootstrap[{0}]", Math.Abs(AppDomain.CurrentDomain.BaseDirectory.GetHashCode()));
+            var bootstrapIpcPort = string.Format("SuperSocket.Bootstrap[{0}]", Math.Abs(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(System.IO.Path.DirectorySeparatorChar).GetHashCode()));
 
             var serverChannelName = "Bootstrap";
 

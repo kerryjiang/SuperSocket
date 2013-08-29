@@ -254,7 +254,7 @@ namespace SuperSocket.SocketService
 
             try
             {
-                var remoteBootstrapUri = string.Format("ipc://SuperSocket.Bootstrap[{0}]/Bootstrap.rem", Math.Abs(AppDomain.CurrentDomain.BaseDirectory.GetHashCode()));
+                var remoteBootstrapUri = string.Format("ipc://SuperSocket.Bootstrap[{0}]/Bootstrap.rem", Math.Abs(AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar).GetHashCode()));
                 bootstrap = (IBootstrap)Activator.GetObject(typeof(IBootstrap), remoteBootstrapUri);
             }
             catch (RemotingException)
