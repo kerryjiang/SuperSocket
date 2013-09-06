@@ -57,7 +57,7 @@ namespace SuperSocket.Test
                     var appDomainRoot = pars[1];
 
                     Assert.AreEqual(serverConfig.Name, appDomainName);
-                    Assert.AreEqual(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppRoot", serverConfig.Name), appDomainRoot);
+                    Assert.AreEqual(Path.Combine(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "AppRoot"), serverConfig.Name), appDomainRoot);
                 }
             }
         }
