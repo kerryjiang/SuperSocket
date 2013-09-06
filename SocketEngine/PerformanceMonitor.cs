@@ -109,7 +109,7 @@ namespace SuperSocket.SocketEngine
                 if (metadata == null)
                 {
                     perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
-                    perfBuilder.AppendLine(string.Format("{0}: {1}", "IsRunning", s.State == ServerState.Running));
+                    perfBuilder.AppendLine(string.Format("{0}: {1}", "State", s.State));
                 }
                 else
                 {
