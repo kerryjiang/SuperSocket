@@ -88,6 +88,7 @@
     <Compile Include="Configuration\SocketServiceConfig.Net45.cs" />
     <Compile Include="DefaultBootstrap.Net45.cs" />
     <Compile Include="IExceptionSource.cs" />
+    <Compile Include="IProcessServer.cs" />
     <Compile Include="IRemoteWorkItem.cs" />
     <Compile Include="IsolationAppServer.cs" />
     <Compile Include="ProcessAppServer.cs" />

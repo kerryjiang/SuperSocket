@@ -21,17 +21,22 @@ namespace SuperSocket.SocketEngine
     [StatusInfo(StatusInfoKeys.AvailableCompletionPortThreads, Name = "Available Completion Port Threads", Format = "{0}", DataType = typeof(double), Order = 513)]
     [StatusInfo(StatusInfoKeys.MaxWorkingThreads, Name = "Maximum Working Threads", Format = "{0}", DataType = typeof(double), Order = 513)]
     [StatusInfo(StatusInfoKeys.MaxCompletionPortThreads, Name = "Maximum Completion Port Threads", Format = "{0}", DataType = typeof(double), Order = 514)]
-    partial class ProcessAppServer : IsolationAppServer
+    partial class ProcessAppServer : IsolationAppServer, IProcessServer
     {
         private const string m_AgentUri = "ipc://{0}/WorkItemAgent.rem";
 
         private const string m_PortNameTemplate = "{0}[SuperSocket.Agent:{1}]";
 
-		private const string m_AgentAssemblyName = "SuperSocket.Agent.exe";
+        private const string m_AgentAssemblyName = "SuperSocket.Agent.exe";
 
         private Process m_WorkingProcess;
 
         private string m_ServerTag;
+
+        public string ServerTag
+        {
+            get { return m_ServerTag; }
+        }
 
         private ProcessLocker m_Locker;
 
@@ -50,6 +55,23 @@ namespace SuperSocket.SocketEngine
             : base(serverTypeName, serverStatusMetadata)
         {
 
+        }
+
+        /// <summary>
+        /// Gets the process id.
+        /// </summary>
+        /// <value>
+        /// The process id. If the process id is zero, the server instance is not running
+        /// </value>
+        public int ProcessId
+        {
+            get
+            {
+                if (m_WorkingProcess == null)
+                    return 0;
+
+                return m_WorkingProcess.Id;
+            }
         }
 
         protected override IWorkItemBase Start()

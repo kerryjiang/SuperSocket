@@ -293,7 +293,12 @@ namespace SuperSocket.SocketService
         {
             foreach (var s in bootstrap.AppServers)
             {
-                Console.WriteLine("{0} - {1}", s.Name, s.State);
+                var processInfo = s as IProcessServer;
+
+                if (processInfo != null && processInfo.ProcessId > 0)
+                    Console.WriteLine("{0}[PID:{1}] - {2}", s.Name, processInfo.ProcessId, s.State);
+                else
+                    Console.WriteLine("{0} - {1}", s.Name, s.State);
             }
 
             return false;
