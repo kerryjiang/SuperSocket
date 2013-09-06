@@ -122,7 +122,7 @@ namespace SuperSocket.SocketEngine
 
             sessionID = udpRequestInfo.SessionID;
 
-            var appSession = AppServer.GetAppSessionByID(sessionID);
+            var appSession = AppServer.GetSessionByID(sessionID);
 
             if (appSession == null)
             {
@@ -159,7 +159,7 @@ namespace SuperSocket.SocketEngine
         void ProcessPackageWithoutSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
         {
             var sessionID = remoteEndPoint.ToString();
-            var appSession = AppServer.GetAppSessionByID(sessionID);
+            var appSession = AppServer.GetSessionByID(sessionID);
 
             if (appSession == null) //New session
             {

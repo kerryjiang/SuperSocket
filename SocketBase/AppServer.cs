@@ -151,7 +151,18 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
-        public override TAppSession GetAppSessionByID(string sessionID)
+        [Obsolete]
+        public TAppSession GetAppSessionByID(string sessionID)
+        {
+            return GetSessionByID(sessionID);
+        }
+
+        /// <summary>
+        /// Gets the app session by ID.
+        /// </summary>
+        /// <param name="sessionID">The session ID.</param>
+        /// <returns></returns>
+        public override TAppSession GetSessionByID(string sessionID)
         {
             if (string.IsNullOrEmpty(sessionID))
                 return NullAppSession;

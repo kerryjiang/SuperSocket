@@ -1506,16 +1506,16 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
-        public abstract TAppSession GetAppSessionByID(string sessionID);
+        public abstract TAppSession GetSessionByID(string sessionID);
 
         /// <summary>
         /// Gets the app session by ID.
         /// </summary>
         /// <param name="sessionID"></param>
         /// <returns></returns>
-        IAppSession IAppServer.GetAppSessionByID(string sessionID)
+        IAppSession IAppServer.GetSessionByID(string sessionID)
         {
-            return this.GetAppSessionByID(sessionID);
+            return this.GetSessionByID(sessionID);
         }
 
         /// <summary>

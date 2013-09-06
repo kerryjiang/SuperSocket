@@ -125,7 +125,7 @@ namespace SuperSocket.Test
                     writer.Flush();
 
                     var sessionID = reader.ReadLine();
-                    var session = server.GetAppSessionByID(sessionID);
+                    var session = server.GetSessionByID(sessionID);
 
                     if (session == null)
                         Assert.Fail("Failed to get session by sessionID");

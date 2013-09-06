@@ -78,7 +78,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
-        IAppSession GetAppSessionByID(string sessionID);
+        IAppSession GetSessionByID(string sessionID);
 
         /// <summary>
         /// Resets the session's security protocol.
