@@ -19,6 +19,14 @@
 	</zip>
   </target>
   
+  <target name="cleanObjDir" description="clear the obj dir">	
+	<delete> 
+		<fileset> 
+			<include name="**/obj/**"/> 
+		</fileset> 
+	</delete> 
+  </target>
+  
   <target name="zipBinaries" description="zip the binary output">	
     <zip zipfile="SuperSocket${releaseVersionTag}.Binaries.zip">		
 		<fileset basedir="bin">
@@ -46,31 +54,37 @@
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
     <call target="build" />
+	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net35" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
     <call target="build" />
+	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net40" />
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2010.sln" />
     <call target="build" />
+	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net40" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2010.sln" />
     <call target="build" />
+	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net45" />
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2012.sln" />
     <call target="build" />
+	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net45" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2012.sln" />
     <call target="build" />
+	<call target="cleanObjDir" />
 	
 	<call target="zipBinaries" />
 	
