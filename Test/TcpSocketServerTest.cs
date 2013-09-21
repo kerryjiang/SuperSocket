@@ -48,7 +48,7 @@ namespace SuperSocket.Test
             var serverConfig = activeTargetServerConfig.Servers.FirstOrDefault();
             var serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), serverConfig.Port);
 
-            m_ActiveServerBootstrap = AppDomain.CurrentDomain.GetData("Bootstrap") as IBootstrap;
+            m_ActiveServerBootstrap = activeServerBootstrap;
 
             Assert.AreEqual(StartResult.Success, m_ActiveServerBootstrap.Start());
 
@@ -66,7 +66,12 @@ namespace SuperSocket.Test
             Assert.AreEqual(true, task.Result.Result);
             Assert.IsNotNull(task.Result.Session);
 
-            Assert.AreEqual(1, m_ActiveServerBootstrap.AppServers.FirstOrDefault().SessionCount);
+            var remoteServer = m_ActiveServerBootstrap.AppServers.FirstOrDefault() as TestServer;
+
+            Thread.Sleep(100);
+
+            Assert.AreEqual(1, appServer.SessionCount);
+            Assert.AreEqual(1, remoteServer.SessionCount);
 
             var session = task.Result.Session as TestSession;
 
@@ -77,6 +82,43 @@ namespace SuperSocket.Test
             Thread.Sleep(500);
 
             Assert.AreEqual((a + b).ToString(), RESU.Result);
+
+            var resetEvent = new AutoResetEvent(false);
+
+            //Reconnect
+            session.SocketSession.Closed += (s, c) =>
+                {
+                    resetEvent.WaitOne();
+                    Thread.Sleep(5000);
+                    var t = appServer.ActiveConnectRemote(serverAddress);
+                    t.ContinueWith((x) =>
+                        {
+                            if (x.Exception != null)
+                                Console.WriteLine(x.Exception.InnerException.Message);
+
+                            resetEvent.Set();
+                        });
+                };
+
+            foreach (var s in remoteServer.GetAllSessions())
+            {
+                s.Close();
+            }
+
+            Thread.Sleep(500);
+
+            Assert.AreEqual(0, appServer.SessionCount);
+            Assert.AreEqual(0, remoteServer.SessionCount);
+
+            resetEvent.Set();
+            Thread.Sleep(500);
+            resetEvent.WaitOne();
+
+            Thread.Sleep(500);
+
+            Assert.AreEqual(1, appServer.SessionCount);
+            Assert.AreEqual(1, remoteServer.SessionCount);
+
         }
     }
 }
