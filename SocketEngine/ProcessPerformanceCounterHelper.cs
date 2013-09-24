@@ -24,8 +24,33 @@ namespace SuperSocket.SocketEngine
             m_Process = process;
             m_CpuCores = Environment.ProcessorCount;
 
+            //Windows .Net, to avoid same name process issue
+            if (!Platform.IsMono)
+                RegisterSameNameProcesses(process);
+
+            SetupPerformanceCounters();
+        }
+
+        private void RegisterSameNameProcesses(Process process)
+        {
+            foreach (var p in Process.GetProcessesByName(process.ProcessName).Where(x => x.Id != process.Id))
+            {
+                p.EnableRaisingEvents = true;
+                p.Exited += new EventHandler(SameNameProcess_Exited);
+            }
+        }
+
+        //When find a same name process exit, re-initialize the performance counters
+        //because the performance counters' instance names could have been changed
+        void SameNameProcess_Exited(object sender, EventArgs e)
+        {
+            SetupPerformanceCounters();
+        }
+
+        private void SetupPerformanceCounters()
+        {
             var isUnix = Environment.OSVersion.Platform == PlatformID.Unix || Environment.OSVersion.Platform == PlatformID.MacOSX;
-            var instanceName = (isUnix || Platform.IsMono) ? string.Format("{0}/{1}", process.Id, process.ProcessName) : GetPerformanceCounterInstanceName(process);
+            var instanceName = (isUnix || Platform.IsMono) ? string.Format("{0}/{1}", m_Process.Id, m_Process.ProcessName) : GetPerformanceCounterInstanceName(m_Process);
 
             SetupPerformanceCounters(instanceName);
         }
