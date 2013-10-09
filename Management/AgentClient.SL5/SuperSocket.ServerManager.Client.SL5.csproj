@@ -80,11 +80,13 @@
     <Reference Include="System.Net" />
     <Reference Include="System.Windows.Controls, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Controls.Data, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
-    <Reference Include="System.Windows.Controls.Input.Toolkit, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Windows.Browser" />
-    <Reference Include="System.Windows.Interactivity, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Reference\Blend\sl50\System.Windows.Interactivity</HintPath>
-    </Reference>
+    <Reference Include="System.Windows.Controls.Input.Toolkit">
+	   <HintPath>..\..\Reference\SilverlightToolkit\50\System.Windows.Controls.Input.Toolkit.dll</HintPath>
+	</Reference>
+    <Reference Include="System.Windows.Interactivity">
+	   <HintPath>..\..\Reference\Blend\sl50\System.Windows.Controls.Input.Toolkit.dll</HintPath>
+	</Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Serialization, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="WebSocket4Net">
