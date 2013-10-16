@@ -92,8 +92,17 @@ namespace SuperSocket.SocketBase.Protocol
             }
 
             var findLen = result - offset;
+            var currentMatched = m_SearchState.Mark.Length - prevMatched;
 
-            rest = length - findLen - (m_SearchState.Mark.Length - prevMatched);
+            //The prev matched part is not belong to the current matched terminator mark
+            if (prevMatched > 0 && findLen != 0)
+            {
+                //rest prevMatched to 0
+                prevMatched = 0;
+                currentMatched = m_SearchState.Mark.Length;
+            }
+
+            rest = length - findLen - currentMatched;
 
             TRequestInfo requestInfo;
 
