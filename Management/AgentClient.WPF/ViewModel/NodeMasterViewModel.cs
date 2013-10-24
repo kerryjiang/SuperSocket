@@ -58,7 +58,7 @@ namespace SuperSocket.ServerManager.Client.ViewModel
             {
                 m_WebSocket = new AgentWebSocket(config.Uri);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 ErrorMessage = "Invalid server URI!";
                 State = NodeState.Offline;
@@ -253,7 +253,7 @@ namespace SuperSocket.ServerManager.Client.ViewModel
                 if (e.Exception is SocketException && ((SocketException)e.Exception).ErrorCode == (int)SocketError.AccessDenied)
                     ErrorMessage = (new SocketException((int)SocketError.ConnectionRefused)).Message;
                 else
-                    ErrorMessage = e.Exception.Message;
+                    ErrorMessage = e.Exception.StackTrace;
 
                 if (m_WebSocket.State == WebSocketState.None && State == NodeState.Connecting)
                 {
