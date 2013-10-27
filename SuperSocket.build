@@ -35,10 +35,16 @@
 	</zip>
   </target>
   
-  <target name="build" description="build the solution">
+  <target name="buildSln" description="build the solution">
 	<msbuild project="${solutionFile}" verbose="true">
       <arg value="/t:Clean;Build" />
       <arg value="/p:OutputPath=..\bin\${netFxVersion}\${configuration}" />
+    </msbuild>
+  </target>
+  <target name="buildPrj" description="build the project">
+	<msbuild project="${solutionFile}" verbose="true">
+      <arg value="/t:Clean;Build" />
+      <arg value="/p:OutputPath=..\..\bin\${netFxVersion}\${configuration}" />
     </msbuild>
   </target>
   
@@ -53,37 +59,49 @@
 	<property name="netFxVersion" value="Net35" />
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
-    <call target="build" />
+    <call target="buildSln" />
+	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net35.csproj" />
+	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net35" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
-    <call target="build" />
+    <call target="buildSln" />
+	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net35.csproj" />
+	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net40" />
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2010.sln" />
-    <call target="build" />
+    <call target="buildSln" />
+	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net40.csproj" />
+	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net40" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2010.sln" />
-    <call target="build" />
+    <call target="buildSln" />
+	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net40.csproj" />
+	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net45" />
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2012.sln" />
-    <call target="build" />
+    <call target="buildSln" />
+	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net45.csproj" />
+	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
 	<property name="netFxVersion" value="Net45" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2012.sln" />
-    <call target="build" />
+    <call target="buildSln" />
+	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net45.csproj" />
+	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
 	<call target="zipBinaries" />
