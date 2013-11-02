@@ -31,8 +31,26 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\..\Reference\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.11.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\Net40\Debug\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.Common, Version=1.6.0.3, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\Net40\Debug\SuperSocket.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketBase, Version=1.6.0.3, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\Net40\Debug\SuperSocket.SocketBase.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketEngine, Version=1.6.0.3, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\bin\Net40\Debug\SuperSocket.SocketEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="SuperSocket.SocketService, Version=1.6.0.3, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <ExecutableExtension>.exe</ExecutableExtension>
+      <HintPath>..\..\..\bin\Net40\Debug\SuperSocket.SocketService.exe</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -45,24 +63,6 @@
     <Compile Include="Command\ECHO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SampleServer.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\Common\SuperSocket.Common.Net40.csproj">
-      <Project>{a24f4d38-ba9c-4fd6-95b7-4980de36131a}</Project>
-      <Name>SuperSocket.Common.Net40</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\SocketBase\SuperSocket.SocketBase.Net40.csproj">
-      <Project>{40b77789-ea11-4c05-8f52-86711d7bcaaf}</Project>
-      <Name>SuperSocket.SocketBase.Net40</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\SocketEngine\SuperSocket.SocketEngine.Net40.csproj">
-      <Project>{153fef72-191c-43d9-be71-2b351c7ac760}</Project>
-      <Name>SuperSocket.SocketEngine.Net40</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\SocketService\SuperSocket.SocketService.Net40.csproj">
-      <Project>{b9113694-7226-4152-938d-3172b11571a1}</Project>
-      <Name>SuperSocket.SocketService.Net40</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Config\log4net.unix.config">
