@@ -501,6 +501,8 @@ namespace SuperSocket.SocketBase
                 return null;
             }
 
+            var currentRequestLength = m_ReceiveFilter.LeftBufferSize;
+
             var requestInfo = m_ReceiveFilter.Filter(readBuffer, offset, length, toBeCopied, out rest);
 
             if (m_ReceiveFilter.State == FilterState.Error)
@@ -517,14 +519,21 @@ namespace SuperSocket.SocketBase
 
             if (requestInfo == null)
             {
-                int leftBufferCount = m_ReceiveFilter.LeftBufferSize;
-                if (leftBufferCount >= AppServer.Config.MaxRequestLength)
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.Error(this, string.Format("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, leftBufferCount));
-                    Close(CloseReason.ProtocolError);
-                    return null;
-                }
+                //current buffered length
+                currentRequestLength = m_ReceiveFilter.LeftBufferSize;
+            }
+            else
+            {
+                //current request length
+                currentRequestLength = currentRequestLength + length - rest;
+            }
+
+            if (currentRequestLength >= AppServer.Config.MaxRequestLength)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error(this, string.Format("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, currentRequestLength));
+                Close(CloseReason.ProtocolError);
+                return null;
             }
 
             //If next Receive filter wasn't set, still use current Receive filter in next round received data processing
