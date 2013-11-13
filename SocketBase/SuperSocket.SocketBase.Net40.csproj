@@ -73,7 +73,9 @@
     </Compile>
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
+    <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
+    <Compile Include="ISessionContainer.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />

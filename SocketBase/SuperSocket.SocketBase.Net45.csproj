@@ -93,10 +93,12 @@
     <Compile Include="Config\TypeProvider.cs" />
     <Compile Include="Config\TypeProviderCollection.cs" />
     <Compile Include="Config\TypeProviderConfig.cs" />
+    <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IActiveConnector.cs" />
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ILoggerProvider.cs" />
+    <Compile Include="ISessionContainer.cs" />
     <Compile Include="IsolationMode.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />

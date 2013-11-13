@@ -9,7 +9,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
-    public abstract partial class AppServerBase<TAppSession, TRequestInfo>
+    public abstract partial class AppServer<TAppSession, TRequestInfo>
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {

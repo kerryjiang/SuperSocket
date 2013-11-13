@@ -28,7 +28,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the app server instance assosiated with the session.
         /// </summary>
-        public virtual AppServerBase<TAppSession, TRequestInfo> AppServer { get; private set; }
+        public virtual AppServer<TAppSession, TRequestInfo> AppServer { get; private set; }
 
         /// <summary>
         /// Gets the app server instance assosiated with the session.
@@ -182,7 +182,7 @@ namespace SuperSocket.SocketBase
         /// <param name="socketSession">The socket session.</param>
         public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession)
         {
-            var castedAppServer = (AppServerBase<TAppSession, TRequestInfo>)appServer;
+            var castedAppServer = (AppServer<TAppSession, TRequestInfo>)appServer;
             AppServer = castedAppServer;
             Charset = castedAppServer.TextEncoding;
             SocketSession = socketSession;

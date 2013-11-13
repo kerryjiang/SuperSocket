@@ -25,7 +25,7 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
     [AppServerMetadataType(typeof(DefaultAppServerMetadata))]
-	public abstract partial class AppServerBase<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, ISystemEndPoint, IDisposable
+    public abstract partial class AppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession, TRequestInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TRequestInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, ISystemEndPoint, IDisposable
         where TRequestInfo : class, IRequestInfo
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
     {
@@ -164,18 +164,18 @@ namespace SuperSocket.SocketBase
         public Encoding TextEncoding { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
         /// </summary>
-        public AppServerBase()
+        public AppServer()
         {
 
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        public AppServerBase(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory)
+        public AppServer(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory)
         {
             this.ReceiveFilterFactory = receiveFilterFactory;
         }
@@ -408,7 +408,10 @@ namespace SuperSocket.SocketBase
             Interlocked.Exchange(ref m_CommandContainer, commandContainer);
         }
 
-        internal abstract IReceiveFilterFactory<TRequestInfo> CreateDefaultReceiveFilterFactory();
+        internal virtual IReceiveFilterFactory<TRequestInfo> CreateDefaultReceiveFilterFactory()
+        {
+            return null;
+        }
 
         private bool SetupFinal()
         {
@@ -451,6 +454,17 @@ namespace SuperSocket.SocketBase
             {
                 if (Logger.IsErrorEnabled)
                     Logger.Error("Failed to create ServerSummary instance!", e);
+
+                return false;
+            }
+
+
+            m_SessionContainer = new DictionarySessionContainer<TAppSession>();
+
+            if (!m_SessionContainer.Initialize(Config))
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Failed to initialize the session container!");
 
                 return false;
             }
@@ -1089,6 +1103,9 @@ namespace SuperSocket.SocketBase
                     Logger.Info(string.Format("The server instance {0} has been started!", Name));
             }
 
+            if (Config.ClearIdleSession)
+                StartClearSessionTimer();
+
             return true;
         }
 
@@ -1136,6 +1153,36 @@ namespace SuperSocket.SocketBase
 
             m_ServerStatus[StatusInfoKeys.IsRunning] = false;
             m_ServerStatus[StatusInfoKeys.StartedTime] = null;
+
+            if (m_ClearIdleSessionTimer != null)
+            {
+                m_ClearIdleSessionTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                m_ClearIdleSessionTimer.Dispose();
+                m_ClearIdleSessionTimer = null;
+            }
+
+            var sessions = m_SessionContainer.ToArray();
+
+            if (sessions.Length > 0)
+            {
+                var tasks = new Task[sessions.Length];
+
+                for (var i = 0; i < tasks.Length; i++)
+                {
+                    tasks[i] = Task.Factory.StartNew((s) =>
+                    {
+                        var session = s as TAppSession;
+
+                        if (session != null && session.Connected)
+                        {
+                            session.Close(CloseReason.ServerShutdown);
+                        }
+
+                    }, sessions[i]);
+                }
+
+                Task.WaitAll(tasks);
+            }
 
             if (Logger.IsInfoEnabled)
                 Logger.Info(string.Format("The server instance {0} has been stopped!", Name));
@@ -1386,17 +1433,6 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        /// <summary>
-        /// Registers the session into session container.
-        /// </summary>
-        /// <param name="sessionID">The session ID.</param>
-        /// <param name="appSession">The app session.</param>
-        /// <returns></returns>
-        protected virtual bool RegisterSession(string sessionID, TAppSession appSession)
-        {
-            return true;
-        }
-
 
         private SessionHandler<TAppSession> m_NewSessionConnected;
 
@@ -1478,6 +1514,17 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The reason.</param>
         protected virtual void OnSessionClosed(TAppSession session, CloseReason reason)
         {
+            string sessionID = session.SessionID;
+
+            if (!string.IsNullOrEmpty(sessionID))
+            {
+                if (!m_SessionContainer.TryUnregisterSession(sessionID))
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error(session, "Failed to remove this session, Because it has't been in session container!");
+                }
+            }
+
             var handler = m_SessionClosed;
 
             if (handler != null)
@@ -1501,12 +1548,40 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        #region Session management
+
+        private ISessionContainer<TAppSession> m_SessionContainer;
+
+        /// <summary>
+        /// Registers the session into session container.
+        /// </summary>
+        /// <param name="sessionID">The session ID.</param>
+        /// <param name="appSession">The app session.</param>
+        /// <returns></returns>
+        protected virtual bool RegisterSession(string sessionID, TAppSession appSession)
+        {
+            if (m_SessionContainer.TryRegisterSession(appSession))
+                return true;
+
+            if (Logger.IsErrorEnabled)
+                Logger.Error(appSession, "The session is refused because the it's ID already exists!");
+
+            return false;
+        }
+
         /// <summary>
         /// Gets the app session by ID.
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
-        public abstract TAppSession GetSessionByID(string sessionID);
+        public TAppSession GetSessionByID(string sessionID)
+        {
+            if (string.IsNullOrEmpty(sessionID))
+                return NullAppSession;
+
+            TAppSession targetSession = m_SessionContainer.GetSessionByID(sessionID);
+            return targetSession;
+        }
 
         /// <summary>
         /// Gets the app session by ID.
@@ -1519,26 +1594,86 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
+        /// Gets the total session count.
+        /// </summary>
+        public int SessionCount
+        {
+            get
+            {
+                return m_SessionContainer.Count;
+            }
+        }
+
+        #region Clear idle sessions
+
+        private System.Threading.Timer m_ClearIdleSessionTimer = null;
+
+        private void StartClearSessionTimer()
+        {
+            int interval = Config.ClearIdleSessionInterval * 1000;//in milliseconds
+            m_ClearIdleSessionTimer = new System.Threading.Timer(ClearIdleSession, new object(), interval, interval);
+        }
+
+        /// <summary>
+        /// Clears the idle session.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        private void ClearIdleSession(object state)
+        {
+            if (Monitor.TryEnter(state))
+            {
+                try
+                {
+                    DateTime now = DateTime.Now;
+                    DateTime timeOut = now.AddSeconds(0 - Config.IdleSessionTimeOut);
+
+                    var timeOutSessions = m_SessionContainer.Where(s => s.LastActiveTime <= timeOut);
+
+                    System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
+                    {
+                        if (Logger.IsInfoEnabled)
+                            Logger.Info(s, string.Format("The session will be closed for {0} timeout, the session start time: {1}, last active time: {2}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.StartTime, s.LastActiveTime));
+                        s.Close(CloseReason.TimeOut);
+                    });
+                }
+                catch (Exception e)
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("Clear idle session error!", e);
+                }
+                finally
+                {
+                    Monitor.Exit(state);
+                }
+            }
+        }
+
+        #endregion
+
+        #region Search session utils
+
+        /// <summary>
         /// Gets the matched sessions from sessions snapshot.
         /// </summary>
         /// <param name="critera">The prediction critera.</param>
-        public virtual IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
+        /// <returns></returns>
+        public IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
         {
-            throw new NotSupportedException();
+            return m_SessionContainer.Where(critera);
         }
 
         /// <summary>
         /// Gets all sessions in sessions snapshot.
         /// </summary>
-        public virtual IEnumerable<TAppSession> GetAllSessions()
+        /// <returns></returns>
+        public IEnumerable<TAppSession> GetAllSessions()
         {
-            throw new NotSupportedException();
+            return m_SessionContainer;
         }
 
-        /// <summary>
-        /// Gets the total session count.
-        /// </summary>
-        public abstract int SessionCount { get; }
+        #endregion
+
+        #endregion
 
         /// <summary>
         /// Gets the physical file path by the relative file path,
