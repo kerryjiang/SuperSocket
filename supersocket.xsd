@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	xmlns="http://schema.supersocket.net/supersocket"
+	targetNamespace="http://schema.supersocket.net/supersocket"
+	xmlns:tns="http://schema.supersocket.net/supersocket"
+	elementFormDefault="qualified"
+	attributeFormDefault="unqualified">
+  <xs:element name="superSocket">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="servers" minOccurs="1">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="server" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="certificate" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:attribute name="filePath" type="xs:string"></xs:attribute>
+                        <xs:attribute name="password" type="xs:string"></xs:attribute>
+                        <xs:attribute name="storeName" type="xs:string"></xs:attribute>
+                        <xs:attribute name="storeLocation" type="xs:string"></xs:attribute>
+                        <xs:attribute name="thumbprint" type="xs:string"></xs:attribute>
+                        <xs:attribute name="clientCertificateRequired" type="xs:boolean"></xs:attribute>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="listeners" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="add" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="ip" type="xs:string"></xs:attribute>
+                              <xs:attribute name="port" type="xs:integer"></xs:attribute>
+                              <xs:attribute name="backlog" type="xs:integer"></xs:attribute>
+                              <xs:attribute name="security">
+                                <xs:simpleType>
+                                  <xs:restriction base="xs:string">
+                                    <xs:enumeration value="None"/>
+                                    <xs:enumeration value="Tls"/>
+                                  </xs:restriction>
+                                </xs:simpleType>
+                              </xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                    <xs:element name="commandAssemblies" minOccurs="0" maxOccurs="1">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element name="add" maxOccurs="unbounded">
+                            <xs:complexType>
+                              <xs:attribute name="assembly" type="xs:string"></xs:attribute>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                  <xs:attribute name="name" type="xs:string"></xs:attribute>
+                  <xs:attribute name="serverType" type="xs:string"></xs:attribute>
+                  <xs:attribute name="serverTypeName" type="xs:string"></xs:attribute>
+                  <xs:attribute name="ip" type="xs:string"></xs:attribute>
+                  <xs:attribute name="port" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="listenBacklog" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="mode">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value="Tcp"/>
+                        <xs:enumeration value="Udp"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:attribute>
+                  <xs:attribute name="security">
+                    <xs:simpleType>
+                      <xs:restriction base="xs:string">
+                        <xs:enumeration value="None"/>
+                        <xs:enumeration value="Tls"/>
+                      </xs:restriction>
+                    </xs:simpleType>
+                  </xs:attribute>
+                  <xs:attribute name="disabled" type="xs:boolean"></xs:attribute>
+                  <xs:attribute name="startupOrder" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="sendTimeOut" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="sendingQueueSize" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="maxConnectionNumber" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="receiveBufferSize" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="sendBufferSize" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="syncSend" type="xs:boolean"></xs:attribute>
+                  <xs:attribute name="logCommand" type="xs:boolean"></xs:attribute>
+                  <xs:attribute name="logBasicSessionActivity" type="xs:boolean"></xs:attribute>
+                  <xs:attribute name="clearIdleSession" type="xs:boolean"></xs:attribute>
+                  <xs:attribute name="disableSessionSnapshot" type="xs:boolean"></xs:attribute>
+                  <xs:attribute name="clearIdleSessionInterval" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="idleSessionTimeOut" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="maxRequestLength" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="sessionSnapshotInterval" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="keepAliveTime" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="keepAliveInterval" type="xs:integer"></xs:attribute>
+                  <xs:attribute name="connectionFilter" type="xs:string"></xs:attribute>
+                  <xs:attribute name="commandLoader" type="xs:string"></xs:attribute>
+                  <xs:attribute name="logFactory" type="xs:string"></xs:attribute>
+                  <xs:attribute name="receiveFilterFactory" type="xs:string"></xs:attribute>
+                  <xs:attribute name="textEncoding" type="xs:string"></xs:attribute>
+                  <xs:attribute name="defaultCulture" type="xs:string"></xs:attribute>
+                  <xs:anyAttribute></xs:anyAttribute>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="serverTypes" minOccurs="0" type="tns:typeDef">
+        </xs:element>
+        <xs:element name="connectionFilters" minOccurs="0" type="tns:typeDef">
+        </xs:element>
+        <xs:element name="logFactories" minOccurs="0" type="tns:typeDef">
+        </xs:element>
+        <xs:element name="receiveFilterFactories" minOccurs="0" type="tns:typeDef">
+        </xs:element>
+        <xs:element name="commandLoaders" minOccurs="0" type="tns:typeDef">
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="maxWorkingThreads" type="xs:integer"></xs:attribute>
+      <xs:attribute name="minWorkingThreads" type="xs:integer"></xs:attribute>
+      <xs:attribute name="maxCompletionPortThreads" type="xs:integer"></xs:attribute>
+      <xs:attribute name="minCompletionPortThreads" type="xs:integer"></xs:attribute>
+      <xs:attribute name="performanceDataCollectInterval" type="xs:integer"></xs:attribute>
+      <xs:attribute name="isolation">
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:enumeration value="None"/>
+            <xs:enumeration value="AppDomain"/>
+            <xs:enumeration value="Process"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+      <xs:attribute name="logFactory" type="xs:string"></xs:attribute>
+      <xs:attribute name="disablePerformanceDataCollector" type="xs:boolean"></xs:attribute>
+      <xs:attribute name="defaultCulture" type="xs:string"></xs:attribute>
+      <xs:anyAttribute></xs:anyAttribute>
+    </xs:complexType>
+  </xs:element>
+  <xs:complexType name="typeDef">
+    <xs:sequence>
+      <xs:element name="add" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="name" type="xs:string"></xs:attribute>
+          <xs:attribute name="type" type="xs:string"></xs:attribute>
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
