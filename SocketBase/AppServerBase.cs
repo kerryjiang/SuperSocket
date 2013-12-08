@@ -1165,23 +1165,13 @@ namespace SuperSocket.SocketBase
 
             if (sessions.Length > 0)
             {
-                var tasks = new Task[sessions.Length];
-
-                for (var i = 0; i < tasks.Length; i++)
-                {
-                    tasks[i] = Task.Factory.StartNew((s) =>
+                Parallel.ForEach(sessions, (session) =>
                     {
-                        var session = s as TAppSession;
-
                         if (session != null && session.Connected)
                         {
                             session.Close(CloseReason.ServerShutdown);
                         }
-
-                    }, sessions[i]);
-                }
-
-                Task.WaitAll(tasks);
+                    });
             }
 
             if (Logger.IsInfoEnabled)
