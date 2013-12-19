@@ -35,7 +35,14 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
             if (e.LastOperation == SocketAsyncOperation.Receive)
             {
-                socketSession.AsyncRun(() => socketSession.ProcessReceive(e));
+                try
+                {
+                    socketSession.ProcessReceive(e);
+                }
+                catch (Exception exc)
+                {
+                    socketSession.Logger.Error(exc);
+                }
             }
             else
             {

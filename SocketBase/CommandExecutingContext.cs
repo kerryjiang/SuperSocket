@@ -48,4 +48,30 @@ namespace SuperSocket.SocketBase
             CurrentCommand = command;
         }
     }
+
+    class RequestExecutingContext<TAppSession, TRequestInfo>
+        where TRequestInfo : IRequestInfo
+        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+    {
+        class ExecutingStateCode
+        {
+            const int NotExecuted = 0;
+            const int Executed = 1;
+        }
+
+        public TAppSession Session { get; private set; }
+
+        public TRequestInfo RequestInfo { get; private set; }
+
+        public bool TryGetExecute()
+        {
+            return true;
+        }
+
+        public RequestExecutingContext(TAppSession session, TRequestInfo requestInfo)
+        {
+            Session = session;
+            RequestInfo = requestInfo;
+        }
+    }
 }

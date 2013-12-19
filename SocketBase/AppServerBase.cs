@@ -116,6 +116,8 @@ namespace SuperSocket.SocketBase
 
         private long m_TotalHandledRequests = 0;
 
+        private TaskScheduler m_RequestHandlingTaskScheduler;
+
         /// <summary>
         /// Gets the total handled requests number.
         /// </summary>
@@ -427,6 +429,27 @@ namespace SuperSocket.SocketBase
 
                     return false;
                 }
+            }
+
+            if (Config.RequestHandlingMode == RequestHandlingMode.Pool)
+            {
+                m_RequestHandlingTaskScheduler = TaskScheduler.Default;
+            }
+            else if (Config.RequestHandlingMode == RequestHandlingMode.SingleThread)
+            {
+                m_RequestHandlingTaskScheduler = new ThreadingTaskScheduler(1);
+            }
+            else
+            {
+                if (Config.RequestHandlingThreads <= 1 || Config.RequestHandlingThreads > 100)
+                {
+                    if (Logger.IsErrorEnabled)
+                        Logger.Error("RequestHandlingThreads must be between 2 and 100!");
+
+                    return false;
+                }
+
+                m_RequestHandlingTaskScheduler = new ThreadingTaskScheduler(Config.RequestHandlingThreads);
             }
 
             var plainConfig = Config as ServerConfig;
@@ -1166,12 +1189,12 @@ namespace SuperSocket.SocketBase
             if (sessions.Length > 0)
             {
                 Parallel.ForEach(sessions, (session) =>
+                {
+                    if (session != null && session.Connected)
                     {
-                        if (session != null && session.Connected)
-                        {
-                            session.Close(CloseReason.ServerShutdown);
-                        }
-                    });
+                        session.Close(CloseReason.ServerShutdown);
+                    }
+                });
             }
 
             if (Logger.IsInfoEnabled)
@@ -1337,7 +1360,21 @@ namespace SuperSocket.SocketBase
         /// <param name="requestInfo">The request info.</param>
         internal void ExecuteCommand(IAppSession session, TRequestInfo requestInfo)
         {
-            this.ExecuteCommand((TAppSession)session, requestInfo);
+            var context = new RequestExecutingContext<TAppSession, TRequestInfo>((TAppSession)session, requestInfo);
+            Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
+                .ContinueWith(HandleErrorForExecuteCommandInTask, TaskContinuationOptions.OnlyOnFaulted);
+        }
+
+        void ExecuteCommandInTask(object state)
+        {
+            var context = state as RequestExecutingContext<TAppSession, TRequestInfo>;
+            this.ExecuteCommand(context.Session, context.RequestInfo);
+        }
+
+        void HandleErrorForExecuteCommandInTask(Task task)
+        {
+            var context = task.AsyncState as RequestExecutingContext<TAppSession, TRequestInfo>;
+            context.Session.InternalHandleExcetion(task.Exception.InnerException);
         }
 
         /// <summary>
@@ -1347,7 +1384,7 @@ namespace SuperSocket.SocketBase
         /// <param name="requestInfo">The request info.</param>
         void IRequestHandler<TRequestInfo>.ExecuteCommand(IAppSession session, TRequestInfo requestInfo)
         {
-            this.ExecuteCommand((TAppSession)session, requestInfo);
+            this.ExecuteCommand(session, requestInfo);
         }
 
         /// <summary>
