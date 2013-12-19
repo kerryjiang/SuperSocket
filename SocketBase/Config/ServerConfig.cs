@@ -349,6 +349,22 @@ namespace SuperSocket.SocketBase.Config
         public string TextEncoding { get; set; }
 
         /// <summary>
+        /// Gets/sets the request handling mode.
+        /// </summary>
+        /// <value>
+        /// The request handling mode.
+        /// </value>
+        public RequestHandlingMode RequestHandlingMode { get; set; }
+
+        /// <summary>
+        /// Gets/sets the count of request handling threads.
+        /// </summary>
+        /// <value>
+        /// the count of request handling threads.
+        /// </value>
+        public int RequestHandlingThreads { get; set; }
+
+        /// <summary>
         /// Gets the command assemblies configuration.
         /// </summary>
         /// <value>

@@ -262,6 +262,24 @@ namespace SuperSocket.SocketBase.Config
 
 
         /// <summary>
+        /// Gets the request handling mode.
+        /// </summary>
+        /// <value>
+        /// The request handling mode.
+        /// </value>
+        RequestHandlingMode RequestHandlingMode { get; }
+
+
+        /// <summary>
+        /// Gets the count of request handling threads.
+        /// </summary>
+        /// <value>
+        /// Gets the count of request handling threads.
+        /// </value>
+        int RequestHandlingThreads { get; }
+
+
+        /// <summary>
         /// Gets the command assemblies configuration.
         /// </summary>
         /// <value>

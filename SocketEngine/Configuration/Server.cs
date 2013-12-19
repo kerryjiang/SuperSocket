@@ -78,6 +78,31 @@ namespace SuperSocket.SocketEngine.Configuration
             get { return (SocketMode)this["mode"]; }
         }
 
+
+        /// <summary>
+        /// Gets the request handling mode.
+        /// </summary>
+        /// <value>
+        /// The request handling mode.
+        /// </value>
+        [ConfigurationProperty("requestHandlingMode", IsRequired = false, DefaultValue = "Pool")]
+        public RequestHandlingMode RequestHandlingMode
+        {
+            get { return (RequestHandlingMode)this["requestHandlingMode"]; }
+        }
+
+        /// <summary>
+        /// Gets the count of request handling threads, default value is 1, and only in used when RequestHandlingMode is 'MultipleThread'.
+        /// </summary>
+        /// <value>
+        /// Gets the count of request handling threads.
+        /// </value>
+        [ConfigurationProperty("requestHandlingThreads", IsRequired = false, DefaultValue = 1)]
+        public int RequestHandlingThreads
+        {
+            get { return (int)this["requestHandlingThreads"]; }
+        }
+
         /// <summary>
         /// Gets a value indicating whether this <see cref="IServerConfig"/> is disabled.
         /// </summary>
