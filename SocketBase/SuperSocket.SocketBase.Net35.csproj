@@ -143,11 +143,13 @@
     <Compile Include="Provider\ProviderFactoryInfo.cs" />
     <Compile Include="Provider\ProviderKey.cs" />
     <Compile Include="RequestHandler.cs" />
+    <Compile Include="RequestHandlingMode.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="ServerState.cs" />
     <Compile Include="SessionHandler.cs" />
     <Compile Include="SocketMode.cs" />
     <Compile Include="StatusInfoCollection.cs" />
+    <Compile Include="ThreadingTaskScheduler.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net35.csproj">
