@@ -104,15 +104,20 @@ namespace SuperSocket.WebSocket.Protocol
             return hash;
         }
 
-        public override void SendMessage(IWebSocketSession session, string message)
+        private ArraySegment<byte> GetPackageData(string message)
         {
             var maxByteCount = Encoding.UTF8.GetMaxByteCount(message.Length) + 2;
             var sendBuffer = new byte[maxByteCount];
             sendBuffer[0] = WebSocketConstant.StartByte;
             int bytesCount = Encoding.UTF8.GetBytes(message, 0, message.Length, sendBuffer, 1);
             sendBuffer[1 + bytesCount] = WebSocketConstant.EndByte;
+            return new ArraySegment<byte>(sendBuffer, 0, bytesCount + 2);
+        }
 
-            session.SendRawData(sendBuffer, 0, bytesCount + 2);
+        public override void SendMessage(IWebSocketSession session, string message)
+        {
+            var packageData = GetPackageData(message);
+            session.SendRawData(packageData.Array, packageData.Offset, packageData.Count);
         }
 
         public override void SendCloseHandshake(IWebSocketSession session, int statusCode, string closeReason)
@@ -143,6 +148,17 @@ namespace SuperSocket.WebSocket.Protocol
         public override bool IsValidCloseCode(int code)
         {
             throw new NotSupportedException();
+        }
+
+        public override bool TrySendMessage(IWebSocketSession session, string message)
+        {
+            var packageData = GetPackageData(message);
+            return session.TrySendRawData(packageData.Array, packageData.Offset, packageData.Count);
+        }
+
+        public override bool TrySendData(IWebSocketSession session, byte[] data, int offset, int length)
+        {
+            throw new NotImplementedException();
         }
     }
 }

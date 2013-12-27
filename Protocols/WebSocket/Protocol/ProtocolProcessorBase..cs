@@ -21,6 +21,8 @@ namespace SuperSocket.WebSocket.Protocol
 
         public abstract void SendMessage(IWebSocketSession session, string message);
 
+        public abstract bool TrySendMessage(IWebSocketSession session, string message);
+
         public abstract void SendCloseHandshake(IWebSocketSession session, int statusCode, string closeReason);
 
         public abstract void SendPong(IWebSocketSession session, byte[] pong);
@@ -30,6 +32,8 @@ namespace SuperSocket.WebSocket.Protocol
         public abstract bool CanSendBinaryData { get; }
 
         public abstract void SendData(IWebSocketSession session, byte[] data, int offset, int length);
+
+        public abstract bool TrySendData(IWebSocketSession session, byte[] data, int offset, int length);
 
         public ICloseStatusCode CloseStatusClode { get; private set; }
 

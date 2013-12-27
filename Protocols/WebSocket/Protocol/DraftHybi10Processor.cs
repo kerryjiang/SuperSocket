@@ -137,7 +137,7 @@ namespace SuperSocket.WebSocket.Protocol
             SendPackage(session, OpCode.Ping, ping, 0, ping.Length);
         }
 
-        private void SendPackage(IWebSocketSession session, int opCode, byte[] data, int offset, int length)
+        private byte[] GetPackageData(int opCode, byte[] data, int offset, int length)
         {
             byte[] fragment;
 
@@ -178,13 +178,31 @@ namespace SuperSocket.WebSocket.Protocol
                 Buffer.BlockCopy(data, offset, fragment, fragment.Length - length, length);
             }
 
+            return fragment;
+        }
+
+        private void SendPackage(IWebSocketSession session, int opCode, byte[] data, int offset, int length)
+        {
+            var fragment = GetPackageData(opCode, data, offset, length);
             session.SendRawData(fragment, 0, fragment.Length);
+        }
+
+        private bool TrySendPackage(IWebSocketSession session, int opCode, byte[] data, int offset, int length)
+        {
+            var fragment = GetPackageData(opCode, data, offset, length);
+            return session.TrySendRawData(fragment, 0, fragment.Length);
         }
 
         private void SendMessage(IWebSocketSession session, int opCode, string message)
         {
             byte[] playloadData = Encoding.UTF8.GetBytes(message);
             SendPackage(session, opCode, playloadData, 0, playloadData.Length);
+        }
+
+        private bool TrySendMessage(IWebSocketSession session, int opCode, string message)
+        {
+            byte[] playloadData = Encoding.UTF8.GetBytes(message);
+            return TrySendPackage(session, opCode, playloadData, 0, playloadData.Length);
         }
 
         public override bool IsValidCloseCode(int code)
@@ -213,6 +231,16 @@ namespace SuperSocket.WebSocket.Protocol
                 return true;
 
             return false;
+        }
+
+        public override bool TrySendMessage(IWebSocketSession session, string message)
+        {
+            return TrySendMessage(session, OpCode.Text, message);
+        }
+
+        public override bool TrySendData(IWebSocketSession session, byte[] data, int offset, int length)
+        {
+            return TrySendPackage(session, OpCode.Binary, data, offset, length);
         }
     }
 }

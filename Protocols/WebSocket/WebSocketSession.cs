@@ -80,6 +80,15 @@ namespace SuperSocket.WebSocket
         void SendRawData(byte[] data, int offset, int length);
 
         /// <summary>
+        /// Try to send the raw binary response.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <returns>if the data to be sent is queued, return true, else the queue is full, then return false</returns>
+        bool TrySendRawData(byte[] data, int offset, int length);
+
+        /// <summary>
         /// Gets the app server.
         /// </summary>
         new IWebSocketServer AppServer { get; }
@@ -207,11 +216,11 @@ namespace SuperSocket.WebSocket
 
             var arrNames = protocol.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
-            foreach(var name in arrNames)
+            foreach (var name in arrNames)
             {
                 var subProtocol = AppServer.GetSubProtocol(name);
 
-                if(subProtocol != null)
+                if (subProtocol != null)
                 {
                     SubProtocol = subProtocol;
                     return name;
@@ -336,6 +345,16 @@ namespace SuperSocket.WebSocket
         }
 
         /// <summary>
+        /// Tries to send.
+        /// </summary>
+        /// <param name="message">The message to be sent.</param>
+        /// <returns></returns>
+        public override bool TrySend(string message)
+        {
+            return ProtocolProcessor.TrySendMessage(this, message);
+        }
+
+        /// <summary>
         /// Sends the response.
         /// </summary>
         /// <param name="data">The data.</param>
@@ -345,12 +364,29 @@ namespace SuperSocket.WebSocket
         {
             if (!ProtocolProcessor.CanSendBinaryData)
             {
-                if(Logger.IsErrorEnabled)
+                if (Logger.IsErrorEnabled)
                     Logger.Error("The websocket of this version cannot used for sending binary data!");
                 return;
             }
 
             ProtocolProcessor.SendData(this, data, offset, length);
+        }
+
+        /// <summary>
+        /// Tries to send.
+        /// </summary>
+        /// <param name="segment">The segment to be sent.</param>
+        /// <returns></returns>
+        public override bool TrySend(ArraySegment<byte> segment)
+        {
+            if (!ProtocolProcessor.CanSendBinaryData)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("The websocket of this version cannot used for sending binary data!");
+                return false;
+            }
+
+            return ProtocolProcessor.TrySendData(this, segment.Array, segment.Offset, segment.Count);
         }
 
         /// <summary>
@@ -373,6 +409,20 @@ namespace SuperSocket.WebSocket
             base.Send(data, offset, length);
         }
 
+
+        /// <summary>
+        /// Try to send the raw binary response.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <returns>
+        /// if the data to be sent is queued, return true, else the queue is full, then return false
+        /// </returns>
+        bool IWebSocketSession.TrySendRawData(byte[] data, int offset, int length)
+        {
+            return base.TrySend(new ArraySegment<byte>(data, offset, length));
+        }
 
         /// <summary>
         /// Closes the with handshake.
