@@ -73,5 +73,15 @@ namespace SuperSocket.WebSocket.Protocol
         {
             throw new NotImplementedException();
         }
+
+        public bool TrySendMessage(IWebSocketSession session, string message)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TrySendData(IWebSocketSession session, byte[] data, int offset, int length)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

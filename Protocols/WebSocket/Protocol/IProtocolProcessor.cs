@@ -50,6 +50,14 @@ namespace SuperSocket.WebSocket.Protocol
         void SendMessage(IWebSocketSession session, string message);
 
         /// <summary>
+        /// Try to send the message.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="message">The message.</param>
+        /// <returns>if the messaged has been enqueued into the sending queue, return true; else if the message failed to be enqueued becuase the sending is full, then return false</returns>
+        bool TrySendMessage(IWebSocketSession session, string message);
+
+        /// <summary>
         /// Sends the data.
         /// </summary>
         /// <param name="session">The session.</param>
@@ -57,6 +65,16 @@ namespace SuperSocket.WebSocket.Protocol
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         void SendData(IWebSocketSession session, byte[] data, int offset, int length);
+
+        /// <summary>
+        /// Try to send the data.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <returns>if the data has been enqueued into the sending queue, return true; else if the data failed to be enqueued becuase the sending is full, then return false</returns>
+        bool TrySendData(IWebSocketSession session, byte[] data, int offset, int length);
 
         /// <summary>
         /// Sends the close handshake.
