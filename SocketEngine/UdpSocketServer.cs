@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
@@ -13,7 +14,7 @@ using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketServer<TRequestInfo> : SocketServerBase
+    class UdpSocketServer<TRequestInfo> : SocketServerBase, IActiveConnector
         where TRequestInfo : IRequestInfo
     {
         private IPEndPoint m_EndPointIPv4;
@@ -78,6 +79,32 @@ namespace SuperSocket.SocketEngine
             }
         }
 
+        IAppSession CreateNewSession(Socket listenSocket, IPEndPoint remoteEndPoint, string sessionID)
+        {
+            if (!DetectConnectionNumber(remoteEndPoint))
+                return null;
+
+            var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID);
+            var appSession = AppServer.CreateAppSession(socketSession);
+
+            if (appSession == null)
+                return null;
+
+            if (!DetectConnectionNumber(remoteEndPoint))
+                return null;
+
+            if (!AppServer.RegisterSession(appSession))
+                return null;
+
+            Interlocked.Increment(ref m_ConnectionCount);
+
+            socketSession.Closed += OnSocketSessionClosed;
+            socketSession.Start();
+
+            return appSession;
+        }
+
+
         void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
         {
             TRequestInfo requestInfo;
@@ -126,25 +153,11 @@ namespace SuperSocket.SocketEngine
 
             if (appSession == null)
             {
-                if (!DetectConnectionNumber(remoteEndPoint))
-                    return;
+                appSession = CreateNewSession(listenSocket, remoteEndPoint, sessionID);
 
-                var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID);
-                appSession = AppServer.CreateAppSession(socketSession);
-
+                //Failed to create a new session
                 if (appSession == null)
                     return;
-
-                if (!DetectConnectionNumber(remoteEndPoint))
-                    return;
-
-                if (!AppServer.RegisterSession(appSession))
-                    return;
-
-                Interlocked.Increment(ref m_ConnectionCount);
-
-                socketSession.Closed += OnSocketSessionClosed;
-                socketSession.Start();
             }
             else
             {
@@ -163,25 +176,11 @@ namespace SuperSocket.SocketEngine
 
             if (appSession == null) //New session
             {
-                if (!DetectConnectionNumber(remoteEndPoint))
-                    return;
+                appSession = CreateNewSession(listenSocket, remoteEndPoint, sessionID);
 
-                var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID);
-
-                appSession = AppServer.CreateAppSession(socketSession);
-
+                //Failed to create a new session
                 if (appSession == null)
                     return;
-
-                if (!DetectConnectionNumber(remoteEndPoint))
-                    return;
-
-                if (!AppServer.RegisterSession(appSession))
-                    return;
-
-                Interlocked.Increment(ref m_ConnectionCount);
-                socketSession.Closed += OnSocketSessionClosed;
-                socketSession.Start();
 
                 appSession.ProcessRequest(receivedData, 0, receivedData.Length, false);
             }
@@ -218,6 +217,20 @@ namespace SuperSocket.SocketEngine
         public override void ResetSessionSecurity(IAppSession session, System.Security.Authentication.SslProtocols security)
         {
             throw new NotSupportedException();
+        }
+
+        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
+        {
+            var taskSource = new TaskCompletionSource<ActiveConnectResult>();
+            var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            var session = CreateNewSession(socket, (IPEndPoint)targetEndPoint, targetEndPoint.ToString());
+
+            if (session == null)
+                taskSource.SetException(new Exception("Failed to create session for this socket."));
+            else
+                taskSource.SetResult(new ActiveConnectResult { Result = true, Session = session });
+
+            return taskSource.Task;
         }
     }
 }
