@@ -73,6 +73,7 @@
     </Compile>
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
+    <Compile Include="Command\ICommandFilterProvider.cs" />
     <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
     <Compile Include="ISessionContainer.cs" />
