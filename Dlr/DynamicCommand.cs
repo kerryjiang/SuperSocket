@@ -7,14 +7,17 @@ using Microsoft.Scripting.Hosting;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.Dlr
 {
-    class DynamicCommand<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>
+    class DynamicCommand<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>, ICommandFilterProvider
         where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
         where TRequestInfo : IRequestInfo
     {
         private Action<TAppSession, TRequestInfo> m_DynamicExecuteCommand;
+
+        private IEnumerable<CommandFilterAttribute> m_Filters;
 
         public DynamicCommand(ScriptRuntime scriptRuntime, IScriptSource source)
         {
@@ -32,6 +35,11 @@ namespace SuperSocket.Dlr
             Action<TAppSession, TRequestInfo> dynamicMethod;
             if (!scriptScope.TryGetVariable<Action<TAppSession, TRequestInfo>>("execute", out dynamicMethod))
                 throw new Exception("Failed to find a command execution method in source: " + source.Tag);
+
+            Func<IEnumerable<CommandFilterAttribute>> filtersAction;
+
+            if (scriptScope.TryGetVariable<Func<IEnumerable<CommandFilterAttribute>>>("getFilters", out filtersAction))
+                m_Filters = filtersAction();
 
             CompiledTime = DateTime.Now;
 
@@ -60,6 +68,11 @@ namespace SuperSocket.Dlr
         public override string ToString()
         {
             return Source.Tag;
+        }
+
+        public IEnumerable<CommandFilterAttribute> GetFilters()
+        {
+            return m_Filters;
         }
     }
 }

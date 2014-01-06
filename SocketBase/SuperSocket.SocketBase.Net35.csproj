@@ -70,6 +70,7 @@
     <Compile Include="Command\CommandUpdateEventArgs.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
+    <Compile Include="Command\ICommandFilterProvider.cs" />
     <Compile Include="Command\ICommandLoader.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
