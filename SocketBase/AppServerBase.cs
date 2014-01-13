@@ -1305,12 +1305,31 @@ namespace SuperSocket.SocketBase
 
                         if (!cancelled)
                         {
-                            command.ExecuteCommand(session, requestInfo);
+                            try
+                            {
+                                command.ExecuteCommand(session, requestInfo);
+                            }
+                            catch (Exception exc)
+                            {
+                                commandContext.Exception = exc;
+                            }
 
                             for (var i = 0; i < commandFilters.Length; i++)
                             {
                                 var filter = commandFilters[i];
                                 filter.OnCommandExecuted(commandContext);
+                            }
+
+                            if (commandContext.Exception != null && !commandContext.ExceptionHandled)
+                            {
+                                try
+                                {
+                                    session.InternalHandleExcetion(commandContext.Exception);
+                                }
+                                catch
+                                {
+
+                                }
                             }
                         }
                     }

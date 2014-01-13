@@ -28,6 +28,22 @@ namespace SuperSocket.SocketBase
         public ICommand CurrentCommand { get; private set; }
 
         /// <summary>
+        /// Gets the exception.
+        /// </summary>
+        /// <value>
+        /// The exception.
+        /// </value>
+        public Exception Exception { get; internal set; }
+
+        /// <summary>
+        /// Gets a value indicating whether [exception handled].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [exception handled]; otherwise, <c>false</c>.
+        /// </value>
+        public bool ExceptionHandled { get; internal set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether this command executing is cancelled.
         /// </summary>
         /// <value>
