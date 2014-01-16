@@ -27,6 +27,8 @@ namespace SuperSocket.Common
 
         private ushort m_TrackID = 1;
 
+        private int m_InnerOffset = 0;
+
         /// <summary>
         /// Gets the track ID.
         /// </summary>
@@ -250,7 +252,7 @@ namespace SuperSocket.Common
         /// <returns>The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.</returns>
         public int Count
         {
-            get { return m_CurrentCount; }
+            get { return m_CurrentCount - m_InnerOffset; }
         }
 
         /// <summary>
@@ -305,7 +307,7 @@ namespace SuperSocket.Common
         {
             get
             {
-                var targetIndex = m_Offset + index;
+                var targetIndex = m_Offset + m_InnerOffset + index;
                 var value = m_GlobalQueue[targetIndex];
 
                 if (value.Array != null)
@@ -358,6 +360,7 @@ namespace SuperSocket.Common
             }
 
             m_CurrentCount = 0;
+            m_InnerOffset = 0;
             Position = 0;
         }
 
@@ -418,7 +421,10 @@ namespace SuperSocket.Common
         /// <exception cref="System.NotSupportedException"></exception>
         public IEnumerator<ArraySegment<byte>> GetEnumerator()
         {
-            throw new NotSupportedException();
+            for (var i = 0; i < (m_CurrentCount - m_InnerOffset); i++)
+            {
+                yield return m_GlobalQueue[m_Offset + m_InnerOffset + i];
+            }
         }
 
         /// <summary>
@@ -430,7 +436,33 @@ namespace SuperSocket.Common
         /// <exception cref="System.NotSupportedException"></exception>
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-            throw new NotSupportedException();
+            return GetEnumerator();
+        }
+
+        /// <summary>
+        /// Trim the internal segments at the begining by the binary data size.
+        /// </summary>
+        /// <param name="offset">The binary data size should be trimed at the begining.</param>
+        public void InternalTrim(int offset)
+        {
+            var innerCount = m_CurrentCount - m_InnerOffset;
+            var subTotal = 0;
+
+            for (var i = m_InnerOffset; i < innerCount; i++)
+            {
+                var segment = m_GlobalQueue[m_Offset + i];
+                subTotal += segment.Count;
+
+                if (subTotal <= offset)
+                    continue;
+
+                m_InnerOffset = i;
+
+                var rest = subTotal - offset;
+                m_GlobalQueue[m_Offset + i] = new ArraySegment<byte>(segment.Array, segment.Offset + segment.Count - rest, rest);
+
+                break;
+            }
         }
     }
 
