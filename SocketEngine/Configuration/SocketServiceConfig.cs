@@ -220,6 +220,27 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets a value indicating whether an unknown attribute is encountered during deserialization.
+        /// </summary>
+        /// <param name="name">The name of the unrecognized attribute.</param>
+        /// <param name="value">The value of the unrecognized attribute.</param>
+        /// <returns>
+        /// true when an unknown attribute is encountered while deserializing; otherwise, false.
+        /// </returns>
+        protected override bool OnDeserializeUnrecognizedAttribute(string name, string value)
+        {
+            const string xmlns = "xmlns";
+            const string xmlnsPrefix = "xmlns:";
+            const string xsiPrefix = "xsi:";
+
+            //for configuration intellisense, allow these unrecognized attributes: xmlns, xmlns:*, xsi:*
+            if (name.Equals(xmlns) || name.StartsWith(xmlnsPrefix) || name.StartsWith(xsiPrefix))
+                return true;
+
+            return false;
+        }
+
+        /// <summary>
         /// Gets the child config.
         /// </summary>
         /// <typeparam name="TConfig">The type of the config.</typeparam>
