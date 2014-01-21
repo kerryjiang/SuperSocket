@@ -17,7 +17,13 @@ namespace SuperSocket.WebSocket.Protocol
 
         public int LeftBufferSize
         {
-            get { return m_Frame.InnerData.Count; }
+            get
+            {
+                if (m_Frame == null)
+                    return 0;
+
+                return m_Frame.InnerData.Count;
+            }
         }
 
         public IReceiveFilter<IWebSocketFragment> NextReceiveFilter
