@@ -83,6 +83,13 @@ namespace SuperSocket.SocketEngine
         {
             var queue = e.UserToken as SendingQueue;
 
+            if (!ProcessCompleted(e))
+            {
+                ClearPrevSendState(e);
+                OnSendError(queue, CloseReason.SocketError);
+                return;
+            }
+
             var count = queue.Sum(q => q.Count);
 
             if (count != e.BytesTransferred)
@@ -91,13 +98,6 @@ namespace SuperSocket.SocketEngine
                 AppSession.Logger.InfoFormat("{0} of {1} were transferred, send the rest {2} bytes right now.", e.BytesTransferred, count, queue.Sum(q => q.Count));
                 ClearPrevSendState(e);
                 SendAsync(queue);
-                return;
-            }
-
-            if (!ProcessCompleted(e))
-            {
-                ClearPrevSendState(e);
-                OnSendError(queue, CloseReason.SocketError);
                 return;
             }
 
