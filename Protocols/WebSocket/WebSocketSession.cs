@@ -373,7 +373,7 @@ namespace SuperSocket.WebSocket
         }
 
         /// <summary>
-        /// Tries to send.
+        /// Tries to send the data over the websocket connection.
         /// </summary>
         /// <param name="segment">The segment to be sent.</param>
         /// <returns></returns>
@@ -387,6 +387,25 @@ namespace SuperSocket.WebSocket
             }
 
             return ProtocolProcessor.TrySendData(this, segment.Array, segment.Offset, segment.Count);
+        }
+
+        /// <summary>
+        /// Tries to send the data over the websocket connection.
+        /// </summary>
+        /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        public override bool TrySend(byte[] data, int offset, int length)
+        {
+            if (!ProtocolProcessor.CanSendBinaryData)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("The websocket of this version cannot used for sending binary data!");
+                return false;
+            }
+
+            return ProtocolProcessor.TrySendData(this, data, offset, length);
         }
 
         /// <summary>
