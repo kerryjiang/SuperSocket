@@ -121,7 +121,11 @@ namespace SuperSocket.Facility.Protocol
             else
                 m_Header = new ArraySegment<byte>(buffer, offset, Size);
 
-            return NullRequestInfo;
+            if (m_BodyLength > 0)
+                return NullRequestInfo;
+
+            m_FoundHeader = false;
+            return ResolveRequestInfo(m_Header, null, 0, 0);//Empty body
         }
 
         private TRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer)
