@@ -471,6 +471,25 @@ namespace SuperSocket.SocketEngine.Configuration
         }
 
         /// <summary>
+        /// Gets the buffer pools configuration.
+        /// </summary>
+        /// <value>
+        /// The buffer pools configuration.
+        /// </value>
+        [ConfigurationProperty("bufferPools", IsRequired = false)]
+        public BufferPoolConfigCollection BufferPools
+        {
+            get
+            {
+                return this["bufferPools"] as BufferPoolConfigCollection;
+            }
+        }
+
+        IEnumerable<IBufferPoolConfig> IServerConfig.BufferPools
+        {
+            get { return this.BufferPools; }
+        }
+        /// <summary>
         /// Gets the child config.
         /// </summary>
         /// <typeparam name="TConfig">The type of the config.</typeparam>

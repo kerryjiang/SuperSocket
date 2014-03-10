@@ -36,8 +36,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\SuperSocket.SocketBase.XML</DocumentationFile>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -74,6 +75,8 @@
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="Command\ICommandFilterProvider.cs" />
+    <Compile Include="Config\BufferPoolConfig.cs" />
+    <Compile Include="Config\IBufferPoolConfig.cs" />
     <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
     <Compile Include="ISessionContainer.cs" />
@@ -107,6 +110,15 @@
     <Compile Include="Metadata\DefaultAppServerMetadata.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
     <Compile Include="NodeStatus.cs" />
+    <Compile Include="Pool\BufferItemCreator.cs" />
+    <Compile Include="Pool\BufferManager.cs" />
+    <Compile Include="Pool\BufferPool.cs" />
+    <Compile Include="Pool\IBufferManager.cs" />
+    <Compile Include="Pool\IBufferPool.cs" />
+    <Compile Include="Pool\IntelliPool.cs" />
+    <Compile Include="Pool\IPool.cs" />
+    <Compile Include="Pool\IPoolItemCreator.cs" />
+    <Compile Include="Pool\NullBufferManager.cs" />
     <Compile Include="Protocol\FilterState.cs" />
     <Compile Include="Protocol\IOffsetAdapter.cs" />
     <Compile Include="Protocol\IReceiveFilterInitializer.cs">

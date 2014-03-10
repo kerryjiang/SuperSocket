@@ -5,6 +5,7 @@ using System.Reflection;
 using System.IO;
 using System.Linq;
 using System.Globalization;
+using System.Collections;
 
 #if !SILVERLIGHT
 using System.Runtime.Serialization.Formatters.Binary;
@@ -218,6 +219,47 @@ namespace SuperSocket.Common
             }
 
             return target;
+        }
+
+        /// <summary>
+        /// Makes a copy of the source object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source object.</param>
+        /// <returns>return the new copy of this source object</returns>
+        public static T MakeCopy<T>(this object source)
+            where T : class, new()
+        {
+            var copy = new T();
+            source.CopyPropertiesTo(copy);
+            return copy;
+        }
+
+        /// <summary>
+        /// Makes a new copy of the source enumerable source.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The enumerable source.</param>
+        /// <returns></returns>
+        public static IEnumerable<T> MakeCopy<T>(this IEnumerable source)
+            where T : class, new()
+        {
+            var enumerator = source.GetEnumerator();
+
+            var list = new List<T>();
+
+            while (true)
+            {
+                var current = enumerator.Current;
+
+                if (current == null)
+                    break;
+
+                list.Add(current.MakeCopy<T>());
+                enumerator.MoveNext();
+            }
+
+            return list;
         }
 
         /// <summary>

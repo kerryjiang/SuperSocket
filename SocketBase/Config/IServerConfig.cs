@@ -286,5 +286,13 @@ namespace SuperSocket.SocketBase.Config
         /// The command assemblies.
         /// </value>
         IEnumerable<ICommandAssemblyConfig> CommandAssemblies { get; }
+
+        /// <summary>
+        /// Gets the buffer pools configuration.
+        /// </summary>
+        /// <value>
+        /// The buffer pools configuration.
+        /// </value>
+        IEnumerable<IBufferPoolConfig> BufferPools { get; }
     }
 }
