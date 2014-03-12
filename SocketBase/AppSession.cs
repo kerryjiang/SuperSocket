@@ -402,7 +402,7 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Try to send the data segments to clinet.
+        /// Try to send the data segments to client.
         /// </summary>
         /// <param name="segments">The segments.</param>
         /// <returns>Indicate whether the message was pushed into the sending queue; if it returns false, the sending queue may be full or the socket is not connected</returns>
@@ -450,7 +450,7 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Sends the data segments to clinet.
+        /// Sends the data segments to client.
         /// </summary>
         /// <param name="segments">The segments.</param>
         public virtual void Send(IList<ArraySegment<byte>> segments)
