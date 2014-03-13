@@ -531,7 +531,7 @@ namespace SuperSocket.SocketBase
             if (currentRequestLength >= AppServer.Config.MaxRequestLength)
             {
                 if (Logger.IsErrorEnabled)
-                    Logger.Error(this, string.Format("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, currentRequestLength));
+                    Logger.Error(string.Format("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, currentRequestLength), this);
                 Close(CloseReason.ProtocolError);
                 return null;
             }

@@ -1298,7 +1298,7 @@ namespace SuperSocket.SocketBase
                             {
                                 cancelled = true;
                                 if(Logger.IsInfoEnabled)
-                                    Logger.Info(session, string.Format("The executing of the command {0} was cancelled by the command filter {1}.", command.Name, filter.GetType().ToString()));
+                                    Logger.Info(string.Format("The executing of the command {0} was cancelled by the command filter {1}.", command.Name, filter.GetType().ToString()), session);
                                 break;
                             }
                         }
@@ -1339,7 +1339,7 @@ namespace SuperSocket.SocketBase
                         session.PrevCommand = requestInfo.Key;
 
                         if (Config.LogCommand && Logger.IsInfoEnabled)
-                            Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
+                            Logger.Info(string.Format("Command - {0}", requestInfo.Key), session);
                     }
                 }
                 else
@@ -1366,7 +1366,7 @@ namespace SuperSocket.SocketBase
                 session.LastActiveTime = DateTime.Now;
 
                 if (Config.LogCommand && Logger.IsInfoEnabled)
-                    Logger.Info(session, string.Format("Command - {0}", requestInfo.Key));
+                    Logger.Info(string.Format("Command - {0}", requestInfo.Key), session);
             }
 
             Interlocked.Increment(ref m_TotalHandledRequests);
@@ -1536,7 +1536,7 @@ namespace SuperSocket.SocketBase
         {
             //Even if LogBasicSessionActivity is false, we also log the unexpected closing because the close reason probably be useful
             if (Logger.IsInfoEnabled && (Config.LogBasicSessionActivity || (reason != CloseReason.ServerClosing && reason != CloseReason.ClientClosing && reason != CloseReason.ServerShutdown && reason != CloseReason.SocketError)))
-                Logger.Info(session, string.Format("This session was closed for {0}!", reason));
+                Logger.Info(string.Format("This session was closed for {0}!", reason), session);
 
             var appSession = session.AppSession as TAppSession;
             appSession.Connected = false;
@@ -1567,7 +1567,7 @@ namespace SuperSocket.SocketBase
                 if (!m_SessionContainer.TryUnregisterSession(sessionID))
                 {
                     if (Logger.IsErrorEnabled)
-                        Logger.Error(session, "Failed to remove this session, Because it has't been in session container!");
+                        Logger.Error("Failed to remove this session, Because it has't been in session container!", session);
                 }
             }
 
@@ -1610,7 +1610,7 @@ namespace SuperSocket.SocketBase
                 return true;
 
             if (Logger.IsErrorEnabled)
-                Logger.Error(appSession, "The session is refused because the it's ID already exists!");
+                Logger.Error("The session is refused because the it's ID already exists!", appSession);
 
             return false;
         }
@@ -1678,7 +1678,7 @@ namespace SuperSocket.SocketBase
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                     {
                         if (Logger.IsInfoEnabled)
-                            Logger.Info(s, string.Format("The session will be closed for {0} timeout, the session start time: {1}, last active time: {2}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.StartTime, s.LastActiveTime));
+                            Logger.Info(string.Format("The session will be closed for {0} timeout, the session start time: {1}, last active time: {2}!", now.Subtract(s.LastActiveTime).TotalSeconds, s.StartTime, s.LastActiveTime), s);
                         s.Close(CloseReason.TimeOut);
                     });
                 }

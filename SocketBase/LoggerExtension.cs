@@ -18,10 +18,10 @@ namespace SuperSocket.SocketBase
         /// Logs the error
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="session">The session.</param>
         /// <param name="title">The title.</param>
         /// <param name="e">The e.</param>
-        public static void Error(this ILog logger, ISessionBase session, string title, Exception e)
+        /// <param name="session">The session.</param>
+        public static void Error(this ILog logger, string title, Exception e, ISessionBase session)
         {
             logger.Error(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + title, e);
         }
@@ -30,9 +30,9 @@ namespace SuperSocket.SocketBase
         /// Logs the error
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="session">The session.</param>
         /// <param name="message">The message.</param>
-        public static void Error(this ILog logger, ISessionBase session, string message)
+        /// <param name="session">The session.</param>
+        public static void Error(this ILog logger, string message, ISessionBase session)
         {
             logger.Error(string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message);
         }
@@ -41,9 +41,9 @@ namespace SuperSocket.SocketBase
         /// Logs the information
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="session">The session.</param>
         /// <param name="message">The message.</param>
-        public static void Info(this ILog logger, ISessionBase session, string message)
+        /// <param name="session">The session.</param>
+        public static void Info(this ILog logger, string message, ISessionBase session)
         {
             string info = string.Format(m_SessionInfoTemplate, session.SessionID, session.RemoteEndPoint) + Environment.NewLine + message;
             logger.Info(info);
@@ -53,9 +53,9 @@ namespace SuperSocket.SocketBase
         /// Logs the debug message
         /// </summary>
         /// <param name="logger">The logger.</param>
-        /// <param name="session">The session.</param>
         /// <param name="message">The message.</param>
-        public static void Debug(this ILog logger, ISessionBase session, string message)
+        /// <param name="session">The session.</param>
+        public static void Debug(this ILog logger, string message, ISessionBase session)
         {
             if (!logger.IsDebugEnabled)
                 return;
