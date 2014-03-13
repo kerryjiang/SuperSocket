@@ -75,6 +75,11 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public string StartupConfigFile { get; private set; }
 
+        /// <summary>
+        /// Gets the <see cref="PerformanceMonitor"/> class.
+        /// </summary>
+        public IPerformanceMonitor PerfMonitor { get { return m_PerfMonitor; } }
+
         private PerformanceMonitor m_PerfMonitor;
 
         private readonly string m_BaseDirectory = AppDomain.CurrentDomain.BaseDirectory;
