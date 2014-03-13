@@ -15,7 +15,7 @@ namespace SuperSocket.SocketBase
         private readonly static string m_SessionInfoTemplate = "Session: {0}/{1}";
 
         /// <summary>
-        /// Logs the error
+        /// Logs the error with the session's information
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="title">The title.</param>
@@ -27,7 +27,7 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Logs the error
+        /// Logs the error with the session's information
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="message">The message.</param>
@@ -38,7 +38,7 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Logs the information
+        /// Logs the information with the session's information
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="message">The message.</param>
@@ -50,7 +50,7 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Logs the debug message
+        /// Logs the debug message with the session's information
         /// </summary>
         /// <param name="logger">The logger.</param>
         /// <param name="message">The message.</param>
