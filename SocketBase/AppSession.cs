@@ -11,6 +11,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase
 {
@@ -19,7 +20,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>
+    public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>, IPackageHandler<TRequestInfo>
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
         where TRequestInfo : class, IRequestInfo
     {
@@ -161,8 +162,6 @@ namespace SuperSocket.SocketBase
             get { return AppServer.Config; }
         }
 
-        IReceiveFilter<TRequestInfo> m_ReceiveFilter;
-
         #endregion
 
         /// <summary>
@@ -188,13 +187,8 @@ namespace SuperSocket.SocketBase
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;
-            m_ReceiveFilter = castedAppServer.ReceiveFilterFactory.CreateFilter(appServer, this, socketSession.RemoteEndPoint);
-
-            var filterInitializer = m_ReceiveFilter as IReceiveFilterInitializer;
-            if (filterInitializer != null)
-                filterInitializer.Initialize(castedAppServer, this);
-
-            socketSession.Initialize(this);
+            var receiveFilter = castedAppServer.ReceiveFilterFactory.CreateFilter(castedAppServer, this, socketSession.RemoteEndPoint);
+            socketSession.Initialize(this, new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength));
 
             OnInit();
         }
@@ -212,7 +206,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         protected virtual void OnInit()
         {
-            
+
         }
 
         /// <summary>
@@ -471,120 +465,17 @@ namespace SuperSocket.SocketBase
 
         #endregion
 
-        #region Receiving processing
-
-        /// <summary>
-        /// Sets the next Receive filter which will be used when next data block received
-        /// </summary>
-        /// <param name="nextReceiveFilter">The next receive filter.</param>
-        protected void SetNextReceiveFilter(IReceiveFilter<TRequestInfo> nextReceiveFilter)
+        void IPackageHandler<TRequestInfo>.Handle(TRequestInfo package)
         {
-            m_ReceiveFilter = nextReceiveFilter;
-        }
-
-        /// <summary>
-        /// Filters the request.
-        /// </summary>
-        /// <param name="readBuffer">The read buffer.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <param name="rest">The rest, the size of the data which has not been processed</param>
-        /// <param name="offsetDelta">return offset delta of next receiving buffer.</param>
-        /// <returns></returns>
-        TRequestInfo FilterRequest(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest, out int offsetDelta)
-        {
-            if (!AppServer.OnRawDataReceived(this, readBuffer, offset, length))
+            try
             {
-                rest = 0;
-                offsetDelta = 0;
-                return null;
+                AppServer.ExecuteCommand(this, package);
             }
-
-            var currentRequestLength = m_ReceiveFilter.LeftBufferSize;
-
-            var requestInfo = m_ReceiveFilter.Filter(readBuffer, offset, length, toBeCopied, out rest);
-
-            if (m_ReceiveFilter.State == FilterState.Error)
+            catch (Exception e)
             {
-                rest = 0;
-                offsetDelta = 0;
-                Close(CloseReason.ProtocolError);
-                return null;
-            }
-
-            var offsetAdapter = m_ReceiveFilter as IOffsetAdapter;
-
-            offsetDelta = offsetAdapter != null ? offsetAdapter.OffsetDelta : 0;
-
-            if (requestInfo == null)
-            {
-                //current buffered length
-                currentRequestLength = m_ReceiveFilter.LeftBufferSize;
-            }
-            else
-            {
-                //current request length
-                currentRequestLength = currentRequestLength + length - rest;
-            }
-
-            if (currentRequestLength >= AppServer.Config.MaxRequestLength)
-            {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error(string.Format("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, currentRequestLength), this);
-                Close(CloseReason.ProtocolError);
-                return null;
-            }
-
-            //If next Receive filter wasn't set, still use current Receive filter in next round received data processing
-            if (m_ReceiveFilter.NextReceiveFilter != null)
-                m_ReceiveFilter = m_ReceiveFilter.NextReceiveFilter;
-
-            return requestInfo;
-        }
-
-        /// <summary>
-        /// Processes the request data.
-        /// </summary>
-        /// <param name="readBuffer">The read buffer.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <returns>
-        /// return offset delta of next receiving buffer
-        /// </returns>
-        int IAppSession.ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied)
-        {
-            int rest, offsetDelta;
-
-            while (true)
-            {
-                var requestInfo = FilterRequest(readBuffer, offset, length, toBeCopied, out rest, out offsetDelta);
-
-                if (requestInfo != null)
-                {
-                    try
-                    {
-                        AppServer.ExecuteCommand(this, requestInfo);
-                    }
-                    catch (Exception e)
-                    {
-                        HandleException(e);
-                    }
-                }
-
-                if (rest <= 0)
-                {
-                    return offsetDelta;
-                }
-
-                //Still have data has not been processed
-                offset = offset + length - rest;
-                length = rest;
+                HandleException(e);
             }
         }
-
-        #endregion
     }
 
     /// <summary>

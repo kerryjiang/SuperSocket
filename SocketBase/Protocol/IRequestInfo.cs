@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
     /// Request information interface
     /// </summary>
-    public interface IRequestInfo
+    public interface IRequestInfo : IPackageInfo
     {
         /// <summary>
         /// Gets the key of this request.

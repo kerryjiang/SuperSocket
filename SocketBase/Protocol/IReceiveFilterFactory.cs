@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Protocol
 {

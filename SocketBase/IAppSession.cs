@@ -101,16 +101,6 @@ namespace SuperSocket.SocketBase
         ILog Logger { get; }
 
         /// <summary>
-        /// Processes the request.
-        /// </summary>
-        /// <param name="readBuffer">The read buffer.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        /// <param name="toBeCopied">if set to <c>true</c> [to be copied].</param>
-        /// <returns>return offset delta of next receiving buffer</returns>
-        int ProcessRequest(byte[] readBuffer, int offset, int length, bool toBeCopied);
-
-        /// <summary>
         /// Starts the session.
         /// </summary>
         void StartSession();

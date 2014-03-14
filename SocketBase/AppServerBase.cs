@@ -13,6 +13,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Metadata;
+using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Security;
@@ -65,6 +66,19 @@ namespace SuperSocket.SocketBase
         /// Gets the certificate of current server.
         /// </summary>
         public X509Certificate Certificate { get; private set; }
+
+        private IBufferManager m_BufferManager;
+
+        /// <summary>
+        /// Gets the buffer manager.
+        /// </summary>
+        /// <value>
+        /// The buffer manager.
+        /// </value>
+        IBufferManager IAppServer.BufferManager
+        {
+            get { return m_BufferManager; }
+        }
 
         /// <summary>
         /// Gets or sets the receive filter factory.
@@ -492,9 +506,53 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
+            try
+            {
+                //Initialize buffer manager
+                var bufferDefinitions = AttachReceiveBufferPool(Config.BufferPools);
+                m_BufferManager = new Pool.BufferManager(bufferDefinitions.ToArray());
+            }
+            catch (OutOfMemoryException)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Out of memory, no enough memory to be allocated by the BufferManager!");
+
+                return false;
+            }
+            catch (Exception e)
+            {
+                if (Logger.IsErrorEnabled)
+                    Logger.Error("Failed to initialize the BufferManager!", e);
+
+                return false;
+            }
+
             return SetupSocketServer();
         }
 
+        //Attach default receive buffer pool definition
+        private List<IBufferPoolConfig> AttachReceiveBufferPool(IEnumerable<IBufferPoolConfig> bufferPools)
+        {
+            //The buffer expading trend: 1, 2, 4, 8, which is 15 totaly
+            var initialCount = Math.Min(Math.Max(Config.MaxConnectionNumber / 15, 100), Config.MaxConnectionNumber);
+
+            var bufferDefinitions = new List<IBufferPoolConfig>();
+
+            IBufferPoolConfig preDefinedReceiveBufferPool = null;
+
+            if (bufferPools != null && bufferPools.Any())
+            {
+                preDefinedReceiveBufferPool = bufferPools.FirstOrDefault(p => p.BufferSize == Config.ReceiveBufferSize);
+                bufferDefinitions.AddRange(bufferPools.Where(p => p != preDefinedReceiveBufferPool));
+            }
+
+            var finalInitialCount = initialCount;
+            if (preDefinedReceiveBufferPool != null)
+                finalInitialCount += preDefinedReceiveBufferPool.InitialCount;
+
+            bufferDefinitions.Add(new BufferPoolConfig(Config.ReceiveBufferSize, finalInitialCount));
+            return bufferDefinitions;
+        }
         /// <summary>
         /// Setups with the specified port.
         /// </summary>

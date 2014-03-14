@@ -12,6 +12,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketBase
 {
@@ -41,7 +42,7 @@ namespace SuperSocket.SocketBase
         /// Gets the Receive filter factory.
         /// </summary>
         object ReceiveFilterFactory { get; }
-        
+
 
         /// <summary>
         /// Gets the server's config.
@@ -91,6 +92,15 @@ namespace SuperSocket.SocketBase
         /// Gets the log factory.
         /// </summary>
         ILogFactory LogFactory { get; }
+
+
+        /// <summary>
+        /// Gets the buffer manager.
+        /// </summary>
+        /// <value>
+        /// The buffer manager.
+        /// </value>
+        IBufferManager BufferManager { get; }
     }
 
     /// <summary>

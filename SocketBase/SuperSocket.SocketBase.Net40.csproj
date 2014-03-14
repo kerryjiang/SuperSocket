@@ -119,11 +119,6 @@
     <Compile Include="Pool\IPool.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
     <Compile Include="Pool\NullBufferManager.cs" />
-    <Compile Include="Protocol\FilterState.cs" />
-    <Compile Include="Protocol\IOffsetAdapter.cs" />
-    <Compile Include="Protocol\IReceiveFilterInitializer.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
     <Compile Include="Provider\ProviderFactoryInfo.cs" />
@@ -141,7 +136,6 @@
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IRequestInfo.cs" />
-    <Compile Include="Protocol\ReceiveFilterBase.cs" />
     <Compile Include="Protocol\RequestInfo.cs" />
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
@@ -153,7 +147,6 @@
     <Compile Include="Config\IServerConfig.cs" />
     <Compile Include="Config\RootConfig.cs" />
     <Compile Include="Config\ServerConfig.cs" />
-    <Compile Include="Protocol\IReceiveFilter.cs" />
     <Compile Include="IAppServer.cs" />
     <Compile Include="IAppSession.cs" />
     <Compile Include="IConnectionFilter.cs" />
@@ -182,6 +175,10 @@
     <ProjectReference Include="..\Common\SuperSocket.Common.Net40.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProtoBase\SuperSocket.ProtoBase.Net40.csproj">
+      <Project>{88C9312E-7520-4F6B-BF25-30DA5990D270}</Project>
+      <Name>SuperSocket.ProtoBase.Net40</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
