@@ -1399,7 +1399,7 @@ namespace SuperSocket.SocketBase
             appSession.SocketSession.Closed += OnSocketSessionClosed;
 
             if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)
-                Logger.InfoFormat("A new session connected!");
+                Logger.Info(session, "A new session connected!");
 
             OnNewSessionConnected(appSession);
             return true;
