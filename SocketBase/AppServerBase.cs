@@ -1531,7 +1531,7 @@ namespace SuperSocket.SocketBase
             appSession.SocketSession.Closed += OnSocketSessionClosed;
 
             if (Config.LogBasicSessionActivity && Logger.IsInfoEnabled)
-                Logger.InfoFormat("A new session connected!");
+                Logger.Info("A new session connected!", session);
 
             OnNewSessionConnected(appSession);
             return true;
