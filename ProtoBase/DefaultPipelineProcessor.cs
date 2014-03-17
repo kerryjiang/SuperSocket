@@ -30,11 +30,10 @@ namespace SuperSocket.ProtoBase
             m_MaxPackageLength = maxPackageLength;
         }
 
-        private void PushResetData(ArraySegment<byte> raw, int rest)
+        private void PushResetData(ArraySegment<byte> raw, int rest, object state)
         {
             var segment = new ArraySegment<byte>(raw.Array, raw.Count - rest, rest);
-            m_ReceiveCache.Current = segment;
-            m_ReceiveCache.All.Add(segment);
+            m_ReceiveCache.Add(segment, state);
         }
 
         public event EventHandler NewReceiveBufferRequired;
@@ -47,10 +46,9 @@ namespace SuperSocket.ProtoBase
                 handler(this, EventArgs.Empty);
         }
 
-        public virtual ProcessState Process(ArraySegment<byte> raw)
+        public virtual ProcessState Process(ArraySegment<byte> segment, object state)
         {
-            m_ReceiveCache.Current = raw;
-            m_ReceiveCache.All.Add(raw);
+            m_ReceiveCache.Add(segment, state);
 
             var rest = 0;
 
@@ -74,7 +72,7 @@ namespace SuperSocket.ProtoBase
                 {
                     if (rest > 0)
                     {
-                        PushResetData(raw, rest);
+                        PushResetData(segment, rest, state);
                         continue;
                     }
 
@@ -92,16 +90,15 @@ namespace SuperSocket.ProtoBase
 
                 m_PackageHandler.Handle(packageInfo);
 
-                m_ReceiveCache.All.Clear();
+                m_ReceiveCache.Clear();
 
                 if (rest <= 0)
                 {
-                    m_ReceiveCache.Current = new ArraySegment<byte>();
                     FireNewReceiveBufferRequired();
                     return ProcessState.Found;
                 }
 
-                PushResetData(raw, rest);
+                PushResetData(segment, rest, state);
             }
         }
 

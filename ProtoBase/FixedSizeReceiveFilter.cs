@@ -30,13 +30,13 @@ namespace SuperSocket.ProtoBase
             if (total > m_Size)
             {
                 rest = total - m_Size;
-                data.SetLastLength(data.Current.Count - rest);
+                data.SetLastItemLength(data.Current.Count - rest);
             }
 
-            if (!CanResolvePackage(data.All))
+            if (!CanResolvePackage(data))
                 return default(TPackageInfo);
 
-            return ResolvePackage(data.All);
+            return ResolvePackage(data);
         }
 
         public IReceiveFilter<TPackageInfo> NextReceiveFilter { get; protected set; }

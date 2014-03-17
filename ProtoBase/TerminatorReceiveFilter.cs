@@ -34,9 +34,9 @@ namespace SuperSocket.ProtoBase
             }
 
             //Found
-            data.SetLastLength(parsedLength);
+            data.SetLastItemLength(parsedLength);
 
-            return ResolvePackage(data.All);
+            return ResolvePackage(data);
         }
 
         public abstract TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);

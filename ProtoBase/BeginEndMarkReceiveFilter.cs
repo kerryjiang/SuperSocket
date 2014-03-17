@@ -85,9 +85,9 @@ namespace SuperSocket.ProtoBase
 
                 rest = length - parsedLength;
 
-                data.SetLastLength(parsedLength);
+                data.SetLastItemLength(parsedLength);
 
-                var packageInfo = ResolvePackage(data.All);
+                var packageInfo = ResolvePackage(data);
 
                 if (!ReferenceEquals(packageInfo, default(TPackageInfo)))
                 {

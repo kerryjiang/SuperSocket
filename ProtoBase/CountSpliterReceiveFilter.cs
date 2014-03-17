@@ -49,11 +49,11 @@ namespace SuperSocket.ProtoBase
             }
 
             //Found enougth spliters
-            data.SetLastLength(offset - currentSegment.Offset);
+            data.SetLastItemLength(offset - currentSegment.Offset);
             Reset();
             rest = length;
 
-            return ResolvePackage(data.All);
+            return ResolvePackage(data);
         }
 
         public IReceiveFilter<TPackageInfo> NextReceiveFilter { get; protected set; }
