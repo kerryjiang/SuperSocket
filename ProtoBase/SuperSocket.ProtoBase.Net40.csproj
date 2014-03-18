@@ -50,12 +50,14 @@
     <Compile Include="FilterState.cs" />
     <Compile Include="FixedHeaderReceiveFilter.cs" />
     <Compile Include="FixedSizeReceiveFilter.cs" />
+    <Compile Include="IBufferRecycler.cs" />
     <Compile Include="IPackageHandler.cs" />
     <Compile Include="IPackageInfo.cs" />
     <Compile Include="IPackageResolver.cs" />
     <Compile Include="IPipelineProcessor.cs" />
     <Compile Include="IReceiveFilter.cs" />
     <Compile Include="IStringPackageParser.cs" />
+    <Compile Include="NullBufferRecycler.cs" />
     <Compile Include="ReceiveCache.cs" />
     <Compile Include="DefaultPipelineProcessor.cs" />
     <Compile Include="ProcessState.cs" />
