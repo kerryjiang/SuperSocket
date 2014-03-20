@@ -16,12 +16,12 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         void Stop();
         /// <summary>
-        /// Invoke when status update.
+        /// Invokes when status update.
         /// </summary>
-        event Action<NodeStatus> onUpdate;
+        event Action<NodeStatus> OnStatusUpdate;
         /// <summary>
-        /// Get or Set the current refresh timer in seconds.
+        /// Get or Set status update time in seconds.
         /// </summary>
-        int TimerInterval { get; set; }
+        int StatusUpdeteInterval { get; set; }
     }
 }
