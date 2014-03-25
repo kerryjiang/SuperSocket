@@ -30,6 +30,7 @@
                         </i:Interaction.Behaviors>
                         <MenuItem Header="Start" Command="{Binding StartCommand}" CommandParameter="{Binding}"/>
                         <MenuItem Header="Stop" Command="{Binding StopCommand}" CommandParameter="{Binding}"/>
+                        <MenuItem Header="Restart" Command="{Binding RestartCommand}" CommandParameter="{Binding}"/>
                     </ContextMenu>
                 </DataGrid.Resources>
                 <DataGrid.RowStyle>

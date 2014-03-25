@@ -29,5 +29,10 @@ namespace SuperSocket.ServerManager.Model
         /// Stop server instance
         /// </summary>
         public const string STOP = "STOP";
+
+        /// <summary>
+        /// Restart server instance
+        /// </summary>
+        public const string RESTART = "RESTART";
     }
 }
