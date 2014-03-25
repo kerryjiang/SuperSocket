@@ -210,6 +210,9 @@ namespace SuperSocket.SocketEngine
 
                 base.Stop();
 
+                foreach (var item in m_ReadWritePool)
+                    item.SocketEventArgs.Dispose();
+
                 m_ReadWritePool = null;
                 m_BufferManager = null;
                 IsRunning = false;
