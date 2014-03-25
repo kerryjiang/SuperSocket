@@ -82,7 +82,9 @@
     <Compile Include="Command\CommandInfo.cs" />
     <Compile Include="Command\CommandUpdateEventArgs.cs" />
     <Compile Include="Command\ICommandFilterProvider.cs" />
+    <Compile Include="Config\BufferPoolConfig.cs" />
     <Compile Include="Config\CommandAssemblyConfig.cs" />
+    <Compile Include="Config\IBufferPoolConfig.cs" />
     <Compile Include="Config\ICommandAssemblyConfig.cs" />
     <Compile Include="Config\IConfigurationSource.cs" />
     <Compile Include="Config\IRootConfig.Net45.cs" />

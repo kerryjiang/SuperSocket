@@ -33,18 +33,21 @@ namespace SuperSocket.ServerManager.Client.Behaviors
             var contextMenu = new ContextMenu();
 
             contextMenu.DataContext = e.Row.DataContext;
+            
+            var commands = new []{
+                new { h = "Start", c = "StartCommand" },
+                new { h = "Stop", c = "StopCommand" },
+                new { h = "Restart", c = "RestartCommand" }
+            };
 
-            var newMenuItem = new MenuItem();
-            newMenuItem.Header = "Start";
-            newMenuItem.SetBinding(MenuItem.CommandProperty, new Binding("[StartCommand]"));
-            newMenuItem.SetBinding(MenuItem.CommandParameterProperty, new Binding());
-            contextMenu.Items.Add(newMenuItem);
-
-            newMenuItem = new MenuItem();
-            newMenuItem.Header = "Stop";
-            newMenuItem.SetBinding(MenuItem.CommandProperty, new Binding("[StopCommand]"));
-            newMenuItem.SetBinding(MenuItem.CommandParameterProperty, new Binding());
-            contextMenu.Items.Add(newMenuItem);
+            foreach (var item in commands)
+            {
+                var newMenuItem = new MenuItem();
+                newMenuItem.Header = item.h;
+                newMenuItem.SetBinding(MenuItem.CommandProperty, new Binding("["+item.c+"]"));
+                newMenuItem.SetBinding(MenuItem.CommandParameterProperty, new Binding());
+                contextMenu.Items.Add(newMenuItem);
+            }
 
             e.Row.MouseRightButtonDown += new MouseButtonEventHandler(Row_MouseRightButtonDown);
             ContextMenuService.SetContextMenu(e.Row, contextMenu);

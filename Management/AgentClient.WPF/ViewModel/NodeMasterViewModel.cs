@@ -141,6 +141,7 @@ namespace SuperSocket.ServerManager.Client.ViewModel
                     {
                         var startCommand = new DelegateCommand<DynamicViewModel.DynamicViewModel>(ExecuteStartCommand, CanExecuteStartCommand);
                         var stopCommand = new DelegateCommand<DynamicViewModel.DynamicViewModel>(ExecuteStopCommand, CanExecuteStopCommand);
+                        var restartCommand = new DelegateCommand<DynamicViewModel.DynamicViewModel>(ExecuteRestartCommand, CanExecuteRestartCommand);
 
                         i.PropertyChanged += (s, e) =>
                             {
@@ -149,11 +150,13 @@ namespace SuperSocket.ServerManager.Client.ViewModel
                                 {
                                     startCommand.RaiseCanExecuteChanged();
                                     stopCommand.RaiseCanExecuteChanged();
+                                    restartCommand.RaiseCanExecuteChanged();
                                 }
                             };
 
                         i.Set("StartCommand", startCommand);
                         i.Set("StopCommand", stopCommand);
+                        i.Set("RestartCommand", restartCommand);
 
                         return i;
                     }));
@@ -199,6 +202,21 @@ namespace SuperSocket.ServerManager.Client.ViewModel
 #endif
         }
 
+        private bool CanExecuteRestartCommand(DynamicViewModel.DynamicViewModel target)
+        {
+            var isRunning = ((JValue)((DynamicViewModel.DynamicViewModel)target["Values"])["IsRunning"]).ToString();
+            return "True".Equals(isRunning, StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void ExecuteRestartCommand(DynamicViewModel.DynamicViewModel target)
+        {
+#if SILVERLIGHT
+            m_WebSocket.Query<dynamic>(CommandName.RESTART, ((JValue)target["Name"]).Value, OnActionCallbackAsync);
+#else
+            m_WebSocket.Query<dynamic>(CommandName.RESTART, ((JValue)target["Name"]).Value, OnActionCallback);
+#endif
+        }
+        
         void OnServerUpdated(string result)
         {
             dynamic nodeInfo = DynamicViewModelFactory.Create(result);
@@ -221,6 +239,7 @@ namespace SuperSocket.ServerManager.Client.ViewModel
                     targetInstance.UpdateProperties(i);
                     ((DelegateCommand<DynamicViewModel.DynamicViewModel>)targetInstance["StartCommand"]).RaiseCanExecuteChanged();
                     ((DelegateCommand<DynamicViewModel.DynamicViewModel>)targetInstance["StopCommand"]).RaiseCanExecuteChanged();
+                    ((DelegateCommand<DynamicViewModel.DynamicViewModel>)targetInstance["RestartCommand"]).RaiseCanExecuteChanged();
                 }
             }
 

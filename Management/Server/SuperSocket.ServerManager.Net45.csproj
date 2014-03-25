@@ -47,6 +47,7 @@
     <Compile Include="..\..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Command\RESTART.cs" />
     <Compile Include="Command\LOGIN.cs" />
     <Compile Include="Command\START.cs" />
     <Compile Include="Command\STOP.cs" />
