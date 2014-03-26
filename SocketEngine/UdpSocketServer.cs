@@ -5,16 +5,16 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketServer<TRequestInfo> : SocketServerBase, IActiveConnector
+    class UdpSocketServer<TRequestInfo> : SocketServerBase
         where TRequestInfo : IRequestInfo
     {
         private IPEndPoint m_EndPointIPv4;
@@ -79,47 +79,24 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        IAppSession CreateNewSession(Socket listenSocket, IPEndPoint remoteEndPoint, string sessionID)
-        {
-            if (!DetectConnectionNumber(remoteEndPoint))
-                return null;
-
-            var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID);
-            var appSession = AppServer.CreateAppSession(socketSession);
-
-            if (appSession == null)
-                return null;
-
-            if (!DetectConnectionNumber(remoteEndPoint))
-                return null;
-
-            if (!AppServer.RegisterSession(appSession))
-                return null;
-
-            Interlocked.Increment(ref m_ConnectionCount);
-
-            socketSession.Closed += OnSocketSessionClosed;
-            socketSession.Start();
-
-            return appSession;
-        }
-
-
         void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
         {
             TRequestInfo requestInfo;
-            
+
             string sessionID;
 
             int rest;
 
             try
             {
-                requestInfo = this.m_UdpRequestFilter.Filter(receivedData, 0, receivedData.Length, false, out rest);
+                var receiveData = new ReceiveCache();
+                receiveData.Add(new ArraySegment<byte>(receivedData));
+
+                requestInfo = this.m_UdpRequestFilter.Filter(receiveData, out rest);
             }
             catch (Exception exc)
             {
-                if(AppServer.Logger.IsErrorEnabled)
+                if (AppServer.Logger.IsErrorEnabled)
                     AppServer.Logger.Error("Failed to parse UDP package!", exc);
                 return;
             }
@@ -153,11 +130,25 @@ namespace SuperSocket.SocketEngine
 
             if (appSession == null)
             {
-                appSession = CreateNewSession(listenSocket, remoteEndPoint, sessionID);
+                if (!DetectConnectionNumber(remoteEndPoint))
+                    return;
 
-                //Failed to create a new session
+                var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID);
+                appSession = AppServer.CreateAppSession(socketSession);
+
                 if (appSession == null)
                     return;
+
+                if (!DetectConnectionNumber(remoteEndPoint))
+                    return;
+
+                if (!AppServer.RegisterSession(appSession))
+                    return;
+
+                Interlocked.Increment(ref m_ConnectionCount);
+
+                socketSession.Closed += OnSocketSessionClosed;
+                socketSession.Start();
             }
             else
             {
@@ -176,18 +167,28 @@ namespace SuperSocket.SocketEngine
 
             if (appSession == null) //New session
             {
-                appSession = CreateNewSession(listenSocket, remoteEndPoint, sessionID);
+                if (!DetectConnectionNumber(remoteEndPoint))
+                    return;
 
-                //Failed to create a new session
+                var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID);
+
+                appSession = AppServer.CreateAppSession(socketSession);
+
                 if (appSession == null)
                     return;
 
-                appSession.ProcessRequest(receivedData, 0, receivedData.Length, false);
+                if (!DetectConnectionNumber(remoteEndPoint))
+                    return;
+
+                if (!AppServer.RegisterSession(appSession))
+                    return;
+
+                Interlocked.Increment(ref m_ConnectionCount);
+                socketSession.Closed += OnSocketSessionClosed;
+                socketSession.Start();
             }
-            else //Existing session
-            {
-                appSession.ProcessRequest(receivedData, 0, receivedData.Length, false);
-            }
+
+            ((UdpSocketSession)appSession.SocketSession).ProcessReceivedData(new ArraySegment<byte>(receivedData), null);
         }
 
         void OnSocketSessionClosed(ISocketSession socketSession, CloseReason closeReason)
@@ -217,20 +218,6 @@ namespace SuperSocket.SocketEngine
         public override void ResetSessionSecurity(IAppSession session, System.Security.Authentication.SslProtocols security)
         {
             throw new NotSupportedException();
-        }
-
-        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
-        {
-            var taskSource = new TaskCompletionSource<ActiveConnectResult>();
-            var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            var session = CreateNewSession(socket, (IPEndPoint)targetEndPoint, targetEndPoint.ToString());
-
-            if (session == null)
-                taskSource.SetException(new Exception("Failed to create session for this socket."));
-            else
-                taskSource.SetResult(new ActiveConnectResult { Result = true, Session = session });
-
-            return taskSource.Task;
         }
     }
 }

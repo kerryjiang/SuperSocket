@@ -13,6 +13,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketEngine
 {
@@ -29,11 +30,18 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    abstract partial class SocketSession : ISocketSession
+    abstract partial class SocketSession : ISocketSession, IBufferRecycler
     {
         public IAppSession AppSession { get; private set; }
 
+        protected IPipelineProcessor DataProcessor { get; private set; }
+
         protected readonly object SyncRoot = new object();
+
+        IPipelineProcessor ISocketSession.PipelineProcessor
+        {
+            get { return DataProcessor; }
+        }
 
         //0x00 0x00 0x00 0x00
         //1st byte: Closed(Y/N) - 0x01
@@ -47,12 +55,12 @@ namespace SuperSocket.SocketEngine
 
         private void AddStateFlag(int stateValue)
         {
-            while(true)
+            while (true)
             {
                 var oldState = m_State;
                 var newState = m_State | stateValue;
 
-                if(Interlocked.CompareExchange(ref m_State, newState, oldState) == oldState)
+                if (Interlocked.CompareExchange(ref m_State, newState, oldState) == oldState)
                     return;
             }
         }
@@ -79,12 +87,12 @@ namespace SuperSocket.SocketEngine
 
         private void RemoveStateFlag(int stateValue)
         {
-            while(true)
+            while (true)
             {
                 var oldState = m_State;
                 var newState = m_State & (~stateValue);
 
-                if(Interlocked.CompareExchange(ref m_State, newState, oldState) == oldState)
+                if (Interlocked.CompareExchange(ref m_State, newState, oldState) == oldState)
                     return;
             }
         }
@@ -117,6 +125,9 @@ namespace SuperSocket.SocketEngine
         public virtual void Initialize(IAppSession appSession)
         {
             AppSession = appSession;
+
+            DataProcessor = appSession.CreatePipelineProcessor(this);
+
             Config = appSession.Config;
             SyncSend = Config.SyncSend;
             m_SendingQueuePool = ((SocketServerBase)((ISocketServerAccessor)appSession.AppServer).SocketServer).SendingQueuePool;
@@ -494,7 +505,7 @@ namespace SuperSocket.SocketEngine
             ValidateClosed(closeReason);
         }
 
-        protected void OnReceiveError(CloseReason closeReason)
+        protected virtual void OnReceiveError(CloseReason closeReason)
         {
             OnReceiveEnded();
             ValidateClosed(closeReason);
@@ -561,8 +572,6 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public abstract int OrigReceiveOffset { get; }
-
         protected virtual bool IsIgnorableSocketError(int socketErrorCode)
         {
             if (socketErrorCode == 10004 //Interrupted
@@ -609,6 +618,41 @@ namespace SuperSocket.SocketEngine
                 return false;
 
             return IsIgnorableSocketError(socketErrorCode);
+        }
+
+        internal ProcessState ProcessReceivedData(ArraySegment<byte> data, object state)
+        {
+            try
+            {
+                var resultState = DataProcessor.Process(data, state);
+
+                if (resultState == ProcessState.Error)
+                {
+                    AppSession.Logger.Error("Protocol error");
+                    this.Close(CloseReason.ProtocolError);
+                }
+
+                return resultState;
+            }
+            catch (Exception ex)
+            {
+                LogError("Protocol error", ex);
+                this.Close(CloseReason.ProtocolError);
+                return ProcessState.Error;
+            }
+        }
+
+        /// <summary>
+        /// Returns the buffer.
+        /// </summary>
+        /// <param name="buffers">The buffers.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        protected abstract void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length);
+
+        void IBufferRecycler.Return(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length)
+        {
+            ReturnBuffer(buffers, offset, length);
         }
     }
 }

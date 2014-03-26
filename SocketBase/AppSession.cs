@@ -187,10 +187,17 @@ namespace SuperSocket.SocketBase
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;
-            var receiveFilter = castedAppServer.ReceiveFilterFactory.CreateFilter(castedAppServer, this, socketSession.RemoteEndPoint);
-            socketSession.Initialize(this, new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength));
+            
+            socketSession.Initialize(this);
 
             OnInit();
+        }
+
+        IPipelineProcessor IAppSession.CreatePipelineProcessor(IBufferRecycler bufferRecycler)
+        {
+            var receiveFilterFactory = AppServer.ReceiveFilterFactory;
+            var receiveFilter = receiveFilterFactory.CreateFilter(AppServer, this, SocketSession.RemoteEndPoint);
+            return new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, bufferRecycler, AppServer.Config.MaxRequestLength);
         }
 
         /// <summary>

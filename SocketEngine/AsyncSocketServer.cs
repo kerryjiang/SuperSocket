@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
 
@@ -19,52 +20,32 @@ namespace SuperSocket.SocketEngine
 {
     class AsyncSocketServer : TcpSocketServerBase, IActiveConnector
     {
+        private int m_TotalConnections = 0;
+
         public AsyncSocketServer(IAppServer appServer, ListenerInfo[] listeners)
             : base(appServer, listeners)
         {
 
         }
 
-        private BufferManager m_BufferManager;
+        private IBufferManager m_BufferManager;
 
-        private ConcurrentStack<SocketAsyncEventArgsProxy> m_ReadWritePool;
+        private IPool<SocketAsyncEventArgs> m_SaePool;
 
         public override bool Start()
         {
             try
             {
-                int bufferSize = AppServer.Config.ReceiveBufferSize;
+                var config = AppServer.Config;
+                int bufferSize = config.ReceiveBufferSize;
 
                 if (bufferSize <= 0)
                     bufferSize = 1024 * 4;
 
-                m_BufferManager = new BufferManager(bufferSize * AppServer.Config.MaxConnectionNumber, bufferSize);
+                m_BufferManager = AppServer.BufferManager;
 
-                try
-                {
-                    m_BufferManager.InitBuffer();
-                }
-                catch (Exception e)
-                {
-                    AppServer.Logger.Error("Failed to allocate buffer for async socket communication, may because there is no enough memory, please decrease maxConnectionNumber in configuration!", e);
-                    return false;
-                }
-
-                // preallocate pool of SocketAsyncEventArgs objects
-                SocketAsyncEventArgs socketEventArg;
-
-                var socketArgsProxyList = new List<SocketAsyncEventArgsProxy>(AppServer.Config.MaxConnectionNumber);
-
-                for (int i = 0; i < AppServer.Config.MaxConnectionNumber; i++)
-                {
-                    //Pre-allocate a set of reusable SocketAsyncEventArgs
-                    socketEventArg = new SocketAsyncEventArgs();
-                    m_BufferManager.SetBuffer(socketEventArg);
-
-                    socketArgsProxyList.Add(new SocketAsyncEventArgsProxy(socketEventArg));
-                }
-
-                m_ReadWritePool = new ConcurrentStack<SocketAsyncEventArgsProxy>(socketArgsProxyList);
+                var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
+                m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize));
 
                 if (!base.Start())
                     return false;
@@ -87,33 +68,48 @@ namespace SuperSocket.SocketEngine
             ProcessNewClient(client, listener.Info.Security);
         }
 
+        private void CloseSessionForMaxConnectionReach(Socket client)
+        {
+            AppServer.AsyncRun(client.SafeClose);
+            if (AppServer.Logger.IsErrorEnabled)
+                AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
+        }
+
+        private bool IncreaseConnections(Socket client)
+        {
+            while (true)
+            {
+                var totalConnections = m_TotalConnections;
+
+                if (totalConnections >= AppServer.Config.MaxConnectionNumber)
+                {
+                    CloseSessionForMaxConnectionReach(client);
+                    return false;//Max connections reach
+                }
+
+                var newTotal = totalConnections + 1;
+
+                if (Interlocked.CompareExchange(ref m_TotalConnections, newTotal, totalConnections) == totalConnections)
+                    return true;//Increase the total connections successfully
+            }
+        }
+
         private IAppSession ProcessNewClient(Socket client, SslProtocols security)
         {
-            //Get the socket for the accepted client connection and put it into the 
-            //ReadEventArg object user token
-            SocketAsyncEventArgsProxy socketEventArgsProxy;
-            if (!m_ReadWritePool.TryPop(out socketEventArgsProxy))
-            {
-                AppServer.AsyncRun(client.SafeClose);
-                if (AppServer.Logger.IsErrorEnabled)
-                    AppServer.Logger.ErrorFormat("Max connection number {0} was reached!", AppServer.Config.MaxConnectionNumber);
-
+            if (!IncreaseConnections(client))
                 return null;
-            }
 
             ISocketSession socketSession;
 
             if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
+                socketSession = new AsyncSocketSession(client, m_SaePool);
             else
-                socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
+                socketSession = new AsyncStreamSocketSession(client, security, m_BufferManager);
 
             var session = CreateSession(client, socketSession);
 
             if (session == null)
             {
-                socketEventArgsProxy.Reset();
-                this.m_ReadWritePool.Push(socketEventArgsProxy);
                 AppServer.AsyncRun(client.SafeClose);
                 return null;
             }
@@ -168,12 +164,10 @@ namespace SuperSocket.SocketEngine
         {
             ISocketSession socketSession;
 
-            var socketAsyncProxy = ((IAsyncSocketSessionBase)session.SocketSession).SocketAsyncProxy;
-
             if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(session.SocketSession.Client, socketAsyncProxy, true);
+                socketSession = new AsyncSocketSession(session.SocketSession.Client, m_SaePool, true);
             else
-                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, socketAsyncProxy, true);
+                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, m_BufferManager, true);
 
             socketSession.Initialize(session);
             socketSession.Start();
@@ -181,21 +175,7 @@ namespace SuperSocket.SocketEngine
 
         void SessionClosed(ISocketSession session, CloseReason reason)
         {
-            var socketSession = session as IAsyncSocketSessionBase;
-
-            if (socketSession != null && this.m_ReadWritePool != null)
-            {
-                var proxy = socketSession.SocketAsyncProxy;
-                proxy.Reset();
-
-                if (proxy.OrigOffset != proxy.SocketEventArgs.Offset)
-                {
-                    proxy.SocketEventArgs.SetBuffer(proxy.OrigOffset, AppServer.Config.ReceiveBufferSize);
-                }
-
-                if (m_ReadWritePool != null)
-                    m_ReadWritePool.Push(proxy);
-            }
+            Interlocked.Decrement(ref m_TotalConnections);
         }
 
         public override void Stop()
@@ -209,8 +189,6 @@ namespace SuperSocket.SocketEngine
                     return;
 
                 base.Stop();
-
-                m_ReadWritePool = null;
                 m_BufferManager = null;
                 IsRunning = false;
             }

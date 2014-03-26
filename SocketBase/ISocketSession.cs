@@ -68,11 +68,10 @@ namespace SuperSocket.SocketBase
     public interface ISocketSession : ISessionBase
     {
         /// <summary>
-        /// Initializes the specified app session.
+        /// Initializes the socket session with the specified app session.
         /// </summary>
         /// <param name="appSession">The app session.</param>
-        /// <param name="dataProcessor">The pipeline data processor.</param>
-        void Initialize(IAppSession appSession, IPipelineProcessor dataProcessor);
+        void Initialize(IAppSession appSession);
 
         /// <summary>
         /// Starts this instance.

@@ -114,9 +114,9 @@ namespace SuperSocket.SocketEngine
                 OnClosed(reason);
         }
 
-        public override int OrigReceiveOffset
+        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length)
         {
-            get { return 0; }
+            //TODO:
         }
     }
 }

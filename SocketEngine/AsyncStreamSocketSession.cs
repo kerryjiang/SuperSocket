@@ -9,12 +9,14 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine.AsyncSocket;
+using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketEngine
 {
@@ -59,21 +61,20 @@ namespace SuperSocket.SocketEngine
 
         private bool m_IsReset;
 
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy)
-            : this(client, security, socketAsyncProxy, false)
+        private IBufferManager m_BufferManager;
+
+        public AsyncStreamSocketSession(Socket client, SslProtocols security, IBufferManager bufferManager)
+            : this(client, security, bufferManager, false)
         {
 
         }
 
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
+        public AsyncStreamSocketSession(Socket client, SslProtocols security, IBufferManager bufferManager, bool isReset)
             : base(client)
         {
             SecureProtocol = security;
-            SocketAsyncProxy = socketAsyncProxy;
-            var e = socketAsyncProxy.SocketEventArgs;
-            m_ReadBuffer = e.Buffer;
-            m_Offset = e.Offset;
-            m_Length = e.Count;
+            m_BufferManager = bufferManager;
+           
 
             m_IsReset = isReset;
         }
@@ -87,7 +88,16 @@ namespace SuperSocket.SocketEngine
             if (IsClosed)
                 return;
 
+            RequestNewReceiveBuffer();
+
             OnSessionStarting();
+        }
+
+        private void RequestNewReceiveBuffer()
+        {
+            m_ReadBuffer = m_BufferManager.GetBuffer(Config.ReceiveBufferSize);
+            m_Offset = 0;
+            m_Length = m_ReadBuffer.Length;
         }
 
         private void OnSessionStarting()
@@ -107,6 +117,12 @@ namespace SuperSocket.SocketEngine
 
             if (!m_IsReset)
                 StartSession();
+        }
+
+        protected override void OnReceiveError(CloseReason closeReason)
+        {
+            m_BufferManager.ReturnBuffer(m_ReadBuffer);
+            base.OnReceiveError(closeReason);
         }
 
         private void OnStreamEndRead(IAsyncResult result)
@@ -135,28 +151,17 @@ namespace SuperSocket.SocketEngine
 
             OnReceiveEnded();
 
-            int offsetDelta;
+            var state = ProcessReceivedData(new ArraySegment<byte>(m_ReadBuffer, m_Offset, thisRead), null);
+
+            if (state == ProcessState.Pending)
+            {
+                RequestNewReceiveBuffer();
+            }
+
+            OnReceiveStarted();
 
             try
             {
-                offsetDelta = AppSession.ProcessRequest(m_ReadBuffer, m_Offset, thisRead, true);
-            }
-            catch (Exception ex)
-            {
-                LogError("Protocol error", ex);
-                this.Close(CloseReason.ProtocolError);
-                return;
-            }
-
-            try
-            {
-                if (offsetDelta < 0 || offsetDelta >= Config.ReceiveBufferSize)
-                    throw new ArgumentException(string.Format("Illigal offsetDelta: {0}", offsetDelta), "offsetDelta");
-
-                m_Offset = SocketAsyncProxy.OrigOffset + offsetDelta;
-                m_Length = Config.ReceiveBufferSize - offsetDelta;
-
-                OnReceiveStarted();
                 m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
             }
             catch (Exception exc)
@@ -172,7 +177,7 @@ namespace SuperSocket.SocketEngine
         private SslStream CreateSslStream(ICertificateConfig certConfig)
         {
             //Enable client certificate function only if ClientCertificateRequired is true in the configuration
-            if(!certConfig.ClientCertificateRequired)
+            if (!certConfig.ClientCertificateRequired)
                 return new SslStream(new NetworkStream(Client), false);
 
             //Subscribe the client validation callback
@@ -326,7 +331,7 @@ namespace SuperSocket.SocketEngine
                 OnSendError(queue, CloseReason.SocketError);
                 return;
             }
-            
+
             var nextPos = queue.Position + 1;
 
             //Has more data to send
@@ -348,16 +353,9 @@ namespace SuperSocket.SocketEngine
                 asyncResult.AsyncWaitHandle.WaitOne();
         }
 
-        public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
-
         ILog ILoggerProvider.Logger
         {
             get { return AppSession.Logger; }
-        }
-
-        public override int OrigReceiveOffset
-        {
-            get { return SocketAsyncProxy.OrigOffset; }
         }
 
         private bool m_NegotiateResult = false;
@@ -408,6 +406,11 @@ namespace SuperSocket.SocketEngine
                 return;
 
             handler(this, EventArgs.Empty);
+        }
+
+        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length)
+        {
+            //TODO:
         }
     }
 }

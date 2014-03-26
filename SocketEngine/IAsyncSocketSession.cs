@@ -12,7 +12,7 @@ namespace SuperSocket.SocketEngine
 {
     interface IAsyncSocketSessionBase : ILoggerProvider
     {
-        SocketAsyncEventArgsProxy SocketAsyncProxy { get; }
+        //SocketAsyncEventArgsProxy SocketAsyncProxy { get; }
         
         Socket Client { get; }
     }

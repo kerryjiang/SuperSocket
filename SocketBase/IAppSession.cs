@@ -9,6 +9,7 @@ using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase
 {
@@ -53,6 +54,13 @@ namespace SuperSocket.SocketBase
         /// Gets the start time of the session.
         /// </summary>
         DateTime StartTime { get; }
+
+        /// <summary>
+        /// Creates the pipeline processor.
+        /// </summary>
+        /// <param name="bufferRecycler">The buffer recycler.</param>
+        /// <returns></returns>
+        IPipelineProcessor CreatePipelineProcessor(IBufferRecycler bufferRecycler);
 
         /// <summary>
         /// Closes this session.
