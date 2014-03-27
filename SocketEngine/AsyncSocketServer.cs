@@ -14,7 +14,6 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
 {
@@ -26,38 +25,6 @@ namespace SuperSocket.SocketEngine
             : base(appServer, listeners)
         {
 
-        }
-
-        private IBufferManager m_BufferManager;
-
-        private IPool<SocketAsyncEventArgs> m_SaePool;
-
-        public override bool Start()
-        {
-            try
-            {
-                var config = AppServer.Config;
-                int bufferSize = config.ReceiveBufferSize;
-
-                if (bufferSize <= 0)
-                    bufferSize = 1024 * 4;
-
-                m_BufferManager = AppServer.BufferManager;
-
-                var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
-                m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize));
-
-                if (!base.Start())
-                    return false;
-
-                IsRunning = true;
-                return true;
-            }
-            catch (Exception e)
-            {
-                AppServer.Logger.Error(e);
-                return false;
-            }
         }
 
         protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
@@ -102,9 +69,9 @@ namespace SuperSocket.SocketEngine
             ISocketSession socketSession;
 
             if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(client, m_SaePool);
+                socketSession = new AsyncSocketSession(client, SaePool);
             else
-                socketSession = new AsyncStreamSocketSession(client, security, m_BufferManager);
+                socketSession = new AsyncStreamSocketSession(client, security, BufferManager);
 
             var session = CreateSession(client, socketSession);
 
@@ -165,9 +132,9 @@ namespace SuperSocket.SocketEngine
             ISocketSession socketSession;
 
             if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(session.SocketSession.Client, m_SaePool, true);
+                socketSession = new AsyncSocketSession(session.SocketSession.Client, SaePool, true);
             else
-                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, m_BufferManager, true);
+                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, BufferManager, true);
 
             socketSession.Initialize(session);
             socketSession.Start();
@@ -189,8 +156,6 @@ namespace SuperSocket.SocketEngine
                     return;
 
                 base.Stop();
-                m_BufferManager = null;
-                IsRunning = false;
             }
         }
 

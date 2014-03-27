@@ -5,7 +5,7 @@ using System.Text;
 using System.Net.Sockets;
 using SuperSocket.SocketBase.Pool;
 
-namespace SuperSocket.SocketEngine.AsyncSocket
+namespace SuperSocket.SocketEngine
 {
     class SaeCreator : IPoolItemCreator<SocketAsyncEventArgs>
     {

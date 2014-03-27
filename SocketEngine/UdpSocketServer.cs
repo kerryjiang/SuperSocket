@@ -6,11 +6,10 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketEngine.AsyncSocket;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketEngine
 {
@@ -55,11 +54,10 @@ namespace SuperSocket.SocketEngine
         /// <param name="state">The state.</param>
         protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
         {
-            var paramArray = state as object[];
+            var eventArgs = state as SocketAsyncEventArgs;
 
-            var receivedData = paramArray[0] as byte[];
-            var socketAddress = paramArray[1] as SocketAddress;
-            var remoteEndPoint = (socketAddress.Family == AddressFamily.InterNetworkV6 ? m_EndPointIPv6.Create(socketAddress) : m_EndPointIPv4.Create(socketAddress)) as IPEndPoint;
+            var remoteEndPoint = eventArgs.RemoteEndPoint as IPEndPoint;
+            var receivedData = new ArraySegment<byte>(eventArgs.Buffer, eventArgs.Offset, eventArgs.BytesTransferred);
 
             try
             {
@@ -77,9 +75,13 @@ namespace SuperSocket.SocketEngine
                 if (AppServer.Logger.IsErrorEnabled)
                     AppServer.Logger.Error("Process UDP package error!", e);
             }
+            finally
+            {
+                SaePool.Return(eventArgs);
+            }
         }
 
-        void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
+        void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, ArraySegment<byte> receivedData)
         {
             TRequestInfo requestInfo;
 
@@ -90,7 +92,7 @@ namespace SuperSocket.SocketEngine
             try
             {
                 var receiveData = new ReceiveCache();
-                receiveData.Add(new ArraySegment<byte>(receivedData));
+                receiveData.Add(receivedData);
 
                 requestInfo = this.m_UdpRequestFilter.Filter(receiveData, out rest);
             }
@@ -160,7 +162,7 @@ namespace SuperSocket.SocketEngine
             m_RequestHandler.ExecuteCommand(appSession, requestInfo);
         }
 
-        void ProcessPackageWithoutSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
+        void ProcessPackageWithoutSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, ArraySegment<byte> receivedData)
         {
             var sessionID = remoteEndPoint.ToString();
             var appSession = AppServer.GetSessionByID(sessionID);
@@ -188,7 +190,7 @@ namespace SuperSocket.SocketEngine
                 socketSession.Start();
             }
 
-            ((UdpSocketSession)appSession.SocketSession).ProcessReceivedData(new ArraySegment<byte>(receivedData), null);
+            ((UdpSocketSession)appSession.SocketSession).ProcessReceivedData(receivedData, null);
         }
 
         void OnSocketSessionClosed(ISocketSession socketSession, CloseReason closeReason)
@@ -212,7 +214,7 @@ namespace SuperSocket.SocketEngine
 
         protected override ISocketListener CreateListener(ListenerInfo listenerInfo)
         {
-            return new UdpSocketListener(listenerInfo);
+            return new UdpSocketListener(listenerInfo, SaePool);
         }
 
         public override void ResetSessionSecurity(IAppSession session, System.Security.Authentication.SslProtocols security)

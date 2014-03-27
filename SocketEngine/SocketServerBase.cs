@@ -13,6 +13,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
@@ -30,6 +31,20 @@ namespace SuperSocket.SocketEngine
         protected List<ISocketListener> Listeners { get; private set; }
 
         protected bool IsStopped { get; set; }
+
+        private IBufferManager m_BufferManager;
+
+        protected IBufferManager BufferManager
+        {
+            get { return m_BufferManager; }
+        }
+
+        private IPool<SocketAsyncEventArgs> m_SaePool;
+
+        protected IPool<SocketAsyncEventArgs> SaePool
+        {
+            get { return m_SaePool; }
+        }
 
         /// <summary>
         /// Gets the sending queue manager.
@@ -60,7 +75,44 @@ namespace SuperSocket.SocketEngine
 
             ILog log = AppServer.Logger;
 
+            try
+            {
+                InitializePools();
+            }
+            catch (Exception e)
+            {
+                log.Error("Failed to initialize pools related with socket server.", e);
+                return false;
+            }
+
+            try
+            {
+                if (!StartListeners())
+                    return false;
+            }
+            catch (Exception e)
+            {
+                log.Error(e);
+                return false;
+            }
+
+            IsRunning = true;
+            return true;
+        }
+
+        private void InitializePools()
+        {
             var config = AppServer.Config;
+
+            int bufferSize = config.ReceiveBufferSize;
+
+            if (bufferSize <= 0)
+                bufferSize = 1024 * 4;
+
+            m_BufferManager = AppServer.BufferManager;
+
+            var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
+            m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize));
 
             var sendingQueuePool = new SmartPool<SendingQueue>();
             sendingQueuePool.Initialize(Math.Max(config.MaxConnectionNumber / 6, 256),
@@ -68,6 +120,11 @@ namespace SuperSocket.SocketEngine
                     new SendingQueueSourceCreator(config.SendingQueueSize));
 
             SendingQueuePool = sendingQueuePool;
+        }
+
+        private bool StartListeners()
+        {
+            ILog log = AppServer.Logger;
 
             for (var i = 0; i < ListenerInfos.Length; i++)
             {
@@ -102,7 +159,6 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            IsRunning = true;
             return true;
         }
 
@@ -142,6 +198,8 @@ namespace SuperSocket.SocketEngine
             }
 
             Listeners.Clear();
+
+            m_BufferManager = null;
 
             IsRunning = false;
         }
