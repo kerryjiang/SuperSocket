@@ -47,6 +47,7 @@
     <Compile Include="BufferSegmentReader.cs" />
     <Compile Include="BufferSegmentStream.cs" />
     <Compile Include="CountSpliterReceiveFilter.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="FilterState.cs" />
     <Compile Include="FixedHeaderReceiveFilter.cs" />
     <Compile Include="FixedSizeReceiveFilter.cs" />

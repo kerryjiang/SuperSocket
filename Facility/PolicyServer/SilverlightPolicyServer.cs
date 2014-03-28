@@ -23,10 +23,10 @@ namespace SuperSocket.Facility.PolicyServer
         /// Processes the request.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="data">The data.</param>
-        protected override void ProcessRequest(PolicySession session, byte[] data)
+        /// <param name="request">The request.</param>
+        protected override void ProcessRequest(PolicySession session, string request)
         {
-            base.ProcessRequest(session, data);
+            base.ProcessRequest(session, request);
             session.Close();
         }
     }

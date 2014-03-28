@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    class PolicyReceiveFilterFactory : IReceiveFilterFactory<BinaryRequestInfo>
+    class PolicyReceiveFilterFactory : IReceiveFilterFactory<StringRequestInfo>
     {
         /// <summary>
         /// Gets the size of the fix request.
@@ -34,7 +35,7 @@ namespace SuperSocket.Facility.PolicyServer
         /// <param name="appSession">The app session.</param>
         /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IReceiveFilter<BinaryRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        public IReceiveFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             return new PolicyReceiveFilter(FixRequestSize);
         }

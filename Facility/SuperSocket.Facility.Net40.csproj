@@ -51,9 +51,6 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Protocol\HttpReceiveFilterBase.cs" />
-    <Compile Include="Protocol\HttpRequestInfoBase.cs" />
-    <Compile Include="Protocol\MimeHeaderHelper.cs" />
     <Compile Include="PolicyServer\FlashPolicyServer.cs" />
     <Compile Include="PolicyServer\PolicyReceiveFilter.cs" />
     <Compile Include="PolicyServer\PolicyReceiveFilterFactory.cs" />
@@ -61,16 +58,15 @@
     <Compile Include="PolicyServer\PolicySession.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PolicyServer\SilverlightPolicyServer.cs" />
-    <Compile Include="Protocol\BeginEndMarkReceiveFilter.cs" />
-    <Compile Include="Protocol\CountSpliterReceiveFilter.cs" />
-    <Compile Include="Protocol\CountSpliterReceiveFilterFactory.cs" />
-    <Compile Include="Protocol\FixedHeaderReceiveFilter.cs" />
-    <Compile Include="Protocol\FixedSizeReceiveFilter.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net40.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net40</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProtoBase\SuperSocket.ProtoBase.Net40.csproj">
+      <Project>{88C9312E-7520-4F6B-BF25-30DA5990D270}</Project>
+      <Name>SuperSocket.ProtoBase.Net40</Name>
     </ProjectReference>
     <ProjectReference Include="..\SocketBase\SuperSocket.SocketBase.Net40.csproj">
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
