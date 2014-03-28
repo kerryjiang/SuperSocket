@@ -45,10 +45,19 @@ namespace SuperSocket.SocketBase.Pool
 
         private int m_InExpanding = 0;
 
+        private Action<T> m_ItemCleaner;
+
         public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator)
+            : this(initialCount, itemCreator, null)
+        {
+
+        }
+
+        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner)
         {
             m_ItemCreator = itemCreator;
             m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
+            m_ItemCleaner = itemCleaner;
 
             var list = new List<T>(initialCount);
 
@@ -183,6 +192,9 @@ namespace SuperSocket.SocketBase.Pool
 
         public void Return(T item)
         {
+            if (m_ItemCleaner != null)
+                m_ItemCleaner(item);
+
             if (m_BufferDict.ContainsKey(item))
             {
                 m_Store.Push(item);

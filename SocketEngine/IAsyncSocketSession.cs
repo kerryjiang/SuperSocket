@@ -9,14 +9,7 @@ using SuperSocket.SocketBase.Logging;
 
 namespace SuperSocket.SocketEngine
 {
-    interface IAsyncSocketSessionBase : ILoggerProvider
-    {
-        //SocketAsyncEventArgsProxy SocketAsyncProxy { get; }
-        
-        Socket Client { get; }
-    }
-
-    interface IAsyncSocketSession : IAsyncSocketSessionBase
+    interface IAsyncSocketSession
     {
         void ProcessReceive(SocketAsyncEventArgs e);
     }

@@ -18,7 +18,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class SocketServerBase : ISocketServer, IDisposable
+    abstract class SocketServerBase : ISocketServer, IDisposable, IAsyncSocketEventComplete
     {
         protected object SyncRoot = new object();
 
@@ -112,7 +112,7 @@ namespace SuperSocket.SocketEngine
             m_BufferManager = AppServer.BufferManager;
 
             var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
-            m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize));
+            m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize, this), (e) => e.UserToken = null);
 
             var sendingQueuePool = new SmartPool<SendingQueue>();
             sendingQueuePool.Initialize(Math.Max(config.MaxConnectionNumber / 6, 256),
@@ -202,6 +202,12 @@ namespace SuperSocket.SocketEngine
             m_BufferManager = null;
 
             IsRunning = false;
+        }
+
+        void IAsyncSocketEventComplete.HandleSocketEventComplete(object sender, SocketAsyncEventArgs e)
+        {
+            IAsyncSocketSession socketSession = e.UserToken as IAsyncSocketSession;
+            socketSession.ProcessReceive(e);
         }
 
         #region IDisposable Members

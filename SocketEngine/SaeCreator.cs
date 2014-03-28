@@ -11,16 +11,18 @@ namespace SuperSocket.SocketEngine
     {
         IBufferManager m_BufferManager;
         int m_BufferSize;
+        IAsyncSocketEventComplete m_SocketEventComplete;
 
-        public SaeCreator(IBufferManager bufferManager, int bufferSize)
+        public SaeCreator(IBufferManager bufferManager, int bufferSize, IAsyncSocketEventComplete socketEventComplete)
         {
             m_BufferManager = bufferManager;
             m_BufferSize = bufferSize;
+            m_SocketEventComplete = socketEventComplete;
         }
 
         public IEnumerable<SocketAsyncEventArgs> Create(int count)
         {
-            return new SaeItemEnumerable(m_BufferManager, m_BufferSize, count);
+            return new SaeItemEnumerable(m_BufferManager, m_BufferSize, count, m_SocketEventComplete);
         }
 
         class SaeItemEnumerable : IEnumerable<SocketAsyncEventArgs>
@@ -31,11 +33,14 @@ namespace SuperSocket.SocketEngine
 
             private int m_Count;
 
-            public SaeItemEnumerable(IBufferManager bufferManager, int bufferSize, int count)
+            IAsyncSocketEventComplete m_SocketEventComplete;
+
+            public SaeItemEnumerable(IBufferManager bufferManager, int bufferSize, int count, IAsyncSocketEventComplete socketEventComplete)
             {
                 m_BufferManager = bufferManager;
                 m_BufferSize = bufferSize;
                 m_Count = count;
+                m_SocketEventComplete = socketEventComplete;
             }
 
             public IEnumerator<SocketAsyncEventArgs> GetEnumerator()
@@ -47,6 +52,7 @@ namespace SuperSocket.SocketEngine
                     var buffer = m_BufferManager.GetBuffer(m_BufferSize);
                     var sae = new SocketAsyncEventArgs();
                     sae.SetBuffer(0, m_BufferSize);
+                    sae.Completed += new EventHandler<SocketAsyncEventArgs>(m_SocketEventComplete.HandleSocketEventComplete);
                     yield return sae;
                 }
             }

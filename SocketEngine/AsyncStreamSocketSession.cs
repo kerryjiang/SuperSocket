@@ -52,7 +52,7 @@ namespace SuperSocket.SocketEngine
         event EventHandler NegotiateCompleted;
     }
 
-    class AsyncStreamSocketSession : SocketSession, IAsyncSocketSessionBase, INegotiateSocketSession
+    class AsyncStreamSocketSession : SocketSession, INegotiateSocketSession
     {
         private byte[] m_ReadBuffer;
         private int m_Offset;
@@ -350,11 +350,6 @@ namespace SuperSocket.SocketEngine
 
             if (asyncResult != null)
                 asyncResult.AsyncWaitHandle.WaitOne();
-        }
-
-        ILog ILoggerProvider.Logger
-        {
-            get { return AppSession.Logger; }
         }
 
         private bool m_NegotiateResult = false;

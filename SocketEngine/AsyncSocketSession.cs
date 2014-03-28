@@ -37,11 +37,6 @@ namespace SuperSocket.SocketEngine
             m_IsReset = isReset;
         }
 
-        ILog ILoggerProvider.Logger
-        {
-            get { return AppSession.Logger; }
-        }
-
         public override void Initialize(IAppSession appSession)
         {
             base.Initialize(appSession);
@@ -213,7 +208,10 @@ namespace SuperSocket.SocketEngine
             var state = ProcessReceivedData(new ArraySegment<byte>(e.Buffer, e.Offset, e.BytesTransferred), e);
 
             if (state == ProcessState.Pending)
+            {
                 e = m_SaePoolForReceive.Get();
+                e.UserToken = this;
+            }
 
             //read the next block of data sent from the client
             StartReceive(e);
