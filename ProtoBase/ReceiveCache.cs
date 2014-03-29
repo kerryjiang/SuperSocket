@@ -13,7 +13,12 @@ namespace SuperSocket.ProtoBase
         {
             get
             {
-                return m_List[m_Total - 1].Key;
+                var count = Count;
+
+                if (count == 0)
+                    return new ArraySegment<byte>();
+
+                return m_List[count - 1].Key;
             }
         }
 
