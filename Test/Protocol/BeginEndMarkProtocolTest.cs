@@ -7,8 +7,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test.Protocol
 {
@@ -28,15 +28,17 @@ namespace SuperSocket.Test.Protocol
 
             }
 
-            protected override StringRequestInfo ProcessMatchedRequest(byte[] readBuffer, int offset, int length)
+            public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
+                var length = packageData.Sum(x => x.Count);
+
                 if (length < 20)
                 {
                     Console.WriteLine("Ignore request");
-                    return NullRequestInfo;
+                    return null;
                 }
 
-                var line = Encoding.ASCII.GetString(readBuffer, offset, length);
+                var line = Encoding.ASCII.GetString(packageData);
                 return m_Parser.ParseRequestInfo(line.Substring(2, line.Length - 4));
             }
         }

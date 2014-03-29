@@ -4,26 +4,12 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test.Udp
 {
     class MyReceiveFilter : IReceiveFilter<MyUdpRequestInfo>
     {
-        public MyUdpRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
-        {
-            rest = 0;
-
-            if (length <= 40)
-                return null;
-
-            var key = Encoding.ASCII.GetString(readBuffer, offset, 4);
-            var sessionID = Encoding.ASCII.GetString(readBuffer, offset + 4, 36);
-
-            var data = Encoding.UTF8.GetString(readBuffer, offset + 40, length - 40);
-
-            return new MyUdpRequestInfo(key, sessionID) { Value = data };
-        }
-
         public int LeftBufferSize
         {
             get { return 0; }
@@ -45,6 +31,23 @@ namespace SuperSocket.Test.Udp
         public void Reset()
         {
             
+        }
+
+        public MyUdpRequestInfo Filter(ReceiveCache data, out int rest)
+        {
+            rest = 0;
+
+            var length = data.Total;
+
+            if (length <= 40)
+                return null;
+
+            var key = Encoding.ASCII.GetString(data, 0, 4);
+            var sessionID = Encoding.ASCII.GetString(data, 4, 36);
+
+            var body = Encoding.UTF8.GetString(data, 40, length - 40);
+
+            return new MyUdpRequestInfo(key, sessionID) { Value = body };
         }
     }
 }

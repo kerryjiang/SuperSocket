@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test.Protocol
 {
@@ -19,9 +19,9 @@ namespace SuperSocket.Test.Protocol
 
             }
 
-            protected override StringRequestInfo ProcessMatchedRequest(byte[] buffer, int offset, int length, bool toBeCopied)
+            public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                return m_Parser.ParseRequestInfo(Encoding.ASCII.GetString(buffer, offset, length));
+                return m_Parser.ParseRequestInfo(Encoding.ASCII.GetString(packageData));
             }
         }
 

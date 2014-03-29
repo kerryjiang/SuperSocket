@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test.Protocol
 {
@@ -19,16 +19,17 @@ namespace SuperSocket.Test.Protocol
 
             }
 
-            protected override int GetBodyLengthFromHeader(byte[] header, int offset, int length)
+            protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
             {
-                var strLen = Encoding.ASCII.GetString(header, offset + 4, 4);
+                var strLen = Encoding.ASCII.GetString(packageData, 4, 4);
                 return int.Parse(strLen.TrimStart('0'));
             }
 
-            protected override StringRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
+            public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                var body = Encoding.ASCII.GetString(bodyBuffer, offset, length);
-                return new StringRequestInfo(Encoding.ASCII.GetString(header.Array, header.Offset, 4), body, new string[] { body });
+                var total = packageData.Sum(x => x.Count);
+                var body = Encoding.ASCII.GetString(packageData, HeaderSize, total - HeaderSize);
+                return new StringRequestInfo(Encoding.ASCII.GetString(packageData, 0, 4), body, new string[] { body });
             }
         }
 
