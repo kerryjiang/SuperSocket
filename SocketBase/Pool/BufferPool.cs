@@ -13,7 +13,7 @@ namespace SuperSocket.SocketBase.Pool
         public int BufferSize { get; private set; }
 
         public BufferPool(int bufferSize, int initialCount)
-            : base(initialCount, new BufferItemCreator(bufferSize))
+            : base(initialCount, new BufferItemCreator(bufferSize), pinObject: true)
         {
             BufferSize = bufferSize;
         }

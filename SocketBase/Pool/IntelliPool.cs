@@ -47,25 +47,24 @@ namespace SuperSocket.SocketBase.Pool
 
         private Action<T> m_ItemCleaner;
 
-        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator)
-            : this(initialCount, itemCreator, null)
-        {
+        private bool m_PinObject;
 
-        }
-
-        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner)
+        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null, bool pinObject = false)
         {
             m_ItemCreator = itemCreator;
             m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
             m_ItemCleaner = itemCleaner;
+            m_PinObject = pinObject;
 
             var list = new List<T>(initialCount);
 
             foreach(var item in itemCreator.Create(initialCount))
             {
-                var handle = GCHandle.Alloc(item, GCHandleType.Pinned); //Pinned the buffer in the memory
                 PoolItemState state = new PoolItemState();
-                state.GCHandle = handle;
+
+                if (m_PinObject)
+                    state.GCHandle = GCHandle.Alloc(item, GCHandleType.Pinned);
+
                 state.Generation = m_CurrentGeneration;
                 m_BufferDict.TryAdd(item, state);
                 list.Add(item);
@@ -210,7 +209,9 @@ namespace SuperSocket.SocketBase.Pool
             if (m_RemovedBufferDict.TryRemove(item, out handle))
             {
                 Interlocked.Decrement(ref m_TotalCount);
-                handle.Free(); //Change the buffer to Normal from Pinned in the memory
+
+                if(m_PinObject)
+                    handle.Free(); //Change the buffer to Normal from Pinned in the memory
             }
         }
     }
