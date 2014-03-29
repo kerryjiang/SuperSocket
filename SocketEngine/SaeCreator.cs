@@ -51,7 +51,7 @@ namespace SuperSocket.SocketEngine
                 {
                     var buffer = m_BufferManager.GetBuffer(m_BufferSize);
                     var sae = new SocketAsyncEventArgs();
-                    sae.SetBuffer(0, m_BufferSize);
+                    sae.SetBuffer(buffer, 0, m_BufferSize);
                     sae.Completed += new EventHandler<SocketAsyncEventArgs>(m_SocketEventComplete.HandleSocketEventComplete);
                     yield return sae;
                 }
