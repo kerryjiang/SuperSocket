@@ -22,6 +22,6 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Get or Set status update time in seconds.
         /// </summary>
-        int StatusUpdeteInterval { get; set; }
+        int StatusUpdateInterval { get; set; }
     }
 }

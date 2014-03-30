@@ -15,7 +15,6 @@ namespace SuperSocket.SocketEngine
 {
     class PerformanceMonitor : IPerformanceMonitor
     {
-
         public event Action<NodeStatus> OnStatusUpdate;
 
         private Timer m_PerformanceTimer;
@@ -72,7 +71,6 @@ namespace SuperSocket.SocketEngine
 
                 if (m_ServerManager != null && m_ServerManager.State == ServerState.Running)
                 {
-
                     m_ServerManager.TransferSystemMessage("ServerMetadataCollected", m_ServerStatusMetadataSource);
                 }
             }
@@ -168,14 +166,19 @@ namespace SuperSocket.SocketEngine
             m_Helper = null;
         }
 
-        public int StatusUpdeteInterval
+        public int StatusUpdateInterval
         {
             get { return m_TimerInterval / 1000; }
 
             set
             {
-                if (m_TimerInterval == value * 1000) return;
-                m_TimerInterval = value * 1000;
+                var newTimerInterval = value * 1000;
+
+                if (m_TimerInterval == newTimerInterval)
+                    return;
+
+                m_TimerInterval = newTimerInterval;
+
                 Stop();
                 Start();
             }
