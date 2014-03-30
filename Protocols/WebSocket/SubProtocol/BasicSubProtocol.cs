@@ -209,10 +209,8 @@ namespace SuperSocket.WebSocket.SubProtocol
             }
 
 #if DEBUG
-            var s = "";
-            foreach (var c in subCommands)
-                s += c.Name+", ";
-            m_Logger.Debug(string.Format("SubProtocol {0} found the commands: [{1}]", this.Name, s.Substring(0, s.Length - 2)));
+            var commandNames = subCommands.Select(c => c.Name).ToArray();
+            m_Logger.Debug(string.Format("SubProtocol {0} found the commands: [{1}]", this.Name, string.Join(", ", commandNames)));
 #endif
 
             m_CommandDict = new Dictionary<string, ISubCommand<TWebSocketSession>>(subCommands.Count, StringComparer.OrdinalIgnoreCase);
