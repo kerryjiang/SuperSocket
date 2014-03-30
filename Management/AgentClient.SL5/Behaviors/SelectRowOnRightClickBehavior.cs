@@ -44,7 +44,7 @@ namespace SuperSocket.ServerManager.Client.Behaviors
             {
                 var newMenuItem = new MenuItem();
                 newMenuItem.Header = item.h;
-                newMenuItem.SetBinding(MenuItem.CommandProperty, new Binding("["+item.c+"]"));
+                newMenuItem.SetBinding(MenuItem.CommandProperty, new Binding("[" + item.c + "]"));
                 newMenuItem.SetBinding(MenuItem.CommandParameterProperty, new Binding());
                 contextMenu.Items.Add(newMenuItem);
             }
