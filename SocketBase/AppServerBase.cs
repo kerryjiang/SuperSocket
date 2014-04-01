@@ -1438,8 +1438,9 @@ namespace SuperSocket.SocketBase
         internal void ExecuteCommand(IAppSession session, TRequestInfo requestInfo)
         {
             var context = new RequestExecutingContext<TAppSession, TRequestInfo>((TAppSession)session, requestInfo);
-            Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default)
-                .ContinueWith(HandleErrorForExecuteCommandInTask, TaskContinuationOptions.OnlyOnFaulted);
+            ExecuteCommandInTask(context);
+            //Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, m_RequestHandlingTaskScheduler)
+            //    .ContinueWith(HandleErrorForExecuteCommandInTask, TaskContinuationOptions.OnlyOnFaulted);
         }
 
         void ExecuteCommandInTask(object state)
