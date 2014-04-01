@@ -32,10 +32,11 @@ namespace SuperSocket.ProtoBase
             var offset = currentSegment.Offset;
             var length = currentSegment.Count;
 
+            int totalParsed = 0;
+
             if (!m_FoundBegin)
             {
-                int parsedLength;
-                int pos = readBuffer.SearchMark(offset, length, m_BeginSearchState, out parsedLength);
+                int pos = readBuffer.SearchMark(offset, length, m_BeginSearchState, out totalParsed);
 
                 if (pos < 0)
                 {
@@ -58,7 +59,7 @@ namespace SuperSocket.ProtoBase
                 //Found start mark, then search end mark
                 m_FoundBegin = true;
 
-                searchEndMarkOffset = offset + parsedLength;
+                searchEndMarkOffset = offset + totalParsed;
 
                 //Reach end
                 if (offset + length <= searchEndMarkOffset)
@@ -83,9 +84,10 @@ namespace SuperSocket.ProtoBase
                     return default(TPackageInfo);
                 }
 
-                rest = length - parsedLength;
+                totalParsed += parsedLength; //include begin mark if the mark is found in this round receiving
+                rest = length - totalParsed;
 
-                data.SetLastItemLength(parsedLength);
+                data.SetLastItemLength(totalParsed);
 
                 var packageInfo = ResolvePackage(data);
 

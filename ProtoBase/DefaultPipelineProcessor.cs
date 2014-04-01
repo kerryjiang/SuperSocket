@@ -35,7 +35,7 @@ namespace SuperSocket.ProtoBase
 
         private void PushResetData(ArraySegment<byte> raw, int rest, object state)
         {
-            var segment = new ArraySegment<byte>(raw.Array, raw.Count - rest, rest);
+            var segment = new ArraySegment<byte>(raw.Array, raw.Offset + raw.Count - rest, rest);
             m_ReceiveCache.Add(segment, state);
         }
 
@@ -67,7 +67,7 @@ namespace SuperSocket.ProtoBase
 
                 if (m_MaxPackageLength > 0)
                 {
-                    var length = m_ReceiveCache.Total - rest;
+                    var length = m_ReceiveCache.Total;
 
                     if (length > m_MaxPackageLength)
                     {
@@ -101,15 +101,31 @@ namespace SuperSocket.ProtoBase
 
                 if (rest <= 0)
                 {
-                    m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count);
-                    m_ReceiveCache.Clear();
+                    ReturnOtherThanLastBuffer();
                     return ProcessState.Found;
                 }
 
-                m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count - 1);
-                m_ReceiveCache.Clear();
+                ReturnOtherThanLastBuffer();
                 PushResetData(segment, rest, state);
             }
+        }
+
+        void ReturnOtherThanLastBuffer()
+        {
+            var bufferList = m_ReceiveCache.GetAllCachedItems();
+            var count = bufferList.Count;
+            var lastBufferItem = bufferList[count - 1].Key.Array;
+
+            for(var i = count - 2; i >= 0; i--)
+            {
+                if (bufferList[i].Key.Array != lastBufferItem)
+                {
+                    m_BufferRecycler.Return(bufferList, 0, i + 1);
+                    break;
+                }
+            }
+
+            m_ReceiveCache.Clear();
         }
 
         public ReceiveCache Cache

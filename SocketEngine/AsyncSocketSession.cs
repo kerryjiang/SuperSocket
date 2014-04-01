@@ -53,6 +53,7 @@ namespace SuperSocket.SocketEngine
         {
             var sae = m_SaePoolForReceive.Get();
             sae.UserToken = this;
+
             StartReceive(sae);
 
             if (!m_IsReset)
