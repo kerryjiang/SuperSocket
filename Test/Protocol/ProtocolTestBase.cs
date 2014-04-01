@@ -46,6 +46,7 @@ namespace SuperSocket.Test.Protocol
             serverConfig.Ip = "127.0.0.1";
             serverConfig.Port = 2012;
             serverConfig.Mode = mode;
+            serverConfig.MaxRequestLength = 40960;
             serverConfig.DisableSessionSnapshot = true;
 
             var setupResult = appServer.Setup(serverConfig, null, receiveFilterFactory, new ConsoleLogFactory(), null, null);
