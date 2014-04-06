@@ -10,6 +10,11 @@ namespace SuperSocket.ProtoBase
     {
         private readonly SearchMarkState<byte> m_SearchState;
 
+        protected SearchMarkState<byte> SearchState
+        {
+            get { return m_SearchState; }
+        }
+
         public readonly static TPackageInfo NullPackageInfo = default(TPackageInfo);
 
         protected TerminatorReceiveFilter(byte[] terminator)
@@ -35,6 +40,7 @@ namespace SuperSocket.ProtoBase
 
             //Found
             data.SetLastItemLength(parsedLength);
+            rest = current.Count - parsedLength;
 
             return ResolvePackage(data);
         }
@@ -48,40 +54,6 @@ namespace SuperSocket.ProtoBase
         public void Reset()
         {
             m_SearchState.Matched = 0;
-        }
-    }
-
-    public abstract class TerminatorReceiveFilter : TerminatorReceiveFilter<StringPackageInfo>
-    {
-        private readonly Encoding m_Encoding;
-        private readonly IStringPackageParser<StringPackageInfo> m_PackageParser;
-
-        public TerminatorReceiveFilter(byte[] terminator, Encoding encoding, IStringPackageParser<StringPackageInfo> packageParser)
-            : base(terminator)
-        {
-            m_Encoding = encoding;
-            m_PackageParser = packageParser;
-        }
-
-        public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
-        {
-            var encoding = m_Encoding;
-            var charsBuffer = new char[encoding.GetMaxCharCount(packageData.Sum(x => x.Count))];
-
-            int bytesUsed, charsUsed;
-            bool completed;
-
-            var decoder = encoding.GetDecoder();
-
-            var outputOffset = 0;
-
-            foreach (var segment in packageData)
-            {
-                decoder.Convert(segment.Array, segment.Offset, segment.Count, charsBuffer, outputOffset, charsBuffer.Length - outputOffset, true, out bytesUsed, out charsUsed, out completed);
-                outputOffset += charsUsed;
-            }
-
-            return m_PackageParser.Parse(new string(charsBuffer, 0, outputOffset));
         }
     }
 }
