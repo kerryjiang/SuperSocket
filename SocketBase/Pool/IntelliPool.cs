@@ -128,6 +128,7 @@ namespace SuperSocket.SocketBase.Pool
                 return false;
 
             Expand();
+            m_InExpanding = 0;
             return true;
         }
 
@@ -137,13 +138,14 @@ namespace SuperSocket.SocketBase.Pool
 
             foreach (var item in m_ItemCreator.Create(totalCount))
             {
-                var handle = GCHandle.Alloc(item, GCHandleType.Pinned); //Pinned the buffer in the memory
-
                 m_Store.Push(item);
                 Interlocked.Increment(ref m_AvailableCount);
 
                 PoolItemState state = new PoolItemState();
-                state.GCHandle = handle;
+
+                if (m_PinObject)
+                    state.GCHandle = GCHandle.Alloc(item, GCHandleType.Pinned); //Pinned the buffer in the memory
+
                 state.Generation = m_CurrentGeneration;
                 m_BufferDict.TryAdd(item, state);
             }
@@ -152,7 +154,6 @@ namespace SuperSocket.SocketBase.Pool
 
             m_TotalCount += totalCount;
             UpdateNextExpandThreshold();
-            m_InExpanding = 0;
         }
 
         public void Shrink()
