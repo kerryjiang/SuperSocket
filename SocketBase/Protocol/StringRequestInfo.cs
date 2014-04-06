@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
     /// String type request information
     /// </summary>
-    public class StringRequestInfo : RequestInfo<string>
+    public class StringRequestInfo : StringPackageInfo, IRequestInfo
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="StringRequestInfo"/> class.
@@ -17,15 +18,10 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="body">The body.</param>
         /// <param name="parameters">The parameters.</param>
         public StringRequestInfo(string key, string body, string[] parameters)
-            : base(key, body)
+            : base(key, body, parameters)
         {
-            Parameters = parameters;
-        }
 
-        /// <summary>
-        /// Gets the parameters.
-        /// </summary>
-        public string[] Parameters { get; private set; }
+        }
 
         /// <summary>
         /// Gets the first param.

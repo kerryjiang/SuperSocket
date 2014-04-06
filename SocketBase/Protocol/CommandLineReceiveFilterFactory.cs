@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Protocol
 {
@@ -34,7 +35,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="encoding">The encoding.</param>
         /// <param name="requestInfoParser">The request info parser.</param>
-        public CommandLineReceiveFilterFactory(Encoding encoding, IRequestInfoParser<StringRequestInfo> requestInfoParser)
+        public CommandLineReceiveFilterFactory(Encoding encoding, IStringPackageParser<StringRequestInfo> requestInfoParser)
             : base("\r\n", encoding, requestInfoParser)
         {
 

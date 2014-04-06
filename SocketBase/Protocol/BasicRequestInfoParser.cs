@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
     /// Basic request info parser, which parse request info by separating
     /// </summary>
-    public class BasicRequestInfoParser : IRequestInfoParser<StringRequestInfo>
+    public class BasicRequestInfoParser : IStringPackageParser<StringRequestInfo>
     {
         private readonly string m_Spliter;
         private readonly string[] m_ParameterSpliters;
@@ -46,7 +47,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns></returns>
-        public StringRequestInfo ParseRequestInfo(string source)
+        public StringRequestInfo Parse(string source)
         {
             int pos = source.IndexOf(m_Spliter);
 

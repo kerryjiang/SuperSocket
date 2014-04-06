@@ -14,7 +14,7 @@ namespace SuperSocket.SocketBase.Protocol
     {
         private readonly Encoding m_Encoding;
         private readonly byte[] m_Terminator;
-        private readonly IRequestInfoParser<StringRequestInfo> m_RequestInfoParser;
+        private readonly IStringPackageParser<StringRequestInfo> m_RequestInfoParser;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorReceiveFilterFactory"/> class.
@@ -43,7 +43,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="requestInfoParser">The line parser.</param>
-        public TerminatorReceiveFilterFactory(string terminator, Encoding encoding, IRequestInfoParser<StringRequestInfo> requestInfoParser)
+        public TerminatorReceiveFilterFactory(string terminator, Encoding encoding, IStringPackageParser<StringRequestInfo> requestInfoParser)
         {
             m_Encoding = encoding;
             m_Terminator = encoding.GetBytes(terminator);

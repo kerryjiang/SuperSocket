@@ -119,6 +119,7 @@
     <Compile Include="Pool\IPool.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
     <Compile Include="Pool\NullBufferManager.cs" />
+    <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
     <Compile Include="Provider\ProviderFactoryInfo.cs" />
@@ -139,7 +140,6 @@
     <Compile Include="Protocol\RequestInfo.cs" />
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
-    <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
@@ -157,7 +157,6 @@
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
-    <Compile Include="Protocol\IRequestInfoParser.cs" />
     <Compile Include="RequestHandlingMode.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="ServerState.cs" />
