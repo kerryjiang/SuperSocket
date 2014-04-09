@@ -21,7 +21,7 @@ namespace SuperSocket.Test.Protocol
 
             public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                return m_Parser.ParseRequestInfo(Encoding.ASCII.GetString(packageData));
+                return m_Parser.Parse(Encoding.ASCII.GetString(packageData));
             }
         }
 

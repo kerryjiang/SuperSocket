@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test
 {
-    public class TestRequestParser : IRequestInfoParser<StringRequestInfo>
+    public class TestRequestParser : IStringPackageParser<StringRequestInfo>
     {
         #region ICommandParser Members
 
-        public StringRequestInfo ParseRequestInfo(string source)
+        public StringRequestInfo Parse(string source)
         {
             int pos = source.IndexOf(':');
 

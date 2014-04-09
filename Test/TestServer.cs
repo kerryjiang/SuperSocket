@@ -12,6 +12,7 @@ using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine;
 using System.Threading.Tasks;
 using System.Net;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test
 {
@@ -32,7 +33,7 @@ namespace SuperSocket.Test
 
         }
 
-        public TestServer(IRequestInfoParser<StringRequestInfo> requestInfoParser)
+        public TestServer(IStringPackageParser<StringRequestInfo> requestInfoParser)
             : base(new CommandLineReceiveFilterFactory(Encoding.UTF8, requestInfoParser))
         {
             

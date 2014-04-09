@@ -39,7 +39,7 @@ namespace SuperSocket.Test.Protocol
                 }
 
                 var line = Encoding.ASCII.GetString(packageData);
-                return m_Parser.ParseRequestInfo(line.Substring(2, line.Length - 4));
+                return m_Parser.Parse(line.Substring(2, line.Length - 4));
             }
         }
 
