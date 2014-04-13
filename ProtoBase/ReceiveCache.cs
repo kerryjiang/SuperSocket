@@ -56,6 +56,10 @@ namespace SuperSocket.ProtoBase
 
         public void Add(ArraySegment<byte> item, object state)
         {
+            var segmentState = state as ISegmentState;
+            if (segmentState != null)
+                segmentState.IncreaseReference();
+
             m_List.Add(new KeyValuePair<ArraySegment<byte>, object>(item, state));
             m_Total += item.Count;
         }

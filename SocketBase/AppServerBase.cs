@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
@@ -1428,6 +1429,20 @@ namespace SuperSocket.SocketBase
             }
 
             Interlocked.Increment(ref m_TotalHandledRequests);
+
+            if (requestInfo is IRawPackageInfo)
+                ClearRequestInfoBuffers(session, requestInfo as IRawPackageInfo);
+        }
+
+        private void ClearRequestInfoBuffers(TAppSession session, IRawPackageInfo rawPackageInfo)
+        {
+            var bufferRecycler = session.SocketSession as IBufferRecycler;
+
+            if(bufferRecycler != null)
+            {
+                var buffers = rawPackageInfo.RawData.GetAllCachedItems();
+                bufferRecycler.Return(buffers, 0, buffers.Count);
+            }
         }
 
         /// <summary>

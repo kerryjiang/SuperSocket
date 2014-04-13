@@ -112,7 +112,7 @@ namespace SuperSocket.SocketEngine
             m_BufferManager = AppServer.BufferManager;
 
             var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
-            m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize, this), (e) => e.UserToken = null);
+            m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize, this), CleanSAE);
 
             var sendingQueuePool = new SmartPool<SendingQueue>();
             sendingQueuePool.Initialize(Math.Max(config.MaxConnectionNumber / 6, 256),
@@ -120,6 +120,12 @@ namespace SuperSocket.SocketEngine
                     new SendingQueueSourceCreator(config.SendingQueueSize));
 
             SendingQueuePool = sendingQueuePool;
+        }
+
+        private void CleanSAE(SocketAsyncEventArgs e)
+        {
+            //Clean the SAE when return it back to the pool
+            (e.UserToken as AsyncUserToken).SocketSession = null;
         }
 
         private bool StartListeners()
@@ -206,7 +212,8 @@ namespace SuperSocket.SocketEngine
 
         void IAsyncSocketEventComplete.HandleSocketEventComplete(object sender, SocketAsyncEventArgs e)
         {
-            IAsyncSocketSession socketSession = e.UserToken as IAsyncSocketSession;
+            var userToken = e.UserToken as AsyncUserToken;
+            var socketSession = userToken.SocketSession as IAsyncSocketSession;
             socketSession.ProcessReceive(e);
         }
 

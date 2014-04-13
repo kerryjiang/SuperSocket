@@ -52,6 +52,9 @@ namespace SuperSocket.SocketEngine
                     var buffer = m_BufferManager.GetBuffer(m_BufferSize);
                     var sae = new SocketAsyncEventArgs();
                     sae.SetBuffer(buffer, 0, m_BufferSize);
+                    var userToken = new AsyncUserToken();
+                    userToken.SAE = sae;
+                    sae.UserToken = userToken;
                     sae.Completed += new EventHandler<SocketAsyncEventArgs>(m_SocketEventComplete.HandleSocketEventComplete);
                     yield return sae;
                 }

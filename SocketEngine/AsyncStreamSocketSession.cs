@@ -150,9 +150,9 @@ namespace SuperSocket.SocketEngine
 
             OnReceiveEnded();
 
-            var state = ProcessReceivedData(new ArraySegment<byte>(m_ReadBuffer, m_Offset, thisRead), null);
+            var r = ProcessReceivedData(new ArraySegment<byte>(m_ReadBuffer, m_Offset, thisRead), null);
 
-            if (state == ProcessState.Pending)
+            if (r.State == ProcessState.Cached)
             {
                 RequestNewReceiveBuffer();
             }

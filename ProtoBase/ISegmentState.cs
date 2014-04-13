@@ -5,10 +5,10 @@ using System.Text;
 
 namespace SuperSocket.ProtoBase
 {
-    public enum ProcessState : byte
+    public interface ISegmentState
     {
-        Completed,
-        Cached,
-        Error
+        void IncreaseReference();
+
+        int DecreaseReference();
     }
 }

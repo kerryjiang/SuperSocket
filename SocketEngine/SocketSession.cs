@@ -620,25 +620,29 @@ namespace SuperSocket.SocketEngine
             return IsIgnorableSocketError(socketErrorCode);
         }
 
-        internal ProcessState ProcessReceivedData(ArraySegment<byte> data, object state)
+        internal ProcessResult ProcessReceivedData(ArraySegment<byte> data, object state)
         {
             try
             {
-                var resultState = DataProcessor.Process(data, state);
+                var result = DataProcessor.Process(data, state);
 
-                if (resultState == ProcessState.Error)
+                if (result.State == ProcessState.Error)
                 {
-                    AppSession.Logger.Error("Protocol error");
+                    if (string.IsNullOrEmpty(result.Message))
+                        AppSession.Logger.Error("Protocol error");
+                    else
+                        AppSession.Logger.ErrorFormat("Protocol error: {0}", result.Message);
+
                     this.Close(CloseReason.ProtocolError);
                 }
 
-                return resultState;
+                return result;
             }
             catch (Exception ex)
             {
                 LogError("Protocol error", ex);
                 this.Close(CloseReason.ProtocolError);
-                return ProcessState.Error;
+                return ProcessResult.Create(ProcessState.Error);
             }
         }
 
