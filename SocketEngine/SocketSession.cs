@@ -30,7 +30,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    abstract partial class SocketSession : ISocketSession, IBufferRecycler
+    abstract partial class SocketSession : ISocketSession
     {
         public IAppSession AppSession { get; private set; }
 
@@ -126,7 +126,7 @@ namespace SuperSocket.SocketEngine
         {
             AppSession = appSession;
 
-            DataProcessor = appSession.CreatePipelineProcessor(this);
+            DataProcessor = appSession.CreatePipelineProcessor();
 
             Config = appSession.Config;
             SyncSend = Config.SyncSend;
@@ -644,19 +644,6 @@ namespace SuperSocket.SocketEngine
                 this.Close(CloseReason.ProtocolError);
                 return ProcessResult.Create(ProcessState.Error);
             }
-        }
-
-        /// <summary>
-        /// Returns the buffer.
-        /// </summary>
-        /// <param name="buffers">The buffers.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        protected abstract void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length);
-
-        void IBufferRecycler.Return(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length)
-        {
-            ReturnBuffer(buffers, offset, length);
         }
     }
 }

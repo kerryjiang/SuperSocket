@@ -58,9 +58,8 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Creates the pipeline processor.
         /// </summary>
-        /// <param name="bufferRecycler">The buffer recycler.</param>
         /// <returns></returns>
-        IPipelineProcessor CreatePipelineProcessor(IBufferRecycler bufferRecycler);
+        IPipelineProcessor CreatePipelineProcessor();
 
         /// <summary>
         /// Closes this session.

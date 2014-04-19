@@ -16,7 +16,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    class AsyncSocketSession : SocketSession, IAsyncSocketSession, IBufferRecycler
+    class AsyncSocketSession : SocketSession, IAsyncSocketSession
     {
         private bool m_IsReset;
 
@@ -52,7 +52,7 @@ namespace SuperSocket.SocketEngine
         public override void Start()
         {
             var sae = m_SaePoolForReceive.Get();
-            ((AsyncUserToken)sae.UserToken).SocketSession = this;
+            ((SaeState)sae.UserToken).SocketSession = this;
 
             StartReceive(sae);
 
@@ -211,7 +211,7 @@ namespace SuperSocket.SocketEngine
             if (result.State == ProcessState.Cached)
             {
                 e = m_SaePoolForReceive.Get();
-                ((AsyncUserToken)e.UserToken).SocketSession = this;
+                ((SaeState)e.UserToken).SocketSession = this;
             }
 
             //read the next block of data sent from the client
@@ -221,20 +221,6 @@ namespace SuperSocket.SocketEngine
         public override void ApplySecureProtocol()
         {
             //TODO: Implement async socket SSL/TLS encryption
-        }
-
-        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length)
-        {
-            for (var i = 0; i < length; i++)
-            {
-                var buffer = buffers[offset + i];
-                var state = buffer.Value as AsyncUserToken;
-
-                if (state != null && state.DecreaseReference() == 0)
-                {
-                    m_SaePoolForReceive.Return(state.SAE);
-                }
-            }
         }
     }
 }

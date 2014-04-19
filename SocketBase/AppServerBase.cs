@@ -1429,20 +1429,6 @@ namespace SuperSocket.SocketBase
             }
 
             Interlocked.Increment(ref m_TotalHandledRequests);
-
-            if (requestInfo is IRawPackageInfo)
-                ClearRequestInfoBuffers(session, requestInfo as IRawPackageInfo);
-        }
-
-        private void ClearRequestInfoBuffers(TAppSession session, IRawPackageInfo rawPackageInfo)
-        {
-            var bufferRecycler = session.SocketSession as IBufferRecycler;
-
-            if(bufferRecycler != null)
-            {
-                var buffers = rawPackageInfo.RawData.GetAllCachedItems();
-                bufferRecycler.Return(buffers, 0, buffers.Count);
-            }
         }
 
         /// <summary>

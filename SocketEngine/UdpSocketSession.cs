@@ -114,10 +114,5 @@ namespace SuperSocket.SocketEngine
             if (!IsClosed)
                 OnClosed(reason);
         }
-
-        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length)
-        {
-            //TODO:
-        }
     }
 }

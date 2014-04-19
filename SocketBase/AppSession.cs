@@ -193,11 +193,11 @@ namespace SuperSocket.SocketBase
             OnInit();
         }
 
-        IPipelineProcessor IAppSession.CreatePipelineProcessor(IBufferRecycler bufferRecycler)
+        IPipelineProcessor IAppSession.CreatePipelineProcessor()
         {
             var receiveFilterFactory = AppServer.ReceiveFilterFactory;
             var receiveFilter = receiveFilterFactory.CreateFilter(AppServer, this, SocketSession.RemoteEndPoint);
-            return new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, bufferRecycler, AppServer.Config.MaxRequestLength);
+            return new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength);
         }
 
         /// <summary>

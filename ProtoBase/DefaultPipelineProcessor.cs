@@ -12,19 +12,14 @@ namespace SuperSocket.ProtoBase
 
         public IReceiveFilter<TPackageInfo> m_ReceiveFilter;
 
-        private IBufferRecycler m_BufferRecycler;
-
         private ReceiveCache m_ReceiveCache;
 
         private int m_MaxPackageLength;
 
-        private static readonly IBufferRecycler m_NullBufferRecycler = new NullBufferRecycler();
-
-        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter, IBufferRecycler bufferRecycler = null, int maxPackageLength = 0)
+        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter, int maxPackageLength = 0)
         {
             m_PackageHandler = packageHandler;
             m_ReceiveFilter = receiveFilter;
-            m_BufferRecycler = bufferRecycler ?? m_NullBufferRecycler;
             m_ReceiveCache = new ReceiveCache();
             m_MaxPackageLength = maxPackageLength;
         }
@@ -57,7 +52,6 @@ namespace SuperSocket.ProtoBase
 
                 if (m_ReceiveFilter.State == FilterState.Error)
                 {
-                    m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count);
                     return ProcessResult.Create(ProcessState.Error);
                 }
 
@@ -67,7 +61,6 @@ namespace SuperSocket.ProtoBase
 
                     if (length > m_MaxPackageLength)
                     {
-                        m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count);
                         return ProcessResult.Create(ProcessState.Error, string.Format("Max package length: {0}, current processed length: {1}", m_MaxPackageLength, length));
                     }
                 }
@@ -106,7 +99,7 @@ namespace SuperSocket.ProtoBase
                 }
                 else
                 {
-                    ReturnOtherThanLastBuffer();
+                    m_ReceiveCache.Clear();
 
                     if (rest <= 0)
                     {
@@ -116,24 +109,6 @@ namespace SuperSocket.ProtoBase
 
                 PushResetData(segment, rest, state);
             }
-        }
-
-        void ReturnOtherThanLastBuffer()
-        {
-            var bufferList = m_ReceiveCache.GetAllCachedItems();
-            var count = bufferList.Count;
-            var lastBufferItem = bufferList[count - 1].Key.Array;
-
-            for(var i = count - 2; i >= 0; i--)
-            {
-                if (bufferList[i].Key.Array != lastBufferItem)
-                {
-                    m_BufferRecycler.Return(bufferList, 0, i + 1);
-                    break;
-                }
-            }
-
-            m_ReceiveCache.Clear();
         }
 
         public ReceiveCache Cache

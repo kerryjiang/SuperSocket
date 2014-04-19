@@ -71,7 +71,7 @@ namespace SuperSocket.SocketEngine
             if (security == SslProtocols.None)
                 socketSession = new AsyncSocketSession(client, SaePool);
             else
-                socketSession = new AsyncStreamSocketSession(client, security, BufferManager);
+                socketSession = new AsyncStreamSocketSession(client, security, BufferStatePool);
 
             var session = CreateSession(client, socketSession);
 
@@ -134,7 +134,7 @@ namespace SuperSocket.SocketEngine
             if (security == SslProtocols.None)
                 socketSession = new AsyncSocketSession(session.SocketSession.Client, SaePool, true);
             else
-                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, BufferManager, true);
+                socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, BufferStatePool, true);
 
             socketSession.Initialize(session);
             socketSession.Start();

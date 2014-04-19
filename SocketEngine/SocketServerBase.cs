@@ -32,18 +32,18 @@ namespace SuperSocket.SocketEngine
 
         protected bool IsStopped { get; set; }
 
-        private IBufferManager m_BufferManager;
-
-        protected IBufferManager BufferManager
-        {
-            get { return m_BufferManager; }
-        }
-
         private IPool<SocketAsyncEventArgs> m_SaePool;
 
         protected IPool<SocketAsyncEventArgs> SaePool
         {
             get { return m_SaePool; }
+        }
+
+        private IPool<BufferState> m_BufferStatePool;
+
+        protected IPool<BufferState> BufferStatePool
+        {
+            get { return m_BufferStatePool; }
         }
 
         /// <summary>
@@ -109,10 +109,21 @@ namespace SuperSocket.SocketEngine
             if (bufferSize <= 0)
                 bufferSize = 1024 * 4;
 
-            m_BufferManager = AppServer.BufferManager;
+            var bufferManager = AppServer.BufferManager;
 
             var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
-            m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeCreator(m_BufferManager, bufferSize, this), CleanSAE);
+
+            //Plain tcp socket or udp
+            if(config.Mode == SocketMode.Udp || ListenerInfos.Any(l => l.Security == SslProtocols.None))
+            {
+                m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeStateCreator(m_SaePool, bufferManager, bufferSize, this));
+            }
+
+            //TLS/SSL TCP
+            if (ListenerInfos.Any(l => l.Security != SslProtocols.None))
+            {
+                m_BufferStatePool = new IntelliPool<BufferState>(initialCount, new BufferStateCreator(m_BufferStatePool, bufferManager, bufferSize));
+            }
 
             var sendingQueuePool = new SmartPool<SendingQueue>();
             sendingQueuePool.Initialize(Math.Max(config.MaxConnectionNumber / 6, 256),
@@ -120,12 +131,6 @@ namespace SuperSocket.SocketEngine
                     new SendingQueueSourceCreator(config.SendingQueueSize));
 
             SendingQueuePool = sendingQueuePool;
-        }
-
-        private void CleanSAE(SocketAsyncEventArgs e)
-        {
-            //Clean the SAE when return it back to the pool
-            (e.UserToken as AsyncUserToken).SocketSession = null;
         }
 
         private bool StartListeners()
@@ -205,14 +210,12 @@ namespace SuperSocket.SocketEngine
 
             Listeners.Clear();
 
-            m_BufferManager = null;
-
             IsRunning = false;
         }
 
         void IAsyncSocketEventComplete.HandleSocketEventComplete(object sender, SocketAsyncEventArgs e)
         {
-            var userToken = e.UserToken as AsyncUserToken;
+            var userToken = e.UserToken as SaeState;
             var socketSession = userToken.SocketSession as IAsyncSocketSession;
             socketSession.ProcessReceive(e);
         }

@@ -54,27 +54,23 @@ namespace SuperSocket.SocketEngine
 
     class AsyncStreamSocketSession : SocketSession, INegotiateSocketSession
     {
-        private byte[] m_ReadBuffer;
-        private int m_Offset;
-        private int m_Length;
-
         private bool m_IsReset;
 
-        private IBufferManager m_BufferManager;
+        private IPool<BufferState> m_BufferStatePool;
 
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, IBufferManager bufferManager)
-            : this(client, security, bufferManager, false)
+        private Stream m_Stream;
+
+        public AsyncStreamSocketSession(Socket client, SslProtocols security, IPool<BufferState> bufferStatePool)
+            : this(client, security, bufferStatePool, false)
         {
 
         }
 
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, IBufferManager bufferManager, bool isReset)
+        public AsyncStreamSocketSession(Socket client, SslProtocols security, IPool<BufferState> bufferStatePool, bool isReset)
             : base(client)
         {
             SecureProtocol = security;
-            m_BufferManager = bufferManager;
-           
-
+            m_BufferStatePool = bufferStatePool;
             m_IsReset = isReset;
         }
 
@@ -87,24 +83,17 @@ namespace SuperSocket.SocketEngine
             if (IsClosed)
                 return;
 
-            RequestNewReceiveBuffer();
-
             OnSessionStarting();
-        }
-
-        private void RequestNewReceiveBuffer()
-        {
-            m_ReadBuffer = m_BufferManager.GetBuffer(Config.ReceiveBufferSize);
-            m_Offset = 0;
-            m_Length = m_ReadBuffer.Length;
         }
 
         private void OnSessionStarting()
         {
             try
             {
+                var bufferState = m_BufferStatePool.Get();
                 OnReceiveStarted();
-                m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
+                var buffer = bufferState.Buffer;
+                m_Stream.BeginRead(buffer, 0, buffer.Length, OnStreamEndRead, bufferState);
             }
             catch (Exception e)
             {
@@ -118,26 +107,19 @@ namespace SuperSocket.SocketEngine
                 StartSession();
         }
 
-        protected override void OnReceiveError(CloseReason closeReason)
-        {
-            m_BufferManager.ReturnBuffer(m_ReadBuffer);
-            base.OnReceiveError(closeReason);
-        }
-
         private void OnStreamEndRead(IAsyncResult result)
         {
-            var stream = result.AsyncState as Stream;
+            var bufferState = result.AsyncState as BufferState;
 
             int thisRead = 0;
 
             try
             {
-                thisRead = stream.EndRead(result);
+                thisRead = m_Stream.EndRead(result);
             }
             catch (Exception e)
             {
                 LogError(e);
-
                 OnReceiveError(CloseReason.SocketError);
                 return;
             }
@@ -150,18 +132,19 @@ namespace SuperSocket.SocketEngine
 
             OnReceiveEnded();
 
-            var r = ProcessReceivedData(new ArraySegment<byte>(m_ReadBuffer, m_Offset, thisRead), null);
+            var r = ProcessReceivedData(new ArraySegment<byte>(bufferState.Buffer, 0, thisRead), bufferState);
 
             if (r.State == ProcessState.Cached)
             {
-                RequestNewReceiveBuffer();
+                bufferState = m_BufferStatePool.Get();
             }
 
             OnReceiveStarted();
 
             try
             {
-                m_Stream.BeginRead(m_ReadBuffer, m_Offset, m_Length, OnStreamEndRead, m_Stream);
+                var buffer = bufferState.Buffer;
+                m_Stream.BeginRead(buffer, 0, buffer.Length, OnStreamEndRead, bufferState);
             }
             catch (Exception exc)
             {
@@ -170,8 +153,6 @@ namespace SuperSocket.SocketEngine
                 return;
             }
         }
-
-        private Stream m_Stream;
 
         private SslStream CreateSslStream(ICertificateConfig certConfig)
         {
@@ -400,11 +381,6 @@ namespace SuperSocket.SocketEngine
                 return;
 
             handler(this, EventArgs.Empty);
-        }
-
-        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, object>> buffers, int offset, int length)
-        {
-            //TODO:
         }
     }
 }
