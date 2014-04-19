@@ -38,11 +38,26 @@ namespace SuperSocket.Common
         /// <typeparam name="T"></typeparam>
         /// <param name="source">The source.</param>
         /// <param name="mark">The mark.</param>
+        /// <param name="parsedLength">Length of the parsed.</param>
+        /// <returns></returns>
+        public static int? SearchMark<T>(this IList<T> source, T[] mark, out int parsedLength)
+            where T : IEquatable<T>
+        {
+            return SearchMark(source, 0, source.Count, mark, 0, out parsedLength);
+        }
+
+        /// <summary>
+        /// Searches the mark from source.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="mark">The mark.</param>
         /// <returns></returns>
         public static int? SearchMark<T>(this IList<T> source, T[] mark)
             where T : IEquatable<T>
         {
-            return SearchMark(source, 0, source.Count, mark, 0);
+            int parsedLength;
+            return SearchMark(source, 0, source.Count, mark, 0, out parsedLength);
         }
 
         /// <summary>
@@ -57,7 +72,24 @@ namespace SuperSocket.Common
         public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark)
             where T : IEquatable<T>
         {
-            return SearchMark(source, offset, length, mark, 0);
+            int parsedLength;
+            return SearchMark(source, offset, length, mark, 0, out parsedLength);
+        }
+
+        /// <summary>
+        /// Searches the mark from source.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="mark">The mark.</param>
+        /// <param name="parsedLength">Length of the parsed.</param>
+        /// <returns></returns>
+        public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark, out int parsedLength)
+            where T : IEquatable<T>
+        {
+            return SearchMark(source, offset, length, mark, 0, out parsedLength);
         }
 
         /// <summary>
@@ -73,9 +105,28 @@ namespace SuperSocket.Common
         public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark, int matched)
             where T : IEquatable<T>
         {
+            int parsedLength;
+            return source.SearchMark(offset, length, mark, matched, out parsedLength);
+        }
+
+        /// <summary>
+        /// Searches the mark from source.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="mark">The mark.</param>
+        /// <param name="matched">The matched.</param>
+        /// <param name="parsedLength">Length of the parsed.</param>
+        /// <returns></returns>
+        public static int? SearchMark<T>(this IList<T> source, int offset, int length, T[] mark, int matched, out int parsedLength)
+            where T : IEquatable<T>
+        {
             int pos = offset;
             int endOffset = offset + length - 1;
             int matchCount = matched;
+            parsedLength = 0;
 
             if (matched > 0)
             {
@@ -89,14 +140,22 @@ namespace SuperSocket.Common
                     if (pos > endOffset)
                     {
                         if (matchCount == mark.Length)
+                        {
+                            parsedLength = mark.Length - matched;
                             return offset;
+                        }
                         else
+                        {
                             return (0 - matchCount);
+                        }
                     }
                 }
 
                 if (matchCount == mark.Length)
+                {
+                    parsedLength = mark.Length - matched;
                     return offset;
+                }
 
                 pos = offset;
                 matchCount = 0;
@@ -127,8 +186,12 @@ namespace SuperSocket.Common
                     matchCount++;
                 }
 
+                //found the full end mark
                 if (matchCount == mark.Length)
+                {
+                    parsedLength = pos - offset + mark.Length;
                     return pos;
+                }
 
                 //Reset next round read pos
                 pos += 1;
@@ -145,11 +208,12 @@ namespace SuperSocket.Common
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
         /// <param name="searchState">State of the search.</param>
+        /// <param name="parsedLength">Length of the parsed.</param>
         /// <returns></returns>
-        public static int SearchMark<T>(this IList<T> source, int offset, int length, SearchMarkState<T> searchState)
+        public static int SearchMark<T>(this IList<T> source, int offset, int length, SearchMarkState<T> searchState, out int parsedLength)
             where T : IEquatable<T>
         {
-            int? result = source.SearchMark(offset, length, searchState.Mark, searchState.Matched);
+            int? result = source.SearchMark(offset, length, searchState.Mark, searchState.Matched, out parsedLength);
 
             if (!result.HasValue)
             {
@@ -165,6 +229,22 @@ namespace SuperSocket.Common
 
             searchState.Matched = 0;
             return result.Value;
+        }
+
+        /// <summary>
+        /// Searches the mark from source.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="searchState">State of the search.</param>
+        /// <returns></returns>
+        public static int SearchMark<T>(this IList<T> source, int offset, int length, SearchMarkState<T> searchState)
+            where T : IEquatable<T>
+        {
+            var parsedLen = 0;
+            return SearchMark(source, offset, length, searchState, out parsedLen);
         }
 
         /// <summary>

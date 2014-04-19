@@ -52,11 +52,12 @@ namespace SuperSocket.Facility.Protocol
 
             //prev macthed begin mark length
             int prevMatched = 0;
+            int totalParsed = 0;
 
             if (!m_FoundBegin)
             {
                 prevMatched = m_BeginSearchState.Matched;
-                int pos = readBuffer.SearchMark(offset, length, m_BeginSearchState);
+                int pos = readBuffer.SearchMark(offset, length, m_BeginSearchState, out totalParsed);
                 
                 if (pos < 0)
                 {
@@ -102,7 +103,8 @@ namespace SuperSocket.Facility.Protocol
             while (true)
             {
                 var prevEndMarkMatched = m_EndSearchState.Matched;
-                var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState);
+                var parsedLen = 0;
+                var endPos = readBuffer.SearchMark(searchEndMarkOffset, searchEndMarkLength, m_EndSearchState, out parsedLen);
 
                 //Haven't found end mark
                 if (endPos < 0)
@@ -114,11 +116,10 @@ namespace SuperSocket.Facility.Protocol
                     return NullRequestInfo;
                 }
 
-                //Found end mark
-                int parsedLen = endPos - offset + m_EndSearchState.Mark.Length - prevEndMarkMatched;
-                rest = length - parsedLen;
+                totalParsed += parsedLen;
+                rest = length - totalParsed;
 
-                byte[] commandData = new byte[BufferSegments.Count + prevMatched + parsedLen];
+                byte[] commandData = new byte[BufferSegments.Count + prevMatched + totalParsed];
 
                 if (BufferSegments.Count > 0)
                     BufferSegments.CopyTo(commandData, 0, 0, BufferSegments.Count);
@@ -126,7 +127,7 @@ namespace SuperSocket.Facility.Protocol
                 if(prevMatched > 0)
                     Array.Copy(m_BeginSearchState.Mark, 0, commandData, BufferSegments.Count, prevMatched);
 
-                Array.Copy(readBuffer, offset, commandData, BufferSegments.Count + prevMatched, parsedLen);
+                Array.Copy(readBuffer, offset, commandData, BufferSegments.Count + prevMatched, totalParsed);
 
                 var requestInfo = ProcessMatchedRequest(commandData, 0, commandData.Length);
 
