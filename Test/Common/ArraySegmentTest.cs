@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using System.Diagnostics;
 
 namespace SuperSocket.Test.Common
