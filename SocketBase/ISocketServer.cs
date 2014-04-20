@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Security.Authentication;
+using System.Text;
 using SuperSocket.Common;
+using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketBase
 {
@@ -39,7 +40,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The sending queue pool.
         /// </value>
-        IPoolInfo SendingQueuePool { get; }
+        IPool SendingQueuePool { get; }
 
         /// <summary>
         /// Stops this instance.

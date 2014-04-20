@@ -169,6 +169,8 @@
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="StatusInfoCollection.cs" />
     <Compile Include="ThreadingTaskScheduler.cs" />
+    <Compile Include="Utils\SendingQueue.cs" />
+    <Compile Include="Utils\SendingQueueSourceCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net40.csproj">

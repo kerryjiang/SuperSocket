@@ -15,6 +15,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Utils;
 
 namespace SuperSocket.SocketEngine
 {
@@ -52,9 +53,9 @@ namespace SuperSocket.SocketEngine
         /// <value>
         /// The sending queue manager.
         /// </value>
-        internal ISmartPool<SendingQueue> SendingQueuePool { get; private set; }
+        internal IPool<SendingQueue> SendingQueuePool { get; private set; }
 
-        IPoolInfo ISocketServer.SendingQueuePool
+        IPool ISocketServer.SendingQueuePool
         {
             get { return this.SendingQueuePool; }
         }
@@ -125,12 +126,7 @@ namespace SuperSocket.SocketEngine
                 m_BufferStatePool = new IntelliPool<BufferState>(initialCount, new BufferStateCreator(m_BufferStatePool, bufferManager, bufferSize));
             }
 
-            var sendingQueuePool = new SmartPool<SendingQueue>();
-            sendingQueuePool.Initialize(Math.Max(config.MaxConnectionNumber / 6, 256),
-                    Math.Max(config.MaxConnectionNumber * 2, 256),
-                    new SendingQueueSourceCreator(config.SendingQueueSize));
-
-            SendingQueuePool = sendingQueuePool;
+            SendingQueuePool = new IntelliPool<SendingQueue>(Math.Max(config.MaxConnectionNumber / 6, 256), new SendingQueueSourceCreator(config.SendingQueueSize));
         }
 
         private bool StartListeners()

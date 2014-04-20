@@ -9,11 +9,13 @@ using System.Security.Authentication;
 using System.Text;
 using System.Threading;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
-using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase.Utils;
 
 namespace SuperSocket.SocketEngine
 {
@@ -104,7 +106,7 @@ namespace SuperSocket.SocketEngine
 
         protected bool SyncSend { get; private set; }
 
-        private ISmartPool<SendingQueue> m_SendingQueuePool;
+        private IPool<SendingQueue> m_SendingQueuePool;
 
         public SocketSession(Socket client)
             : this(Guid.NewGuid().ToString())
@@ -132,12 +134,9 @@ namespace SuperSocket.SocketEngine
             SyncSend = Config.SyncSend;
             m_SendingQueuePool = ((SocketServerBase)((ISocketServerAccessor)appSession.AppServer).SocketServer).SendingQueuePool;
 
-            SendingQueue queue;
-            if (m_SendingQueuePool.TryGet(out queue))
-            {
-                m_SendingQueue = queue;
-                queue.StartEnqueue();
-            }
+            SendingQueue queue = m_SendingQueuePool.Get();
+            m_SendingQueue = queue;
+            queue.StartEnqueue();
         }
 
         /// <summary>
@@ -189,7 +188,7 @@ namespace SuperSocket.SocketEngine
                 if (Interlocked.CompareExchange(ref m_SendingQueue, null, sendingQueue) == sendingQueue)
                 {
                     sendingQueue.Clear();
-                    m_SendingQueuePool.Push(sendingQueue);
+                    m_SendingQueuePool.Return(sendingQueue);
                     break;
                 }
             }
@@ -298,22 +297,14 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            SendingQueue newQueue;
-
-            if (!m_SendingQueuePool.TryGet(out newQueue))
-            {
-                AppSession.Logger.Error("There is no enougth sending queue can be used.");
-                OnSendEnd(false);
-                this.Close(CloseReason.InternalError);
-                return;
-            }
+            SendingQueue newQueue = m_SendingQueuePool.Get();
 
             var oldQueue = Interlocked.CompareExchange(ref m_SendingQueue, newQueue, queue);
 
             if (!ReferenceEquals(oldQueue, queue))
             {
                 if (newQueue != null)
-                    m_SendingQueuePool.Push(newQueue);
+                    m_SendingQueuePool.Return(newQueue);
 
                 if (IsInClosingOrClosed)
                 {
@@ -336,7 +327,7 @@ namespace SuperSocket.SocketEngine
             if (queue.Count == 0)
             {
                 AppSession.Logger.Error("There is no data to be sent in the queue.");
-                m_SendingQueuePool.Push(queue);
+                m_SendingQueuePool.Return(queue);
                 OnSendEnd(false);
                 this.Close(CloseReason.InternalError);
                 return;
@@ -381,7 +372,7 @@ namespace SuperSocket.SocketEngine
         protected virtual void OnSendingCompleted(SendingQueue queue)
         {
             queue.Clear();
-            m_SendingQueuePool.Push(queue);
+            m_SendingQueuePool.Return(queue);
 
             var newQueue = m_SendingQueue;
 
@@ -500,7 +491,7 @@ namespace SuperSocket.SocketEngine
         protected void OnSendError(SendingQueue queue, CloseReason closeReason)
         {
             queue.Clear();
-            m_SendingQueuePool.Push(queue);
+            m_SendingQueuePool.Return(queue);
             OnSendEnd();
             ValidateClosed(closeReason);
         }
