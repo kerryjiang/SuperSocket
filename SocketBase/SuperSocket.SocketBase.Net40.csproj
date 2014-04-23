@@ -119,6 +119,10 @@
     <Compile Include="Pool\IPool.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
     <Compile Include="Pool\NullBufferManager.cs" />
+    <Compile Include="Protocol\HttpHeaderInfo.cs" />
+    <Compile Include="Protocol\HttpHeaderReceiveFilterBase.cs" />
+    <Compile Include="Protocol\HttpRequestInfoBase.cs" />
+    <Compile Include="Protocol\MimeHeaderHelper.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
@@ -137,7 +141,6 @@
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IRequestInfo.cs" />
-    <Compile Include="Protocol\RequestInfo.cs" />
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
