@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-using SuperSocket.Facility.Protocol;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Http
 {
@@ -38,14 +38,25 @@ namespace SuperSocket.Http
 
 
         /// <summary>
+        /// Gets the body.
+        /// </summary>
+        /// <value>
+        /// The body.
+        /// </value>
+        public string Body { get; private set; }
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="HttpRequestInfo" /> class.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="header">The header.</param>
-        public HttpRequestInfo(string key, NameValueCollection header)
+        /// <param name="body">The body.</param>
+        public HttpRequestInfo(string key, HttpHeaderInfo header, string body)
             : base(key, header)
         {
-            
+            Body = body;
+            Method = header.Method;
         }
     }
 }

@@ -40,8 +40,9 @@
     <Compile Include="..\..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="HttpBodyReceiveFilter.cs" />
     <Compile Include="HttpHeaderKey.cs" />
-    <Compile Include="HttpReceiveFilter.cs" />
+    <Compile Include="HttpHeaderReceiveFilter.cs" />
     <Compile Include="HttpRequestInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -50,9 +51,9 @@
       <Project>{a24f4d38-ba9c-4fd6-95b7-4980de36131a}</Project>
       <Name>SuperSocket.Common.Net40</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Facility\SuperSocket.Facility.Net40.csproj">
-      <Project>{01987bac-c498-44dd-b274-62ea2506b51d}</Project>
-      <Name>SuperSocket.Facility.Net40</Name>
+    <ProjectReference Include="..\..\ProtoBase\SuperSocket.ProtoBase.Net40.csproj">
+      <Project>{88C9312E-7520-4F6B-BF25-30DA5990D270}</Project>
+      <Name>SuperSocket.ProtoBase.Net40</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SocketBase\SuperSocket.SocketBase.Net40.csproj">
       <Project>{40b77789-ea11-4c05-8f52-86711d7bcaaf}</Project>
