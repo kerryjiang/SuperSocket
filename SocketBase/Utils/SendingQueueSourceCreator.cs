@@ -40,7 +40,7 @@ namespace SuperSocket.SocketBase.Utils
 
             public SendingQueueItemEnumerable(int sendingQueueSize, int count)
             {
-                m_SendingQueueSize = count;
+                m_SendingQueueSize = sendingQueueSize;
                 m_Count = count;
             }
 
