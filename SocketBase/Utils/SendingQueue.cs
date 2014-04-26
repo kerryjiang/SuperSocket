@@ -10,7 +10,7 @@ namespace SuperSocket.SocketBase.Utils
     /// <summary>
     /// SendingQueue
     /// </summary>
-    public sealed class SendingQueue : IList<ArraySegment<byte>>
+    public sealed class SendingQueue : PoolableItem<SendingQueue>, IList<ArraySegment<byte>>
     {
         private readonly int m_Offset;
 

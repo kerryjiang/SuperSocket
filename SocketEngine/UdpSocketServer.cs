@@ -77,7 +77,7 @@ namespace SuperSocket.SocketEngine
             }
             finally
             {
-                SaePool.Return(eventArgs);
+                SaePool.Return(eventArgs.UserToken as SaeState);
             }
         }
 

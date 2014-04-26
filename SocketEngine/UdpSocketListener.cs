@@ -15,9 +15,9 @@ namespace SuperSocket.SocketEngine
     {
         private Socket m_ListenSocket;
 
-        private IPool<SocketAsyncEventArgs> m_SaePool;
+        private IPool<SaeState> m_SaePool;
 
-        public UdpSocketListener(ListenerInfo info, IPool<SocketAsyncEventArgs> saePool)
+        public UdpSocketListener(ListenerInfo info, IPool<SaeState> saePool)
             : base(info)
         {
             m_SaePool = saePool;
@@ -48,9 +48,9 @@ namespace SuperSocket.SocketEngine
                     m_ListenSocket.IOControl((int)SIO_UDP_CONNRESET, optionInValue, optionOutValue);
                 }
 
-                var eventArgs = m_SaePool.Get();
+                var saeState = m_SaePool.Get();
 
-                m_ListenSocket.ReceiveFromAsync(eventArgs);
+                m_ListenSocket.ReceiveFromAsync(saeState.Sae);
 
                 return true;
             }
@@ -83,22 +83,22 @@ namespace SuperSocket.SocketEngine
                 catch (Exception exc)
                 {
                     OnError(exc);
-                    m_SaePool.Return(e);
+                    m_SaePool.Return(e.UserToken as SaeState);
                 }
 
-                SocketAsyncEventArgs newEventArgs = null;
+                SaeState newState = null;
 
                 try
                 {
-                    newEventArgs = m_SaePool.Get();
-                    m_ListenSocket.ReceiveFromAsync(newEventArgs);
+                    newState = m_SaePool.Get();
+                    m_ListenSocket.ReceiveFromAsync(newState.Sae);
                 }
                 catch (Exception exc)
                 {
                     OnError(exc);
 
-                    if (newEventArgs != null)
-                        m_SaePool.Return(newEventArgs);
+                    if (newState != null)
+                        m_SaePool.Return(newState);
                 }
             }
         }

@@ -14,7 +14,7 @@ namespace SuperSocket.SocketBase.Pool
 
         int AvailableCount { get; }
 
-        void Shrink();
+        bool Shrink();
     }
 
     /// <summary>

@@ -8,12 +8,12 @@ using System.Runtime.InteropServices;
 
 namespace SuperSocket.SocketBase.Pool
 {
-    class BufferPool : IntelliPool<byte[]>, IBufferPool
+    class BufferPool : IntelliPrimitiveObjectPool<byte[]>, IBufferPool
     {
         public int BufferSize { get; private set; }
 
         public BufferPool(int bufferSize, int initialCount)
-            : base(initialCount, new BufferItemCreator(bufferSize), pinObject: true)
+            : base(initialCount, new BufferItemCreator(bufferSize))
         {
             BufferSize = bufferSize;
         }

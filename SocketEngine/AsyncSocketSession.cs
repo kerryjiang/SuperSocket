@@ -21,17 +21,17 @@ namespace SuperSocket.SocketEngine
     {
         private bool m_IsReset;
 
-        private IPool<SocketAsyncEventArgs> m_SaePoolForReceive;
+        private IPool<SaeState> m_SaePoolForReceive;
 
         private SocketAsyncEventArgs m_SocketEventArgSend;
 
-        public AsyncSocketSession(Socket client, IPool<SocketAsyncEventArgs> saePoolForReceive)
+        public AsyncSocketSession(Socket client, IPool<SaeState> saePoolForReceive)
             : this(client, saePoolForReceive, false)
         {
 
         }
 
-        public AsyncSocketSession(Socket client, IPool<SocketAsyncEventArgs> saePoolForReceive, bool isReset)
+        public AsyncSocketSession(Socket client, IPool<SaeState> saePoolForReceive, bool isReset)
             : base(client)
         {
             m_SaePoolForReceive = saePoolForReceive;
@@ -52,10 +52,10 @@ namespace SuperSocket.SocketEngine
 
         public override void Start()
         {
-            var sae = m_SaePoolForReceive.Get();
-            ((SaeState)sae.UserToken).SocketSession = this;
+            var saeState = m_SaePoolForReceive.Get();
+            saeState.SocketSession = this;
 
-            StartReceive(sae);
+            StartReceive(saeState.Sae);
 
             if (!m_IsReset)
                 StartSession();
@@ -200,7 +200,7 @@ namespace SuperSocket.SocketEngine
         {
             if (!ProcessCompleted(e))
             {
-                m_SaePoolForReceive.Return(e);
+                m_SaePoolForReceive.Return(e.UserToken as SaeState);
                 OnReceiveError(CloseReason.ClientClosing);
                 return;
             }
@@ -211,8 +211,9 @@ namespace SuperSocket.SocketEngine
 
             if (result.State == ProcessState.Cached)
             {
-                e = m_SaePoolForReceive.Get();
-                ((SaeState)e.UserToken).SocketSession = this;
+                var newState = m_SaePoolForReceive.Get();
+                e = newState.Sae;
+                newState.SocketSession = this;
             }
 
             //read the next block of data sent from the client

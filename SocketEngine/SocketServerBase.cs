@@ -33,9 +33,9 @@ namespace SuperSocket.SocketEngine
 
         protected bool IsStopped { get; set; }
 
-        private IPool<SocketAsyncEventArgs> m_SaePool;
+        private IPool<SaeState> m_SaePool;
 
-        protected IPool<SocketAsyncEventArgs> SaePool
+        protected IPool<SaeState> SaePool
         {
             get { return m_SaePool; }
         }
@@ -117,7 +117,7 @@ namespace SuperSocket.SocketEngine
             //Plain tcp socket or udp
             if(config.Mode == SocketMode.Udp || ListenerInfos.Any(l => l.Security == SslProtocols.None))
             {
-                m_SaePool = new IntelliPool<SocketAsyncEventArgs>(initialCount, new SaeStateCreator(m_SaePool, bufferManager, bufferSize, this));
+                m_SaePool = new IntelliPool<SaeState>(initialCount, new SaeStateCreator(bufferManager, bufferSize, this));
             }
 
             //TLS/SSL TCP

@@ -6,7 +6,7 @@ using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketEngine
 {
-    sealed class BufferState
+    sealed class BufferState : PoolableItem<BufferState>
     {
         public byte[] Buffer { get; private set; }
 

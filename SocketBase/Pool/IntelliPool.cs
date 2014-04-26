@@ -15,7 +15,101 @@ namespace SuperSocket.SocketBase.Pool
         public byte Generation { get; set; }
     }
 
-    public class IntelliPool<T> : IPool<T>
+    public class IntelliPrimitiveObjectPool<T> : IntelliPoolBase<T>
+    {
+        private ConcurrentDictionary<T, PoolItemState> m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
+
+        private ConcurrentDictionary<T, GCHandle> m_RemovedBufferDict;
+
+        public IntelliPrimitiveObjectPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null)
+            : base(initialCount, itemCreator, itemCleaner)
+        {
+
+        }
+
+        protected override void RegisterNewItem(T item)
+        {
+            PoolItemState state = new PoolItemState();
+            state.GCHandle = GCHandle.Alloc(item, GCHandleType.Pinned);
+            state.Generation = CurrentGeneration;
+            m_BufferDict.TryAdd(item, state);
+        }
+
+        public override bool Shrink()
+        {
+            var generation = CurrentGeneration;
+
+            if(!base.Shrink())
+                return false;
+
+            var toBeRemoved = new List<T>(TotalCount / 2);
+
+            foreach (var item in m_BufferDict)
+            {
+                if (item.Value.Generation == generation)
+                {
+                    toBeRemoved.Add(item.Key);
+                }
+            }
+
+            if (m_RemovedBufferDict == null)
+                m_RemovedBufferDict = new ConcurrentDictionary<T, GCHandle>();
+
+            foreach (var item in toBeRemoved)
+            {
+                PoolItemState state;
+                if (m_BufferDict.TryRemove(item, out state))
+                    m_RemovedBufferDict.TryAdd(item, state.GCHandle);
+            }
+
+            return true;
+        }
+
+        protected override bool CanReturn(T item)
+        {
+            if (m_BufferDict.ContainsKey(item))
+                return true;
+
+            if (m_RemovedBufferDict == null || m_RemovedBufferDict.Count == 0)
+                return false;
+
+            GCHandle handle;
+
+            if (m_RemovedBufferDict.TryRemove(item, out handle))
+            {
+                DecreaseTotal();
+                handle.Free(); //Change the buffer to Normal from Pinned in the memory
+            }
+
+            return false;
+        }
+    }
+
+    public class IntelliPool<T> : IntelliPoolBase<T>
+        where T : PoolableItem<T>, IPoolableItem
+    {
+        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null)
+            : base(initialCount, itemCreator, itemCleaner)
+        {
+
+        }
+
+        protected override void RegisterNewItem(T item)
+        {
+            item.Initialize(this, CurrentGeneration);
+        }
+
+        protected override bool CanReturn(T item)
+        {
+            if (item.Generation <= CurrentGeneration)
+                return true;
+
+            DecreaseTotal();
+            return false;
+        }
+    }
+
+    public abstract class IntelliPoolBase<T> : IPool<T>
     {
         private ConcurrentStack<T> m_Store;
 
@@ -23,9 +117,10 @@ namespace SuperSocket.SocketBase.Pool
 
         private byte m_CurrentGeneration = 0;
 
-        private ConcurrentDictionary<T, PoolItemState> m_BufferDict;
-
-        private ConcurrentDictionary<T, GCHandle> m_RemovedBufferDict;
+        protected byte CurrentGeneration
+        {
+            get { return m_CurrentGeneration; }
+        }
 
         private int m_NextExpandThreshold;
 
@@ -47,26 +142,16 @@ namespace SuperSocket.SocketBase.Pool
 
         private Action<T> m_ItemCleaner;
 
-        private bool m_PinObject;
-
-        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null, bool pinObject = false)
+        public IntelliPoolBase(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null)
         {
             m_ItemCreator = itemCreator;
-            m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
             m_ItemCleaner = itemCleaner;
-            m_PinObject = pinObject;
 
             var list = new List<T>(initialCount);
 
             foreach(var item in itemCreator.Create(initialCount))
             {
-                PoolItemState state = new PoolItemState();
-
-                if (m_PinObject)
-                    state.GCHandle = GCHandle.Alloc(item, GCHandleType.Pinned);
-
-                state.Generation = m_CurrentGeneration;
-                m_BufferDict.TryAdd(item, state);
+                RegisterNewItem(item);
                 list.Add(item);
             }
 
@@ -76,6 +161,8 @@ namespace SuperSocket.SocketBase.Pool
             m_AvailableCount = m_TotalCount;
             UpdateNextExpandThreshold();
         }
+
+        protected abstract void RegisterNewItem(T item);
 
         private void UpdateNextExpandThreshold()
         {
@@ -140,14 +227,7 @@ namespace SuperSocket.SocketBase.Pool
             {
                 m_Store.Push(item);
                 Interlocked.Increment(ref m_AvailableCount);
-
-                PoolItemState state = new PoolItemState();
-
-                if (m_PinObject)
-                    state.GCHandle = GCHandle.Alloc(item, GCHandleType.Pinned); //Pinned the buffer in the memory
-
-                state.Generation = m_CurrentGeneration;
-                m_BufferDict.TryAdd(item, state);
+                RegisterNewItem(item);
             }
 
             m_CurrentGeneration++;
@@ -156,64 +236,39 @@ namespace SuperSocket.SocketBase.Pool
             UpdateNextExpandThreshold();
         }
 
-        public void Shrink()
+        public virtual bool Shrink()
         {
             var generation = m_CurrentGeneration;
             if (generation == 0)
-                return;
+                return false;
 
             var shrinThreshold = m_TotalCount * 3 / 4;
 
             if (m_AvailableCount <= shrinThreshold)
-                return;
+                return false;
 
             m_CurrentGeneration = (byte)(generation - 1);
-
-            var toBeRemoved = new List<T>(m_TotalCount / 2);
-
-            foreach (var item in m_BufferDict)
-            {
-                if (item.Value.Generation == generation)
-                {
-                    toBeRemoved.Add(item.Key);
-                }
-            }
-
-            if (m_RemovedBufferDict == null)
-                m_RemovedBufferDict = new ConcurrentDictionary<T, GCHandle>();
-
-            foreach (var item in toBeRemoved)
-            {
-                PoolItemState state;
-                if (m_BufferDict.TryRemove(item, out state))
-                    m_RemovedBufferDict.TryAdd(item, state.GCHandle);
-            }
+            return true;
         }
+
+        protected abstract bool CanReturn(T item);
 
         public void Return(T item)
         {
             if (m_ItemCleaner != null)
                 m_ItemCleaner(item);
 
-            if (m_BufferDict.ContainsKey(item))
+            if (CanReturn(item))
             {
                 m_Store.Push(item);
                 Interlocked.Increment(ref m_AvailableCount);
                 return;
             }
+        }
 
-            if (m_RemovedBufferDict == null)
-                return;
-
-            GCHandle handle;
-
-            if (m_RemovedBufferDict.TryRemove(item, out handle))
-            {
-                Interlocked.Decrement(ref m_TotalCount);
-
-                if(m_PinObject)
-                    handle.Free(); //Change the buffer to Normal from Pinned in the memory
-            }
+        protected void DecreaseTotal()
+        {
+            Interlocked.Decrement(ref m_TotalCount);
         }
     }
 }
