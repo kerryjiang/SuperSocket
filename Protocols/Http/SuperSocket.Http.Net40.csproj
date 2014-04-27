@@ -43,7 +43,7 @@
     <Compile Include="HttpBodyReceiveFilter.cs" />
     <Compile Include="HttpHeaderKey.cs" />
     <Compile Include="HttpHeaderReceiveFilter.cs" />
-    <Compile Include="HttpRequestInfo.cs" />
+    <Compile Include="HttpPackageInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

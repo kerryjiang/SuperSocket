@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Http
@@ -10,7 +11,7 @@ namespace SuperSocket.Http
     /// <summary>
     /// HttpRequestInfo
     /// </summary>
-    public class HttpRequestInfo : HttpRequestInfoBase
+    public class HttpPackageInfo : HttpPackageInfoBase
     {
         /// <summary>
         /// Gets the http method.
@@ -47,12 +48,12 @@ namespace SuperSocket.Http
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpRequestInfo" /> class.
+        /// Initializes a new instance of the <see cref="HttpPackageInfo" /> class.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="header">The header.</param>
         /// <param name="body">The body.</param>
-        public HttpRequestInfo(string key, HttpHeaderInfo header, string body)
+        public HttpPackageInfo(string key, HttpHeaderInfo header, string body)
             : base(key, header)
         {
             Body = body;

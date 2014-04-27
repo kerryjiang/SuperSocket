@@ -8,9 +8,9 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Http
 {
-    public class HttpHeaderReceiveFilter : HttpHeaderReceiveFilterBase<HttpRequestInfo>
+    public class HttpHeaderReceiveFilter : HttpHeaderReceiveFilterBase<HttpPackageInfo>
     {
-        protected override IReceiveFilter<HttpRequestInfo> GetBodyReceiveFilter(HttpHeaderInfo header, int headerSize)
+        protected override IReceiveFilter<HttpPackageInfo> GetBodyReceiveFilter(HttpHeaderInfo header, int headerSize)
         {
             var contentLength = 0;
 
@@ -25,9 +25,9 @@ namespace SuperSocket.Http
             return null;
         }
 
-        protected override HttpRequestInfo ResolveHttpRequestWithoutBody(HttpHeaderInfo header)
+        protected override HttpPackageInfo ResolveHttpPackageWithoutBody(HttpHeaderInfo header)
         {
-            return new HttpRequestInfo(header.Path, header, string.Empty);
+            return new HttpPackageInfo(header.Path, header, string.Empty);
         }
     }
 }

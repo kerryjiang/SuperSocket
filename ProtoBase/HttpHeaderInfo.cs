@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Specialized;
 
-namespace SuperSocket.SocketBase.Protocol
+namespace SuperSocket.ProtoBase
 {
     public class HttpHeaderInfo : NameValueCollection
     {

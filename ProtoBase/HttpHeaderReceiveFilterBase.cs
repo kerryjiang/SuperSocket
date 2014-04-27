@@ -5,10 +5,10 @@ using System.Text;
 using SuperSocket.ProtoBase;
 using System.Collections.Specialized;
 
-namespace SuperSocket.SocketBase.Protocol
+namespace SuperSocket.ProtoBase
 {
-    public abstract class HttpHeaderReceiveFilterBase<TRequestInfo> : TerminatorReceiveFilter<TRequestInfo>
-        where TRequestInfo : IHttpRequestInfo
+    public abstract class HttpHeaderReceiveFilterBase<TPackageInfo> : TerminatorReceiveFilter<TPackageInfo>
+        where TPackageInfo : IHttpPackageInfo
     {
         /// <summary>
         /// Http header terminator
@@ -30,22 +30,22 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="header">The header.</param>
         /// <param name="headerSize">Size of the header.</param>
         /// <returns></returns>
-        protected abstract IReceiveFilter<TRequestInfo> GetBodyReceiveFilter(HttpHeaderInfo header, int headerSize);
+        protected abstract IReceiveFilter<TPackageInfo> GetBodyReceiveFilter(HttpHeaderInfo header, int headerSize);
 
 
         /// <summary>
-        /// Resolves the HTTP request without body.
+        /// Resolves the HTTP package without body.
         /// </summary>
         /// <param name="header">The http header.</param>
         /// <returns></returns>
-        protected abstract TRequestInfo ResolveHttpRequestWithoutBody(HttpHeaderInfo header);
+        protected abstract TPackageInfo ResolveHttpPackageWithoutBody(HttpHeaderInfo header);
 
         /// <summary>
         /// Resolves the header package.
         /// </summary>
         /// <param name="packageData">The package data.</param>
         /// <returns></returns>
-        public override TRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
             string headerData = Encoding.ASCII.GetString(packageData);
 
@@ -57,10 +57,10 @@ namespace SuperSocket.SocketBase.Protocol
             if (nextReceiveFilter != null)
             {
                 NextReceiveFilter = nextReceiveFilter;
-                return default(TRequestInfo);
+                return default(TPackageInfo);
             }
 
-            return ResolveHttpRequestWithoutBody(header);
+            return ResolveHttpPackageWithoutBody(header);
         }
     }
 }

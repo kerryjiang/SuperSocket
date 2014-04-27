@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
 
-namespace SuperSocket.SocketBase.Protocol
+namespace SuperSocket.ProtoBase
 {
     /// <summary>
     /// IHttpRequestInfo
     /// </summary>
-    public interface IHttpRequestInfo : IRequestInfo<string>
+    public interface IHttpPackageInfo : IPackageInfo<string>
     {
         /// <summary>
         /// Gets the http header.
@@ -21,7 +20,7 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// HttpRequestInfoBase
     /// </summary>
-    public abstract class HttpRequestInfoBase : IHttpRequestInfo
+    public abstract class HttpPackageInfoBase : IHttpPackageInfo
     {
         /// <summary>
         /// Gets the key of this request.
@@ -34,11 +33,11 @@ namespace SuperSocket.SocketBase.Protocol
         public HttpHeaderInfo Header { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpRequestInfoBase"/> class.
+        /// Initializes a new instance of the <see cref="HttpPackageInfoBase"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="header">The header.</param>
-        protected HttpRequestInfoBase(string key, HttpHeaderInfo header)
+        protected HttpPackageInfoBase(string key, HttpHeaderInfo header)
         {
             Key = key;
             Header = header;
@@ -46,10 +45,10 @@ namespace SuperSocket.SocketBase.Protocol
     }
 
     /// <summary>
-    /// HttpRequestInfoBase
+    /// HttpPackageInfoBase
     /// </summary>
     /// <typeparam name="TRequestBody">The type of the request body.</typeparam>
-    public abstract class HttpRequestInfoBase<TRequestBody> : HttpRequestInfoBase
+    public abstract class HttpPackageInfoBase<TRequestBody> : HttpPackageInfoBase
     {
         /// <summary>
         /// Gets the body.
@@ -57,12 +56,12 @@ namespace SuperSocket.SocketBase.Protocol
         public TRequestBody Body { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpRequestInfoBase&lt;TRequestBody&gt;"/> class.
+        /// Initializes a new instance of the <see cref="HttpPackageInfoBase&lt;TRequestBody&gt;"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="header">The header.</param>
         /// <param name="body">The body.</param>
-        protected HttpRequestInfoBase(string key, HttpHeaderInfo header, TRequestBody body)
+        protected HttpPackageInfoBase(string key, HttpHeaderInfo header, TRequestBody body)
             : base(key, header)
         {
             Body = body;
