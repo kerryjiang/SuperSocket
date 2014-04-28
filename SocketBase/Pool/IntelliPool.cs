@@ -67,21 +67,21 @@ namespace SuperSocket.SocketBase.Pool
 
         protected override bool CanReturn(T item)
         {
-            if (m_BufferDict.ContainsKey(item))
-                return true;
+            return m_BufferDict.ContainsKey(item);
+        }
 
+        protected override bool TryRemove(T item)
+        {
             if (m_RemovedBufferDict == null || m_RemovedBufferDict.Count == 0)
                 return false;
 
             GCHandle handle;
 
-            if (m_RemovedBufferDict.TryRemove(item, out handle))
-            {
-                DecreaseTotal();
-                handle.Free(); //Change the buffer to Normal from Pinned in the memory
-            }
+            if (!m_RemovedBufferDict.TryRemove(item, out handle))
+                return false;
 
-            return false;
+            handle.Free(); //Change the buffer to Normal from Pinned in the memory
+            return true;
         }
     }
 
@@ -101,11 +101,12 @@ namespace SuperSocket.SocketBase.Pool
 
         protected override bool CanReturn(T item)
         {
-            if (item.Generation <= CurrentGeneration)
-                return true;
+            return item.Generation <= CurrentGeneration;
+        }
 
-            DecreaseTotal();
-            return false;
+        protected override bool TryRemove(T item)
+        {
+            return item.Generation > CurrentGeneration;
         }
     }
 
@@ -253,6 +254,8 @@ namespace SuperSocket.SocketBase.Pool
 
         protected abstract bool CanReturn(T item);
 
+        protected abstract bool TryRemove(T item);
+
         public void Return(T item)
         {
             if (m_ItemCleaner != null)
@@ -264,11 +267,9 @@ namespace SuperSocket.SocketBase.Pool
                 Interlocked.Increment(ref m_AvailableCount);
                 return;
             }
-        }
 
-        protected void DecreaseTotal()
-        {
-            Interlocked.Decrement(ref m_TotalCount);
+            if (TryRemove(item))
+                Interlocked.Decrement(ref m_TotalCount);
         }
     }
 }
