@@ -362,7 +362,7 @@ namespace SuperSocket.SocketBase
             //Don't retry, timeout directly
             if (sendTimeOut < 0)
             {
-                throw new Exception("The sending attempt timed out");
+                throw new TimeoutException("The sending attempt timed out");
             }
 
             var timeOutTime = sendTimeOut > 0 ? DateTime.Now.AddMilliseconds(sendTimeOut) : DateTime.Now;
@@ -379,7 +379,7 @@ namespace SuperSocket.SocketBase
                 //If sendTimeOut = 0, don't have timeout check
                 if (sendTimeOut > 0 && DateTime.Now >= timeOutTime)
                 {
-                    throw new Exception("The sending attempt timed out");
+                    throw new TimeoutException("The sending attempt timed out");
                 }
             }
         }
@@ -428,7 +428,7 @@ namespace SuperSocket.SocketBase
             //Don't retry, timeout directly
             if (sendTimeOut < 0)
             {
-                throw new Exception("The sending attempt timed out");
+                throw new TimeoutException("The sending attempt timed out");
             }
 
             var timeOutTime = sendTimeOut > 0 ? DateTime.Now.AddMilliseconds(sendTimeOut) : DateTime.Now;
@@ -445,7 +445,7 @@ namespace SuperSocket.SocketBase
                 //If sendTimeOut = 0, don't have timeout check
                 if (sendTimeOut > 0 && DateTime.Now >= timeOutTime)
                 {
-                    throw new Exception("The sending attempt timed out");
+                    throw new TimeoutException("The sending attempt timed out");
                 }
             }
         }
