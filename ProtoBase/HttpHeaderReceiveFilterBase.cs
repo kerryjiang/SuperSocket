@@ -8,7 +8,7 @@ using System.Collections.Specialized;
 namespace SuperSocket.ProtoBase
 {
     public abstract class HttpHeaderReceiveFilterBase<TPackageInfo> : TerminatorReceiveFilter<TPackageInfo>
-        where TPackageInfo : IHttpPackageInfo
+        where TPackageInfo : IPackageInfo
     {
         /// <summary>
         /// Http header terminator
