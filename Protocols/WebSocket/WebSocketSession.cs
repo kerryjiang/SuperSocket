@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Security.Authentication;
 using System.Text;
+using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
@@ -188,10 +189,25 @@ namespace SuperSocket.WebSocket
 
         internal DateTime StartClosingHandshakeTime { get; private set; }
 
+        private const string m_CurrentTokenSlotName = "CurrentRequestToken";
+
+        internal LocalDataStoreSlot SetCurrentToken(string token)
+        {
+            var slot = Thread.GetNamedDataSlot(m_CurrentTokenSlotName);
+            Thread.SetData(slot, token);
+            return slot;
+        }
+
         /// <summary>
         /// Gets the current token.
         /// </summary>
-        public string CurrentToken { get; internal set; }
+        public string CurrentToken
+        {
+            get
+            {
+                return Thread.GetData(Thread.GetNamedDataSlot(m_CurrentTokenSlotName)) as string;
+            }
+        }
 
         /// <summary>
         /// Gets the app server.

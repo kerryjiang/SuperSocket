@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.WebSocket.SubProtocol
@@ -47,14 +48,26 @@ namespace SuperSocket.WebSocket.SubProtocol
 
             TJsonCommandInfo jsonCommandInfo;
 
-            session.CurrentToken = requestInfo.Token;
+            LocalDataStoreSlot tokenSlot = null;
 
-            if (!m_IsSimpleType)
-                jsonCommandInfo = (TJsonCommandInfo)session.AppServer.JsonDeserialize(requestInfo.Body, m_CommandInfoType);
-            else
-                jsonCommandInfo = (TJsonCommandInfo)Convert.ChangeType(requestInfo.Body, m_CommandInfoType);
+            if (!string.IsNullOrEmpty(requestInfo.Token))
+                tokenSlot = session.SetCurrentToken(requestInfo.Token);
 
-            ExecuteJsonCommand(session, jsonCommandInfo);
+            try
+            {
+
+                if (!m_IsSimpleType)
+                    jsonCommandInfo = (TJsonCommandInfo)session.AppServer.JsonDeserialize(requestInfo.Body, m_CommandInfoType);
+                else
+                    jsonCommandInfo = (TJsonCommandInfo)Convert.ChangeType(requestInfo.Body, m_CommandInfoType);
+
+                ExecuteJsonCommand(session, jsonCommandInfo);
+            }
+            finally
+            {
+                if (tokenSlot != null)
+                    Thread.SetData(tokenSlot, null);
+            }
         }
 
         /// <summary>
