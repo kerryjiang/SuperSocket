@@ -611,10 +611,17 @@ namespace SuperSocket.SocketEngine
             return IsIgnorableSocketError(socketErrorCode);
         }
 
+        private const string m_SesionDataSlotName = "Session";
+
         internal ProcessResult ProcessReceivedData(ArraySegment<byte> data, object state)
         {
+            LocalDataStoreSlot slot = null;
+
             try
             {
+                slot = Thread.GetNamedDataSlot(m_SesionDataSlotName);
+                Thread.SetData(slot, this.AppSession);
+
                 var result = DataProcessor.Process(data, state);
 
                 if (result.State == ProcessState.Error)
@@ -634,6 +641,11 @@ namespace SuperSocket.SocketEngine
                 LogError("Protocol error", ex);
                 this.Close(CloseReason.ProtocolError);
                 return ProcessResult.Create(ProcessState.Error);
+            }
+            finally
+            {
+                if (slot != null)
+                    Thread.SetData(slot, null);
             }
         }
     }

@@ -72,6 +72,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AppContext.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="Command\ICommandFilterProvider.cs" />
