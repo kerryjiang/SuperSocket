@@ -33,5 +33,16 @@ namespace SuperSocket.ProtoBase
         /// The matched.
         /// </value>
         public int Matched { get; set; }
+
+
+        /// <summary>
+        /// Changes the search mark.
+        /// </summary>
+        /// <param name="mark">The mark.</param>
+        public void Change(T[] mark)
+        {
+            Mark = mark;
+            Matched = 0;
+        }
     }
 }
