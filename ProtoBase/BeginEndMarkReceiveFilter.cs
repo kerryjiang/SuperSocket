@@ -18,6 +18,36 @@ namespace SuperSocket.ProtoBase
             m_EndSearchState = new SearchMarkState<byte>(endMark);
         }
 
+        private bool CheckChanged(byte[] oldMark, byte[] newMark)
+        {
+            if (oldMark.Length != newMark.Length)
+                return true;
+
+            for (var i = 0; i < oldMark.Length; i++)
+            {
+                if (oldMark[i] != newMark[i])
+                    return true;
+            }
+
+            return false;
+        }
+
+        public void ChangeBeginMark(byte[] beginMark)
+        {
+            if (!CheckChanged(m_BeginSearchState.Mark, beginMark))
+                return;
+
+            m_BeginSearchState.Change(beginMark);
+        }
+
+        public void ChangeEndMark(byte[] endMark)
+        {
+            if (!CheckChanged(m_EndSearchState.Mark, endMark))
+                return;
+
+            m_EndSearchState.Change(endMark);
+        }
+
         public abstract TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);
 
         public virtual TPackageInfo Filter(ReceiveCache data, out int rest)
