@@ -54,6 +54,8 @@ namespace SuperSocket.ProtoBase
         public void Reset()
         {
             m_SearchState.Matched = 0;
+            State = FilterState.Normal;
+            NextReceiveFilter = null;
         }
     }
 }

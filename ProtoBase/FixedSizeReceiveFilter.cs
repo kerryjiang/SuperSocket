@@ -52,6 +52,9 @@ namespace SuperSocket.ProtoBase
         {
             if (m_Size != m_OriginalSize)
                 m_Size = m_OriginalSize;
+
+            NextReceiveFilter = null;
+            State = FilterState.Normal;
         }
 
         protected virtual bool CanResolvePackage(IList<ArraySegment<byte>> packageData)
