@@ -10,8 +10,6 @@ namespace SuperSocket.SocketBase.Pool
 {
     struct PoolItemState
     {
-        public GCHandle GCHandle { get; set; }
-
         public byte Generation { get; set; }
     }
 
@@ -19,7 +17,7 @@ namespace SuperSocket.SocketBase.Pool
     {
         private ConcurrentDictionary<T, PoolItemState> m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
 
-        private ConcurrentDictionary<T, GCHandle> m_RemovedBufferDict;
+        private ConcurrentDictionary<T, T> m_RemovedBufferDict;
 
         public IntelliPrimitiveObjectPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null)
             : base(initialCount, itemCreator, itemCleaner)
@@ -30,7 +28,6 @@ namespace SuperSocket.SocketBase.Pool
         protected override void RegisterNewItem(T item)
         {
             PoolItemState state = new PoolItemState();
-            state.GCHandle = GCHandle.Alloc(item, GCHandleType.Pinned);
             state.Generation = CurrentGeneration;
             m_BufferDict.TryAdd(item, state);
         }
@@ -53,13 +50,13 @@ namespace SuperSocket.SocketBase.Pool
             }
 
             if (m_RemovedBufferDict == null)
-                m_RemovedBufferDict = new ConcurrentDictionary<T, GCHandle>();
+                m_RemovedBufferDict = new ConcurrentDictionary<T, T>();
 
             foreach (var item in toBeRemoved)
             {
                 PoolItemState state;
                 if (m_BufferDict.TryRemove(item, out state))
-                    m_RemovedBufferDict.TryAdd(item, state.GCHandle);
+                    m_RemovedBufferDict.TryAdd(item, item);
             }
 
             return true;
@@ -75,13 +72,8 @@ namespace SuperSocket.SocketBase.Pool
             if (m_RemovedBufferDict == null || m_RemovedBufferDict.Count == 0)
                 return false;
 
-            GCHandle handle;
-
-            if (!m_RemovedBufferDict.TryRemove(item, out handle))
-                return false;
-
-            handle.Free(); //Change the buffer to Normal from Pinned in the memory
-            return true;
+            T removedItem;
+            return m_RemovedBufferDict.TryRemove(item, out removedItem);
         }
     }
 
@@ -107,6 +99,18 @@ namespace SuperSocket.SocketBase.Pool
         protected override bool TryRemove(T item)
         {
             return item.Generation > CurrentGeneration;
+        }
+    }
+
+    class DefaultConstructorItemCreator<TItem> : IPoolItemCreator<TItem>
+            where TItem : new()
+    {
+        public IEnumerable<TItem> Create(int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                yield return new TItem();
+            }
         }
     }
 

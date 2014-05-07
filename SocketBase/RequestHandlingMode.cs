@@ -11,17 +11,17 @@ namespace SuperSocket.SocketBase
     public enum RequestHandlingMode
     {
         /// <summary>
-        /// The system working thread pool, default option
+        /// The system IOCP thread pool, the request will be handled by the same IO thread which received the data, default option
         /// </summary>
-        Pool,
+        Default,
         /// <summary>
         /// Single thread
         /// </summary>
         SingleThread,
 
         /// <summary>
-        /// Multiple dedicated threads
+        /// The SuperSocket customized thread pool to ensure first received requests must be handled first
         /// </summary>
-        MultipleThread
+        CustomThreadPool
     }
 }

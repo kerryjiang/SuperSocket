@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>, IPackageHandler<TRequestInfo>
+    public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>, IPackageHandler<TRequestInfo>, IThreadExecutingContext
         where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
         where TRequestInfo : class, IRequestInfo
     {
@@ -483,6 +483,49 @@ namespace SuperSocket.SocketBase
                 HandleException(e);
             }
         }
+
+
+        #region IThreadExecutingContext
+
+        private int m_PreferedThreadId;
+
+        /// <summary>
+        /// Gets or sets the prefered executing thread's id.
+        /// </summary>
+        /// <value>
+        /// The prefered thread id.
+        /// </value>
+        int IThreadExecutingContext.PreferedThreadId
+        {
+            get { return m_PreferedThreadId; }
+            set { m_PreferedThreadId = value; }
+        }
+
+        void IThreadExecutingContext.Increment(int value)
+        {
+            while (true)
+            {
+                var oldValue = m_PreferedThreadId;
+                var targetValue = oldValue + value;
+
+                if (Interlocked.CompareExchange(ref m_PreferedThreadId, targetValue, oldValue) == oldValue)
+                    return;
+            }
+        }
+
+        void IThreadExecutingContext.Decrement(int value)
+        {
+            while (true)
+            {
+                var oldValue = m_PreferedThreadId;
+                var targetValue = Math.Max(0, oldValue - value);
+
+                if (Interlocked.CompareExchange(ref m_PreferedThreadId, targetValue, oldValue) == oldValue)
+                    return;
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>
