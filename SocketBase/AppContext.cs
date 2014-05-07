@@ -18,11 +18,21 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        internal static LocalDataStoreSlot SetCurrentSession(IAppSession session)
+        private const string m_ServerDataSlotName = "Server";
+
+        internal static LocalDataStoreSlot SetCurrentServer(IAppServer server)
         {
-            var slot = Thread.GetNamedDataSlot(m_SesionDataSlotName);
-            Thread.SetData(slot, session);
+            var slot = Thread.GetNamedDataSlot(m_ServerDataSlotName);
+            Thread.SetData(slot, server);
             return slot;
+        }
+
+        public static IAppServer CurrentServer
+        {
+            get
+            {
+                return Thread.GetData(Thread.GetNamedDataSlot(m_ServerDataSlotName)) as IAppServer;
+            }
         }
     }
 }

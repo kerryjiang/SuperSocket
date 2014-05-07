@@ -85,7 +85,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// The request handling mode.
         /// </value>
-        [ConfigurationProperty("requestHandlingMode", IsRequired = false, DefaultValue = "Pool")]
+        [ConfigurationProperty("requestHandlingMode", IsRequired = false, DefaultValue = "Default")]
         public RequestHandlingMode RequestHandlingMode
         {
             get { return (RequestHandlingMode)this["requestHandlingMode"]; }

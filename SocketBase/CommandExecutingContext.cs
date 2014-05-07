@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketBase
 {
@@ -65,9 +66,18 @@ namespace SuperSocket.SocketBase
         }
     }
 
-    class RequestExecutingContext<TAppSession, TRequestInfo>
+    interface IThreadExecutingContext
+    {
+        void Increment(int value);
+
+        void Decrement(int value);
+
+        int PreferedThreadId { get; set; }
+    }
+
+    class RequestExecutingContext<TAppSession, TRequestInfo> : PoolableItem<RequestExecutingContext<TAppSession, TRequestInfo>>, IThreadExecutingContext
         where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+        where TAppSession : IAppSession, IThreadExecutingContext, IAppSession<TAppSession, TRequestInfo>, new()
     {
         class ExecutingStateCode
         {
@@ -79,15 +89,42 @@ namespace SuperSocket.SocketBase
 
         public TRequestInfo RequestInfo { get; private set; }
 
+        int IThreadExecutingContext.PreferedThreadId
+        {
+            get { return Session.PreferedThreadId; }
+            set { Session.PreferedThreadId = value; }
+        }
+
+        void IThreadExecutingContext.Increment(int value)
+        {
+            Session.Increment(value);
+        }
+
+        void IThreadExecutingContext.Decrement(int value)
+        {
+            Session.Decrement(value);
+        }
+
         public bool TryGetExecute()
         {
             return true;
         }
 
-        public RequestExecutingContext(TAppSession session, TRequestInfo requestInfo)
+        public RequestExecutingContext()
+        {
+
+        }
+
+        public void Initialize(TAppSession session, TRequestInfo requestInfo)
         {
             Session = session;
             RequestInfo = requestInfo;
+        }
+
+        public void Reset()
+        {
+            Session = default(TAppSession);
+            RequestInfo = default(TRequestInfo);
         }
     }
 }

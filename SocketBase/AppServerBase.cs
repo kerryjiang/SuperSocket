@@ -17,7 +17,10 @@ using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Scheduler;
 using SuperSocket.SocketBase.Security;
+using SuperSocket.SocketBase.Utils;
+using SuperSocket.SocketBase.ServerResource;
 
 namespace SuperSocket.SocketBase
 {
@@ -68,6 +71,8 @@ namespace SuperSocket.SocketBase
         /// </summary>
         public X509Certificate Certificate { get; private set; }
 
+        private ServerResourceItem[] m_ServerResources;
+
         private IBufferManager m_BufferManager;
 
         /// <summary>
@@ -80,6 +85,8 @@ namespace SuperSocket.SocketBase
         {
             get { return m_BufferManager; }
         }
+
+        private IPool<RequestExecutingContext<TAppSession, TRequestInfo>> m_RequestExecutingContextPool;
 
         /// <summary>
         /// Gets or sets the receive filter factory.
@@ -446,15 +453,7 @@ namespace SuperSocket.SocketBase
                 }
             }
 
-            if (Config.RequestHandlingMode == RequestHandlingMode.Pool)
-            {
-                m_RequestHandlingTaskScheduler = TaskScheduler.Default;
-            }
-            else if (Config.RequestHandlingMode == RequestHandlingMode.SingleThread)
-            {
-                m_RequestHandlingTaskScheduler = new ThreadingTaskScheduler(1);
-            }
-            else
+            if (Config.RequestHandlingMode == RequestHandlingMode.CustomThreadPool)
             {
                 if (Config.RequestHandlingThreads <= 1 || Config.RequestHandlingThreads > 100)
                 {
@@ -463,8 +462,6 @@ namespace SuperSocket.SocketBase
 
                     return false;
                 }
-
-                m_RequestHandlingTaskScheduler = new ThreadingTaskScheduler(Config.RequestHandlingThreads);
             }
 
             var plainConfig = Config as ServerConfig;
@@ -507,53 +504,10 @@ namespace SuperSocket.SocketBase
                 return false;
             }
 
-            try
-            {
-                //Initialize buffer manager
-                var bufferDefinitions = AttachReceiveBufferPool(Config.BufferPools);
-                m_BufferManager = new Pool.BufferManager(bufferDefinitions.ToArray());
-            }
-            catch (OutOfMemoryException)
-            {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error("Out of memory, no enough memory to be allocated by the BufferManager!");
-
-                return false;
-            }
-            catch (Exception e)
-            {
-                if (Logger.IsErrorEnabled)
-                    Logger.Error("Failed to initialize the BufferManager!", e);
-
-                return false;
-            }
-
             return SetupSocketServer();
         }
 
-        //Attach default receive buffer pool definition
-        private List<IBufferPoolConfig> AttachReceiveBufferPool(IEnumerable<IBufferPoolConfig> bufferPools)
-        {
-            //The buffer expading trend: 1, 2, 4, 8, which is 15 totaly
-            var initialCount = Math.Min(Math.Max(Config.MaxConnectionNumber / 15, 100), Config.MaxConnectionNumber);
-
-            var bufferDefinitions = new List<IBufferPoolConfig>();
-
-            IBufferPoolConfig preDefinedReceiveBufferPool = null;
-
-            if (bufferPools != null && bufferPools.Any())
-            {
-                preDefinedReceiveBufferPool = bufferPools.FirstOrDefault(p => p.BufferSize == Config.ReceiveBufferSize);
-                bufferDefinitions.AddRange(bufferPools.Where(p => p != preDefinedReceiveBufferPool));
-            }
-
-            var finalInitialCount = initialCount;
-            if (preDefinedReceiveBufferPool != null)
-                finalInitialCount += preDefinedReceiveBufferPool.InitialCount;
-
-            bufferDefinitions.Add(new BufferPoolConfig(Config.ReceiveBufferSize, finalInitialCount));
-            return bufferDefinitions;
-        }
+        
         /// <summary>
         /// Setups with the specified port.
         /// </summary>
@@ -1138,6 +1092,8 @@ namespace SuperSocket.SocketBase
         /// </returns>
         public virtual bool Start()
         {
+            AppContext.SetCurrentServer(this);
+
             var origStateCode = Interlocked.CompareExchange(ref m_StateCode, ServerStateConst.Starting, ServerStateConst.NotStarted);
 
             if (origStateCode != ServerStateConst.NotStarted)
@@ -1148,6 +1104,32 @@ namespace SuperSocket.SocketBase
                 if (Logger.IsErrorEnabled)
                     Logger.ErrorFormat("This server instance is in the state {0}, you cannot start it now.", (ServerState)origStateCode);
 
+                return false;
+            }
+
+            try
+            {
+                using (var transaction = new LightweightTransaction())
+                {
+                    transaction.RegisterItem(
+                        ServerResourceItem.Create<RequestHandlingSchedulerResource, TaskScheduler>(
+                            (scheduler) => this.m_RequestHandlingTaskScheduler = scheduler, Config, () => this.m_RequestHandlingTaskScheduler));
+
+                    transaction.RegisterItem(
+                        ServerResourceItem.Create<BufferManagerResource, IBufferManager>(
+                            (bufferManager) => this.m_BufferManager = bufferManager, Config));
+
+                    transaction.RegisterItem(
+                        ServerResourceItem.Create<RequestExecutingContextPoolResource<TAppSession, TRequestInfo>, IPool<RequestExecutingContext<TAppSession, TRequestInfo>>>(
+                            (pool) => this.m_RequestExecutingContextPool = pool, Config));
+
+                    m_ServerResources = transaction.Items.OfType<ServerResourceItem>().ToArray();
+                    transaction.Commit();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger.Error(e);
                 return false;
             }
 
@@ -1230,6 +1212,11 @@ namespace SuperSocket.SocketBase
             m_SocketServer.Stop();
 
             m_StateCode = ServerStateConst.NotStarted;
+
+            //Rollback as clean
+            Parallel.ForEach(m_ServerResources, r => r.Rollback());
+            GC.Collect();
+            GC.WaitForFullGCComplete();
 
             OnStopped();
 
@@ -1438,10 +1425,19 @@ namespace SuperSocket.SocketBase
         /// <param name="requestInfo">The request info.</param>
         internal void ExecuteCommand(IAppSession session, TRequestInfo requestInfo)
         {
-            var context = new RequestExecutingContext<TAppSession, TRequestInfo>((TAppSession)session, requestInfo);
-            ExecuteCommandInTask(context);
-            //Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, m_RequestHandlingTaskScheduler)
-            //    .ContinueWith(HandleErrorForExecuteCommandInTask, TaskContinuationOptions.OnlyOnFaulted);
+            var context = m_RequestExecutingContextPool.Get();
+            context.Initialize((TAppSession)session, requestInfo);
+
+            if (m_RequestHandlingTaskScheduler == null)
+            {
+                ExecuteCommandInTask(context);
+                m_RequestExecutingContextPool.Return(context);
+            }
+            else
+            {
+                Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, m_RequestHandlingTaskScheduler)
+                    .ContinueWith(HandleTaskCompleted);
+            }
         }
 
         void ExecuteCommandInTask(object state)
@@ -1450,10 +1446,14 @@ namespace SuperSocket.SocketBase
             this.ExecuteCommand(context.Session, context.RequestInfo);
         }
 
-        void HandleErrorForExecuteCommandInTask(Task task)
+        void HandleTaskCompleted(Task task)
         {
             var context = task.AsyncState as RequestExecutingContext<TAppSession, TRequestInfo>;
-            context.Session.InternalHandleExcetion(task.Exception.InnerException);
+
+            if (task.IsFaulted)
+                context.Session.InternalHandleExcetion(task.Exception.InnerException);
+
+            m_RequestExecutingContextPool.Return(context);
         }
 
         /// <summary>

@@ -161,16 +161,24 @@
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="RequestHandlingMode.cs" />
     <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="ServerResource\BufferManagerResource.cs" />
+    <Compile Include="ServerResource\RequestExecutingContextPoolResource.cs" />
+    <Compile Include="ServerResource\RequestHandlingSchedulerResource.cs" />
+    <Compile Include="ServerResource\ServerResourceItem.cs" />
     <Compile Include="ServerState.cs" />
     <Compile Include="Metadata\StatusInfoKeys.cs" />
     <Compile Include="SessionHandler.cs" />
+    <Compile Include="Scheduler\SingleThreadTaskScheduler.cs" />
     <Compile Include="SocketMode.cs" />
     <Compile Include="AppServer.cs" />
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="StatusInfoCollection.cs" />
-    <Compile Include="ThreadingTaskScheduler.cs" />
+    <Compile Include="Scheduler\CustomThreadPoolTaskScheduler.cs" />
+    <Compile Include="Utils\ITransactionGroup.cs" />
+    <Compile Include="Utils\ITransactionItem.cs" />
+    <Compile Include="Utils\LightweightTransaction.cs" />
     <Compile Include="Utils\SendingQueue.cs" />
     <Compile Include="Utils\SendingQueueSourceCreator.cs" />
   </ItemGroup>
@@ -206,6 +214,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
