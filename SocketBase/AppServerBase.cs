@@ -1123,6 +1123,12 @@ namespace SuperSocket.SocketBase
                         ServerResourceItem.Create<RequestExecutingContextPoolResource<TAppSession, TRequestInfo>, IPool<RequestExecutingContext<TAppSession, TRequestInfo>>>(
                             (pool) => this.m_RequestExecutingContextPool = pool, Config));
 
+                    if (!m_SocketServer.Start())
+                    {
+                        m_StateCode = ServerStateConst.NotStarted;
+                        return false;
+                    }
+
                     m_ServerResources = transaction.Items.OfType<ServerResourceItem>().ToArray();
                     transaction.Commit();
                 }
@@ -1130,12 +1136,6 @@ namespace SuperSocket.SocketBase
             catch (Exception e)
             {
                 Logger.Error(e);
-                return false;
-            }
-
-            if (!m_SocketServer.Start())
-            {
-                m_StateCode = ServerStateConst.NotStarted;
                 return false;
             }
 
