@@ -10,6 +10,9 @@ namespace SuperSocket.SocketBase.Pool
     {
         internal void Initialize(IPool<TPoolItem> pool, int generation)
         {
+            if (pool == null)
+                throw new ArgumentNullException("pool");
+
             Pool = pool;
             Generation = generation;
         }
@@ -20,7 +23,15 @@ namespace SuperSocket.SocketBase.Pool
 
         ~PoolableItem()
         {
+            // if the system is shutting down, don't resurrect the object
+            if(Environment.HasShutdownStarted || AppDomain.CurrentDomain.IsFinalizingForUnload())
+                return;
+
+            // return the object into the pool
             Pool.Return(this as TPoolItem);
+
+            // ensure next time this same finalizer is called again
+            GC.ReRegisterForFinalize(this);
         }
     }
 }
