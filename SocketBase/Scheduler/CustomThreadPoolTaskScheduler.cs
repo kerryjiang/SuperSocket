@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
 using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Scheduler
 {
@@ -13,20 +14,20 @@ namespace SuperSocket.SocketBase.Scheduler
     {
         class TaskQueueEnumerable : IEnumerable<Task>
         {
-            private ConcurrentQueue<Task>[] m_TaskQueues;
+            private QueueItem[] m_Items;
 
-            public TaskQueueEnumerable(ConcurrentQueue<Task>[] queues)
+            public TaskQueueEnumerable(QueueItem[] items)
             {
-                m_TaskQueues = queues;
+                m_Items = items;
             }
 
             public IEnumerator<Task> GetEnumerator()
             {
-                for (var i = 0; i < m_TaskQueues.Length; i++)
+                for (var i = 0; i < m_Items.Length; i++)
                 {
-                    var queue = m_TaskQueues[i];
+                    var item = m_Items[i];
 
-                    var tasks = queue.ToArray();
+                    var tasks = item.Queue.ToArray();
 
                     for (var j = 0; j < tasks.Length; j++)
                     {
@@ -41,19 +42,29 @@ namespace SuperSocket.SocketBase.Scheduler
             }
         }
 
+        class QueueItem
+        {
+            public Thread Thread { get; private set; }
+
+            public int ThreadId { get; private set; }
+
+            public ConcurrentQueue<Task> Queue { get; private set; }
+
+            public QueueItem(Thread thread)
+            {
+                Thread = thread;
+                ThreadId = thread.ManagedThreadId;
+                Queue = new ConcurrentQueue<Task>();
+            }
+        }
+
         private int m_WorkingThreadCount;
-
-        private int m_MinThreadCount;
-
-        private int m_MaxThreadCount;
 
         private int m_MaxSleepingTimeOut = 500;
 
         private int m_MinSleepingTimeOut = 10;
 
-        private ConcurrentQueue<Task>[] m_TaskQueues;
-
-        private Thread[] m_WorkingThreads;
+        private QueueItem[] m_WorkingItems;
 
         private int m_Stopped = 0;
 
@@ -61,22 +72,23 @@ namespace SuperSocket.SocketBase.Scheduler
 
         private ILog m_Log;
 
-        public CustomThreadPoolTaskScheduler(int workingThreadCount)
+        public CustomThreadPoolTaskScheduler(IServerConfig config)
         {
+            if (config.RequestHandlingThreads <= 1 || config.RequestHandlingThreads > 100)
+                throw new Exception("RequestHandlingThreads must be between 2 and 100!");
+
             m_Log = AppContext.CurrentServer.Logger;
 
-            m_WorkingThreadCount = workingThreadCount;
-            m_TaskQueues = new ConcurrentQueue<Task>[workingThreadCount];
-            m_WorkingThreads = new Thread[workingThreadCount];
+            m_WorkingThreadCount = config.RequestHandlingThreads;
+            m_WorkingItems = new QueueItem[m_WorkingThreadCount];
 
-            for (var i = 0; i < workingThreadCount; i++)
+            for (var i = 0; i < m_WorkingThreadCount; i++)
             {
-                var queue = new ConcurrentQueue<Task>();
-                m_TaskQueues[i] = queue;
                 var thread = new Thread(RunWorkingThreads);
+                var item = new QueueItem(thread);
+                m_WorkingItems[i] = item;
                 thread.IsBackground = true;
-                thread.Start(queue);
-                m_WorkingThreads[i] = thread;
+                thread.Start(item.Queue);
             }
         }
 
@@ -126,48 +138,48 @@ namespace SuperSocket.SocketBase.Scheduler
 
         protected override IEnumerable<Task> GetScheduledTasks()
         {
-            return new TaskQueueEnumerable(m_TaskQueues);
+            return new TaskQueueEnumerable(m_WorkingItems);
         }
 
-        private ConcurrentQueue<Task> FindQueueByThreadId(int threadId)
+        private QueueItem FindItemByThreadId(int threadId)
         {
-            for (var i = 0; i < m_WorkingThreads.Length; i++)
+            for (var i = 0; i < m_WorkingItems.Length; i++)
             {
-                var thread = m_WorkingThreads[i];
+                var item = m_WorkingItems[i];
 
-                if (thread.ManagedThreadId == threadId)
-                    return m_TaskQueues[i];
+                if (item.ThreadId == threadId)
+                    return item;
             }
 
             return null;
         }
 
-        private int FindFreeQueue()
+        private QueueItem FindFreeItem()
         {
-            ConcurrentQueue<Task> freeQueue = m_TaskQueues[0];
+            QueueItem freeItem = m_WorkingItems[0];
 
-            var freeQueueCount = freeQueue.Count;
+            var freeQueueCount = freeItem.Queue.Count;
             var freeQueueIndex = 0;
 
-            if (freeQueue.Count == 0)
-                return freeQueueIndex;
+            if (freeQueueCount == 0)
+                return freeItem;
 
-            for (var i = 1; i < m_TaskQueues.Length; i++)
+            for (var i = 1; i < m_WorkingItems.Length; i++)
             {
-                var queue = m_TaskQueues[i];
-                var queueCount = queue.Count;
+                var item = m_WorkingItems[i];
+                var queueCount = item.Queue.Count;
 
                 if (queueCount == 0)
-                    return i;
+                    return item;
 
                 if (queueCount < freeQueueCount)
                 {
                     freeQueueCount = queueCount;
-                    freeQueueIndex = i;
+                    freeItem = item;
                 }
             }
 
-            return freeQueueIndex;
+            return freeItem;
         }
 
         /// <summary>
@@ -185,20 +197,20 @@ namespace SuperSocket.SocketBase.Scheduler
                 if (preferThreadId > c_MagicThreadId)
                     preferThreadId = preferThreadId % c_MagicThreadId;
 
-                var preferedQueue = FindQueueByThreadId(preferThreadId);
+                var preferedItem = FindItemByThreadId(preferThreadId);
 
-                if (preferedQueue != null)
+                if (preferedItem != null)
                 {
                     context.Increment(c_MagicThreadId);
-                    preferedQueue.Enqueue(task);
+                    preferedItem.Queue.Enqueue(task);
                     return;
                 }
 
                 // cannot find the prefered queue go through here
             }
 
-            var freeQueueIndex = FindFreeQueue();
-            var threadId = m_WorkingThreads[freeQueueIndex].ManagedThreadId;
+            var freeItem = FindFreeItem();
+            var threadId = freeItem.ThreadId;
 
             // the prefered thread cannot be found, so clear the threadId from the context
             if (origPreferThreadId > 0)
@@ -207,7 +219,7 @@ namespace SuperSocket.SocketBase.Scheduler
             // record the threadId in the context
             context.Increment(threadId);
 
-            m_TaskQueues[freeQueueIndex].Enqueue(task);
+            freeItem.Queue.Enqueue(task);
             return;
         }
 
@@ -235,9 +247,9 @@ namespace SuperSocket.SocketBase.Scheduler
             {
                 var sum = 0;
 
-                for (var i = 0; i < m_TaskQueues.Length; i++)
+                for (var i = 0; i < m_WorkingItems.Length; i++)
                 {
-                    sum += m_TaskQueues[i].Count;
+                    sum += m_WorkingItems[i].Queue.Count;
                 }
 
                 return sum;
