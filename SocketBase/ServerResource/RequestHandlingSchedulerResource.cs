@@ -22,12 +22,7 @@ namespace SuperSocket.SocketBase.ServerResource
                 return new SingleThreadTaskScheduler();
 
             if (config.RequestHandlingMode == RequestHandlingMode.CustomThreadPool)
-            {
-                if (config.RequestHandlingThreads <= 1 || config.RequestHandlingThreads > 100)
-                    throw new Exception("RequestHandlingThreads must be between 2 and 100!");
-
-                return new CustomThreadPoolTaskScheduler(config.RequestHandlingThreads);
-            }
+                return new CustomThreadPoolTaskScheduler(config);
 
             return null;
         }
