@@ -170,10 +170,15 @@ namespace SuperSocket.SocketBase.Scheduler
             return freeQueueIndex;
         }
 
+        /// <summary>
+        /// Queues a <see cref="T:System.Threading.Tasks.Task" /> to the scheduler.
+        /// </summary>
+        /// <param name="task">The <see cref="T:System.Threading.Tasks.Task" /> to be queued.</param>
         protected override void QueueTask(Task task)
         {
             var context = task.AsyncState as IThreadExecutingContext;
-            var preferThreadId = context.PreferedThreadId;
+            var origPreferThreadId = context.PreferedThreadId;
+            var preferThreadId = origPreferThreadId;
 
             if (preferThreadId > 0)
             {
@@ -188,11 +193,20 @@ namespace SuperSocket.SocketBase.Scheduler
                     preferedQueue.Enqueue(task);
                     return;
                 }
+
+                // cannot find the prefered queue go through here
             }
 
             var freeQueueIndex = FindFreeQueue();
             var threadId = m_WorkingThreads[freeQueueIndex].ManagedThreadId;
+
+            // the prefered thread cannot be found, so clear the threadId from the context
+            if (origPreferThreadId > 0)
+                context.Decrement(origPreferThreadId);
+
+            // record the threadId in the context
             context.Increment(threadId);
+
             m_TaskQueues[freeQueueIndex].Enqueue(task);
             return;
         }
