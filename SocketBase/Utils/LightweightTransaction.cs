@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Utils
 {
-    class LightweightTransaction : ITransactionGroup, IDisposable
+    public class LightweightTransaction : ITransactionGroup, IDisposable
     {
         private List<ITransactionItem> m_Items = new List<ITransactionItem>();
 
