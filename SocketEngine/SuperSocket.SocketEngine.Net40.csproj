@@ -99,6 +99,9 @@
     <Compile Include="ProcessLocker.cs" />
     <Compile Include="ProcessPerformanceCounterHelper.cs" />
     <Compile Include="RemoteBootstrapProxy.cs" />
+    <Compile Include="ServerResource\BufferStatePoolResource.cs" />
+    <Compile Include="ServerResource\SaePoolResource.cs" />
+    <Compile Include="ServerResource\SendingQueuePoolResource.cs" />
     <Compile Include="ServerTypeMetadata.cs" />
     <Compile Include="SocketSession.Net.cs" />
     <Compile Include="TypeValidator.cs" />

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Utils
 {
-    interface ITransactionItem
+    public interface ITransactionItem
     {
         void Rollback();
     }

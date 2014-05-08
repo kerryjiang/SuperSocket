@@ -7,7 +7,7 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.ServerResource
 {
-    interface IResourceCreator<TDataType>
+    public interface IResourceCreator<TDataType>
     {
         TDataType CreateResource(IServerConfig config);
 
@@ -16,7 +16,7 @@ namespace SuperSocket.SocketBase.ServerResource
         Func<TDataType> Accessor { get; set; }
     }
 
-    abstract class ServerResourceItem : ITransactionItem
+    public abstract class ServerResourceItem : ITransactionItem
     {
         public string Name { get; private set; }
 
@@ -49,7 +49,7 @@ namespace SuperSocket.SocketBase.ServerResource
         }
     }
 
-    abstract class ServerResourceItem<TDataType> : ServerResourceItem, ITransactionItem, IResourceCreator<TDataType>
+    public abstract class ServerResourceItem<TDataType> : ServerResourceItem, ITransactionItem, IResourceCreator<TDataType>
     {
         private Action<TDataType> m_AssignAction;
 

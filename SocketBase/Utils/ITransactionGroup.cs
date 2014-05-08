@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.SocketBase.Utils
 {
-    interface ITransactionGroup
+    public interface ITransactionGroup
     {
         void RegisterItem(ITransactionItem item);
 

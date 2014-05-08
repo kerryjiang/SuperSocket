@@ -16,6 +16,9 @@ using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Utils;
+using SuperSocket.SocketBase.ServerResource;
+using SuperSocket.SocketEngine.ServerResource;
+using System.Threading.Tasks;
 
 namespace SuperSocket.SocketEngine
 {
@@ -60,6 +63,8 @@ namespace SuperSocket.SocketEngine
             get { return this.SendingQueuePool; }
         }
 
+        private ServerResourceItem[] m_ServerResources;
+
         public SocketServerBase(IAppServer appServer, ListenerInfo[] listeners)
         {
             AppServer = appServer;
@@ -78,18 +83,25 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                InitializePools();
-            }
-            catch (Exception e)
-            {
-                log.Error("Failed to initialize pools related with socket server.", e);
-                return false;
-            }
+                using (var transaction = new LightweightTransaction())
+                {
+                    var config = this.AppServer.Config;
 
-            try
-            {
-                if (!StartListeners())
-                    return false;
+                    transaction.RegisterItem(ServerResourceItem.Create<SaePoolResource, IPool<SaeState>>(
+                        (pool) => this.m_SaePool = pool, config));
+
+                    transaction.RegisterItem(ServerResourceItem.Create<BufferStatePoolResource, IPool<BufferState>>(
+                        (pool) => this.m_BufferStatePool = pool, config));
+
+                    transaction.RegisterItem(ServerResourceItem.Create<SendingQueuePoolResource, IPool<SendingQueue>>(
+                        (pool) => this.SendingQueuePool = pool, config));
+
+                    if (!StartListeners())
+                        return false;
+
+                    m_ServerResources = transaction.Items.OfType<ServerResourceItem>().ToArray();
+                    transaction.Commit();
+                }
             }
             catch (Exception e)
             {
@@ -205,6 +217,12 @@ namespace SuperSocket.SocketEngine
             }
 
             Listeners.Clear();
+
+            // Clean the attached server resources
+            if (m_ServerResources != null)
+            {
+                Parallel.ForEach(m_ServerResources, (r) => r.Rollback());
+            }
 
             IsRunning = false;
         }
