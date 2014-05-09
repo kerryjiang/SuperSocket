@@ -182,20 +182,28 @@ namespace SuperSocket.SocketEngine
         void SessionClosed(ISocketSession session, CloseReason reason)
         {
             var socketSession = session as IAsyncSocketSessionBase;
+            if (socketSession == null)
+                return;
 
-            if (socketSession != null && this.m_ReadWritePool != null)
+            var proxy = socketSession.SocketAsyncProxy;
+            proxy.Reset();
+
+            var serverState = AppServer.State;
+            var pool = this.m_ReadWritePool;
+
+            if (pool == null || serverState == ServerState.Stopping || serverState == ServerState.NotStarted)
             {
-                var proxy = socketSession.SocketAsyncProxy;
-                proxy.Reset();
-
-                if (proxy.OrigOffset != proxy.SocketEventArgs.Offset)
-                {
-                    proxy.SocketEventArgs.SetBuffer(proxy.OrigOffset, AppServer.Config.ReceiveBufferSize);
-                }
-
-                if (m_ReadWritePool != null)
-                    m_ReadWritePool.Push(proxy);
+                if(!Environment.HasShutdownStarted && !AppDomain.CurrentDomain.IsFinalizingForUnload())
+                    proxy.SocketEventArgs.Dispose();
+                return;
             }
+
+            if (proxy.OrigOffset != proxy.SocketEventArgs.Offset)
+            {
+                proxy.SocketEventArgs.SetBuffer(proxy.OrigOffset, AppServer.Config.ReceiveBufferSize);
+            }
+
+            pool.Push(proxy);
         }
 
         public override void Stop()

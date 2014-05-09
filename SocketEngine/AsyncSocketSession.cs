@@ -249,7 +249,19 @@ namespace SuperSocket.SocketEngine
 
             //read the next block of data sent from the client
             StartReceive(e, offsetDelta);
-        }      
+        }
+
+        protected override void OnClosed(CloseReason reason)
+        {
+            if (m_SocketEventArgSend != null)
+            {
+                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+                m_SocketEventArgSend.Dispose();
+                m_SocketEventArgSend = null;
+            }
+
+            base.OnClosed(reason);
+        }
 
         public override void ApplySecureProtocol()
         {

@@ -313,6 +313,8 @@ namespace SuperSocket.SocketBase
         {
             base.Stop();
 
+            m_SessionsSnapshot = null;
+
             if (m_SessionSnapshotTimer != null)
             {
                 m_SessionSnapshotTimer.Change(Timeout.Infinite, Timeout.Infinite);

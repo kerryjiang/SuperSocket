@@ -14,6 +14,8 @@ namespace SuperSocket.SocketEngine
     {
         private Socket m_ListenSocket;
 
+        private SocketAsyncEventArgs m_ReceiveSAE;
+
         public UdpSocketListener(ListenerInfo info)
             : base(info)
         {
@@ -46,6 +48,7 @@ namespace SuperSocket.SocketEngine
                 }
 
                 var eventArgs = new SocketAsyncEventArgs();
+                m_ReceiveSAE = eventArgs;
 
                 eventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
                 eventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
@@ -109,6 +112,10 @@ namespace SuperSocket.SocketEngine
             {
                 if (m_ListenSocket == null)
                     return;
+
+                m_ReceiveSAE.Completed -= new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+                m_ReceiveSAE.Dispose();
+                m_ReceiveSAE = null;
 
                 if(!Platform.IsMono)
                 {

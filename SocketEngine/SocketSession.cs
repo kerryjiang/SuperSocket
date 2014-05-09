@@ -345,15 +345,18 @@ namespace SuperSocket.SocketEngine
 
             if (isInClosingOrClosed)
             {
-                var client = m_Client;
-                //The socket has not been closed, close it now
-                if (client != null)
+                Socket client;
+
+                if (!TryValidateClosedBySocket(out client))
                 {
                     //No data to be sent
                     if (m_SendingQueue.Count == 0)
                     {
-                        //Not can close it now
-                        InternalClose(client, GetCloseReasonFromState(), false);
+                        if (client != null)// the socket instance is not closed yet, do it now
+                            InternalClose(client, GetCloseReasonFromState(), false);
+                        else// The UDP mode, the socket instance always is null, fire the closed event directly
+                            OnClosed(GetCloseReasonFromState());
+
                         return;
                     }
 
@@ -447,16 +450,23 @@ namespace SuperSocket.SocketEngine
         /// <value>The secure protocol.</value>
         public SslProtocols SecureProtocol { get; set; }
 
+        protected virtual bool TryValidateClosedBySocket(out Socket socket)
+        {
+            socket = m_Client;
+            //Already closed/closing
+            return socket == null;
+        }
+
         public virtual void Close(CloseReason reason)
         {
             //Already in closing procedure
             if (!TryAddStateFlag(SocketState.InClosing))
                 return;
 
-            var client = m_Client;
+            Socket client;
 
-            //Already closed/closing
-            if (client == null)
+            //No need to clean the socket instance
+            if (TryValidateClosedBySocket(out client))
                 return;
 
             //Some data is in sending
@@ -467,7 +477,11 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            InternalClose(client, reason, true);
+            // In the udp mode, we needn't close the socket instance
+            if (client != null)
+                InternalClose(client, reason, true);
+            else //In Udp mode, and the socket is not in the sending state, then fire the closed event directly
+                OnClosed(reason);
         }
 
         private void InternalClose(Socket client, CloseReason reason, bool setCloseReason)

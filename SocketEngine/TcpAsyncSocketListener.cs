@@ -19,6 +19,8 @@ namespace SuperSocket.SocketEngine
 
         private Socket m_ListenSocket;
 
+        private SocketAsyncEventArgs m_AcceptSAE;
+
         public TcpAsyncSocketListener(ListenerInfo info)
             : base(info)
         {
@@ -43,6 +45,7 @@ namespace SuperSocket.SocketEngine
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
 
                 SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
+                m_AcceptSAE = acceptEventArg;
                 acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
 
                 if (!m_ListenSocket.AcceptAsync(acceptEventArg))
@@ -128,6 +131,10 @@ namespace SuperSocket.SocketEngine
             {
                 if (m_ListenSocket == null)
                     return;
+
+                m_AcceptSAE.Completed -= new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
+                m_AcceptSAE.Dispose();
+                m_AcceptSAE = null;
 
                 try
                 {
