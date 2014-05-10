@@ -143,6 +143,8 @@ namespace SuperSocket.SocketEngine
 
             Listeners.Clear();
 
+            SendingQueuePool = null;
+
             IsRunning = false;
         }
 
