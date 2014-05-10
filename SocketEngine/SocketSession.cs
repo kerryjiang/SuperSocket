@@ -281,7 +281,9 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            if (IsInClosingOrClosed && m_Client == null)
+            Socket client;
+
+            if (IsInClosingOrClosed && TryValidateClosedBySocket(out client))
             {
                 OnSendEnd(true);
                 return;
@@ -379,8 +381,10 @@ namespace SuperSocket.SocketEngine
 
             if (IsInClosingOrClosed)
             {
+                Socket client;
+
                 //has data is being sent and the socket isn't closed
-                if (newQueue.Count > 0 && m_Client != null)
+                if (newQueue.Count > 0 && !TryValidateClosedBySocket(out client))
                 {
                     StartSend(newQueue, newQueue.TrackID, false);
                     return;
@@ -389,7 +393,7 @@ namespace SuperSocket.SocketEngine
                 OnSendEnd(true);
                 return;
             }
-
+            
             if (newQueue.Count == 0)
             {
                 OnSendEnd();

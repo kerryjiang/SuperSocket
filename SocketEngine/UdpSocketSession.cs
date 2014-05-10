@@ -73,7 +73,8 @@ namespace SuperSocket.SocketEngine
             var item = queue[queue.Position];
             e.SetBuffer(item.Array, item.Offset, item.Count);
 
-            m_ServerSocket.SendToAsync(e);
+            if (!m_ServerSocket.SendToAsync(e))
+                OnSendingCompleted(this, e);
         }
 
         void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
