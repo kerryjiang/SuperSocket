@@ -313,8 +313,6 @@ namespace SuperSocket.SocketBase
         {
             base.Stop();
 
-            m_SessionsSnapshot = null;
-
             if (m_SessionSnapshotTimer != null)
             {
                 m_SessionSnapshotTimer.Change(Timeout.Infinite, Timeout.Infinite);
@@ -328,6 +326,8 @@ namespace SuperSocket.SocketBase
                 m_ClearIdleSessionTimer.Dispose();
                 m_ClearIdleSessionTimer = null;
             }
+
+            m_SessionsSnapshot = null;
 
             var sessions = m_SessionDict.ToArray();
 
