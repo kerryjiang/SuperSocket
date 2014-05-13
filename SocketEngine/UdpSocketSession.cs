@@ -10,14 +10,13 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using System.Threading;
 
 namespace SuperSocket.SocketEngine
 {
     class UdpSocketSession : SocketSession
     {
         private Socket m_ServerSocket;
-
-        private SocketAsyncEventArgs m_SocketEventArgSend;
 
         public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint)
             : base(remoteEndPoint.ToString())
@@ -47,18 +46,6 @@ namespace SuperSocket.SocketEngine
             this.RemoteEndPoint = remoteEndPoint;
         }
 
-        public override void Initialize(IAppSession appSession)
-        {
-            base.Initialize(appSession);
-
-            if (!SyncSend)
-            {
-                //Initialize SocketAsyncEventArgs for sending
-                m_SocketEventArgSend = new SocketAsyncEventArgs();
-                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
-            }
-        }
-
         public override void Start()
         {
             StartSession();
@@ -66,7 +53,9 @@ namespace SuperSocket.SocketEngine
 
         protected override void SendAsync(SendingQueue queue)
         {
-            var e = m_SocketEventArgSend;
+            var e = new SocketAsyncEventArgs();
+
+            e.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
             e.RemoteEndPoint = RemoteEndPoint;
             e.UserToken = queue;
 
@@ -75,6 +64,13 @@ namespace SuperSocket.SocketEngine
 
             if (!m_ServerSocket.SendToAsync(e))
                 OnSendingCompleted(this, e);
+        }
+
+        void CleanSocketAsyncEventArgs(SocketAsyncEventArgs e)
+        {
+            e.UserToken = null;
+            e.Completed -= new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+            e.Dispose();
         }
 
         void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
@@ -88,16 +84,17 @@ namespace SuperSocket.SocketEngine
                 if (log.IsErrorEnabled)
                     log.Error(new SocketException((int)e.SocketError));
 
-                e.UserToken = null;
+                CleanSocketAsyncEventArgs(e);
                 OnSendError(queue, CloseReason.SocketError);
                 return;
             }
+
+            CleanSocketAsyncEventArgs(e);
 
             var newPos = queue.Position + 1;
 
             if (newPos >= queue.Count)
             {
-                e.UserToken = null;
                 OnSendingCompleted(queue);
                 return;
             }
@@ -126,18 +123,6 @@ namespace SuperSocket.SocketEngine
         {
             socket = null;
             return false;
-        }
-
-        protected override void OnClosed(CloseReason reason)
-        {
-            if (m_SocketEventArgSend != null)
-            {
-                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
-                m_SocketEventArgSend.Dispose();
-                m_SocketEventArgSend = null;
-            }
-
-            base.OnClosed(reason);
         }
 
         public override int OrigReceiveOffset
