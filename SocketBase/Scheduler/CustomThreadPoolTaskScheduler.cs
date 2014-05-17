@@ -159,7 +159,6 @@ namespace SuperSocket.SocketBase.Scheduler
             QueueItem freeItem = m_WorkingItems[0];
 
             var freeQueueCount = freeItem.Queue.Count;
-            var freeQueueIndex = 0;
 
             if (freeQueueCount == 0)
                 return freeItem;
