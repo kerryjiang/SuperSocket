@@ -54,6 +54,7 @@ namespace SuperSocket.SocketEngine
         {
             var saeState = m_SaePoolForReceive.Get();
             saeState.SocketSession = this;
+            saeState.Sae.UserToken = saeState;
 
             StartReceive(saeState.Sae);
 
@@ -198,21 +199,26 @@ namespace SuperSocket.SocketEngine
 
         public void ProcessReceive(SocketAsyncEventArgs e)
         {
+            var state = e.UserToken as SaeState;
+
             if (!ProcessCompleted(e))
             {
-                m_SaePoolForReceive.Return(e.UserToken as SaeState);
+                e.UserToken = null;
+                m_SaePoolForReceive.Return(state);
                 OnReceiveError(CloseReason.ClientClosing);
                 return;
             }
 
             OnReceiveEnded();
 
-            var result = ProcessReceivedData(new ArraySegment<byte>(e.Buffer, e.Offset, e.BytesTransferred), e.UserToken);
+            var result = ProcessReceivedData(new ArraySegment<byte>(e.Buffer, e.Offset, e.BytesTransferred), state);
 
             if (result.State == ProcessState.Cached)
             {
+                e.UserToken = null;
                 var newState = m_SaePoolForReceive.Get();
                 e = newState.Sae;
+                e.UserToken = newState;
                 newState.SocketSession = this;
             }
 
@@ -223,6 +229,32 @@ namespace SuperSocket.SocketEngine
         public override void ApplySecureProtocol()
         {
             //TODO: Implement async socket SSL/TLS encryption
+        }
+
+        protected override void OnClosed(CloseReason reason)
+        {
+            if (m_SocketEventArgSend != null)
+            {
+                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+                m_SocketEventArgSend.Dispose();
+                m_SocketEventArgSend = null;
+            }
+
+            base.OnClosed(reason);
+        }
+
+        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, IBufferState>> buffers, int offset, int length)
+        {
+            for (var i = 0; i < length; i++)
+            {
+                var buffer = buffers[offset + i];
+                var state = buffer.Value as SaeState;
+
+                if (state != null && state.DecreaseReference() == 0)
+                {
+                    m_SaePoolForReceive.Return(state);
+                }
+            }
         }
     }
 }

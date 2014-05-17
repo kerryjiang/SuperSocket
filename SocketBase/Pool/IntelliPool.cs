@@ -5,6 +5,7 @@ using System.Text;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Threading;
+using SuperSocket.SocketBase.Logging;
 
 namespace SuperSocket.SocketBase.Pool
 {
@@ -13,14 +14,14 @@ namespace SuperSocket.SocketBase.Pool
         public byte Generation { get; set; }
     }
 
-    public class IntelliPrimitiveObjectPool<T> : IntelliPoolBase<T>
+    public class IntelliPool<T> : IntelliPoolBase<T>
     {
         private ConcurrentDictionary<T, PoolItemState> m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
 
-        private ConcurrentDictionary<T, T> m_RemovedBufferDict;
+        private ConcurrentDictionary<T, T> m_RemovedItemDict;
 
-        public IntelliPrimitiveObjectPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null)
-            : base(initialCount, itemCreator, itemCleaner)
+        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null, Action<T> itemPreGet = null)
+            : base(initialCount, itemCreator, itemCleaner, itemPreGet)
         {
 
         }
@@ -49,14 +50,14 @@ namespace SuperSocket.SocketBase.Pool
                 }
             }
 
-            if (m_RemovedBufferDict == null)
-                m_RemovedBufferDict = new ConcurrentDictionary<T, T>();
+            if (m_RemovedItemDict == null)
+                m_RemovedItemDict = new ConcurrentDictionary<T, T>();
 
             foreach (var item in toBeRemoved)
             {
                 PoolItemState state;
                 if (m_BufferDict.TryRemove(item, out state))
-                    m_RemovedBufferDict.TryAdd(item, item);
+                    m_RemovedItemDict.TryAdd(item, item);
             }
 
             return true;
@@ -69,36 +70,11 @@ namespace SuperSocket.SocketBase.Pool
 
         protected override bool TryRemove(T item)
         {
-            if (m_RemovedBufferDict == null || m_RemovedBufferDict.Count == 0)
+            if (m_RemovedItemDict == null || m_RemovedItemDict.Count == 0)
                 return false;
 
             T removedItem;
-            return m_RemovedBufferDict.TryRemove(item, out removedItem);
-        }
-    }
-
-    public class IntelliPool<T> : IntelliPoolBase<T>
-        where T : PoolableItem<T>, IPoolableItem
-    {
-        public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null)
-            : base(initialCount, itemCreator, itemCleaner)
-        {
-
-        }
-
-        protected override void RegisterNewItem(T item)
-        {
-            item.Initialize(this, CurrentGeneration);
-        }
-
-        protected override bool CanReturn(T item)
-        {
-            return item.Generation <= CurrentGeneration;
-        }
-
-        protected override bool TryRemove(T item)
-        {
-            return item.Generation > CurrentGeneration;
+            return m_RemovedItemDict.TryRemove(item, out removedItem);
         }
     }
 
@@ -119,6 +95,8 @@ namespace SuperSocket.SocketBase.Pool
         private ConcurrentStack<T> m_Store;
 
         private IPoolItemCreator<T> m_ItemCreator;
+
+        protected ILog Log { get; private set; }
 
         private byte m_CurrentGeneration = 0;
 
@@ -147,10 +125,15 @@ namespace SuperSocket.SocketBase.Pool
 
         private Action<T> m_ItemCleaner;
 
-        public IntelliPoolBase(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null)
+        private Action<T> m_ItemPreGet;
+
+        public IntelliPoolBase(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null, Action<T> itemPreGet = null)
         {
             m_ItemCreator = itemCreator;
             m_ItemCleaner = itemCleaner;
+            m_ItemPreGet = itemPreGet;
+
+            Log = AppContext.CurrentServer.Logger;
 
             var list = new List<T>(initialCount);
 
@@ -185,6 +168,11 @@ namespace SuperSocket.SocketBase.Pool
                 if (m_AvailableCount <= m_NextExpandThreshold && m_InExpanding == 0)
                     ThreadPool.QueueUserWorkItem(w => TryExpand());
 
+                var itemPreGet = m_ItemPreGet;
+
+                if (itemPreGet != null)
+                    itemPreGet(item);
+
                 return item;
             }
 
@@ -200,6 +188,12 @@ namespace SuperSocket.SocketBase.Pool
                     if (m_Store.TryPop(out item))
                     {
                         Interlocked.Decrement(ref m_AvailableCount);
+
+                        var itemPreGet = m_ItemPreGet;
+
+                        if (itemPreGet != null)
+                            itemPreGet(item);
+
                         return item;
                     }
 
@@ -238,6 +232,7 @@ namespace SuperSocket.SocketBase.Pool
             m_CurrentGeneration++;
 
             m_TotalCount += totalCount;
+            Log.DebugFormat("The pool {0}[{1} was expanded from {2} to {3}]", this.GetType().Name, this.GetHashCode(), totalCount, m_TotalCount);
             UpdateNextExpandThreshold();
         }
 
@@ -262,8 +257,9 @@ namespace SuperSocket.SocketBase.Pool
 
         public void Return(T item)
         {
-            if (m_ItemCleaner != null)
-                m_ItemCleaner(item);
+            var itemCleaner = m_ItemCleaner;
+            if (itemCleaner != null)
+                itemCleaner(item);
 
             if (CanReturn(item))
             {

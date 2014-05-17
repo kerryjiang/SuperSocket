@@ -197,7 +197,7 @@ namespace SuperSocket.SocketBase
         {
             var receiveFilterFactory = AppServer.ReceiveFilterFactory;
             var receiveFilter = receiveFilterFactory.CreateFilter(AppServer, this, SocketSession.RemoteEndPoint);
-            return new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength);
+            return new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength, SocketSession as IBufferRecycler);
         }
 
         /// <summary>

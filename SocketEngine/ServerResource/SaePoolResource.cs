@@ -20,7 +20,7 @@ namespace SuperSocket.SocketEngine.ServerResource
 
         protected override IPool<SaeState> CreateResource(IServerConfig config)
         {
-            var server = AppContext.CurrentServer;
+            var server = AppContext.CurrentServer; 
 
             //Plain tcp socket or udp
             if (config.Mode == SocketMode.Udp || server.Listeners.Any(l => l.Security == SslProtocols.None))
@@ -34,11 +34,34 @@ namespace SuperSocket.SocketEngine.ServerResource
 
                 var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
 
-                var socketServer = (server as ISocketServerAccessor).SocketServer;
-                return new IntelliPool<SaeState>(initialCount, new SaeStateCreator(bufferManager, bufferSize, socketServer as IAsyncSocketEventComplete));
+                var socketEventComplete = (server as ISocketServerAccessor).SocketServer as IAsyncSocketEventComplete;
+                return new IntelliPool<SaeState>(initialCount, new SaeStateCreator(bufferManager, bufferSize), (state) =>
+                {
+                    state.SocketSession = null;
+                    var token = state.Sae.UserToken;
+
+                    if (token != null)
+                        state.Sae.UserToken = null;
+
+                    if (socketEventComplete != null)
+                    {
+                        state.Sae.Completed -= socketEventComplete.HandleSocketEventComplete;
+                    }
+                },
+                (state) =>
+                {
+                    state.Sae.Completed += socketEventComplete.HandleSocketEventComplete;
+                });
             }
 
             return null;
+        }
+
+        private void CleanState(SaeState state)
+        {
+            var token = state.Sae.UserToken;
+            if (token != null)
+                state.Sae.UserToken = null;
         }
     }
 }

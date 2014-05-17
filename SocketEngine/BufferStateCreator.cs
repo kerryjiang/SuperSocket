@@ -48,7 +48,7 @@ namespace SuperSocket.SocketEngine
 
                 for (int i = 0; i < count; i++)
                 {
-                    yield return new BufferState(m_BufferManager.GetBuffer(m_BufferSize), m_Pool);
+                    yield return new BufferState(m_BufferManager.GetBuffer(m_BufferSize));
                 }
             }
 

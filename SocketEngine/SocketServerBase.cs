@@ -113,34 +113,6 @@ namespace SuperSocket.SocketEngine
             return true;
         }
 
-        private void InitializePools()
-        {
-            var config = AppServer.Config;
-
-            int bufferSize = config.ReceiveBufferSize;
-
-            if (bufferSize <= 0)
-                bufferSize = 1024 * 4;
-
-            var bufferManager = AppServer.BufferManager;
-
-            var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
-
-            //Plain tcp socket or udp
-            if(config.Mode == SocketMode.Udp || ListenerInfos.Any(l => l.Security == SslProtocols.None))
-            {
-                m_SaePool = new IntelliPool<SaeState>(initialCount, new SaeStateCreator(bufferManager, bufferSize, this));
-            }
-
-            //TLS/SSL TCP
-            if (ListenerInfos.Any(l => l.Security != SslProtocols.None))
-            {
-                m_BufferStatePool = new IntelliPool<BufferState>(initialCount, new BufferStateCreator(m_BufferStatePool, bufferManager, bufferSize));
-            }
-
-            SendingQueuePool = new IntelliPool<SendingQueue>(Math.Max(config.MaxConnectionNumber / 6, 256), new SendingQueueSourceCreator(config.SendingQueueSize));
-        }
-
         private bool StartListeners()
         {
             ILog log = AppServer.Logger;
