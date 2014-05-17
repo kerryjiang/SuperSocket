@@ -10,7 +10,7 @@ using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketEngine
 {
-    class SaeState : PoolableItem<SaeState>
+    class SaeState : BufferBaseState
     {
         public ISocketSession SocketSession { get; internal set; }
 
@@ -19,12 +19,6 @@ namespace SuperSocket.SocketEngine
         public SaeState(SocketAsyncEventArgs sae)
         {
             Sae = sae;
-        }
-
-        ~SaeState()
-        {
-            //Clean the assosiated session before the SAE is returned to the pool
-            SocketSession = null;
         }
     }
 }

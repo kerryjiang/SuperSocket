@@ -32,7 +32,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// Socket Session, all application session should base on this class
     /// </summary>
-    abstract partial class SocketSession : ISocketSession
+    abstract partial class SocketSession : ISocketSession, IBufferRecycler
     {
         public IAppSession AppSession { get; private set; }
 
@@ -291,7 +291,9 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            if (IsInClosingOrClosed && m_Client == null)
+            Socket client;
+
+            if (IsInClosingOrClosed && TryValidateClosedBySocket(out client))
             {
                 OnSendEnd(true);
                 return;
@@ -347,15 +349,18 @@ namespace SuperSocket.SocketEngine
 
             if (isInClosingOrClosed)
             {
-                var client = m_Client;
-                //The socket has not been closed, close it now
-                if (client != null)
+                Socket client;
+
+                if (!TryValidateClosedBySocket(out client))
                 {
                     //No data to be sent
                     if (m_SendingQueue.Count == 0)
                     {
-                        //Not can close it now
-                        InternalClose(client, GetCloseReasonFromState(), false);
+                        if (client != null)// the socket instance is not closed yet, do it now
+                            InternalClose(client, GetCloseReasonFromState(), false);
+                        else// The UDP mode, the socket instance always is null, fire the closed event directly
+                            OnClosed(GetCloseReasonFromState());
+
                         return;
                     }
 
@@ -378,8 +383,10 @@ namespace SuperSocket.SocketEngine
 
             if (IsInClosingOrClosed)
             {
+                Socket client;
+
                 //has data is being sent and the socket isn't closed
-                if (newQueue.Count > 0 && m_Client != null)
+                if (newQueue.Count > 0 && !TryValidateClosedBySocket(out client))
                 {
                     StartSend(newQueue, newQueue.TrackID, false);
                     return;
@@ -449,16 +456,23 @@ namespace SuperSocket.SocketEngine
         /// <value>The secure protocol.</value>
         public SslProtocols SecureProtocol { get; set; }
 
+        protected virtual bool TryValidateClosedBySocket(out Socket socket)
+        {
+            socket = m_Client;
+            //Already closed/closing
+            return socket == null;
+        }
+
         public virtual void Close(CloseReason reason)
         {
             //Already in closing procedure
             if (!TryAddStateFlag(SocketState.InClosing))
                 return;
 
-            var client = m_Client;
+            Socket client;
 
-            //Already closed/closing
-            if (client == null)
+            //No need to clean the socket instance
+            if (TryValidateClosedBySocket(out client))
                 return;
 
             //Some data is in sending
@@ -469,7 +483,11 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            InternalClose(client, reason, true);
+            // In the udp mode, we needn't close the socket instance
+            if (client != null)
+                InternalClose(client, reason, true);
+            else //In Udp mode, and the socket is not in the sending state, then fire the closed event directly
+                OnClosed(reason);
         }
 
         private void InternalClose(Socket client, CloseReason reason, bool setCloseReason)
@@ -613,7 +631,7 @@ namespace SuperSocket.SocketEngine
 
         private const string m_SesionDataSlotName = "Session";
 
-        internal ProcessResult ProcessReceivedData(ArraySegment<byte> data, object state)
+        internal ProcessResult ProcessReceivedData(ArraySegment<byte> data, IBufferState state)
         {
             LocalDataStoreSlot slot = null;
 
@@ -647,6 +665,19 @@ namespace SuperSocket.SocketEngine
                 if (slot != null)
                     Thread.SetData(slot, null);
             }
+        }
+
+        /// <summary>
+        /// Returns the buffer.
+        /// </summary>
+        /// <param name="buffers">The buffers.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        protected abstract void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, IBufferState>> buffers, int offset, int length);
+
+        void IBufferRecycler.Return(IList<KeyValuePair<ArraySegment<byte>, IBufferState>> buffers, int offset, int length)
+        {
+            ReturnBuffer(buffers, offset, length);
         }
     }
 }

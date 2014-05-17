@@ -54,6 +54,8 @@
     <Compile Include="HttpHeaderInfo.cs" />
     <Compile Include="HttpHeaderReceiveFilterBase.cs" />
     <Compile Include="HttpPackageInfoBase.cs" />
+    <Compile Include="IBufferRecycler.cs" />
+    <Compile Include="IBufferState.cs" />
     <Compile Include="IPackageHandler.cs" />
     <Compile Include="IPackageInfo.cs" />
     <Compile Include="IPackageResolver.cs" />

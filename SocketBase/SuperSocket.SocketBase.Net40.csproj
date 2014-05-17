@@ -118,10 +118,8 @@
     <Compile Include="Pool\IBufferPool.cs" />
     <Compile Include="Pool\IntelliPool.cs" />
     <Compile Include="Pool\IPool.cs" />
-    <Compile Include="Pool\IPoolableItem.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
     <Compile Include="Pool\NullBufferManager.cs" />
-    <Compile Include="Pool\PoolableItem.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Provider\ExportFactory.cs" />

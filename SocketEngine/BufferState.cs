@@ -3,24 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Pool;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketEngine
 {
-    sealed class BufferState : PoolableItem<BufferState>
+    sealed class BufferState : BufferBaseState
     {
         public byte[] Buffer { get; private set; }
 
-        private IPool<BufferState> m_Pool;
-
-        public BufferState(byte[] buffer, IPool<BufferState> pool)
+        public BufferState(byte[] buffer)
         {
             Buffer = buffer;
-            m_Pool = pool;
-        }
-
-        ~BufferState()
-        {
-            m_Pool.Return(this);
         }
     }
 }

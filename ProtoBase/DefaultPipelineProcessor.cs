@@ -12,21 +12,27 @@ namespace SuperSocket.ProtoBase
 
         public IReceiveFilter<TPackageInfo> m_ReceiveFilter;
 
+        private IBufferRecycler m_BufferRecycler;
+
+        private static readonly IBufferRecycler s_NullBufferRecycler = new NullBufferRecycler();
+
         private ReceiveCache m_ReceiveCache;
 
         private int m_MaxPackageLength;
 
-        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter, int maxPackageLength = 0)
+        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter, int maxPackageLength = 0, IBufferRecycler bufferRecycler = null)
         {
             m_PackageHandler = packageHandler;
             m_ReceiveFilter = receiveFilter;
+            m_BufferRecycler = bufferRecycler ?? s_NullBufferRecycler;
             m_ReceiveCache = new ReceiveCache();
             m_MaxPackageLength = maxPackageLength;
         }
 
-        private void PushResetData(ArraySegment<byte> raw, int rest, object state)
+        private void PushResetData(ArraySegment<byte> raw, int rest, IBufferState state)
         {
             var segment = new ArraySegment<byte>(raw.Array, raw.Offset + raw.Count - rest, rest);
+            state.IncreaseReference();
             m_ReceiveCache.Add(segment, state);
         }
 
@@ -40,7 +46,7 @@ namespace SuperSocket.ProtoBase
                 handler(this, EventArgs.Empty);
         }
 
-        public virtual ProcessResult Process(ArraySegment<byte> segment, object state)
+        public virtual ProcessResult Process(ArraySegment<byte> segment, IBufferState state)
         {
             m_ReceiveCache.Add(segment, state);
 
@@ -52,6 +58,7 @@ namespace SuperSocket.ProtoBase
 
                 if (m_ReceiveFilter.State == FilterState.Error)
                 {
+                    m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count);
                     return ProcessResult.Create(ProcessState.Error);
                 }
 
@@ -61,6 +68,7 @@ namespace SuperSocket.ProtoBase
 
                     if (length > m_MaxPackageLength)
                     {
+                        m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count);
                         return ProcessResult.Create(ProcessState.Error, string.Format("Max package length: {0}, current processed length: {1}", m_MaxPackageLength, length));
                     }
                 }
@@ -99,7 +107,7 @@ namespace SuperSocket.ProtoBase
                 }
                 else
                 {
-                    m_ReceiveCache.Clear();
+                    ReturnOtherThanLastBuffer();
 
                     if (rest <= 0)
                     {
@@ -109,6 +117,24 @@ namespace SuperSocket.ProtoBase
 
                 PushResetData(segment, rest, state);
             }
+        }
+
+        void ReturnOtherThanLastBuffer()
+        {
+            var bufferList = m_ReceiveCache.GetAllCachedItems();
+            var count = bufferList.Count;
+            var lastBufferItem = bufferList[count - 1].Key.Array;
+
+            for (var i = count - 2; i >= 0; i--)
+            {
+                if (bufferList[i].Key.Array != lastBufferItem)
+                {
+                    m_BufferRecycler.Return(bufferList, 0, i + 1);
+                    break;
+                }
+            }
+
+            m_ReceiveCache.Clear();
         }
 
         public ReceiveCache Cache

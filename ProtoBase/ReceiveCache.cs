@@ -7,7 +7,7 @@ namespace SuperSocket.ProtoBase
 {
     public sealed class ReceiveCache : IList<ArraySegment<byte>>
     {
-        private List<KeyValuePair<ArraySegment<byte>, object>> m_List = new List<KeyValuePair<ArraySegment<byte>, object>>();
+        private List<KeyValuePair<ArraySegment<byte>, IBufferState>> m_List = new List<KeyValuePair<ArraySegment<byte>, IBufferState>>();
 
         public ArraySegment<byte> Current
         {
@@ -54,9 +54,9 @@ namespace SuperSocket.ProtoBase
             throw new NotSupportedException();
         }
 
-        public void Add(ArraySegment<byte> item, object state)
+        public void Add(ArraySegment<byte> item, IBufferState state)
         {
-            m_List.Add(new KeyValuePair<ArraySegment<byte>, object>(item, state));
+            m_List.Add(new KeyValuePair<ArraySegment<byte>, IBufferState>(item, state));
             m_Total += item.Count;
         }
 
@@ -65,7 +65,7 @@ namespace SuperSocket.ProtoBase
             var lastPos = m_List.Count - 1;
             var lastItem = m_List[lastPos];
             var lastSegment = lastItem.Key;
-            m_List[lastPos] = new KeyValuePair<ArraySegment<byte>, object>(new ArraySegment<byte>(lastSegment.Array, lastSegment.Offset, length), lastItem.Value);
+            m_List[lastPos] = new KeyValuePair<ArraySegment<byte>, IBufferState>(new ArraySegment<byte>(lastSegment.Array, lastSegment.Offset, length), lastItem.Value);
             m_Total += length - lastSegment.Count;
         }
 
@@ -122,7 +122,7 @@ namespace SuperSocket.ProtoBase
             return GetEnumerator();
         }
 
-        public IList<KeyValuePair<ArraySegment<byte>, object>> GetAllCachedItems()
+        public IList<KeyValuePair<ArraySegment<byte>, IBufferState>> GetAllCachedItems()
         {
             return m_List;
         }

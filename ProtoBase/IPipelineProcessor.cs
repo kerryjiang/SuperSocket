@@ -7,7 +7,7 @@ namespace SuperSocket.ProtoBase
 {
     public interface IPipelineProcessor
     {
-        ProcessResult Process(ArraySegment<byte> segment, object state);
+        ProcessResult Process(ArraySegment<byte> segment, IBufferState state);
 
         ReceiveCache Cache { get; }
     }

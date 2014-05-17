@@ -75,7 +75,7 @@ namespace SuperSocket.SocketBase
         int PreferedThreadId { get; set; }
     }
 
-    class RequestExecutingContext<TAppSession, TRequestInfo> : PoolableItem<RequestExecutingContext<TAppSession, TRequestInfo>>, IThreadExecutingContext
+    class RequestExecutingContext<TAppSession, TRequestInfo> : IThreadExecutingContext
         where TRequestInfo : IRequestInfo
         where TAppSession : IAppSession, IThreadExecutingContext, IAppSession<TAppSession, TRequestInfo>, new()
     {
