@@ -49,8 +49,9 @@ namespace SuperSocket.SocketEngine
                 }
 
                 var saeState = m_SaePool.Get();
-
-                m_ListenSocket.ReceiveFromAsync(saeState.Sae);
+                var sae = saeState.Sae;
+                sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+                m_ListenSocket.ReceiveFromAsync(sae);
 
                 return true;
             }
@@ -63,6 +64,8 @@ namespace SuperSocket.SocketEngine
 
         void eventArgs_Completed(object sender, SocketAsyncEventArgs e)
         {
+            e.Completed -= new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+
             if (e.SocketError != SocketError.Success)
             {
                 var errorCode = (int)e.SocketError;
@@ -91,7 +94,9 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     newState = m_SaePool.Get();
-                    m_ListenSocket.ReceiveFromAsync(newState.Sae);
+                    var sae = newState.Sae;
+                    sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+                    m_ListenSocket.ReceiveFromAsync(sae);
                 }
                 catch (Exception exc)
                 {
