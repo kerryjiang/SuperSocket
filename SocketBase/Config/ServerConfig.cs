@@ -362,12 +362,20 @@ namespace SuperSocket.SocketBase.Config
         public RequestHandlingMode RequestHandlingMode { get; set; }
 
         /// <summary>
-        /// Gets/sets the count of request handling threads.
+        /// Gets the minimum count of request handling threads.
         /// </summary>
         /// <value>
-        /// the count of request handling threads.
+        /// Gets the minimum count of request handling threads.
         /// </value>
-        public int RequestHandlingThreads { get; set; }
+        public int MinRequestHandlingThreads { get; set; }
+
+        /// <summary>
+        /// Gets the maximum request handling threads count.
+        /// </summary>
+        /// <value>
+        /// The maximum request handling threads count.
+        /// </value>
+        public int MaxRequestHandlingThreads { get; set; }
 
         /// <summary>
         /// Gets the command assemblies configuration.
