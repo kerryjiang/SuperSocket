@@ -271,12 +271,20 @@ namespace SuperSocket.SocketBase.Config
 
 
         /// <summary>
-        /// Gets the count of request handling threads.
+        /// Gets the minimum count of request handling threads.
         /// </summary>
         /// <value>
-        /// Gets the count of request handling threads.
+        /// Gets the minimum count of request handling threads.
         /// </value>
-        int RequestHandlingThreads { get; }
+        int MinRequestHandlingThreads { get; }
+
+        /// <summary>
+        /// Gets the maximum request handling threads count.
+        /// </summary>
+        /// <value>
+        /// The maximum request handling threads count.
+        /// </value>
+        int MaxRequestHandlingThreads { get; }
 
 
         /// <summary>

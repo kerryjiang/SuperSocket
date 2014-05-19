@@ -91,16 +91,29 @@ namespace SuperSocket.SocketEngine.Configuration
             get { return (RequestHandlingMode)this["requestHandlingMode"]; }
         }
 
+
         /// <summary>
-        /// Gets the count of request handling threads, default value is 1, and only in used when RequestHandlingMode is 'MultipleThread'.
+        /// Gets the minimum count of request handling threads.
         /// </summary>
         /// <value>
-        /// Gets the count of request handling threads.
+        /// Gets the minimum count of request handling threads.
         /// </value>
-        [ConfigurationProperty("requestHandlingThreads", IsRequired = false, DefaultValue = 1)]
-        public int RequestHandlingThreads
+        [ConfigurationProperty("minRequestHandlingThreads", IsRequired = false, DefaultValue = 1)]
+        public int MinRequestHandlingThreads
         {
-            get { return (int)this["requestHandlingThreads"]; }
+            get { return (int)this["minRequestHandlingThreads"]; }
+        }
+
+        /// <summary>
+        /// Gets the maximum request handling threads count.
+        /// </summary>
+        /// <value>
+        /// The maximum request handling threads count.
+        /// </value>
+        [ConfigurationProperty("maxRequestHandlingThreads", IsRequired = false, DefaultValue = 5)]
+        public int MaxRequestHandlingThreads
+        {
+            get { return (int)this["maxRequestHandlingThreads"]; }
         }
 
         /// <summary>

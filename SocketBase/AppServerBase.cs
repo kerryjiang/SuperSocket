@@ -453,17 +453,6 @@ namespace SuperSocket.SocketBase
                 }
             }
 
-            if (Config.RequestHandlingMode == RequestHandlingMode.CustomThreadPool)
-            {
-                if (Config.RequestHandlingThreads <= 1 || Config.RequestHandlingThreads > 100)
-                {
-                    if (Logger.IsErrorEnabled)
-                        Logger.Error("RequestHandlingThreads must be between 2 and 100!");
-
-                    return false;
-                }
-            }
-
             var plainConfig = Config as ServerConfig;
 
             if (plainConfig == null)

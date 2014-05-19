@@ -74,12 +74,18 @@ namespace SuperSocket.SocketBase.Scheduler
 
         public CustomThreadPoolTaskScheduler(IServerConfig config)
         {
-            if (config.RequestHandlingThreads <= 1 || config.RequestHandlingThreads > 100)
-                throw new Exception("RequestHandlingThreads must be between 2 and 100!");
+            if (config.MinRequestHandlingThreads <= 1 || config.MinRequestHandlingThreads > 100)
+                throw new Exception("MinRequestHandlingThreads must be between 2 and 100!");
+
+            if (config.MaxRequestHandlingThreads <= 1 || config.MaxRequestHandlingThreads > 100)
+                throw new Exception("MaxRequestHandlingThreads must be between 2 and 100!");
+
+            if(config.MaxRequestHandlingThreads < config.MinRequestHandlingThreads)
+                throw new Exception("MaxRequestHandlingThreads must be greater than MinRequestHandlingThreads!");
 
             m_Log = AppContext.CurrentServer.Logger;
 
-            m_WorkingThreadCount = config.RequestHandlingThreads;
+            m_WorkingThreadCount = config.MinRequestHandlingThreads;
             m_WorkingItems = new QueueItem[m_WorkingThreadCount];
 
             for (var i = 0; i < m_WorkingThreadCount; i++)
@@ -154,6 +160,10 @@ namespace SuperSocket.SocketBase.Scheduler
             return null;
         }
 
+        /// <summary>
+        /// Finds the free queue, the method can be improved by better load balance algorithm
+        /// </summary>
+        /// <returns></returns>
         private QueueItem FindFreeItem()
         {
             QueueItem freeItem = m_WorkingItems[0];
