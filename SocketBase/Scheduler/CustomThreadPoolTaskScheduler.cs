@@ -60,6 +60,10 @@ namespace SuperSocket.SocketBase.Scheduler
 
         private int m_WorkingThreadCount;
 
+        private int m_MinRequestHandlingThreads;
+
+        private int m_MaxRequestHandlingThreads;
+
         private int m_MaxSleepingTimeOut = 500;
 
         private int m_MinSleepingTimeOut = 10;
@@ -85,6 +89,8 @@ namespace SuperSocket.SocketBase.Scheduler
 
             m_Log = AppContext.CurrentServer.Logger;
 
+            m_MinRequestHandlingThreads = config.MinRequestHandlingThreads;
+            m_MaxRequestHandlingThreads = config.MaxRequestHandlingThreads;
             m_WorkingThreadCount = config.MinRequestHandlingThreads;
             m_WorkingItems = new QueueItem[m_WorkingThreadCount];
 

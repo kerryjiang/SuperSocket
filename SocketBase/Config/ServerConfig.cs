@@ -55,6 +55,16 @@ namespace SuperSocket.SocketBase.Config
         public const int DefaultIdleSessionTimeOut = 300;
 
         /// <summary>
+        /// The default min request handling threads
+        /// </summary>
+        public const int DefaultMinRequestHandlingThreads = 1;
+
+        /// <summary>
+        /// The default max request handling threads
+        /// </summary>
+        public const int DefaultMaxRequestHandlingThreads = 5;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
         /// </summary>
         /// <param name="serverConfig">The server config.</param>
@@ -101,6 +111,8 @@ namespace SuperSocket.SocketBase.Config
             SendTimeOut = DefaultSendTimeout;
             ClearIdleSessionInterval = DefaultClearIdleSessionInterval;
             IdleSessionTimeOut = DefaultIdleSessionTimeOut;
+            MinRequestHandlingThreads = DefaultMinRequestHandlingThreads;
+            MaxRequestHandlingThreads = DefaultMaxRequestHandlingThreads;
         }
 
         #region IServerConfig Members

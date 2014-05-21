@@ -98,7 +98,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// Gets the minimum count of request handling threads.
         /// </value>
-        [ConfigurationProperty("minRequestHandlingThreads", IsRequired = false, DefaultValue = 1)]
+        [ConfigurationProperty("minRequestHandlingThreads", IsRequired = false, DefaultValue = ServerConfig.DefaultMinRequestHandlingThreads)]
         public int MinRequestHandlingThreads
         {
             get { return (int)this["minRequestHandlingThreads"]; }
@@ -110,7 +110,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// The maximum request handling threads count.
         /// </value>
-        [ConfigurationProperty("maxRequestHandlingThreads", IsRequired = false, DefaultValue = 5)]
+        [ConfigurationProperty("maxRequestHandlingThreads", IsRequired = false, DefaultValue = ServerConfig.DefaultMaxRequestHandlingThreads)]
         public int MaxRequestHandlingThreads
         {
             get { return (int)this["maxRequestHandlingThreads"]; }
