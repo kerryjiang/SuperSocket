@@ -232,7 +232,7 @@ namespace SuperSocket.SocketBase.Pool
             m_CurrentGeneration++;
 
             m_TotalCount += totalCount;
-            Log.DebugFormat("The pool {0}[{1} was expanded from {2} to {3}]", this.GetType().Name, this.GetHashCode(), totalCount, m_TotalCount);
+            Log.DebugFormat("The size of the pool {0}[{1}] was expanded from {2} to {3}", this.GetType().Name, this.GetHashCode(), totalCount, m_TotalCount);
             UpdateNextExpandThreshold();
         }
 
