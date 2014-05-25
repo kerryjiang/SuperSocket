@@ -84,11 +84,11 @@ namespace SuperSocket.SocketBase.Scheduler
 
         public CustomThreadPoolTaskScheduler(IServerConfig config)
         {
-            if (config.MinRequestHandlingThreads <= 1 || config.MinRequestHandlingThreads > 100)
-                throw new Exception("MinRequestHandlingThreads must be between 2 and 100!");
+            if (config.MinRequestHandlingThreads < 1 || config.MinRequestHandlingThreads > 100)
+                throw new Exception("MinRequestHandlingThreads must be between 1 and 100!");
 
-            if (config.MaxRequestHandlingThreads <= 1 || config.MaxRequestHandlingThreads > 100)
-                throw new Exception("MaxRequestHandlingThreads must be between 2 and 100!");
+            if (config.MaxRequestHandlingThreads < 1 || config.MaxRequestHandlingThreads > 100)
+                throw new Exception("MaxRequestHandlingThreads must be between 1 and 100!");
 
             if(config.MaxRequestHandlingThreads < config.MinRequestHandlingThreads)
                 throw new Exception("MaxRequestHandlingThreads must be greater than MinRequestHandlingThreads!");
@@ -98,7 +98,7 @@ namespace SuperSocket.SocketBase.Scheduler
             m_MinRequestHandlingThreads = config.MinRequestHandlingThreads;
             m_MaxRequestHandlingThreads = config.MaxRequestHandlingThreads;
             m_WorkingThreadCount = config.MinRequestHandlingThreads;
-            m_WorkingItems = new QueueItem[m_WorkingThreadCount];
+            m_WorkingItems = new QueueItem[m_MaxRequestHandlingThreads];
 
             for (var i = 0; i < m_WorkingThreadCount; i++)
             {
@@ -106,7 +106,7 @@ namespace SuperSocket.SocketBase.Scheduler
                 var item = new QueueItem(thread);
                 m_WorkingItems[i] = item;
                 thread.IsBackground = true;
-                thread.Start(item.Queue);
+                thread.Start(item);
             }
         }
 
@@ -153,8 +153,13 @@ namespace SuperSocket.SocketBase.Scheduler
                 //The thread can be recycled
                 if (totalSleep >= m_ThreadRecycleTimeOut)
                 {
-                    // try to recycle
-                    RecycleThread(m_WorkingItems, queueItem, m_WorkingThreadCount);
+                    var currentThreadCount = m_WorkingThreadCount;
+
+                    if (currentThreadCount > m_MinRequestHandlingThreads)
+                    {
+                        // try to recycle
+                        TryRecycleThread(m_WorkingItems, queueItem, currentThreadCount);
+                    }
                 }
 
                 if (sleepingTimeOut < m_MaxSleepingTimeOut)
@@ -172,10 +177,31 @@ namespace SuperSocket.SocketBase.Scheduler
             return Interlocked.CompareExchange(ref m_ThreadChanging, 0, 1) == 0;
         }
 
-        private bool RecycleThread(QueueItem[] items, QueueItem recycleItem, int currentThreadCount)
+        private bool TryRecycleThread(QueueItem[] items, QueueItem recycleItem, int currentThreadCount)
         {
             if(!SetThreadChangingState())
                 return false;
+
+            // already changed
+            if (m_WorkingItems != items)
+                return false;
+
+            if (recycleItem.Queue.Count > 0)
+            {
+                m_ThreadChanging = 0;
+                return false;
+            }
+
+            recycleItem.Stopped = true;
+
+            Thread.SpinWait(1);
+
+            if (recycleItem.Queue.Count > 0)
+            {
+                recycleItem.Stopped = false;
+                m_ThreadChanging = 0;
+                return false;
+            }
 
             var newItems = new QueueItem[items.Length];
 
@@ -215,11 +241,13 @@ namespace SuperSocket.SocketBase.Scheduler
 
         private QueueItem FindItemByThreadId(int threadId)
         {
-            for (var i = 0; i < m_WorkingItems.Length; i++)
-            {
-                var item = m_WorkingItems[i];
+            var queueItems = m_WorkingItems;
 
-                if (item.ThreadId == threadId)
+            for (var i = 0; i < m_WorkingThreadCount; i++)
+            {
+                var item = queueItems[i];
+
+                if (item.ThreadId == threadId && !item.Stopped)
                     return item;
             }
 
@@ -232,16 +260,22 @@ namespace SuperSocket.SocketBase.Scheduler
         /// <returns></returns>
         private QueueItem FindFreeItem()
         {
-            QueueItem freeItem = m_WorkingItems[0];
+            var queues = m_WorkingItems;
+
+            QueueItem freeItem = queues[0];
 
             var freeQueueCount = freeItem.Queue.Count;
 
             if (freeQueueCount == 0)
                 return freeItem;
 
-            for (var i = 1; i < m_WorkingItems.Length; i++)
+            for (var i = 1; i < m_WorkingThreadCount; i++)
             {
-                var item = m_WorkingItems[i];
+                var item = queues[i];
+
+                if (item.Stopped)
+                    continue;
+
                 var queueCount = item.Queue.Count;
 
                 if (queueCount == 0)
@@ -254,21 +288,24 @@ namespace SuperSocket.SocketBase.Scheduler
                 }
             }
 
+            var currentThreadCount = m_WorkingThreadCount;
+
             // hasn't reach the max request handling threads
-            if (m_WorkingThreadCount < m_MaxRequestHandlingThreads)
+            if (currentThreadCount < m_MaxRequestHandlingThreads)
             {
                 // in thread count changing state, don't increase for now
                 if (!SetThreadChangingState())
                     return freeItem;
 
-                var oldThreadCount = m_WorkingThreadCount;
+                if (currentThreadCount != m_WorkingThreadCount)
+                    return freeItem;
 
                 var thread = new Thread(RunWorkingThreads);
                 thread.IsBackground = true;
                 var item = new QueueItem(thread);
-                m_WorkingThreadCount = oldThreadCount + 1;
-                m_WorkingItems[oldThreadCount] = item;
-                thread.Start(item.Queue);
+                m_WorkingItems[currentThreadCount] = item;
+                m_WorkingThreadCount = currentThreadCount + 1;
+                thread.Start(item);
 
                 m_ThreadChanging = 0;
                 return item;
