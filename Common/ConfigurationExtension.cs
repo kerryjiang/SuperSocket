@@ -125,5 +125,76 @@ namespace SuperSocket.Common
             var configuration = (Configuration)configProperty.GetValue(config, new object[0]);
             return configuration.FilePath;
         }
+
+        /// <summary>
+        /// Loads configuration element's node information from a model.
+        /// </summary>
+        /// <param name="configElement">The config element.</param>
+        /// <param name="source">The source.</param>
+        /// <exception cref="System.Exception">Cannot find expected property 'Item' from the type 'ConfigurationElement'.</exception>
+        public static void LoadFrom(this ConfigurationElement configElement, object source)
+        {
+            // get index property setter
+            var indexPropertySetter = configElement.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.SetProperty)
+                    .FirstOrDefault(p =>
+                    {
+                        if (!p.Name.Equals("Item"))
+                            return false;
+
+                        var parameters = p.GetIndexParameters();
+
+                        if (parameters == null || parameters.Length != 1)
+                            return false;
+
+                        return parameters[0].ParameterType == typeof(string);
+                    });
+
+            if (indexPropertySetter == null)
+                throw new Exception("Cannot find expected property 'Item' from the type 'ConfigurationElement'.");
+
+            // source properties
+            var properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+
+            var targetProperties = configElement.GetType()
+                    .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty)
+                    .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
+
+
+            var emptyObjectArr = new object[0];
+
+            var writableAttrs = new List<Tuple<PropertyInfo, PropertyInfo>>();
+
+            foreach (var sourceProperty in properties)
+            {
+                if (!sourceProperty.PropertyType.IsSerializable)
+                    continue;
+
+                PropertyInfo targetProperty;
+
+                if (targetProperties.TryGetValue(sourceProperty.Name, out targetProperty))
+                {
+                    if (targetProperty.CanWrite)
+                    {
+                        writableAttrs.Add(Tuple.Create(sourceProperty, targetProperty));
+                        continue;
+                    }
+                }
+
+                var value = sourceProperty.GetValue(source, emptyObjectArr);
+
+                // lower the first char
+                var nameChars = sourceProperty.Name.ToArray();
+                nameChars[0] = char.ToLower(nameChars[0]);
+                var propertyName = new string(nameChars);
+
+                indexPropertySetter.SetValue(configElement, value, new object[] { propertyName });
+            }
+
+            foreach (var pair in writableAttrs)
+            {
+                var value = pair.Item1.GetValue(source, emptyObjectArr);
+                pair.Item2.SetValue(configElement, value, emptyObjectArr);
+            }
+        }
     }
 }

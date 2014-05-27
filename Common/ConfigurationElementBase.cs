@@ -60,7 +60,7 @@ namespace SuperSocket.Common
         /// <summary>
         /// Gets the options.
         /// </summary>
-        public NameValueCollection Options { get; private set; }
+        public NameValueCollection Options { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether an unknown attribute is encountered during deserialization.
@@ -77,9 +77,70 @@ namespace SuperSocket.Common
         }
 
         /// <summary>
+        /// Modifies the <see cref="T:System.Configuration.ConfigurationElement" /> object to remove all values that should not be saved.
+        /// </summary>
+        /// <param name="sourceElement">A <see cref="T:System.Configuration.ConfigurationElement" /> at the current level containing a merged view of the properties.</param>
+        /// <param name="parentElement">The parent <see cref="T:System.Configuration.ConfigurationElement" />, or null if this is the top level.</param>
+        /// <param name="saveMode">A <see cref="T:System.Configuration.ConfigurationSaveMode" /> that determines which property values to include.</param>
+        protected override void Unmerge(ConfigurationElement sourceElement, ConfigurationElement parentElement, ConfigurationSaveMode saveMode)
+        {
+            base.Unmerge(sourceElement, parentElement, saveMode);
+
+            var element = sourceElement as ConfigurationElementBase;
+
+            if (element == null)
+                return;
+
+            if (element.Options != this.Options)
+                this.Options = element.Options;
+
+            if (element.OptionElements != this.OptionElements)
+                this.OptionElements = element.OptionElements;
+        }
+
+        /// <summary>
+        /// Writes the contents of this configuration element to the configuration file when implemented in a derived class.
+        /// </summary>
+        /// <param name="writer">The <see cref="T:System.Xml.XmlWriter" /> that writes to the configuration file.</param>
+        /// <param name="serializeCollectionKey">true to serialize only the collection key properties; otherwise, false.</param>
+        /// <returns>
+        /// true if any data was actually serialized; otherwise, false.
+        /// </returns>
+        protected override bool SerializeElement(XmlWriter writer, bool serializeCollectionKey)
+        {
+            if (!base.SerializeElement(writer, serializeCollectionKey))
+                return false;
+
+            if (writer == null)
+                return true;
+
+            var options = Options;
+
+            if (options != null && options.Count > 0)
+            {
+                for (var i = 0; i < options.Count; i++)
+                {
+                    writer.WriteAttributeString(options.GetKey(i), options.Get(i));
+                }
+            }
+
+            var optionElements = OptionElements;
+
+            if (optionElements != null && optionElements.Count > 0)
+            {
+                for (var i = 0; i < optionElements.Count; i++)
+                {
+                    writer.WriteRaw(optionElements.Get(i));
+                }
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Gets the option elements.
         /// </summary>
-        public NameValueCollection OptionElements { get; private set; }
+        public NameValueCollection OptionElements { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether an unknown element is encountered during deserialization.
