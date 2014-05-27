@@ -93,7 +93,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// AppDomainBootstrap
     /// </summary>
-    class AppDomainBootstrap : MarshalByRefObject, IBootstrap
+    class AppDomainBootstrap : MarshalByRefObject, IBootstrap, IDynamicBootstrap, IDisposable
     {
         private IBootstrap m_InnerBootstrap;
 
@@ -224,6 +224,31 @@ namespace SuperSocket.SocketEngine
         public string BaseDirectory
         {
             get { return m_InnerBootstrap.BaseDirectory; }
+        }
+
+        void IDisposable.Dispose()
+        {
+            var disposableBootstrap = m_InnerBootstrap as IDisposable;
+            if (disposableBootstrap != null)
+                disposableBootstrap.Dispose();
+        }
+
+        bool IDynamicBootstrap.Add(IServerConfig config)
+        {
+            var dynamicBootstrap = m_InnerBootstrap as IDynamicBootstrap;
+            return dynamicBootstrap.Add(config);
+        }
+
+        bool IDynamicBootstrap.AddAndStart(IServerConfig config)
+        {
+            var dynamicBootstrap = m_InnerBootstrap as IDynamicBootstrap;
+            return dynamicBootstrap.AddAndStart(config);
+        }
+
+        void IDynamicBootstrap.Remove(string name)
+        {
+            var dynamicBootstrap = m_InnerBootstrap as IDynamicBootstrap;
+            dynamicBootstrap.Remove(name);
         }
     }
 }

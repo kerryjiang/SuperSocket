@@ -22,9 +22,11 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// SuperSocket default bootstrap
     /// </summary>
-    public partial class DefaultBootstrap : IBootstrap
+    public partial class DefaultBootstrap : IBootstrap, IDynamicBootstrap, IDisposable
     {
         private List<IWorkItem> m_AppServers;
+
+        private IWorkItem m_ServerManager;
 
         /// <summary>
         /// Indicates whether the bootstrap is initialized
@@ -304,6 +306,56 @@ namespace SuperSocket.SocketEngine
             return config;
         }
 
+        private IWorkItem InitializeAndSetupWorkItem(WorkItemFactoryInfo factoryInfo)
+        {
+            IWorkItem appServer;
+
+            try
+            {
+                appServer = CreateWorkItemInstance(factoryInfo.ServerType, factoryInfo.StatusInfoMetadata);
+
+                if (m_GlobalLog.IsDebugEnabled)
+                    m_GlobalLog.DebugFormat("The server instance {0} has been created!", factoryInfo.Config.Name);
+            }
+            catch (Exception e)
+            {
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error(string.Format("Failed to create server instance {0}!", factoryInfo.Config.Name), e);
+                return null;
+            }
+
+            var exceptionSource = appServer as IExceptionSource;
+
+            if (exceptionSource != null)
+                exceptionSource.ExceptionThrown += new EventHandler<ErrorEventArgs>(exceptionSource_ExceptionThrown);
+
+
+            var setupResult = false;
+
+            try
+            {
+                setupResult = SetupWorkItemInstance(appServer, factoryInfo);
+
+                if (m_GlobalLog.IsDebugEnabled)
+                    m_GlobalLog.DebugFormat("The server instance {0} has been initialized!", appServer.Name);
+            }
+            catch (Exception e)
+            {
+                m_GlobalLog.Error(e);
+                setupResult = false;
+            }
+
+            if (!setupResult)
+            {
+                if (m_GlobalLog.IsErrorEnabled)
+                    m_GlobalLog.Error("Failed to setup server instance!");
+
+                return null;
+            }
+
+            return appServer;
+        }
+
 
         /// <summary>
         /// Initializes the bootstrap with the configuration, config resolver and log factory.
@@ -354,61 +406,25 @@ namespace SuperSocket.SocketEngine
             //Initialize servers
             foreach (var factoryInfo in workItemFactories)
             {
-                IWorkItem appServer;
+                IWorkItem appServer = InitializeAndSetupWorkItem(factoryInfo);
 
-                try
+                if (appServer == null)
+                    return false;
+
+                if (factoryInfo.IsServerManager)
+                    serverManager = appServer;
+                else if (!(appServer is IsolationAppServer))//No isolation
                 {
-                    appServer = CreateWorkItemInstance(factoryInfo.ServerType, factoryInfo.StatusInfoMetadata);
-
-                    if (factoryInfo.IsServerManager)
+                    //In isolation mode, cannot check whether is server manager in the factory info loader
+                    if (TypeValidator.IsServerManagerType(appServer.GetType()))
                         serverManager = appServer;
-                    else if (!(appServer is IsolationAppServer))//No isolation
-                    {
-                        //In isolation mode, cannot check whether is server manager in the factory info loader
-                        if (TypeValidator.IsServerManagerType(appServer.GetType()))
-                            serverManager = appServer;
-                    }
-
-                    if (m_GlobalLog.IsDebugEnabled)
-                        m_GlobalLog.DebugFormat("The server instance {0} has been created!", factoryInfo.Config.Name);
-                }
-                catch (Exception e)
-                {
-                    if (m_GlobalLog.IsErrorEnabled)
-                        m_GlobalLog.Error(string.Format("Failed to create server instance {0}!", factoryInfo.Config.Name), e);
-                    return false;
-                }
-
-                var exceptionSource = appServer as IExceptionSource;
-
-                if(exceptionSource != null)
-                    exceptionSource.ExceptionThrown += new EventHandler<ErrorEventArgs>(exceptionSource_ExceptionThrown);
-
-
-                var setupResult = false;
-
-                try
-                {
-                    setupResult = SetupWorkItemInstance(appServer, factoryInfo);
-
-                    if (m_GlobalLog.IsDebugEnabled)
-                        m_GlobalLog.DebugFormat("The server instance {0} has been initialized!", appServer.Name);
-                }
-                catch (Exception e)
-                {
-                    m_GlobalLog.Error(e);
-                    setupResult = false;
-                }
-
-                if (!setupResult)
-                {
-                    if (m_GlobalLog.IsErrorEnabled)
-                        m_GlobalLog.Error("Failed to setup server instance!");
-                    return false;
                 }
 
                 m_AppServers.Add(appServer);
             }
+
+            if (serverManager != null)
+                m_ServerManager = serverManager;
 
             if (!m_Config.DisablePerformanceDataCollector)
             {
@@ -607,6 +623,126 @@ namespace SuperSocket.SocketEngine
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        IWorkItem AddNewServer(IServerConfig config)
+        {
+            if (config == null)
+                throw new ArgumentNullException("config");
+
+            if(string.IsNullOrEmpty(config.Name))
+                throw new ArgumentException("The new server's name cannot be empty.", "config");
+
+            if (!m_Initialized)
+                throw new Exception("The bootstrap must be initialized already!");
+
+            if (m_AppServers.Any(s => config.Name.Equals(s.Name, StringComparison.OrdinalIgnoreCase)))
+            {
+                m_GlobalLog.ErrorFormat("The new server's name '{0}' has been taken by another server.", config.Name);
+                return null;
+            }
+
+            var configSource = new ConfigurationSource(m_Config);
+            configSource.Servers = new IServerConfig[] { config };
+
+            IEnumerable<WorkItemFactoryInfo> workItemFactories;
+
+            using (var factoryInfoLoader = GetWorkItemFactoryInfoLoader(configSource, LogFactory))
+            {
+                try
+                {
+                    workItemFactories = factoryInfoLoader.LoadResult((c) => c);
+                }
+                catch (Exception e)
+                {
+                    if (m_GlobalLog.IsErrorEnabled)
+                        m_GlobalLog.Error(e);
+
+                    return null;
+                }
+            }
+
+            var server = InitializeAndSetupWorkItem(workItemFactories.FirstOrDefault());
+
+            if (server != null)
+            {
+                m_AppServers.Add(server);
+
+                if (!m_Config.DisablePerformanceDataCollector)
+                {
+                    ResetPerfMoniter();
+                }
+
+                var section = m_Config as SocketServiceConfig;
+
+                if (section != null) //file configuration
+                {
+                    var serverConfig = new Server();
+                    serverConfig.LoadFrom(config);
+                    section.Servers.AddNew(serverConfig);
+                    section.CurrentConfiguration.Save(ConfigurationSaveMode.Minimal);
+                }
+            }
+
+            return server;
+        }
+
+        private void ResetPerfMoniter()
+        {
+            if (m_PerfMonitor != null)
+            {
+                m_PerfMonitor.Stop();
+                m_PerfMonitor.Dispose();
+                m_PerfMonitor = null;
+            }
+
+            m_PerfMonitor = new PerformanceMonitor(m_Config, m_AppServers, m_ServerManager, LogFactory);
+            m_PerfMonitor.Start();
+
+            if (m_GlobalLog.IsDebugEnabled)
+                m_GlobalLog.Debug("The PerformanceMonitor has been reset for new server has been added!");
+        }
+
+        bool IDynamicBootstrap.Add(IServerConfig config)
+        {
+            var newWorkItem = AddNewServer(config);
+            return newWorkItem != null;
+        }
+
+        bool IDynamicBootstrap.AddAndStart(IServerConfig config)
+        {
+            var newWorkItem = AddNewServer(config);
+
+            if (newWorkItem == null)
+                return false;
+
+            return newWorkItem.Start();
+        }
+
+        void IDynamicBootstrap.Remove(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentNullException("name");
+
+            var server = m_AppServers.FirstOrDefault(s => s.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+
+            if (server == null)
+                throw new Exception("The server is not found.");
+
+            if(server.State != ServerState.NotStarted)
+                throw new Exception("The server is running now, you cannot remove it. Please stop it at first.");
+
+            m_AppServers.Remove(server);
+
+            ResetPerfMoniter();
+
+            var section = m_Config as SocketServiceConfig;
+
+            if (section != null) //file configuration
+            {
+                section.Servers.Remove(name);
+                section.CurrentConfiguration.Save(ConfigurationSaveMode.Minimal);
+            }
         }
     }
 }

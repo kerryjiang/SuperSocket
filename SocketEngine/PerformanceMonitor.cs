@@ -163,7 +163,11 @@ namespace SuperSocket.SocketEngine
                 m_PerformanceTimer = null;
             }
 
-            m_Helper = null;
+            if (m_Helper != null)
+            {
+                m_Helper.Dispose();
+                m_Helper = null;
+            }
         }
 
         public int StatusUpdateInterval

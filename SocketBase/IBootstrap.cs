@@ -111,4 +111,31 @@ namespace SuperSocket.SocketBase
         /// </value>
         string BaseDirectory { get; }
     }
+
+    /// <summary>
+    /// The bootstrap interface to support add new server instance in runtime
+    /// </summary>
+    public interface IDynamicBootstrap
+    {
+        /// <summary>
+        /// Adds a new server into the bootstrap.
+        /// </summary>
+        /// <param name="config">The new server's config.</param>
+        /// <returns></returns>
+        bool Add(IServerConfig config);
+
+        /// <summary>
+        /// Adds a new server into the bootstrap and then start it.
+        /// </summary>
+        /// <param name="config">The new server's config.</param>
+        /// <returns></returns>
+        bool AddAndStart(IServerConfig config);
+
+
+        /// <summary>
+        /// Removes the server instance which is specified by name.
+        /// </summary>
+        /// <param name="name">The name of the server instance to be removed.</param>
+        void Remove(string name);
+    }
 }
