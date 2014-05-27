@@ -54,6 +54,36 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public const int DefaultIdleSessionTimeOut = 300;
 
+
+        /// <summary>
+        /// The default send buffer size
+        /// </summary>
+        public const int DefaultSendBufferSize = 2048;
+
+
+        /// <summary>
+        /// The default session snapshot interval
+        /// </summary>
+        public const int DefaultSessionSnapshotInterval = 5;
+
+        /// <summary>
+        /// The default keep alive time
+        /// </summary>
+        public const int DefaultKeepAliveTime = 600; // 60 * 10 = 10 minutes
+
+
+        /// <summary>
+        /// The default keep alive interval
+        /// </summary>
+        public const int DefaultKeepAliveInterval = 60; // 60 seconds
+
+
+        /// <summary>
+        /// The default listen backlog
+        /// </summary>
+        public const int DefaultListenBacklog = 100;
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerConfig"/> class.
         /// </summary>
@@ -88,14 +118,17 @@ namespace SuperSocket.SocketBase.Config
             MaxConnectionNumber = DefaultMaxConnectionNumber;
             Mode = SocketMode.Tcp;
             MaxRequestLength = DefaultMaxRequestLength;
-            KeepAliveTime = 10 * 60;// 10 minutes
-            KeepAliveInterval = 60;// 60 seconds
-            ListenBacklog = 100;
+            KeepAliveTime = DefaultKeepAliveTime;
+            KeepAliveInterval = DefaultKeepAliveInterval;
+            ListenBacklog = DefaultListenBacklog;
             ReceiveBufferSize = DefaultReceiveBufferSize;
             SendingQueueSize = DefaultSendingQueueSize;
             SendTimeOut = DefaultSendTimeout;
             ClearIdleSessionInterval = DefaultClearIdleSessionInterval;
             IdleSessionTimeOut = DefaultIdleSessionTimeOut;
+            SendBufferSize = DefaultSendBufferSize;
+            LogBasicSessionActivity = true;
+            SessionSnapshotInterval = DefaultSessionSnapshotInterval;
         }
 
         #region IServerConfig Members

@@ -126,7 +126,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <value>
         /// The size of the send buffer.
         /// </value>
-        [ConfigurationProperty("sendBufferSize", IsRequired = false, DefaultValue = 2048)]
+        [ConfigurationProperty("sendBufferSize", IsRequired = false, DefaultValue = ServerConfig.DefaultSendBufferSize)]
         public int SendBufferSize
         {
             get { return (int)this["sendBufferSize"]; }
@@ -276,7 +276,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the interval to taking snapshot for all live sessions.
         /// </summary>
-        [ConfigurationProperty("sessionSnapshotInterval", IsRequired = false, DefaultValue = 5)]
+        [ConfigurationProperty("sessionSnapshotInterval", IsRequired = false, DefaultValue = ServerConfig.DefaultSessionSnapshotInterval)]
         public int SessionSnapshotInterval
         {
             get
@@ -315,7 +315,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the start keep alive time, in seconds
         /// </summary>
-        [ConfigurationProperty("keepAliveTime", IsRequired = false, DefaultValue = 600)]
+        [ConfigurationProperty("keepAliveTime", IsRequired = false, DefaultValue = ServerConfig.DefaultKeepAliveTime)]
         public int KeepAliveTime
         {
             get
@@ -327,7 +327,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the keep alive interval, in seconds.
         /// </summary>
-        [ConfigurationProperty("keepAliveInterval", IsRequired = false, DefaultValue = 60)]
+        [ConfigurationProperty("keepAliveInterval", IsRequired = false, DefaultValue = ServerConfig.DefaultKeepAliveInterval)]
         public int KeepAliveInterval
         {
             get
@@ -339,7 +339,7 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the backlog size of socket listening.
         /// </summary>
-        [ConfigurationProperty("listenBacklog", IsRequired = false, DefaultValue = 100)]
+        [ConfigurationProperty("listenBacklog", IsRequired = false, DefaultValue = ServerConfig.DefaultListenBacklog)]
         public int ListenBacklog
         {
             get
