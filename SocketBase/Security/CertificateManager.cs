@@ -26,7 +26,8 @@ namespace SuperSocket.SocketBase.Security
                     filePath = relativePathHandler(cerConfig.FilePath);
                 }
 
-                return new X509Certificate2(filePath, cerConfig.Password);
+                
+                return new X509Certificate2(filePath, cerConfig.Password, cerConfig.KeyStorageFlags);
             }
             else
             {
