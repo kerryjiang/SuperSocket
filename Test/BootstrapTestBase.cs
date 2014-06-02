@@ -27,8 +27,11 @@ namespace SuperSocket.Test
             if (m_BootStrap != null)
             {
                 m_BootStrap.Stop();
+                (m_BootStrap as IDisposable).Dispose();
                 m_BootStrap = null;
                 OnBootstrapCleared();
+                GC.Collect();
+                GC.WaitForFullGCComplete();
             }
         }
 
