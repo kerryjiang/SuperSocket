@@ -95,6 +95,18 @@ namespace SuperSocket.SocketEngine.Configuration
             }
         }
 
+        /// <summary>
+        /// Gets a value that will be used to instantiate the X509Certificate2 object in the CertificateManager
+        /// </summary>
+        [ConfigurationProperty("keyStorageFlags", IsRequired = false, DefaultValue = X509KeyStorageFlags.DefaultKeySet)]
+        public X509KeyStorageFlags KeyStorageFlags
+        {
+            get
+            {
+                return (X509KeyStorageFlags)this["keyStorageFlags"];
+            }
+        }
+
         #endregion ICertificateConfig Members
     }
 }

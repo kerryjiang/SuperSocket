@@ -52,8 +52,8 @@ namespace SuperSocket.SocketBase.Config
         bool ClientCertificateRequired { get; }
 
         /// <summary>
-        /// Gets/sets a value that will be used to instantiate the X509Certificate2 object in the CertificateManager
+        /// Gets a value that will be used to instantiate the X509Certificate2 object in the CertificateManager
         /// </summary>
-        public X509KeyStorageFlags KeyStorageFlags { get; }
+        X509KeyStorageFlags KeyStorageFlags { get; }
     }
 }
