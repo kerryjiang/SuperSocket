@@ -94,5 +94,20 @@ namespace SuperSocket.ProtoBase
 
             return new string(output, 0, totalCharsLen);
         }
+
+        public static IBufferReader GetBufferReader<TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
+            where TPackageInfo : IPackageInfo
+        {
+            return GetBufferReader<BufferSegmentReader, TPackageInfo>(receiveFilter, data);
+        }
+
+        public static IBufferReader GetBufferReader<TReader, TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
+            where TReader : BufferSegmentReader, new()
+            where TPackageInfo : IPackageInfo
+        {
+            var reader = BufferSegmentReader.GetCurrent<TReader>();
+            reader.Initialize(data);
+            return reader;
+        }
     }
 }

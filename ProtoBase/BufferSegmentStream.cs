@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
+using System.Threading;
 
 namespace SuperSocket.ProtoBase
 {
@@ -39,6 +40,23 @@ namespace SuperSocket.ProtoBase
             }
 
             m_Length = length;
+        }
+
+        private const string c_ThreadBufferSegmentStream = "ThreadBufferSegmentStream";
+
+        public static BufferSegmentStream Current
+        {
+            get
+            {
+                var slot = Thread.GetNamedDataSlot(c_ThreadBufferSegmentStream);
+                var stream = Thread.GetData(slot) as BufferSegmentStream;
+                if (stream != null)
+                    return stream;
+
+                stream = new BufferSegmentStream();
+                Thread.SetData(slot, stream);
+                return stream;
+            }
         }
 
         public void Reset()
