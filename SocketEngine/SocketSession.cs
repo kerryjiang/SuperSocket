@@ -204,7 +204,11 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public bool TrySend(IList<ArraySegment<byte>> segments)
         {
+            if (IsClosed)
+                return false;
+
             var queue = m_SendingQueue;
+
             var trackID = queue.TrackID;
 
             if (!queue.Enqueue(segments, trackID))
