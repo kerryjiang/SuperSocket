@@ -114,6 +114,9 @@ namespace SuperSocket.ProtoBase
 
         private int Read(byte[] buffer, int offset, int count)
         {
+            if (m_Position == m_Length)
+                throw new Exception("Reach the end of the data source");
+
             var currentOffset = m_CurrentSegmentOffset;
             var len = 0;
             var segIndex = 0;
@@ -214,11 +217,6 @@ namespace SuperSocket.ProtoBase
                 return (ushort)((int)buffer[1] | (int)buffer[0] << 8);
         }
 
-        private void SyncCurrentSegment()
-        {
-            //TODO: reset current segment
-        }
-
         public void Skip(int count)
         {
             if(count <= 0)
@@ -229,8 +227,49 @@ namespace SuperSocket.ProtoBase
             if(pos >= m_Length)
                 throw new ArgumentOutOfRangeException("count", "exceed the total length");
 
+
+            var currentOffset = m_CurrentSegmentOffset;
+            var rest = count;
+
+            for (var i = m_CurrentSegmentIndex; i < m_Segments.Count; i++)
+            {
+                var segment = m_Segments[i];
+                if (i != m_CurrentSegmentIndex)
+                    currentOffset = segment.Offset;
+
+                var thisLen = segment.Count - (currentOffset - segment.Offset);
+
+                if (rest < thisLen)
+                {
+                    m_CurrentSegmentIndex = i;
+                    m_CurrentSegmentOffset = segment.Offset + segment.Count - rest;
+                    break;
+                }
+                
+                if (rest > thisLen)
+                {
+                    rest -= thisLen;
+                    continue;
+                }
+
+                // rest == thisLen
+                var nextSegmentIndex = i + 1;
+
+                if (nextSegmentIndex < m_Segments.Count)
+                {
+                    m_CurrentSegmentIndex = nextSegmentIndex;
+                    m_CurrentSegmentOffset = m_Segments[nextSegmentIndex].Offset;
+                }
+                else
+                {
+                    m_CurrentSegmentIndex = i;
+                    m_CurrentSegmentOffset = 0;
+                }
+
+                break;
+            }
+
             m_Position = pos;
-            SyncCurrentSegment();
         }
 
         public int ReadInt32()
@@ -294,7 +333,7 @@ namespace SuperSocket.ProtoBase
 
         public ulong ReadUInt64()
         {
-            throw new NotImplementedException();
+            return ReadUInt64(false);
         }
 
         public ulong ReadUInt64(bool littleEndian)
@@ -319,17 +358,83 @@ namespace SuperSocket.ProtoBase
 
         public byte ReadByte()
         {
-            throw new NotSupportedException();
+            if (m_Position == m_Length)
+                throw new Exception("Reach the end of the data source");
+
+            var currentSegment = m_Segments[m_CurrentSegmentIndex];
+            var targetByte = currentSegment.Array[m_CurrentSegmentOffset];
+            var nextOffset = m_CurrentSegmentOffset + 1;
+            var maxOffset = currentSegment.Offset + currentSegment.Count - 1;
+
+            m_Position++;
+
+            if (nextOffset <= maxOffset) // next pos is within the current segment
+            {
+                m_CurrentSegmentOffset = nextOffset;
+                return targetByte;
+            }
+
+            // next pos is within the next segment
+            var nextSegmentIndex = m_CurrentSegmentIndex + 1;
+
+            if (nextSegmentIndex < m_Segments.Count)
+            {
+                m_CurrentSegmentIndex = nextSegmentIndex;
+                m_CurrentSegmentOffset = m_Segments[nextSegmentIndex].Offset;
+            }
+
+            return targetByte;
         }
 
         public int ReadBytes(byte[] output, int offset, int count)
         {
-            throw new NotImplementedException();
+            return Read(output, offset, count);
         }
 
         public string ReadString(int length, Encoding encoding)
         {
-            throw new NotImplementedException();
+            var output = new char[encoding.GetMaxCharCount(length)];
+
+            var decoder = encoding.GetDecoder();
+
+            var totalCharsLen = 0;
+            var totalBytesLen = 0;
+            var bytesUsed = 0;
+            var charsUsed = 0;
+            var completed = false;
+            var rest = length;
+
+            var targetOffset = 0;
+
+            for (var i = m_CurrentSegmentIndex; i < m_Segments.Count; i++)
+            {
+                var segment = m_Segments[i];
+                var srcOffset = segment.Offset;
+                var srcLength = segment.Count;
+
+                if (i == m_CurrentSegmentIndex)
+                {
+                    srcOffset = m_CurrentSegmentOffset;
+                    srcLength = segment.Offset + segment.Count - srcOffset;
+                }
+
+                var thisLength = Math.Min(rest, srcLength);
+                rest -= thisLength;
+
+                var lastSegment = rest <= 0;
+
+                decoder.Convert(segment.Array, srcOffset, thisLength, output, totalCharsLen, output.Length - totalCharsLen, lastSegment, out bytesUsed, out charsUsed, out completed);
+                totalCharsLen += charsUsed;
+                totalBytesLen += bytesUsed;
+
+                if (lastSegment)
+                    break;
+            }
+
+            if (rest > 0)
+                throw new ArgumentOutOfRangeException("length", "there is no enougth data");
+
+            return new string(output, 0, totalCharsLen);
         }
     }
 }
