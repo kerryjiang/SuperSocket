@@ -71,6 +71,10 @@
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net45</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ProtoBase\SuperSocket.ProtoBase.Net45.csproj">
+      <Project>{88c9312e-7520-4f6b-bf25-30da5990d270}</Project>
+      <Name>SuperSocket.ProtoBase.Net45</Name>
+    </ProjectReference>
     <ProjectReference Include="..\SocketBase\SuperSocket.SocketBase.Net45.csproj">
       <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
       <Name>SuperSocket.SocketBase.Net45</Name>

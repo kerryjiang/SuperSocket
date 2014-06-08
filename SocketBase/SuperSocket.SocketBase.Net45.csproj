@@ -39,7 +39,8 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\SuperSocket.SocketBase.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -75,6 +76,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AppContext.cs" />
     <Compile Include="AppServerBase.Net45.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
@@ -82,7 +84,9 @@
     <Compile Include="Command\CommandInfo.cs" />
     <Compile Include="Command\CommandUpdateEventArgs.cs" />
     <Compile Include="Command\ICommandFilterProvider.cs" />
+    <Compile Include="Config\BufferPoolConfig.cs" />
     <Compile Include="Config\CommandAssemblyConfig.cs" />
+    <Compile Include="Config\IBufferPoolConfig.cs" />
     <Compile Include="Config\ICommandAssemblyConfig.cs" />
     <Compile Include="Config\IConfigurationSource.cs" />
     <Compile Include="Config\IRootConfig.Net45.cs" />
@@ -117,14 +121,20 @@
     <Compile Include="Metadata\StatusInfoAttribute.cs" />
     <Compile Include="Metadata\StatusInfoKeys.cs" />
     <Compile Include="NodeStatus.cs" />
+    <Compile Include="Pool\BufferItemCreator.cs" />
+    <Compile Include="Pool\BufferManager.cs" />
+    <Compile Include="Pool\BufferPool.cs" />
+    <Compile Include="Pool\IBufferManager.cs" />
+    <Compile Include="Pool\IBufferPool.cs" />
+    <Compile Include="Pool\IntelliPool.cs" />
+    <Compile Include="Pool\IPool.cs" />
+    <Compile Include="Pool\IPoolableItem.cs" />
+    <Compile Include="Pool\IPoolItemCreator.cs" />
+    <Compile Include="Pool\NullBufferManager.cs" />
+    <Compile Include="Pool\PoolableItem.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
-    <Compile Include="Protocol\FilterState.cs" />
-    <Compile Include="Protocol\IOffsetAdapter.cs" />
-    <Compile Include="Protocol\IReceiveFilter.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
-    <Compile Include="Protocol\IReceiveFilterInitializer.cs" />
-    <Compile Include="Protocol\ReceiveFilterBase.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
@@ -140,7 +150,6 @@
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandLoader.cs" />
     <Compile Include="Protocol\IRequestInfo.cs" />
-    <Compile Include="Protocol\RequestInfo.cs" />
     <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
     <Compile Include="Protocol\UdpRequestInfo.cs" />
@@ -160,9 +169,14 @@
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Protocol\BasicRequestInfoParser.cs" />
-    <Compile Include="Protocol\IRequestInfoParser.cs" />
     <Compile Include="RequestHandlingMode.cs" />
+    <Compile Include="Scheduler\CustomThreadPoolTaskScheduler.cs" />
+    <Compile Include="Scheduler\SingleThreadTaskScheduler.cs" />
     <Compile Include="Security\CertificateManager.cs" />
+    <Compile Include="ServerResource\BufferManagerResource.cs" />
+    <Compile Include="ServerResource\RequestExecutingContextPoolResource.cs" />
+    <Compile Include="ServerResource\RequestHandlingSchedulerResource.cs" />
+    <Compile Include="ServerResource\ServerResourceItem.cs" />
     <Compile Include="ServerState.cs" />
     <Compile Include="SessionHandler.cs" />
     <Compile Include="SocketMode.cs" />
@@ -171,12 +185,20 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="StatusInfoCollection.cs" />
-    <Compile Include="ThreadingTaskScheduler.cs" />
+    <Compile Include="Utils\ITransactionGroup.cs" />
+    <Compile Include="Utils\ITransactionItem.cs" />
+    <Compile Include="Utils\LightweightTransaction.cs" />
+    <Compile Include="Utils\SendingQueue.cs" />
+    <Compile Include="Utils\SendingQueueSourceCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ProtoBase\SuperSocket.ProtoBase.Net45.csproj">
+      <Project>{88c9312e-7520-4f6b-bf25-30da5990d270}</Project>
+      <Name>SuperSocket.ProtoBase.Net45</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
