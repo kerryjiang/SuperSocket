@@ -60,6 +60,12 @@ namespace SuperSocket.SocketBase
             }
         }
 
+        /// <summary>
+        /// Creates the default pool item creator.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="pool">The pool.</param>
+        /// <returns></returns>
         public static IPoolItemCreator<T> CreateDefaultPoolItemCreator<T>(this IPool<T> pool)
             where T : new()
         {

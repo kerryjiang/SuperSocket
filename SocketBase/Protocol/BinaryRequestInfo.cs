@@ -21,8 +21,20 @@ namespace SuperSocket.SocketBase.Protocol
             Body = body;
         }
 
+        /// <summary>
+        /// Gets the key.
+        /// </summary>
+        /// <value>
+        /// The key.
+        /// </value>
         public string Key { get; private set; }
 
+        /// <summary>
+        /// Gets the body.
+        /// </summary>
+        /// <value>
+        /// The body.
+        /// </value>
         public IList<ArraySegment<byte>> Body { get; private set; }
     }
 }

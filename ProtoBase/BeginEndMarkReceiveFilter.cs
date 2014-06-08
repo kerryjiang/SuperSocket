@@ -5,6 +5,10 @@ using System.Text;
 
 namespace SuperSocket.ProtoBase
 {
+    /// <summary>
+    /// The receive filter which is designed for the protocol with begin and end mark within each message
+    /// </summary>
+    /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
     public abstract class BeginEndMarkReceiveFilter<TPackageInfo> : IReceiveFilter<TPackageInfo>, IPackageResolver<TPackageInfo>
         where TPackageInfo : IPackageInfo
     {
@@ -12,6 +16,11 @@ namespace SuperSocket.ProtoBase
         private readonly SearchMarkState<byte> m_EndSearchState;
         private bool m_FoundBegin = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BeginEndMarkReceiveFilter{TPackageInfo}"/> class.
+        /// </summary>
+        /// <param name="beginMark">The begin mark.</param>
+        /// <param name="endMark">The end mark.</param>
         public BeginEndMarkReceiveFilter(byte[] beginMark, byte[] endMark)
         {
             m_BeginSearchState = new SearchMarkState<byte>(beginMark);
@@ -32,6 +41,10 @@ namespace SuperSocket.ProtoBase
             return false;
         }
 
+        /// <summary>
+        /// Changes the begin mark.
+        /// </summary>
+        /// <param name="beginMark">The begin mark.</param>
         public void ChangeBeginMark(byte[] beginMark)
         {
             if (!CheckChanged(m_BeginSearchState.Mark, beginMark))
@@ -40,6 +53,10 @@ namespace SuperSocket.ProtoBase
             m_BeginSearchState.Change(beginMark);
         }
 
+        /// <summary>
+        /// Changes the end mark.
+        /// </summary>
+        /// <param name="endMark">The end mark.</param>
         public void ChangeEndMark(byte[] endMark)
         {
             if (!CheckChanged(m_EndSearchState.Mark, endMark))
@@ -48,8 +65,19 @@ namespace SuperSocket.ProtoBase
             m_EndSearchState.Change(endMark);
         }
 
+        /// <summary>
+        /// Resolves the package binary data to package instance
+        /// </summary>
+        /// <param name="packageData">The package binary data.</param>
+        /// <returns></returns>
         public abstract TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);
 
+        /// <summary>
+        /// Filters the received data.
+        /// </summary>
+        /// <param name="data">The received data.</param>
+        /// <param name="rest">The length of the rest data after filtering.</param>
+        /// <returns>the received packageInfo instance</returns>
         public virtual TPackageInfo Filter(ReceiveCache data, out int rest)
         {
             rest = 0;
@@ -139,10 +167,25 @@ namespace SuperSocket.ProtoBase
             }
         }
 
+        /// <summary>
+        /// Gets or sets the next receive filter. The next receive filter will be used when the next network data is received.
+        /// </summary>
+        /// <value>
+        /// The next receive filter.
+        /// </value>
         public IReceiveFilter<TPackageInfo> NextReceiveFilter { get; protected set; }
 
+        /// <summary>
+        /// Gets or sets the filter state.
+        /// </summary>
+        /// <value>
+        /// The state.
+        /// </value>
         public FilterState State { get; protected set; }
 
+        /// <summary>
+        /// Resets this receive filter.
+        /// </summary>
         public void Reset()
         {
             m_BeginSearchState.Matched = 0;

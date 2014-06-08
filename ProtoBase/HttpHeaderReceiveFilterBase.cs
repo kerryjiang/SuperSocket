@@ -7,6 +7,10 @@ using System.Collections.Specialized;
 
 namespace SuperSocket.ProtoBase
 {
+    /// <summary>
+    /// The http receive filter base class
+    /// </summary>
+    /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
     public abstract class HttpHeaderReceiveFilterBase<TPackageInfo> : TerminatorReceiveFilter<TPackageInfo>
         where TPackageInfo : IPackageInfo
     {
@@ -16,7 +20,7 @@ namespace SuperSocket.ProtoBase
         private static readonly byte[] NewLine = Encoding.ASCII.GetBytes("\r\n\r\n");
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="HttpHeaderReceiveFilter{TRequestInfo}" /> class.
+        /// Initializes a new instance of the <see cref="HttpHeaderReceiveFilterBase{TPackageInfo}" /> class.
         /// </summary>
         protected HttpHeaderReceiveFilterBase()
             : base(NewLine)

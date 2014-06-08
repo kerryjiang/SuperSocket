@@ -7,45 +7,133 @@ using System.Threading;
 
 namespace SuperSocket.ProtoBase
 {
+    /// <summary>
+    /// The reader interface for the data source in the type of IList{ArraySegment{byte}}
+    /// </summary>
     public interface IBufferReader
     {
+        /// <summary>
+        /// Initializes the reader with the data source segments.
+        /// </summary>
+        /// <param name="segments">The segments.</param>
         void Initialize(IList<ArraySegment<byte>> segments);
 
+        /// <summary>
+        /// Resets this reader.
+        /// </summary>
         void Reset();
 
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         Int16 ReadInt16();
 
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         Int16 ReadInt16(bool littleEndian);
 
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         UInt16 ReadUInt16();
 
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         UInt16 ReadUInt16(bool littleEndian);
 
+        /// <summary>
+        /// Skips the specified count bytes from the data source.
+        /// </summary>
+        /// <param name="count">The count.</param>
         void Skip(int count);
 
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         Int32 ReadInt32();
 
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         Int32 ReadInt32(bool littleEndian);
 
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         UInt32 ReadUInt32();
 
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         UInt32 ReadUInt32(bool littleEndian);
 
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         Int64 ReadInt64();
 
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         Int64 ReadInt64(bool littleEndian);
 
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         UInt64 ReadUInt64();
 
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         UInt64 ReadUInt64(bool littleEndian);
 
+        /// <summary>
+        /// Reads a byte from the data source
+        /// </summary>
+        /// <returns></returns>
         byte ReadByte();
 
+        /// <summary>
+        /// Reads many bytes from the current data source.
+        /// </summary>
+        /// <param name="output">The output.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        /// <returns></returns>
         int ReadBytes(byte[] output, int offset, int count);
 
+        /// <summary>
+        /// Reads a string from the current data source
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
         string ReadString(int length, Encoding encoding);
     }
 
+    /// <summary>
+    /// The default buffer segment reader
+    /// </summary>
     public class BufferSegmentReader : IBufferReader
     {
         private IList<ArraySegment<byte>> m_Segments;
@@ -60,11 +148,19 @@ namespace SuperSocket.ProtoBase
 
         private byte[] m_Buffer = new byte[8];
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BufferSegmentReader"/> class.
+        /// </summary>
         public BufferSegmentReader()
         {
 
         }
 
+        /// <summary>
+        /// Initializes the reader with the data source segments.
+        /// </summary>
+        /// <param name="segments">The segments.</param>
+        /// <exception cref="System.ArgumentException">The length of segments must be greater than zero.</exception>
         public void Initialize(IList<ArraySegment<byte>> segments)
         {
             if (segments.Count <= 0)
@@ -85,11 +181,20 @@ namespace SuperSocket.ProtoBase
 
         private const string c_ThreadBufferSegmentReader = "ThreadBufferSegmentReader";
 
+        /// <summary>
+        /// Gets the current buffer reader from the thread context
+        /// </summary>
+        /// <returns></returns>
         public static IBufferReader GetCurrent()
         {
             return GetCurrent<BufferSegmentReader>();
         }
 
+        /// <summary>
+        /// Gets the current buffer reader from the thread context
+        /// </summary>
+        /// <typeparam name="TReader">The type of the reader.</typeparam>
+        /// <returns></returns>
         public static IBufferReader GetCurrent<TReader>()
             where TReader : IBufferReader, new()
         {
@@ -103,6 +208,9 @@ namespace SuperSocket.ProtoBase
             return reader;
         }
 
+        /// <summary>
+        /// Resets this reader.
+        /// </summary>
         public void Reset()
         {
             m_Segments = null;
@@ -172,6 +280,15 @@ namespace SuperSocket.ProtoBase
             return len;
         }
 
+        /// <summary>
+        /// Fills the buffer.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// length;the length must between 1 and 8
+        /// or
+        /// length;there is no enough data to read
+        /// </exception>
         protected void FillBuffer(int length)
         {
             if (length > 8)
@@ -183,11 +300,20 @@ namespace SuperSocket.ProtoBase
                 throw new ArgumentOutOfRangeException("length", "there is no enough data to read");
         }
 
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         public short ReadInt16()
         {
             return ReadInt16(false);
         }
 
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         public short ReadInt16(bool littleEndian)
         {
             FillBuffer(2);
@@ -200,11 +326,20 @@ namespace SuperSocket.ProtoBase
                 return (short)((int)buffer[1] | (int)buffer[0] << 8);
         }
 
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         public ushort ReadUInt16()
         {
             return ReadUInt16(false);
         }
 
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         public ushort ReadUInt16(bool littleEndian)
         {
             FillBuffer(2);
@@ -217,6 +352,15 @@ namespace SuperSocket.ProtoBase
                 return (ushort)((int)buffer[1] | (int)buffer[0] << 8);
         }
 
+        /// <summary>
+        /// Skips the specified count bytes from the data source.
+        /// </summary>
+        /// <param name="count">The count.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// count;count cannot be zero or negative
+        /// or
+        /// count;exceed the total length
+        /// </exception>
         public void Skip(int count)
         {
             if(count <= 0)
@@ -272,11 +416,20 @@ namespace SuperSocket.ProtoBase
             m_Position = pos;
         }
 
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         public int ReadInt32()
         {
             return ReadInt32(false);
         }
 
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         public int ReadInt32(bool littleEndian)
         {
             FillBuffer(4);
@@ -289,11 +442,20 @@ namespace SuperSocket.ProtoBase
                 return (int)((int)buffer[3] | (int)buffer[2] << 8 | (int)buffer[1] << 16 | (int)buffer[0] << 24);
         }
 
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         public uint ReadUInt32()
         {
             return ReadUInt32(false);
         }
 
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         public uint ReadUInt32(bool littleEndian)
         {
             FillBuffer(4);
@@ -306,11 +468,20 @@ namespace SuperSocket.ProtoBase
                 return (uint)((int)buffer[3] | (int)buffer[2] << 8 | (int)buffer[1] << 16 | (int)buffer[0] << 24);
         }
 
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         public long ReadInt64()
         {
             return ReadInt64(false);
         }
 
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         public long ReadInt64(bool littleEndian)
         {
             FillBuffer(4);
@@ -331,11 +502,20 @@ namespace SuperSocket.ProtoBase
             }
         }
 
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
         public ulong ReadUInt64()
         {
             return ReadUInt64(false);
         }
 
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
         public ulong ReadUInt64(bool littleEndian)
         {
             FillBuffer(4);
@@ -356,6 +536,11 @@ namespace SuperSocket.ProtoBase
             }
         }
 
+        /// <summary>
+        /// Reads a byte from the data source
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">Reach the end of the data source</exception>
         public byte ReadByte()
         {
             if (m_Position == m_Length)
@@ -386,11 +571,25 @@ namespace SuperSocket.ProtoBase
             return targetByte;
         }
 
+        /// <summary>
+        /// Reads many bytes from the current data source.
+        /// </summary>
+        /// <param name="output">The output.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="count">The count.</param>
+        /// <returns></returns>
         public int ReadBytes(byte[] output, int offset, int count)
         {
             return Read(output, offset, count);
         }
 
+        /// <summary>
+        /// Reads a string from the current data source
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">length;there is no enougth data</exception>
         public string ReadString(int length, Encoding encoding)
         {
             var output = new char[encoding.GetMaxCharCount(length)];
@@ -403,8 +602,6 @@ namespace SuperSocket.ProtoBase
             var charsUsed = 0;
             var completed = false;
             var rest = length;
-
-            var targetOffset = 0;
 
             for (var i = m_CurrentSegmentIndex; i < m_Segments.Count; i++)
             {
