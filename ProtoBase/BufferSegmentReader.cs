@@ -10,7 +10,7 @@ namespace SuperSocket.ProtoBase
     /// <summary>
     /// The reader interface for the data source in the type of IList{ArraySegment{byte}}
     /// </summary>
-    public interface IBufferReader
+    public interface IBufferReader : IDisposable
     {
         /// <summary>
         /// Initializes the reader with the data source segments.
@@ -53,7 +53,7 @@ namespace SuperSocket.ProtoBase
         /// Skips the specified count bytes from the data source.
         /// </summary>
         /// <param name="count">The count.</param>
-        void Skip(int count);
+        IBufferReader Skip(int count);
 
         /// <summary>
         /// Reads a Int32 number from the current data source.
@@ -361,7 +361,7 @@ namespace SuperSocket.ProtoBase
         /// or
         /// count;exceed the total length
         /// </exception>
-        public void Skip(int count)
+        public IBufferReader Skip(int count)
         {
             if(count <= 0)
                 throw new ArgumentOutOfRangeException("count", "count cannot be zero or negative");
@@ -414,6 +414,7 @@ namespace SuperSocket.ProtoBase
             }
 
             m_Position = pos;
+            return this;
         }
 
         /// <summary>
@@ -632,6 +633,14 @@ namespace SuperSocket.ProtoBase
                 throw new ArgumentOutOfRangeException("length", "there is no enougth data");
 
             return new string(output, 0, totalCharsLen);
+        }
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            Reset();
         }
     }
 }
