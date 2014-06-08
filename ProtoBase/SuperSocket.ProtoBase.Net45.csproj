@@ -5,11 +5,11 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{01987BAC-C498-44DD-B274-62EA2506B51D}</ProjectGuid>
+    <ProjectGuid>{88C9312E-7520-4F6B-BF25-30DA5990D270}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SuperSocket.Facility</RootNamespace>
-    <AssemblyName>SuperSocket.Facility</AssemblyName>
+    <RootNamespace>SuperSocket.ProtoBase</RootNamespace>
+    <AssemblyName>SuperSocket.ProtoBase</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -22,8 +22,6 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>bin\Debug\SuperSocket.Facility.XML</DocumentationFile>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -33,8 +31,6 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Release\SuperSocket.Facility.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
@@ -48,35 +44,40 @@
     <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
-      <Link>GlobalAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="PolicyServer\FlashPolicyServer.cs" />
-    <Compile Include="PolicyServer\PolicyReceiveFilter.cs" />
-    <Compile Include="PolicyServer\PolicyReceiveFilterFactory.cs" />
-    <Compile Include="PolicyServer\PolicyServer.cs" />
-    <Compile Include="PolicyServer\PolicySession.cs" />
+    <Compile Include="BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="BufferSegmentReader.cs" />
+    <Compile Include="BufferSegmentStream.cs" />
+    <Compile Include="CountSpliterReceiveFilter.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FilterState.cs" />
+    <Compile Include="FixedHeaderReceiveFilter.cs" />
+    <Compile Include="FixedSizeReceiveFilter.cs" />
+    <Compile Include="HttpHeaderInfo.cs" />
+    <Compile Include="HttpHeaderReceiveFilterBase.cs" />
+    <Compile Include="HttpPackageInfoBase.cs" />
+    <Compile Include="IBufferRecycler.cs" />
+    <Compile Include="IBufferState.cs" />
+    <Compile Include="IPackageHandler.cs" />
+    <Compile Include="IPackageInfo.cs" />
+    <Compile Include="IPackageResolver.cs" />
+    <Compile Include="IPipelineProcessor.cs" />
+    <Compile Include="IReceiveFilter.cs" />
+    <Compile Include="IStringPackageParser.cs" />
+    <Compile Include="MimeHeaderHelper.cs" />
+    <Compile Include="PackageInfo.cs" />
+    <Compile Include="ProcessResult.cs" />
+    <Compile Include="RawPackageInfo.cs" />
+    <Compile Include="ReceiveCache.cs" />
+    <Compile Include="DefaultPipelineProcessor.cs" />
+    <Compile Include="ProcessState.cs" />
+    <Compile Include="SearchMarkState.cs" />
+    <Compile Include="StateFullSearch.cs" />
+    <Compile Include="StringPackageInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PolicyServer\SilverlightPolicyServer.cs" />
+    <Compile Include="TerminatorReceiveFilter.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">
-      <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
-      <Name>SuperSocket.Common.Net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\ProtoBase\SuperSocket.ProtoBase.Net45.csproj">
-      <Project>{88c9312e-7520-4f6b-bf25-30da5990d270}</Project>
-      <Name>SuperSocket.ProtoBase.Net45</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SocketBase\SuperSocket.SocketBase.Net45.csproj">
-      <Project>{40B77789-EA11-4C05-8F52-86711D7BCAAF}</Project>
-      <Name>SuperSocket.SocketBase.Net45</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

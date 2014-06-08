@@ -79,15 +79,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="ArraySegmentEx.cs" />
-    <Compile Include="ArraySegmentList.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="AssemblyUtil.cs" />
-    <Compile Include="BinaryUtil.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="BufferManager.cs" />
     <Compile Include="ConfigurationElementBase.cs" />
     <Compile Include="ConfigurationExtension.cs" />
     <Compile Include="DictionaryExtension.cs" />
@@ -95,9 +87,6 @@
     <Compile Include="GenericConfigurationElementCollection.cs" />
     <Compile Include="Platform.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SearchMarkState.cs" />
-    <Compile Include="SendingQueue.cs" />
-    <Compile Include="SmartPool.cs" />
     <Compile Include="SocketEx.cs" />
     <Compile Include="StringExtension.cs" />
     <Compile Include="StringExtension.NET4.cs" />
