@@ -39,8 +39,7 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>bin\Debug\SuperSocket.SocketBase.XML</DocumentationFile>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -128,10 +127,8 @@
     <Compile Include="Pool\IBufferPool.cs" />
     <Compile Include="Pool\IntelliPool.cs" />
     <Compile Include="Pool\IPool.cs" />
-    <Compile Include="Pool\IPoolableItem.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
     <Compile Include="Pool\NullBufferManager.cs" />
-    <Compile Include="Pool\PoolableItem.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />

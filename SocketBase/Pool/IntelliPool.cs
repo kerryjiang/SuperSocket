@@ -14,18 +14,33 @@ namespace SuperSocket.SocketBase.Pool
         public byte Generation { get; set; }
     }
 
+    /// <summary>
+    /// Intelligent object pool
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class IntelliPool<T> : IntelliPoolBase<T>
     {
         private ConcurrentDictionary<T, PoolItemState> m_BufferDict = new ConcurrentDictionary<T, PoolItemState>();
 
         private ConcurrentDictionary<T, T> m_RemovedItemDict;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IntelliPool{T}"/> class.
+        /// </summary>
+        /// <param name="initialCount">The initial count.</param>
+        /// <param name="itemCreator">The item creator.</param>
+        /// <param name="itemCleaner">The item cleaner.</param>
+        /// <param name="itemPreGet">The item pre get.</param>
         public IntelliPool(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null, Action<T> itemPreGet = null)
             : base(initialCount, itemCreator, itemCleaner, itemPreGet)
         {
 
         }
 
+        /// <summary>
+        /// Registers the new item.
+        /// </summary>
+        /// <param name="item">The item.</param>
         protected override void RegisterNewItem(T item)
         {
             PoolItemState state = new PoolItemState();
@@ -33,6 +48,10 @@ namespace SuperSocket.SocketBase.Pool
             m_BufferDict.TryAdd(item, state);
         }
 
+        /// <summary>
+        /// Shrinks this instance.
+        /// </summary>
+        /// <returns></returns>
         public override bool Shrink()
         {
             var generation = CurrentGeneration;
@@ -63,11 +82,23 @@ namespace SuperSocket.SocketBase.Pool
             return true;
         }
 
+        /// <summary>
+        /// Determines whether the specified item can be returned.
+        /// </summary>
+        /// <param name="item">The item to be returned.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified item can be returned; otherwise, <c>false</c>.
+        /// </returns>
         protected override bool CanReturn(T item)
         {
             return m_BufferDict.ContainsKey(item);
         }
 
+        /// <summary>
+        /// Tries to remove the specific item
+        /// </summary>
+        /// <param name="item">The specific item to be removed.</param>
+        /// <returns></returns>
         protected override bool TryRemove(T item)
         {
             if (m_RemovedItemDict == null || m_RemovedItemDict.Count == 0)
@@ -78,9 +109,18 @@ namespace SuperSocket.SocketBase.Pool
         }
     }
 
+    /// <summary>
+    /// The item creator using type's parameter less constructor
+    /// </summary>
+    /// <typeparam name="TItem">The type of the item.</typeparam>
     class DefaultConstructorItemCreator<TItem> : IPoolItemCreator<TItem>
             where TItem : new()
     {
+        /// <summary>
+        /// Creates items of the specified count.
+        /// </summary>
+        /// <param name="count">The count.</param>
+        /// <returns></returns>
         public IEnumerable<TItem> Create(int count)
         {
             for (var i = 0; i < count; i++)
@@ -90,16 +130,32 @@ namespace SuperSocket.SocketBase.Pool
         }
     }
 
+    /// <summary>
+    /// Intelligent pool base class
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public abstract class IntelliPoolBase<T> : IPool<T>
     {
         private ConcurrentStack<T> m_Store;
 
         private IPoolItemCreator<T> m_ItemCreator;
 
+        /// <summary>
+        /// Gets the log.
+        /// </summary>
+        /// <value>
+        /// The log.
+        /// </value>
         protected ILog Log { get; private set; }
 
         private byte m_CurrentGeneration = 0;
 
+        /// <summary>
+        /// Gets the current generation.
+        /// </summary>
+        /// <value>
+        /// The current generation.
+        /// </value>
         protected byte CurrentGeneration
         {
             get { return m_CurrentGeneration; }
@@ -109,6 +165,12 @@ namespace SuperSocket.SocketBase.Pool
 
         private int m_TotalCount;
 
+        /// <summary>
+        /// Gets the total count.
+        /// </summary>
+        /// <value>
+        /// The total count.
+        /// </value>
         public int TotalCount
         {
             get { return m_TotalCount; }
@@ -116,6 +178,12 @@ namespace SuperSocket.SocketBase.Pool
 
         private int m_AvailableCount;
 
+        /// <summary>
+        /// Gets the available count, the items count which are available to be used.
+        /// </summary>
+        /// <value>
+        /// The available count.
+        /// </value>
         public int AvailableCount
         {
             get { return m_AvailableCount; }
@@ -127,6 +195,13 @@ namespace SuperSocket.SocketBase.Pool
 
         private Action<T> m_ItemPreGet;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="IntelliPoolBase{T}"/> class.
+        /// </summary>
+        /// <param name="initialCount">The initial count.</param>
+        /// <param name="itemCreator">The item creator.</param>
+        /// <param name="itemCleaner">The item cleaner.</param>
+        /// <param name="itemPreGet">The item pre get.</param>
         public IntelliPoolBase(int initialCount, IPoolItemCreator<T> itemCreator, Action<T> itemCleaner = null, Action<T> itemPreGet = null)
         {
             m_ItemCreator = itemCreator;
@@ -150,6 +225,10 @@ namespace SuperSocket.SocketBase.Pool
             UpdateNextExpandThreshold();
         }
 
+        /// <summary>
+        /// Registers the new item.
+        /// </summary>
+        /// <param name="item">The item.</param>
         protected abstract void RegisterNewItem(T item);
 
         private void UpdateNextExpandThreshold()
@@ -157,6 +236,10 @@ namespace SuperSocket.SocketBase.Pool
             m_NextExpandThreshold = m_TotalCount / 5; //if only 20% buffer left, we can expand the buffer count
         }
 
+        /// <summary>
+        /// Gets an item from the pool.
+        /// </summary>
+        /// <returns></returns>
         public T Get()
         {
             T item;
@@ -236,6 +319,10 @@ namespace SuperSocket.SocketBase.Pool
             UpdateNextExpandThreshold();
         }
 
+        /// <summary>
+        /// Shrinks this pool.
+        /// </summary>
+        /// <returns></returns>
         public virtual bool Shrink()
         {
             var generation = m_CurrentGeneration;
@@ -251,10 +338,26 @@ namespace SuperSocket.SocketBase.Pool
             return true;
         }
 
+        /// <summary>
+        /// Determines whether the specified item can be returned.
+        /// </summary>
+        /// <param name="item">The item.</param>
+        /// <returns>
+        ///   <c>true</c> if the specified item can be returned; otherwise, <c>false</c>.
+        /// </returns>
         protected abstract bool CanReturn(T item);
 
+        /// <summary>
+        /// Tries to remove the specific item
+        /// </summary>
+        /// <param name="item">The specific item to be removed.</param>
+        /// <returns></returns>
         protected abstract bool TryRemove(T item);
 
+        /// <summary>
+        /// Returns the specified item to the pool.
+        /// </summary>
+        /// <param name="item">The item to be returned.</param>
         public void Return(T item)
         {
             var itemCleaner = m_ItemCleaner;

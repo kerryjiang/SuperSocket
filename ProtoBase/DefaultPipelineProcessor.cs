@@ -5,12 +5,16 @@ using System.Text;
 
 namespace SuperSocket.ProtoBase
 {
+    /// <summary>
+    /// The default pipeline processor
+    /// </summary>
+    /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
     public class DefaultPipelineProcessor<TPackageInfo> : IPipelineProcessor
         where TPackageInfo : IPackageInfo
     {
         private IPackageHandler<TPackageInfo> m_PackageHandler;
 
-        public IReceiveFilter<TPackageInfo> m_ReceiveFilter;
+        private IReceiveFilter<TPackageInfo> m_ReceiveFilter;
 
         private IBufferRecycler m_BufferRecycler;
 
@@ -20,6 +24,13 @@ namespace SuperSocket.ProtoBase
 
         private int m_MaxPackageLength;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultPipelineProcessor{TPackageInfo}"/> class.
+        /// </summary>
+        /// <param name="packageHandler">The package handler.</param>
+        /// <param name="receiveFilter">The initializing receive filter.</param>
+        /// <param name="maxPackageLength">The max package size.</param>
+        /// <param name="bufferRecycler">The buffer recycler.</param>
         public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter, int maxPackageLength = 0, IBufferRecycler bufferRecycler = null)
         {
             m_PackageHandler = packageHandler;
@@ -36,6 +47,9 @@ namespace SuperSocket.ProtoBase
             m_ReceiveCache.Add(segment, state);
         }
 
+        /// <summary>
+        /// Occurs when [new receive buffer required].
+        /// </summary>
         public event EventHandler NewReceiveBufferRequired;
 
         private void FireNewReceiveBufferRequired()
@@ -46,6 +60,14 @@ namespace SuperSocket.ProtoBase
                 handler(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Processes the input segment.
+        /// </summary>
+        /// <param name="segment">The input segment.</param>
+        /// <param name="state">The buffer state.</param>
+        /// <returns>
+        /// the processing result
+        /// </returns>
         public virtual ProcessResult Process(ArraySegment<byte> segment, IBufferState state)
         {
             m_ReceiveCache.Add(segment, state);
@@ -137,6 +159,12 @@ namespace SuperSocket.ProtoBase
             m_ReceiveCache.Clear();
         }
 
+        /// <summary>
+        /// Gets the received cache.
+        /// </summary>
+        /// <value>
+        /// The cache.
+        /// </value>
         public ReceiveCache Cache
         {
             get { return m_ReceiveCache; }

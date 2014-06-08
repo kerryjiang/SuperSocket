@@ -6,11 +6,20 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Protocol
 {
+    /// <summary>
+    /// TerminatorReceiveFilter with StringRequestInfo as package info
+    /// </summary>
     public class TerminatorReceiveFilter : TerminatorReceiveFilter<StringRequestInfo>
     {
         private readonly Encoding m_Encoding;
         private readonly IStringPackageParser<StringRequestInfo> m_PackageParser;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TerminatorReceiveFilter"/> class.
+        /// </summary>
+        /// <param name="terminator">The terminator.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <param name="packageParser">The package parser.</param>
         public TerminatorReceiveFilter(byte[] terminator, Encoding encoding, IStringPackageParser<StringRequestInfo> packageParser)
             : base(terminator)
         {
@@ -18,6 +27,11 @@ namespace SuperSocket.SocketBase.Protocol
             m_PackageParser = packageParser;
         }
 
+        /// <summary>
+        /// Resolves the package binary data to package instance
+        /// </summary>
+        /// <param name="packageData">The package binary data.</param>
+        /// <returns>the resolved package instance</returns>
         public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
             var encoding = m_Encoding;

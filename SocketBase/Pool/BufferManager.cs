@@ -6,6 +6,9 @@ using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.SocketBase.Pool
 {
+    /// <summary>
+    /// The default implemented BufferManager
+    /// </summary>
     public class BufferManager : IBufferManager
     {
         private const int m_Magic = 4096;//4k
@@ -21,12 +24,19 @@ namespace SuperSocket.SocketBase.Pool
                 new BufferPoolConfig(16384, 10)
             };
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BufferManager"/> class.
+        /// </summary>
         public BufferManager()
             : this(m_DefaultDefinition)
         {
 
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BufferManager"/> class.
+        /// </summary>
+        /// <param name="defintion">The defintion.</param>
         public BufferManager(IBufferPoolConfig[] defintion)
         {
             m_Pools = (defintion != null && defintion.Length > 0) ?
@@ -34,6 +44,11 @@ namespace SuperSocket.SocketBase.Pool
                 : m_DefaultDefinition.Select(d => new BufferPool(d.BufferSize, d.InitialCount)).ToArray();
         }
 
+        /// <summary>
+        /// Gets a buffer of the specific size.
+        /// </summary>
+        /// <param name="size">The size.</param>
+        /// <returns></returns>
         public byte[] GetBuffer(int size)
         {
             var lastHitPool = m_LastHitPool;
@@ -56,6 +71,10 @@ namespace SuperSocket.SocketBase.Pool
             return new byte[size];
         }
 
+        /// <summary>
+        /// Returns the buffer to pool.
+        /// </summary>
+        /// <param name="buffer">The buffer.</param>
         public void ReturnBuffer(byte[] buffer)
         {
             var size = buffer.Length;
@@ -81,6 +100,9 @@ namespace SuperSocket.SocketBase.Pool
             }
         }
 
+        /// <summary>
+        /// Shrinks this size of pools.
+        /// </summary>
         public void Shrink()
         {
             for (var i = 0; i < m_Pools.Length; i++)

@@ -5,6 +5,13 @@ using System.Text;
 
 namespace SuperSocket.ProtoBase
 {
+    /// <summary>
+    /// This Receive filter is designed for this kind protocol:
+    /// each request has fixed count part which splited by a char(byte)
+    /// for instance, request is defined like this "#12122#23343#4545456565#343435446#",
+    /// because this request is splited into many parts by 5 '#', we can create a Receive filter by CountSpliterRequestFilter((byte)'#', 5)
+    /// </summary>
+    /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
     public abstract class CountSpliterReceiveFilter<TPackageInfo> : IReceiveFilter<TPackageInfo>, IPackageResolver<TPackageInfo>
         where TPackageInfo : IPackageInfo
     {
@@ -15,7 +22,7 @@ namespace SuperSocket.ProtoBase
         private readonly int m_SpliterCount;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="CountSpliterReceiveFilter&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="CountSpliterReceiveFilter{TPackageInfo}"/> class.
         /// </summary>
         /// <param name="spliter">The spliter.</param>
         /// <param name="spliterCount">The spliter count.</param>
@@ -25,6 +32,12 @@ namespace SuperSocket.ProtoBase
             m_SpliterCount = spliterCount;
         }
 
+        /// <summary>
+        /// Filters the received data.
+        /// </summary>
+        /// <param name="data">The received data.</param>
+        /// <param name="rest">The length of the rest data after filtering.</param>
+        /// <returns>the received packageInfo instance</returns>
         public TPackageInfo Filter(ReceiveCache data, out int rest)
         {
             rest = 0;
@@ -56,16 +69,36 @@ namespace SuperSocket.ProtoBase
             return ResolvePackage(data);
         }
 
+        /// <summary>
+        /// Gets or sets the next receive filter. The next receive filter will be used when the next network data is received.
+        /// </summary>
+        /// <value>
+        /// The next receive filter.
+        /// </value>
         public IReceiveFilter<TPackageInfo> NextReceiveFilter { get; protected set; }
 
+        /// <summary>
+        /// Gets the state of the current filter.
+        /// </summary>
+        /// <value>
+        /// The filter state.
+        /// </value>
         public FilterState State { get; protected set; }
 
+        /// <summary>
+        /// Resets this receive filter.
+        /// </summary>
         public virtual void Reset()
         {
             m_SpliterFoundCount = 0;
             m_SpliterSearchState.Matched = 0;
         }
 
+        /// <summary>
+        /// Resolves the package binary data to package instance
+        /// </summary>
+        /// <param name="packageData">The package binary data.</param>
+        /// <returns></returns>
         public abstract TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);
     }
 }

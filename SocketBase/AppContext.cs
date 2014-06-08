@@ -6,10 +6,19 @@ using System.Threading;
 
 namespace SuperSocket.SocketBase
 {
+    /// <summary>
+    /// The application context
+    /// </summary>
     public class AppContext
     {
         private const string m_SesionDataSlotName = "Session";
 
+        /// <summary>
+        /// Gets the current session from thread context.
+        /// </summary>
+        /// <value>
+        /// The current session.
+        /// </value>
         public static IAppSession CurrentSession
         {
             get
@@ -27,6 +36,12 @@ namespace SuperSocket.SocketBase
             return slot;
         }
 
+        /// <summary>
+        /// Gets the current server from thread context.
+        /// </summary>
+        /// <value>
+        /// The current server.
+        /// </value>
         public static IAppServer CurrentServer
         {
             get

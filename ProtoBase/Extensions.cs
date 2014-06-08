@@ -5,8 +5,17 @@ using System.Text;
 
 namespace SuperSocket.ProtoBase
 {
+    /// <summary>
+    /// Extentions class
+    /// </summary>
     public static class Extensions
     {
+        /// <summary>
+        /// Gets string from the binary segments data.
+        /// </summary>
+        /// <param name="encoding">The text encoding to decode the binary data.</param>
+        /// <param name="data">The binary segments data.</param>
+        /// <returns>the decoded string</returns>
         public static string GetString(this Encoding encoding, IList<ArraySegment<byte>> data)
         {
             var total = data.Sum(x => x.Count);
@@ -32,6 +41,16 @@ namespace SuperSocket.ProtoBase
             return new string(output, 0, totalCharsLen);
         }
 
+        /// <summary>
+        /// Gets string from the binary segments data.
+        /// </summary>
+        /// <param name="encoding">The text encoding to decode the binary data.</param>
+        /// <param name="data">The binary segments data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <returns>
+        /// the decoded string
+        /// </returns>
         public static string GetString(this Encoding encoding, IList<ArraySegment<byte>> data, int offset, int length)
         {
             var output = new char[encoding.GetMaxCharCount(length)];
@@ -95,12 +114,27 @@ namespace SuperSocket.ProtoBase
             return new string(output, 0, totalCharsLen);
         }
 
+        /// <summary>
+        /// Gets a buffer reader instance which can be reused.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
+        /// <param name="receiveFilter">The receive filter.</param>
+        /// <param name="data">The buffer data source.</param>
+        /// <returns></returns>
         public static IBufferReader GetBufferReader<TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
             where TPackageInfo : IPackageInfo
         {
             return GetBufferReader<BufferSegmentReader, TPackageInfo>(receiveFilter, data);
         }
 
+        /// <summary>
+        /// Gets a buffer reader instance which can be reused.
+        /// </summary>
+        /// <typeparam name="TReader">The type of the reader.</typeparam>
+        /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
+        /// <param name="receiveFilter">The receive filter.</param>
+        /// <param name="data">The buffer data source.</param>
+        /// <returns></returns>
         public static IBufferReader GetBufferReader<TReader, TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
             where TReader : BufferSegmentReader, new()
             where TPackageInfo : IPackageInfo
