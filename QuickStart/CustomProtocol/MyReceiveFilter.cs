@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.Facility.Protocol;
+using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
@@ -14,14 +16,20 @@ namespace SuperSocket.QuickStart.CustomProtocol
 
         }
 
-        protected override int GetBodyLengthFromHeader(byte[] header, int offset, int length)
+        protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
         {
-            return (int)header[offset + 4] * 256 + (int)header[offset + 5];
+            using (var reader = this.GetBufferReader(packageData))
+            {
+                return reader.ReadUInt16();
+            }
         }
 
-        protected override BinaryRequestInfo ResolveRequestInfo(ArraySegment<byte> header, byte[] bodyBuffer, int offset, int length)
+        public override BinaryRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
-            return new BinaryRequestInfo(Encoding.UTF8.GetString(header.Array, header.Offset, 4), bodyBuffer.CloneRange(offset, length));
+            using (var reader = this.GetBufferReader(packageData))
+            {
+                return new BinaryRequestInfo(reader.ReadString(4, Encoding.UTF8), packageData);
+            }
         }
     }
 }

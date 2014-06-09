@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
@@ -35,7 +36,22 @@ namespace SuperSocket.QuickStart.SwitchReceiveFilter
             return null;
         }
 
-        public int LeftBufferSize { get; private set; }
+        public StringRequestInfo Filter(ReceiveCache data, out int rest)
+        {
+            var current = data.Current;
+            rest = current.Count;
+
+            var flag = current.Array[current.Offset];
+
+            if (flag == m_BeginMarkA)
+                NextReceiveFilter = m_FilterA;
+            else if (flag == m_BeginMarkB)
+                NextReceiveFilter = m_FilterB;
+            else
+                State = FilterState.Error;
+
+            return null;
+        }
 
         public IReceiveFilter<StringRequestInfo> NextReceiveFilter { get; private set; }
 

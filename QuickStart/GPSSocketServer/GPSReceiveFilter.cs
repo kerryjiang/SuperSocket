@@ -1,7 +1,9 @@
 ﻿using System;
 using SuperSocket.Common;
-using SuperSocket.Facility.Protocol;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Protocol;
+using System.Collections.Generic;
+using System.Text;
 
 namespace SuperSocket.QuickStart.GPSSocketServer
 {
@@ -24,9 +26,12 @@ namespace SuperSocket.QuickStart.GPSSocketServer
 
         }
 
-        protected override BinaryRequestInfo ProcessMatchedRequest(byte[] readBuffer, int offset, int length)
+        public override BinaryRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
-            return new BinaryRequestInfo(BitConverter.ToString(readBuffer, offset + 15, 1), readBuffer.CloneRange(offset, length));
+            using(var reader = this.GetBufferReader(packageData))
+            {
+                return new BinaryRequestInfo(reader.Skip(15).ReadByte().ToString("X"), packageData);
+            }
         }
     }
 }
