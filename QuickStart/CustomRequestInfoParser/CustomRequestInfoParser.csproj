@@ -61,6 +61,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\bin\Net40\Debug\SuperSocket.Common.dll</HintPath>
     </Reference>
+    <Reference Include="SuperSocket.ProtoBase">
+      <HintPath>..\..\bin\Net40\Debug\SuperSocket.ProtoBase.dll</HintPath>
+    </Reference>
     <Reference Include="SuperSocket.SocketBase, Version=1.6.0.3, Culture=neutral, PublicKeyToken=6c80000676988ebb, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\bin\Net40\Debug\SuperSocket.SocketBase.dll</HintPath>

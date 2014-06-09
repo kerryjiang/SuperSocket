@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
-using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CountSpliterProtocol
 {

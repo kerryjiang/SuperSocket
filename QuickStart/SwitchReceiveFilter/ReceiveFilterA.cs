@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.Facility.Protocol;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
@@ -22,11 +22,14 @@ namespace SuperSocket.QuickStart.SwitchReceiveFilter
             m_SwitchFilter = switcher;
         }
 
-        protected override StringRequestInfo ProcessMatchedRequest(byte[] readBuffer, int offset, int length)
+        public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
-            var requestInfo = m_Parser.ParseRequestInfo(Encoding.ASCII.GetString(readBuffer, offset + 1, length - 3));
-            NextReceiveFilter = m_SwitchFilter;
-            return requestInfo;
+            using (var reader = this.GetBufferReader(packageData))
+            {
+                var requestInfo = m_Parser.Parse(reader.Skip(1).ReadString((int)reader.Length - 3, Encoding.ASCII));
+                NextReceiveFilter = m_SwitchFilter;
+                return requestInfo;
+            }
         }
     }
 }

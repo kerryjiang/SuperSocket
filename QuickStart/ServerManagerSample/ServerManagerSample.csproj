@@ -102,6 +102,7 @@
     <Content Include="Config\log4net.unix.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="app.config" />
     <None Include="Config\Silverlight.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
