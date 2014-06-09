@@ -13,6 +13,14 @@ namespace SuperSocket.ProtoBase
     public interface IBufferReader : IDisposable
     {
         /// <summary>
+        /// Gets the total length.
+        /// </summary>
+        /// <value>
+        /// The length.
+        /// </value>
+        long Length { get; }
+
+        /// <summary>
         /// Initializes the reader with the data source segments.
         /// </summary>
         /// <param name="segments">The segments.</param>
@@ -145,6 +153,17 @@ namespace SuperSocket.ProtoBase
         private int m_CurrentSegmentOffset;
 
         private long m_Length;
+
+        /// <summary>
+        /// Gets the total length.
+        /// </summary>
+        /// <value>
+        /// The length.
+        /// </value>
+        public long Length
+        {
+            get { return m_Length; }
+        }
 
         private byte[] m_Buffer = new byte[8];
 
