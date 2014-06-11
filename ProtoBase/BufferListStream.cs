@@ -8,9 +8,9 @@ using System.Threading;
 namespace SuperSocket.ProtoBase
 {
     /// <summary>
-    /// The default buffer segment stream
+    /// The default buffer list stream
     /// </summary>
-    public sealed class BufferSegmentStream : Stream
+    public sealed class BufferListStream : Stream
     {
         private IList<ArraySegment<byte>> m_Segments;
 
@@ -23,9 +23,9 @@ namespace SuperSocket.ProtoBase
         private long m_Length;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BufferSegmentStream"/> class.
+        /// Initializes a new instance of the <see cref="BufferListStream"/> class.
         /// </summary>
-        public BufferSegmentStream()
+        public BufferListStream()
         {
             
         }
@@ -53,7 +53,7 @@ namespace SuperSocket.ProtoBase
             m_Length = length;
         }
 
-        private const string c_ThreadBufferSegmentStream = "ThreadBufferSegmentStream";
+        private const string c_ThreadBufferSegmentStream = "ThreadBufferListStream";
 
         /// <summary>
         /// Gets the current buffer segment stream from the thread context
@@ -61,16 +61,16 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The current buffer segment stream
         /// </value>
-        public static BufferSegmentStream Current
+        public static BufferListStream Current
         {
             get
             {
                 var slot = Thread.GetNamedDataSlot(c_ThreadBufferSegmentStream);
-                var stream = Thread.GetData(slot) as BufferSegmentStream;
+                var stream = Thread.GetData(slot) as BufferListStream;
                 if (stream != null)
                     return stream;
 
-                stream = new BufferSegmentStream();
+                stream = new BufferListStream();
                 Thread.SetData(slot, stream);
                 return stream;
             }

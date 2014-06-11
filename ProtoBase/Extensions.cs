@@ -124,7 +124,7 @@ namespace SuperSocket.ProtoBase
         public static IBufferReader GetBufferReader<TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
             where TPackageInfo : IPackageInfo
         {
-            return GetBufferReader<BufferSegmentReader, TPackageInfo>(receiveFilter, data);
+            return GetBufferReader<BufferListReader, TPackageInfo>(receiveFilter, data);
         }
 
         /// <summary>
@@ -136,10 +136,10 @@ namespace SuperSocket.ProtoBase
         /// <param name="data">The buffer data source.</param>
         /// <returns></returns>
         public static IBufferReader GetBufferReader<TReader, TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
-            where TReader : BufferSegmentReader, new()
+            where TReader : BufferListReader, new()
             where TPackageInfo : IPackageInfo
         {
-            var reader = BufferSegmentReader.GetCurrent<TReader>();
+            var reader = BufferListReader.GetCurrent<TReader>();
             reader.Initialize(data);
             return reader;
         }

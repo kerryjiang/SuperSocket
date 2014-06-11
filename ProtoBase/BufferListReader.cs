@@ -148,9 +148,9 @@ namespace SuperSocket.ProtoBase
     }
 
     /// <summary>
-    /// The default buffer segment reader
+    /// The default buffer list reader
     /// </summary>
-    public class BufferSegmentReader : IBufferReader
+    public class BufferListReader : IBufferReader
     {
         private IList<ArraySegment<byte>> m_Segments;
 
@@ -176,9 +176,9 @@ namespace SuperSocket.ProtoBase
         private byte[] m_Buffer = new byte[8];
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BufferSegmentReader"/> class.
+        /// Initializes a new instance of the <see cref="BufferListReader"/> class.
         /// </summary>
-        public BufferSegmentReader()
+        public BufferListReader()
         {
 
         }
@@ -206,7 +206,7 @@ namespace SuperSocket.ProtoBase
             m_Length = length;
         }
 
-        private const string c_ThreadBufferSegmentReader = "ThreadBufferSegmentReader";
+        private const string c_ThreadBufferSegmentReader = "ThreadBufferListReader";
 
         /// <summary>
         /// Gets the current buffer reader from the thread context
@@ -214,7 +214,7 @@ namespace SuperSocket.ProtoBase
         /// <returns></returns>
         public static IBufferReader GetCurrent()
         {
-            return GetCurrent<BufferSegmentReader>();
+            return GetCurrent<BufferListReader>();
         }
 
         /// <summary>

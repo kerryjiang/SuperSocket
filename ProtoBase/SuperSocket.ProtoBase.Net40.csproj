@@ -46,8 +46,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
-    <Compile Include="BufferSegmentReader.cs" />
-    <Compile Include="BufferSegmentStream.cs" />
+    <Compile Include="BufferListReader.cs" />
+    <Compile Include="BufferListStream.cs" />
     <Compile Include="CountSpliterReceiveFilter.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FilterState.cs" />
