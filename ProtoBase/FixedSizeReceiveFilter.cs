@@ -31,7 +31,7 @@ namespace SuperSocket.ProtoBase
         /// <param name="data">The received data.</param>
         /// <param name="rest">The length of the rest data after filtering.</param>
         /// <returns>the received packageInfo instance</returns>
-        public virtual TPackageInfo Filter(ReceiveCache data, out int rest)
+        public virtual TPackageInfo Filter(BufferList data, out int rest)
         {
             rest = 0;
             var total = data.Total;
@@ -44,7 +44,7 @@ namespace SuperSocket.ProtoBase
             if (total > m_Size)
             {
                 rest = total - m_Size;
-                data.SetLastItemLength(data.Current.Count - rest);
+                data.SetLastItemLength(data.Last.Count - rest);
             }
 
             if (!CanResolvePackage(data))

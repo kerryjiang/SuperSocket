@@ -20,7 +20,7 @@ namespace SuperSocket.ProtoBase
 
         private static readonly IBufferRecycler s_NullBufferRecycler = new NullBufferRecycler();
 
-        private ReceiveCache m_ReceiveCache;
+        private BufferList m_ReceiveCache;
 
         private int m_MaxPackageLength;
 
@@ -36,14 +36,13 @@ namespace SuperSocket.ProtoBase
             m_PackageHandler = packageHandler;
             m_ReceiveFilter = receiveFilter;
             m_BufferRecycler = bufferRecycler ?? s_NullBufferRecycler;
-            m_ReceiveCache = new ReceiveCache();
+            m_ReceiveCache = new BufferList();
             m_MaxPackageLength = maxPackageLength;
         }
 
         private void PushResetData(ArraySegment<byte> raw, int rest, IBufferState state)
         {
             var segment = new ArraySegment<byte>(raw.Array, raw.Offset + raw.Count - rest, rest);
-            state.IncreaseReference();
             m_ReceiveCache.Add(segment, state);
         }
 
@@ -120,7 +119,7 @@ namespace SuperSocket.ProtoBase
 
                 if (packageInfo is IRawPackageInfo)
                 {
-                    m_ReceiveCache = new ReceiveCache();
+                    m_ReceiveCache = new BufferList();
 
                     if (rest <= 0)
                     {
@@ -165,7 +164,7 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The cache.
         /// </value>
-        public ReceiveCache Cache
+        public BufferList Cache
         {
             get { return m_ReceiveCache; }
         }

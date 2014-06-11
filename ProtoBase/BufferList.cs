@@ -8,17 +8,17 @@ namespace SuperSocket.ProtoBase
     /// <summary>
     /// The receive cache
     /// </summary>
-    public sealed class ReceiveCache : IList<ArraySegment<byte>>
+    public sealed class BufferList : IList<ArraySegment<byte>>
     {
         private List<KeyValuePair<ArraySegment<byte>, IBufferState>> m_List = new List<KeyValuePair<ArraySegment<byte>, IBufferState>>();
 
         /// <summary>
-        /// Gets the current processed segement.
+        /// Gets the last buffer segment.
         /// </summary>
         /// <value>
-        /// The current processed segement.
+        /// The last.
         /// </value>
-        public ArraySegment<byte> Current
+        public ArraySegment<byte> Last
         {
             get
             {
@@ -100,6 +100,7 @@ namespace SuperSocket.ProtoBase
         /// <param name="state">The state.</param>
         public void Add(ArraySegment<byte> item, IBufferState state)
         {
+            state.IncreaseReference();
             m_List.Add(new KeyValuePair<ArraySegment<byte>, IBufferState>(item, state));
             m_Total += item.Count;
         }
@@ -225,6 +226,40 @@ namespace SuperSocket.ProtoBase
         public IList<KeyValuePair<ArraySegment<byte>, IBufferState>> GetAllCachedItems()
         {
             return m_List;
+        }
+
+        internal BufferList Clone(int index, int segmentOffset, int length)
+        {
+            var target = new BufferList();
+
+            var rest = length;
+
+            var segments = m_List;
+
+            for (var i = index; i < segments.Count; i++)
+            {
+                var pair = segments[i];
+                var segment = pair.Key;
+                var offset = segment.Offset;
+                var thisLen = segment.Count;
+
+                if (i == index)
+                {
+                    offset = segmentOffset;
+                    thisLen = segment.Count - (segmentOffset - segment.Offset);
+                }
+
+                thisLen = Math.Min(thisLen, rest);
+
+                target.Add(new ArraySegment<byte>(segment.Array, offset, thisLen), pair.Value);
+
+                rest -= thisLen;
+
+                if (rest <= 0)
+                    break;
+            }
+
+            return target;
         }
     }
 }
