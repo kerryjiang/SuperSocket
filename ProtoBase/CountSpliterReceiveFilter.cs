@@ -38,11 +38,11 @@ namespace SuperSocket.ProtoBase
         /// <param name="data">The received data.</param>
         /// <param name="rest">The length of the rest data after filtering.</param>
         /// <returns>the received packageInfo instance</returns>
-        public TPackageInfo Filter(ReceiveCache data, out int rest)
+        public TPackageInfo Filter(BufferList data, out int rest)
         {
             rest = 0;
 
-            var currentSegment = data.Current;
+            var currentSegment = data.Last;
             var readBuffer = currentSegment.Array;
             var offset = currentSegment.Offset;
             var length = currentSegment.Count;

@@ -68,7 +68,7 @@
     <Compile Include="PackageInfo.cs" />
     <Compile Include="ProcessResult.cs" />
     <Compile Include="RawPackageInfo.cs" />
-    <Compile Include="ReceiveCache.cs" />
+    <Compile Include="BufferList.cs" />
     <Compile Include="DefaultPipelineProcessor.cs" />
     <Compile Include="ProcessState.cs" />
     <Compile Include="SearchMarkState.cs" />

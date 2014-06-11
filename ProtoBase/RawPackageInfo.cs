@@ -16,7 +16,7 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The raw data.
         /// </value>
-        ReceiveCache RawData { get; }
+        BufferList RawData { get; }
     }
 
     /// <summary>
@@ -39,14 +39,14 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The raw data.
         /// </value>
-        public ReceiveCache RawData { get; private set; }
+        public BufferList RawData { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RawPackageInfo{TKey}"/> class.
         /// </summary>
         /// <param name="key">The key.</param>
         /// <param name="rawData">The raw data.</param>
-        public RawPackageInfo(TKey key, ReceiveCache rawData)
+        public RawPackageInfo(TKey key, BufferList rawData)
         {
             Key = key; ;
             RawData = rawData;

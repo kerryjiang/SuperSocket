@@ -137,6 +137,14 @@ namespace SuperSocket.ProtoBase
         /// <param name="encoding">The encoding.</param>
         /// <returns></returns>
         string ReadString(int length, Encoding encoding);
+
+
+        /// <summary>
+        /// Takes the data of the specified length.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        IList<ArraySegment<byte>> Take(int length);
     }
 
     /// <summary>
@@ -652,6 +660,54 @@ namespace SuperSocket.ProtoBase
                 throw new ArgumentOutOfRangeException("length", "there is no enougth data");
 
             return new string(output, 0, totalCharsLen);
+        }
+
+        private IList<ArraySegment<byte>> Clone(int index, int segmentOffset, int length)
+        {
+            var target = new List<ArraySegment<byte>>();
+
+            var rest = length;
+
+            var segments = m_Segments;
+
+            for (var i = index; i < segments.Count; i++)
+            {
+                var segment = segments[i];
+                var offset = segment.Offset;
+                var thisLen = segment.Count;
+
+                if (i == index)
+                {
+                    offset = segmentOffset;
+                    thisLen = segment.Count - (segmentOffset - segment.Offset);
+                }
+
+                thisLen = Math.Min(thisLen, rest);
+
+                target.Add(new ArraySegment<byte>(segment.Array, offset, thisLen));
+
+                rest -= thisLen;
+
+                if (rest <= 0)
+                    break;
+            }
+
+            return target;
+        }
+
+        /// <summary>
+        /// Takes the data of the specified length.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        public IList<ArraySegment<byte>> Take(int length)
+        {
+            var bufferList = m_Segments as BufferList;
+
+            if (bufferList != null)
+                return bufferList.Clone(m_CurrentSegmentIndex, m_CurrentSegmentOffset, length);
+
+            return Clone(m_CurrentSegmentIndex, m_CurrentSegmentOffset, length);
         }
 
         /// <summary>

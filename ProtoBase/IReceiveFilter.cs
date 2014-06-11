@@ -18,7 +18,7 @@ namespace SuperSocket.ProtoBase
         /// <param name="data">The received data.</param>
         /// <param name="rest">The length of the rest data after filtering.</param>
         /// <returns>the received packageInfo instance</returns>
-        TPackageInfo Filter(ReceiveCache data, out int rest);
+        TPackageInfo Filter(BufferList data, out int rest);
 
         /// <summary>
         /// Gets the next receive filter which will be used when the next network data is received

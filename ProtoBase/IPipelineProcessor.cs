@@ -24,6 +24,6 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The cache.
         /// </value>
-        ReceiveCache Cache { get; }
+        BufferList Cache { get; }
     }
 }

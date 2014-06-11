@@ -91,7 +91,7 @@ namespace SuperSocket.SocketEngine
 
             try
             {
-                var receiveData = new ReceiveCache();
+                var receiveData = new BufferList();
                 receiveData.Add(receivedData);
 
                 requestInfo = this.m_UdpRequestFilter.Filter(receiveData, out rest);

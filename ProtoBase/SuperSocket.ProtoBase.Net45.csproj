@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="BufferList.cs" />
     <Compile Include="BufferSegmentReader.cs" />
     <Compile Include="BufferSegmentStream.cs" />
     <Compile Include="CountSpliterReceiveFilter.cs" />
@@ -71,7 +72,6 @@
     <Compile Include="PackageInfo.cs" />
     <Compile Include="ProcessResult.cs" />
     <Compile Include="RawPackageInfo.cs" />
-    <Compile Include="ReceiveCache.cs" />
     <Compile Include="DefaultPipelineProcessor.cs" />
     <Compile Include="ProcessState.cs" />
     <Compile Include="SearchMarkState.cs" />
