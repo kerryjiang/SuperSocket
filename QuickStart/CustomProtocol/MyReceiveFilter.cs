@@ -20,6 +20,7 @@ namespace SuperSocket.QuickStart.CustomProtocol
         {
             using (var reader = this.GetBufferReader(packageData))
             {
+                reader.Skip(4);
                 return reader.ReadUInt16();
             }
         }
@@ -28,7 +29,9 @@ namespace SuperSocket.QuickStart.CustomProtocol
         {
             using (var reader = this.GetBufferReader(packageData))
             {
-                return new BinaryRequestInfo(reader.ReadString(4, Encoding.UTF8), packageData);
+                var key = reader.ReadString(4, Encoding.UTF8);
+                reader.Skip(2);
+                return new BinaryRequestInfo(key, reader.Take((int)reader.Length - 6));
             }
         }
     }
