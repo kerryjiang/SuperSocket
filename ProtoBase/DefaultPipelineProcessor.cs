@@ -117,8 +117,10 @@ namespace SuperSocket.ProtoBase
 
                 m_PackageHandler.Handle(packageInfo);
 
-                if (packageInfo is IRawPackageInfo)
+                if (packageInfo is IBufferedPackageInfo // is a buffered package
+                        && (packageInfo as IBufferedPackageInfo).Data is BufferList) // and it uses receive buffer directly
                 {
+                    // so we need to create a new receive buffer container to use
                     m_ReceiveCache = new BufferList();
 
                     if (rest <= 0)
