@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="BufferedPackageInfo.cs" />
     <Compile Include="BufferList.cs" />
     <Compile Include="BufferListReader.cs" />
     <Compile Include="BufferListStream.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="HttpHeaderInfo.cs" />
     <Compile Include="HttpHeaderReceiveFilterBase.cs" />
     <Compile Include="HttpPackageInfoBase.cs" />
+    <Compile Include="IBufferedPackageInfo.cs" />
     <Compile Include="IBufferRecycler.cs" />
     <Compile Include="IBufferState.cs" />
     <Compile Include="IPackageHandler.cs" />
@@ -71,7 +73,6 @@
     <Compile Include="MimeHeaderHelper.cs" />
     <Compile Include="PackageInfo.cs" />
     <Compile Include="ProcessResult.cs" />
-    <Compile Include="RawPackageInfo.cs" />
     <Compile Include="DefaultPipelineProcessor.cs" />
     <Compile Include="ProcessState.cs" />
     <Compile Include="SearchMarkState.cs" />
