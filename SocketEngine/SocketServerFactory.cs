@@ -6,6 +6,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Config;
 using System.Net;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketEngine
 {
@@ -19,13 +20,13 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Creates the socket server.
         /// </summary>
-        /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
+        /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
         /// <param name="appServer">The app server.</param>
         /// <param name="listeners">The listeners.</param>
         /// <param name="config">The config.</param>
         /// <returns></returns>
-        public ISocketServer CreateSocketServer<TRequestInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config)
-            where TRequestInfo : IRequestInfo
+        public ISocketServer CreateSocketServer<TPackageInfo>(IAppServer appServer, ListenerInfo[] listeners, IServerConfig config)
+            where TPackageInfo : IPackageInfo
         {
             if (appServer == null)
                 throw new ArgumentNullException("appServer");
@@ -41,7 +42,7 @@ namespace SuperSocket.SocketEngine
                 case(SocketMode.Tcp):
                     return new AsyncSocketServer(appServer, listeners);
                 case(SocketMode.Udp):
-                    return new UdpSocketServer<TRequestInfo>(appServer, listeners);
+                    return new UdpSocketServer<TPackageInfo>(appServer, listeners);
                 default:
                     throw new NotSupportedException("Unsupported SocketMode:" + config.Mode);
             }

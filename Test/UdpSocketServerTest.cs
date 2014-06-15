@@ -13,13 +13,14 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketEngine;
 using SuperSocket.Test.Udp;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test
 {
-    public class MyUdpRequestInfo : UdpRequestInfo
+    public class MyUdpRequestInfo : UdpPackageInfo<string>
     {
         public MyUdpRequestInfo(string key, string sessionID)
             : base(key, sessionID)

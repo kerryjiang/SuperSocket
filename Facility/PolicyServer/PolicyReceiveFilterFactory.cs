@@ -9,7 +9,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Facility.PolicyServer
 {
-    class PolicyReceiveFilterFactory : IReceiveFilterFactory<StringRequestInfo>
+    class PolicyReceiveFilterFactory : IReceiveFilterFactory<StringPackageInfo>
     {
         /// <summary>
         /// Gets the size of the fix request.
@@ -35,7 +35,7 @@ namespace SuperSocket.Facility.PolicyServer
         /// <param name="appSession">The app session.</param>
         /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IReceiveFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        public IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             return new PolicyReceiveFilter(FixRequestSize);
         }

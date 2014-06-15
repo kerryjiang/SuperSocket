@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Pool;
+using SuperSocket.SocketBase.Command;
 
 namespace SuperSocket.SocketBase
 {
@@ -70,6 +71,26 @@ namespace SuperSocket.SocketBase
             where T : new()
         {
             return new DefaultConstructorItemCreator<T>();
+        }
+
+        /// <summary>
+        /// Gets the command key from the command instance.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key.</typeparam>
+        /// <param name="command">The command.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">Command key definition was not found.</exception>
+        public static object GetCommandKey<TKey>(this ICommand command)
+        {
+            var cmdAtt = command.GetType().GetCustomAttributes(true).OfType<CommandAttribute>().FirstOrDefault();
+
+            if (cmdAtt != null)
+                return cmdAtt.Key;
+
+            if (typeof(TKey) != typeof(string))
+                throw new Exception("Command key definition was not found.");
+
+            return command.Name;
         }
     }
 }

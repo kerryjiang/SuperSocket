@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Pool;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase.ServerResource
 {
-    class RequestExecutingContextPoolResource<TAppSession, TRequestInfo> : ServerResourceItem<IPool<RequestExecutingContext<TAppSession, TRequestInfo>>>
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IThreadExecutingContext, IAppSession<TAppSession, TRequestInfo>, new()
+    class RequestExecutingContextPoolResource<TAppSession, TPackageInfo> : ServerResourceItem<IPool<RequestExecutingContext<TAppSession, TPackageInfo>>>
+        where TPackageInfo : IPackageInfo
+        where TAppSession : IAppSession, IThreadExecutingContext, IAppSession<TAppSession, TPackageInfo>, new()
     {
         public RequestExecutingContextPoolResource()
             : base("RequestExecutingContextPool")
@@ -18,10 +19,10 @@ namespace SuperSocket.SocketBase.ServerResource
 
         }
 
-        protected override IPool<RequestExecutingContext<TAppSession, TRequestInfo>> CreateResource(IServerConfig config)
+        protected override IPool<RequestExecutingContext<TAppSession, TPackageInfo>> CreateResource(IServerConfig config)
         {
-            IPool<RequestExecutingContext<TAppSession, TRequestInfo>> pool = null;
-            pool = new IntelliPool<RequestExecutingContext<TAppSession, TRequestInfo>>(Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber), pool.CreateDefaultPoolItemCreator());
+            IPool<RequestExecutingContext<TAppSession, TPackageInfo>> pool = null;
+            pool = new IntelliPool<RequestExecutingContext<TAppSession, TPackageInfo>>(Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber), pool.CreateDefaultPoolItemCreator());
             return pool;
         }
     }

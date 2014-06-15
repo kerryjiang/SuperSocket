@@ -7,12 +7,13 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
-using SuperSocket.SocketBase.Pool;
 
 namespace SuperSocket.SocketBase
 {
@@ -156,30 +157,30 @@ namespace SuperSocket.SocketBase
     /// The interface for AppServer
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IAppServer<TAppSession, TRequestInfo> : IAppServer<TAppSession>
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+    /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
+    public interface IAppServer<TAppSession, TPackageInfo> : IAppServer<TAppSession>
+        where TPackageInfo : IPackageInfo
+        where TAppSession : IAppSession, IAppSession<TAppSession, TPackageInfo>, new()
     {
         /// <summary>
         /// Occurs when [request comming].
         /// </summary>
-        event RequestHandler<TAppSession, TRequestInfo> NewRequestReceived;
+        event RequestHandler<TAppSession, TPackageInfo> NewRequestReceived;
     }
 
     /// <summary>
     /// The interface for handler of session request
     /// </summary>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IRequestHandler<TRequestInfo>
-        where TRequestInfo : IRequestInfo
+    /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
+    public interface IRequestHandler<TPackageInfo>
+        where TPackageInfo : IPackageInfo
     {
         /// <summary>
         /// Executes the command.
         /// </summary>
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
-        void ExecuteCommand(IAppSession session, TRequestInfo requestInfo);
+        void ExecuteCommand(IAppSession session, TPackageInfo requestInfo);
     }
 
     /// <summary>

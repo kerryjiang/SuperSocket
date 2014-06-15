@@ -48,6 +48,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicPackageInfoParser.cs" />
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
     <Compile Include="BufferedPackageInfo.cs" />
     <Compile Include="BufferList.cs" />

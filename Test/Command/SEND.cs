@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using System.Threading.Tasks;
 using System.IO;
 
@@ -33,7 +33,7 @@ namespace SuperSocket.Test.Command
             return list.ToArray();
         }
 
-        public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(TestSession session, StringPackageInfo requestInfo)
         {
             string[] source = GetStringSource();
 

@@ -4,14 +4,15 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
-    public abstract partial class AppServer<TAppSession, TRequestInfo>
-        where TRequestInfo : class, IRequestInfo
-        where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
+    public abstract partial class AppServer<TAppSession, TPackageInfo, TKey>
+        where TPackageInfo : class, IPackageInfo<TKey>
+        where TAppSession : AppSession<TAppSession, TPackageInfo, TKey>, IAppSession, new()
     {
         partial void SetDefaultCulture(IRootConfig rootConfig, IServerConfig config)
         {

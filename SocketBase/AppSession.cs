@@ -19,17 +19,30 @@ namespace SuperSocket.SocketBase
     /// AppSession base class
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class AppSession<TAppSession, TRequestInfo> : IAppSession, IAppSession<TAppSession, TRequestInfo>, IPackageHandler<TRequestInfo>, IThreadExecutingContext
-        where TAppSession : AppSession<TAppSession, TRequestInfo>, IAppSession, new()
-        where TRequestInfo : class, IRequestInfo
+    /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
+    public abstract class AppSession<TAppSession, TPackageInfo> : AppSession<TAppSession, TPackageInfo, string>
+        where TAppSession : AppSession<TAppSession, TPackageInfo>, IAppSession, new()
+        where TPackageInfo : class, IPackageInfo<string>
+    {
+
+    }
+
+    /// <summary>
+    /// AppSession base class
+    /// </summary>
+    /// <typeparam name="TAppSession">The type of the app session.</typeparam>
+    /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
+    /// <typeparam name="TKey">The type of the package key.</typeparam>
+    public abstract class AppSession<TAppSession, TPackageInfo, TKey> : IAppSession, IAppSession<TAppSession, TPackageInfo>, IPackageHandler<TPackageInfo>, IThreadExecutingContext
+        where TAppSession : AppSession<TAppSession, TPackageInfo, TKey>, IAppSession, new()
+        where TPackageInfo : class, IPackageInfo, IPackageInfo<TKey>
     {
         #region Properties
 
         /// <summary>
         /// Gets the app server instance assosiated with the session.
         /// </summary>
-        public virtual AppServer<TAppSession, TRequestInfo> AppServer { get; private set; }
+        public virtual AppServer<TAppSession, TPackageInfo, TKey> AppServer { get; private set; }
 
         /// <summary>
         /// Gets the app server instance assosiated with the session.
@@ -84,7 +97,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The prev command.
         /// </value>
-        public string PrevCommand { get; set; }
+        public TKey PrevCommand { get; set; }
 
         /// <summary>
         /// Gets or sets the current executing command.
@@ -92,7 +105,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The current command.
         /// </value>
-        public string CurrentCommand { get; set; }
+        public TKey CurrentCommand { get; set; }
 
 
         /// <summary>
@@ -165,7 +178,7 @@ namespace SuperSocket.SocketBase
         #endregion
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession, TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession, TPackageInfo&gt;"/> class.
         /// </summary>
         public AppSession()
         {
@@ -179,9 +192,9 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="socketSession">The socket session.</param>
-        public virtual void Initialize(IAppServer<TAppSession, TRequestInfo> appServer, ISocketSession socketSession)
+        public virtual void Initialize(IAppServer<TAppSession, TPackageInfo> appServer, ISocketSession socketSession)
         {
-            var castedAppServer = (AppServer<TAppSession, TRequestInfo>)appServer;
+            var castedAppServer = (AppServer<TAppSession, TPackageInfo, TKey>)appServer;
             AppServer = castedAppServer;
             Charset = castedAppServer.TextEncoding;
             SocketSession = socketSession;
@@ -197,7 +210,7 @@ namespace SuperSocket.SocketBase
         {
             var receiveFilterFactory = AppServer.ReceiveFilterFactory;
             var receiveFilter = receiveFilterFactory.CreateFilter(AppServer, this, SocketSession.RemoteEndPoint);
-            return new DefaultPipelineProcessor<TRequestInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength, SocketSession as IBufferRecycler);
+            return new DefaultPipelineProcessor<TPackageInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength, SocketSession as IBufferRecycler);
         }
 
         /// <summary>
@@ -248,12 +261,12 @@ namespace SuperSocket.SocketBase
         /// Handles the unknown request.
         /// </summary>
         /// <param name="requestInfo">The request info.</param>
-        protected virtual void HandleUnknownRequest(TRequestInfo requestInfo)
+        protected virtual void HandleUnknownRequest(TPackageInfo requestInfo)
         {
 
         }
 
-        internal void InternalHandleUnknownRequest(TRequestInfo requestInfo)
+        internal void InternalHandleUnknownRequest(TPackageInfo requestInfo)
         {
             HandleUnknownRequest(requestInfo);
         }
@@ -472,7 +485,7 @@ namespace SuperSocket.SocketBase
 
         #endregion
 
-        void IPackageHandler<TRequestInfo>.Handle(TRequestInfo package)
+        void IPackageHandler<TPackageInfo>.Handle(TPackageInfo package)
         {
             try
             {
@@ -529,11 +542,11 @@ namespace SuperSocket.SocketBase
     }
 
     /// <summary>
-    /// AppServer basic class for whose request infoe type is StringRequestInfo
+    /// AppServer basic class for whose request infoe type is StringPackageInfo
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringRequestInfo>
-        where TAppSession : AppSession<TAppSession, StringRequestInfo>, IAppSession, new()
+    public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringPackageInfo>
+        where TAppSession : AppSession<TAppSession, StringPackageInfo>, IAppSession, new()
     {
 
         private bool m_AppendNewLineForResponse = false;
@@ -562,7 +575,7 @@ namespace SuperSocket.SocketBase
         /// Handles the unknown request.
         /// </summary>
         /// <param name="requestInfo">The request info.</param>
-        protected override void HandleUnknownRequest(StringRequestInfo requestInfo)
+        protected override void HandleUnknownRequest(StringPackageInfo requestInfo)
         {
             Send("Unknown request: " + requestInfo.Key);
         }
@@ -609,7 +622,7 @@ namespace SuperSocket.SocketBase
     }
 
     /// <summary>
-    /// AppServer basic class for whose request infoe type is StringRequestInfo
+    /// AppServer basic class for whose request infoe type is StringPackageInfo
     /// </summary>
     public class AppSession : AppSession<AppSession>
     {

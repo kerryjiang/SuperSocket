@@ -7,8 +7,9 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketEngine;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Udp
 {

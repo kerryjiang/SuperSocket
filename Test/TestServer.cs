@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
-using SuperSocket.Dlr;
+using System.Threading.Tasks;
 using SuperSocket.Common;
+using SuperSocket.Dlr;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketEngine;
-using System.Threading.Tasks;
-using System.Net;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test
 {
@@ -33,7 +33,7 @@ namespace SuperSocket.Test
 
         }
 
-        public TestServer(IStringPackageParser<StringRequestInfo> requestInfoParser)
+        public TestServer(IStringPackageParser<StringPackageInfo> requestInfoParser)
             : base(new CommandLineReceiveFilterFactory(Encoding.UTF8, requestInfoParser))
         {
             

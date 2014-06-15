@@ -8,9 +8,9 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol.Command
 {
-    public class ECHO : CommandBase<CustomProtocolSession, BinaryRequestInfo>
+    public class ECHO : CommandBase<CustomProtocolSession, BufferedPackageInfo>
     {
-        public override void ExecuteCommand(CustomProtocolSession session, BinaryRequestInfo requestInfo)
+        public override void ExecuteCommand(CustomProtocolSession session, BufferedPackageInfo requestInfo)
         {
             session.Send(Encoding.ASCII.GetString(requestInfo.Body) + Environment.NewLine);
         }

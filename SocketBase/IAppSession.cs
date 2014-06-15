@@ -87,22 +87,6 @@ namespace SuperSocket.SocketBase
         Encoding Charset { get; set; }
 
         /// <summary>
-        /// Gets or sets the previous command.
-        /// </summary>
-        /// <value>
-        /// The prev command.
-        /// </value>
-        string PrevCommand { get; set; }
-
-        /// <summary>
-        /// Gets or sets the current executing command.
-        /// </summary>
-        /// <value>
-        /// The current command.
-        /// </value>
-        string CurrentCommand { get; set; }
-
-        /// <summary>
         /// Gets the logger assosiated with this session.
         /// </summary>
         ILog Logger { get; }
@@ -117,16 +101,16 @@ namespace SuperSocket.SocketBase
     /// The interface for appSession
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IAppSession<TAppSession, TRequestInfo> : IAppSession
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
+    /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
+    public interface IAppSession<TAppSession, TPackageInfo> : IAppSession
+        where TPackageInfo : IPackageInfo
+        where TAppSession : IAppSession, IAppSession<TAppSession, TPackageInfo>, new()
     {
         /// <summary>
         /// Initializes the specified session.
         /// </summary>
         /// <param name="server">The server.</param>
         /// <param name="socketSession">The socket session.</param>
-        void Initialize(IAppServer<TAppSession, TRequestInfo> server, ISocketSession socketSession);
+        void Initialize(IAppServer<TAppSession, TPackageInfo> server, ISocketSession socketSession);
     }
 }

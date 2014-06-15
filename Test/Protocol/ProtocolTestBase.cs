@@ -11,6 +11,7 @@ using NUnit.Framework;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Protocol
@@ -19,7 +20,7 @@ namespace SuperSocket.Test.Protocol
     {
         private TestServer m_Server;
 
-        protected abstract IReceiveFilterFactory<StringRequestInfo> CurrentReceiveFilterFactory { get; }
+        protected abstract IReceiveFilterFactory<StringPackageInfo> CurrentReceiveFilterFactory { get; }
 
         [SetUp]
         public void Setup()
@@ -33,12 +34,12 @@ namespace SuperSocket.Test.Protocol
             m_Server.Stop();
         }
 
-        private TestServer CreateServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory)
+        private TestServer CreateServer(IReceiveFilterFactory<StringPackageInfo> receiveFilterFactory)
         {
             return CreateServer(receiveFilterFactory, SocketMode.Tcp);
         }
 
-        private TestServer CreateServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory, SocketMode mode)
+        private TestServer CreateServer(IReceiveFilterFactory<StringPackageInfo> receiveFilterFactory, SocketMode mode)
         {
             var appServer = new TestServer();
 

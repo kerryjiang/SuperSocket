@@ -7,12 +7,12 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.SocketBase.Protocol
 {
     /// <summary>
-    /// TerminatorReceiveFilter with StringRequestInfo as package info
+    /// TerminatorReceiveFilter with StringPackageInfo as package info
     /// </summary>
-    public class TerminatorReceiveFilter : TerminatorReceiveFilter<StringRequestInfo>
+    public class TerminatorReceiveFilter : TerminatorReceiveFilter<StringPackageInfo>
     {
         private readonly Encoding m_Encoding;
-        private readonly IStringPackageParser<StringRequestInfo> m_PackageParser;
+        private readonly IStringPackageParser<StringPackageInfo> m_PackageParser;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorReceiveFilter"/> class.
@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="packageParser">The package parser.</param>
-        public TerminatorReceiveFilter(byte[] terminator, Encoding encoding, IStringPackageParser<StringRequestInfo> packageParser)
+        public TerminatorReceiveFilter(byte[] terminator, Encoding encoding, IStringPackageParser<StringPackageInfo> packageParser)
             : base(terminator)
         {
             m_Encoding = encoding;
@@ -32,7 +32,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="packageData">The package binary data.</param>
         /// <returns>the resolved package instance</returns>
-        public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
             var encoding = m_Encoding;
             var totalLen = packageData.Sum(x => x.Count) - SearchState.Mark.Length;

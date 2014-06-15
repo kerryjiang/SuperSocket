@@ -10,18 +10,18 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// Terminator ReceiveFilter Factory
     /// </summary>
-    public class TerminatorReceiveFilterFactory : IReceiveFilterFactory<StringRequestInfo>
+    public class TerminatorReceiveFilterFactory : IReceiveFilterFactory<StringPackageInfo>
     {
         private readonly Encoding m_Encoding;
         private readonly byte[] m_Terminator;
-        private readonly IStringPackageParser<StringRequestInfo> m_RequestInfoParser;
+        private readonly IStringPackageParser<StringPackageInfo> m_RequestInfoParser;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TerminatorReceiveFilterFactory"/> class.
         /// </summary>
         /// <param name="terminator">The terminator.</param>
         public TerminatorReceiveFilterFactory(string terminator)
-            : this(terminator, Encoding.ASCII, BasicRequestInfoParser.DefaultInstance)
+            : this(terminator, Encoding.ASCII, BasicPackageInfoParser.DefaultInstance)
         {
 
         }
@@ -32,7 +32,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
         public TerminatorReceiveFilterFactory(string terminator, Encoding encoding)
-            : this(terminator, encoding, BasicRequestInfoParser.DefaultInstance)
+            : this(terminator, encoding, BasicPackageInfoParser.DefaultInstance)
         {
 
         }
@@ -43,7 +43,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
         /// <param name="requestInfoParser">The line parser.</param>
-        public TerminatorReceiveFilterFactory(string terminator, Encoding encoding, IStringPackageParser<StringRequestInfo> requestInfoParser)
+        public TerminatorReceiveFilterFactory(string terminator, Encoding encoding, IStringPackageParser<StringPackageInfo> requestInfoParser)
         {
             m_Encoding = encoding;
             m_Terminator = encoding.GetBytes(terminator);
@@ -59,7 +59,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns>
         /// the new created request filer assosiated with this socketSession
         /// </returns>
-        public virtual IReceiveFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        public virtual IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             return new TerminatorReceiveFilter(m_Terminator, m_Encoding, m_RequestInfoParser);
         }

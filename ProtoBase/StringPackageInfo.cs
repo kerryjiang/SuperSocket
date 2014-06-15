@@ -46,5 +46,25 @@ namespace SuperSocket.ProtoBase
             Body = body;
             Parameters = parameters;
         }
+
+        /// <summary>
+        /// Gets the first param.
+        /// </summary>
+        /// <returns></returns>
+        public string GetFirstParam()
+        {
+            if (Parameters.Length > 0)
+                return Parameters[0];
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Gets the <see cref="System.String"/> at the specified index.
+        /// </summary>
+        public string this[int index]
+        {
+            get { return Parameters[index]; }
+        }
     }
 }

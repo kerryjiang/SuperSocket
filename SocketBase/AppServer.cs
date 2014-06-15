@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
@@ -36,7 +37,7 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer"/> class.
         /// </summary>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory)
+        public AppServer(IReceiveFilterFactory<StringPackageInfo> receiveFilterFactory)
             : base(receiveFilterFactory)
         {
 
@@ -47,8 +48,8 @@ namespace SuperSocket.SocketBase
     /// AppServer class
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    public class AppServer<TAppSession> : AppServer<TAppSession, StringRequestInfo>
-        where TAppSession : AppSession<TAppSession, StringRequestInfo>, IAppSession, new()
+    public class AppServer<TAppSession> : AppServer<TAppSession, StringPackageInfo>
+        where TAppSession : AppSession<TAppSession, StringPackageInfo>, IAppSession, new()
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
@@ -63,13 +64,13 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
         /// </summary>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory)
+        public AppServer(IReceiveFilterFactory<StringPackageInfo> receiveFilterFactory)
             : base(receiveFilterFactory)
         {
 
         }
 
-        internal override IReceiveFilterFactory<StringRequestInfo> CreateDefaultReceiveFilterFactory()
+        internal override IReceiveFilterFactory<StringPackageInfo> CreateDefaultReceiveFilterFactory()
         {
             return new CommandLineReceiveFilterFactory(TextEncoding);
         }

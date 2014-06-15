@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Pool;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketBase
 {
@@ -21,7 +22,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the request info.
         /// </summary>
-        public IRequestInfo RequestInfo { get; private set; }
+        public IPackageInfo Request { get; private set; }
 
         /// <summary>
         /// Gets the current command.
@@ -58,10 +59,10 @@ namespace SuperSocket.SocketBase
         /// <param name="session">The session.</param>
         /// <param name="requestInfo">The request info.</param>
         /// <param name="command">The command.</param>
-        public void Initialize(IAppSession session, IRequestInfo requestInfo, ICommand command)
+        public void Initialize(IAppSession session, IPackageInfo requestInfo, ICommand command)
         {
             Session = session;
-            RequestInfo = requestInfo;
+            Request = requestInfo;
             CurrentCommand = command;
         }
     }
@@ -75,9 +76,9 @@ namespace SuperSocket.SocketBase
         int PreferedThreadId { get; set; }
     }
 
-    class RequestExecutingContext<TAppSession, TRequestInfo> : IThreadExecutingContext
-        where TRequestInfo : IRequestInfo
-        where TAppSession : IAppSession, IThreadExecutingContext, IAppSession<TAppSession, TRequestInfo>, new()
+    class RequestExecutingContext<TAppSession, TPackageInfo> : IThreadExecutingContext
+        where TPackageInfo : IPackageInfo
+        where TAppSession : IAppSession, IThreadExecutingContext, IAppSession<TAppSession, TPackageInfo>, new()
     {
         class ExecutingStateCode
         {
@@ -87,7 +88,7 @@ namespace SuperSocket.SocketBase
 
         public TAppSession Session { get; private set; }
 
-        public TRequestInfo RequestInfo { get; private set; }
+        public TPackageInfo RequestInfo { get; private set; }
 
         int IThreadExecutingContext.PreferedThreadId
         {
@@ -115,7 +116,7 @@ namespace SuperSocket.SocketBase
 
         }
 
-        public void Initialize(TAppSession session, TRequestInfo requestInfo)
+        public void Initialize(TAppSession session, TPackageInfo requestInfo)
         {
             Session = session;
             RequestInfo = requestInfo;
@@ -124,7 +125,7 @@ namespace SuperSocket.SocketBase
         public void Reset()
         {
             Session = default(TAppSession);
-            RequestInfo = default(TRequestInfo);
+            RequestInfo = default(TPackageInfo);
         }
     }
 }

@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Command
 {
@@ -11,7 +11,7 @@ namespace SuperSocket.Test.Command
     {
         public static string Result { get; private set; }
 
-        public override void ExecuteCommand(TestSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(TestSession session, StringPackageInfo requestInfo)
         {
             Result = requestInfo.Body;
         }
