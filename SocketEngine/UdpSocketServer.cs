@@ -13,8 +13,8 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
-    class UdpSocketServer<TRequestInfo> : SocketServerBase
-        where TRequestInfo : IRequestInfo
+    class UdpSocketServer<TPackageInfo> : SocketServerBase
+        where TPackageInfo : IPackageInfo
     {
         private IPEndPoint m_EndPointIPv4;
 
@@ -22,28 +22,28 @@ namespace SuperSocket.SocketEngine
 
         private bool m_IsUdpRequestInfo = false;
 
-        private IReceiveFilter<TRequestInfo> m_UdpRequestFilter;
+        private IReceiveFilter<TPackageInfo> m_UdpRequestFilter;
 
         private int m_ConnectionCount = 0;
 
-        private IRequestHandler<TRequestInfo> m_RequestHandler;
+        private IRequestHandler<TPackageInfo> m_RequestHandler;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="UdpSocketServer&lt;TRequestInfo&gt;"/> class.
+        /// Initializes a new instance of the <see cref="UdpSocketServer&lt;TPackageInfo&gt;"/> class.
         /// </summary>
         /// <param name="appServer">The app server.</param>
         /// <param name="listeners">The listeners.</param>
         public UdpSocketServer(IAppServer appServer, ListenerInfo[] listeners)
             : base(appServer, listeners)
         {
-            m_RequestHandler = appServer as IRequestHandler<TRequestInfo>;
+            m_RequestHandler = appServer as IRequestHandler<TPackageInfo>;
 
             m_EndPointIPv4 = new IPEndPoint(IPAddress.Any, 0);
             m_EndPointIPv6 = new IPEndPoint(IPAddress.IPv6Any, 0);
 
-            m_IsUdpRequestInfo = typeof(TRequestInfo).IsSubclassOf(typeof(UdpRequestInfo));
+            m_IsUdpRequestInfo = typeof(IUdpPackageInfo).IsAssignableFrom(typeof(TPackageInfo));
 
-            m_UdpRequestFilter = ((IReceiveFilterFactory<TRequestInfo>)appServer.ReceiveFilterFactory).CreateFilter(appServer, null, null);
+            m_UdpRequestFilter = ((IReceiveFilterFactory<TPackageInfo>)appServer.ReceiveFilterFactory).CreateFilter(appServer, null, null);
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace SuperSocket.SocketEngine
 
         void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, ArraySegment<byte> receivedData)
         {
-            TRequestInfo requestInfo;
+            TPackageInfo requestInfo;
 
             string sessionID;
 
@@ -103,7 +103,7 @@ namespace SuperSocket.SocketEngine
                 return;
             }
 
-            var udpRequestInfo = requestInfo as UdpRequestInfo;
+            var udpRequestInfo = requestInfo as IUdpPackageInfo;
 
             if (rest > 0)
             {

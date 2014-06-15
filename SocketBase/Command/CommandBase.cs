@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Command
 {
@@ -10,20 +11,20 @@ namespace SuperSocket.SocketBase.Command
     /// Command base class
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public abstract class CommandBase<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>
-        where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+    /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
+    public abstract class CommandBase<TAppSession, TPackageInfo> : ICommand<TAppSession, TPackageInfo>
+        where TAppSession : IAppSession, IAppSession<TAppSession, TPackageInfo>, new()
+        where TPackageInfo : IPackageInfo
     {
 
-        #region ICommand<TAppSession,TRequestInfo> Members
+        #region ICommand<TAppSession,TPackageInfo> Members
 
         /// <summary>
         /// Executes the command.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <param name="requestInfo">The request info.</param>
-        public abstract void ExecuteCommand(TAppSession session, TRequestInfo requestInfo);
+        /// <param name="packageInfo">The package info.</param>
+        public abstract void ExecuteCommand(TAppSession session, TPackageInfo packageInfo);
 
         #endregion
 

@@ -7,20 +7,20 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using SuperSocket.SocketBase.Protocol;
 using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Protocol
 {
     [TestFixture]
     public class BeginEndMarkProtocolTest : ProtocolTestBase
     {
-        class TestReceiveFilter : BeginEndMarkReceiveFilter<StringRequestInfo>
+        class TestReceiveFilter : BeginEndMarkReceiveFilter<StringPackageInfo>
         {
             private readonly static byte[] BeginMark = new byte[] { 0x5b, 0x5b };
             private readonly static byte[] EndMark = new byte[] { 0x5d, 0x5d };
 
-            private BasicRequestInfoParser m_Parser = new BasicRequestInfoParser();
+            private BasicPackageInfoParser m_Parser = new BasicPackageInfoParser();
 
             public TestReceiveFilter()
                 : base(BeginMark, EndMark)
@@ -28,7 +28,7 @@ namespace SuperSocket.Test.Protocol
 
             }
 
-            public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
                 var length = packageData.Sum(x => x.Count);
 
@@ -83,9 +83,9 @@ namespace SuperSocket.Test.Protocol
             }
         }
 
-        protected override IReceiveFilterFactory<StringRequestInfo> CurrentReceiveFilterFactory
+        protected override IReceiveFilterFactory<StringPackageInfo> CurrentReceiveFilterFactory
         {
-            get { return new DefaultReceiveFilterFactory<TestReceiveFilter, StringRequestInfo>(); }
+            get { return new DefaultReceiveFilterFactory<TestReceiveFilter, StringPackageInfo>(); }
         }
     }
 }

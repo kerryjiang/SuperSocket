@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
 using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Protocol
 {
     public class FixedSizeProtocolTest : ProtocolTestBase
     {
-        class TestReceiveFilter : FixedSizeReceiveFilter<StringRequestInfo>
+        class TestReceiveFilter : FixedSizeReceiveFilter<StringPackageInfo>
         {
-            private BasicRequestInfoParser m_Parser = new BasicRequestInfoParser();
+            private BasicPackageInfoParser m_Parser = new BasicPackageInfoParser();
 
             public TestReceiveFilter()
                 : base(41)
@@ -19,15 +19,15 @@ namespace SuperSocket.Test.Protocol
 
             }
 
-            public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
                 return m_Parser.Parse(Encoding.ASCII.GetString(packageData));
             }
         }
 
-        protected override IReceiveFilterFactory<StringRequestInfo> CurrentReceiveFilterFactory
+        protected override IReceiveFilterFactory<StringPackageInfo> CurrentReceiveFilterFactory
         {
-            get { return new DefaultReceiveFilterFactory<TestReceiveFilter, StringRequestInfo>(); }
+            get { return new DefaultReceiveFilterFactory<TestReceiveFilter, StringPackageInfo>(); }
         }
 
         protected override string CreateRequest(string sourceLine)

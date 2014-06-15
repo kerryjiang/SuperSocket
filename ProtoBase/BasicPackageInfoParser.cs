@@ -4,12 +4,12 @@ using System.Linq;
 using System.Text;
 using SuperSocket.ProtoBase;
 
-namespace SuperSocket.SocketBase.Protocol
+namespace SuperSocket.ProtoBase
 {
     /// <summary>
-    /// Basic request info parser, which parse request info by separating
+    /// Basic package info parser, which parse package info by separating
     /// </summary>
-    public class BasicRequestInfoParser : IStringPackageParser<StringRequestInfo>
+    public class BasicPackageInfoParser : IStringPackageParser<StringPackageInfo>
     {
         private readonly string m_Spliter;
         private readonly string[] m_ParameterSpliters;
@@ -19,35 +19,35 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// The default singlegton instance
         /// </summary>
-        public static readonly BasicRequestInfoParser DefaultInstance = new BasicRequestInfoParser();
+        public static readonly BasicPackageInfoParser DefaultInstance = new BasicPackageInfoParser();
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BasicRequestInfoParser"/> class.
+        /// Initializes a new instance of the <see cref="BasicPackageInfoParser"/> class.
         /// </summary>
-        public BasicRequestInfoParser()
+        public BasicPackageInfoParser()
             : this(m_OneSpace, m_OneSpace)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BasicRequestInfoParser"/> class.
+        /// Initializes a new instance of the <see cref="BasicPackageInfoParser"/> class.
         /// </summary>
         /// <param name="spliter">The spliter between command name and command parameters.</param>
         /// <param name="parameterSpliter">The parameter spliter.</param>
-        public BasicRequestInfoParser(string spliter, string parameterSpliter)
+        public BasicPackageInfoParser(string spliter, string parameterSpliter)
         {
             m_Spliter = spliter;
             m_ParameterSpliters = new string[] { parameterSpliter };
         }
 
-        #region IRequestInfoParser<StringRequestInfo> Members
+        #region IPackageInfoParser<StringPackageInfo> Members
 
         /// <summary>
         /// Parses the request info.
         /// </summary>
         /// <param name="source">The source.</param>
         /// <returns></returns>
-        public StringRequestInfo Parse(string source)
+        public StringPackageInfo Parse(string source)
         {
             int pos = source.IndexOf(m_Spliter);
 
@@ -64,7 +64,7 @@ namespace SuperSocket.SocketBase.Protocol
                 name = source;
             }
 
-            return new StringRequestInfo(name, param,
+            return new StringPackageInfo(name, param,
                 param.Split(m_ParameterSpliters, StringSplitOptions.RemoveEmptyEntries));
         }
 

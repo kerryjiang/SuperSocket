@@ -10,7 +10,7 @@ namespace SuperSocket.Facility.PolicyServer
     /// <summary>
     /// PolicyReceiveFilter
     /// </summary>
-    class PolicyReceiveFilter : FixedSizeReceiveFilter<StringRequestInfo>
+    class PolicyReceiveFilter : FixedSizeReceiveFilter<StringPackageInfo>
     {
         private const string m_DefaultRequestInfoKey = "REQU";
 
@@ -24,9 +24,9 @@ namespace SuperSocket.Facility.PolicyServer
 
         }
 
-        public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
-            return new StringRequestInfo(m_DefaultRequestInfoKey, Encoding.UTF8.GetString(packageData), null);
+            return new StringPackageInfo(m_DefaultRequestInfoKey, Encoding.UTF8.GetString(packageData), null);
         }
     }
 }

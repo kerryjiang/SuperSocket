@@ -14,9 +14,9 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// Receive filter factory interface
     /// </summary>
-    /// <typeparam name="TRequestInfo">The type of the request info.</typeparam>
-    public interface IReceiveFilterFactory<TRequestInfo> : IReceiveFilterFactory
-        where TRequestInfo : IRequestInfo
+    /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
+    public interface IReceiveFilterFactory<TPackageInfo> : IReceiveFilterFactory
+        where TPackageInfo : IPackageInfo
     {
         /// <summary>
         /// Creates the Receive filter.
@@ -27,6 +27,6 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns>
         /// the new created request filer assosiated with this socketSession
         /// </returns>
-        IReceiveFilter<TRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint);
+        IReceiveFilter<TPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint);
     }
 }

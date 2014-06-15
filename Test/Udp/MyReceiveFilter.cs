@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketBase;
 using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.Test.Udp
 {
@@ -33,7 +32,7 @@ namespace SuperSocket.Test.Udp
             
         }
 
-        public MyUdpRequestInfo Filter(ReceiveCache data, out int rest)
+        public MyUdpRequestInfo Filter(BufferList data, out int rest)
         {
             rest = 0;
 

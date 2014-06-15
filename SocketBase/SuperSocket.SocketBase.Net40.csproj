@@ -82,6 +82,7 @@
     <Compile Include="ISessionContainer.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
+    <Compile Include="Metadata\CommandAttribute.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
     <Compile Include="Command\CommandInfo.cs" />
@@ -130,7 +131,6 @@
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
     <Compile Include="ListenerInfo.cs" />
-    <Compile Include="Protocol\BinaryRequestInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
@@ -138,10 +138,8 @@
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
-    <Compile Include="Protocol\IRequestInfo.cs" />
-    <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
-    <Compile Include="Protocol\UdpRequestInfo.cs" />
+    <Compile Include="Protocol\UdpPackageInfo.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
@@ -157,7 +155,6 @@
     <Compile Include="ISocketSession.cs" />
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="RequestHandlingMode.cs" />
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="ServerResource\BufferManagerResource.cs" />

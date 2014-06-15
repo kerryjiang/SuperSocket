@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using SuperSocket.SocketBase.Protocol;
 using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.Test.Protocol
 {
     [TestFixture]
     public class FixedHeaderProtocolTest : ProtocolTestBase
     {
-        class TestReceiveFilter : FixedHeaderReceiveFilter<StringRequestInfo>
+        class TestReceiveFilter : FixedHeaderReceiveFilter<StringPackageInfo>
         {
             public TestReceiveFilter()
                 : base(8)
@@ -25,17 +25,17 @@ namespace SuperSocket.Test.Protocol
                 return int.Parse(strLen.TrimStart('0'));
             }
 
-            public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
                 var total = packageData.Sum(x => x.Count);
                 var body = Encoding.ASCII.GetString(packageData, HeaderSize, total - HeaderSize);
-                return new StringRequestInfo(Encoding.ASCII.GetString(packageData, 0, 4), body, new string[] { body });
+                return new StringPackageInfo(Encoding.ASCII.GetString(packageData, 0, 4), body, new string[] { body });
             }
         }
 
-        protected override IReceiveFilterFactory<StringRequestInfo> CurrentReceiveFilterFactory
+        protected override IReceiveFilterFactory<StringPackageInfo> CurrentReceiveFilterFactory
         {
-            get { return new DefaultReceiveFilterFactory<TestReceiveFilter, StringRequestInfo>(); }
+            get { return new DefaultReceiveFilterFactory<TestReceiveFilter, StringPackageInfo>(); }
         }
 
         protected override string CreateRequest(string sourceLine)

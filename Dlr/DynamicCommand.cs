@@ -8,12 +8,13 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Metadata;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Dlr
 {
     class DynamicCommand<TAppSession, TRequestInfo> : ICommand<TAppSession, TRequestInfo>, ICommandFilterProvider
         where TAppSession : IAppSession, IAppSession<TAppSession, TRequestInfo>, new()
-        where TRequestInfo : IRequestInfo
+        where TRequestInfo : IPackageInfo
     {
         private Action<TAppSession, TRequestInfo> m_DynamicExecuteCommand;
 

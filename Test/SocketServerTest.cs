@@ -14,6 +14,8 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
 using SuperSocket.Test.Command;
+using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase.Scheduler;
 
 
 namespace SuperSocket.Test
@@ -479,6 +481,7 @@ namespace SuperSocket.Test
                     string echoMessage = reader.ReadLine();
                     if (!string.Equals(command, echoMessage))
                     {
+                        Console.WriteLine("{0} : {1}", command, echoMessage);
                         return false;
                     }
                     Thread.Sleep(50);
@@ -813,10 +816,10 @@ namespace SuperSocket.Test
                 {
                     reader.ReadLine();
 
-                    string sendLine;
+                    string sendLine = string.Empty;
 
                     int i = 0;
-                    int testRound = 50000;
+                    int testRound = 5000;
 
                     while (i < testRound)
                     {
@@ -825,18 +828,22 @@ namespace SuperSocket.Test
                         writer.Flush();
 
                         var line = reader.ReadLine();
+
+                        //Console.WriteLine("C: {0}, S: {1}", sendLine, line);
+
                         if (line == null)
                         {
-                            i++;
-                            break;
+                            //CustomThreadPoolTaskScheduler.Reset();
                         }
 
                         Assert.AreEqual(sendLine, line);
+
                         i++;
                     }
 
                     Console.WriteLine("Client sent: {0}", i);
                     Console.WriteLine("Server sent: {0}", ECHO.Sent);
+                    ECHO.Reset();
                     Assert.AreEqual(testRound, i);
                 }
             }

@@ -8,7 +8,7 @@ using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
-    class MyReceiveFilter : FixedHeaderReceiveFilter<BinaryRequestInfo>
+    class MyReceiveFilter : FixedHeaderReceiveFilter<BufferedPackageInfo>
     {
         public MyReceiveFilter()
             : base(6)
@@ -25,13 +25,13 @@ namespace SuperSocket.QuickStart.CustomProtocol
             }
         }
 
-        public override BinaryRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override BufferedPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
             using (var reader = this.GetBufferReader(packageData))
             {
                 var key = reader.ReadString(4, Encoding.UTF8);
                 reader.Skip(2);
-                return new BinaryRequestInfo(key, reader.Take((int)reader.Length - 6));
+                return new BufferedPackageInfo(key, reader.Take((int)reader.Length - 6));
             }
         }
     }

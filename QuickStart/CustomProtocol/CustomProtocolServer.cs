@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
@@ -20,10 +21,10 @@ namespace SuperSocket.QuickStart.CustomProtocol
     /// len: the lenght of request data, two bytes, 0x00 0x02 = 2, 0x01 0x01 = 257
     /// request data: the body of the request
     /// </summary>
-    class CustomProtocolServer : AppServer<CustomProtocolSession, BinaryRequestInfo>
+    class CustomProtocolServer : AppServer<CustomProtocolSession, BufferedPackageInfo>
     {
         public CustomProtocolServer()
-            : base(new DefaultReceiveFilterFactory<MyReceiveFilter, BinaryRequestInfo>())
+            : base(new DefaultReceiveFilterFactory<MyReceiveFilter, BufferedPackageInfo>())
         {
 
         }

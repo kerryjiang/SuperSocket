@@ -115,6 +115,7 @@
     <Compile Include="Logging\Log4NetLogFactory.cs" />
     <Compile Include="Logging\LogFactoryBase.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
+    <Compile Include="Metadata\CommandAttribute.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Metadata\DefaultAppServerMetadata.cs" />
     <Compile Include="Metadata\StatusInfoAttribute.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\UdpPackageInfo.cs" />
     <Compile Include="Provider\ExportFactory.cs" />
     <Compile Include="Provider\ProviderFactoryInfo.cs" />
     <Compile Include="Provider\ProviderKey.cs" />
@@ -143,15 +145,11 @@
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
     <Compile Include="ListenerInfo.cs" />
-    <Compile Include="Protocol\BinaryRequestInfo.cs" />
     <Compile Include="Command\CommandBase.cs" />
     <Compile Include="Command\CommandUpdateInfo.cs" />
     <Compile Include="Command\ICommand.cs" />
     <Compile Include="Command\ICommandLoader.cs" />
-    <Compile Include="Protocol\IRequestInfo.cs" />
-    <Compile Include="Protocol\StringRequestInfo.cs" />
     <Compile Include="Command\ReflectCommandLoader.cs" />
-    <Compile Include="Protocol\UdpRequestInfo.cs" />
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\IRootConfig.cs" />
@@ -167,7 +165,6 @@
     <Compile Include="ISocketSession.cs" />
     <Compile Include="LoggerExtension.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Protocol\BasicRequestInfoParser.cs" />
     <Compile Include="RequestHandlingMode.cs" />
     <Compile Include="Scheduler\CustomThreadPoolTaskScheduler.cs" />
     <Compile Include="Scheduler\SingleThreadTaskScheduler.cs" />

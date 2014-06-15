@@ -12,7 +12,7 @@ namespace SuperSocket.SocketBase.Protocol
     /// for instance, request is defined like this "#12122#23343#4545456565#343435446#",
     /// because this request is splited into many parts by 5 '#', we can create a Receive filter by CountSpliterRequestFilter((byte)'#', 5)
     /// </summary>
-    public class CountSpliterReceiveFilter : CountSpliterReceiveFilter<StringRequestInfo>
+    public class CountSpliterReceiveFilter : CountSpliterReceiveFilter<StringPackageInfo>
     {
         private readonly Encoding m_Encoding;
 
@@ -63,13 +63,13 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="packageData">The package data.</param>
         /// <returns></returns>
-        public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
             //ignore the first and the last spliter
             var total = packageData.Sum(d => d.Count);
             var body = m_Encoding.GetString(packageData, 1, total - 2);
             var array = body.Split(m_Spliter);
-            return new StringRequestInfo(array[m_KeyIndex], body, array);
+            return new StringPackageInfo(array[m_KeyIndex], body, array);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace SuperSocket.SocketBase.Protocol
     /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
     public class CountSpliterReceiveFilterFactory<TReceiveFilter, TPackageInfo> : IReceiveFilterFactory<TPackageInfo>
         where TReceiveFilter : CountSpliterReceiveFilter<TPackageInfo>, new()
-        where TPackageInfo : IRequestInfo
+        where TPackageInfo : IPackageInfo
     {
         /// <summary>
         /// Creates the filter.
@@ -38,8 +38,8 @@ namespace SuperSocket.SocketBase.Protocol
     /// ReceiveFilterFactory for CountSpliterReceiveFilter
     /// </summary>
     /// <typeparam name="TReceiveFilter">The type of the Receive filter.</typeparam>
-    public class CountSpliterReceiveFilterFactory<TReceiveFilter> : CountSpliterReceiveFilterFactory<TReceiveFilter, StringRequestInfo>
-        where TReceiveFilter : CountSpliterReceiveFilter<StringRequestInfo>, new()
+    public class CountSpliterReceiveFilterFactory<TReceiveFilter> : CountSpliterReceiveFilterFactory<TReceiveFilter, StringPackageInfo>
+        where TReceiveFilter : CountSpliterReceiveFilter<StringPackageInfo>, new()
     {
 
     }
@@ -47,7 +47,7 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// receiveFilterFactory for CountSpliterRequestFilter
     /// </summary>
-    public class CountSpliterReceiveFilterFactory : IReceiveFilterFactory<StringRequestInfo>
+    public class CountSpliterReceiveFilterFactory : IReceiveFilterFactory<StringPackageInfo>
     {
         private readonly byte[] m_Spliter;
 
@@ -71,7 +71,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// <param name="appSession">The app session.</param>
         /// <param name="remoteEndPoint">The remote end point.</param>
         /// <returns></returns>
-        public IReceiveFilter<StringRequestInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
+        public IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             return new CountSpliterReceiveFilter(m_Spliter, m_SpliterCount);
         }
