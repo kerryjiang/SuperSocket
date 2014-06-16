@@ -159,10 +159,9 @@ namespace SuperSocket.Common
                     .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty)
                     .ToDictionary(p => p.Name, StringComparer.OrdinalIgnoreCase);
 
-
             var emptyObjectArr = new object[0];
 
-            var writableAttrs = new List<Tuple<PropertyInfo, PropertyInfo>>();
+            var writableAttrs = new List<KeyValuePair<PropertyInfo, PropertyInfo>>();
 
             foreach (var sourceProperty in properties)
             {
@@ -175,7 +174,7 @@ namespace SuperSocket.Common
                 {
                     if (targetProperty.CanWrite)
                     {
-                        writableAttrs.Add(Tuple.Create(sourceProperty, targetProperty));
+                        writableAttrs.Add(new KeyValuePair<PropertyInfo, PropertyInfo>(sourceProperty, targetProperty));
                         continue;
                     }
                 }
@@ -192,8 +191,8 @@ namespace SuperSocket.Common
 
             foreach (var pair in writableAttrs)
             {
-                var value = pair.Item1.GetValue(source, emptyObjectArr);
-                pair.Item2.SetValue(configElement, value, emptyObjectArr);
+                var value = pair.Key.GetValue(source, emptyObjectArr);
+                pair.Value.SetValue(configElement, value, emptyObjectArr);
             }
         }
     }
