@@ -1452,30 +1452,52 @@ namespace SuperSocket.SocketBase
 
             if (m_RequestHandlingTaskScheduler == null)
             {
-                ExecuteCommandInTask(context);
-                m_RequestExecutingContextPool.Return(context);
+                try
+                {
+                    ExecuteCommandInTask(context);
+                }
+                finally
+                {
+                    TryReturnBufferedPackageInfo(context);
+                    m_RequestExecutingContextPool.Return(context);
+                }
             }
             else
             {
-                Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, m_RequestHandlingTaskScheduler)
-                    .ContinueWith(HandleTaskCompleted);
+                Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, m_RequestHandlingTaskScheduler);
             }
         }
 
         void ExecuteCommandInTask(object state)
         {
             var context = state as RequestExecutingContext<TAppSession, TPackageInfo>;
-            this.ExecuteCommand(context.Session, context.RequestInfo);
+
+            try
+            {
+                this.ExecuteCommand(context.Session, context.RequestInfo);
+            }
+            finally
+            {
+                TryReturnBufferedPackageInfo(context);
+                m_RequestExecutingContextPool.Return(context);
+            }
         }
 
-        void HandleTaskCompleted(Task task)
+        bool TryReturnBufferedPackageInfo(RequestExecutingContext<TAppSession, TPackageInfo> context)
         {
-            var context = task.AsyncState as RequestExecutingContext<TAppSession, TPackageInfo>;
+            var request = context.RequestInfo as IBufferedPackageInfo;
 
-            if (task.IsFaulted)
-                context.Session.InternalHandleExcetion(task.Exception.InnerException);
+            if (request == null)
+                return false;
 
-            m_RequestExecutingContextPool.Return(context);
+            var bufferList = request.Data as BufferList;
+
+            var recycler = context.Session.SocketSession as IBufferRecycler;
+            if (recycler == null)
+                return false;
+
+            recycler.Return(bufferList.GetAllCachedItems(), 0, bufferList.Count);
+            return true;
         }
 
         /// <summary>
