@@ -10,7 +10,7 @@ namespace SuperSocket.ProtoBase
     /// <summary>
     /// The default buffer list stream
     /// </summary>
-    public sealed class BufferListStream : Stream
+    public class BufferListStream : Stream
     {
         private IList<ArraySegment<byte>> m_Segments;
 
@@ -61,19 +61,27 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The current buffer segment stream
         /// </value>
-        public static BufferListStream Current
+        public static BufferListStream GetCurrent()
         {
-            get
-            {
-                var slot = Thread.GetNamedDataSlot(c_ThreadBufferSegmentStream);
-                var stream = Thread.GetData(slot) as BufferListStream;
-                if (stream != null)
-                    return stream;
+            return GetCurrent<BufferListStream>();
+        }
 
-                stream = new BufferListStream();
-                Thread.SetData(slot, stream);
+        /// <summary>
+        /// Gets the current buffer segment stream from the thread context
+        /// </summary>
+        /// <typeparam name="TStream">The type of the stream.</typeparam>
+        /// <returns></returns>
+        public static TStream GetCurrent<TStream>()
+            where TStream : BufferListStream, new()
+        {
+            var slot = Thread.GetNamedDataSlot(c_ThreadBufferSegmentStream);
+            var stream = Thread.GetData(slot) as TStream;
+            if (stream != null)
                 return stream;
-            }
+
+            stream = new TStream();
+            Thread.SetData(slot, stream);
+            return stream;
         }
 
         /// <summary>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 
 namespace SuperSocket.ProtoBase
 {
@@ -142,6 +143,37 @@ namespace SuperSocket.ProtoBase
             var reader = BufferListReader.GetCurrent<TReader>();
             reader.Initialize(data);
             return reader;
+        }
+
+        /// <summary>
+        /// Gets the buffer stream instance which can be reused.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
+        /// <param name="receiveFilter">The receive filter.</param>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+        public static BufferListStream GetBufferStream<TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
+            where TPackageInfo : IPackageInfo
+        {
+            return GetBufferStream<BufferListStream, TPackageInfo>(receiveFilter, data);
+        }
+
+
+        /// <summary>
+        /// Gets the buffer stream instance which can be reused.
+        /// </summary>
+        /// <typeparam name="TStream">The type of the stream.</typeparam>
+        /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
+        /// <param name="receiveFilter">The receive filter.</param>
+        /// <param name="data">The data.</param>
+        /// <returns></returns>
+        public static BufferListStream GetBufferStream<TStream, TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
+            where TStream : BufferListStream, new()
+            where TPackageInfo : IPackageInfo
+        {
+            var stream = BufferListStream.GetCurrent<BufferListStream>();
+            stream.Initialize(data);
+            return stream;
         }
     }
 }
