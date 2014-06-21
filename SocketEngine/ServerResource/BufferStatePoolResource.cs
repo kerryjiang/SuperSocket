@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using SuperSocket.SocketBase.ServerResource;
-using SuperSocket.SocketBase.Pool;
-using SuperSocket.SocketBase;
 using System.Security.Authentication;
+using System.Text;
+using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Pool;
+using SuperSocket.SocketBase.ServerResource;
 
 namespace SuperSocket.SocketEngine.ServerResource
 {
@@ -22,23 +22,23 @@ namespace SuperSocket.SocketEngine.ServerResource
         {
             var server = AppContext.CurrentServer;
 
-            //TLS/SSL TCP
-            if (server.Listeners.Any(l => l.Security != SslProtocols.None))
-            {
-                int bufferSize = config.ReceiveBufferSize;
+            //No TLS/SSL TCP listener
+            if (!server.Listeners.Any(l => l.Security != SslProtocols.None))
+                return null;
 
-                if (bufferSize <= 0)
-                    bufferSize = 1024 * 4;
+            int bufferSize = config.ReceiveBufferSize;
 
-                var bufferManager = server.BufferManager;
+            if (bufferSize <= 0)
+                bufferSize = 1024 * 4;
 
-                var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
+            var bufferManager = server.BufferManager;
 
-                IPool<BufferState> pool = null;
-                pool = new IntelliPool<BufferState>(initialCount, new BufferStateCreator(pool, bufferManager, bufferSize));
-            }
+            var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
 
-            return null;
+            IPool<BufferState> pool = null;
+            pool = new IntelliPool<BufferState>(initialCount, new BufferStateCreator(pool, bufferManager, bufferSize));
+
+            return pool;
         }
     }
 }
