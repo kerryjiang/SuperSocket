@@ -45,6 +45,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="BasicPackageInfoParser.cs" />
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
     <Compile Include="BufferListReader.cs" />
