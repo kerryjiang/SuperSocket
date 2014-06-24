@@ -235,7 +235,7 @@ namespace SuperSocket.SocketEngine
         {
             if (m_SocketEventArgSend != null)
             {
-                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+                m_SocketEventArgSend.Completed -= new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
                 m_SocketEventArgSend.Dispose();
                 m_SocketEventArgSend = null;
             }
