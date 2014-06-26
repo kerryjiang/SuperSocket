@@ -1657,8 +1657,17 @@ namespace SuperSocket.SocketBase
 
             serverStatus[StatusInfoKeys.RequestHandlingSpeed] = ((totalHandledRequests - totalHandledRequests0) / now.Subtract(serverStatus.CollectedTime).TotalSeconds);
             serverStatus[StatusInfoKeys.TotalHandledRequests] = totalHandledRequests;
-            serverStatus[StatusInfoKeys.AvialableSendingQueueItems] = m_SocketServer.SendingQueuePool.AvialableItemsCount;
-            serverStatus[StatusInfoKeys.TotalSendingQueueItems] = m_SocketServer.SendingQueuePool.TotalItemsCount;
+
+            if (m_SocketServer != null)
+            {
+                serverStatus[StatusInfoKeys.AvialableSendingQueueItems] = m_SocketServer.SendingQueuePool.AvialableItemsCount;
+                serverStatus[StatusInfoKeys.TotalSendingQueueItems] = m_SocketServer.SendingQueuePool.TotalItemsCount;
+            }
+            else
+            {
+                serverStatus[StatusInfoKeys.AvialableSendingQueueItems] = 0;
+                serverStatus[StatusInfoKeys.TotalSendingQueueItems] = 0;
+            }
 
             serverStatus.CollectedTime = now;
         }
