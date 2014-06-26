@@ -172,7 +172,7 @@ namespace SuperSocket.SocketEngine
             ILog log = AppServer.Logger;
 
             if (log.IsDebugEnabled)
-                log.DebugFormat("Listener ({0}) was stoppped", listener.EndPoint);
+                log.DebugFormat("Listener ({0}) was stopped", listener.EndPoint);
         }
 
         protected abstract ISocketListener CreateListener(ListenerInfo listenerInfo);
