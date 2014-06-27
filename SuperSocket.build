@@ -38,13 +38,13 @@
   <target name="buildSln" description="build the solution">
 	<msbuild project="${solutionFile}" verbose="true">
       <arg value="/t:Clean;Build" />
-      <arg value="/p:OutputPath=..\bin\${netFxVersion}\${configuration}" />
+      <arg value="/p:OutputPath=${build.dir}\bin\${netFxVersion}\${configuration}" />
     </msbuild>
   </target>
   <target name="buildPrj" description="build the project">
 	<msbuild project="${solutionFile}" verbose="true">
       <arg value="/t:Clean;Build" />
-      <arg value="/p:OutputPath=..\..\bin\${netFxVersion}\${configuration}" />
+      <arg value="/p:OutputPath=${build.dir}\bin\${netFxVersion}\${configuration}" />
     </msbuild>
   </target>
   
