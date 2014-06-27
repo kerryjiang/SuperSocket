@@ -38,14 +38,54 @@
   <target name="buildSln" description="build the solution">
 	<msbuild project="${solutionFile}" verbose="true">
       <arg value="/t:Clean;Build" />
-      <arg value="/p:OutputPath=..\bin\${netFxVersion}\${configuration}" />
+      <arg value="/p:OutputPath=${build.dir}\bin\${netFxVersion}\${configuration}" />
     </msbuild>
   </target>
   <target name="buildPrj" description="build the project">
 	<msbuild project="${solutionFile}" verbose="true">
       <arg value="/t:Clean;Build" />
-      <arg value="/p:OutputPath=..\..\bin\${netFxVersion}\${configuration}" />
+      <arg value="/p:OutputPath=${build.dir}\bin\${netFxVersion}\${configuration}" />
     </msbuild>
+  </target>
+  
+  <target name="nugetPack" description="pack the nuget package">
+	<copy file="SuperSocket.nuspec" tofile="nuget\SuperSocket.nuspec" />
+	
+	<property name="netFxVersion" value="net40" />
+	<call target="nugetPackVersion" />
+	
+	<property name="netFxVersion" value="net45" />
+	<call target="nugetPackVersion" />
+	
+	<copy file="Solution Items\log4net.config" tofile="nuget\content\log4net.config" />
+	<copy file="Solution Items\log4net.unix.config" tofile="nuget\content\log4net.unix.config" />
+	<copy file="SocketService\supersocket.cmd" tofile="nuget\content\supersocket.cmd" />
+	<copy file="SocketService\supersocket.sh" tofile="nuget\content\supersocket.sh" />
+	
+	<loadfile file="nuget.key" property="nuget.key" />
+	
+	<exec program="nuget" failonerror="true"> 
+		<arg line="SetApiKey ${nuget.key}" /> 
+	</exec>
+	
+	<exec program="nuget" failonerror="true"> 
+		<arg line="Pack nuget\SuperSocket.nuspec" /> 
+	</exec>
+	
+	<exec program="nuget" failonerror="true"> 
+		<arg line="Push SuperSocket.${releaseVersion}.nupkg" /> 
+	</exec>
+  </target>
+  
+  <target name="nugetPackVersion" description="pack the nuget package">
+	<mkdir dir="nuget\lib\${netFxVersion}" />
+	<copy todir="nuget\lib\${netFxVersion}">
+		<fileset basedir="bin\${netFxVersion}\Release">
+			<include name="*.dll" />
+			<include name="*.xml" />
+			<include name="*.exe" />
+		</fileset>
+	</copy>
   </target>
   
   <target name="makeRelease" description="make the release package">
@@ -56,23 +96,7 @@
 	
 	<call target="zipSourceCode" />
 	
-	<property name="netFxVersion" value="Net35" />
-	<property name="configuration" value="Debug" />
-	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
-    <call target="buildSln" />
-	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net35.csproj" />
-	<call target="buildPrj" />
-	<call target="cleanObjDir" />
-	
-	<property name="netFxVersion" value="Net35" />
-	<property name="configuration" value="Release" />
-	<property name="solutionFile" value="SuperSocket.2010.NET35.sln" />
-    <call target="buildSln" />
-	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net35.csproj" />
-	<call target="buildPrj" />
-	<call target="cleanObjDir" />
-	
-	<property name="netFxVersion" value="Net40" />
+	<property name="netFxVersion" value="net40" />
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2010.sln" />
     <call target="buildSln" />
@@ -80,7 +104,7 @@
 	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
-	<property name="netFxVersion" value="Net40" />
+	<property name="netFxVersion" value="net40" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2010.sln" />
     <call target="buildSln" />
@@ -88,7 +112,7 @@
 	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
-	<property name="netFxVersion" value="Net45" />
+	<property name="netFxVersion" value="net45" />
 	<property name="configuration" value="Debug" />
 	<property name="solutionFile" value="SuperSocket.2012.sln" />
     <call target="buildSln" />
@@ -96,7 +120,7 @@
 	<call target="buildPrj" />
 	<call target="cleanObjDir" />
 	
-	<property name="netFxVersion" value="Net45" />
+	<property name="netFxVersion" value="net45" />
 	<property name="configuration" value="Release" />
 	<property name="solutionFile" value="SuperSocket.2012.sln" />
     <call target="buildSln" />
@@ -105,6 +129,8 @@
 	<call target="cleanObjDir" />
 	
 	<call target="zipBinaries" />
+	
+	<call target="nugetPack" />
 	
   </target>
 </project>
