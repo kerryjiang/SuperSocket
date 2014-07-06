@@ -48,6 +48,24 @@ namespace SuperSocket.ProtoBase
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="StringPackageInfo"/> class.
+        /// </summary>
+        /// <param name="source">The source.</param>
+        /// <param name="sourceParser">The source parser.</param>
+        public StringPackageInfo(string source, IStringParser sourceParser)
+        {
+            string key;
+            string body;
+            string[] parameters;
+
+            sourceParser.Parse(source, out key, out body, out parameters);
+
+            Key = key;
+            Body = body;
+            Parameters = parameters;
+        }
+
+        /// <summary>
         /// Gets the first param.
         /// </summary>
         /// <returns></returns>

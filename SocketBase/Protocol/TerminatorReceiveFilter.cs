@@ -12,19 +12,19 @@ namespace SuperSocket.SocketBase.Protocol
     public class TerminatorReceiveFilter : TerminatorReceiveFilter<StringPackageInfo>
     {
         private readonly Encoding m_Encoding;
-        private readonly IStringPackageParser<StringPackageInfo> m_PackageParser;
+        private readonly IStringParser m_StringParser;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TerminatorReceiveFilter"/> class.
+        /// Initializes a new instance of the <see cref="TerminatorReceiveFilter" /> class.
         /// </summary>
         /// <param name="terminator">The terminator.</param>
         /// <param name="encoding">The encoding.</param>
-        /// <param name="packageParser">The package parser.</param>
-        public TerminatorReceiveFilter(byte[] terminator, Encoding encoding, IStringPackageParser<StringPackageInfo> packageParser)
+        /// <param name="stringParser">The string parser.</param>
+        public TerminatorReceiveFilter(byte[] terminator, Encoding encoding, IStringParser stringParser)
             : base(terminator)
         {
             m_Encoding = encoding;
-            m_PackageParser = packageParser;
+            m_StringParser = stringParser;
         }
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace SuperSocket.SocketBase.Protocol
                 totalBytesUsed += bytesUsed;
             }
 
-            return m_PackageParser.Parse(new string(charsBuffer, 0, outputOffset));
+            return new StringPackageInfo(new string(charsBuffer, 0, outputOffset), m_StringParser);
         }
     }
 }
