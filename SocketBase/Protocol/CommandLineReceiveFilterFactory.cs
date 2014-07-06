@@ -25,7 +25,7 @@ namespace SuperSocket.SocketBase.Protocol
         /// </summary>
         /// <param name="encoding">The encoding.</param>
         public CommandLineReceiveFilterFactory(Encoding encoding)
-            : this(encoding, new BasicPackageInfoParser())
+            : this(encoding, new BasicStringParser())
         {
 
         }
@@ -34,9 +34,9 @@ namespace SuperSocket.SocketBase.Protocol
         /// Initializes a new instance of the <see cref="CommandLineReceiveFilterFactory"/> class.
         /// </summary>
         /// <param name="encoding">The encoding.</param>
-        /// <param name="requestInfoParser">The request info parser.</param>
-        public CommandLineReceiveFilterFactory(Encoding encoding, IStringPackageParser<StringPackageInfo> requestInfoParser)
-            : base("\r\n", encoding, requestInfoParser)
+        /// <param name="stringParser">The request info parser.</param>
+        public CommandLineReceiveFilterFactory(Encoding encoding, IStringParser stringParser)
+            : base("\r\n", encoding, stringParser)
         {
 
         }

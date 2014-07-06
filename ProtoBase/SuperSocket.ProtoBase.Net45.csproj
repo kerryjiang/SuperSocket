@@ -51,7 +51,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="BasicPackageInfoParser.cs" />
+    <Compile Include="BasicStringParser.cs" />
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
     <Compile Include="BufferedPackageInfo.cs" />
     <Compile Include="BufferList.cs" />
@@ -73,7 +73,7 @@
     <Compile Include="IPackageResolver.cs" />
     <Compile Include="IPipelineProcessor.cs" />
     <Compile Include="IReceiveFilter.cs" />
-    <Compile Include="IStringPackageParser.cs" />
+    <Compile Include="IStringParser.cs" />
     <Compile Include="MimeHeaderHelper.cs" />
     <Compile Include="PackageInfo.cs" />
     <Compile Include="ProcessResult.cs" />
