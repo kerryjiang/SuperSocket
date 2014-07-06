@@ -69,7 +69,6 @@
     <Compile Include="IPipelineProcessor.cs" />
     <Compile Include="IReceiveFilter.cs" />
     <Compile Include="IStringParser.cs" />
-    <Compile Include="IStringPackageParser.cs" />
     <Compile Include="MimeHeaderHelper.cs" />
     <Compile Include="PackageInfo.cs" />
     <Compile Include="ProcessResult.cs" />
