@@ -11,7 +11,7 @@ namespace SuperSocket.Test.Protocol
     {
         class TestReceiveFilter : FixedSizeReceiveFilter<StringPackageInfo>
         {
-            private BasicPackageInfoParser m_Parser = new BasicPackageInfoParser();
+            private BasicStringParser m_Parser = new BasicStringParser();
 
             public TestReceiveFilter()
                 : base(41)
@@ -21,7 +21,7 @@ namespace SuperSocket.Test.Protocol
 
             public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                return m_Parser.Parse(Encoding.ASCII.GetString(packageData));
+                return new StringPackageInfo(Encoding.ASCII.GetString(packageData), m_Parser);
             }
         }
 

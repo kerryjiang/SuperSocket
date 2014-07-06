@@ -33,8 +33,8 @@ namespace SuperSocket.Test
 
         }
 
-        public TestServer(IStringPackageParser<StringPackageInfo> requestInfoParser)
-            : base(new CommandLineReceiveFilterFactory(Encoding.UTF8, requestInfoParser))
+        public TestServer(IStringParser stringParser)
+            : base(new CommandLineReceiveFilterFactory(Encoding.UTF8, stringParser))
         {
             
         }

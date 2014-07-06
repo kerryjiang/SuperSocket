@@ -20,7 +20,7 @@ namespace SuperSocket.Test.Protocol
             private readonly static byte[] BeginMark = new byte[] { 0x5b, 0x5b };
             private readonly static byte[] EndMark = new byte[] { 0x5d, 0x5d };
 
-            private BasicPackageInfoParser m_Parser = new BasicPackageInfoParser();
+            private BasicStringParser m_Parser = new BasicStringParser();
 
             public TestReceiveFilter()
                 : base(BeginMark, EndMark)
@@ -30,16 +30,18 @@ namespace SuperSocket.Test.Protocol
 
             public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                var length = packageData.Sum(x => x.Count);
-
-                if (length < 20)
+                using (var reader = this.GetBufferReader(packageData))
                 {
-                    Console.WriteLine("Ignore request");
-                    return null;
-                }
+                    var length = reader.Length;
 
-                var line = Encoding.ASCII.GetString(packageData);
-                return m_Parser.Parse(line.Substring(2, line.Length - 4));
+                    if (length < 20)
+                    {
+                        Console.WriteLine("Ignore request");
+                        return null;
+                    }
+
+                    return new StringPackageInfo(reader.Skip(2).ReadString((int)length - 4, Encoding.ASCII), m_Parser);
+                }
             }
         }
 
