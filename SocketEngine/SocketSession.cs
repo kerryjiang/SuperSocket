@@ -209,6 +209,9 @@ namespace SuperSocket.SocketEngine
 
             var queue = m_SendingQueue;
 
+            if (queue == null)
+                return false;
+
             var trackID = queue.TrackID;
 
             if (!queue.Enqueue(segments, trackID))
