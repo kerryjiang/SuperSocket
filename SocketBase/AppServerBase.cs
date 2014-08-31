@@ -1658,10 +1658,11 @@ namespace SuperSocket.SocketBase
             serverStatus[StatusInfoKeys.RequestHandlingSpeed] = ((totalHandledRequests - totalHandledRequests0) / now.Subtract(serverStatus.CollectedTime).TotalSeconds);
             serverStatus[StatusInfoKeys.TotalHandledRequests] = totalHandledRequests;
 
-            if (m_SocketServer != null)
+            if (State == ServerState.Running)
             {
-                serverStatus[StatusInfoKeys.AvialableSendingQueueItems] = m_SocketServer.SendingQueuePool.AvialableItemsCount;
-                serverStatus[StatusInfoKeys.TotalSendingQueueItems] = m_SocketServer.SendingQueuePool.TotalItemsCount;
+                var sendingQueuePool = m_SocketServer.SendingQueuePool;
+                serverStatus[StatusInfoKeys.AvialableSendingQueueItems] = sendingQueuePool.AvialableItemsCount;
+                serverStatus[StatusInfoKeys.TotalSendingQueueItems] = sendingQueuePool.TotalItemsCount;
             }
             else
             {
