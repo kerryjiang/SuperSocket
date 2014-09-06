@@ -88,6 +88,12 @@
     <Compile Include="Protocol\WebSocketHeaderReceiveFilter.cs" />
     <Compile Include="Protocol\WebSocketReceiveFilterBase.cs" />
     <Compile Include="Protocol\WebSocketSecKey3ReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\DraftHybi00DataReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\DraftHybi00ReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\DraftHybi10ReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\IHandshakeHandler.cs" />
+    <Compile Include="ReceiveFilters\Rfc6455ReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\WebSocketHandshakeReceiveFilter.cs" />
     <Compile Include="SubProtocol\AsyncJsonSubCommand.cs" />
     <Compile Include="SubProtocol\BasicSubCommandParser.cs" />
     <Compile Include="SubProtocol\BasicSubProtocol.cs" />
@@ -111,6 +117,10 @@
     <ProjectReference Include="..\..\Common\SuperSocket.Common.Net45.csproj">
       <Project>{a24f4d38-ba9c-4fd6-95b7-4980de36131a}</Project>
       <Name>SuperSocket.Common.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ProtoBase\SuperSocket.ProtoBase.Net45.csproj">
+      <Project>{88c9312e-7520-4f6b-bf25-30da5990d270}</Project>
+      <Name>SuperSocket.ProtoBase.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\SocketBase\SuperSocket.SocketBase.Net45.csproj">
       <Project>{40b77789-ea11-4c05-8f52-86711d7bcaaf}</Project>

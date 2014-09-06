@@ -78,5 +78,65 @@ namespace SuperSocket.WebSocket
                 m_SimpleTypes.Contains(type) ||
                 Convert.GetTypeCode(type) != TypeCode.Object;
         }
+
+        /// <summary>
+        /// Decodes data by the mask.
+        /// </summary>
+        /// <param name="mask">The mask.</param>
+        /// <param name="offset">The offset, where the decoding should start from in the data source.</param>
+        /// <param name="length">How long the data should be decoded.</param>
+        public static void DecodeMask(IList<ArraySegment<byte>> source, byte[] mask, int offset, int length)
+        {
+            int maskLen = mask.Length;
+            var from = 0;
+            var startSegmentIndex = 0;
+            ArraySegment<byte> startSegment = default(ArraySegment<byte>);
+
+            var totalOffset = 0;
+
+            for (var i = 0; i < source.Count; i++)
+            {
+                var segment = source[i];
+
+                var nextTotalOffset = totalOffset + segment.Count;
+
+                if (offset >= totalOffset)
+                {
+                    totalOffset = nextTotalOffset;
+                    continue;
+                }
+
+                startSegment = segment;
+                startSegmentIndex = i;
+                from = offset - totalOffset + segment.Offset;
+                break;
+            }
+
+            var shouldDecode = Math.Min(length, startSegment.Count - from + offset);
+            var index = 0;
+
+            for (var i = from; i < from + shouldDecode; i++)
+            {
+                startSegment.Array[i] = (byte)(startSegment.Array[i] ^ mask[index++ % maskLen]);
+            }
+
+            if (index >= length)
+                return;
+
+            for (var i = startSegmentIndex + 1; i < source.Count; i++)
+            {
+                var segment = source[i];
+
+                shouldDecode = Math.Min(length - index, segment.Count);
+
+                for (var j = segment.Offset; j < segment.Offset + shouldDecode; j++)
+                {
+                    segment.Array[j] = (byte)(segment.Array[j] ^ mask[index++ % maskLen]);
+                }
+
+                if (index >= length)
+                    return;
+            }
+        }
     }
 }
