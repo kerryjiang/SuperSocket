@@ -1555,11 +1555,21 @@ namespace SuperSocket.SocketBase
             if (!ExecuteConnectionFilters(socketSession.RemoteEndPoint))
                 return NullAppSession;
 
-            var appSession = new TAppSession();
+            var appSession = CreateAppSession(socketSession);
             
             appSession.Initialize(this, socketSession);
 
             return appSession;
+        }
+
+        /// <summary>
+        /// create a new TAppSession instance, you can override it to create the session instance in your own way
+        /// </summary>
+        /// <param name="socketSession">the socket session.</param>
+        /// <returns>the new created session instance</returns>
+        protected virtual TAppSession CreateAppSession(ISocketSession socketSession)
+        {
+            return new TAppSession();
         }
 
         /// <summary>
