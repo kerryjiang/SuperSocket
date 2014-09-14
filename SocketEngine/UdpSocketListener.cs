@@ -17,6 +17,8 @@ namespace SuperSocket.SocketEngine
 
         private IPool<SaeState> m_SaePool;
 
+        private EndPoint m_AnyEndPoint = new IPEndPoint(IPAddress.Any, 0);
+
         public UdpSocketListener(ListenerInfo info, IPool<SaeState> saePool)
             : base(info)
         {
@@ -30,6 +32,8 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public override bool Start(IServerConfig config)
         {
+            SaeState saeState = null;
+
             try
             {
                 m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
@@ -48,8 +52,9 @@ namespace SuperSocket.SocketEngine
                     m_ListenSocket.IOControl((int)SIO_UDP_CONNRESET, optionInValue, optionOutValue);
                 }
 
-                var saeState = m_SaePool.Get();
+                saeState = m_SaePool.Get();
                 var sae = saeState.Sae;
+                sae.RemoteEndPoint = m_AnyEndPoint;
                 sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
                 m_ListenSocket.ReceiveFromAsync(sae);
 
@@ -57,6 +62,12 @@ namespace SuperSocket.SocketEngine
             }
             catch (Exception e)
             {
+                if (saeState != null)
+                {
+                    saeState.Sae.Completed -= new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+                    m_SaePool.Return(saeState);
+                }
+                
                 OnError(e);
                 return false;
             }
@@ -95,6 +106,7 @@ namespace SuperSocket.SocketEngine
                 {
                     newState = m_SaePool.Get();
                     var sae = newState.Sae;
+                    sae.RemoteEndPoint = m_AnyEndPoint;
                     sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
                     m_ListenSocket.ReceiveFromAsync(sae);
                 }
@@ -103,7 +115,10 @@ namespace SuperSocket.SocketEngine
                     OnError(exc);
 
                     if (newState != null)
+                    {
+                        newState.Sae.Completed -= new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
                         m_SaePool.Return(newState);
+                    }
                 }
             }
         }

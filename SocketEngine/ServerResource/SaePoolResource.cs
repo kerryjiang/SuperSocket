@@ -35,6 +35,7 @@ namespace SuperSocket.SocketEngine.ServerResource
                 var initialCount = Math.Min(Math.Max(config.MaxConnectionNumber / 15, 100), config.MaxConnectionNumber);
 
                 var socketEventComplete = (server as ISocketServerAccessor).SocketServer as IAsyncSocketEventComplete;
+
                 return new IntelliPool<SaeState>(initialCount, new SaeStateCreator(bufferManager, bufferSize), (state) =>
                 {
                     state.SocketSession = null;
@@ -43,14 +44,17 @@ namespace SuperSocket.SocketEngine.ServerResource
                     if (token != null)
                         state.Sae.UserToken = null;
 
-                    if (socketEventComplete != null)
+                    if (socketEventComplete != null && config.Mode != SocketMode.Udp)
                     {
                         state.Sae.Completed -= socketEventComplete.HandleSocketEventComplete;
                     }
                 },
                 (state) =>
                 {
-                    state.Sae.Completed += socketEventComplete.HandleSocketEventComplete;
+                    if(config.Mode != SocketMode.Udp)
+                    {
+                        state.Sae.Completed += socketEventComplete.HandleSocketEventComplete; 
+                    }
                 });
             }
 
