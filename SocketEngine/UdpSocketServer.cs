@@ -55,6 +55,7 @@ namespace SuperSocket.SocketEngine
         protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
         {
             var eventArgs = state as SocketAsyncEventArgs;
+            var saeState = eventArgs.UserToken as SaeState;
 
             var remoteEndPoint = eventArgs.RemoteEndPoint as IPEndPoint;
             var receivedData = new ArraySegment<byte>(eventArgs.Buffer, eventArgs.Offset, eventArgs.BytesTransferred);
@@ -67,7 +68,7 @@ namespace SuperSocket.SocketEngine
                 }
                 else
                 {
-                    ProcessPackageWithoutSessionID(client, remoteEndPoint, receivedData);
+                    ProcessPackageWithoutSessionID(client, remoteEndPoint, receivedData, saeState);
                 }
             }
             catch (Exception e)
@@ -77,7 +78,7 @@ namespace SuperSocket.SocketEngine
             }
             finally
             {
-                SaePool.Return(eventArgs.UserToken as SaeState);
+                SaePool.Return(saeState);
             }
         }
 
@@ -162,7 +163,7 @@ namespace SuperSocket.SocketEngine
             m_RequestHandler.ExecuteCommand(appSession, requestInfo);
         }
 
-        void ProcessPackageWithoutSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, ArraySegment<byte> receivedData)
+        void ProcessPackageWithoutSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, ArraySegment<byte> receivedData, SaeState saeState)
         {
             var sessionID = remoteEndPoint.ToString();
             var appSession = AppServer.GetSessionByID(sessionID);
@@ -190,7 +191,7 @@ namespace SuperSocket.SocketEngine
                 socketSession.Start();
             }
 
-            ((UdpSocketSession)appSession.SocketSession).ProcessReceivedData(receivedData, null);
+            ((UdpSocketSession)appSession.SocketSession).ProcessReceivedData(receivedData, saeState);
         }
 
         void OnSocketSessionClosed(ISocketSession socketSession, CloseReason closeReason)

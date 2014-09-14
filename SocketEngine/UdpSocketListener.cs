@@ -54,6 +54,7 @@ namespace SuperSocket.SocketEngine
 
                 saeState = m_SaePool.Get();
                 var sae = saeState.Sae;
+                sae.UserToken = saeState;
                 sae.RemoteEndPoint = m_AnyEndPoint;
                 sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
                 m_ListenSocket.ReceiveFromAsync(sae);
@@ -106,6 +107,7 @@ namespace SuperSocket.SocketEngine
                 {
                     newState = m_SaePool.Get();
                     var sae = newState.Sae;
+                    sae.UserToken = newState;
                     sae.RemoteEndPoint = m_AnyEndPoint;
                     sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
                     m_ListenSocket.ReceiveFromAsync(sae);
