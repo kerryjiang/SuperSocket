@@ -452,5 +452,16 @@ namespace SuperSocket.SocketBase.Logging
         {
             Console.WriteLine(m_MessageTemplate, m_Name, m_Warn, string.Format(format, arg0, arg1, arg2));
         }
+
+
+        /// <summary>
+        /// Logs the specified logging data.
+        /// </summary>
+        /// <param name="loggingData">The logging data.</param>
+        /// <exception cref="System.NotSupportedException"></exception>
+        public void Log(LoggingData loggingData)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

@@ -76,6 +76,8 @@
     <Compile Include="ISessionContainer.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
+    <Compile Include="Logging\LocationInfo.cs" />
+    <Compile Include="Logging\LoggingData.cs" />
     <Compile Include="Metadata\CommandAttribute.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
