@@ -453,9 +453,6 @@ namespace SuperSocket.SocketBase.Logging
         /// <exception cref="System.NotSupportedException"></exception>
         public void Log(LoggingData loggingData)
         {
-            var repos = LogManager.CreateRepository("reposi");
-            
-
             var loggingEventData = new LoggingEventData();
 
             loggingEventData.Domain = loggingData.Domain;

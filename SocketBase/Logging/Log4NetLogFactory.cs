@@ -96,6 +96,9 @@ namespace SuperSocket.SocketBase.Logging
 
             repository = CreateLazyRepository(repositoryName);
 
+            if (repository == null)
+                return null;
+
             if (m_LoggerRepositories.TryAdd(repositoryName, repository))
                 return repository.Value;
 
@@ -113,6 +116,9 @@ namespace SuperSocket.SocketBase.Logging
             ILoggerRepository repository = EnsureRepository(repositoryName);
 
             var logKey = repository.Name + "-" + name;
+
+            if (repository == null)
+                return GetLog(logKey);
 
             ILog log;
 
