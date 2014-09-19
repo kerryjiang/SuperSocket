@@ -19,5 +19,18 @@ namespace SuperSocket.SocketBase.Logging
         {
             return new ConsoleLog(name);
         }
+
+
+        /// <summary>
+        /// Gets the log from the specific repository.
+        /// </summary>
+        /// <param name="repositoryName">Name of the repository.</param>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public ILog GetLog(string repositoryName, string name)
+        {
+            return new ConsoleLog(repositoryName + " -> " + name);
+        }
     }
 }

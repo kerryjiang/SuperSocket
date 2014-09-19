@@ -16,5 +16,14 @@ namespace SuperSocket.SocketBase.Logging
         /// <param name="name">The name.</param>
         /// <returns></returns>
         ILog GetLog(string name);
+
+
+        /// <summary>
+        /// Gets the log from the specific repository.
+        /// </summary>
+        /// <param name="repositoryName">Name of the repository.</param>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        ILog GetLog(string repositoryName, string name);
     }
 }

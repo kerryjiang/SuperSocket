@@ -1,4 +1,5 @@
-﻿using log4net.Core;
+﻿using log4net;
+using log4net.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -452,6 +453,9 @@ namespace SuperSocket.SocketBase.Logging
         /// <exception cref="System.NotSupportedException"></exception>
         public void Log(LoggingData loggingData)
         {
+            var repos = LogManager.CreateRepository("reposi");
+            
+
             var loggingEventData = new LoggingEventData();
 
             loggingEventData.Domain = loggingData.Domain;
