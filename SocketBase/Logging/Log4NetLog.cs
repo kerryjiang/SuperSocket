@@ -3,6 +3,7 @@ using log4net.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace SuperSocket.SocketBase.Logging
@@ -12,6 +13,19 @@ namespace SuperSocket.SocketBase.Logging
     /// </summary>
     public class Log4NetLog : ILog
     {
+        private static readonly IDictionary<string, Level> s_LevelDict;
+
+        static Log4NetLog()
+        {
+            s_LevelDict = new Dictionary<string, Level>();
+
+            foreach(var field in typeof(Level).GetFields(BindingFlags.Static | BindingFlags.Public))
+            {
+                var level = (Level)field.GetValue(null);
+                s_LevelDict.Add(level.Name, level);
+            }
+        }
+
         private log4net.ILog m_Log;
 
         /// <summary>
@@ -458,7 +472,7 @@ namespace SuperSocket.SocketBase.Logging
             loggingEventData.Domain = loggingData.Domain;
             loggingEventData.ExceptionString = loggingData.ExceptionString;
             loggingEventData.LoggerName = loggingData.LoggerName;
-            loggingEventData.Level = (Level)Enum.Parse(typeof(Level), loggingData.Level, true);
+            loggingEventData.Level = s_LevelDict[loggingData.Level];
             loggingEventData.Message = loggingData.Message;
             loggingEventData.ThreadName = loggingData.ThreadName;
             loggingEventData.TimeStamp = loggingData.TimeStamp;
