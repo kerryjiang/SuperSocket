@@ -57,7 +57,9 @@ namespace SuperSocket.SocketEngine
                 sae.UserToken = saeState;
                 sae.RemoteEndPoint = m_AnyEndPoint;
                 sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
-                m_ListenSocket.ReceiveFromAsync(sae);
+
+                if (!m_ListenSocket.ReceiveFromAsync(sae))
+                    eventArgs_Completed(this, sae);
 
                 return true;
             }
@@ -93,7 +95,7 @@ namespace SuperSocket.SocketEngine
             {
                 try
                 {
-                    OnNewClientAcceptedAsync(m_ListenSocket, e);
+                    OnNewClientAccepted(m_ListenSocket, e);
                 }
                 catch (Exception exc)
                 {
@@ -110,7 +112,9 @@ namespace SuperSocket.SocketEngine
                     sae.UserToken = newState;
                     sae.RemoteEndPoint = m_AnyEndPoint;
                     sae.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
-                    m_ListenSocket.ReceiveFromAsync(sae);
+                    
+                    if(!m_ListenSocket.ReceiveFromAsync(sae))
+                        eventArgs_Completed(this, sae);
                 }
                 catch (Exception exc)
                 {
