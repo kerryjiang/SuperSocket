@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.IO;
 using System.Diagnostics;
+using log4net.Repository;
+using System.Collections.Concurrent;
 
 namespace SuperSocket.SocketBase.Logging
 {
@@ -134,5 +136,14 @@ namespace SuperSocket.SocketBase.Logging
         /// <param name="name">The name.</param>
         /// <returns></returns>
         public abstract ILog GetLog(string name);
+
+        /// <summary>
+        /// Gets the log from the specific repository.
+        /// </summary>
+        /// <param name="repositoryName">Name of the repository.</param>
+        /// <param name="name">The name.</param>
+        /// <returns></returns>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public abstract ILog GetLog(string repositoryName, string name);
     }
 }
