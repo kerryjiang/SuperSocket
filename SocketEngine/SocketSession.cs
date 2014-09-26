@@ -358,8 +358,9 @@ namespace SuperSocket.SocketEngine
 
                 if (!TryValidateClosedBySocket(out client))
                 {
+                    var sendingQueue = m_SendingQueue;
                     //No data to be sent
-                    if (m_SendingQueue.Count == 0)
+                    if (sendingQueue != null && sendingQueue.Count == 0)
                     {
                         if (client != null)// the socket instance is not closed yet, do it now
                             InternalClose(client, GetCloseReasonFromState(), false);
