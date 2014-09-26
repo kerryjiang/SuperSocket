@@ -151,7 +151,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="sessionID">The session ID.</param>
         /// <returns></returns>
-        [Obsolete]
+        [Obsolete("Use the method GetSessionByID instead")]
         public TAppSession GetAppSessionByID(string sessionID)
         {
             return GetSessionByID(sessionID);
