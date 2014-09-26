@@ -89,6 +89,7 @@
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
     <Compile Include="ProcessSocketServerTest.cs" />
+    <Compile Include="ProtoBase\BufferListReaderTest.cs" />
     <Compile Include="Protocol\BeginEndMarkProtocolTest.cs" />
     <Compile Include="Protocol\CountSpliterProtocolTest.cs" />
     <Compile Include="Protocol\FixedHeaderProtocolTest.cs" />
@@ -232,7 +233,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -323,7 +323,7 @@ namespace SuperSocket.ProtoBase
 
             var read = Read(m_Buffer, 0, length);
 
-            if(read != length)
+            if (read != length)
                 throw new ArgumentOutOfRangeException("length", "there is no enough data to read");
         }
 
@@ -390,14 +390,13 @@ namespace SuperSocket.ProtoBase
         /// </exception>
         public IBufferReader Skip(int count)
         {
-            if(count <= 0)
+            if (count <= 0)
                 throw new ArgumentOutOfRangeException("count", "count cannot be zero or negative");
 
             var pos = m_Position + count;
-            
-            if(pos >= m_Length)
-                throw new ArgumentOutOfRangeException("count", "exceed the total length");
 
+            if (pos > m_Length)
+                throw new ArgumentOutOfRangeException("count", "exceed the total length");
 
             var currentOffset = m_CurrentSegmentOffset;
             var rest = count;
@@ -416,7 +415,7 @@ namespace SuperSocket.ProtoBase
                     m_CurrentSegmentOffset = segment.Offset + segment.Count - rest;
                     break;
                 }
-                
+
                 if (rest > thisLen)
                 {
                     rest -= thisLen;
