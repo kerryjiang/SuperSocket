@@ -116,8 +116,6 @@ namespace SuperSocket.SocketBase
             get { return m_BufferManager; }
         }
 
-        private IPool<RequestExecutingContext<TAppSession, TPackageInfo>> m_RequestExecutingContextPool;
-
         /// <summary>
         /// Gets or sets the receive filter factory.
         /// </summary>
@@ -1141,10 +1139,6 @@ namespace SuperSocket.SocketBase
                         ServerResourceItem.Create<BufferManagerResource, IBufferManager>(
                             (bufferManager) => this.m_BufferManager = bufferManager, Config));
 
-                    transaction.RegisterItem(
-                        ServerResourceItem.Create<RequestExecutingContextPoolResource<TAppSession, TPackageInfo>, IPool<RequestExecutingContext<TAppSession, TPackageInfo>>>(
-                            (pool) => this.m_RequestExecutingContextPool = pool, Config));
-
                     if (!m_SocketServer.Start())
                     {
                         m_StateCode = ServerStateConst.NotStarted;
@@ -1331,10 +1325,12 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Executes the command.
         /// </summary>
-        /// <param name="session">The session.</param>
-        /// <param name="requestInfo">The request info.</param>
-        protected virtual void ExecuteCommand(TAppSession session, TPackageInfo requestInfo)
+        /// <param name="context">The context.</param>
+        protected virtual void ExecuteCommand(IRequestExecutingContext<TAppSession, TPackageInfo> context)
         {
+            var requestInfo = context.RequestInfo;
+            var session = context.Session;
+
             if (m_RequestHandler == null)
             {
                 var commandProxy = GetCommandByName(requestInfo.Key);
@@ -1354,8 +1350,9 @@ namespace SuperSocket.SocketBase
                     }
                     else
                     {
-                        var commandContext = new CommandExecutingContext();
-                        commandContext.Initialize(session, requestInfo, command);
+                        var commandContext = context as RequestExecutingContext<TAppSession, TPackageInfo>;
+
+                        commandContext.CurrentCommand = command;
 
                         for (var i = 0; i < commandFilters.Length; i++)
                         {
@@ -1447,20 +1444,14 @@ namespace SuperSocket.SocketBase
         /// <param name="requestInfo">The request info.</param>
         internal void ExecuteCommand(IAppSession session, TPackageInfo requestInfo)
         {
-            var context = m_RequestExecutingContextPool.Get();
+            //var context = m_RequestExecutingContextPool.Get();
+            var context = RequestExecutingContext<TAppSession, TPackageInfo>.GetFromThreadContext();
+
             context.Initialize((TAppSession)session, requestInfo);
 
             if (m_RequestHandlingTaskScheduler == null)
             {
-                try
-                {
-                    ExecuteCommandInTask(context);
-                }
-                finally
-                {
-                    TryReturnBufferedPackageInfo(context);
-                    m_RequestExecutingContextPool.Return(context);
-                }
+                ExecuteCommandDirect(context);
             }
             else
             {
@@ -1468,19 +1459,23 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        void ExecuteCommandInTask(object state)
+        void ExecuteCommandDirect(RequestExecutingContext<TAppSession, TPackageInfo> context)
         {
-            var context = state as RequestExecutingContext<TAppSession, TPackageInfo>;
-
             try
             {
-                this.ExecuteCommand(context.Session, context.RequestInfo);
+                this.ExecuteCommand(context);
             }
             finally
             {
                 TryReturnBufferedPackageInfo(context);
-                m_RequestExecutingContextPool.Return(context);
+                context.Reset();
             }
+        }
+
+        void ExecuteCommandInTask(object state)
+        {
+            var context = state as RequestExecutingContext<TAppSession, TPackageInfo>;
+            ExecuteCommandDirect(context);
         }
 
         bool TryReturnBufferedPackageInfo(RequestExecutingContext<TAppSession, TPackageInfo> context)

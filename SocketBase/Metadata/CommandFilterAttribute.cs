@@ -22,13 +22,13 @@ namespace SuperSocket.SocketBase.Metadata
         /// Called when [command executing].
         /// </summary>
         /// <param name="commandContext">The command context.</param>
-        public abstract void OnCommandExecuting(CommandExecutingContext commandContext);
+        public abstract void OnCommandExecuting(ICommandExecutingContext commandContext);
 
         /// <summary>
         /// Called when [command executed].
         /// </summary>
         /// <param name="commandContext">The command context.</param>
-        public abstract void OnCommandExecuted(CommandExecutingContext commandContext);
+        public abstract void OnCommandExecuted(ICommandExecutingContext commandContext);
     }
 }
 
