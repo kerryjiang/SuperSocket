@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Newtonsoft.Json;
+using System.Threading;
 using SuperSocket.Common;
 using SuperSocket.ServerManager.Config;
 using SuperSocket.ServerManager.Model;
@@ -13,6 +13,7 @@ using SuperSocket.SocketBase.Protocol;
 using SuperSocket.WebSocket;
 using SuperSocket.WebSocket.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
+using Newtonsoft.Json;
 
 namespace SuperSocket.ServerManager
 {
@@ -124,7 +125,7 @@ namespace SuperSocket.ServerManager
             //Only push update to loged in sessions
             foreach (var s in this.GetSessions(s => s.Connected && s.LoggedIn))
             {
-                s.Send(message);
+                s.TrySend(message);
             }
         }
 
@@ -133,7 +134,22 @@ namespace SuperSocket.ServerManager
             var nodeStatus = (NodeStatus)status;
             nodeStatus.InstancesStatus = nodeStatus.InstancesStatus.Where(s => !m_ExcludedServers.Contains(s.Name)).ToArray();
             m_CurrentNodeStatus = nodeStatus;
-            BroadcastServerUpdate();
+
+            if (Monitor.TryEnter(m_CurrentNodeStatus))
+            {
+                try
+                {
+                    BroadcastServerUpdate();
+                }
+                catch(Exception e)
+                {
+                    Logger.Error("BroadcastServerUpdate error", e);
+                }
+                finally
+                {
+                    Monitor.Exit(m_CurrentNodeStatus);
+                }
+            }
         }
 
         protected override void OnSystemMessageReceived(string messageType, object messageData)
