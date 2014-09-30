@@ -253,14 +253,13 @@ namespace SuperSocket.SocketEngine
 
         protected override void OnClosed(CloseReason reason)
         {
-            if (m_SocketEventArgSend != null)
-            {
-                m_SocketEventArgSend.Completed -= new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
-                m_SocketEventArgSend.Dispose();
-                m_SocketEventArgSend = null;
-            }
+            var sae = m_SocketEventArgSend;
 
-            base.OnClosed(reason);
+            if (Interlocked.CompareExchange(ref m_SocketEventArgSend, null, sae) == sae)
+            {
+                sae.Dispose();
+                base.OnClosed(reason);
+            }
         }
 
         public override void ApplySecureProtocol()
