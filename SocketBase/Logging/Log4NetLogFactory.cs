@@ -115,6 +115,9 @@ namespace SuperSocket.SocketBase.Logging
         {
             ILoggerRepository repository = EnsureRepository(repositoryName);
 
+            if (repository == null)
+                return null;
+
             var logKey = repository.Name + "-" + name;
 
             if (repository == null)
