@@ -21,7 +21,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
         {
             var session = AppContext.CurrentSession;
             var bufferManager = session.AppServer.BufferManager;
-            var websocketContext = WebSocketContext.Get(session) as IWebSocketSession;
+            var context = WebSocketContext.Get(session);
 
             var responseBuilder = new StringBuilder();
 
@@ -29,12 +29,12 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseUpgradeLine);
             responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseConnectionLine);
 
-            if (!string.IsNullOrEmpty(session.Origin))
-                responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseOriginLine, session.Origin);
+            if (!string.IsNullOrEmpty(context.Origin))
+                responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseOriginLine, context.Origin);
 
-            responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseLocationLine, session.UriScheme, session.Host, session.Path);
+            responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseLocationLine, context.UriScheme, context.Host, context.Path);
 
-            var subProtocol = session.GetAvailableSubProtocol(session.Items.GetValue<string>(WebSocketConstant.SecWebSocketProtocol, string.Empty));
+            var subProtocol = context.GetAvailableSubProtocol();
 
             if (!string.IsNullOrEmpty(subProtocol))
                 responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseProtocolLine, subProtocol);

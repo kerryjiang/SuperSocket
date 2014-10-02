@@ -15,8 +15,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
         protected override IReceiveFilter<StringPackageInfo> GetBodyReceiveFilter(HttpHeaderInfo header, int headerSize)
         {
             var session = AppContext.CurrentSession;
-            var websocketContext = new WebSocketContext(header);
-            websocketContext.Set(session);
+            var websocketContext = new WebSocketContext(session, header);
 
             var secWebSocketVersion = header.Get(WebSocketConstant.SecWebSocketVersion);
 

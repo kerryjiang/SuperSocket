@@ -79,10 +79,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             m_CloseMarkReceiveFilter = new CloseMarkReceiveFilter(this);
         }
 
-        public StringPackageInfo Filter(ReceiveCache data, out int rest)
+        public StringPackageInfo Filter(BufferList data, out int rest)
         {
             rest = data.Total;
-            var current = data.Current;
+            var current = data.Last;
             var startByte = current.Array[current.Offset];
 
             if ((startByte & 0x80) == 0x00) //data is fragmented by begin/end mark
