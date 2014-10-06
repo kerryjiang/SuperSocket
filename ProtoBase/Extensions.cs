@@ -175,5 +175,46 @@ namespace SuperSocket.ProtoBase
             stream.Initialize(data);
             return stream;
         }
+
+        /// <summary>
+        /// Copies data of data segment list to a data segment.
+        /// </summary>
+        /// <param name="packageData">The package data.</param>
+        /// <param name="data">The data.</param>
+        public static void CopyTo(this IList<ArraySegment<byte>> packageData, ArraySegment<byte> data)
+        {
+            packageData.CopyTo(data, 0, data.Count);
+        }
+
+        /// <summary>
+        /// Copies data of data segment list to a data segment.
+        /// </summary>
+        /// <param name="packageData">The source segments data.</param>
+        /// <param name="data">The destination segment.</param>
+        /// <param name="srcOffset">The source offset.</param>
+        /// <param name="length">The length.</param>
+        public static void CopyTo(this IList<ArraySegment<byte>> packageData, ArraySegment<byte> data, int srcOffset, int length)
+        {
+            var innerOffset = srcOffset;
+            var restLength = length;
+
+            for(var i = 0; i < packageData.Count; i++)
+            {
+                var segment = packageData[i];
+
+                if(segment.Count <= innerOffset)
+                {
+                    innerOffset -= segment.Count;
+                    continue;
+                }
+
+                var thisLength = Math.Min(restLength, segment.Count - innerOffset);
+                Array.Copy(segment.Array, innerOffset, data.Array, data.Offset, thisLength);
+                restLength -= thisLength;
+
+                if (restLength <= 0)
+                    break;
+            }
+        }
     }
 }
