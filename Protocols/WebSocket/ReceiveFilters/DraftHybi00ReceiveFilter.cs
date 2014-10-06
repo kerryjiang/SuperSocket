@@ -44,15 +44,35 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             var encoding = Encoding.UTF8;
             var data = bufferManager.GetBuffer(encoding.GetMaxByteCount(response.Length));
             var length = encoding.GetBytes(response, 0, response.Length, data, 0);
-            //Encrypt message
-            byte[] secret = GetResponseSecurityKey(secKey1, secKey2, secKey3);
 
-            throw new NotImplementedException();
+            var secKey1 = context.HandshakeRequest.Get(WebSocketConstant.SecWebSocketKey1);
+            var secKey2 = context.HandshakeRequest.Get(WebSocketConstant.SecWebSocketKey2);
+
+            byte[] secret;
+
+            if(packageData.Count == 1)
+                secret = GetResponseSecurityKey(secKey1, secKey2, packageData[0]);
+            else
+            {
+                var secKey3 = bufferManager.GetBuffer(8);
+                try
+                {
+                    secret = GetResponseSecurityKey(secKey1, secKey2, new ArraySegment<byte>(secKey3));
+                }
+                finally
+                {
+                    bufferManager.ReturnBuffer(secKey3);
+                }
+            }
+
+            session.SocketSession.TrySend(new ArraySegment<byte>(secret));
+            NextReceiveFilter = new DraftHybi00DataReceiveFilter();
+            return null;
         }
 
         private const string m_SecurityKeyRegex = "[^0-9]";
 
-        private byte[] GetResponseSecurityKey(string secKey1, string secKey2, byte[] secKey3)
+        private byte[] GetResponseSecurityKey(string secKey1, string secKey2, ArraySegment<byte> secKey3)
         {
             //Remove all symbols that are not numbers
             string k1 = Regex.Replace(secKey1, m_SecurityKeyRegex, String.Empty);
@@ -71,13 +91,13 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             //Getting byte parts
             byte[] b1 = BitConverter.GetBytes(k1FinalNum).Reverse().ToArray();
             byte[] b2 = BitConverter.GetBytes(k2FinalNum).Reverse().ToArray();
-            byte[] b3 = secKey3;
+            ArraySegment<byte> b3 = secKey3;
 
             //Concatenating everything into 1 byte array for hashing.
-            byte[] bChallenge = new byte[b1.Length + b2.Length + b3.Length];
+            byte[] bChallenge = new byte[b1.Length + b2.Length + b3.Count];
             Array.Copy(b1, 0, bChallenge, 0, b1.Length);
             Array.Copy(b2, 0, bChallenge, b1.Length, b2.Length);
-            Array.Copy(b3, 0, bChallenge, b1.Length + b2.Length, b3.Length);
+            Array.Copy(b3.Array, b3.Offset, bChallenge, b1.Length + b2.Length, b3.Count);
 
             //Hash and return
             byte[] hash = MD5.Create().ComputeHash(bChallenge);

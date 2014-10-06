@@ -25,6 +25,42 @@ namespace SuperSocket.WebSocket
 
         public IAppSession Session { get; private set; }
 
+        private List<ArraySegment<byte>> m_Fragments;
+
+        internal List<ArraySegment<byte>> Fragments
+        {
+            get
+            {
+                return m_Fragments;
+            }
+        }
+
+        internal void AppendFragment(IList<ArraySegment<byte>> fragment)
+        {
+            if (m_Fragments == null)
+                m_Fragments = new List<ArraySegment<byte>>();
+
+            m_Fragments.AddRange(fragment);
+        }
+
+        internal StringPackageInfo ResolveLastFragment(IList<ArraySegment<byte>> fragment)
+        {
+            var fragments = m_Fragments;
+
+            if (fragments != null && fragments.Count > 0)
+            {
+                fragments.AddRange(fragment);
+                return CreateWebSocketPackage(fragments);
+            }
+
+            return CreateWebSocketPackage(fragment);
+        }
+
+        private StringPackageInfo CreateWebSocketPackage(IList<ArraySegment<byte>> fragements)
+        {
+            throw new NotImplementedException();
+        }
+
         public WebSocketContext(IAppSession session, HttpHeaderInfo request)
         {
             Session = session;

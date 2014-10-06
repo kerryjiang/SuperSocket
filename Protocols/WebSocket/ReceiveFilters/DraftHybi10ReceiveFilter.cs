@@ -119,10 +119,16 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
-            if (m_Final)
-            {
+            var session = AppContext.CurrentSession;
+            var context = WebSocketContext.Get(session);
 
+            if (!m_Final)
+            {
+                context.AppendFragment(packageData);
+                return null;
             }
+
+            return context.ResolveLastFragment(packageData);
         }
     }
 }
