@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SocketService.Net45", "SocketService\SuperSocket.SocketService.Net45.csproj", "{B9113694-7226-4152-938D-3172B11571A1}"
 EndProject
@@ -58,6 +58,7 @@ Global
 		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}.Test|Any CPU.Build.0 = Debug|Any CPU
 		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Test|Any CPU.ActiveCfg = Debug|Any CPU
 		{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}.Test|Any CPU.Build.0 = Debug|Any CPU
