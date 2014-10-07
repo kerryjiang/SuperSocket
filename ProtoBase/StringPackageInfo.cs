@@ -16,7 +16,7 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The key.
         /// </value>
-        public string Key { get; private set; }
+        public string Key { get; protected set; }
 
         /// <summary>
         /// Gets the body.
@@ -24,7 +24,7 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The body.
         /// </value>
-        public string Body { get; private set; }
+        public string Body { get; protected set; }
 
         /// <summary>
         /// Gets the parameters.
@@ -32,7 +32,15 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The parameters.
         /// </value>
-        public string[] Parameters { get; private set; }
+        public string[] Parameters { get; protected set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="StringPackageInfo"/> class.
+        /// </summary>
+        protected StringPackageInfo()
+        {
+
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="StringPackageInfo"/> class.
@@ -53,6 +61,16 @@ namespace SuperSocket.ProtoBase
         /// <param name="source">The source.</param>
         /// <param name="sourceParser">The source parser.</param>
         public StringPackageInfo(string source, IStringParser sourceParser)
+        {
+            InitializeData(source, sourceParser);
+        }
+
+        /// <summary>
+        /// Initializes the string package's data.
+        /// </summary>
+        /// <param name="source">The source string.</param>
+        /// <param name="sourceParser">The source parser.</param>
+        protected void InitializeData(string source, IStringParser sourceParser)
         {
             string key;
             string body;
