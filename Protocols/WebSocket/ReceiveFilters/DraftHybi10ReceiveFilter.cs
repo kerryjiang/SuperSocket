@@ -50,7 +50,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             throw new NotImplementedException();
         }
 
-        protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
+        private int GetPayloadLength(IList<ArraySegment<byte>> packageData, int length)
         {
             using (var reader = this.GetBufferReader(packageData))
             {
@@ -115,6 +115,21 @@ namespace SuperSocket.WebSocket.ReceiveFilters
                     return (int)playloadLen;
                 }
             }
+        }
+
+        protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
+        {
+            var session = AppContext.CurrentSession;
+            var context = WebSocketContext.Get(session);
+
+            var payloadLength = GetPayloadLength(packageData, length);
+
+            if (payloadLength > 0)
+                context.PayloadLength = payloadLength;
+
+            context.OpCode = m_OpCode;
+
+            return payloadLength;
         }
 
         public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)

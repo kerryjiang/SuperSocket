@@ -35,6 +35,22 @@ namespace SuperSocket.WebSocket
             }
         }
 
+        /// <summary>
+        /// Gets the op code of the current processing package
+        /// </summary>
+        /// <value>
+        /// The op code.
+        /// </value>
+        public sbyte OpCode { get; internal set; }
+
+        /// <summary>
+        /// Gets the length of the payload.
+        /// </summary>
+        /// <value>
+        /// The length of the payload.
+        /// </value>
+        public int PayloadLength { get; internal set; }
+
         internal void AppendFragment(IList<ArraySegment<byte>> fragment)
         {
             if (m_Fragments == null)
@@ -43,7 +59,7 @@ namespace SuperSocket.WebSocket
             m_Fragments.AddRange(fragment);
         }
 
-        internal StringPackageInfo ResolveLastFragment(IList<ArraySegment<byte>> fragment)
+        internal WebSocketPackageInfo ResolveLastFragment(IList<ArraySegment<byte>> fragment)
         {
             var fragments = m_Fragments;
 
@@ -56,8 +72,9 @@ namespace SuperSocket.WebSocket
             return CreateWebSocketPackage(fragment);
         }
 
-        private StringPackageInfo CreateWebSocketPackage(IList<ArraySegment<byte>> fragements)
+        private WebSocketPackageInfo CreateWebSocketPackage(IList<ArraySegment<byte>> fragements)
         {
+            //var session = Session;
             throw new NotImplementedException();
         }
 

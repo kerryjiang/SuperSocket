@@ -24,8 +24,11 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
                 var session = AppContext.CurrentSession;
+                var context = WebSocketContext.Get(session);
+                context.OpCode = OpCode.Text;
+                context.PayloadLength = packageData.Sum(d => d.Count);
                 NextReceiveFilter = m_SwitchReceiveFilter;
-                return null;
+                return context.ResolveLastFragment(packageData);
             }
         }
 

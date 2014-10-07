@@ -52,6 +52,8 @@
     <Compile Include="Config\SubProtocolConfigCollection.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IBinaryDataConverter.cs" />
+    <Compile Include="IBinaryDataParser.cs" />
+    <Compile Include="OpCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveFilters\DraftHybi00DataReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\DraftHybi00ReceiveFilter.cs" />
@@ -61,6 +63,7 @@
     <Compile Include="ReceiveFilters\WebSocketHandshakeReceiveFilter.cs" />
     <Compile Include="WebSocketConst.cs" />
     <Compile Include="WebSocketContext.cs" />
+    <Compile Include="WebSocketPackageInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\SuperSocket.Common.Net45.csproj">
