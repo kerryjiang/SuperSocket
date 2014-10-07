@@ -4,7 +4,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
-using SuperSocket.ProtoBase.Properties;
 
 namespace SuperSocket.ProtoBase
 {
@@ -364,7 +363,7 @@ namespace SuperSocket.ProtoBase
                 return this;
 
             if (count < 0)
-                throw new ArgumentOutOfRangeException("count", Resources.ArgumentOutOfRange_NegativeCount);
+                throw new ArgumentOutOfRangeException("count", "Count cannot be less than zero.");
 
             int currentSegmentIndex;
             int currentOffset = m_CurrentSegmentOffset;
@@ -585,13 +584,13 @@ namespace SuperSocket.ProtoBase
                 throw new ArgumentNullException("output");
 
             if (offset < 0)
-                throw new ArgumentOutOfRangeException("offset", Resources.ArgumentOutOfRange_NeedNonNegNum);
+                throw new ArgumentOutOfRangeException("offset", "Non-negative number required.");
 
             if (count < 0)
-                throw new ArgumentOutOfRangeException("count", Resources.ArgumentOutOfRange_NeedNonNegNum);
+                throw new ArgumentOutOfRangeException("count", "Non-negative number required.");
 
             if (output.Length - offset < count)
-                throw new ArgumentException(Resources.Argument_InvalidOffLen);
+                throw new ArgumentException("Count cannot be less than zero.");
 
             return Read(output, offset, count);
         }
