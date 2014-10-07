@@ -1956,6 +1956,49 @@ namespace SuperSocket.SocketBase
 
         #endregion IStatusInfoSource
 
+        #region service provider
+
+        private Dictionary<Type, object> m_ServiceInstances = new Dictionary<Type, object>();
+
+        /// <summary>
+        /// Gets the service object of the specified type.
+        /// </summary>
+        /// <param name="serviceType">An object that specifies the type of service object to get.</param>
+        /// <returns>
+        /// A service object of type <paramref name="serviceType" />.-or- null if there is no service object of type <paramref name="serviceType" />.
+        /// </returns>
+        public object GetService(Type serviceType)
+        {
+            object instance;
+
+            if (!m_ServiceInstances.TryGetValue(serviceType, out instance))
+                return null;
+
+            return instance;
+        }
+
+        /// <summary>
+        /// Gets the service object of the specified type.
+        /// </summary>
+        /// <typeparam name="T">the type of service object to get</typeparam>
+        /// <returns>A service object of type T</returns>
+        public T GetService<T>()
+        {
+            return (T)GetService(typeof(T));
+        }
+
+        /// <summary>
+        /// Registers the service object with the specific type.
+        /// </summary>
+        /// <typeparam name="T">the type of service object to get</typeparam>
+        /// <param name="serviceInstance">The service instance.</param>
+        protected void RegisterService<T>(T serviceInstance)
+        {
+            m_ServiceInstances[typeof(T)] = serviceInstance;
+        }
+
+        #endregion
+
         #region IDisposable Members
 
         /// <summary>
