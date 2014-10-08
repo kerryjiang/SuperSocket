@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Threading;
 
@@ -204,22 +205,121 @@ namespace SuperSocket.ProtoBase
                     throw new InvalidOperationException("Not initialized");
                 }
 
-                long position = 0;
-                for (int i = 0; i < m_CurrentSegmentIndex; i++)
-                {
-                    position += m_Segments[i].Count;
-                }
-
-                position += m_CurrentSegmentOffset - m_Segments[m_CurrentSegmentIndex].Offset;
-
+                long position = GetCurrentPosition();
                 return position;
             }
 
             set
             {
-                // TODO
-                throw new NotImplementedException();
+                if (m_Segments == null)
+                {
+                    throw new InvalidOperationException("Not initialized");
+                }
+
+                if (value < 0)
+                {
+                    throw new InvalidOperationException("Cannot position before the beginning of the buffer.");
+                }
+
+                if (Length <= value)
+                {
+                    throw new InvalidOperationException("Cannot position past the end of the buffer.");
+                }
+
+                SetCurrentPosition(value);
             }
+        }
+
+
+        private long GetCurrentPosition()
+        {
+            long position = 0;
+            for (int i = 0; i < m_CurrentSegmentIndex; i++)
+            {
+                position += m_Segments[i].Count;
+            }
+
+            position += m_CurrentSegmentOffset - m_Segments[m_CurrentSegmentIndex].Offset;
+
+            return position;
+        }
+
+        private void SetCurrentPosition(long position)
+        {
+            long currentPosition = GetCurrentPosition();
+            long delta = position - currentPosition;
+
+            if (delta == 0)
+            {
+                return;
+            }
+
+            var segment = m_Segments[m_CurrentSegmentIndex];
+
+            if (0 < delta)
+            {
+                // moving forward
+
+                if (delta < BytesRemaining(segment, m_CurrentSegmentOffset))
+                {
+                    // move forward in the same segment
+                    m_CurrentSegmentOffset += (int)delta;
+                }
+                else
+                {
+                    delta -= BytesRemaining(segment, m_CurrentSegmentOffset);
+
+                    for (int i = m_CurrentSegmentIndex + 1; i < m_Segments.Count; i++)
+                    {
+                        segment = m_Segments[i];
+                        if (delta < segment.Count)
+                        {
+                            m_CurrentSegmentIndex = i;
+                            m_CurrentSegmentOffset = (int)(segment.Offset + delta);
+                            break;
+                        }
+
+                        delta -= segment.Count;
+                    }
+                }
+            }
+            else
+            {
+                // moving backward (note: delta is negative)
+                if (0 <= (m_CurrentSegmentOffset + delta - segment.Offset))
+                {
+                    // move back in the same segment
+                    m_CurrentSegmentOffset += (int)delta;
+                }
+                else
+                {
+                    delta += m_CurrentSegmentOffset - segment.Offset;
+
+                    for (int i = m_CurrentSegmentIndex - 1; 0 <= i; i--)
+                    {
+                        segment = m_Segments[i];
+                        if (0 <= delta + segment.Count)
+                        {
+                            // ******************************************
+                            // Left off here
+                            // ******************************************
+                            throw new NotImplementedException("Can jump to a previous segment yet.");
+                            ////m_CurrentSegmentIndex = i;
+                            ////m_CurrentSegmentOffset = (int)(segment.Offset + delta);
+                            ////break;
+                        }
+
+                        delta -= segment.Count;
+                    }
+                    // TODO
+                }                
+            }
+
+        }
+
+        private static int BytesRemaining(ArraySegment<byte> segment, int currentOffset)
+        {
+            return segment.Count - currentOffset + segment.Offset;
         }
 
         /// <summary>
@@ -471,7 +571,7 @@ namespace SuperSocket.ProtoBase
 
             if (!littleEndian)
             {
-                return unchecked((long) (BigEndianFromBytes(buffer, 8)));
+                return unchecked((long)(BigEndianFromBytes(buffer, 8)));
             }
             else
             {
@@ -501,11 +601,11 @@ namespace SuperSocket.ProtoBase
 
             if (!littleEndian)
             {
-                return (ulong) BigEndianFromBytes(buffer, 8);
+                return (ulong)BigEndianFromBytes(buffer, 8);
             }
             else
             {
-                return (ulong) LittleEndianFromBytes(buffer, 8);
+                return (ulong)LittleEndianFromBytes(buffer, 8);
             }
         }
 
@@ -546,7 +646,7 @@ namespace SuperSocket.ProtoBase
             var maxOffset = currentSegment.Offset + currentSegment.Count - 1;
             var nextOffset = m_CurrentSegmentOffset + 1;
 
-            if (nextOffset <= maxOffset) 
+            if (nextOffset <= maxOffset)
             {
                 // next pos is within the current segment
                 m_CurrentSegmentOffset = nextOffset;
@@ -727,7 +827,7 @@ namespace SuperSocket.ProtoBase
 
                 if ((currentOffset + count) <= (segment.Offset + segment.Count))
                 {
-                    
+
                 }
 
                 var rest = count - len;
