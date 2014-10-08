@@ -315,33 +315,48 @@ namespace SuperSocket.WebSocket
         {
             string cookieValue = this.Items.GetValue<string>(WebSocketConstant.Cookie, string.Empty);
 
+            if (string.IsNullOrEmpty(cookieValue))
+                return;
+
             var cookies = new StringDictionary();
+            this.Cookies = cookies;
 
-            if (!string.IsNullOrEmpty(cookieValue))
+            string[] pairs = cookieValue.Split(';');
+
+            int pos;
+            string key, value;
+
+            foreach (var p in pairs)
             {
-                string[] pairs = cookieValue.Split(';');
+                pos = p.IndexOf('=');
 
-                int pos;
-                string key, value;
+                if (pos <= 0)
+                    continue;
 
-                foreach (var p in pairs)
+                key = p.Substring(0, pos).Trim();
+
+                pos += 1;
+
+                if (pos < p.Length)
+                    value = p.Substring(pos).Trim();
+                else
+                    value = string.Empty;
+
+                if (string.IsNullOrEmpty(value))
                 {
-                    pos = p.IndexOf('=');
-                    if (pos > 0)
-                    {
-                        key = p.Substring(0, pos).Trim();
-                        pos += 1;
-                        if (pos < p.Length)
-                            value = p.Substring(pos).Trim();
-                        else
-                            value = string.Empty;
+                    cookies[key] = string.Empty;
+                    continue;
+                }
 
-                        cookies[key] = Uri.UnescapeDataString(value);
-                    }
+                try
+                {
+                    cookies[key] = Uri.UnescapeDataString(value);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error(this, string.Format("Failed to read cookie, key: {0}, value: {1}.", key, value), e);
                 }
             }
-
-            this.Cookies = cookies;
         }
 
 
