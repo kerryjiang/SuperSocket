@@ -64,6 +64,8 @@
     <Compile Include="WebSocketConst.cs" />
     <Compile Include="WebSocketContext.cs" />
     <Compile Include="WebSocketPackageInfo.cs" />
+    <Compile Include="WebSocketReceiveFilterFactory.cs" />
+    <Compile Include="WebSocketServiceProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\SuperSocket.Common.Net45.csproj">

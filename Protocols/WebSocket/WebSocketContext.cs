@@ -74,8 +74,18 @@ namespace SuperSocket.WebSocket
 
         private WebSocketPackageInfo CreateWebSocketPackage(IList<ArraySegment<byte>> fragements)
         {
-            //var session = Session;
-            throw new NotImplementedException();
+            var session = Session;
+            var server = session.AppServer;
+            var websocketServiceProvider = server.GetService<WebSocketServiceProvider>();
+
+            var total = fragements.Sum(d => d.Count);
+
+            if (OpCode == SuperSocket.WebSocket.OpCode.Text)
+                return new WebSocketPackageInfo(Encoding.UTF8.GetString(fragements, total - PayloadLength, PayloadLength), websocketServiceProvider.StringParser);
+            else if (OpCode == SuperSocket.WebSocket.OpCode.Binary)
+                return new WebSocketPackageInfo(fragements, websocketServiceProvider.BinaryDataParser, websocketServiceProvider.StringParser);
+
+            throw new Exception("Unsuitable OpCode");
         }
 
         public WebSocketContext(IAppSession session, HttpHeaderInfo request)
