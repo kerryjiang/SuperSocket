@@ -102,6 +102,20 @@ namespace SuperSocket.SocketBase
         /// The buffer manager.
         /// </value>
         IBufferManager BufferManager { get; }
+
+        /// <summary>
+        /// Gets the service object of the specified type.
+        /// </summary>
+        /// <typeparam name="T">the type of service object to get</typeparam>
+        /// <returns>A service object of type T</returns>
+        T GetService<T>();
+
+        /// <summary>
+        /// Registers the service instance.
+        /// </summary>
+        /// <typeparam name="T">the service instance's type</typeparam>
+        /// <param name="serviceInstance">The service instance.</param>
+        void RegisterService<T>(T serviceInstance);
     }
 
     /// <summary>

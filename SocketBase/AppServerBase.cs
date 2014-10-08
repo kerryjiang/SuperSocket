@@ -1992,7 +1992,7 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <typeparam name="T">the type of service object to get</typeparam>
         /// <param name="serviceInstance">The service instance.</param>
-        protected void RegisterService<T>(T serviceInstance)
+        public void RegisterService<T>(T serviceInstance)
         {
             m_ServiceInstances[typeof(T)] = serviceInstance;
         }
