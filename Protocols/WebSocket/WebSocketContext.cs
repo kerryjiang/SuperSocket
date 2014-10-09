@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SuperSocket.Common;
+using SuperSocket.WebSocket.OpHandlers;
 
 namespace SuperSocket.WebSocket
 {
@@ -66,26 +67,20 @@ namespace SuperSocket.WebSocket
             if (fragments != null && fragments.Count > 0)
             {
                 fragments.AddRange(fragment);
-                return CreateWebSocketPackage(fragments);
+                fragment = fragments;
             }
 
-            return CreateWebSocketPackage(fragment);
-        }
-
-        private WebSocketPackageInfo CreateWebSocketPackage(IList<ArraySegment<byte>> fragements)
-        {
             var session = Session;
             var server = session.AppServer;
+
             var websocketServiceProvider = server.GetService<WebSocketServiceProvider>();
 
-            var total = fragements.Sum(d => d.Count);
+            IOpHandler opHandler;
 
-            if (OpCode == SuperSocket.WebSocket.OpCode.Text)
-                return new WebSocketPackageInfo(Encoding.UTF8.GetString(fragements, total - PayloadLength, PayloadLength), websocketServiceProvider.StringParser);
-            else if (OpCode == SuperSocket.WebSocket.OpCode.Binary)
-                return new WebSocketPackageInfo(fragements, websocketServiceProvider.BinaryDataParser, websocketServiceProvider.StringParser);
+            if(!websocketServiceProvider.OpHandlers.TryGetValue(OpCode, out opHandler))
+                return null; // bad OpCode
 
-            throw new Exception("Unsuitable OpCode");
+            return opHandler.Handle(session, this, fragment);
         }
 
         public WebSocketContext(IAppSession session, HttpHeaderInfo request)

@@ -15,14 +15,9 @@ namespace SuperSocket.WebSocket
         public WebSocketReceiveFilterFactory()
         {
             var appServer = AppContext.CurrentServer;
-
-            appServer.RegisterService<WebSocketServiceProvider>(new WebSocketServiceProvider
-                {
-                    BinaryDataParser = appServer.GetService<IBinaryDataParser>(),
-                    StringParser = appServer.GetService<IStringParser>()
-                });
+            appServer.RegisterService<WebSocketServiceProvider>(new WebSocketServiceProvider(appServer));
         }
-        public IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, AppSession appSession, IPEndPoint remoteEndPoint)
+        public IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
             throw new NotImplementedException();
         }

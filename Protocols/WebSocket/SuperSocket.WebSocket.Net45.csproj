@@ -54,6 +54,13 @@
     <Compile Include="IBinaryDataConverter.cs" />
     <Compile Include="IBinaryDataParser.cs" />
     <Compile Include="OpCode.cs" />
+    <Compile Include="OpHandlers\CloseHandler.cs" />
+    <Compile Include="OpHandlers\OpHandlerBase.cs" />
+    <Compile Include="OpHandlers\PongHandler.cs" />
+    <Compile Include="OpHandlers\PingHandler.cs" />
+    <Compile Include="OpHandlers\TextHandler.cs" />
+    <Compile Include="OpHandlers\BinaryHandler.cs" />
+    <Compile Include="OpHandlers\IOpHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveFilters\DraftHybi00DataReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\DraftHybi00ReceiveFilter.cs" />
