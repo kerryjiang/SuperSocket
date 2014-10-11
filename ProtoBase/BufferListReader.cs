@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -161,6 +160,10 @@ namespace SuperSocket.ProtoBase
     public class BufferListReader : IBufferReader
     {
         private const string c_ThreadBufferSegmentReader = "ThreadBufferListReader";
+
+        /// <summary>
+        /// The segments that make up the buffer.
+        /// </summary>
         private IList<ArraySegment<byte>> m_Segments;
 
         /// <summary>
@@ -194,32 +197,64 @@ namespace SuperSocket.ProtoBase
         /// <value>
         /// The logical position.
         /// </value>
-        /// <exception cref="System.InvalidOperationException">Not initialized</exception>
+        /// <exception cref="System.InvalidOperationException">
+        /// Not initialized or trying to set the position outside the bounds of the buffer list.
+        /// </exception>
         public long Position
         {
             get
             {
-                if (m_Segments == null)
-                {
-                    throw new InvalidOperationException("Not initialized");
-                }
+                CheckInitialized();
 
-                long position = 0;
-                for (int i = 0; i < m_CurrentSegmentIndex; i++)
-                {
-                    position += m_Segments[i].Count;
-                }
-
-                position += m_CurrentSegmentOffset - m_Segments[m_CurrentSegmentIndex].Offset;
-
+                long position = GetCurrentPosition();
                 return position;
             }
 
             set
             {
-                // TODO
-                throw new NotImplementedException();
+                CheckInitialized();
+
+                if (value < 0)
+                {
+                    throw new InvalidOperationException("Cannot position before the beginning of the buffer.");
+                }
+
+                if (Length < value)
+                {
+                    throw new InvalidOperationException("Cannot position past the end of the buffer.");
+                }
+
+                SetCurrentPosition(value);
             }
+        }
+
+
+        /// <summary>
+        /// Gets the current buffer reader from the thread context
+        /// </summary>
+        /// <returns></returns>
+        public static IBufferReader GetCurrent()
+        {
+            return GetCurrent<BufferListReader>();
+        }
+
+        /// <summary>
+        /// Gets the current buffer reader from the thread context
+        /// </summary>
+        /// <typeparam name="TReader">The type of the reader.</typeparam>
+        /// <returns></returns>
+        public static IBufferReader GetCurrent<TReader>()
+            where TReader : IBufferReader, new()
+        {
+            var slot = Thread.GetNamedDataSlot(c_ThreadBufferSegmentReader);
+            var reader = Thread.GetData(slot) as IBufferReader;
+            if (reader == null)
+            {
+                reader = new TReader();
+                Thread.SetData(slot, reader);
+            }
+
+            return reader;
         }
 
         /// <summary>
@@ -248,33 +283,6 @@ namespace SuperSocket.ProtoBase
             }
 
             m_Length = length;
-        }
-
-        /// <summary>
-        /// Gets the current buffer reader from the thread context
-        /// </summary>
-        /// <returns></returns>
-        public static IBufferReader GetCurrent()
-        {
-            return GetCurrent<BufferListReader>();
-        }
-
-        /// <summary>
-        /// Gets the current buffer reader from the thread context
-        /// </summary>
-        /// <typeparam name="TReader">The type of the reader.</typeparam>
-        /// <returns></returns>
-        public static IBufferReader GetCurrent<TReader>()
-            where TReader : IBufferReader, new()
-        {
-            var slot = Thread.GetNamedDataSlot(c_ThreadBufferSegmentReader);
-            var reader = Thread.GetData(slot) as IBufferReader;
-            if (reader != null)
-                return reader;
-
-            reader = new TReader();
-            Thread.SetData(slot, reader);
-            return reader;
         }
 
         /// <summary>
@@ -312,10 +320,8 @@ namespace SuperSocket.ProtoBase
             {
                 return unchecked((short)(BigEndianFromBytes(buffer, 2)));
             }
-            else
-            {
-                return unchecked((short)(LittleEndianFromBytes(buffer, 2)));
-            }
+
+            return unchecked((short)(LittleEndianFromBytes(buffer, 2)));
         }
 
         /// <summary>
@@ -342,10 +348,8 @@ namespace SuperSocket.ProtoBase
             {
                 return unchecked((ushort)(BigEndianFromBytes(buffer, 2)));
             }
-            else
-            {
-                return unchecked((ushort)(LittleEndianFromBytes(buffer, 2)));
-            }
+
+            return unchecked((ushort)(LittleEndianFromBytes(buffer, 2)));
         }
 
         /// <summary>
@@ -359,34 +363,22 @@ namespace SuperSocket.ProtoBase
         /// </exception>
         public IBufferReader Skip(int count)
         {
+            CheckInitialized();
+
             if (count == 0)
                 return this;
 
             if (count < 0)
                 throw new ArgumentOutOfRangeException("count", "Count cannot be less than zero.");
 
-            int currentSegmentIndex;
-            int currentOffset = m_CurrentSegmentOffset;
-
-            for (currentSegmentIndex = m_CurrentSegmentIndex; currentSegmentIndex < m_Segments.Count; currentSegmentIndex++)
+            if (Length < count)
             {
-                var segment = m_Segments[currentSegmentIndex];
-                if (currentSegmentIndex != m_CurrentSegmentIndex)
-                    currentOffset = segment.Offset;
-
-                if ((currentOffset + count) <= (segment.Offset + segment.Count))
-                {
-                    m_CurrentSegmentIndex = currentSegmentIndex;
-                    m_CurrentSegmentOffset = currentOffset + count;
-                    return this;
-                }
-
-                // skip over the rest of the current segment
-                count -= segment.Count - (currentOffset - segment.Offset);
+                throw new ArgumentOutOfRangeException("count", "Cannot be greater than the length of all the buffers.");
             }
 
-            // not enough data in the buffers to skip
-            throw new ArgumentOutOfRangeException("count", "Count exceeds the amount of data remaining in the buffer.");
+            Position += count;
+
+            return this;
         }
 
         /// <summary>
@@ -413,10 +405,8 @@ namespace SuperSocket.ProtoBase
             {
                 return unchecked((int)(BigEndianFromBytes(buffer, 4)));
             }
-            else
-            {
-                return unchecked((int)(LittleEndianFromBytes(buffer, 4)));
-            }
+
+            return unchecked((int)(LittleEndianFromBytes(buffer, 4)));
         }
 
         /// <summary>
@@ -443,10 +433,8 @@ namespace SuperSocket.ProtoBase
             {
                 return unchecked((uint)(BigEndianFromBytes(buffer, 4)));
             }
-            else
-            {
-                return unchecked((uint)(LittleEndianFromBytes(buffer, 4)));
-            }
+
+            return unchecked((uint)(LittleEndianFromBytes(buffer, 4)));
         }
 
         /// <summary>
@@ -471,12 +459,10 @@ namespace SuperSocket.ProtoBase
 
             if (!littleEndian)
             {
-                return unchecked((long) (BigEndianFromBytes(buffer, 8)));
+                return unchecked(BigEndianFromBytes(buffer, 8));
             }
-            else
-            {
-                return unchecked((long)(LittleEndianFromBytes(buffer, 8)));
-            }
+
+            return unchecked(LittleEndianFromBytes(buffer, 8));
         }
 
         /// <summary>
@@ -501,32 +487,10 @@ namespace SuperSocket.ProtoBase
 
             if (!littleEndian)
             {
-                return (ulong) BigEndianFromBytes(buffer, 8);
+                return (ulong)BigEndianFromBytes(buffer, 8);
             }
-            else
-            {
-                return (ulong) LittleEndianFromBytes(buffer, 8);
-            }
-        }
 
-        private long BigEndianFromBytes(byte[] buffer, int bytesToConvert)
-        {
-            long ret = 0;
-            for (int i = 0; i < bytesToConvert; i++)
-            {
-                ret = unchecked((ret << 8) | buffer[i]);
-            }
-            return ret;
-        }
-
-        private long LittleEndianFromBytes(byte[] buffer, int bytesToConvert)
-        {
-            long ret = 0;
-            for (int i = 0; i < bytesToConvert; i++)
-            {
-                ret = unchecked((ret << 8) | buffer[bytesToConvert - 1 - i]);
-            }
-            return ret;
+            return (ulong)LittleEndianFromBytes(buffer, 8);
         }
 
 
@@ -546,7 +510,7 @@ namespace SuperSocket.ProtoBase
             var maxOffset = currentSegment.Offset + currentSegment.Count - 1;
             var nextOffset = m_CurrentSegmentOffset + 1;
 
-            if (nextOffset <= maxOffset) 
+            if (nextOffset <= maxOffset)
             {
                 // next pos is within the current segment
                 m_CurrentSegmentOffset = nextOffset;
@@ -615,9 +579,9 @@ namespace SuperSocket.ProtoBase
 
             while (currentSegmentIndex < m_Segments.Count)
             {
-                int bytesUsed = 0;
-                int charsUsed = 0;
-                bool completed = false;
+                int bytesUsed;
+                int charsUsed;
+                bool completed;
 
                 var segment = m_Segments[currentSegmentIndex];
                 if (currentSegmentIndex != m_CurrentSegmentIndex)
@@ -695,6 +659,8 @@ namespace SuperSocket.ProtoBase
         /// </exception>
         protected void FillBuffer(int length)
         {
+            CheckInitialized();
+
             if (length > 8)
                 throw new ArgumentOutOfRangeException("length", "the length must between 1 and 8");
 
@@ -702,6 +668,20 @@ namespace SuperSocket.ProtoBase
 
             if (read != length)
                 throw new ArgumentOutOfRangeException("length", "there is no enough data to read");
+        }
+
+        /// <summary>
+        /// Check to see if this instance is initialized.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// This instance is not initialized.s
+        /// </exception>
+        private void CheckInitialized()
+        {
+            if (m_Segments == null)
+            {
+                throw new InvalidOperationException("Not initialized");
+            }
         }
 
         private int Read(byte[] buffer, int offset, int count)
@@ -727,7 +707,7 @@ namespace SuperSocket.ProtoBase
 
                 if ((currentOffset + count) <= (segment.Offset + segment.Count))
                 {
-                    
+
                 }
 
                 var rest = count - len;
@@ -816,7 +796,7 @@ namespace SuperSocket.ProtoBase
 
             var currentSegment = m_Segments[m_CurrentSegmentIndex];
 
-            if (IsLastSegment && m_CurrentSegmentOffset == currentSegment.Count + currentSegment.Offset)
+            if ((m_CurrentSegmentIndex + 1) == m_Segments.Count && m_CurrentSegmentOffset == currentSegment.Count + currentSegment.Offset)
             {
                 return false;
             }
@@ -824,6 +804,128 @@ namespace SuperSocket.ProtoBase
             return true;
         }
 
-        private bool IsLastSegment { get { return (m_CurrentSegmentIndex + 1) == m_Segments.Count; } }
+        private long GetCurrentPosition()
+        {
+            long position = 0;
+            for (int i = 0; i < m_CurrentSegmentIndex; i++)
+            {
+                position += m_Segments[i].Count;
+            }
+
+            position += m_CurrentSegmentOffset - m_Segments[m_CurrentSegmentIndex].Offset;
+
+            return position;
+        }
+
+        private void SetCurrentPosition(long position)
+        {
+            long currentPosition = GetCurrentPosition();
+            long delta = position - currentPosition;
+
+            if (delta == 0)
+            {
+                return;
+            }
+
+            var segment = m_Segments[m_CurrentSegmentIndex];
+
+            if (0 < delta)
+            {
+                // moving forward
+                if (delta <= BytesRemaining(segment, m_CurrentSegmentOffset))
+                {
+                    // move forward in the same segment
+                    m_CurrentSegmentOffset += (int)delta;
+                }
+                else
+                {
+                    delta -= BytesRemaining(segment, m_CurrentSegmentOffset);
+
+                    for (int i = m_CurrentSegmentIndex + 1; i < m_Segments.Count; i++)
+                    {
+                        segment = m_Segments[i];
+                        if (delta < segment.Count)
+                        {
+                            m_CurrentSegmentIndex = i;
+                            m_CurrentSegmentOffset = (int)(segment.Offset + delta);
+                            break;
+                        }
+
+                        delta -= segment.Count;
+                    }
+                }
+            }
+            else
+            {
+                // moving backward (note: delta is negative)
+                if (0 <= (m_CurrentSegmentOffset + delta - segment.Offset))
+                {
+                    // move back in the same segment
+                    m_CurrentSegmentOffset += (int)delta;
+                }
+                else
+                {
+                    delta += m_CurrentSegmentOffset - segment.Offset;
+
+                    for (int i = m_CurrentSegmentIndex - 1; 0 <= i; i--)
+                    {
+                        segment = m_Segments[i];
+                        if (0 <= delta + segment.Count)
+                        {
+                            m_CurrentSegmentIndex = i;
+                            m_CurrentSegmentOffset = (int)(segment.Count + segment.Offset + delta);
+                            break;
+                        }
+
+                        delta += segment.Count;
+                    }
+                 }                
+            }
+        }
+
+        private static int BytesRemaining(ArraySegment<byte> segment, int currentOffset)
+        {
+            return segment.Count - currentOffset + segment.Offset;
+        }
+
+        /// <summary>
+        /// Gets a <see cref="long"/> value by reading the buffer as a big endian integer.
+        /// </summary>
+        /// <param name="buffer">The buffer to read the data from.</param>
+        /// <param name="bytesToConvert">The number bytes to convert.</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Code taken from Jon Skeet's Miscellaneous Utility Library
+        /// &lt;a href="http://www.yoda.arachsys.com/csharp/miscutil/"&gt;Jon Skeet's Miscellaneous Utility Library&lt;/a&gt;
+        /// </remarks>
+        private long BigEndianFromBytes(byte[] buffer, int bytesToConvert)
+        {
+            long ret = 0;
+            for (int i = 0; i < bytesToConvert; i++)
+            {
+                ret = unchecked((ret << 8) | buffer[i]);
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Gets a <see cref="long"/> value by reading the buffer as a little endian integer.
+        /// </summary>
+        /// <param name="buffer">The buffer to read the data from.</param>
+        /// <param name="bytesToConvert">The number bytes to convert.</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Code taken from Jon Skeet's Miscellaneous Utility Library
+        /// &lt;a href="http://www.yoda.arachsys.com/csharp/miscutil/"&gt;Jon Skeet's Miscellaneous Utility Library&lt;/a&gt;
+        /// </remarks>
+        private long LittleEndianFromBytes(byte[] buffer, int bytesToConvert)
+        {
+            long ret = 0;
+            for (int i = 0; i < bytesToConvert; i++)
+            {
+                ret = unchecked((ret << 8) | buffer[bytesToConvert - 1 - i]);
+            }
+            return ret;
+        }
     }
 }

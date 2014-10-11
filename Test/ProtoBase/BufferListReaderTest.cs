@@ -12,7 +12,7 @@ namespace SuperSocket.Test.ProtoBase
     public class BufferListReaderTest
     {
         [Test]
-        public void ReadByte()
+        public void should_be_able_to_read_a_single_byte()
         {
             byte expected = 0x01;
 
@@ -32,7 +32,7 @@ namespace SuperSocket.Test.ProtoBase
         }
 
         [Test]
-        public void ReadByte_should_advance_position()
+        public void should_be_able_to_read_a_byte_and_the_position_should_be_advanced_by_one()
         {
             BufferListReader sut = new BufferListReader();
             sut.Initialize(new[] { GetSegment(new byte[] { 0x01, 0x02 }, 512, 1024) });
@@ -51,15 +51,88 @@ namespace SuperSocket.Test.ProtoBase
 
 
         [Test]
-        public void Take_should()
+        public void should_be_able_to_take_a_buffer_from_the_current_position()
         {
-            // LINQ allows you to skip more than the size...
-            var x = Enumerable.Range(1, 10).Skip(1).Skip(11).ToArray();
-            Assert.AreEqual(0, x.Length);
+            BufferListReader sut = new BufferListReader();
+            List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
+            for (int i = 0; i < 10; i++)
+            {
+                segments.Add(GetSegment(new byte[16], 512, 1024));
+            }
+            sut.Initialize(segments);
+
+            // pre-condition
+            Assert.AreEqual(0, sut.Position);
+
+            sut.Position += 24;
+
+            // act
+            var actual = sut.Take(36);
+
+            var totalLength = actual.Sum(segment => segment.Count);
+
+            // assert
+            Assert.IsNotNull(actual);
+            Assert.AreEqual(36, totalLength);
+            // TODO: check if the data is correct
         }
 
         [Test]
-        public void ReadString_from_one_segment()
+        public void should_be_able_to_advance_the_position_within_current_segment()
+        {
+            int segmentLength = 16;
+            int expectedPosition = segmentLength/2;
+
+            BufferListReader sut = new BufferListReader();
+            sut.Initialize(new[] { GetSegment(new byte[segmentLength], 512, 1024) });
+
+            Assert.AreEqual(0, sut.Position);
+
+            sut.Position += expectedPosition;
+
+            Assert.AreEqual(expectedPosition, sut.Position);
+        }
+
+        [Test]
+        public void should_be_able_to_advance_the_position_into_the_next_segment()
+        {
+            BufferListReader sut = new BufferListReader();
+            List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
+            segments.Add(GetSegment(new byte[16], 512, 1024));
+            segments.Add(GetSegment(new byte[16], 512, 1024));
+            sut.Initialize(segments);
+
+            Assert.AreEqual(0, sut.Position);
+
+            sut.Position += 24;
+
+            Assert.AreEqual(24, sut.Position);
+        }
+
+        [Test]
+        public void should_be_able_to_rewind_the_position_into_the_previous_segment()
+        {
+            int segmentLength = 16;
+            int expectedPosition = segmentLength * 3 / 2;
+
+            BufferListReader sut = new BufferListReader();
+            List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
+            segments.Add(GetSegment(new byte[segmentLength], 512, 1024));
+            segments.Add(GetSegment(new byte[segmentLength], 512, 1024));
+            sut.Initialize(segments);
+
+            Assert.AreEqual(0, sut.Position);
+
+            sut.Position += expectedPosition;
+
+            Assert.AreEqual(expectedPosition, sut.Position);
+
+            sut.Position -= segmentLength;
+            Assert.AreEqual(segmentLength/2, sut.Position);
+        }
+
+        [Test]
+        public void should_be_able_to_read_a_string_from_one_segment()
         {
             string expected = "The quick brown fox jumps over the lazy dog";
             var encoding = Encoding.ASCII;
@@ -80,7 +153,7 @@ namespace SuperSocket.Test.ProtoBase
         }
 
         [Test]
-        public void ReadString_using_ASCII_from_two_segments()
+        public void should_be_able_to_read_a_string_from_segments()
         {
             string expected = "The quick brown fox jumps over the lazy dog";
 
@@ -98,7 +171,7 @@ namespace SuperSocket.Test.ProtoBase
         }
 
         [Test]
-        public void ReadString_from_multiple_segments()
+        public void should_be_able_to_read_a_string_from_multiple_segments()
         {
             string expected = "The quick brown fox jumps over the lazy dog";
             Encoding encoding = Encoding.ASCII;
@@ -132,29 +205,7 @@ namespace SuperSocket.Test.ProtoBase
         }
 
         [Test]
-        //[Ignore]
-        public void Skip_one_and_ReadString_from_two_segments()
-        {
-            string expected = "The quick brown fox jumps over the lazy dog";
-            Encoding encoding = Encoding.ASCII;
-
-            List<ArraySegment<byte>> segments = GetSegments(expected, encoding, 2);
-
-            BufferListReader sut = new BufferListReader();
-            sut.Initialize(segments);
-
-            // pre-condition
-            Assert.AreEqual(expected.Length, sut.Length);
-
-            // act
-            var actual = sut.Skip(1).ReadString(expected.Length - 1, encoding);
-
-            Assert.AreEqual(expected.Substring(1), actual);
-            Assert.AreEqual(expected.Length, sut.Position);
-        }
-
-        [Test]
-        public void Skip_should()
+        public void should_be_able_to_call_skip_to_advance_the_position()
         {
             BufferListReader sut = new BufferListReader();
             sut.Initialize(new[] { GetSegment(new byte[] { 0x01 }, 123, 1024) });
@@ -170,6 +221,43 @@ namespace SuperSocket.Test.ProtoBase
             Assert.AreEqual(1, sut.Position);
         }
 
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void should_not_be_able_to_skip_backwards()
+        {
+            BufferListReader sut = new BufferListReader();
+            sut.Initialize(new[] { GetSegment(new byte[] { 0x01, 0x02, 0x03, 0x04 }, 123, 1024) });
+            sut.Position = 1;
+            sut.Skip(-1);
+        }
+
+        [Test]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
+        public void should_not_be_able_to_skip_past_the_end_of_all_the_buffers()
+        {
+            int segmentSize = 16;
+            BufferListReader sut = new BufferListReader();
+            List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
+            segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
+            segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
+            sut.Initialize(segments);
+
+            sut.Skip(segmentSize * 2 + 1);
+        }
+
+        [Test]
+        public void should_be_able_to_skip_to_the_end_of_all_the_buffers()
+        {
+            int segmentSize = 16;
+            BufferListReader sut = new BufferListReader();
+            List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
+            segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
+            segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
+            sut.Initialize(segments);
+
+            sut.Skip(segmentSize * 2);
+        }
+
         [TestCase(true, new byte[] { 0, 0 }, (short)0)]
         [TestCase(true, new byte[] { 1, 0 }, (short)1)]
         [TestCase(true, new byte[] { 0, 1 }, (short)256)]
@@ -180,7 +268,7 @@ namespace SuperSocket.Test.ProtoBase
         [TestCase(false, new byte[] { 1, 0 }, (short)256)]
         [TestCase(false, new byte[] { 1, 1 }, (short)257)]
         [TestCase(false, new byte[] { 255, 255, }, (short)-1)]
-        public void ReadInt16(bool littleEndian, byte[] bytes, short expected)
+        public void should_be_able_to_read_a_short_integer(bool littleEndian, byte[] bytes, short expected)
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
@@ -205,7 +293,7 @@ namespace SuperSocket.Test.ProtoBase
         [TestCase(false, new byte[] { 1, 0 }, (ushort)256)]
         [TestCase(false, new byte[] { 1, 1 }, (ushort)257)]
         [TestCase(false, new byte[] { 255, 255, }, (ushort)ushort.MaxValue)]
-        public void ReadUInt16(bool littleEndian, byte[] bytes, ushort expected)
+        public void should_be_able_to_read_an_unsigned_short_integer(bool littleEndian, byte[] bytes, ushort expected)
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
@@ -232,7 +320,7 @@ namespace SuperSocket.Test.ProtoBase
         [TestCase(false, new byte[] { 0, 1, 0, 0 }, 65536L)]
         [TestCase(false, new byte[] { 1, 0, 0, 0 }, 16777216L)]
         [TestCase(false, new byte[] { 255, 255, 255, 255 }, -1L)]
-        public void ReadInt32(bool littleEndian, byte[] bytes, long expected)
+        public void should_be_able_to_read_an_integer(bool littleEndian, byte[] bytes, long expected)
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
@@ -259,7 +347,7 @@ namespace SuperSocket.Test.ProtoBase
         [TestCase(false, new byte[] { 0, 1, 0, 0 }, 65536UL)]
         [TestCase(false, new byte[] { 1, 0, 0, 0 }, 16777216UL)]
         [TestCase(false, new byte[] { 255, 255, 255, 255 }, uint.MaxValue)]
-        public void ReadUInt32(bool littleEndian, byte[] bytes, ulong expected)
+        public void should_be_able_to_read_an_unsigned_integer(bool littleEndian, byte[] bytes, ulong expected)
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
@@ -294,7 +382,7 @@ namespace SuperSocket.Test.ProtoBase
         [TestCase(false, new byte[] { 0, 1, 0, 0, 0, 0, 0, 0 }, 1099511627776L * 256)]
         [TestCase(false, new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 }, 1099511627776L * 256 * 256)]
         [TestCase(false, new byte[] { 255, 255, 255, 255, 255, 255, 255, 255 }, -1L)]
-        public void ReadInt64(bool littleEndian, byte[] bytes, long expected)
+        public void should_be_able_to_read_a_long_integer(bool littleEndian, byte[] bytes, long expected)
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
@@ -330,7 +418,7 @@ namespace SuperSocket.Test.ProtoBase
         [TestCase(false, new byte[] { 0, 1, 0, 0, 0, 0, 0, 0 }, 1099511627776UL * 256)]
         [TestCase(false, new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 }, 1099511627776UL * 256 * 256)]
         [TestCase(false, new byte[] { 255, 255, 255, 255, 255, 255, 255, 255 }, ulong.MaxValue)]
-        public void ReadUInt64(bool littleEndian, byte[] bytes, ulong expected)
+        public void should_be_able_to_read_an_unsigned_long_integer(bool littleEndian, byte[] bytes, ulong expected)
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
