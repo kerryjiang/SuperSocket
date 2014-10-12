@@ -78,6 +78,18 @@ namespace SuperSocket.SocketEngine.Configuration
             get { return (SocketMode)this["mode"]; }
         }
 
+        /// <summary>
+        /// Gets the protocol the server instance want to use.
+        /// </summary>
+        /// <value>
+        /// The protocol  the server instance want to use.
+        /// </value>
+        [ConfigurationProperty("protocol", IsRequired = false, DefaultValue = "CommandLine")]
+        public ProtocolMode Protocol
+        {
+            get { return (ProtocolMode)this["protocol"]; }
+        }
+
 
         /// <summary>
         /// Gets the request handling mode.

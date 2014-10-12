@@ -29,6 +29,14 @@ namespace SuperSocket.SocketBase.Config
         string ServerType { get; }
 
         /// <summary>
+        /// Gets the protocol the server instance want to use.
+        /// </summary>
+        /// <value>
+        /// The protocol  the server instance want to use.
+        /// </value>
+        ProtocolMode Protocol { get; }
+
+        /// <summary>
         /// Gets the Receive filter factory.
         /// </summary>
         string ReceiveFilterFactory { get; }

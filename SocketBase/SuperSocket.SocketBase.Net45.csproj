@@ -126,6 +126,7 @@
     <Compile Include="Pool\IPool.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
     <Compile Include="Pool\NullBufferManager.cs" />
+    <Compile Include="ProtocolMode.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilter.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilterFactory.cs" />

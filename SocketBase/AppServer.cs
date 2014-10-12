@@ -72,7 +72,19 @@ namespace SuperSocket.SocketBase
 
         internal override IReceiveFilterFactory<StringPackageInfo> CreateDefaultReceiveFilterFactory()
         {
-            return new CommandLineReceiveFilterFactory(TextEncoding);
+            var config = Config;
+            
+            if(config.Protocol == ProtocolMode.CommandLine)
+                return new CommandLineReceiveFilterFactory(TextEncoding);
+            else if (config.Protocol == ProtocolMode.WebSocket)
+            {
+                var websocketReceiveFilterFactoryType =
+                    Type.GetType("SuperSocket.WebSocket.WebSocketReceiveFilterFactory, SuperSocket.WebSocket");
+
+                return (IReceiveFilterFactory<StringPackageInfo>)Activator.CreateInstance(websocketReceiveFilterFactoryType);
+            }
+
+            return null;
         }
     }
 }

@@ -135,6 +135,14 @@ namespace SuperSocket.SocketBase.Config
         public string ServerType { get; set; }
 
         /// <summary>
+        /// Gets/sets the protocol the server instance want to use.
+        /// </summary>
+        /// <value>
+        /// The protocol  the server instance want to use.
+        /// </value>
+        public ProtocolMode Protocol { get; set; }
+
+        /// <summary>
         /// Gets/sets the Receive filter factory.
         /// </summary>
         public string ReceiveFilterFactory { get; set; }
