@@ -118,10 +118,7 @@ namespace SuperSocket.SocketBase.Logging
             if (repository == null)
                 return null;
 
-            var logKey = repository.Name + "-" + name;
-
-            if (repository == null)
-                return GetLog(logKey);
+            var logKey = repositoryName + "-" + name;
 
             ILog log;
 
