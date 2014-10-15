@@ -7,6 +7,19 @@ using SuperSocket.SocketBase.Config;
 namespace SuperSocket.SocketBase
 {
     /// <summary>
+    /// Session register interface
+    /// </summary>
+    public interface ISessionRegister
+    {
+        /// <summary>
+        /// Tries the register session.
+        /// </summary>
+        /// <param name="session">The session.</param>
+        /// <returns></returns>
+        bool RegisterSession(IAppSession session);
+    }
+
+    /// <summary>
     /// The basic interface for the session container
     /// </summary>
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
@@ -36,11 +49,12 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         TAppSession GetSessionByID(string sessionID);
 
+
         /// <summary>
-        /// Tries to register the session session.
+        /// Tries the register session.
         /// </summary>
         /// <param name="session">The session.</param>
-        /// <returns>true, register successfully; false, the key already exists</returns>
+        /// <returns></returns>
         bool TryRegisterSession(TAppSession session);
 
         /// <summary>

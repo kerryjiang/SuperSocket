@@ -60,7 +60,7 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
     /// <typeparam name="TKey">The type of the package key.</typeparam>
     [AppServerMetadataType(typeof(DefaultAppServerMetadata))]
-    public abstract partial class AppServer<TAppSession, TPackageInfo, TKey> : IAppServer<TAppSession, TPackageInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TPackageInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, ISystemEndPoint, IDisposable
+    public abstract partial class AppServer<TAppSession, TPackageInfo, TKey> : IAppServer<TAppSession, TPackageInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TPackageInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, ISessionRegister, ISystemEndPoint, IDisposable
         where TPackageInfo : class, IPackageInfo<TKey>
         where TAppSession : AppSession<TAppSession, TPackageInfo, TKey>, IAppSession, new()
     {
@@ -214,6 +214,8 @@ namespace SuperSocket.SocketBase
         /// The text encoding.
         /// </value>
         public Encoding TextEncoding { get; private set; }
+
+        private INewSessionHandler m_NewSessionHandler;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TPackageInfo&gt;"/> class.
@@ -482,6 +484,14 @@ namespace SuperSocket.SocketBase
 
                     return false;
                 }
+            }
+
+            var newSessionHandler = GetService<INewSessionHandler>();
+
+            if (newSessionHandler != null)
+            {
+                newSessionHandler.Initialize(this);
+                m_NewSessionHandler = newSessionHandler;
             }
 
             var plainConfig = Config as ServerConfig;
@@ -1574,6 +1584,19 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         bool IAppServer.RegisterSession(IAppSession session)
         {
+            var newSessionHandler = m_NewSessionHandler;
+
+            if(newSessionHandler != null)
+            {
+                newSessionHandler.AcceptNewSession(session);
+                return true;
+            }
+
+            return RegisterSession(session);
+        }
+
+        bool RegisterSession(IAppSession session)
+        {
             var appSession = session as TAppSession;
 
             if (!RegisterSession(appSession.SessionID, appSession))
@@ -1586,6 +1609,12 @@ namespace SuperSocket.SocketBase
 
             OnNewSessionConnected(appSession);
             return true;
+
+        }
+
+        bool ISessionRegister.RegisterSession(IAppSession session)
+        {
+            return RegisterSession(session);
         }
 
 
