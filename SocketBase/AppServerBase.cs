@@ -1173,10 +1173,9 @@ namespace SuperSocket.SocketBase
 
             try
             {
-                //Will be removed in the next version
-#pragma warning disable 0612, 618
-                OnStartup();
-#pragma warning restore 0612, 618
+                var newSessionHandler = m_NewSessionHandler;
+                if (newSessionHandler != null)
+                    newSessionHandler.Start();
 
                 OnStarted();
             }
@@ -1184,7 +1183,7 @@ namespace SuperSocket.SocketBase
             {
                 if (Logger.IsErrorEnabled)
                 {
-                    Logger.Error("One exception wa thrown in the method 'OnStartup()'.", e);
+                    Logger.Error("One exception wa thrown in the method 'OnStarted()'.", e);
                 }
             }
             finally
@@ -1199,14 +1198,6 @@ namespace SuperSocket.SocketBase
             return true;
         }
 
-        /// <summary>
-        /// Called when [startup].
-        /// </summary>
-        [Obsolete("Use OnStarted() instead")]
-        protected virtual void OnStartup()
-        {
-
-        }
 
         /// <summary>
         /// Called when [started].
@@ -1243,6 +1234,10 @@ namespace SuperSocket.SocketBase
             Parallel.ForEach(m_ServerResources, r => r.Rollback());
             GC.Collect();
             GC.WaitForFullGCComplete();
+
+            var newSessionHandler = m_NewSessionHandler;
+            if (newSessionHandler != null)
+                newSessionHandler.Stop();
 
             OnStopped();
 

@@ -18,6 +18,16 @@ namespace SuperSocket.SocketBase
         void Initialize(ISessionRegister sessionRegister);
 
         /// <summary>
+        /// Starts this instance.
+        /// </summary>
+        void Start();
+
+        /// <summary>
+        /// Stops this instance.
+        /// </summary>
+        void Stop();
+
+        /// <summary>
         /// Accepts the new session.
         /// </summary>
         /// <param name="session">The session.</param>
