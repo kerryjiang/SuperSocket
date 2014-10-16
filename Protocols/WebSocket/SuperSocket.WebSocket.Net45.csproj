@@ -70,6 +70,7 @@
     <Compile Include="ReceiveFilters\WebSocketHandshakeReceiveFilter.cs" />
     <Compile Include="WebSocketConst.cs" />
     <Compile Include="WebSocketContext.cs" />
+    <Compile Include="WebSocketNewSessionHandler.cs" />
     <Compile Include="WebSocketPackageInfo.cs" />
     <Compile Include="WebSocketReceiveFilterFactory.cs" />
     <Compile Include="WebSocketServiceProvider.cs" />

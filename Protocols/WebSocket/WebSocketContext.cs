@@ -14,6 +14,8 @@ namespace SuperSocket.WebSocket
     {
         private const string c_WebSocketContextKey = "WebSocketContext";
 
+        public bool Handshaked { get; set; }
+
         public HttpHeaderInfo HandshakeRequest { get; private set; }
 
         public string Origin { get; private set; }
