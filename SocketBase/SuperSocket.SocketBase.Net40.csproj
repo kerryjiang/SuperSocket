@@ -73,6 +73,7 @@
     <Compile Include="Config\IBufferPoolConfig.cs" />
     <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
+    <Compile Include="INewSessionHandler.cs" />
     <Compile Include="ISessionContainer.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
@@ -116,6 +117,7 @@
     <Compile Include="Pool\IPool.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
     <Compile Include="Pool\NullBufferManager.cs" />
+    <Compile Include="ProtocolMode.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilter.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilterFactory.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
