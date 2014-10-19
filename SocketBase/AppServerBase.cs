@@ -117,6 +117,11 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
+        /// The object pool for request executing context
+        /// </summary>
+        private IPool<RequestExecutingContext<TAppSession, TPackageInfo>> m_RequestExecutingContextPool;
+
+        /// <summary>
         /// Gets or sets the receive filter factory.
         /// </summary>
         /// <value>
@@ -1149,6 +1154,10 @@ namespace SuperSocket.SocketBase
                         ServerResourceItem.Create<BufferManagerResource, IBufferManager>(
                             (bufferManager) => this.m_BufferManager = bufferManager, Config));
 
+                    transaction.RegisterItem(
+                        ServerResourceItem.Create<RequestExecutingContextPoolResource<TAppSession, TPackageInfo>, IPool<RequestExecutingContext<TAppSession, TPackageInfo>>>(
+                            (pool) => this.m_RequestExecutingContextPool = pool, Config));
+
                     if (!m_SocketServer.Start())
                     {
                         m_StateCode = ServerStateConst.NotStarted;
@@ -1449,22 +1458,21 @@ namespace SuperSocket.SocketBase
         /// <param name="requestInfo">The request info.</param>
         internal void ExecuteCommand(IAppSession session, TPackageInfo requestInfo)
         {
-            //var context = m_RequestExecutingContextPool.Get();
-            var context = RequestExecutingContext<TAppSession, TPackageInfo>.GetFromThreadContext();
-
-            context.Initialize((TAppSession)session, requestInfo);
-
             if (m_RequestHandlingTaskScheduler == null)
             {
-                ExecuteCommandDirect(context);
+                var context = RequestExecutingContext<TAppSession, TPackageInfo>.GetFromThreadContext();
+                context.Initialize((TAppSession)session, requestInfo);
+                ExecuteCommandDirect(context, false);
             }
             else
             {
+                var context = m_RequestExecutingContextPool.Get();
+                context.Initialize((TAppSession)session, requestInfo);
                 Task.Factory.StartNew(ExecuteCommandInTask, context, CancellationToken.None, TaskCreationOptions.None, m_RequestHandlingTaskScheduler);
             }
         }
 
-        void ExecuteCommandDirect(RequestExecutingContext<TAppSession, TPackageInfo> context)
+        void ExecuteCommandDirect(RequestExecutingContext<TAppSession, TPackageInfo> context, bool returnToPool)
         {
             try
             {
@@ -1474,13 +1482,16 @@ namespace SuperSocket.SocketBase
             {
                 TryReturnBufferedPackageInfo(context);
                 context.Reset();
+
+                if(returnToPool)
+                    m_RequestExecutingContextPool.Return(context);
             }
         }
 
         void ExecuteCommandInTask(object state)
         {
             var context = state as RequestExecutingContext<TAppSession, TPackageInfo>;
-            ExecuteCommandDirect(context);
+            ExecuteCommandDirect(context, true);
         }
 
         bool TryReturnBufferedPackageInfo(RequestExecutingContext<TAppSession, TPackageInfo> context)
