@@ -1336,6 +1336,23 @@ namespace SuperSocket.SocketBase
             remove { m_RequestHandler -= value; }
         }
 
+        private RequestHandler<TAppSession, TPackageInfo> CreateNewRequestReceivedHandler(SessionHandler<IAppSession, IPackageInfo> externalHandler)
+        {
+            return (s, p) => externalHandler(s, p);
+        }
+
+        event SessionHandler<IAppSession, IPackageInfo> IAppServer.NewRequestReceived
+        {
+            add
+            {
+                m_RequestHandler += CreateNewRequestReceivedHandler(value);
+            }
+            remove
+            {
+                m_RequestHandler -= CreateNewRequestReceivedHandler(value);
+            }
+        }
+
         /// <summary>
         /// Executes the command.
         /// </summary>

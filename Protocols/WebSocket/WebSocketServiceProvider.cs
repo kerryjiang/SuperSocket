@@ -9,6 +9,8 @@ namespace SuperSocket.WebSocket
 {
     class WebSocketServiceProvider
     {
+        private IAppServer m_AppServer;
+
         public IBinaryDataParser BinaryDataParser { get; private set; }
 
         public IStringParser StringParser { get; private set; }
@@ -24,6 +26,25 @@ namespace SuperSocket.WebSocket
                             new PingHandler(this), new PongHandler(this),
                             new CloseHandler(this) })
                          .ToDictionary(h => h.OpCode);
+            m_AppServer = appServer;
+        }
+
+        private SessionHandler<IAppSession, IPackageInfo> CreateNewPackageReceivedHandler(SessionHandler<IAppSession, WebSocketPackageInfo> externalHandler)
+        {
+            return (s, p) => externalHandler(s, (WebSocketPackageInfo)p);
+        }
+
+        public event SessionHandler<IAppSession, WebSocketPackageInfo> NewRequestReceived
+        {
+            add
+            {
+                m_AppServer.NewRequestReceived += CreateNewPackageReceivedHandler(value);
+            }
+
+            remove
+            {
+                m_AppServer.NewRequestReceived -= CreateNewPackageReceivedHandler(value);
+            }
         }
     }
 }

@@ -116,6 +116,12 @@ namespace SuperSocket.SocketBase
         /// <typeparam name="T">the service instance's type</typeparam>
         /// <param name="serviceInstance">The service instance.</param>
         void RegisterService<T>(T serviceInstance);
+
+
+        /// <summary>
+        /// Occurs when [new request received].
+        /// </summary>
+        event SessionHandler<IAppSession, IPackageInfo> NewRequestReceived;
     }
 
     /// <summary>
@@ -179,7 +185,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Occurs when [request comming].
         /// </summary>
-        event RequestHandler<TAppSession, TPackageInfo> NewRequestReceived;
+        new event RequestHandler<TAppSession, TPackageInfo> NewRequestReceived;
     }
 
     /// <summary>
