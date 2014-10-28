@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{0B5AE66D-CB41-4C04-A581-5293F31995C8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>WebSocket.Test</RootNamespace>
+    <AssemblyName>WebSocket.Test</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>..\..\Reference\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\..\..\..\LogMaster4Net\master\Reference\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WebSocket4Net">
+      <HintPath>..\..\Reference\WebSocket4Net\net45\Debug\WebSocket4Net.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BootstrapTestBase.cs" />
+    <Compile Include="Command\ECHO.cs" />
+    <Compile Include="Command\QUIT.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SubProtocolWebSocketTest.cs" />
+    <Compile Include="WebSocketClientTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WebSocketFramingTest.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="WebSocketHybi10Test.cs" />
+    <Compile Include="WebSocketRawTest.cs" />
+    <Compile Include="WebSocketTestBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Common\SuperSocket.Common.Net45.csproj">
+      <Project>{a24f4d38-ba9c-4fd6-95b7-4980de36131a}</Project>
+      <Name>SuperSocket.Common.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ProtoBase\SuperSocket.ProtoBase.Net45.csproj">
+      <Project>{88c9312e-7520-4f6b-bf25-30da5990d270}</Project>
+      <Name>SuperSocket.ProtoBase.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SocketBase\SuperSocket.SocketBase.Net45.csproj">
+      <Project>{40b77789-ea11-4c05-8f52-86711d7bcaaf}</Project>
+      <Name>SuperSocket.SocketBase.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SocketEngine\SuperSocket.SocketEngine.Net45.csproj">
+      <Project>{153fef72-191c-43d9-be71-2b351c7ac760}</Project>
+      <Name>SuperSocket.SocketEngine.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WebSocket\SuperSocket.WebSocket.Net45.csproj">
+      <Project>{db6dd6e8-abde-4c4a-a3e2-df49c074433b}</Project>
+      <Name>SuperSocket.WebSocket.Net45</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Config\Basic.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
