@@ -1,12 +1,13 @@
-﻿using SuperSocket.ProtoBase;
-using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Protocol;
+using SuperSocket.WebSocket.ReceiveFilters;
 
 namespace SuperSocket.WebSocket
 {
@@ -20,7 +21,7 @@ namespace SuperSocket.WebSocket
         }
         public IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
-            throw new NotImplementedException();
+            return new WebSocketHandshakeReceiveFilter();
         }
     }
 }
