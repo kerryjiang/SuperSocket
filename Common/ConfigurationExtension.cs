@@ -95,6 +95,9 @@ namespace SuperSocket.Common
             if (string.IsNullOrEmpty(childConfig))
                 return default(TConfig);
 
+            // removed extra namespace prefix
+            childConfig = childConfig.Replace("xmlns=\"http://schema.supersocket.net/supersocket\"", string.Empty);
+
             XmlReader reader = new XmlTextReader(new StringReader(childConfig));
 
             var config = new TConfig();
