@@ -140,7 +140,8 @@ namespace SuperSocket.ProtoBase
             where TReader : BufferListReader, new()
             where TPackageInfo : IPackageInfo
         {
-            var reader = BufferListReader.GetCurrent<TReader>();
+            //var reader = BufferListReader.GetCurrent<TReader>(); // don't use thread context for BufferListReader for now
+            var reader = new BufferListReader();
             reader.Initialize(data);
             return reader;
         }
@@ -171,7 +172,8 @@ namespace SuperSocket.ProtoBase
             where TStream : BufferListStream, new()
             where TPackageInfo : IPackageInfo
         {
-            var stream = BufferListStream.GetCurrent<BufferListStream>();
+            //var stream = BufferListStream.GetCurrent<BufferListStream>(); // don't use thread context for BufferListReader for now
+            var stream = new BufferListStream();
             stream.Initialize(data);
             return stream;
         }
