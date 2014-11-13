@@ -350,7 +350,7 @@ namespace SuperSocket.WebSocket
 
                 try
                 {
-                    cookies[key] = WebUtility.UrlDecode(value);
+                    cookies[key] = Uri.UnescapeDataString(value);
                 }
                 catch (Exception e)
                 {
