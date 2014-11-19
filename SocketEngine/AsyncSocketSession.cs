@@ -255,6 +255,12 @@ namespace SuperSocket.SocketEngine
         {
             var sae = m_SocketEventArgSend;
 
+            if (sae == null)
+            {
+                base.OnClosed(reason);
+                return;
+            }
+
             if (Interlocked.CompareExchange(ref m_SocketEventArgSend, null, sae) == sae)
             {
                 sae.Dispose();
