@@ -225,10 +225,15 @@ namespace SuperSocket.SocketBase
             {
                 try
                 {
+                    var sessionSource = SessionSource;
+
+                    if (sessionSource == null)
+                        return;
+
                     DateTime now = DateTime.Now;
                     DateTime timeOut = now.AddSeconds(0 - Config.IdleSessionTimeOut);
 
-                    var timeOutSessions = SessionSource.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
+                    var timeOutSessions = sessionSource.Where(s => s.Value.LastActiveTime <= timeOut).Select(s => s.Value);
 
                     System.Threading.Tasks.Parallel.ForEach(timeOutSessions, s =>
                         {
@@ -294,7 +299,12 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         public override IEnumerable<TAppSession> GetSessions(Func<TAppSession, bool> critera)
         {
-            return SessionSource.Select(p => p.Value).Where(critera);
+            var sessionSource = SessionSource;
+
+            if (sessionSource == null)
+                return null;
+
+            return sessionSource.Select(p => p.Value).Where(critera);
         }
 
         /// <summary>
@@ -303,7 +313,12 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         public override IEnumerable<TAppSession> GetAllSessions()
         {
-            return SessionSource.Select(p => p.Value);
+            var sessionSource = SessionSource;
+
+            if (sessionSource == null)
+                return null;
+
+            return sessionSource.Select(p => p.Value);
         }
 
         /// <summary>
