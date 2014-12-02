@@ -13,6 +13,7 @@
 			<exclude name="**/*.user" />
 			<exclude name="**/*.suo" />
 			<exclude name="**/.gitignore" />
+            <exclude name="**/nuget.key" />
 			<exclude name="*Push.bat" />
 			<exclude name="*SuperSocket.build" />
 		</fileset>
