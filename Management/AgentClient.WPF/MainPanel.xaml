@@ -38,16 +38,19 @@
                        Fill="#FFDACEEC" Height="5" VerticalAlignment="Bottom"></Rectangle>
         </Grid>
         <Border Grid.Row="1" VerticalAlignment="Stretch" Background="AliceBlue">
-            <ItemsControl
+            <ScrollViewer ScrollViewer.VerticalScrollBarVisibility="Auto"
+                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ItemsControl
                       ItemsSource="{Binding Nodes}"
                       ItemTemplate="{StaticResource NodeContainerTemplate}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <StackPanel Orientation="Vertical">
-                        </StackPanel>
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-            </ItemsControl>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical">
+                            </StackPanel>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+            </ScrollViewer>
         </Border>
     </Grid>
 </UserControl>
