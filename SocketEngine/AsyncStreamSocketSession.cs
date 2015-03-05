@@ -198,9 +198,13 @@ namespace SuperSocket.SocketEngine
             IAsyncResult result = null;
 
             var certConfig = AppSession.Config.Certificate;
+            var secureProtocol = SecureProtocol;
 
-            switch (SecureProtocol)
+            switch (secureProtocol)
             {
+                case (SslProtocols.None):
+                    m_Stream = new NetworkStream(Client);
+                    break;
                 case (SslProtocols.Default):
                 case (SslProtocols.Tls):
                 case (SslProtocols.Ssl3):
@@ -212,7 +216,8 @@ namespace SuperSocket.SocketEngine
                     result = ssl2Stream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, certConfig.ClientCertificateRequired, SslProtocols.Ssl2, false, asyncCallback, ssl2Stream);
                     break;
                 default:
-                    m_Stream = new NetworkStream(Client);
+                    var unknownSslStream = CreateSslStream(certConfig);
+                    result = unknownSslStream.BeginAuthenticateAsServer(AppSession.AppServer.Certificate, certConfig.ClientCertificateRequired, secureProtocol, false, asyncCallback, unknownSslStream);
                     break;
             }
 
