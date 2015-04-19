@@ -210,10 +210,15 @@ namespace SuperSocket.Common
         /// <returns></returns>
         public static T CopyPropertiesTo<T>(this T source, Predicate<PropertyInfo> predict, T target)
         {
-            PropertyInfo[] properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+            PropertyInfo[] properties = source.GetType()
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+
             Dictionary<string, PropertyInfo> sourcePropertiesDict = properties.ToDictionary(p => p.Name);
 
-            PropertyInfo[] targetProperties = target.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
+            PropertyInfo[] targetProperties = target.GetType()
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty)
+                .Where(p => predict(p)).ToArray();
+
             for (int i = 0; i < targetProperties.Length; i++)
             {
                 var p = targetProperties[i];
