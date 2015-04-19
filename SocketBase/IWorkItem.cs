@@ -25,6 +25,12 @@ namespace SuperSocket.SocketBase
         bool Start();
 
         /// <summary>
+        /// Reports the potential configuration change.
+        /// </summary>
+        /// <param name="config">The server config which may be changed.</param>
+        void ReportPotentialConfigChange(IServerConfig config);
+
+        /// <summary>
         /// Stops this server instance.
         /// </summary>
         void Stop();

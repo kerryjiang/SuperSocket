@@ -75,6 +75,7 @@
     <Compile Include="AppDomainBootstrap.cs" />
     <Compile Include="AssemblyImport.cs" />
     <Compile Include="BufferStateCreator.cs" />
+    <Compile Include="ConfigurationWatcher.cs" />
     <Compile Include="SaeState.cs" />
     <Compile Include="BufferState.cs" />
     <Compile Include="IAsyncSocketEventComplete.cs" />

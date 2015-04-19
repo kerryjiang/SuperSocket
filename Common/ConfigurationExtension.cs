@@ -81,6 +81,28 @@ namespace SuperSocket.Common
         }
 
         /// <summary>
+        /// Deserializes the child configuration.
+        /// </summary>
+        /// <typeparam name="TConfig">The type of the configuration.</typeparam>
+        /// <param name="childConfig">The child configuration string.</param>
+        /// <returns></returns>
+        public static TConfig DeserializeChildConfig<TConfig>(string childConfig)
+            where TConfig : ConfigurationElement, new()
+        {
+            // removed extra namespace prefix
+            childConfig = childConfig.Replace("xmlns=\"http://schema.supersocket.net/supersocket\"", string.Empty);
+
+            XmlReader reader = new XmlTextReader(new StringReader(childConfig));
+
+            var config = new TConfig();
+
+            reader.Read();
+            config.Deserialize(reader);
+
+            return config;
+        }
+
+        /// <summary>
         /// Gets the child config.
         /// </summary>
         /// <typeparam name="TConfig">The type of the config.</typeparam>
@@ -95,17 +117,7 @@ namespace SuperSocket.Common
             if (string.IsNullOrEmpty(childConfig))
                 return default(TConfig);
 
-            // removed extra namespace prefix
-            childConfig = childConfig.Replace("xmlns=\"http://schema.supersocket.net/supersocket\"", string.Empty);
-
-            XmlReader reader = new XmlTextReader(new StringReader(childConfig));
-
-            var config = new TConfig();
-
-            reader.Read();
-            config.Deserialize(reader);
-
-            return config;
+            return DeserializeChildConfig<TConfig>(childConfig);
         }
 
         /// <summary>
@@ -125,7 +137,7 @@ namespace SuperSocket.Common
             if (configProperty == null)
                 return string.Empty;
 
-            var configuration = (Configuration)configProperty.GetValue(config, new object[0]);
+            var configuration = (Configuration)configProperty.GetValue(config, null);
             return configuration.FilePath;
         }
     }

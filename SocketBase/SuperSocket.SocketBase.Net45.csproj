@@ -70,6 +70,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AppContext.cs" />
+    <Compile Include="AppServerBase.ConfigHotUpdate.cs" />
     <Compile Include="AppServerBase.Net45.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Command\ICommandFilterProvider.cs" />
     <Compile Include="Config\BufferPoolConfig.cs" />
     <Compile Include="Config\CommandAssemblyConfig.cs" />
+    <Compile Include="Config\HotUpdateAttribute.cs" />
     <Compile Include="Config\IBufferPoolConfig.cs" />
     <Compile Include="Config\ICommandAssemblyConfig.cs" />
     <Compile Include="Config\IConfigurationSource.cs" />
