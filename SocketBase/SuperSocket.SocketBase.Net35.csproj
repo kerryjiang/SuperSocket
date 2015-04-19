@@ -60,6 +60,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="AppServer.cs" />
+    <Compile Include="AppServerBase.ConfigHotUpdate.cs" />
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="Async.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Config\CertificateConfig.cs" />
     <Compile Include="Config\CommandAssemblyConfig.cs" />
     <Compile Include="Config\ConfigurationSource.cs" />
+    <Compile Include="Config\HotUpdateAttribute.cs" />
     <Compile Include="Config\ICertificateConfig.cs" />
     <Compile Include="Config\ICommandAssemblyConfig.cs" />
     <Compile Include="Config\IConfigurationSource.cs" />

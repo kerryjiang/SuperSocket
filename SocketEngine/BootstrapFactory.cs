@@ -24,12 +24,21 @@ namespace SuperSocket.SocketEngine
             if (config == null)
                 throw new ArgumentNullException("config");
 
+            IBootstrap bootstrap;
+
             if (config.Isolation == IsolationMode.AppDomain)
-                return new AppDomainBootstrap(config);
+                bootstrap = new AppDomainBootstrap(config);
             else if (config.Isolation == IsolationMode.Process)
-                return new ProcessBootstrap(config);
+                bootstrap = new ProcessBootstrap(config);
             else
-                return new DefaultBootstrap(config);
+                bootstrap = new DefaultBootstrap(config);
+
+            var section = config as ConfigurationSection;
+
+            if (section != null)
+                ConfigurationWatcher.Watch(section, bootstrap);
+
+            return bootstrap;
         }
 
         /// <summary>

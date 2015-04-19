@@ -118,6 +118,21 @@ namespace SuperSocket.SocketEngine
             return true;
         }
 
+        public virtual void ReportPotentialConfigChange(IServerConfig config)
+        {
+            ServerConfig = config;
+
+            if (State != ServerState.Stopping && State != ServerState.NotStarted)
+                return;
+
+            var appServer = AppServer;
+
+            if (appServer == null)
+                return;
+
+            appServer.ReportPotentialConfigChange(config);
+        }
+
         protected abstract IWorkItemBase Start();
 
         bool IWorkItemBase.Start()

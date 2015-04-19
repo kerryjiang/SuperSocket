@@ -187,14 +187,28 @@ namespace SuperSocket.Common
         }
 #endif
 
-        private static object[] m_EmptyObjectArray = new object[] { };
 
         /// <summary>
         /// Copies the properties of one object to another object.
         /// </summary>
+        /// <typeparam name="T"></typeparam>
         /// <param name="source">The source.</param>
         /// <param name="target">The target.</param>
+        /// <returns></returns>
         public static T CopyPropertiesTo<T>(this T source, T target)
+        {
+            return source.CopyPropertiesTo(p => true, target);
+        }
+
+        /// <summary>
+        /// Copies the properties of one object to another object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="source">The source.</param>
+        /// <param name="predict">The properties predict.</param>
+        /// <param name="target">The target.</param>
+        /// <returns></returns>
+        public static T CopyPropertiesTo<T>(this T source, Predicate<PropertyInfo> predict, T target)
         {
             PropertyInfo[] properties = source.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty);
             Dictionary<string, PropertyInfo> sourcePropertiesDict = properties.ToDictionary(p => p.Name);
@@ -213,7 +227,7 @@ namespace SuperSocket.Common
                     if (!sourceProperty.PropertyType.IsSerializable)
                         continue;
 
-                    p.SetValue(target, sourceProperty.GetValue(source, m_EmptyObjectArray), m_EmptyObjectArray);
+                    p.SetValue(target, sourceProperty.GetValue(source, null), null);
                 }
             }
 

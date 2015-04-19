@@ -75,6 +75,7 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AppServerBase.ConfigHotUpdate.cs" />
     <Compile Include="AppServerBase.Net45.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Config\ConfigurationSource.cs" />
     <Compile Include="Config\RootConfig.Net45.cs" />
     <Compile Include="Config\ServerConfig.Net45.cs" />
+    <Compile Include="Config\HotUpdateAttribute.cs" />
     <Compile Include="Config\TypeProvider.cs" />
     <Compile Include="Config\TypeProviderCollection.cs" />
     <Compile Include="Config\TypeProviderConfig.cs" />

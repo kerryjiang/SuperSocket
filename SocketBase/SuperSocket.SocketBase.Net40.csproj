@@ -71,9 +71,11 @@
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="AppServerBase.ConfigHotUpdate.cs" />
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="Command\ICommandFilterProvider.cs" />
+    <Compile Include="Config\HotUpdateAttribute.cs" />
     <Compile Include="IActiveConnector.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />

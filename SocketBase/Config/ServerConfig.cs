@@ -168,11 +168,13 @@ namespace SuperSocket.SocketBase.Config
         /// <summary>
         /// Gets/sets the options.
         /// </summary>
+        [HotUpdate]
         public NameValueCollection Options { get; set; }
 
         /// <summary>
         /// Gets the option elements.
         /// </summary>
+        [HotUpdate]
         public NameValueCollection OptionElements { get; set; }
 
         /// <summary>
@@ -234,6 +236,7 @@ namespace SuperSocket.SocketBase.Config
         /// <value>
         ///   <c>true</c> if log command; otherwise, <c>false</c>.
         /// </value>
+        [HotUpdate]
         public bool LogCommand { get; set; }
 
         /// <summary>
@@ -258,6 +261,7 @@ namespace SuperSocket.SocketBase.Config
         /// <value>
         /// The idle session time out.
         /// </value>
+        [HotUpdate]
         public int IdleSessionTimeOut { get; set; }
 
         /// <summary>
@@ -279,6 +283,7 @@ namespace SuperSocket.SocketBase.Config
         /// <value>
         /// The length of the max request.
         /// </value>
+        [HotUpdate]
         public int MaxRequestLength { get; set; }
 
         /// <summary>
@@ -363,6 +368,7 @@ namespace SuperSocket.SocketBase.Config
         /// <value>
         /// 	<c>true</c> if [log basic session activity]; otherwise, <c>false</c>.
         /// </value>
+        [HotUpdate]
         public bool LogBasicSessionActivity { get; set; }
 
         /// <summary>
@@ -371,6 +377,7 @@ namespace SuperSocket.SocketBase.Config
         /// <value>
         /// <c>true</c> if [log all socket exception]; otherwise, <c>false</c>.
         /// </value>
+        [HotUpdate]
         public bool LogAllSocketException { get; set; }
 
         /// <summary>

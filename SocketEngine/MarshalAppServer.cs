@@ -44,6 +44,17 @@ namespace SuperSocket.SocketEngine
             return m_AppServer.Setup(bootstrap, config, factories);
         }
 
+
+        /// <summary>
+        /// Reports the potential configuration change.
+        /// </summary>
+        /// <param name="config">The server config which may be changed.</param>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void ReportPotentialConfigChange(IServerConfig config)
+        {
+            m_AppServer.ReportPotentialConfigChange(config);
+        }
+
         /// <summary>
         /// Starts this server instance.
         /// </summary>
