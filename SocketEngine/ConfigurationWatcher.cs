@@ -73,7 +73,27 @@ namespace SuperSocket.SocketEngine
             var fileMap = new ExeConfigurationFileMap();
             fileMap.ExeConfigFilename = filePath;
 
-            var config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+            System.Configuration.Configuration config;
+
+            try
+            {
+                config = ConfigurationManager.OpenMappedExeConfiguration(fileMap, ConfigurationUserLevel.None);
+            }
+            catch(Exception e)
+            {
+                var loggerProvider = bootstrap as ILoggerProvider;
+
+                if (loggerProvider != null)
+                {
+                    var logger = loggerProvider.Logger;
+
+                    if (logger != null)
+                        logger.Error("Configuraton loading error.", e);
+                }
+
+                return;
+            }
+
             var configSource = config.GetSection(sectionName) as IConfigurationSource;
 
             if (configSource == null)

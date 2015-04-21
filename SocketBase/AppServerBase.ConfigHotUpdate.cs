@@ -41,7 +41,10 @@ namespace SuperSocket.SocketBase
         }
         public void Notify(string newValue)
         {
-            m_Handler(ConfigurationExtension.DeserializeChildConfig<TConfigOption>(newValue));
+            if (string.IsNullOrEmpty(newValue))
+                m_Handler(default(TConfigOption));
+            else
+                m_Handler(ConfigurationExtension.DeserializeChildConfig<TConfigOption>(newValue));
         }
     }
 
@@ -55,47 +58,85 @@ namespace SuperSocket.SocketBase
         /// Registers the configuration option value handler, it is used for reading configuration value and reload it after the configuration is changed;
         /// </summary>
         /// <typeparam name="TConfigOption">The type of the configuration option.</typeparam>
+        /// <param name="config">The server configuration.</param>
         /// <param name="name">The changed config option's name.</param>
         /// <param name="handler">The handler.</param>
-        protected void RegisterConfigHandler<TConfigOption>(string name, Action<TConfigOption> handler)
+        protected void RegisterConfigHandler<TConfigOption>(IServerConfig config, string name, Action<TConfigOption> handler)
             where TConfigOption : ConfigurationElement, new()
         {
-            m_ConfigUpdatedNotifiers.Add(name, new ConfigValueChangeNotifier<TConfigOption>(handler));
+            var notifier = new ConfigValueChangeNotifier<TConfigOption>(handler);
+            m_ConfigUpdatedNotifiers.Add(name, notifier);
+            notifier.Notify(config.Options.GetValue(name));
         }
 
         /// <summary>
         /// Registers the configuration option value handler, it is used for reading configuration value and reload it after the configuration is changed;
         /// </summary>
+        /// <param name="config">The server configuration.</param>
         /// <param name="name">The changed config option name.</param>
         /// <param name="handler">The handler.</param>
-        protected void RegisterConfigHandler(string name, Action<string> handler)
+        protected void RegisterConfigHandler(IServerConfig config, string name, Action<string> handler)
         {
-            m_ConfigUpdatedNotifiers.Add(name, new ConfigValueChangeNotifier(handler));
+            var notifier = new ConfigValueChangeNotifier(handler);
+            m_ConfigUpdatedNotifiers.Add(name, notifier);
+            notifier.Notify(config.OptionElements.GetValue(name));
         }
 
-        void CheckConfigOptionsChange(NameValueCollection oldOptions, NameValueCollection newOptions)
+        int CheckConfigOptionsChange(NameValueCollection oldOptions, NameValueCollection newOptions)
         {
+            var changed = 0;
+
+            if (oldOptions == null && newOptions == null)
+                return changed;
+
+            var oldOptionsDict = oldOptions == null
+                    ? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+                    : Enumerable.Range(0, oldOptions.Count)
+                        .Select(i => new KeyValuePair<string, string>(oldOptions.GetKey(i), oldOptions.Get(i)))
+                        .ToDictionary(p => p.Key, p => p.Value, StringComparer.OrdinalIgnoreCase);
+
             foreach(var key in newOptions.AllKeys)
             {
                 var newValue = newOptions[key];
-                var oldValue = oldOptions[key];
+
+                var oldValue = string.Empty;
+
+                if (oldOptionsDict.TryGetValue(key, out oldValue))
+                    oldOptionsDict.Remove(key);
 
                 if (string.Compare(newValue, oldValue) == 0)
                     continue;
 
-                IConfigValueChangeNotifier notifier;
+                NotifyConfigUpdated(key, newValue);
+                changed++;
+            }
 
-                if (!m_ConfigUpdatedNotifiers.TryGetValue(key, out notifier))
-                    continue;
+            if (oldOptionsDict.Count > 0)
+            {
+                foreach (var p in oldOptionsDict)
+                {
+                    NotifyConfigUpdated(p.Key, string.Empty);
+                    changed++;
+                }
+            }
 
-                try
-                {
-                    notifier.Notify(newValue);
-                }
-                catch(Exception e)
-                {
-                    Logger.Error("Failed to handle custom configuration reading, name: " + key, e);
-                }
+            return changed;
+        }
+
+        private void NotifyConfigUpdated(string key, string newValue)
+        {
+            IConfigValueChangeNotifier notifier;
+
+            if (!m_ConfigUpdatedNotifiers.TryGetValue(key, out notifier))
+                return;
+
+            try
+            {
+                notifier.Notify(newValue);
+            }
+            catch (Exception e)
+            {
+                Logger.Error("Failed to handle custom configuration reading, name: " + key, e);
             }
         }
 

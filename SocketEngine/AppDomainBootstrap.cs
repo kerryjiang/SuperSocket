@@ -93,7 +93,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// AppDomainBootstrap
     /// </summary>
-    partial class AppDomainBootstrap : MarshalByRefObject, IBootstrap, IDisposable
+    partial class AppDomainBootstrap : MarshalByRefObject, ILoggerProvider, IBootstrap, IDisposable
     {
         private IBootstrap m_InnerBootstrap;
 
@@ -113,6 +113,21 @@ namespace SuperSocket.SocketEngine
             get { return m_InnerBootstrap.Config; }
         }
 
+        /// <summary>
+        /// Gets the bootstrap logger.
+        /// </summary>
+        ILog ILoggerProvider.Logger
+        {
+            get
+            {
+                var loggerProvider = m_InnerBootstrap as ILoggerProvider;
+
+                if (loggerProvider == null)
+                    return null;
+
+                return loggerProvider.Logger;
+            }
+        }
         /// <summary>
         /// Gets the startup config file.
         /// </summary>

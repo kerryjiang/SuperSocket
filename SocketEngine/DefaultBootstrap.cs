@@ -22,7 +22,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// SuperSocket default bootstrap
     /// </summary>
-    public partial class DefaultBootstrap : IBootstrap, IDisposable
+    public partial class DefaultBootstrap : IBootstrap, ILoggerProvider, IDisposable
     {
         private List<IWorkItem> m_AppServers;
 
@@ -42,6 +42,14 @@ namespace SuperSocket.SocketEngine
         /// Global log
         /// </summary>
         private ILog m_GlobalLog;
+
+        /// <summary>
+        /// Gets the bootstrap logger.
+        /// </summary>
+        ILog ILoggerProvider.Logger
+        {
+            get { return m_GlobalLog; }
+        }
 
         /// <summary>
         /// Gets the log factory.
