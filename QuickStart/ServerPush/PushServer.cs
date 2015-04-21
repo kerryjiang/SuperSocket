@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
 
 namespace SuperSocket.QuickStart.ServerPush
 {
@@ -11,7 +12,23 @@ namespace SuperSocket.QuickStart.ServerPush
     {
         private Timer m_PushTimer;
 
-        private int m_Interval = 60 * 1000; //1 minute
+        private int m_Interval; //1 minute
+
+        protected override bool Setup(IRootConfig rootConfig, IServerConfig config)
+        {
+            RegisterConfigHandler(config, "pushInterval", (value) =>
+                {
+                    var interval = 0;
+                    int.TryParse(value, out interval);
+
+                    if (interval <= 0)
+                        interval = 60;// 60 seconds by default
+
+                    m_Interval = interval * 1000;
+                });
+
+            return true;
+        }
 
         protected override void OnStarted()
         {
