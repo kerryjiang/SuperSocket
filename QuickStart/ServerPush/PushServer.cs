@@ -25,6 +25,7 @@ namespace SuperSocket.QuickStart.ServerPush
                         interval = 60;// 60 seconds by default
 
                     m_Interval = interval * 1000;
+                    return true;
                 });
 
             return true;

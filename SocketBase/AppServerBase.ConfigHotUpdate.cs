@@ -13,38 +13,38 @@ namespace SuperSocket.SocketBase
 {
     interface IConfigValueChangeNotifier
     {
-        void Notify(string newValue);
+        bool Notify(string newValue);
     }
 
     class ConfigValueChangeNotifier : IConfigValueChangeNotifier
     {
-        Action<string> m_Handler;
+        Func<string, bool> m_Handler;
 
-        public ConfigValueChangeNotifier(Action<string> handler)
+        public ConfigValueChangeNotifier(Func<string, bool> handler)
         {
             m_Handler = handler;
         }
 
-        public void Notify(string newValue)
+        public bool Notify(string newValue)
         {
-            m_Handler(newValue);
+            return m_Handler(newValue);
         }
     }
     class ConfigValueChangeNotifier<TConfigOption> : IConfigValueChangeNotifier
         where TConfigOption : ConfigurationElement, new()
     {
-        Action<TConfigOption> m_Handler;
+        Func<TConfigOption, bool> m_Handler;
 
-        public ConfigValueChangeNotifier(Action<TConfigOption> handler)
+        public ConfigValueChangeNotifier(Func<TConfigOption, bool> handler)
         {
             m_Handler = handler;
         }
-        public void Notify(string newValue)
+        public bool Notify(string newValue)
         {
             if (string.IsNullOrEmpty(newValue))
-                m_Handler(default(TConfigOption));
+                return m_Handler(default(TConfigOption));
             else
-                m_Handler(ConfigurationExtension.DeserializeChildConfig<TConfigOption>(newValue));
+                return m_Handler(ConfigurationExtension.DeserializeChildConfig<TConfigOption>(newValue));
         }
     }
 
@@ -61,12 +61,12 @@ namespace SuperSocket.SocketBase
         /// <param name="config">The server configuration.</param>
         /// <param name="name">The changed config option's name.</param>
         /// <param name="handler">The handler.</param>
-        protected void RegisterConfigHandler<TConfigOption>(IServerConfig config, string name, Action<TConfigOption> handler)
+        protected bool RegisterConfigHandler<TConfigOption>(IServerConfig config, string name, Func<TConfigOption, bool> handler)
             where TConfigOption : ConfigurationElement, new()
         {
             var notifier = new ConfigValueChangeNotifier<TConfigOption>(handler);
             m_ConfigUpdatedNotifiers.Add(name, notifier);
-            notifier.Notify(config.Options.GetValue(name));
+            return notifier.Notify(config.Options.GetValue(name));
         }
 
         /// <summary>
@@ -75,11 +75,11 @@ namespace SuperSocket.SocketBase
         /// <param name="config">The server configuration.</param>
         /// <param name="name">The changed config option name.</param>
         /// <param name="handler">The handler.</param>
-        protected void RegisterConfigHandler(IServerConfig config, string name, Action<string> handler)
+        protected bool RegisterConfigHandler(IServerConfig config, string name, Func<string, bool> handler)
         {
             var notifier = new ConfigValueChangeNotifier(handler);
             m_ConfigUpdatedNotifiers.Add(name, notifier);
-            notifier.Notify(config.OptionElements.GetValue(name));
+            return notifier.Notify(config.OptionElements.GetValue(name));
         }
 
         int CheckConfigOptionsChange(NameValueCollection oldOptions, NameValueCollection newOptions)
@@ -132,7 +132,8 @@ namespace SuperSocket.SocketBase
 
             try
             {
-                notifier.Notify(newValue);
+                if (!notifier.Notify(newValue))
+                    throw new Exception("returned false in the handling logic");
             }
             catch (Exception e)
             {
