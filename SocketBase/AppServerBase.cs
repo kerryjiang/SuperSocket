@@ -21,6 +21,7 @@ using SuperSocket.SocketBase.Scheduler;
 using SuperSocket.SocketBase.Security;
 using SuperSocket.SocketBase.Utils;
 using SuperSocket.SocketBase.ServerResource;
+using System.ComponentModel.Composition.Hosting;
 
 namespace SuperSocket.SocketBase
 {
@@ -223,6 +224,14 @@ namespace SuperSocket.SocketBase
         private INewSessionHandler m_NewSessionHandler;
 
         /// <summary>
+        /// Gets the composition container.
+        /// </summary>
+        /// <value>
+        /// The composition container.
+        /// </value>
+        protected ExportProvider CompositionContainer { get; private set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TPackageInfo&gt;"/> class.
         /// </summary>
         public AppServer()
@@ -355,12 +364,33 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Setups the specified root config.
+        /// Setups with the specified configurations.
         /// </summary>
-        /// <param name="rootConfig">The root config.</param>
-        /// <param name="config">The config.</param>
+        /// <param name="rootConfig">The root configuration.</param>
+        /// <param name="config">The server configuration.</param>
         /// <returns></returns>
         protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config)
+        {
+            var catalog = new AggregateCatalog();
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IAppServer).Assembly));
+            catalog.Catalogs.Add(new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory, "*.dll"));
+            var compositionContainer = new CompositionContainer(catalog);
+
+            if (!Setup(rootConfig, config, compositionContainer))
+                return false;
+
+            CompositionContainer = compositionContainer;
+            return true;
+        }
+
+        /// <summary>
+        /// Setups with the specified configurations.
+        /// </summary>
+        /// <param name="rootConfig">The root configuration.</param>
+        /// <param name="config">The configuration.</param>
+        /// <param name="exportProvier">The composition export provier.</param>
+        /// <returns></returns>
+        protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config, ExportProvider exportProvier)
         {
             return true;
         }
