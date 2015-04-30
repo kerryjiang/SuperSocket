@@ -364,6 +364,19 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
+        /// Gets the composition container.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <returns></returns>
+        protected virtual ExportProvider GetCompositionContainer(IServerConfig config)
+        {
+            var catalog = new AggregateCatalog();
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IAppServer).Assembly));
+            catalog.Catalogs.Add(new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory, "*.dll"));
+            return new CompositionContainer(catalog);
+        }
+
+        /// <summary>
         /// Setups with the specified configurations.
         /// </summary>
         /// <param name="rootConfig">The root configuration.</param>
@@ -371,16 +384,7 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         protected virtual bool Setup(IRootConfig rootConfig, IServerConfig config)
         {
-            var catalog = new AggregateCatalog();
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IAppServer).Assembly));
-            catalog.Catalogs.Add(new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory, "*.dll"));
-            var compositionContainer = new CompositionContainer(catalog);
-
-            if (!Setup(rootConfig, config, compositionContainer))
-                return false;
-
-            CompositionContainer = compositionContainer;
-            return true;
+            return Setup(rootConfig, config, CompositionContainer);
         }
 
         /// <summary>
@@ -428,6 +432,8 @@ namespace SuperSocket.SocketBase
 
                 m_ThreadPoolConfigured = true;
             }
+
+            CompositionContainer = GetCompositionContainer(config);
 
             if (socketServerFactory == null)
             {
