@@ -7,7 +7,7 @@ using System.Runtime.Remoting.Channels.Ipc;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Metadata;
 

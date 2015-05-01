@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using System.Net;
 
 namespace SuperSocket.SocketBase

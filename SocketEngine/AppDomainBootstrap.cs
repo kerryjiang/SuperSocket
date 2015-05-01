@@ -6,7 +6,7 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketEngine.Configuration;
 using SuperSocket.SocketBase.Metadata;

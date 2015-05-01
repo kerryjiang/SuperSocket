@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 
 namespace SuperSocket.SocketBase
 {

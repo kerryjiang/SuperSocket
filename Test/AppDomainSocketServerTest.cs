@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using NUnit.Framework;
 using SuperSocket.Common;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Provider;

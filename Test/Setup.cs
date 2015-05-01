@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using System.Threading;
 using System.Reflection;
 using System.IO;

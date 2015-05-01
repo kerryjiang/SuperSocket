@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using SuperSocket.SocketEngine;
 using SuperSocket.Test.ConnectionFilter;
 

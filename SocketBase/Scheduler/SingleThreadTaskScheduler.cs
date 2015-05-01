@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Threading;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 
 namespace SuperSocket.SocketBase.Scheduler
 {

@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 
 namespace SuperSocket.SocketEngine
 {

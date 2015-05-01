@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition.Hosting;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Config;
@@ -52,9 +53,8 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="bootstrap">The bootstrap.</param>
         /// <param name="config">The socket server instance config.</param>
-        /// <param name="factories">The factories.</param>
         /// <returns></returns>
-        bool Setup(IBootstrap bootstrap, IServerConfig config, ProviderFactoryInfo[] factories);
+        bool Setup(IBootstrap bootstrap, IServerConfig config);
 
         /// <summary>
         /// Gets the current state of the work item.

@@ -26,6 +26,8 @@
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -51,9 +53,9 @@
     <DocumentationFile>bin\Release\SuperSocket.SocketBase.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\Reference\log4net.dll</HintPath>
-      <Private>False</Private>
+    <Reference Include="AnyLog, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AnyLog.0.1.1.0\lib\net40\AnyLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -71,17 +73,23 @@
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="Command\ICommandFilterProvider.cs" />
+    <Compile Include="CompositeTargets\CompositeTargetBase.cs" />
+    <Compile Include="CompositeTargets\ConnectionFilterCompositeTarget.cs" />
+    <Compile Include="CompositeTargets\LogFactoryCompositeTarget.cs" />
+    <Compile Include="CompositeTargets\MultipleResultCompositeTarget.cs" />
+    <Compile Include="CompositeTargets\ReceiveFilterFactoryCompositeTarget.cs" />
+    <Compile Include="CompositeTargets\SingleResultCompositeTarget.cs" />
+    <Compile Include="CompositeTargets\SocketServerFactoryComositeTarget.cs" />
     <Compile Include="Config\BufferPoolConfig.cs" />
     <Compile Include="Config\HotUpdateAttribute.cs" />
     <Compile Include="Config\IBufferPoolConfig.cs" />
     <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
+    <Compile Include="ICompositeTarget.cs" />
     <Compile Include="INewSessionHandler.cs" />
     <Compile Include="ISessionContainer.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
-    <Compile Include="Logging\LocationInfo.cs" />
-    <Compile Include="Logging\LoggingData.cs" />
     <Compile Include="Metadata\CommandAttribute.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
@@ -101,13 +109,6 @@
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ILoggerProvider.cs" />
     <Compile Include="IsolationMode.cs" />
-    <Compile Include="Logging\ConsoleLog.cs" />
-    <Compile Include="Logging\ConsoleLogFactory.cs" />
-    <Compile Include="Logging\ILog.cs" />
-    <Compile Include="Logging\ILogFactory.cs" />
-    <Compile Include="Logging\Log4NetLog.cs" />
-    <Compile Include="Logging\Log4NetLogFactory.cs" />
-    <Compile Include="Logging\LogFactoryBase.cs" />
     <Compile Include="Metadata\DefaultAppServerMetadata.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
     <Compile Include="NodeStatus.cs" />
@@ -125,9 +126,7 @@
     <Compile Include="Protocol\CountSpliterReceiveFilterFactory.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
-    <Compile Include="Provider\ExportFactory.cs" />
-    <Compile Include="Provider\ProviderFactoryInfo.cs" />
-    <Compile Include="Provider\ProviderKey.cs" />
+    <Compile Include="Provider\IProviderMetadata.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
@@ -211,8 +210,17 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

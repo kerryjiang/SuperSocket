@@ -5,6 +5,7 @@ using System.Text;
 using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Command;
+using System.ComponentModel.Composition.Hosting;
 
 namespace SuperSocket.SocketBase
 {
@@ -91,6 +92,29 @@ namespace SuperSocket.SocketBase
                 throw new Exception("Command key definition was not found.");
 
             return command.Name;
+        }
+
+        private const string CurrentAppDomainExportProviderKey = "CurrentAppDomainExportProvider";
+
+        /// <summary>
+        /// Gets the current application domain's export provider.
+        /// </summary>
+        /// <param name="appDomain">The application domain.</param>
+        /// <returns></returns>
+        public static ExportProvider GetCurrentAppDomainExportProvider(this AppDomain appDomain)
+        {
+            var exportProvider = appDomain.GetData(CurrentAppDomainExportProviderKey) as ExportProvider;
+
+            if (exportProvider != null)
+                return exportProvider;
+
+            var catalog = new AggregateCatalog();
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IAppServer).Assembly));
+            catalog.Catalogs.Add(new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory, "*.dll"));
+            exportProvider = new CompositionContainer(catalog);
+
+            appDomain.SetData(CurrentAppDomainExportProviderKey, exportProvider);
+            return exportProvider;
         }
     }
 }

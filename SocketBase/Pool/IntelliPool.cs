@@ -5,7 +5,7 @@ using System.Text;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Threading;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 
 namespace SuperSocket.SocketBase.Pool
 {

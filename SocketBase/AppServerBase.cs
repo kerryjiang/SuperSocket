@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition.Hosting;
 using System.Linq;
 using System.Net;
 using System.Net.Security;
@@ -8,20 +9,20 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AnyLog;
 using SuperSocket.Common;
 using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.CompositeTargets;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Scheduler;
 using SuperSocket.SocketBase.Security;
-using SuperSocket.SocketBase.Utils;
 using SuperSocket.SocketBase.ServerResource;
-using System.ComponentModel.Composition.Hosting;
+using SuperSocket.SocketBase.Utils;
 
 namespace SuperSocket.SocketBase
 {
@@ -370,10 +371,7 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         protected virtual ExportProvider GetCompositionContainer(IServerConfig config)
         {
-            var catalog = new AggregateCatalog();
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IAppServer).Assembly));
-            catalog.Catalogs.Add(new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory, "*.dll"));
-            return new CompositionContainer(catalog);
+            return AppDomain.CurrentDomain.GetCurrentAppDomainExportProvider();
         }
 
         /// <summary>
@@ -401,7 +399,58 @@ namespace SuperSocket.SocketBase
 
         partial void SetDefaultCulture(IRootConfig rootConfig, IServerConfig config);
 
-        private void SetupBasic(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory)
+        /// <summary>
+        /// Registers the composite targets.
+        /// </summary>
+        /// <param name="targets">The targets.</param>
+        protected virtual void RegisterCompositeTarget(IList<ICompositeTarget> targets)
+        {
+            targets.Add(new LogFactoryCompositeTarget((value) =>
+                {
+                    LogFactory = value;
+                    Logger = value.GetLog(Name);
+                }));
+            targets.Add(new SocketServerFactoryComositeTarget((value) => m_SocketServerFactory = value));
+            targets.Add(new ReceiveFilterFactoryCompositeTarget<TPackageInfo>((value) => ReceiveFilterFactory = value));
+            targets.Add(new ConnectionFilterCompositeTarget((value) => m_ConnectionFilters = value));
+        }
+
+        private bool Composite(IServerConfig config)
+        {
+            CompositionContainer = GetCompositionContainer(config);
+
+            //Fill the imports of this object
+            try
+            {
+                var targets = new List<ICompositeTarget>();
+                RegisterCompositeTarget(targets);
+
+                if (targets.Any())
+                {
+                    foreach (var t in targets)
+                    {
+                        if (!t.Resolve(this, CompositionContainer))
+                        {
+                            throw new Exception("Failed to resolve the instance of the type: " + t.GetType().FullName);
+                        }
+                    }
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                var logger = Logger;
+
+                if (logger == null)
+                    throw e;
+
+                logger.Error("Composition error", e);
+                return false;
+            }
+        }
+
+        private void SetupBasic(IRootConfig rootConfig, IServerConfig config, bool composite)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -433,17 +482,20 @@ namespace SuperSocket.SocketBase
                 m_ThreadPoolConfigured = true;
             }
 
-            CompositionContainer = GetCompositionContainer(config);
+            if (composite)
+            {
+                if (!Composite(config))
+                    throw new Exception("Failed to composite the server");
+            }
+            
 
-            if (socketServerFactory == null)
+            if (m_SocketServerFactory == null)
             {
                 var socketServerFactoryType =
                     Type.GetType("SuperSocket.SocketEngine.SocketServerFactory, SuperSocket.SocketEngine", true);
 
-                socketServerFactory = (ISocketServerFactory)Activator.CreateInstance(socketServerFactoryType);
+                m_SocketServerFactory = (ISocketServerFactory)Activator.CreateInstance(socketServerFactoryType);
             }
-
-            m_SocketServerFactory = socketServerFactory;
 
             //Read text encoding from the configuration
             if (!string.IsNullOrEmpty(config.TextEncoding))
@@ -598,92 +650,18 @@ namespace SuperSocket.SocketBase
             }
         }
 
-#if NET_35
-
-        /// <summary>
-        /// Setups with the specified ip and port.
-        /// </summary>
-        /// <param name="ip">The ip.</param>
-        /// <param name="port">The port.</param>
-        /// <param name="providers">The providers.</param>
-        /// <returns></returns>
-        public bool Setup(string ip, int port, params object[] providers)
-        {
-            return Setup(new ServerConfig
-            {
-                Name = string.Format("{0}-{1}", this.GetType().Name, Math.Abs(this.GetHashCode())),
-                Ip = ip,
-                Port = port
-            }, providers);
-        }
-        /// <summary>
-        /// Setups with the specified config, used for programming setup
-        /// </summary>
-        /// <param name="config">The server config.</param>
-        /// <param name="providers">The providers.</param>
-        /// <returns></returns>
-        public bool Setup(IServerConfig config, params object[] providers)
-        {
-            return Setup(new RootConfig(), config, providers);
-        }
-
-        /// <summary>
-        /// Setups with the specified root config, used for programming setup
-        /// </summary>
-        /// <param name="rootConfig">The root config.</param>
-        /// <param name="config">The server config.</param>
-        /// <param name="providers">The providers.</param>
-        /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, params object[] providers)
-        {
-            TrySetInitializedState();
-
-            SetupBasic(rootConfig, config, GetProviderInstance<ISocketServerFactory>(providers));
-
-            if (!SetupLogFactory(GetProviderInstance<ILogFactory>(providers)))
-                return false;
-
-            Logger = CreateLogger(this.Name);
-
-            if (!SetupMedium(GetProviderInstance<IReceiveFilterFactory<TPackageInfo>>(providers), GetProviderInstance<IEnumerable<IConnectionFilter>>(providers), GetProviderInstance<IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>>>(providers)))
-                return false;
-
-            if (!SetupAdvanced(config))
-                return false;
-
-            if (!Setup(rootConfig, config))
-                return false;
-
-            if(!SetupFinal())
-                return false;
-
-            m_StateCode = ServerStateConst.NotStarted;
-            return true;
-        }
-
-        private T GetProviderInstance<T>(object[] providers)
-        {
-            if (providers == null || !providers.Any())
-                return default(T);
-
-            var providerType = typeof(T);
-            return (T)providers.FirstOrDefault(p => p != null && providerType.IsAssignableFrom(p.GetType()));
-        }
-#else
-
         /// <summary>
         /// Setups with the specified config.
         /// </summary>
         /// <param name="config">The server config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="receiveFilterFactory">The receive filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
+        public bool Setup(IServerConfig config, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
         {
-            return Setup(new RootConfig(), config, socketServerFactory, receiveFilterFactory, logFactory, connectionFilters, commandLoaders);
+            return Setup(new RootConfig(), config, receiveFilterFactory, logFactory, connectionFilters, commandLoaders);
         }
 
         /// <summary>
@@ -691,24 +669,32 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="config">The server config.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
         {
             TrySetInitializedState();
 
-            SetupBasic(rootConfig, config, socketServerFactory);
+            SetupBasic(rootConfig, config, false);
 
-            if (!SetupLogFactory(logFactory))
-                return false;
+            if (receiveFilterFactory != null)
+                ReceiveFilterFactory = receiveFilterFactory;
 
-            Logger = CreateLogger(this.Name);
+            if (connectionFilters != null && connectionFilters.Any())
+            {
+                if (m_ConnectionFilters == null)
+                    m_ConnectionFilters = new List<IConnectionFilter>();
 
-            if (!SetupMedium(receiveFilterFactory, connectionFilters, commandLoaders))
+                m_ConnectionFilters.AddRange(connectionFilters);
+            }
+
+            if (commandLoaders != null && commandLoaders.Any())
+                m_CommandLoaders.AddRange(commandLoaders);
+
+            if (!SetupCommandLoaders(m_CommandLoaders))
                 return false;
 
             if (!SetupAdvanced(config))
@@ -729,83 +715,76 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="ip">The ip.</param>
         /// <param name="port">The port.</param>
-        /// <param name="socketServerFactory">The socket server factory.</param>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
         /// <param name="logFactory">The log factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns>return setup result</returns>
-        public bool Setup(string ip, int port, ISocketServerFactory socketServerFactory = null, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
+        public bool Setup(string ip, int port, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
         {
             return Setup(new ServerConfig
                             {
                                 Ip = ip,
                                 Port = port
                             },
-                          socketServerFactory,
                           receiveFilterFactory,
                           logFactory,
                           connectionFilters,
                           commandLoaders);
         }
-#endif
 
         /// <summary>
         /// Setups the specified root config.
         /// </summary>
         /// <param name="bootstrap">The bootstrap.</param>
         /// <param name="config">The socket server instance config.</param>
-        /// <param name="factories">The factories.</param>
         /// <returns></returns>
-        bool IWorkItem.Setup(IBootstrap bootstrap, IServerConfig config, ProviderFactoryInfo[] factories)
+        /// <exception cref="System.ArgumentNullException">
+        /// bootstrap
+        /// or
+        /// factories
+        /// </exception>
+        bool IWorkItem.Setup(IBootstrap bootstrap, IServerConfig config)
         {
             if (bootstrap == null)
                 throw new ArgumentNullException("bootstrap");
 
             Bootstrap = bootstrap;
 
-            if (factories == null)
-                throw new ArgumentNullException("factories");
-
             TrySetInitializedState();
 
             var rootConfig = bootstrap.Config;
 
-            SetupBasic(rootConfig, config, GetSingleProviderInstance<ISocketServerFactory>(factories, ProviderKey.SocketServerFactory));
+            SetupBasic(rootConfig, config, true);
 
-            if (!SetupLogFactory(GetSingleProviderInstance<ILogFactory>(factories, ProviderKey.LogFactory)))
-                return false;
+            //IEnumerable<IConnectionFilter> connectionFilters = null;
 
-            Logger = CreateLogger(this.Name);
+            //if (!TryGetProviderInstances(factories, ProviderKey.ConnectionFilter, null,
+            //        (p, f) =>
+            //        {
+            //            var ret = p.Initialize(f.Name, this);
 
-            IEnumerable<IConnectionFilter> connectionFilters = null;
+            //            if(!ret)
+            //            {
+            //                Logger.ErrorFormat("Failed to initialize the connection filter: {0}.", f.Name);
+            //            }
 
-            if (!TryGetProviderInstances(factories, ProviderKey.ConnectionFilter, null,
-                    (p, f) =>
-                    {
-                        var ret = p.Initialize(f.Name, this);
+            //            return ret;
+            //        }, out connectionFilters))
+            //{
+            //    return false;
+            //}
 
-                        if(!ret)
-                        {
-                            Logger.ErrorFormat("Failed to initialize the connection filter: {0}.", f.Name);
-                        }
-
-                        return ret;
-                    }, out connectionFilters))
-            {
-                return false;
-            }
-
-            if (!SetupMedium(
-                    GetSingleProviderInstance<IReceiveFilterFactory<TPackageInfo>>(factories, ProviderKey.ReceiveFilterFactory),
-                    connectionFilters,
-                    GetProviderInstances<ICommandLoader<ICommand<TAppSession, TPackageInfo>>>(
-                            factories,
-                            ProviderKey.CommandLoader,
-                            (t) => Activator.CreateInstance(t.MakeGenericType(typeof(ICommand<TAppSession, TPackageInfo>))))))
-            {
-                return false;
-            }
+            //if (!SetupMedium(
+            //        GetSingleProviderInstance<IReceiveFilterFactory<TPackageInfo>>(factories, ProviderKey.ReceiveFilterFactory),
+            //        connectionFilters,
+            //        GetProviderInstances<ICommandLoader<ICommand<TAppSession, TPackageInfo>>>(
+            //                factories,
+            //                ProviderKey.CommandLoader,
+            //                (t) => Activator.CreateInstance(t.MakeGenericType(typeof(ICommand<TAppSession, TPackageInfo>))))))
+            //{
+            //    return false;
+            //}
 
             if (!SetupAdvanced(config))
                 return false;
@@ -817,74 +796,6 @@ namespace SuperSocket.SocketBase
                 return false;
 
             m_StateCode = ServerStateConst.NotStarted;
-            return true;
-        }
-
-
-        private TProvider GetSingleProviderInstance<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key)
-        {
-            var factory = factories.FirstOrDefault(p => p.Key.Name == key.Name);
-
-            if (factory == null)
-                return default(TProvider);
-
-            return factory.ExportFactory.CreateExport<TProvider>();
-        }
-
-        private bool TryGetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key, Func<Type, object> creator, Func<TProvider, ProviderFactoryInfo, bool> initializer, out IEnumerable<TProvider> providers)
-            where TProvider : class
-        {
-            IEnumerable<ProviderFactoryInfo> selectedFactories = factories.Where(p => p.Key.Name == key.Name);
-
-            if (!selectedFactories.Any())
-            {
-                providers = null;
-                return true;
-            }
-
-            providers = new List<TProvider>();
-
-            var list = (List<TProvider>)providers;
-
-            foreach (var f in selectedFactories)
-            {
-                var provider = creator == null ? f.ExportFactory.CreateExport<TProvider>() : f.ExportFactory.CreateExport<TProvider>(creator);
-
-                if (!initializer(provider, f))
-                    return false;
-
-                list.Add(provider);
-            }
-
-            return true;
-        }
-
-        private IEnumerable<TProvider> GetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key)
-            where TProvider : class
-        {
-            return GetProviderInstances<TProvider>(factories, key, null);
-        }
-
-        private IEnumerable<TProvider> GetProviderInstances<TProvider>(ProviderFactoryInfo[] factories, ProviderKey key, Func<Type, object> creator)
-            where TProvider : class
-        {
-            IEnumerable<TProvider> providers;
-            TryGetProviderInstances<TProvider>(factories, key, creator, (p, f) => true, out providers);
-            return providers;
-        }
-
-        private bool SetupLogFactory(ILogFactory logFactory)
-        {
-            if (logFactory != null)
-            {
-                LogFactory = logFactory;
-                return true;
-            }
-
-            //Log4NetLogFactory is default log factory
-            if (LogFactory == null)
-                LogFactory = new Log4NetLogFactory();
-
             return true;
         }
 
