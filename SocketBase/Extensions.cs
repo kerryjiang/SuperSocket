@@ -30,36 +30,6 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Gets the status info metadata from the server type.
-        /// </summary>
-        /// <param name="serverType">Type of the server.</param>
-        /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        public static AppServerMetadata GetAppServerMetadata(this Type serverType)
-        {
-            if (serverType == null)
-                throw new ArgumentNullException("serverType");
-
-            var attType = typeof(AppServerMetadataTypeAttribute);
-
-            while (true)
-            {
-                var atts = serverType.GetCustomAttributes(attType, false);
-
-                if (atts != null && atts.Length > 0)
-                {
-                    var serverMetadataTypeAtt = atts[0] as AppServerMetadataTypeAttribute;
-                    return Activator.CreateInstance(serverMetadataTypeAtt.MetadataType) as AppServerMetadata;
-                }
-
-                if (serverType.BaseType == null)
-                    return null;
-
-                serverType = serverType.BaseType;
-            }
-        }
-
-        /// <summary>
         /// Creates the default pool item creator.
         /// </summary>
         /// <typeparam name="T"></typeparam>

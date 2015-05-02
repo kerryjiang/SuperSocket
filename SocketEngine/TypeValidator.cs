@@ -34,7 +34,7 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                return Type.GetType(typeName, false).GetAppServerMetadata();
+                return AppServerMetadata.GetAppServerMetadata(Type.GetType(typeName, false));
             }
             catch
             {

@@ -1900,7 +1900,7 @@ namespace SuperSocket.SocketBase
 
         AppServerMetadata IServerMetadataProvider.GetAppServerMetadata()
         {
-            return this.GetType().GetAppServerMetadata();
+            return AppServerMetadata.GetAppServerMetadata(this.GetType());
         }
 
         StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection bootstrapStatus)
