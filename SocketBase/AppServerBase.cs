@@ -61,8 +61,8 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
     /// <typeparam name="TKey">The type of the package key.</typeparam>
-    [AppServerMetadataType(typeof(DefaultAppServerMetadata))]
-    public abstract partial class AppServer<TAppSession, TPackageInfo, TKey> : IAppServer<TAppSession, TPackageInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TPackageInfo>, ISocketServerAccessor, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, ISessionRegister, ISystemEndPoint, IDisposable
+    [AppServerMetadataType(typeof(AppServerMetadata))]
+    public abstract partial class AppServer<TAppSession, TPackageInfo, TKey> : IAppServer<TAppSession, TPackageInfo>, IRawDataProcessor<TAppSession>, IRequestHandler<TPackageInfo>, ISocketServerAccessor, IServerMetadataProvider, IStatusInfoSource, IRemoteCertificateValidator, IActiveConnector, ISessionRegister, ISystemEndPoint, IDisposable
         where TPackageInfo : class, IPackageInfo<TKey>
         where TAppSession : AppSession<TAppSession, TPackageInfo, TKey>, IAppSession, new()
     {
@@ -1898,9 +1898,9 @@ namespace SuperSocket.SocketBase
 
         private StatusInfoCollection m_ServerStatus;
 
-        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        AppServerMetadata IServerMetadataProvider.GetAppServerMetadata()
         {
-            return this.GetType().GetStatusInfoMetadata();
+            return this.GetType().GetAppServerMetadata();
         }
 
         StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection bootstrapStatus)

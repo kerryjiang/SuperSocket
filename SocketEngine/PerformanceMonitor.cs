@@ -66,7 +66,8 @@ namespace SuperSocket.SocketEngine
                 {
                     var server = m_AppServers[i];
                     m_ServerStatusMetadataSource.Add(
-                        new KeyValuePair<string, StatusInfoAttribute[]>(server.Name, server.GetServerStatusMetadata().OrderBy(s => s.Order).ToArray()));
+                        new KeyValuePair<string, StatusInfoAttribute[]>(server.Name,
+                            server.GetAppServerMetadata().StatusFields.OrderBy(s => s.Order).ToArray()));
                 }
 
                 if (m_ServerManager != null && m_ServerManager.State == ServerState.Running)

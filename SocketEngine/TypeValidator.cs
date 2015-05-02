@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
@@ -29,36 +30,11 @@ namespace SuperSocket.SocketEngine
             return type != null;
         }
 
-        internal static bool IsServerManagerType(Type serverType)
+        public AppServerMetadata GetServerTypeMetadata(string typeName)
         {
-            var currentType = serverType;
-
-            while (true)
-            {
-                if (currentType.FullName == m_ServerManagerTypeName)
-                    return true;
-
-                if (currentType.BaseType == null)
-                    return false;
-
-                currentType = currentType.BaseType;
-            }
-        }
-
-        public ServerTypeMetadata GetServerTypeMetadata(string typeName)
-        {
-            Type type = null;
-
             try
             {
-                var metadata = new ServerTypeMetadata();
-                type = Type.GetType(typeName, false);
-                metadata.StatusInfoMetadata = type.GetStatusInfoMetadata();
-
-                if (IsServerManagerType(type))
-                    metadata.IsServerManager = true;
-
-                return metadata;
+                return Type.GetType(typeName, false).GetAppServerMetadata();
             }
             catch
             {

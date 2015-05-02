@@ -21,8 +21,7 @@ namespace SuperSocket.SocketEngine
         /// <param name="bootstrapUri">The bootstrap URI.</param>
         /// <param name="assemblyImportRoot">The assembly import root.</param>
         /// <param name="config">The config.</param>
-        /// <param name="factories">The factories.</param>
         /// <returns></returns>
-        bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories);
+        bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config);
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using AnyLog;
+using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
@@ -19,7 +20,7 @@ namespace SuperSocket.SocketEngine
                 m_Server = server;
             }
 
-            public bool Setup(IBootstrap bootstrap, IServerConfig config, SocketBase.Provider.ProviderFactoryInfo[] factories)
+            public bool Setup(IBootstrap bootstrap, IServerConfig config)
             {
                 throw new NotSupportedException();
             }
@@ -54,7 +55,7 @@ namespace SuperSocket.SocketEngine
                 get { throw new NotSupportedException(); }
             }
 
-            public SocketBase.Metadata.StatusInfoAttribute[] GetServerStatusMetadata()
+            public AppServerMetadata GetAppServerMetadata()
             {
                 throw new NotSupportedException();
             }

@@ -12,16 +12,22 @@ namespace SuperSocket.SocketBase
     public interface IStatusInfoSource
     {
         /// <summary>
-        /// Gets the server status metadata.
-        /// </summary>
-        /// <returns></returns>
-        StatusInfoAttribute[] GetServerStatusMetadata();
-
-        /// <summary>
         /// Collects the bootstrap status.
         /// </summary>
         /// <param name="bootstrapStatus">The bootstrap status.</param>
         /// <returns></returns>
         StatusInfoCollection CollectServerStatus(StatusInfoCollection bootstrapStatus);
+    }
+
+    /// <summary>
+    /// Server metadata provder interface
+    /// </summary>
+    public interface IServerMetadataProvider
+    {
+        /// <summary>
+        /// Gets the application server metadata.
+        /// </summary>
+        /// <returns></returns>
+        AppServerMetadata GetAppServerMetadata();
     }
 }

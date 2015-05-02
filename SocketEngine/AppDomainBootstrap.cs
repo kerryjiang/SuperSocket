@@ -13,56 +13,56 @@ using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
-    class AppDomainWorkItemFactoryInfoLoader : WorkItemFactoryInfoLoader
-    {
-        public AppDomainWorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory passedInLogFactory)
-            : base(config, passedInLogFactory)
-        {
-            InitliazeValidationAppDomain();
-        }
+    //class AppDomainWorkItemFactoryInfoLoader : WorkItemFactoryInfoLoader
+    //{
+    //    public AppDomainWorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory passedInLogFactory)
+    //        : base(config, passedInLogFactory)
+    //    {
+    //        InitliazeValidationAppDomain();
+    //    }
 
-        public AppDomainWorkItemFactoryInfoLoader(IConfigurationSource config)
-            : base(config)
-        {
-            InitliazeValidationAppDomain();
-        }
+    //    public AppDomainWorkItemFactoryInfoLoader(IConfigurationSource config)
+    //        : base(config)
+    //    {
+    //        InitliazeValidationAppDomain();
+    //    }
 
-        private AppDomain m_ValidationAppDomain;
+    //    private AppDomain m_ValidationAppDomain;
 
-        private TypeValidator m_Validator;
+    //    private TypeValidator m_Validator;
 
-        private void InitliazeValidationAppDomain()
-        {
-            m_ValidationAppDomain = AppDomain.CreateDomain("ValidationDomain", AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.BaseDirectory, string.Empty, false);
+    //    private void InitliazeValidationAppDomain()
+    //    {
+    //        m_ValidationAppDomain = AppDomain.CreateDomain("ValidationDomain", AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.BaseDirectory, string.Empty, false);
 
-            var validatorType = typeof(TypeValidator);
-            m_Validator = (TypeValidator)m_ValidationAppDomain.CreateInstanceAndUnwrap(validatorType.Assembly.FullName, validatorType.FullName);
-        }
+    //        var validatorType = typeof(TypeValidator);
+    //        m_Validator = (TypeValidator)m_ValidationAppDomain.CreateInstanceAndUnwrap(validatorType.Assembly.FullName, validatorType.FullName);
+    //    }
 
-        protected override string ValidateProviderType(string typeName)
-        {
-            if (!m_Validator.ValidateTypeName(typeName))
-                throw new Exception(string.Format("Failed to load type {0}!", typeName));
+    //    protected override string ValidateProviderType(string typeName)
+    //    {
+    //        if (!m_Validator.ValidateTypeName(typeName))
+    //            throw new Exception(string.Format("Failed to load type {0}!", typeName));
 
-            return typeName;
-        }
+    //        return typeName;
+    //    }
 
-        protected override ServerTypeMetadata GetServerTypeMetadata(string typeName)
-        {
-            return m_Validator.GetServerTypeMetadata(typeName);
-        }
+    //    protected override ServerTypeMetadata GetServerTypeMetadata(string typeName)
+    //    {
+    //        return m_Validator.GetServerTypeMetadata(typeName);
+    //    }
 
-        public override void Dispose()
-        {
-            if (m_ValidationAppDomain != null)
-            {
-                AppDomain.Unload(m_ValidationAppDomain);
-                m_ValidationAppDomain = null;
-            }
+    //    public override void Dispose()
+    //    {
+    //        if (m_ValidationAppDomain != null)
+    //        {
+    //            AppDomain.Unload(m_ValidationAppDomain);
+    //            m_ValidationAppDomain = null;
+    //        }
 
-            base.Dispose();
-        }
-    }
+    //        base.Dispose();
+    //    }
+    //}
 
     class DefaultBootstrapAppDomainWrap : DefaultBootstrap
     {
@@ -74,19 +74,39 @@ namespace SuperSocket.SocketEngine
             m_Bootstrap = bootstrap;
         }
 
-        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName, StatusInfoAttribute[] serverStatusMetadata)
+        protected AppServerMetadata GetServerTypeMetadata(string serviceTypeName)
         {
-            return new AppDomainAppServer(serviceTypeName, serverStatusMetadata);
+            AppDomain validateDomain = null;
+            AppServerMetadata metadata = null;
+
+            try
+            {
+                validateDomain = AppDomain.CreateDomain("ValidationDomain", AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.BaseDirectory, string.Empty, false);
+                AssemblyImport.RegisterAssembplyImport(validateDomain);
+
+                var validatorType = typeof(TypeValidator);
+                var validator = (TypeValidator)validateDomain.CreateInstanceAndUnwrap(validatorType.Assembly.FullName, validatorType.FullName);
+
+                metadata = validator.GetServerTypeMetadata(serviceTypeName);
+            }
+            finally
+            {
+                if (validateDomain != null)
+                    AppDomain.Unload(validateDomain);
+            }
+
+            return metadata;
         }
 
-        internal override bool SetupWorkItemInstance(IWorkItem workItem, WorkItemFactoryInfo factoryInfo)
+        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName)
         {
-            return workItem.Setup(m_Bootstrap, factoryInfo.Config, factoryInfo.ProviderFactories.ToArray());
+            var metadata = GetServerTypeMetadata(serviceTypeName);
+            return new AppDomainAppServer(serviceTypeName, metadata);
         }
 
-        internal override WorkItemFactoryInfoLoader GetWorkItemFactoryInfoLoader(IConfigurationSource config, ILogFactory logFactory)
+        internal override bool SetupWorkItemInstance(IWorkItem workItem, IServerConfig serverConfig)
         {
-            return new AppDomainWorkItemFactoryInfoLoader(config, logFactory);
+            return workItem.Setup(m_Bootstrap, serverConfig);
         }
     }
 

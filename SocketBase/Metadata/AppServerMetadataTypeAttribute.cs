@@ -24,6 +24,9 @@ namespace SuperSocket.SocketBase.Metadata
         /// <param name="metadataType">Type of the metadata.</param>
         public AppServerMetadataTypeAttribute(Type metadataType)
         {
+            if (!typeof(AppServerMetadata).IsAssignableFrom(metadataType))
+                throw new ArgumentException("metadataType must inherit from AppServerMetadata", "metadataType");
+
             MetadataType = metadataType;
         }
     }

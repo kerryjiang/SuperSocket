@@ -12,7 +12,7 @@ using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class IsolationAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource, IExceptionSource, IDisposable
+    abstract class IsolationAppServer : MarshalByRefObject, IWorkItem, IExceptionSource, IDisposable
     {
         protected const string WorkingDir = "AppRoot";
 
@@ -22,21 +22,19 @@ namespace SuperSocket.SocketEngine
 
         protected IServerConfig ServerConfig { get; private set; }
 
-        protected ProviderFactoryInfo[] Factories { get; private set; }
-
         protected IWorkItemBase AppServer { get; private set; }
 
         public string Name { get; private set; }
 
-        private StatusInfoAttribute[] m_ServerStatusMetadata;
+        private AppServerMetadata m_ServerMetadata;
 
         private AutoResetEvent m_StopResetEvent = new AutoResetEvent(false);
 
-        protected IsolationAppServer(string serverTypeName, StatusInfoAttribute[] serverStatusMetadata)
+        protected IsolationAppServer(string serverTypeName, AppServerMetadata serverMetadata)
         {
             State = ServerState.NotInitialized;
             ServerTypeName = serverTypeName;
-            m_ServerStatusMetadata = PrepareStatusMetadata(serverStatusMetadata);
+            m_ServerMetadata = PrepareStatusMetadata(serverMetadata);
         }
 
         /// <summary>
@@ -50,10 +48,10 @@ namespace SuperSocket.SocketEngine
             get { return false; }
         }
 
-        private StatusInfoAttribute[] PrepareStatusMetadata(StatusInfoAttribute[] serverStatusMetadata)
+        private AppServerMetadata PrepareStatusMetadata(AppServerMetadata serverMetadata)
         {
             if (!StatusMetadataExtended)
-                return serverStatusMetadata;
+                return serverMetadata;
 
             var additionalAttrs = this.GetType()
                             .GetCustomAttributes(typeof(StatusInfoAttribute), true)
@@ -61,11 +59,13 @@ namespace SuperSocket.SocketEngine
                             .ToArray();
 
             if (additionalAttrs.Length == 0)
-                return serverStatusMetadata;
+                return serverMetadata;
 
-            var list = serverStatusMetadata.ToList();
+            var list = serverMetadata.StatusFields.ToList();
             list.AddRange(additionalAttrs);
-            return list.ToArray();
+            serverMetadata.StatusFields = list.ToArray();
+
+            return serverMetadata;
         }
 
         protected AppDomain CreateHostAppDomain()
@@ -106,13 +106,12 @@ namespace SuperSocket.SocketEngine
             return hostAppDomain;
         }
 
-        public virtual bool Setup(IBootstrap bootstrap, IServerConfig config, ProviderFactoryInfo[] factories)
+        public virtual bool Setup(IBootstrap bootstrap, IServerConfig config)
         {
             State = ServerState.Initializing;
             Name = config.Name;
             Bootstrap = bootstrap;
             ServerConfig = config;
-            Factories = factories;
             State = ServerState.NotStarted;
 
             return true;
@@ -190,9 +189,9 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public StatusInfoAttribute[] GetServerStatusMetadata()
+        public AppServerMetadata GetAppServerMetadata()
         {
-            return m_ServerStatusMetadata;
+            return m_ServerMetadata;
         }
 
         private StatusInfoCollection m_PrevStatus;

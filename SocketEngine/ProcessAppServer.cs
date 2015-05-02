@@ -50,9 +50,9 @@ namespace SuperSocket.SocketEngine
         /// Initializes a new instance of the <see cref="ProcessAppServer" /> class.
         /// </summary>
         /// <param name="serverTypeName">Name of the server type.</param>
-        /// <param name="serverStatusMetadata">The server status metadata.</param>
-        public ProcessAppServer(string serverTypeName, StatusInfoAttribute[] serverStatusMetadata)
-            : base(serverTypeName, serverStatusMetadata)
+        /// <param name="serverMetadata">The server metadata.</param>
+        public ProcessAppServer(string serverTypeName, AppServerMetadata serverMetadata)
+            : base(serverTypeName, serverMetadata)
         {
 
         }
@@ -170,7 +170,7 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     //Setup and then start the remote server instance
-                    ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig, Factories);
+                    ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig);
                 }
                 catch (Exception e)
                 {

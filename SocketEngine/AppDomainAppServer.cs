@@ -19,9 +19,9 @@ namespace SuperSocket.SocketEngine
         /// Initializes a new instance of the <see cref="AppDomainAppServer" /> class.
         /// </summary>
         /// <param name="serverTypeName">Name of the server type.</param>
-        /// <param name="serverStatusMetadata">The server status metadata.</param>
-        public AppDomainAppServer(string serverTypeName, StatusInfoAttribute[] serverStatusMetadata)
-            : base(serverTypeName, serverStatusMetadata)
+        /// <param name="serverMetadata">The server metadata.</param>
+        public AppDomainAppServer(string serverTypeName, AppServerMetadata serverMetadata)
+            : base(serverTypeName, serverMetadata)
         {
 
         }
@@ -53,7 +53,7 @@ namespace SuperSocket.SocketEngine
                         null,
                         new object[0]);
 
-                if (!appServer.Setup(Bootstrap, ServerConfig, Factories))
+                if (!appServer.Setup(Bootstrap, ServerConfig))
                 {
                     OnExceptionThrown(new Exception("Failed to setup MarshalAppServer"));
                     return null;

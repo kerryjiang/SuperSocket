@@ -35,5 +35,23 @@ namespace SuperSocket.SocketEngine
 
             return Assembly.LoadFrom(assemblyFilePath);
         }
+
+        /// <summary>
+        /// Registers the assembply import.
+        /// </summary>
+        /// <param name="hostAppDomain">The host application domain.</param>
+        public static void RegisterAssembplyImport(AppDomain hostAppDomain)
+        {
+            var assemblyImportType = typeof(AssemblyImport);
+
+            hostAppDomain.CreateInstanceFrom(assemblyImportType.Assembly.CodeBase,
+                    assemblyImportType.FullName,
+                    true,
+                    BindingFlags.CreateInstance,
+                    null,
+                    new object[] { AppDomain.CurrentDomain.BaseDirectory },
+                    null,
+                    new object[0]);
+        }
     }
 }

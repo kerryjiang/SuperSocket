@@ -35,7 +35,7 @@ namespace SuperSocket.SocketBase
         /// <param name="serverType">Type of the server.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException"></exception>
-        public static StatusInfoAttribute[] GetStatusInfoMetadata(this Type serverType)
+        public static AppServerMetadata GetAppServerMetadata(this Type serverType)
         {
             if (serverType == null)
                 throw new ArgumentNullException("serverType");
@@ -49,10 +49,7 @@ namespace SuperSocket.SocketBase
                 if (atts != null && atts.Length > 0)
                 {
                     var serverMetadataTypeAtt = atts[0] as AppServerMetadataTypeAttribute;
-                    return serverMetadataTypeAtt
-                            .MetadataType
-                            .GetCustomAttributes(typeof(StatusInfoAttribute), true)
-                            .OfType<StatusInfoAttribute>().ToArray();
+                    return Activator.CreateInstance(serverMetadataTypeAtt.MetadataType) as AppServerMetadata;
                 }
 
                 if (serverType.BaseType == null)

@@ -17,8 +17,35 @@ namespace SuperSocket.SocketBase.Metadata
     [StatusInfo(StatusInfoKeys.Listeners, Name = "Listeners", DataType = typeof(string), OutputInPerfLog = false, Order = 600)]
     [StatusInfo(StatusInfoKeys.AvialableSendingQueueItems, Name = "Avialable Sending Queue Items", DataType = typeof(int), Format = "{0:N0}", Order = 700)]
     [StatusInfo(StatusInfoKeys.TotalSendingQueueItems, Name = "Total Sending Queue Items", DataType = typeof(int), Format = "{0:N0}", Order = 800)]
-    public class DefaultAppServerMetadata
+    public class AppServerMetadata
     {
+        /// <summary>
+        /// Gets/sets the status fields.
+        /// </summary>
+        /// <value>
+        /// The status fields.
+        /// </value>
+        public StatusInfoAttribute[] StatusFields { get; set; }
 
+        /// <summary>
+        /// Gets a value indicating whether this instance is server manager.
+        /// </summary>
+        /// <value>
+        /// <c>true</c> if this instance is server manager; otherwise, <c>false</c>.
+        /// </value>
+        public virtual bool IsServerManager
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AppServerMetadata"/> class.
+        /// </summary>
+        public AppServerMetadata()
+        {
+            this.GetType()
+                .GetCustomAttributes(typeof(StatusInfoAttribute), true)
+                .OfType<StatusInfoAttribute>().ToArray();
+        }
     }
 }

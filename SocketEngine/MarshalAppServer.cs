@@ -37,11 +37,10 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         /// <param name="bootstrap">The bootstrap.</param>
         /// <param name="config">The socket server instance config.</param>
-        /// <param name="factories">The providers.</param>
         /// <returns></returns>
-        public bool Setup(IBootstrap bootstrap, IServerConfig config, ProviderFactoryInfo[] factories)
+        public bool Setup(IBootstrap bootstrap, IServerConfig config)
         {
-            return m_AppServer.Setup(bootstrap, config, factories);
+            return m_AppServer.Setup(bootstrap, config);
         }
 
         /// <summary>
@@ -92,9 +91,9 @@ namespace SuperSocket.SocketEngine
             get { return m_AppServer.SessionCount; }
         }
 
-        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        AppServerMetadata IServerMetadataProvider.GetAppServerMetadata()
         {
-            return m_AppServer.GetServerStatusMetadata();
+            return m_AppServer.GetAppServerMetadata();
         }
 
         StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)

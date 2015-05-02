@@ -15,7 +15,7 @@ namespace SuperSocket.Agent
     /// <summary>
     /// The service exposed to bootstrap to control the agent
     /// </summary>
-    public class WorkItemAgent : MarshalByRefObject, IRemoteWorkItem, IStatusInfoSource
+    public class WorkItemAgent : MarshalByRefObject, IRemoteWorkItem, IStatusInfoSource, IServerMetadataProvider
     {
         private IWorkItem m_AppServer;
 
@@ -33,7 +33,7 @@ namespace SuperSocket.Agent
 
         }
 
-        public bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories)
+        public bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config)
         {
             m_AssemblyImporter = new AssemblyImport(assemblyImportRoot);
 
@@ -42,7 +42,7 @@ namespace SuperSocket.Agent
 
             var bootstrap = (IBootstrap)Activator.GetObject(typeof(IBootstrap), bootstrapUri);
 
-            var ret = m_AppServer.Setup(bootstrap, config, factories);
+            var ret = m_AppServer.Setup(bootstrap, config);
 
             if (ret)
             {
@@ -89,9 +89,9 @@ namespace SuperSocket.Agent
             get { return m_AppServer.SessionCount; }
         }
 
-        StatusInfoAttribute[] IStatusInfoSource.GetServerStatusMetadata()
+        AppServerMetadata IServerMetadataProvider.GetAppServerMetadata()
         {
-            return m_AppServer.GetServerStatusMetadata();
+            return m_AppServer.GetAppServerMetadata();
         }
 
         StatusInfoCollection IStatusInfoSource.CollectServerStatus(StatusInfoCollection nodeStatus)
@@ -130,6 +130,11 @@ namespace SuperSocket.Agent
         public void TransferSystemMessage(string messageType, object messageData)
         {
             m_AppServer.TransferSystemMessage(messageType, messageData);
+        }
+
+        void IWorkItemBase.ReportPotentialConfigChange(IServerConfig config)
+        {
+            m_AppServer.ReportPotentialConfigChange(config);
         }
     }
 }

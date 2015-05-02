@@ -62,9 +62,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="AnyLog">
-      <HintPath>..\packages\AnyLog.0.1.1.0\lib\net40\AnyLog.dll</HintPath>
+      <HintPath>..\packages\AnyLog.0.1.2.0\lib\net40\AnyLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -109,10 +110,8 @@
     <Compile Include="ServerTypeMetadata.cs" />
     <Compile Include="SocketSession.Net45.cs" />
     <Compile Include="TypeValidator.cs" />
-    <Compile Include="WorkItemFactoryInfoLoader.cs" />
     <Compile Include="IAsyncSocketSession.cs" />
     <Compile Include="DefaultBootstrap.cs" />
-    <Compile Include="WorkItemFactoryInfo.cs" />
     <Compile Include="MarshalAppServer.cs" />
     <Compile Include="PerformanceMonitor.cs" />
     <Compile Include="SocketListenerBase.cs" />

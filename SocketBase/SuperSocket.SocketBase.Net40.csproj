@@ -53,9 +53,8 @@
     <DocumentationFile>bin\Release\SuperSocket.SocketBase.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AnyLog, Version=0.1.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\AnyLog.0.1.1.0\lib\net40\AnyLog.dll</HintPath>
+    <Reference Include="AnyLog">
+      <HintPath>..\packages\AnyLog.0.1.2.0\lib\net40\AnyLog.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -90,6 +89,7 @@
     <Compile Include="ISessionContainer.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
+    <Compile Include="Metadata\AppServerMetadata.cs" />
     <Compile Include="Metadata\CommandAttribute.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />
     <Compile Include="Command\CommandLoaderBase.cs" />
@@ -109,7 +109,6 @@
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ILoggerProvider.cs" />
     <Compile Include="IsolationMode.cs" />
-    <Compile Include="Metadata\DefaultAppServerMetadata.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
     <Compile Include="NodeStatus.cs" />
     <Compile Include="Pool\BufferItemCreator.cs" />
