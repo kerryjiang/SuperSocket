@@ -37,6 +37,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AnyLog, Version=0.1.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\AnyLog.0.1.2.0\lib\net40\AnyLog.dll</HintPath>
+    </Reference>
     <Reference Include="IronPython">
       <HintPath>..\Reference\IronPython\Net40\IronPython.dll</HintPath>
     </Reference>

@@ -50,7 +50,7 @@ namespace SuperSocket.Test.Protocol
             serverConfig.MaxRequestLength = 40960;
             serverConfig.DisableSessionSnapshot = true;
 
-            var setupResult = appServer.Setup(serverConfig, null, receiveFilterFactory, new ConsoleLogFactory(), null, null);
+            var setupResult = appServer.Setup(serverConfig, receiveFilterFactory, new ConsoleLogFactory(), null, null);
 
             Assert.IsTrue(setupResult);
             Assert.IsTrue(appServer.Start());
