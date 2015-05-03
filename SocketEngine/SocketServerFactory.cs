@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.Linq;
-using System.Text;
-using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
-using SuperSocket.SocketBase.Config;
 using System.Net;
+using System.Text;
 using SuperSocket.ProtoBase;
+using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.SocketEngine
 {
     /// <summary>
     /// Default socket server factory
     /// </summary>
+    [Export(typeof(ISocketServerFactory))]
+    [ExportMetadata("Name", "SocketServerFactory")]
     public class SocketServerFactory : ISocketServerFactory
     {
         #region ISocketServerFactory Members
