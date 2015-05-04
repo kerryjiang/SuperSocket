@@ -60,7 +60,6 @@ namespace SuperSocket.ProtoBase
 
             var totalCharsLen = 0;
             var totalBytesLen = 0;
-            var lastIndex = data.Count - 1;
             var bytesUsed = 0;
             var charsUsed = 0;
             var completed = false;
