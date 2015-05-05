@@ -17,8 +17,6 @@ namespace SuperSocket.SocketBase.Scheduler
 
         private int m_MinSleepingTimeOut = 10;
 
-        private Thread m_WorkingThread;
-
         private int m_Stopped = 0;
 
         private ILog m_Log;
@@ -31,7 +29,6 @@ namespace SuperSocket.SocketBase.Scheduler
             var thread = new Thread(RunWorkingThreads);
             thread.IsBackground = true;
             thread.Start();
-            m_WorkingThread = thread;
         }
 
         private void RunWorkingThreads()
