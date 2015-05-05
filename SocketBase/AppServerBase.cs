@@ -509,25 +509,6 @@ namespace SuperSocket.SocketBase
                 TextEncoding = new ASCIIEncoding();
         }
 
-        private bool SetupMedium(IReceiveFilterFactory<TPackageInfo> receiveFilterFactory, IEnumerable<IConnectionFilter> connectionFilters, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders)
-        {
-            if (receiveFilterFactory != null)
-                ReceiveFilterFactory = receiveFilterFactory;
-
-            if (connectionFilters != null && connectionFilters.Any())
-            {
-                if (m_ConnectionFilters == null)
-                    m_ConnectionFilters = new List<IConnectionFilter>();
-
-                m_ConnectionFilters.AddRange(connectionFilters);
-            }
-
-            if (commandLoaders != null && commandLoaders.Any())
-                m_CommandLoaders.AddRange(commandLoaders);
-
-            return SetupCommandLoaders(m_CommandLoaders);
-        }
-
         private bool SetupAdvanced(IServerConfig config)
         {
             if (!SetupSecurity(config))
