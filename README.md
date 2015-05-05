@@ -1,7 +1,7 @@
-﻿SuperSocket  [![Build Status](https://travis-ci.org/kerryjiang/SuperSocket.svg?branch=master)](https://travis-ci.org/kerryjiang/SuperSocket)
-===========================================
+# SuperSocket  [![Build Status](https://travis-ci.org/kerryjiang/SuperSocket.svg?branch=master)](https://travis-ci.org/kerryjiang/SuperSocket)
 
-SuperSocket is a light weight extensible socket application framework.
+
+**SuperSocket** is a light weight extensible socket application framework.
 You can use it to build a server side socket application easily without thinking about how to use socket, how to maintain the socket connections and how socket works.
 
 It is a pure C# project which is designed to be extended, so it is easy to be integrated to your existing system.
@@ -9,15 +9,10 @@ As long as your systems (like forum/CRM/MIS/HRM/ERP) are developed in .NET langu
 you must be able to use SuperSocket to build your socket application as a part of your current system perfectly.
 
 
-Project homepage:	http://www.supersocket.net/
-Documentation:		http://docs.supersocket.net/
-Git URL:		https://git01.codeplex.com/supersocket, https://github.com/kerryjiang/SuperSocket.git
-Author email address:	kerry-jiang@hotmail.com
-Releases download:	http://supersocket.codeplex.com/releases/
+- **Project homepage**:		[http://www.supersocket.net/](http://www.supersocket.net/)
+- **Documentation**:		[http://docs.supersocket.net/](http://docs.supersocket.net/)
+- **Releases download**:	[http://supersocket.codeplex.com/releases/](http://supersocket.codeplex.com/releases/)
+- **License**: 				[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 
-
-License: http://www.apache.org/licenses/LICENSE-2.0
-
-
-Copyright 2010-2015 Kerry Jiang (kerry-jiang@hotmail.com)
+*Copyright 2010-2015 Kerry Jiang (kerry-jiang@hotmail.com)*
