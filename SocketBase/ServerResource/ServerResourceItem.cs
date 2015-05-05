@@ -77,14 +77,17 @@ namespace SuperSocket.SocketBase.ServerResource
         public static ITransactionItem Create<TResourceItemType, TDataType>(Action<TDataType> assignAction, IServerConfig config, Func<TDataType> accessFunc = null)
             where TResourceItemType : ServerResourceItem<TDataType>, ITransactionItem, IResourceCreator<TDataType>, new()
         {
-            var resourceItem = new TResourceItemType();
-            resourceItem.Assigner = assignAction;
-            resourceItem.Accessor = accessFunc;
+            var resourceItem = new TResourceItemType
+            {
+                Assigner = assignAction,
+                Accessor = accessFunc
+            };
+            
             TDataType resource = default(TDataType);
 
             try
             {
-                resource = resourceItem.CreateResource(config);
+                resource = ((IResourceCreator<TDataType>)resourceItem).CreateResource(config);
             }
             catch (Exception e)
             {
