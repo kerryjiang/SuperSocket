@@ -413,6 +413,11 @@ namespace SuperSocket.SocketBase
             targets.Add(new SocketServerFactoryComositeTarget((value) => m_SocketServerFactory = value));
             targets.Add(new ReceiveFilterFactoryCompositeTarget<TPackageInfo>((value) => ReceiveFilterFactory = value));
             targets.Add(new ConnectionFilterCompositeTarget((value) => m_ConnectionFilters = value));
+            targets.Add(new CommandLoaderCompositeTarget<ICommand<TAppSession, TPackageInfo>>((value) =>
+                {
+                    SetupCommandLoaders(value);
+                    m_CommandLoaders = value;
+                }));
         }
 
         private bool Composite(IServerConfig config)
@@ -757,34 +762,7 @@ namespace SuperSocket.SocketBase
 
             SetupBasic(rootConfig, config, true);
 
-            //IEnumerable<IConnectionFilter> connectionFilters = null;
 
-            //if (!TryGetProviderInstances(factories, ProviderKey.ConnectionFilter, null,
-            //        (p, f) =>
-            //        {
-            //            var ret = p.Initialize(f.Name, this);
-
-            //            if(!ret)
-            //            {
-            //                Logger.ErrorFormat("Failed to initialize the connection filter: {0}.", f.Name);
-            //            }
-
-            //            return ret;
-            //        }, out connectionFilters))
-            //{
-            //    return false;
-            //}
-
-            //if (!SetupMedium(
-            //        GetSingleProviderInstance<IReceiveFilterFactory<TPackageInfo>>(factories, ProviderKey.ReceiveFilterFactory),
-            //        connectionFilters,
-            //        GetProviderInstances<ICommandLoader<ICommand<TAppSession, TPackageInfo>>>(
-            //                factories,
-            //                ProviderKey.CommandLoader,
-            //                (t) => Activator.CreateInstance(t.MakeGenericType(typeof(ICommand<TAppSession, TPackageInfo>))))))
-            //{
-            //    return false;
-            //}
 
             if (!SetupAdvanced(config))
                 return false;

@@ -8,6 +8,7 @@ using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketEngine
 {
@@ -15,7 +16,8 @@ namespace SuperSocket.SocketEngine
     /// Default socket server factory
     /// </summary>
     [Export(typeof(ISocketServerFactory))]
-    [ExportMetadata("Name", "SocketServerFactory")]
+    [ProviderMetadata("SocketServerFactory")]
+
     public class SocketServerFactory : ISocketServerFactory
     {
         #region ISocketServerFactory Members

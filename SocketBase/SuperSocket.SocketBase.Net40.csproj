@@ -73,6 +73,7 @@
     <Compile Include="Async.cs" />
     <Compile Include="CommandExecutingContext.cs" />
     <Compile Include="Command\ICommandFilterProvider.cs" />
+    <Compile Include="CompositeTargets\CommandLoaderCompositeTarget.cs" />
     <Compile Include="CompositeTargets\CompositeTargetBase.cs" />
     <Compile Include="CompositeTargets\ConnectionFilterCompositeTarget.cs" />
     <Compile Include="CompositeTargets\LogFactoryCompositeTarget.cs" />
@@ -127,6 +128,7 @@
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Provider\IProviderMetadata.cs" />
+    <Compile Include="Provider\ProviderMetadataAttribute.cs" />
     <Compile Include="RequestHandler.cs" />
     <Compile Include="Config\IListenerConfig.cs" />
     <Compile Include="Config\ListenerConfig.cs" />
