@@ -399,25 +399,39 @@ namespace SuperSocket.SocketBase
 
         partial void SetDefaultCulture(IRootConfig rootConfig, IServerConfig config);
 
+        IList<ICompositeTarget> GetInternalCompositeTargets()
+        {
+            IList<ICompositeTarget> targets = new List<ICompositeTarget>();
+
+            targets.Add(new LogFactoryCompositeTarget((value) =>
+            {
+                LogFactory = value;
+                Logger = value.GetLog(Name);
+            }));
+
+            targets.Add(new SocketServerFactoryComositeTarget((value) => m_SocketServerFactory = value));
+
+            if (ReceiveFilterFactory == null)
+                targets.Add(new ReceiveFilterFactoryCompositeTarget<TPackageInfo>((value) => ReceiveFilterFactory = value));
+
+            targets.Add(new ConnectionFilterCompositeTarget((value) => m_ConnectionFilters = value));
+            
+            targets.Add(new CommandLoaderCompositeTarget<ICommand<TAppSession, TPackageInfo>>((value) =>
+            {
+                SetupCommandLoaders(value);
+                m_CommandLoaders = value;
+            }));
+
+            return targets;
+        }
+
         /// <summary>
         /// Registers the composite targets.
         /// </summary>
         /// <param name="targets">The targets.</param>
         protected virtual void RegisterCompositeTarget(IList<ICompositeTarget> targets)
         {
-            targets.Add(new LogFactoryCompositeTarget((value) =>
-                {
-                    LogFactory = value;
-                    Logger = value.GetLog(Name);
-                }));
-            targets.Add(new SocketServerFactoryComositeTarget((value) => m_SocketServerFactory = value));
-            targets.Add(new ReceiveFilterFactoryCompositeTarget<TPackageInfo>((value) => ReceiveFilterFactory = value));
-            targets.Add(new ConnectionFilterCompositeTarget((value) => m_ConnectionFilters = value));
-            targets.Add(new CommandLoaderCompositeTarget<ICommand<TAppSession, TPackageInfo>>((value) =>
-                {
-                    SetupCommandLoaders(value);
-                    m_CommandLoaders = value;
-                }));
+            
         }
 
         private bool Composite(IServerConfig config)
@@ -427,7 +441,8 @@ namespace SuperSocket.SocketBase
             //Fill the imports of this object
             try
             {
-                var targets = new List<ICompositeTarget>();
+                var targets = GetInternalCompositeTargets();
+
                 RegisterCompositeTarget(targets);
 
                 if (targets.Any())
@@ -742,8 +757,6 @@ namespace SuperSocket.SocketBase
             var rootConfig = bootstrap.Config;
 
             SetupBasic(rootConfig, config, true);
-
-
 
             if (!SetupAdvanced(config))
                 return false;
