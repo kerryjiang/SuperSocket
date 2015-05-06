@@ -210,5 +210,25 @@ namespace SuperSocket.Common
                 pair.Value.SetValue(configElement, value, emptyObjectArr);
             }
         }
+
+        /// <summary>
+        /// Gets the current configuration of the configuration element.
+        /// </summary>
+        /// <returns>The current configuration.</returns>
+        /// <param name="configElement">Configuration element.</param>
+        public static Configuration GetCurrentConfiguration(this ConfigurationElement configElement)
+        {
+            var configElementType = typeof(ConfigurationElement);
+
+            var configProperty = configElementType.GetProperty("CurrentConfiguration", BindingFlags.Instance | BindingFlags.Public);
+
+            if(configProperty == null)
+                configProperty = configElementType.GetProperty("Configuration", BindingFlags.Instance | BindingFlags.NonPublic);
+
+            if (configProperty == null)
+                return null;
+
+            return (Configuration)configProperty.GetValue(configElement, null);
+        }
     }
 }

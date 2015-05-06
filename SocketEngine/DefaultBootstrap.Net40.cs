@@ -67,7 +67,7 @@ namespace SuperSocket.SocketEngine
                     var serverConfig = new Server();
                     serverConfig.LoadFrom(config);
                     section.Servers.AddNew(serverConfig);
-                    section.CurrentConfiguration.Save(ConfigurationSaveMode.Minimal);
+                    section.GetCurrentConfiguration().Save(ConfigurationSaveMode.Minimal);
                 }
             }
 
@@ -112,7 +112,7 @@ namespace SuperSocket.SocketEngine
             if (section != null) //file configuration
             {
                 section.Servers.Remove(name);
-                section.CurrentConfiguration.Save(ConfigurationSaveMode.Minimal);
+                section.GetCurrentConfiguration().Save(ConfigurationSaveMode.Minimal);
             }
         }
     }
