@@ -43,7 +43,7 @@ namespace SuperSocket.SocketBase.Metadata
         /// </summary>
         public AppServerMetadata()
         {
-            this.GetType()
+            StatusFields = this.GetType()
                 .GetCustomAttributes(typeof(StatusInfoAttribute), true)
                 .OfType<StatusInfoAttribute>().ToArray();
         }
