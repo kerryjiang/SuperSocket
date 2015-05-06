@@ -79,6 +79,15 @@ namespace SuperSocket.Agent
         }
 
         /// <summary>
+        /// Reports the potential configuration change.
+        /// </summary>
+        /// <param name="config">The server config which may be changed.</param>
+        public void ReportPotentialConfigChange(IServerConfig config)
+        {
+            m_AppServer.ReportPotentialConfigChange(config);
+        }
+
+        /// <summary>
         /// Gets the session count.
         /// </summary>
         /// <value>
