@@ -24,7 +24,7 @@ namespace SuperSocket.SocketEngine
     /// </summary>
     public partial class DefaultBootstrap : IBootstrap, ILoggerProvider, IDisposable
     {
-        private List<IWorkItem> m_AppServers;
+        private List<IManagedApp> m_AppServers;
 
         /// <summary>
         /// Indicates whether the bootstrap is initialized
@@ -57,7 +57,7 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Gets all the app servers running in this bootstrap
         /// </summary>
-        public IEnumerable<IWorkItem> AppServers
+        public IEnumerable<IManagedApp> AppServers
         {
             get { return m_AppServers; }
         }
@@ -132,7 +132,7 @@ namespace SuperSocket.SocketEngine
         /// Initializes a new instance of the <see cref="DefaultBootstrap"/> class.
         /// </summary>
         /// <param name="appServers">The app servers.</param>
-        public DefaultBootstrap(IEnumerable<IWorkItem> appServers)
+        public DefaultBootstrap(IEnumerable<IManagedApp> appServers)
             : this(new RootConfig(), appServers, GetBootstrapLogFactory())
         {
 
@@ -143,7 +143,7 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="appServers">The app servers.</param>
-        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IWorkItem> appServers)
+        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IManagedApp> appServers)
             : this(rootConfig, appServers, GetBootstrapLogFactory())
         {
 
@@ -155,7 +155,7 @@ namespace SuperSocket.SocketEngine
         /// <param name="rootConfig">The root config.</param>
         /// <param name="appServers">The app servers.</param>
         /// <param name="logFactory">The log factory.</param>
-        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IWorkItem> appServers, ILogFactory logFactory)
+        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IManagedApp> appServers, ILogFactory logFactory)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -239,13 +239,13 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         /// <param name="serviceTypeName">Name of the service type.</param>
         /// <returns></returns>
-        protected virtual IWorkItem CreateWorkItemInstance(string serviceTypeName)
+        protected virtual IManagedApp CreateWorkItemInstance(string serviceTypeName)
         {
             var serviceType = Type.GetType(serviceTypeName, true);
-            return Activator.CreateInstance(serviceType) as IWorkItem;
+            return Activator.CreateInstance(serviceType) as IManagedApp;
         }
 
-        internal virtual bool SetupWorkItemInstance(IWorkItem workItem, IServerConfig serverConfig)
+        internal virtual bool SetupWorkItemInstance(IManagedApp workItem, IServerConfig serverConfig)
         {
             return workItem.Setup(this, serverConfig);
         }
@@ -332,14 +332,14 @@ namespace SuperSocket.SocketEngine
 
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
-            m_AppServers = new List<IWorkItem>(m_Config.Servers.Count());
+            m_AppServers = new List<IManagedApp>(m_Config.Servers.Count());
 
-            IWorkItem serverManager = null;
+            IManagedApp serverManager = null;
 
             //Initialize servers
             foreach (var serverConfig in m_Config.Servers)
             {
-                IWorkItem appServer;
+                IManagedApp appServer;
 
                 try
                 {
@@ -421,7 +421,7 @@ namespace SuperSocket.SocketEngine
 
         void exceptionSource_ExceptionThrown(object sender, ErrorEventArgs e)
         {
-            m_GlobalLog.Error(string.Format("The server {0} threw an exception.", ((IWorkItemBase)sender).Name), e.Exception);
+            m_GlobalLog.Error(string.Format("The server {0} threw an exception.", ((IManagedAppBase)sender).Name), e.Exception);
         }
 
         void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

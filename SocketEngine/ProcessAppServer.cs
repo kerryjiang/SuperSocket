@@ -23,7 +23,7 @@ namespace SuperSocket.SocketEngine
     [StatusInfo(StatusInfoKeys.MaxCompletionPortThreads, Name = "Maximum Completion Port Threads", Format = "{0}", DataType = typeof(double), Order = 514)]
     partial class ProcessAppServer : IsolationAppServer, IProcessServer
     {
-        private const string m_AgentUri = "ipc://{0}/WorkItemAgent.rem";
+        private const string m_AgentUri = "ipc://{0}/ManagedAppAgent.rem";
 
         private const string m_PortNameTemplate = "{0}[SuperSocket.Agent:{1}]";
 
@@ -74,7 +74,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected override IWorkItemBase Start()
+        protected override IManagedAppBase Start()
         {
             var currentDomain = AppDomain.CurrentDomain;
             var workingDir = Path.Combine(Path.Combine(currentDomain.BaseDirectory, WorkingDir), Name);
@@ -137,7 +137,7 @@ namespace SuperSocket.SocketEngine
 
             var remoteUri = string.Format(m_AgentUri, portName);
 
-            IRemoteWorkItem appServer = null;
+            IRemoteManagedApp appServer = null;
 
             if (process == null)
             {
@@ -217,11 +217,11 @@ namespace SuperSocket.SocketEngine
             return appServer;
         }
 
-        IRemoteWorkItem GetRemoteServer(string remoteUri)
+        IRemoteManagedApp GetRemoteServer(string remoteUri)
         {
             try
             {
-                return (IRemoteWorkItem)Activator.GetObject(typeof(IRemoteWorkItem), remoteUri);
+                return (IRemoteManagedApp)Activator.GetObject(typeof(IRemoteManagedApp), remoteUri);
             }
             catch(Exception e)
             {
@@ -272,7 +272,7 @@ namespace SuperSocket.SocketEngine
             if (unexpectedShutdown)
             {
                 //auto restart if meet a unexpected shutdown
-                ((IWorkItemBase)this).Start();
+                ((IManagedAppBase)this).Start();
             }
         }
 

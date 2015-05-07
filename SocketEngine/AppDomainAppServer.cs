@@ -32,9 +32,9 @@ namespace SuperSocket.SocketEngine
         /// <returns>
         /// return true if start successfull, else false
         /// </returns>
-        protected override IWorkItemBase Start()
+        protected override IManagedAppBase Start()
         {
-            IWorkItem appServer;
+            IManagedApp appServer;
 
             try
             {
@@ -44,7 +44,7 @@ namespace SuperSocket.SocketEngine
 
                 var marshalServerType = typeof(MarshalAppServer);
 
-                appServer = (IWorkItem)m_HostDomain.CreateInstanceAndUnwrap(marshalServerType.Assembly.FullName,
+                appServer = (IManagedApp)m_HostDomain.CreateInstanceAndUnwrap(marshalServerType.Assembly.FullName,
                         marshalServerType.FullName,
                         true,
                         BindingFlags.CreateInstance,

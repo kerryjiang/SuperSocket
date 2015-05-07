@@ -87,6 +87,7 @@
     <Compile Include="DictionarySessionContainer.cs" />
     <Compile Include="IActiveConnector.cs" />
     <Compile Include="ICompositeTarget.cs" />
+    <Compile Include="IManagedApp.cs" />
     <Compile Include="INewSessionHandler.cs" />
     <Compile Include="ISessionContainer.cs" />
     <Compile Include="IStatusInfoSource.cs" />
@@ -106,7 +107,6 @@
     <Compile Include="Config\TypeProviderCollection.cs" />
     <Compile Include="Config\TypeProviderConfig.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="IWorkItem.cs" />
     <Compile Include="Metadata\StatusInfoAttribute.cs" />
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ILoggerProvider.cs" />

@@ -23,7 +23,7 @@ namespace SuperSocket.SocketEngine
 
 
 
-        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName)
+        protected override IManagedApp CreateWorkItemInstance(string serviceTypeName)
         {
             return new ProcessAppServer(serviceTypeName, GetServerTypeMetadata(serviceTypeName));
         }

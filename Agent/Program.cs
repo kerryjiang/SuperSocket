@@ -69,7 +69,7 @@ namespace SuperSocket.Agent
                 var clientChannel = new IpcClientChannel();
                 ChannelServices.RegisterChannel(serverChannel, false);
                 ChannelServices.RegisterChannel(clientChannel, false);
-                RemotingConfiguration.RegisterWellKnownServiceType(typeof(WorkItemAgent), "WorkItemAgent.rem", WellKnownObjectMode.Singleton);
+                RemotingConfiguration.RegisterWellKnownServiceType(typeof(ManagedAppAgent), "ManagedAppAgent.rem", WellKnownObjectMode.Singleton);
                 Console.WriteLine("Ok");
 
                 var line = Console.ReadLine();

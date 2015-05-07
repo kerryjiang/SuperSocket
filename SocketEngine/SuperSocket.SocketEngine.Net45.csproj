@@ -96,7 +96,7 @@
     <Compile Include="IExceptionSource.cs" />
     <Compile Include="IPerformanceMonitor.cs" />
     <Compile Include="IProcessServer.cs" />
-    <Compile Include="IRemoteWorkItem.cs" />
+    <Compile Include="IRemoteManagedApp.cs" />
     <Compile Include="IsolationAppServer.cs" />
     <Compile Include="ProcessAppServer.cs" />
     <Compile Include="ProcessBootstrap.cs" />

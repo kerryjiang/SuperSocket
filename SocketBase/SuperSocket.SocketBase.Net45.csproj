@@ -110,12 +110,12 @@
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ICompositeTarget.cs" />
     <Compile Include="ILoggerProvider.cs" />
+    <Compile Include="IManagedApp.cs" />
     <Compile Include="INewSessionHandler.cs" />
     <Compile Include="ISessionContainer.cs" />
     <Compile Include="IsolationMode.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
-    <Compile Include="IWorkItem.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
     <Compile Include="Metadata\CommandAttribute.cs" />
     <Compile Include="Metadata\CommandFilterAttribute.cs" />

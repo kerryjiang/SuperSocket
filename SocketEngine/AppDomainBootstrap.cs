@@ -98,13 +98,13 @@ namespace SuperSocket.SocketEngine
             return metadata;
         }
 
-        protected override IWorkItem CreateWorkItemInstance(string serviceTypeName)
+        protected override IManagedApp CreateWorkItemInstance(string serviceTypeName)
         {
             var metadata = GetServerTypeMetadata(serviceTypeName);
             return new AppDomainAppServer(serviceTypeName, metadata);
         }
 
-        internal override bool SetupWorkItemInstance(IWorkItem workItem, IServerConfig serverConfig)
+        internal override bool SetupWorkItemInstance(IManagedApp workItem, IServerConfig serverConfig)
         {
             return workItem.Setup(m_Bootstrap, serverConfig);
         }
@@ -120,7 +120,7 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Gets all the app servers running in this bootstrap
         /// </summary>
-        public IEnumerable<IWorkItem> AppServers
+        public IEnumerable<IManagedApp> AppServers
         {
             get { return m_InnerBootstrap.AppServers; }
         }

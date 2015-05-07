@@ -731,7 +731,7 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
-        /// Setups the specified root config.
+        /// Setups with bootstrap and server config.
         /// </summary>
         /// <param name="bootstrap">The bootstrap.</param>
         /// <param name="config">The socket server instance config.</param>
@@ -741,7 +741,7 @@ namespace SuperSocket.SocketBase
         /// or
         /// factories
         /// </exception>
-        bool IWorkItem.Setup(IBootstrap bootstrap, IServerConfig config)
+        bool IManagedApp.Setup(IBootstrap bootstrap, IServerConfig config)
         {
             if (bootstrap == null)
                 throw new ArgumentNullException("bootstrap");

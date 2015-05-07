@@ -56,7 +56,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WorkItemAgent.cs" />
+    <Compile Include="ManagedAppAgent.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">

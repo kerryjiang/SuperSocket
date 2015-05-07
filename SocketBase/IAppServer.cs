@@ -20,7 +20,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// The interface for AppServer
     /// </summary>
-    public interface IAppServer : IWorkItem, ILoggerProvider, IServiceProvider
+    public interface IAppServer : IManagedApp, ILoggerProvider, IServiceProvider
     {
         /// <summary>
         /// Gets the started time.

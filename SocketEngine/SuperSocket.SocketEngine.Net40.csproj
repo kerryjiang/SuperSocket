@@ -83,6 +83,7 @@
     <Compile Include="AssemblyImport.cs" />
     <Compile Include="BufferStateCreator.cs" />
     <Compile Include="ConfigurationWatcher.cs" />
+    <Compile Include="IRemoteManagedApp.cs" />
     <Compile Include="SaeState.cs" />
     <Compile Include="BufferState.cs" />
     <Compile Include="IAsyncSocketEventComplete.cs" />
@@ -94,7 +95,6 @@
     <Compile Include="IExceptionSource.cs" />
     <Compile Include="IPerformanceMonitor.cs" />
     <Compile Include="IProcessServer.cs" />
-    <Compile Include="IRemoteWorkItem.cs" />
     <Compile Include="IsolationAppServer.cs" />
     <Compile Include="ProcessAppServer.cs" />
     <Compile Include="ProcessBootstrap.cs" />

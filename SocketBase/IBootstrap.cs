@@ -41,7 +41,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets all the app servers running in this bootstrap
         /// </summary>
-        IEnumerable<IWorkItem> AppServers { get; }
+        IEnumerable<IManagedApp> AppServers { get; }
 
         /// <summary>
         /// Gets the config.

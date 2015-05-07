@@ -12,7 +12,7 @@ using SuperSocket.SocketBase.Provider;
 
 namespace SuperSocket.SocketEngine
 {
-    abstract class IsolationAppServer : MarshalByRefObject, IWorkItem, IExceptionSource, IDisposable
+    abstract class IsolationAppServer : MarshalByRefObject, IManagedApp, IExceptionSource, IDisposable
     {
         protected const string WorkingDir = "AppRoot";
 
@@ -22,7 +22,7 @@ namespace SuperSocket.SocketEngine
 
         protected IServerConfig ServerConfig { get; private set; }
 
-        protected IWorkItemBase AppServer { get; private set; }
+        protected IManagedAppBase AppServer { get; private set; }
 
         public string Name { get; private set; }
 
@@ -132,9 +132,9 @@ namespace SuperSocket.SocketEngine
             appServer.ReportPotentialConfigChange(config);
         }
 
-        protected abstract IWorkItemBase Start();
+        protected abstract IManagedAppBase Start();
 
-        bool IWorkItemBase.Start()
+        bool IManagedAppBase.Start()
         {
             State = ServerState.Starting;
 
@@ -156,7 +156,7 @@ namespace SuperSocket.SocketEngine
 
         protected abstract void Stop();
 
-        void IWorkItemBase.Stop()
+        void IManagedAppBase.Stop()
         {
             var appServer = AppServer;
 

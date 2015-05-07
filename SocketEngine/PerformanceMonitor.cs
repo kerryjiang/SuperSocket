@@ -21,15 +21,15 @@ namespace SuperSocket.SocketEngine
         private int m_TimerInterval;
         private ILog m_PerfLog;
 
-        private IWorkItem[] m_AppServers;
+        private IManagedApp[] m_AppServers;
 
-        private IWorkItem m_ServerManager;
+        private IManagedApp m_ServerManager;
 
         private ProcessPerformanceCounterHelper m_Helper;
 
         private List<KeyValuePair<string, StatusInfoAttribute[]>> m_ServerStatusMetadataSource;
 
-        public PerformanceMonitor(IRootConfig config, IEnumerable<IWorkItem> appServers, IWorkItem serverManager, ILogFactory logFactory)
+        public PerformanceMonitor(IRootConfig config, IEnumerable<IManagedApp> appServers, IManagedApp serverManager, ILogFactory logFactory)
         {
             m_PerfLog = logFactory.GetLog("Performance");
 

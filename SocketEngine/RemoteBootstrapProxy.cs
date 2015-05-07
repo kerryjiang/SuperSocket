@@ -11,11 +11,11 @@ namespace SuperSocket.SocketEngine
 {
     class RemoteBootstrapProxy : MarshalByRefObject, IBootstrap
     {
-        class ServerProxy : MarshalByRefObject, IWorkItem
+        class ServerProxy : MarshalByRefObject, IManagedApp
         {
-            private IWorkItem m_Server;
+            private IManagedApp m_Server;
 
-            public ServerProxy(IWorkItem server)
+            public ServerProxy(IManagedApp server)
             {
                 m_Server = server;
             }
@@ -73,7 +73,7 @@ namespace SuperSocket.SocketEngine
 
         private IBootstrap m_Bootstrap;
 
-        private List<IWorkItem> m_Servers = new List<IWorkItem>();
+        private List<IManagedApp> m_Servers = new List<IManagedApp>();
 
         public RemoteBootstrapProxy()
         {
@@ -88,7 +88,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        public IEnumerable<IWorkItem> AppServers
+        public IEnumerable<IManagedApp> AppServers
         {
             get { return m_Servers; }
         }

@@ -15,9 +15,9 @@ namespace SuperSocket.Agent
     /// <summary>
     /// The service exposed to bootstrap to control the agent
     /// </summary>
-    public class WorkItemAgent : MarshalByRefObject, IRemoteWorkItem, IStatusInfoSource, IServerMetadataProvider
+    public class ManagedAppAgent : MarshalByRefObject, IRemoteManagedApp, IStatusInfoSource, IServerMetadataProvider
     {
-        private IWorkItem m_AppServer;
+        private IManagedApp m_AppServer;
 
 #pragma warning disable 0414
         private AssemblyImport m_AssemblyImporter;
@@ -26,9 +26,9 @@ namespace SuperSocket.Agent
         private ILog m_Log;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="WorkItemAgent" /> class.
+        /// Initializes a new instance of the <see cref="ManagedAppAgent" /> class.
         /// </summary>
-        public WorkItemAgent()
+        public ManagedAppAgent()
         {
 
         }
@@ -38,7 +38,7 @@ namespace SuperSocket.Agent
             m_AssemblyImporter = new AssemblyImport(assemblyImportRoot);
 
             var serviceType = Type.GetType(serverType);
-            m_AppServer = (IWorkItem)Activator.CreateInstance(serviceType);
+            m_AppServer = (IManagedApp)Activator.CreateInstance(serviceType);
 
             var bootstrap = (IBootstrap)Activator.GetObject(typeof(IBootstrap), bootstrapUri);
 
@@ -132,7 +132,7 @@ namespace SuperSocket.Agent
             m_AppServer.TransferSystemMessage(messageType, messageData);
         }
 
-        void IWorkItemBase.ReportPotentialConfigChange(IServerConfig config)
+        void IManagedAppBase.ReportPotentialConfigChange(IServerConfig config)
         {
             m_AppServer.ReportPotentialConfigChange(config);
         }

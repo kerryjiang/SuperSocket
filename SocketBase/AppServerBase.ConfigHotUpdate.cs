@@ -142,7 +142,7 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        void IWorkItemBase.ReportPotentialConfigChange(IServerConfig config)
+        void IManagedAppBase.ReportPotentialConfigChange(IServerConfig config)
         {
             var oldConfig = this.Config;
 

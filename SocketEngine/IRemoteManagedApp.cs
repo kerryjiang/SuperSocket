@@ -12,7 +12,7 @@ namespace SuperSocket.SocketEngine
     /// <summary>
     /// IRemoteWorkItem
     /// </summary>
-    public interface IRemoteWorkItem : IWorkItemBase, IStatusInfoSource
+    public interface IRemoteManagedApp : IManagedAppBase, IStatusInfoSource
     {
         /// <summary>
         /// Setups the specified config.

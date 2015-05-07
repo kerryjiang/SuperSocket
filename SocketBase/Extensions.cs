@@ -21,7 +21,7 @@ namespace SuperSocket.SocketBase
         /// <param name="name">The name of the appserver instance.</param>
         /// <returns></returns>
         /// <exception cref="System.ArgumentNullException"></exception>
-        public static IWorkItem GetServerByName(this IBootstrap bootstrap, string name)
+        public static IManagedApp GetServerByName(this IBootstrap bootstrap, string name)
         {
             if (string.IsNullOrEmpty(name))
                 throw new ArgumentNullException("name");

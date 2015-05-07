@@ -10,9 +10,9 @@ using SuperSocket.SocketBase.Metadata;
 
 namespace SuperSocket.SocketEngine
 {
-    class MarshalAppServer : MarshalByRefObject, IWorkItem, IStatusInfoSource
+    class MarshalAppServer : MarshalByRefObject, IManagedApp, IStatusInfoSource
     {
-        private IWorkItem m_AppServer;
+        private IManagedApp m_AppServer;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AppDomainAppServer"/> class.
@@ -21,7 +21,7 @@ namespace SuperSocket.SocketEngine
         public MarshalAppServer(string serviceTypeName)
         {
             var serviceType = Type.GetType(serviceTypeName);
-            m_AppServer = (IWorkItem)Activator.CreateInstance(serviceType);
+            m_AppServer = (IManagedApp)Activator.CreateInstance(serviceType);
         }
 
         /// <summary>
