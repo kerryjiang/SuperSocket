@@ -1157,7 +1157,10 @@ namespace SuperSocket.SocketBase
             //Rollback as clean
             Parallel.ForEach(m_ServerResources, r => r.Rollback());
             GC.Collect();
-            GC.WaitForFullGCComplete();
+            if(!Platform.IsMono)
+            {
+                GC.WaitForFullGCComplete();
+            }
 
             var newSessionHandler = m_NewSessionHandler;
             if (newSessionHandler != null)
