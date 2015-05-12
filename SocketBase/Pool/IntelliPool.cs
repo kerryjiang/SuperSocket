@@ -249,7 +249,12 @@ namespace SuperSocket.SocketBase.Pool
                 Interlocked.Decrement(ref m_AvailableCount);
 
                 if (m_AvailableCount <= m_NextExpandThreshold && m_InExpanding == 0)
-                    ThreadPool.QueueUserWorkItem(w => TryExpand());
+                {
+                    if (Interlocked.CompareExchange(ref m_InExpanding, 1, 0) == 0)
+                    {
+                        ThreadPool.QueueUserWorkItem(w => Expand());
+                    }
+                }
 
                 var itemPreGet = m_ItemPreGet;
 
@@ -286,19 +291,12 @@ namespace SuperSocket.SocketBase.Pool
             }
             else
             {
-                TryExpand();
+                if (Interlocked.CompareExchange(ref m_InExpanding, 1, 0) == 0)
+                {
+                    Expand();
+                }
                 return Get();
             }
-        }
-
-        bool TryExpand()
-        {
-            if (Interlocked.CompareExchange(ref m_InExpanding, 1, 0) != 0)
-                return false;
-
-            Expand();
-            m_InExpanding = 0;
-            return true;
         }
 
         void Expand()
@@ -317,6 +315,7 @@ namespace SuperSocket.SocketBase.Pool
             m_TotalCount += totalCount;
             Log.DebugFormat("The size of the pool {0}[{1}] was expanded from {2} to {3}", this.GetType().Name, this.GetHashCode(), totalCount, m_TotalCount);
             UpdateNextExpandThreshold();
+            m_InExpanding = 0;
         }
 
         /// <summary>
