@@ -22,6 +22,11 @@ namespace SuperSocket.SocketBase.CompositeTargets
             return metadata.Name.Equals(name, StringComparison.OrdinalIgnoreCase);
         }
 
+        protected override IEnumerable<Lazy<ILogFactory, ILogFactoryMetadata>> Sort(IEnumerable<Lazy<ILogFactory, ILogFactoryMetadata>> factories)
+        {
+            return factories.OrderBy(f => f.Metadata.Priority);
+        }
+
         protected override bool PrepareResult(ILogFactory result, IAppServer appServer, ILogFactoryMetadata metadata)
         {
             if(string.IsNullOrEmpty(metadata.ConfigFileName))

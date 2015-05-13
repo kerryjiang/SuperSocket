@@ -123,7 +123,7 @@ namespace SuperSocket.SocketBase.CompositeTargets
 
             var configValue = ConfigSelector(config);
 
-            var lazyFactory = factories.FirstOrDefault(
+            var lazyFactory = Sort(factories).FirstOrDefault(
                 f => string.IsNullOrEmpty(configValue) || MetadataNameEqual(f.Metadata, configValue));
 
             if (lazyFactory == null)
@@ -139,6 +139,16 @@ namespace SuperSocket.SocketBase.CompositeTargets
 
             result = lazyFactory.Value;
             return PrepareResult(lazyFactory.Value, appServer, lazyFactory.Metadata);
+        }
+
+        /// <summary>
+        /// Sorts the specified factories by priority.
+        /// </summary>
+        /// <param name="factories">The factories.</param>
+        /// <returns></returns>
+        protected virtual IEnumerable<Lazy<TTarget, TMetadata>> Sort(IEnumerable<Lazy<TTarget, TMetadata>> factories)
+        {
+            return factories;
         }
 
         /// <summary>
