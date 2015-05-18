@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
-using System.Reflection;
+using System.Runtime.Serialization.Formatters;
 using System.Text;
 using System.Threading;
 using SuperSocket.SocketBase;
@@ -65,7 +66,7 @@ namespace SuperSocket.Agent
 
             try
             {
-                var serverChannel = new IpcServerChannel("IpcAgent", channelPort);
+                var serverChannel = new IpcServerChannel("IpcAgent", channelPort, new BinaryServerFormatterSinkProvider { TypeFilterLevel = TypeFilterLevel.Full });
                 var clientChannel = new IpcClientChannel();
                 ChannelServices.RegisterChannel(serverChannel, false);
                 ChannelServices.RegisterChannel(clientChannel, false);
