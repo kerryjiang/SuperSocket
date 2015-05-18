@@ -343,7 +343,21 @@ namespace SuperSocket.SocketEngine
 
                 try
                 {
-                    appServer = CreateWorkItemInstance(serverConfig.ServerType);
+                    var serverType = serverConfig.ServerType;
+
+                    if(string.IsNullOrEmpty(serverType) && !string.IsNullOrEmpty(serverConfig.ServerTypeName))
+                    {
+                        var serverTypeProvider = m_Config.ServerTypes.FirstOrDefault(
+                            t => t.Name.Equals(serverConfig.ServerTypeName, StringComparison.OrdinalIgnoreCase));
+
+                        if (serverTypeProvider != null)
+                            serverType = serverTypeProvider.Type;
+                    }
+
+                    if (string.IsNullOrEmpty(serverType))
+                        throw new Exception("No server type configured or the configured server type was not found.");
+
+                    appServer = CreateWorkItemInstance(serverType);
 
                     var serverMetadata = appServer.GetAppServerMetadata();
 
