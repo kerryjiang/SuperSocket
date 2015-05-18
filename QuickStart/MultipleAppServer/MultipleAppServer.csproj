@@ -35,6 +35,7 @@
       <HintPath>..\..\Reference\log4net.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -48,10 +49,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Agent\SuperSocket.Agent.Net40.csproj">
-      <Project>{49BA8E71-4F97-40D6-BBE7-22B71D222486}</Project>
-      <Name>SuperSocket.Agent.Net40</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Common\SuperSocket.Common.Net40.csproj">
       <Project>{A24F4D38-BA9C-4FD6-95B7-4980DE36131A}</Project>
       <Name>SuperSocket.Common.Net40</Name>
