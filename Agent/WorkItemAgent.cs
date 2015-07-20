@@ -140,5 +140,17 @@ namespace SuperSocket.Agent
         {
             m_AppServer.TransferSystemMessage(messageType, messageData);
         }
+
+
+        /// <summary>
+        /// Gets the server's config.
+        /// </summary>
+        /// <value>
+        /// The server's config.
+        /// </value>
+        public IServerConfig Config
+        {
+            get { return m_AppServer.Config; }
+        }
     }
 }
