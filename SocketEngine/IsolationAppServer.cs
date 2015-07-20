@@ -20,7 +20,7 @@ namespace SuperSocket.SocketEngine
 
         protected IBootstrap Bootstrap { get; private set; }
 
-        protected IServerConfig ServerConfig { get; private set; }
+        public IServerConfig Config { get; private set; }
 
         protected ProviderFactoryInfo[] Factories { get; private set; }
 
@@ -111,7 +111,7 @@ namespace SuperSocket.SocketEngine
             State = ServerState.Initializing;
             Name = config.Name;
             Bootstrap = bootstrap;
-            ServerConfig = config;
+            Config = config;
             Factories = factories;
             State = ServerState.NotStarted;
 
@@ -120,7 +120,7 @@ namespace SuperSocket.SocketEngine
 
         public virtual void ReportPotentialConfigChange(IServerConfig config)
         {
-            ServerConfig = config;
+            Config = config;
 
             if (State != ServerState.Stopping && State != ServerState.NotStarted)
                 return;
@@ -206,7 +206,7 @@ namespace SuperSocket.SocketEngine
                 m_StoppedStatus.Name = Name;
                 m_StoppedStatus.Tag = Name;
                 m_StoppedStatus[StatusInfoKeys.IsRunning] = false;
-                m_StoppedStatus[StatusInfoKeys.MaxConnectionNumber] = ServerConfig.MaxConnectionNumber;
+                m_StoppedStatus[StatusInfoKeys.MaxConnectionNumber] = Config.MaxConnectionNumber;
 
                 if (m_PrevStatus != null)
                 {

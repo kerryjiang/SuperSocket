@@ -68,6 +68,14 @@ namespace SuperSocket.SocketEngine
             {
                 throw new NotSupportedException();
             }
+
+            public IServerConfig Config
+            {
+                get
+                {
+                    throw new NotSupportedException();
+                }
+            }
         }
 
         private IBootstrap m_Bootstrap;

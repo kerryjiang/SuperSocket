@@ -53,7 +53,7 @@ namespace SuperSocket.SocketEngine
                         null,
                         new object[0]);
 
-                if (!appServer.Setup(Bootstrap, ServerConfig, Factories))
+                if (!appServer.Setup(Bootstrap, Config, Factories))
                 {
                     OnExceptionThrown(new Exception("Failed to setup MarshalAppServer"));
                     return null;

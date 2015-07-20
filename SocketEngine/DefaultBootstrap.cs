@@ -564,7 +564,14 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         public void Stop()
         {
-            foreach (var server in m_AppServers)
+            var servers = m_AppServers.ToArray();
+
+            if (servers.Any(s => s.Config != null && s.Config.StartupOrder != 0))
+            {
+                Array.Reverse(servers);
+            }
+
+            foreach (var server in servers)
             {
                 if (server.State == ServerState.Running)
                 {

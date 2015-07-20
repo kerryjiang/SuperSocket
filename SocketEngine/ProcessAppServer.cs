@@ -170,7 +170,7 @@ namespace SuperSocket.SocketEngine
                 try
                 {
                     //Setup and then start the remote server instance
-                    ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, ServerConfig, Factories);
+                    ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, Config, Factories);
                 }
                 catch (Exception e)
                 {

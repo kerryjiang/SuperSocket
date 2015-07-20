@@ -44,6 +44,22 @@ namespace SuperSocket.SocketEngine
             return m_AppServer.Setup(bootstrap, config, factories);
         }
 
+        /// <summary>
+        /// Gets the server's config.
+        /// </summary>
+        /// <value>
+        /// The server's config.
+        /// </value>
+        public IServerConfig Config
+        {
+            get
+            {
+                if(m_AppServer == null)
+                    return null;
+
+                return m_AppServer.Config;
+            }
+        }
 
         /// <summary>
         /// Reports the potential configuration change.

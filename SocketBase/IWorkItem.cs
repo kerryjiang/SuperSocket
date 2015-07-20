@@ -17,6 +17,14 @@ namespace SuperSocket.SocketBase
         /// </summary>
         string Name { get; }
 
+        /// <summary>
+        /// Gets the server's config.
+        /// </summary>
+        /// <value>
+        /// The server's config.
+        /// </value>
+        IServerConfig Config { get; }
+
 
         /// <summary>
         /// Starts this server instance.

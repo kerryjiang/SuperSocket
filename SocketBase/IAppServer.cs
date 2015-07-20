@@ -41,12 +41,6 @@ namespace SuperSocket.SocketBase
         /// Gets the Receive filter factory.
         /// </summary>
         object ReceiveFilterFactory { get; }
-        
-
-        /// <summary>
-        /// Gets the server's config.
-        /// </summary>
-        IServerConfig Config { get; }
 
         /// <summary>
         /// Gets the certificate of current server.
