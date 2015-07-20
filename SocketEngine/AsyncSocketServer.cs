@@ -187,6 +187,7 @@ namespace SuperSocket.SocketEngine
 
             var proxy = socketSession.SocketAsyncProxy;
             proxy.Reset();
+            var args = proxy.SocketEventArgs;
 
             var serverState = AppServer.State;
             var pool = this.m_ReadWritePool;
@@ -194,13 +195,20 @@ namespace SuperSocket.SocketEngine
             if (pool == null || serverState == ServerState.Stopping || serverState == ServerState.NotStarted)
             {
                 if(!Environment.HasShutdownStarted && !AppDomain.CurrentDomain.IsFinalizingForUnload())
-                    proxy.SocketEventArgs.Dispose();
+                    args.Dispose();
                 return;
             }
 
-            if (proxy.OrigOffset != proxy.SocketEventArgs.Offset)
+            if (proxy.OrigOffset != args.Offset)
             {
-                proxy.SocketEventArgs.SetBuffer(proxy.OrigOffset, AppServer.Config.ReceiveBufferSize);
+                args.SetBuffer(proxy.OrigOffset, AppServer.Config.ReceiveBufferSize);
+            }
+
+            if (!proxy.IsRecyclable)
+            {
+                //cannot be recycled, so release the resource and don't return it to the pool
+                args.Dispose();
+                return;
             }
 
             pool.Push(proxy);

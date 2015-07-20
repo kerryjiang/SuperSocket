@@ -14,16 +14,25 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
         public int OrigOffset { get; private set; }
 
+        public bool IsRecyclable { get; private set; }
+
         private SocketAsyncEventArgsProxy()
         {
 
         }
 
         public SocketAsyncEventArgsProxy(SocketAsyncEventArgs socketEventArgs)
+            : this(socketEventArgs, true)
+        {
+            
+        }
+
+        public SocketAsyncEventArgsProxy(SocketAsyncEventArgs socketEventArgs, bool isRecyclable)
         {
             SocketEventArgs = socketEventArgs;
             OrigOffset = socketEventArgs.Offset;
             SocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(SocketEventArgs_Completed);
+            IsRecyclable = isRecyclable;
         }
 
         static void SocketEventArgs_Completed(object sender, SocketAsyncEventArgs e)
