@@ -153,7 +153,7 @@ namespace SuperSocket.ProtoBase
             }
             set
             {
-                m_Position = value;
+                Seek(value, SeekOrigin.Begin);
             }
         }
 
@@ -275,6 +275,7 @@ namespace SuperSocket.ProtoBase
 
                 m_CurrentSegmentIndex = i;
                 m_CurrentSegmentOffset = segment.Offset + segment.Count - subPos;
+                m_Position = targetPos;
                 return targetPos;
             }
 
