@@ -40,5 +40,13 @@ namespace SuperSocket.SocketBase
         /// <param name="targetEndPoint">The target end point.</param>
         /// <returns></returns>
         Task<ActiveConnectResult> ActiveConnect(EndPoint targetEndPoint);
+
+        /// <summary>
+        /// Connect the target endpoint actively.
+        /// </summary>
+        /// <param name="targetEndPoint">The target end point.</param>
+        /// <param name="localEndPoint">The local end point.</param>
+        /// <returns></returns>
+        Task<ActiveConnectResult> ActiveConnect(EndPoint targetEndPoint, EndPoint localEndPoint);
     }
 }

@@ -250,8 +250,17 @@ namespace SuperSocket.SocketEngine
 
         Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
         {
+            return ((IActiveConnector)this).ActiveConnect(targetEndPoint, null);
+        }
+
+        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint, EndPoint localEndPoint)
+        {
             var taskSource = new TaskCompletionSource<ActiveConnectResult>();
             var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
+            if (localEndPoint != null)
+                socket.Bind(localEndPoint);
+
             socket.BeginConnect(targetEndPoint, OnActiveConnectCallback, new ActiveConnectState(taskSource, socket));
             return taskSource.Task;
         }

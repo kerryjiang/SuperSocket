@@ -1597,16 +1597,28 @@ namespace SuperSocket.SocketBase
         /// Connect the remote endpoint actively.
         /// </summary>
         /// <param name="targetEndPoint">The target end point.</param>
+        /// <param name="localEndPoint">The local end point.</param>
         /// <returns></returns>
         /// <exception cref="System.Exception">This server cannot support active connect.</exception>
-        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
+        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint, EndPoint localEndPoint)
         {
             var activeConnector = m_SocketServer as IActiveConnector;
 
             if (activeConnector == null)
                 throw new Exception("This server cannot support active connect.");
 
-            return activeConnector.ActiveConnect(targetEndPoint);
+            return activeConnector.ActiveConnect(targetEndPoint, localEndPoint);
+        }
+
+        /// <summary>
+        /// Connect the remote endpoint actively.
+        /// </summary>
+        /// <param name="targetEndPoint">The target end point.</param>
+        /// <returns></returns>
+        /// <exception cref="System.Exception">This server cannot support active connect.</exception>
+        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
+        {
+            return ((IActiveConnector)this).ActiveConnect(targetEndPoint, null);
         }
 
         #endregion IActiveConnector

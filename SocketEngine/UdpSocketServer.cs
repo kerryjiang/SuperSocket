@@ -221,8 +221,17 @@ namespace SuperSocket.SocketEngine
 
         Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint)
         {
+            return ((IActiveConnector)this).ActiveConnect(targetEndPoint, null);
+        }
+
+        Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint, EndPoint localEndPoint)
+        {
             var taskSource = new TaskCompletionSource<ActiveConnectResult>();
             var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+
+            if (localEndPoint != null)
+                socket.Bind(localEndPoint);
+
             var session = CreateNewSession(socket, (IPEndPoint)targetEndPoint, targetEndPoint.ToString());
 
             if (session == null)
