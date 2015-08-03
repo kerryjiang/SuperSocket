@@ -49,7 +49,6 @@
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
     <Compile Include="BufferedPackageInfo.cs" />
     <Compile Include="BufferList.cs" />
-    <Compile Include="BufferListReader.cs" />
     <Compile Include="BufferListStream.cs" />
     <Compile Include="CountSpliterReceiveFilter.cs" />
     <Compile Include="Extensions.cs" />

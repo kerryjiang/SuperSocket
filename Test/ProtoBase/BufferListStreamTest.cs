@@ -1,22 +1,49 @@
-﻿using System;
+﻿using NUnit.Framework;
+using SuperSocket.ProtoBase;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using NUnit.Framework;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Test.ProtoBase
 {
     [TestFixture]
-    public class BufferListReaderTest
+    public class BufferListStreamTest
     {
+        [Test]
+        public void should_be_able_to_get_correct_position()
+        {
+            var data = Encoding.UTF8.GetBytes("SuperSocket rocks!");
+            var segments = new List<ArraySegment<byte>>();
+            segments.Add(new ArraySegment<byte>(data));
+
+            using (var bufferListStream = new BufferListStream())
+            {
+                bufferListStream.Initialize(segments);
+
+                Assert.AreEqual(data.Length, bufferListStream.Length);
+                Assert.AreEqual(0, bufferListStream.Position);
+
+                bufferListStream.Seek(1, SeekOrigin.Begin);
+                Assert.AreEqual(1, bufferListStream.Position);
+
+                bufferListStream.Seek(1, SeekOrigin.Current);
+                Assert.AreEqual(2, bufferListStream.Position);
+
+                bufferListStream.Seek(data.Length - 1, SeekOrigin.Begin);
+                Assert.AreEqual(data.Length - 1, bufferListStream.Position);
+            }
+
+        }
+
         [Test]
         public void should_be_able_to_read_a_single_byte()
         {
             byte expected = 0x01;
 
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(new[] { GetSegment(new byte[] { expected }, 123, 1024) });
 
             // pre-condition
@@ -34,7 +61,7 @@ namespace SuperSocket.Test.ProtoBase
         [Test]
         public void should_be_able_to_read_a_byte_and_the_position_should_be_advanced_by_one()
         {
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(new[] { GetSegment(new byte[] { 0x01, 0x02 }, 512, 1024) });
 
             // pre-condition
@@ -42,10 +69,10 @@ namespace SuperSocket.Test.ProtoBase
             Assert.AreEqual(0, sut.Position);
 
             // act
-            byte first = sut.ReadByte();
+            var first = sut.ReadByte();
 
             // assert
-            Assert.AreEqual(0x01, first);
+            Assert.AreEqual(1, first);
             Assert.AreEqual(1, sut.Position);
         }
 
@@ -53,7 +80,7 @@ namespace SuperSocket.Test.ProtoBase
         [Test]
         public void should_be_able_to_take_a_buffer_from_the_current_position()
         {
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             for (int i = 0; i < 10; i++)
             {
@@ -83,7 +110,7 @@ namespace SuperSocket.Test.ProtoBase
             int segmentLength = 16;
             int expectedPosition = segmentLength/2;
 
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(new[] { GetSegment(new byte[segmentLength], 512, 1024) });
 
             Assert.AreEqual(0, sut.Position);
@@ -96,7 +123,7 @@ namespace SuperSocket.Test.ProtoBase
         [Test]
         public void should_be_able_to_advance_the_position_into_the_next_segment()
         {
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(GetSegment(new byte[16], 512, 1024));
             segments.Add(GetSegment(new byte[16], 512, 1024));
@@ -115,7 +142,7 @@ namespace SuperSocket.Test.ProtoBase
             int segmentLength = 16;
             int expectedPosition = segmentLength * 3 / 2;
 
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(GetSegment(new byte[segmentLength], 512, 1024));
             segments.Add(GetSegment(new byte[segmentLength], 512, 1024));
@@ -141,7 +168,7 @@ namespace SuperSocket.Test.ProtoBase
 
             ArraySegment<byte> segment = new ArraySegment<byte>(bytes);
 
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(new[] { segment });
 
             // act
@@ -157,7 +184,7 @@ namespace SuperSocket.Test.ProtoBase
         {
             string expected = "The quick brown fox jumps over the lazy dog";
 
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(GetSegments(expected, Encoding.ASCII, 2));
 
             // pre-condition
@@ -192,7 +219,7 @@ namespace SuperSocket.Test.ProtoBase
                 segments.Add(GetSegment(encoding.GetBytes(words[i]), random.Next(0, 256), random.Next(1, 4) * 1024));
             }
 
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(segments);
 
             // pre-condition
@@ -207,7 +234,7 @@ namespace SuperSocket.Test.ProtoBase
         [Test]
         public void should_be_able_to_call_skip_to_advance_the_position()
         {
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(new[] { GetSegment(new byte[] { 0x01 }, 123, 1024) });
 
             // pre-condition
@@ -225,7 +252,7 @@ namespace SuperSocket.Test.ProtoBase
         [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void should_not_be_able_to_skip_backwards()
         {
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(new[] { GetSegment(new byte[] { 0x01, 0x02, 0x03, 0x04 }, 123, 1024) });
             sut.Position = 1;
             sut.Skip(-1);
@@ -236,7 +263,7 @@ namespace SuperSocket.Test.ProtoBase
         public void should_not_be_able_to_skip_past_the_end_of_all_the_buffers()
         {
             int segmentSize = 16;
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
             segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
@@ -249,7 +276,7 @@ namespace SuperSocket.Test.ProtoBase
         public void should_be_able_to_skip_to_the_end_of_all_the_buffers()
         {
             int segmentSize = 16;
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
             segments.Add(GetSegment(new byte[segmentSize], 512, 1024));
@@ -272,7 +299,7 @@ namespace SuperSocket.Test.ProtoBase
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(segments);
 
             // act
@@ -297,7 +324,7 @@ namespace SuperSocket.Test.ProtoBase
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(segments);
 
             // act
@@ -324,7 +351,7 @@ namespace SuperSocket.Test.ProtoBase
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(segments);
 
             // act
@@ -351,7 +378,7 @@ namespace SuperSocket.Test.ProtoBase
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(segments);
 
             // act
@@ -386,7 +413,7 @@ namespace SuperSocket.Test.ProtoBase
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(segments);
 
             // act
@@ -422,7 +449,7 @@ namespace SuperSocket.Test.ProtoBase
         {
             List<ArraySegment<byte>> segments = new List<ArraySegment<byte>>();
             segments.Add(new ArraySegment<byte>(bytes));
-            BufferListReader sut = new BufferListReader();
+            BufferListStream sut = new BufferListStream();
             sut.Initialize(segments);
 
             // act

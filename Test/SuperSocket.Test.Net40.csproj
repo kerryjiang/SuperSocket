@@ -91,6 +91,7 @@
     <Compile Include="DLRSocketServerTest.cs" />
     <Compile Include="ITestSetup.cs" />
     <Compile Include="ProcessSocketServerTest.cs" />
+    <Compile Include="ProtoBase\BufferListStreamTest.cs" />
     <Compile Include="Protocol\BeginEndMarkProtocolTest.cs" />
     <Compile Include="Protocol\CountSpliterProtocolTest.cs" />
     <Compile Include="Protocol\FixedHeaderProtocolTest.cs" />

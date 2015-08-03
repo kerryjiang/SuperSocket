@@ -30,9 +30,9 @@ namespace SuperSocket.Test.Protocol
 
             public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                using (var reader = this.GetBufferReader(packageData))
+                using (var stream = this.GetBufferStream(packageData))
                 {
-                    var length = reader.Length;
+                    var length = stream.Length;
 
                     if (length < 20)
                     {
@@ -40,7 +40,7 @@ namespace SuperSocket.Test.Protocol
                         return null;
                     }
 
-                    return new StringPackageInfo(reader.Skip(2).ReadString((int)length - 4, Encoding.ASCII), m_Parser);
+                    return new StringPackageInfo(stream.Skip(2).ReadString((int)length - 4, Encoding.ASCII), m_Parser);
                 }
             }
         }

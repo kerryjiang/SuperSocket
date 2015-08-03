@@ -8,9 +8,121 @@ using System.Threading;
 namespace SuperSocket.ProtoBase
 {
     /// <summary>
+    /// The interface for the stream class whose data is consistent of many data segments
+    /// </summary>
+    public interface IBufferListStream
+    {
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        Int16 ReadInt16();
+
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> read the value as little endian, otherwise big endian.</param>
+        /// <returns></returns>
+        Int16 ReadInt16(bool littleEndian);
+
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        UInt16 ReadUInt16();
+
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> read the value as little endian, otherwise big endian.</param>
+        /// <returns></returns>
+        UInt16 ReadUInt16(bool littleEndian);
+
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        Int32 ReadInt32();
+
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> read the value as little endian, otherwise big endian.</param>
+        /// <returns></returns>
+        Int32 ReadInt32(bool littleEndian);
+
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        UInt32 ReadUInt32();
+
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> read the value as little endian, otherwise big endian.</param>
+        /// <returns></returns>
+        UInt32 ReadUInt32(bool littleEndian);
+
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        Int64 ReadInt64();
+
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> read the value as little endian, otherwise big endian.</param>
+        /// <returns></returns>
+        Int64 ReadInt64(bool littleEndian);
+
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        UInt64 ReadUInt64();
+
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> read the value as little endian, otherwise big endian.</param>
+        /// <returns></returns>
+        UInt64 ReadUInt64(bool littleEndian);
+
+        /// <summary>
+        /// Takes the data of the specified length.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        IList<ArraySegment<byte>> Take(int length);
+
+        /// <summary>
+        /// Reads a string from the current data source
+        /// </summary>
+        /// <param name="length">The length of the string in bytes.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
+        string ReadString(int length, Encoding encoding);
+
+
+        /// <summary>
+        /// Skips the specified count bytes from the data source.
+        /// </summary>
+        /// <param name="count">The number of bytes to skip.</param>
+        IBufferListStream Skip(int count);
+
+        /// <summary>
+        /// Get current buffer as Stream
+        /// </summary>
+        /// <returns>the stream represent the current buffer</returns>
+        Stream GetCurrentStream();
+    }
+
+    /// <summary>
     /// The default buffer list stream
     /// </summary>
-    public class BufferListStream : Stream
+    public class BufferListStream : Stream, IBufferListStream
     {
         private IList<ArraySegment<byte>> m_Segments;
 
@@ -21,6 +133,11 @@ namespace SuperSocket.ProtoBase
         private int m_CurrentSegmentOffset;
 
         private long m_Length;
+
+        /// <summary>
+        /// Buffer used for temporary storage before conversion into primitives
+        /// </summary>
+        private byte[] m_Buffer = new byte[8];
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BufferListStream"/> class.
@@ -82,6 +199,15 @@ namespace SuperSocket.ProtoBase
             stream = new TStream();
             Thread.SetData(slot, stream);
             return stream;
+        }
+
+        /// <summary>
+        /// Get current buffer as Stream
+        /// </summary>
+        /// <returns>the stream represent the current buffer</returns>
+        public Stream GetCurrentStream()
+        {
+            return this;
         }
 
         /// <summary>
@@ -302,6 +428,393 @@ namespace SuperSocket.ProtoBase
         public override void Write(byte[] buffer, int offset, int count)
         {
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Check to see if this instance is initialized.
+        /// </summary>
+        /// <exception cref="InvalidOperationException">
+        /// This instance is not initialized.s
+        /// </exception>
+        private void CheckInitialized()
+        {
+            if (m_Segments == null)
+            {
+                throw new InvalidOperationException("Not initialized");
+            }
+        }
+
+        /// <summary>
+        /// Skips the specified count bytes from the data source.
+        /// </summary>
+        /// <param name="count">The count.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// count;count cannot be negative
+        /// or
+        /// count;exceed the total length
+        /// </exception>
+        public IBufferListStream Skip(int count)
+        {
+            CheckInitialized();
+
+            if (count == 0)
+                return this;
+
+            if (count < 0)
+                throw new ArgumentOutOfRangeException("count", "Count cannot be less than zero.");
+
+            if (Length < count)
+            {
+                throw new ArgumentOutOfRangeException("count", "Cannot be greater than the length of all the buffers.");
+            }
+
+            Position += count;
+
+            return this;
+        }
+
+        private IList<ArraySegment<byte>> Clone(int index, int segmentOffset, int length)
+        {
+            var target = new List<ArraySegment<byte>>();
+
+            var rest = length;
+
+            var segments = m_Segments;
+
+            for (var i = index; i < segments.Count; i++)
+            {
+                var segment = segments[i];
+                var offset = segment.Offset;
+                var thisLen = segment.Count;
+
+                if (i == index)
+                {
+                    offset = segmentOffset;
+                    thisLen = segment.Count - (segmentOffset - segment.Offset);
+                }
+
+                thisLen = Math.Min(thisLen, rest);
+
+                target.Add(new ArraySegment<byte>(segment.Array, offset, thisLen));
+
+                rest -= thisLen;
+
+                if (rest <= 0)
+                    break;
+            }
+
+            return target;
+        }
+
+        /// <summary>
+        /// Takes the data of the specified length.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <returns></returns>
+        public IList<ArraySegment<byte>> Take(int length)
+        {
+            var bufferList = m_Segments as BufferList;
+
+            if (bufferList != null)
+                return bufferList.Clone(m_CurrentSegmentIndex, m_CurrentSegmentOffset, length);
+
+            return Clone(m_CurrentSegmentIndex, m_CurrentSegmentOffset, length);
+        }
+
+        /// <summary>
+        /// Reads a string from the current data source
+        /// </summary>
+        /// <param name="length">The length of the string in bytes.</param>
+        /// <param name="encoding">The encoding.</param>
+        /// <returns></returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">length;there is no enougth data</exception>
+        public string ReadString(int length, Encoding encoding)
+        {
+            var readLength = length;
+            var output = new char[encoding.GetMaxCharCount(length)];
+
+            var decoder = encoding.GetDecoder();
+
+            int currentSegmentIndex = m_CurrentSegmentIndex;
+            int currentOffset = m_CurrentSegmentOffset;
+
+            int charIndex = 0;
+
+            while (currentSegmentIndex < m_Segments.Count)
+            {
+                int bytesUsed;
+                int charsUsed;
+                bool completed;
+
+                var segment = m_Segments[currentSegmentIndex];
+                if (currentSegmentIndex != m_CurrentSegmentIndex)
+                    currentOffset = segment.Offset;
+
+                if ((currentOffset + length) < (segment.Offset + segment.Count))
+                {
+                    // current segment has enough data
+                    int byteCount = length;
+                    int charCount = output.Length - charIndex;
+                    decoder.Convert(segment.Array, currentOffset, byteCount, output, charIndex, charCount, true, out bytesUsed, out charsUsed, out completed);
+                    charIndex += charsUsed;
+                }
+                else
+                {
+                    // consume the rest of the current segment
+                    int byteCount = segment.Count - (currentOffset - segment.Offset);
+                    bool flush = byteCount == length;
+                    int charCount = output.Length - charIndex;
+                    decoder.Convert(segment.Array, currentOffset, byteCount, output, charIndex, charCount, flush, out bytesUsed, out charsUsed, out completed);
+                    charIndex += charsUsed;
+                }
+
+                length -= bytesUsed;
+                currentOffset += bytesUsed;
+
+                if (length == 0)
+                {
+                    break;
+                }
+
+                if (currentSegmentIndex != m_Segments.Count - 1)
+                {
+                    currentSegmentIndex++;
+                }
+            }
+
+            m_CurrentSegmentIndex = currentSegmentIndex;
+            m_CurrentSegmentOffset = currentOffset;
+            m_Position += readLength;
+
+            return new string(output, 0, charIndex);
+        }
+
+        /// <summary>
+        /// Fills the buffer.
+        /// </summary>
+        /// <param name="length">The length.</param>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// length;the length must between 1 and 8
+        /// or
+        /// length;there is no enough data to read
+        /// </exception>
+        protected void FillBuffer(int length)
+        {
+            if (length > 8)
+                throw new ArgumentOutOfRangeException("length", "the length must between 1 and 8");
+
+            var read = Read(m_Buffer, 0, length);
+
+            if (read != length)
+                throw new ArgumentOutOfRangeException("length", "there is no enough data to read");
+        }
+
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        public short ReadInt16()
+        {
+            return ReadInt16(false);
+        }
+
+        /// <summary>
+        /// Reads a Int16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
+        public short ReadInt16(bool littleEndian)
+        {
+            FillBuffer(2);
+
+            var buffer = m_Buffer;
+
+            if (!littleEndian)
+            {
+                return unchecked((short)(BigEndianFromBytes(buffer, 2)));
+            }
+
+            return unchecked((short)(LittleEndianFromBytes(buffer, 2)));
+        }
+
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        public ushort ReadUInt16()
+        {
+            return ReadUInt16(false);
+        }
+
+        /// <summary>
+        /// Reads a UInt16 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
+        public ushort ReadUInt16(bool littleEndian)
+        {
+            FillBuffer(2);
+
+            var buffer = m_Buffer;
+
+            if (!littleEndian)
+            {
+                return unchecked((ushort)(BigEndianFromBytes(buffer, 2)));
+            }
+
+            return unchecked((ushort)(LittleEndianFromBytes(buffer, 2)));
+        }
+
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        public int ReadInt32()
+        {
+            return ReadInt32(false);
+        }
+
+        /// <summary>
+        /// Reads a Int32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
+        public int ReadInt32(bool littleEndian)
+        {
+            FillBuffer(4);
+
+            var buffer = m_Buffer;
+
+            if (!littleEndian)
+            {
+                return unchecked((int)(BigEndianFromBytes(buffer, 4)));
+            }
+
+            return unchecked((int)(LittleEndianFromBytes(buffer, 4)));
+        }
+
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        public uint ReadUInt32()
+        {
+            return ReadUInt32(false);
+        }
+
+        /// <summary>
+        /// Reads a UInt32 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
+        public uint ReadUInt32(bool littleEndian)
+        {
+            FillBuffer(4);
+
+            var buffer = m_Buffer;
+
+            if (!littleEndian)
+            {
+                return unchecked((uint)(BigEndianFromBytes(buffer, 4)));
+            }
+
+            return unchecked((uint)(LittleEndianFromBytes(buffer, 4)));
+        }
+
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        public long ReadInt64()
+        {
+            return ReadInt64(false);
+        }
+
+        /// <summary>
+        /// Reads a Int64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
+        public long ReadInt64(bool littleEndian)
+        {
+            FillBuffer(8);
+
+            var buffer = m_Buffer;
+
+            if (!littleEndian)
+            {
+                return unchecked(BigEndianFromBytes(buffer, 8));
+            }
+
+            return unchecked(LittleEndianFromBytes(buffer, 8));
+        }
+
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <returns></returns>
+        public ulong ReadUInt64()
+        {
+            return ReadUInt64(false);
+        }
+
+        /// <summary>
+        /// Reads a UInt64 number from the current data source.
+        /// </summary>
+        /// <param name="littleEndian">if set to <c>true</c> [little endian].</param>
+        /// <returns></returns>
+        public ulong ReadUInt64(bool littleEndian)
+        {
+            FillBuffer(8);
+
+            var buffer = m_Buffer;
+
+            if (!littleEndian)
+            {
+                return (ulong)BigEndianFromBytes(buffer, 8);
+            }
+
+            return (ulong)LittleEndianFromBytes(buffer, 8);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="long"/> value by reading the buffer as a big endian integer.
+        /// </summary>
+        /// <param name="buffer">The buffer to read the data from.</param>
+        /// <param name="bytesToConvert">The number bytes to convert.</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Code taken from Jon Skeet's Miscellaneous Utility Library
+        /// &lt;a href="http://www.yoda.arachsys.com/csharp/miscutil/"&gt;Jon Skeet's Miscellaneous Utility Library&lt;/a&gt;
+        /// </remarks>
+        private long BigEndianFromBytes(byte[] buffer, int bytesToConvert)
+        {
+            long ret = 0;
+            for (int i = 0; i < bytesToConvert; i++)
+            {
+                ret = unchecked((ret << 8) | buffer[i]);
+            }
+            return ret;
+        }
+
+        /// <summary>
+        /// Gets a <see cref="long"/> value by reading the buffer as a little endian integer.
+        /// </summary>
+        /// <param name="buffer">The buffer to read the data from.</param>
+        /// <param name="bytesToConvert">The number bytes to convert.</param>
+        /// <returns></returns>
+        /// <remarks>
+        /// Code taken from Jon Skeet's Miscellaneous Utility Library
+        /// &lt;a href="http://www.yoda.arachsys.com/csharp/miscutil/"&gt;Jon Skeet's Miscellaneous Utility Library&lt;/a&gt;
+        /// </remarks>
+        private long LittleEndianFromBytes(byte[] buffer, int bytesToConvert)
+        {
+            long ret = 0;
+            for (int i = 0; i < bytesToConvert; i++)
+            {
+                ret = unchecked((ret << 8) | buffer[bytesToConvert - 1 - i]);
+            }
+            return ret;
         }
     }
 }

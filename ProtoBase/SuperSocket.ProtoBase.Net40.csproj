@@ -44,7 +44,6 @@
     </Compile>
     <Compile Include="BasicStringParser.cs" />
     <Compile Include="BeginEndMarkReceiveFilter.cs" />
-    <Compile Include="BufferListReader.cs" />
     <Compile Include="BufferListStream.cs" />
     <Compile Include="CountSpliterReceiveFilter.cs" />
     <Compile Include="Extensions.cs" />

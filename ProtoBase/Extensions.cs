@@ -114,36 +114,6 @@ namespace SuperSocket.ProtoBase
             return new string(output, 0, totalCharsLen);
         }
 
-        /// <summary>
-        /// Gets a buffer reader instance which can be reused.
-        /// </summary>
-        /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
-        /// <param name="receiveFilter">The receive filter.</param>
-        /// <param name="data">The buffer data source.</param>
-        /// <returns></returns>
-        public static IBufferReader GetBufferReader<TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
-            where TPackageInfo : IPackageInfo
-        {
-            return GetBufferReader<BufferListReader, TPackageInfo>(receiveFilter, data);
-        }
-
-        /// <summary>
-        /// Gets a buffer reader instance which can be reused.
-        /// </summary>
-        /// <typeparam name="TReader">The type of the reader.</typeparam>
-        /// <typeparam name="TPackageInfo">The type of the package info.</typeparam>
-        /// <param name="receiveFilter">The receive filter.</param>
-        /// <param name="data">The buffer data source.</param>
-        /// <returns></returns>
-        public static IBufferReader GetBufferReader<TReader, TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
-            where TReader : BufferListReader, new()
-            where TPackageInfo : IPackageInfo
-        {
-            //var reader = BufferListReader.GetCurrent<TReader>(); // don't use thread context for BufferListReader for now
-            var reader = new BufferListReader();
-            reader.Initialize(data);
-            return reader;
-        }
 
         /// <summary>
         /// Gets the buffer stream instance which can be reused.
