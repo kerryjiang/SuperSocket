@@ -230,7 +230,11 @@ namespace SuperSocket.SocketEngine
             var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
             if (localEndPoint != null)
+            {
+                socket.ExclusiveAddressUse = false;
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 socket.Bind(localEndPoint);
+            }
 
             var session = CreateNewSession(socket, (IPEndPoint)targetEndPoint, targetEndPoint.ToString());
 

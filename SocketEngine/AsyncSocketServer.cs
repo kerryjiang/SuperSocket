@@ -259,7 +259,11 @@ namespace SuperSocket.SocketEngine
             var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             if (localEndPoint != null)
+            {
+                socket.ExclusiveAddressUse = false;
+                socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 socket.Bind(localEndPoint);
+            }
 
             socket.BeginConnect(targetEndPoint, OnActiveConnectCallback, new ActiveConnectState(taskSource, socket));
             return taskSource.Task;
