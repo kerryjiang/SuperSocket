@@ -170,6 +170,8 @@ namespace SuperSocket.ProtoBase
             m_Length = length;
         }
 
+
+#if !PCL
         private const string c_ThreadBufferSegmentStream = "ThreadBufferListStream";
 
         /// <summary>
@@ -200,6 +202,7 @@ namespace SuperSocket.ProtoBase
             Thread.SetData(slot, stream);
             return stream;
         }
+#endif
 
         /// <summary>
         /// Get current buffer as Stream

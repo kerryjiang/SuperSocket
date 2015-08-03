@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -79,6 +78,7 @@ namespace SuperSocket.ProtoBase
                 else
                 {
                     header[key] = prevValue = value;
+                    keyHash.Add(key);
                 }
 
                 prevKey = key;

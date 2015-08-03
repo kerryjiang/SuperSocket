@@ -2,15 +2,23 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Collections.Specialized;
 
 namespace SuperSocket.ProtoBase
 {
     /// <summary>
     /// Http header info
     /// </summary>
-    public class HttpHeaderInfo : NameValueCollection
+    public class HttpHeaderInfo : Dictionary<string, string>
     {
+        /// <summary>
+        /// default constructor of HttpHeaderInfo
+        /// </summary>
+        public HttpHeaderInfo()
+            : base(StringComparer.OrdinalIgnoreCase)
+        {
+
+        }
+
         /// <summary>
         /// Gets the method.
         /// </summary>

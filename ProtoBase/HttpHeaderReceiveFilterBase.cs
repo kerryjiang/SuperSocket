@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.ProtoBase;
-using System.Collections.Specialized;
 
 namespace SuperSocket.ProtoBase
 {
@@ -17,15 +16,33 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Http header terminator
         /// </summary>
-        private static readonly byte[] NewLine = Encoding.ASCII.GetBytes("\r\n\r\n");
+        private static readonly byte[] NewLine = new byte[] { 0x0a, 0x0d };
+
+        /// <summary>
+        /// Header part text encoding
+        /// </summary>
+        public Encoding HeaderEncoding { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpHeaderReceiveFilterBase{TPackageInfo}" /> class.
         /// </summary>
         protected HttpHeaderReceiveFilterBase()
-            : base(NewLine)
+            : this(Encoding.UTF8)
         {
             
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpHeaderReceiveFilterBase{TPackageInfo}" /> class.
+        /// </summary>
+        /// <param name="headerEncoding">Header part text encoding</param>
+        protected HttpHeaderReceiveFilterBase(Encoding headerEncoding)
+            : base(NewLine)
+        {
+            if (headerEncoding == null)
+                throw new ArgumentNullException("headerEncoding");
+
+            HeaderEncoding = headerEncoding;
         }
 
         /// <summary>
@@ -51,7 +68,7 @@ namespace SuperSocket.ProtoBase
         /// <returns></returns>
         public override TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
-            string headerData = Encoding.ASCII.GetString(packageData);
+            string headerData = HeaderEncoding.GetString(packageData);
 
             var header = new HttpHeaderInfo();
             MimeHeaderHelper.ParseHttpHeader(headerData, header);

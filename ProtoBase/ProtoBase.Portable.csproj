@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{918EA4B5-090B-47E7-A666-1083598AE2C0}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SuperSocket.ProtoBase</RootNamespace>
+    <AssemblyName>SuperSocket.ProtoBase</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>Profile328</TargetFrameworkProfile>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PCL</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="BasicStringParser.cs" />
+    <Compile Include="BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="BufferedPackageInfo.cs" />
+    <Compile Include="BufferList.cs" />
+    <Compile Include="BufferListStream.cs" />
+    <Compile Include="CountSpliterReceiveFilter.cs" />
+    <Compile Include="DefaultPipelineProcessor.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FilterState.cs" />
+    <Compile Include="FixedHeaderReceiveFilter.cs" />
+    <Compile Include="FixedSizeReceiveFilter.cs" />
+    <Compile Include="HttpHeaderInfo.cs" />
+    <Compile Include="HttpHeaderReceiveFilterBase.cs" />
+    <Compile Include="HttpPackageInfoBase.cs" />
+    <Compile Include="IBufferedPackageInfo.cs" />
+    <Compile Include="IBufferRecycler.cs" />
+    <Compile Include="IBufferState.cs" />
+    <Compile Include="IPackageHandler.cs" />
+    <Compile Include="IPackageInfo.cs" />
+    <Compile Include="IPackageResolver.cs" />
+    <Compile Include="IPipelineProcessor.cs" />
+    <Compile Include="IReceiveFilter.cs" />
+    <Compile Include="IStringParser.cs" />
+    <Compile Include="MimeHeaderHelper.cs" />
+    <Compile Include="PackageInfo.cs" />
+    <Compile Include="ProcessResult.cs" />
+    <Compile Include="ProcessState.cs" />
+    <Compile Include="Properties\AssemblyInfo.Portable.cs" />
+    <Compile Include="SearchMarkState.cs" />
+    <Compile Include="StateFullSearch.cs" />
+    <Compile Include="StringPackageInfo.cs" />
+    <Compile Include="TerminatorReceiveFilter.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
