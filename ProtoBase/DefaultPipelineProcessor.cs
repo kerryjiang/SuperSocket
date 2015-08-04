@@ -46,18 +46,6 @@ namespace SuperSocket.ProtoBase
             m_ReceiveCache.Add(segment, state);
         }
 
-        /// <summary>
-        /// Occurs when [new receive buffer required].
-        /// </summary>
-        public event EventHandler NewReceiveBufferRequired;
-
-        private void FireNewReceiveBufferRequired()
-        {
-            var handler = NewReceiveBufferRequired;
-
-            if (handler != null)
-                handler(this, EventArgs.Empty);
-        }
 
         /// <summary>
         /// Processes the input segment.
@@ -103,8 +91,6 @@ namespace SuperSocket.ProtoBase
                         continue;
                     }
 
-                    //Because the current buffer is cached, so new buffer is required for receiving
-                    FireNewReceiveBufferRequired();
                     return ProcessResult.Create(ProcessState.Cached);
                 }
 
