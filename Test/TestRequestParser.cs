@@ -20,6 +20,7 @@ namespace SuperSocket.Test
             if (pos <= 0)
                 return;
 
+            key = source.Substring(0, pos);
             body = source.Substring(pos + 1);
 
             if (!string.IsNullOrEmpty(body))
