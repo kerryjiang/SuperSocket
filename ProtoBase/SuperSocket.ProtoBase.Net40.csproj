@@ -43,16 +43,14 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BasicStringParser.cs" />
-    <Compile Include="BeginEndMarkReceiveFilter.cs" />
     <Compile Include="BufferListStream.cs" />
-    <Compile Include="CountSpliterReceiveFilter.cs" />
+    <Compile Include="Buffer\IBufferManager.cs" />
+    <Compile Include="Buffer\NullBufferManager.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FilterState.cs" />
-    <Compile Include="FixedHeaderReceiveFilter.cs" />
-    <Compile Include="FixedSizeReceiveFilter.cs" />
-    <Compile Include="HttpHeaderInfo.cs" />
-    <Compile Include="HttpHeaderReceiveFilterBase.cs" />
-    <Compile Include="HttpPackageInfoBase.cs" />
+    <Compile Include="HttpBase\HttpHeaderInfo.cs" />
+    <Compile Include="HttpBase\HttpHeaderReceiveFilterBase.cs" />
+    <Compile Include="HttpBase\HttpPackageInfoBase.cs" />
     <Compile Include="IBufferedPackageInfo.cs" />
     <Compile Include="IBufferRecycler.cs" />
     <Compile Include="IBufferState.cs" />
@@ -69,11 +67,15 @@
     <Compile Include="BufferList.cs" />
     <Compile Include="DefaultPipelineProcessor.cs" />
     <Compile Include="ProcessState.cs" />
-    <Compile Include="SearchMarkState.cs" />
-    <Compile Include="StateFullSearch.cs" />
+    <Compile Include="ReceiveFilters\BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\CountSpliterReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\FixedHeaderReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\FixedSizeReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\SearchMarkState.cs" />
+    <Compile Include="ReceiveFilters\StateFullSearch.cs" />
+    <Compile Include="ReceiveFilters\TerminatorReceiveFilter.cs" />
     <Compile Include="StringPackageInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TerminatorReceiveFilter.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
