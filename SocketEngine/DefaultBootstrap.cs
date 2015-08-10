@@ -337,8 +337,13 @@ namespace SuperSocket.SocketEngine
             IManagedApp serverManager = null;
 
             //Initialize servers
-            foreach (var serverConfig in m_Config.Servers)
+            foreach (var config in m_Config.Servers)
             {
+                var serverConfig = config;
+
+                if (serverConfigResolver != null)
+                    serverConfig = serverConfigResolver(config);
+
                 IManagedApp appServer;
 
                 try
