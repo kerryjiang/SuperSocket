@@ -266,7 +266,7 @@ namespace SuperSocket.Common
 
             var list = new List<T>();
 
-            while (true)
+            while (enumerator.MoveNext())
             {
                 var current = enumerator.Current;
 
@@ -274,7 +274,6 @@ namespace SuperSocket.Common
                     break;
 
                 list.Add(current.MakeCopy<T>());
-                enumerator.MoveNext();
             }
 
             return list;
