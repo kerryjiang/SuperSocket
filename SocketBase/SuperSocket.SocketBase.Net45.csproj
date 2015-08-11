@@ -126,12 +126,10 @@
     <Compile Include="Pool\BufferItemCreator.cs" />
     <Compile Include="Pool\BufferManager.cs" />
     <Compile Include="Pool\BufferPool.cs" />
-    <Compile Include="Pool\IBufferManager.cs" />
     <Compile Include="Pool\IBufferPool.cs" />
     <Compile Include="Pool\IntelliPool.cs" />
     <Compile Include="Pool\IPool.cs" />
     <Compile Include="Pool\IPoolItemCreator.cs" />
-    <Compile Include="Pool\NullBufferManager.cs" />
     <Compile Include="ProtocolMode.cs" />
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilter.cs" />

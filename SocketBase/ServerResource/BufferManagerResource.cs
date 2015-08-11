@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Pool;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.ServerResource
 {
