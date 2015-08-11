@@ -406,31 +406,42 @@ namespace SuperSocket.SocketBase
         protected virtual void RegisterCompositeTarget(IList<ICompositeTarget> targets)
         {
             // register log factory
-            targets.Add(new LogFactoryCompositeTarget((value) =>
+            if (LogFactory == null)
             {
-                LogFactory = value;
-                Logger = value.GetLog(Name);
-            }));
+                targets.Add(new LogFactoryCompositeTarget((value) =>
+                {
+                    LogFactory = value;
+                    Logger = value.GetLog(Name);
+                }));
+            }            
 
-            // register socket sevver factory
-            targets.Add(new SocketServerFactoryComositeTarget((value) => m_SocketServerFactory = value));
+            if(m_SocketServerFactory == null)
+            {
+                // register socket sevver factory
+                targets.Add(new SocketServerFactoryComositeTarget((value) => m_SocketServerFactory = value));
+            }
+            
 
             // register receive filter factory, don't do it if there is one receive filter factory setup already
             if (ReceiveFilterFactory == null)
                 targets.Add(new ReceiveFilterFactoryCompositeTarget<TPackageInfo>((value) => ReceiveFilterFactory = value));
 
             // register connection filters
-            targets.Add(new ConnectionFilterCompositeTarget((value) => m_ConnectionFilters = value));
+            if (m_ConnectionFilters == null)
+                targets.Add(new ConnectionFilterCompositeTarget((value) => m_ConnectionFilters = value));
 
             // register command loaders
-            targets.Add(new CommandLoaderCompositeTarget<ICommand<TAppSession, TPackageInfo>>((value) =>
+            if(m_CommandLoaders == null || !m_CommandLoaders.Any())
             {
-                SetupCommandLoaders(value);
-                m_CommandLoaders = value;
-            }));
+                targets.Add(new CommandLoaderCompositeTarget<ICommand<TAppSession, TPackageInfo>>((value) =>
+                {
+                    SetupCommandLoaders(value);
+                    m_CommandLoaders = value;
+                }));
+            }
         }
 
-        private bool Composite(IServerConfig config)
+        private bool CompositeParts(IServerConfig config)
         {
             CompositionContainer = GetCompositionContainer(config);
 
@@ -466,7 +477,7 @@ namespace SuperSocket.SocketBase
             }
         }
 
-        private void SetupBasic(IRootConfig rootConfig, IServerConfig config, bool composite)
+        private void SetupBasic(IRootConfig rootConfig, IServerConfig config)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -496,21 +507,6 @@ namespace SuperSocket.SocketBase
                 }
 
                 m_ThreadPoolConfigured = true;
-            }
-
-            if (composite)
-            {
-                if (!Composite(config))
-                    throw new Exception("Failed to composite the server");
-            }
-            
-
-            if (m_SocketServerFactory == null)
-            {
-                var socketServerFactoryType =
-                    Type.GetType("SuperSocket.SocketEngine.SocketServerFactory, SuperSocket.SocketEngine", true);
-
-                m_SocketServerFactory = (ISocketServerFactory)Activator.CreateInstance(socketServerFactoryType);
             }
 
             //Read text encoding from the configuration
@@ -675,7 +671,7 @@ namespace SuperSocket.SocketBase
         {
             TrySetInitializedState();
 
-            SetupBasic(rootConfig, config, false);
+            SetupBasic(rootConfig, config);
 
             if (receiveFilterFactory != null)
                 ReceiveFilterFactory = receiveFilterFactory;
@@ -691,7 +687,7 @@ namespace SuperSocket.SocketBase
             if (commandLoaders != null && commandLoaders.Any())
                 m_CommandLoaders.AddRange(commandLoaders);
 
-            if (!SetupCommandLoaders(m_CommandLoaders))
+            if (!CompositeParts(config))
                 return false;
 
             if (!SetupAdvanced(config))
@@ -752,7 +748,10 @@ namespace SuperSocket.SocketBase
 
             var rootConfig = bootstrap.Config;
 
-            SetupBasic(rootConfig, config, true);
+            SetupBasic(rootConfig, config);
+
+            if (!CompositeParts(config))
+                return false;
 
             if (!SetupAdvanced(config))
                 return false;
