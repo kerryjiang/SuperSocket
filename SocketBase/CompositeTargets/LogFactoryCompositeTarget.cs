@@ -73,8 +73,7 @@ namespace SuperSocket.SocketBase.CompositeTargets
 
             if (!result.Initialize(configFiles.ToArray()))
             {
-                appServer.Logger.Error("Failed to initialize the logfactory:" + metadata.Name);
-                return false;
+                throw new Exception("Failed to initialize the logfactory:" + metadata.Name);
             }
 
             return true;
