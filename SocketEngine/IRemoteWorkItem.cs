@@ -22,7 +22,8 @@ namespace SuperSocket.SocketEngine
         /// <param name="assemblyImportRoot">The assembly import root.</param>
         /// <param name="config">The config.</param>
         /// <param name="factories">The factories.</param>
+        /// <param name="startupConfigFile">The startup configuration file path</param>
         /// <returns></returns>
-        bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories);
+        bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories, string startupConfigFile);
     }
 }

@@ -230,5 +230,58 @@ namespace SuperSocket.Common
 
             return (Configuration)configProperty.GetValue(configElement, null);
         }
+
+        private static void ResetConfigurationForMono(AppDomain appDomain, string configFilePath)
+        {
+            appDomain.SetupInformation.ConfigurationFile = configFilePath;
+
+            var configSystem = typeof(ConfigurationManager)
+                .GetField("configSystem", BindingFlags.Static | BindingFlags.NonPublic)
+                .GetValue(null);
+
+            // clear previous state
+            typeof(ConfigurationManager)
+                .Assembly.GetTypes()
+                .Where(x => x.FullName == "System.Configuration.ClientConfigurationSystem")
+                .First()
+                .GetField("cfg", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(configSystem, null);
+        }
+
+        private static void ResetConfigurationForDotNet(AppDomain appDomain, string configFilePath)
+        {
+            appDomain.SetData("APP_CONFIG_FILE", configFilePath);
+
+            // clear previous state
+            BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Static;
+
+            typeof(ConfigurationManager)
+                .GetField("s_initState", flags)
+                .SetValue(null, 0);
+
+            typeof(ConfigurationManager)
+                .GetField("s_configSystem", flags)
+                .SetValue(null, null);
+
+            typeof(ConfigurationManager)
+                .Assembly.GetTypes()
+                .Where(x => x.FullName == "System.Configuration.ClientConfigPaths")
+                .First()
+                .GetField("s_current", flags)
+                .SetValue(null, null);
+        }
+
+        /// <summary>
+        /// Reset application's configuration to a another config file
+        /// </summary>
+        /// <param name="appDomain">the assosiated AppDomain</param>
+        /// <param name="configFilePath">the config file path want to reset to</param>
+        public static void ResetConfiguration(this AppDomain appDomain, string configFilePath)
+        {
+            if (Platform.IsMono)
+                ResetConfigurationForMono(appDomain, configFilePath);
+            else
+                ResetConfigurationForDotNet(appDomain, configFilePath);
+        }
     }
 }

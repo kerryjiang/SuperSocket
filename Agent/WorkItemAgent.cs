@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Lifetime;
 using System.Text;
+using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
@@ -33,9 +34,14 @@ namespace SuperSocket.Agent
 
         }
 
-        public bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories)
+        public bool Setup(string serverType, string bootstrapUri, string assemblyImportRoot, IServerConfig config, ProviderFactoryInfo[] factories, string startupConfigFile)
         {
             m_AssemblyImporter = new AssemblyImport(assemblyImportRoot);
+
+            if (!string.IsNullOrEmpty(startupConfigFile))
+            {
+                AppDomain.CurrentDomain.ResetConfiguration(startupConfigFile);
+            }
 
             var serviceType = Type.GetType(serverType);
             m_AppServer = (IWorkItem)Activator.CreateInstance(serviceType);

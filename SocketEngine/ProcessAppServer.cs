@@ -169,8 +169,16 @@ namespace SuperSocket.SocketEngine
 
                 try
                 {
+                    var startupConfigFile = Bootstrap.StartupConfigFile;
+
+                    if (!string.IsNullOrEmpty(startupConfigFile))
+                    {
+                        if (!Path.IsPathRooted(startupConfigFile))
+                            startupConfigFile = Path.Combine(currentDomain.BaseDirectory, startupConfigFile);
+                    }
+
                     //Setup and then start the remote server instance
-                    ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, Config, Factories);
+                    ret = appServer.Setup(ServerTypeName, "ipc://" + bootstrapIpcPort + "/Bootstrap.rem", currentDomain.BaseDirectory, Config, Factories, startupConfigFile);
                 }
                 catch (Exception e)
                 {
