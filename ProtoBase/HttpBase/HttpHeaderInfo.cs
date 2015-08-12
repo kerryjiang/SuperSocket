@@ -42,5 +42,17 @@ namespace SuperSocket.ProtoBase
         /// The version.
         /// </value>
         public string Version { get; internal set; }
+
+        /// <summary>
+        /// Get item from header with key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public string Get(string key)
+        {
+            var value = string.Empty;
+            TryGetValue(key, out value);
+            return value;
+        }
     }
 }
