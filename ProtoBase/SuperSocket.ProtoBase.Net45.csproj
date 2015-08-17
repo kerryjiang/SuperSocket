@@ -46,6 +46,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BasicStringParser.cs" />
+    <Compile Include="ICommunicationChannel.cs" />
     <Compile Include="ReceiveFilters\BeginEndMarkReceiveFilter.cs" />
     <Compile Include="BufferedPackageInfo.cs" />
     <Compile Include="BufferList.cs" />

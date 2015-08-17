@@ -55,6 +55,7 @@
     <Compile Include="IBufferedPackageInfo.cs" />
     <Compile Include="IBufferRecycler.cs" />
     <Compile Include="IBufferState.cs" />
+    <Compile Include="ICommunicationChannel.cs" />
     <Compile Include="IPackageHandler.cs" />
     <Compile Include="IPackageInfo.cs" />
     <Compile Include="IPackageResolver.cs" />
