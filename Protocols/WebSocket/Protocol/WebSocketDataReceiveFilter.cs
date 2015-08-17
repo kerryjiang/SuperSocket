@@ -86,10 +86,12 @@ namespace SuperSocket.WebSocket.Protocol
                         return null;
                     }
 
+                    // 0111 1111
                     int thisLength = (int)(lengthByte & 0x7F);
                     m_TempLength = m_TempLength * 128 + thisLength;
                     skipByteCount++;
 
+                    // 1000 0000
                     if ((lengthByte & 0x80) != 0x80)
                     {
                         m_Length = m_TempLength;

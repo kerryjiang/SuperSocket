@@ -3,28 +3,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.ProtoBase;
-using SuperSocket.SocketBase;
 
 namespace SuperSocket.WebSocket.ReceiveFilters
 {
-    class DraftHybi00DataReceiveFilter : IReceiveFilter<StringPackageInfo>
+    class DraftHybi00DataReceiveFilter : IWebSocketReceiveFilter, IReceiveFilter<WebSocketPackageInfo>
     {
-        class MarkReceiveFilter : TerminatorReceiveFilter<StringPackageInfo>
+        class MarkReceiveFilter : TerminatorReceiveFilter<WebSocketPackageInfo>
         {
             private static byte[] m_EndMark = new byte[] { 0xff };
 
-            private IReceiveFilter<StringPackageInfo> m_SwitchReceiveFilter;
+            private IWebSocketReceiveFilter m_SwitchReceiveFilter;
 
-            public MarkReceiveFilter(IReceiveFilter<StringPackageInfo> switchReceiveFilter)
+            public MarkReceiveFilter(IWebSocketReceiveFilter switchReceiveFilter)
                 : base(m_EndMark)
             {
                 m_SwitchReceiveFilter = switchReceiveFilter;
             }
 
-            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                var session = AppContext.CurrentSession;
-                var context = WebSocketContext.Get(session);
+                var context = m_SwitchReceiveFilter.Context;
                 context.OpCode = OpCode.Text;
                 context.PayloadLength = packageData.Sum(d => d.Count);
                 NextReceiveFilter = m_SwitchReceiveFilter;
@@ -32,57 +30,105 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             }
         }
 
-        class CloseMarkReceiveFilter : TerminatorReceiveFilter<StringPackageInfo>
+        class CloseMarkReceiveFilter : TerminatorReceiveFilter<WebSocketPackageInfo>
         {
-            IReceiveFilter<StringPackageInfo> m_SwitchReceiveFilter;
+            IWebSocketReceiveFilter m_SwitchReceiveFilter;
             private static byte[] m_EndMark = new byte[] { 0x00 };
 
-            public CloseMarkReceiveFilter(IReceiveFilter<StringPackageInfo> switchReceiveFilter)
+            public CloseMarkReceiveFilter(IWebSocketReceiveFilter switchReceiveFilter)
                 : base(m_EndMark)
             {
                 m_SwitchReceiveFilter = switchReceiveFilter;
             }
 
-            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
             {
-                return null;
+                var context = m_SwitchReceiveFilter.Context;
+                context.OpCode = OpCode.Close;
+                context.PayloadLength = packageData.Sum(d => d.Count);
+                NextReceiveFilter = m_SwitchReceiveFilter;
+                return context.ResolveLastFragment(packageData);
             }
         }
 
-        class LenReceiveFilter : FixedHeaderReceiveFilter<StringPackageInfo>
+        class LenReceiveFilter : IReceiveFilter<WebSocketPackageInfo>
         {
-            private IReceiveFilter<StringPackageInfo> m_SwitchReceiveFilter;
+            private IWebSocketReceiveFilter m_SwitchReceiveFilter;
+            private int m_Length = 0;
+            private bool m_LengthLoaded = false;
 
-            public LenReceiveFilter(IReceiveFilter<StringPackageInfo> switchReceiveFilter)
-                : base(3)
+            public LenReceiveFilter(IWebSocketReceiveFilter switchReceiveFilter)
             {
                 m_SwitchReceiveFilter = switchReceiveFilter;
             }
 
-            protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
+            public IReceiveFilter<WebSocketPackageInfo> NextReceiveFilter { get; private set; }
+
+            public FilterState State { get; private set; }
+
+            public WebSocketPackageInfo Filter(BufferList data, out int rest)
             {
-                throw new NotImplementedException();
+                rest = 0;
+
+                if (!m_LengthLoaded)
+                {
+                    var current = data.Last;
+
+                    var tempLen = m_Length;
+
+                    for(var i = 0; i < current.Count; i++)
+                    {
+                        var len = (int)current.Array[current.Offset + i];
+
+                        if (len >= 128)
+                        {
+                            tempLen = tempLen * 128 + len - 128;
+                            m_Length = data.Total - current.Count + i + 1 + tempLen; // total length
+                            m_LengthLoaded = true;
+                            break;
+                        }
+
+                        tempLen = tempLen * 128 + len;
+                        m_Length = tempLen;
+                    }
+
+                    if (!m_LengthLoaded)
+                        return null;
+                }
+
+                if(data.Total >= m_Length)
+                {
+                    rest = data.Total - m_Length;
+                    NextReceiveFilter = m_SwitchReceiveFilter;
+                    return new WebSocketPackageInfo(data, m_SwitchReceiveFilter.Context);
+                }
+
+                return null;
             }
 
-            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public void Reset()
             {
-                NextReceiveFilter = m_SwitchReceiveFilter;
-                return null;
+                m_Length = 0;
+                m_LengthLoaded = false;
+                State = FilterState.Normal;
             }
         }
 
-        private IReceiveFilter<StringPackageInfo> m_MarkReceiveFilter;
-        private IReceiveFilter<StringPackageInfo> m_LenReceiveFilter;
-        private IReceiveFilter<StringPackageInfo> m_CloseMarkReceiveFilter;
+        private IReceiveFilter<WebSocketPackageInfo> m_MarkReceiveFilter;
+        private IReceiveFilter<WebSocketPackageInfo> m_LenReceiveFilter;
+        private IReceiveFilter<WebSocketPackageInfo> m_CloseMarkReceiveFilter;
 
-        public DraftHybi00DataReceiveFilter()
+        public WebSocketContext Context { get; private set; }
+
+        public DraftHybi00DataReceiveFilter(WebSocketContext context)
         {
+            Context = context;
             m_MarkReceiveFilter = new MarkReceiveFilter(this);
             m_LenReceiveFilter = new LenReceiveFilter(this);
             m_CloseMarkReceiveFilter = new CloseMarkReceiveFilter(this);
         }
 
-        public StringPackageInfo Filter(BufferList data, out int rest)
+        public WebSocketPackageInfo Filter(BufferList data, out int rest)
         {
             rest = data.Total;
             var current = data.Last;
@@ -106,7 +152,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             return null;
         }
 
-        public IReceiveFilter<StringPackageInfo> NextReceiveFilter { get; private set; }
+        public IReceiveFilter<WebSocketPackageInfo> NextReceiveFilter { get; private set; }
 
         public FilterState State { get; private set; }
 

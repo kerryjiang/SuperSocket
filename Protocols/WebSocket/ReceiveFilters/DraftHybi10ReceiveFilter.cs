@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using SuperSocket.ProtoBase;
-using SuperSocket.SocketBase;
-using System.IO;
 
 namespace SuperSocket.WebSocket.ReceiveFilters
 {
@@ -29,7 +29,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
     ///|                     Payload Data continued ...                |
     ///+---------------------------------------------------------------+
     /// </summary>
-    class DraftHybi10ReceiveFilter : FixedHeaderReceiveFilter<StringPackageInfo>, IHandshakeHandler
+    class DraftHybi10ReceiveFilter : FixedHeaderReceiveFilter<WebSocketPackageInfo>, IHandshakeHandler
     {
         private bool m_Masked;
 
@@ -39,30 +39,87 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         private const byte FINAL_FLAG = 0x80;
 
-        public DraftHybi10ReceiveFilter()
+        private const string m_Magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+        protected WebSocketContext Context { get; private set; }
+
+        public DraftHybi10ReceiveFilter(WebSocketContext context)
             : base(2)
         {
-
+            Context = context;
         }
 
-        public void Handshake(IAppSession session, HttpHeaderInfo head)
+        public void Handshake()
         {
-            throw new NotImplementedException();
+            var context = Context;
+
+            var handshakeValidator = context.Channel as IHandshakeValidator;
+            var request = context.HandshakeRequest;
+            var channel = context.Channel;
+
+            if(handshakeValidator != null)
+            {
+                if(!handshakeValidator.ValidateHandshake(channel, context.HandshakeRequest))
+                {
+                    //TODO: do something like send error code?
+                    channel.Close();
+                    return;
+                }
+            }
+
+            var secWebSocketKey = request.Get(WebSocketConstant.SecWebSocketKey);
+
+            if (string.IsNullOrEmpty(secWebSocketKey))
+            {
+                //TODO: do something like send error code?
+                channel.Close();
+                return;
+            }
+
+            var responseBuilder = new StringBuilder();
+
+            string secKeyAccept = string.Empty;
+
+            try
+            {
+                secKeyAccept = Convert.ToBase64String(SHA1.Create().ComputeHash(Encoding.ASCII.GetBytes(secWebSocketKey + m_Magic)));
+            }
+            catch (Exception)
+            {
+                //TODO: do something like send error code?
+                channel.Close();
+                return;
+            }
+
+            responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseHeadLine10);
+            responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseUpgradeLine);
+            responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseConnectionLine);
+            responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseAcceptLine, secKeyAccept);
+
+            ///TODO: get available sub protocols
+            //var subProtocol = session.GetAvailableSubProtocol(session.Items.GetValue<string>(WebSocketConstant.SecWebSocketProtocol, string.Empty));
+
+            //if (!string.IsNullOrEmpty(subProtocol))
+            //    responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseProtocolLine, subProtocol);
+
+            responseBuilder.AppendWithCrCf();
+            byte[] data = Encoding.UTF8.GetBytes(responseBuilder.ToString());
+            channel.Send(new ArraySegment<byte>(data));
         }
 
         private int GetPayloadLength(IList<ArraySegment<byte>> packageData, int length)
         {
-            using (var reader = this.GetBufferReader(packageData))
+            using (var stream = this.GetBufferStream(packageData))
             {
                 if (length == 2)
                 {
-                    var flag = reader.ReadByte();
+                    var flag = stream.ReadByte();
 
                     m_Final = (FINAL_FLAG & flag) == flag;
                     m_OpCode = (sbyte)(flag & 0x08);
 
                     // one byte playload length
-                    var playloadLen = (int)reader.ReadByte();
+                    var playloadLen = (int)stream.ReadByte();
                     //the highest bit is mask indicator
                     m_Masked = playloadLen > 128;
                     // remove the mask byte
@@ -92,10 +149,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
                 }
                 else if (length == 4)
                 {
-                    reader.Skip(2);
+                    stream.Skip(2);
 
                     // 2 bytes
-                    var playloadLen = reader.ReadUInt16();
+                    var playloadLen = stream.ReadUInt16();
 
                     if (m_Masked) // add mask key's length
                         playloadLen += 4;
@@ -104,10 +161,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
                 }
                 else // length = 8
                 {
-                    reader.Skip(2);
+                    stream.Skip(2);
 
                     // 8 bytes
-                    var playloadLen = reader.ReadUInt64();
+                    var playloadLen = stream.ReadUInt64();
 
                     if (m_Masked) // add mask key's length
                         playloadLen += 4;
@@ -119,23 +176,21 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
         {
-            var session = AppContext.CurrentSession;
-            var context = WebSocketContext.Get(session);
+            var context = Context;
 
             var payloadLength = GetPayloadLength(packageData, length);
 
             if (payloadLength > 0)
                 context.PayloadLength = payloadLength;
 
-            context.OpCode = m_OpCode;
+            context.OpCode = (OpCode)m_OpCode;
 
             return payloadLength;
         }
 
-        public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
         {
-            var session = AppContext.CurrentSession;
-            var context = WebSocketContext.Get(session);
+            var context = Context;
 
             if (!m_Final)
             {
