@@ -7,8 +7,8 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.ReceiveFilters
 {
-    interface IWebSocketReceiveFilter : IReceiveFilter<WebSocketPackageInfo>
+    interface IWebSocketReceiveFilter : IReceiveFilter<WebSocketPackageInfo>, IHandshakeHandler
     {
-        WebSocketContext Context { get; }
+
     }
 }

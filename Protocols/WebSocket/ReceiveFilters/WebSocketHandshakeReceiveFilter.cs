@@ -23,21 +23,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             var websocketContext = m_Context;
             websocketContext.HandshakeRequest = header;
 
-            var secWebSocketVersion = header.Get(WebSocketConstant.SecWebSocketVersion);
-
-            IReceiveFilter<WebSocketPackageInfo> handshakeReceiveFilter = null;
-
-            if (secWebSocketVersion == RFC6455_VERSION)
-                handshakeReceiveFilter = new Rfc6455ReceiveFilter(websocketContext);
-            else if (secWebSocketVersion == HYBI10_VERSION)
-                handshakeReceiveFilter = new DraftHybi10ReceiveFilter(websocketContext);
-            else
-                handshakeReceiveFilter = new DraftHybi00ReceiveFilter(websocketContext);
-
-            var handshakeHandler = handshakeReceiveFilter as IHandshakeHandler;
-            if (handshakeHandler != null)
-                handshakeHandler.Handshake();
-
+            var handshakeReceiveFilter = WebSocketReceiveFilterFactoryManager.Handshake(websocketContext);
             return handshakeReceiveFilter;
         }
 

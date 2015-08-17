@@ -7,8 +7,8 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 {
     class Rfc6455ReceiveFilter : DraftHybi10ReceiveFilter, IHandshakeHandler
     {
-        public Rfc6455ReceiveFilter(WebSocketContext context)
-            : base(context)
+        public Rfc6455ReceiveFilter()
+            : base()
         {
 
         }

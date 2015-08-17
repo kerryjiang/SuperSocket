@@ -6,15 +6,21 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.ReceiveFilters
 {
-    class DraftHybi00DataReceiveFilter : IWebSocketReceiveFilter, IReceiveFilter<WebSocketPackageInfo>
+    interface IWebSocketDataReceiveFilter : IReceiveFilter<WebSocketPackageInfo>
     {
+        WebSocketContext Context { get; }
+    }
+
+    class DraftHybi00DataReceiveFilter : IWebSocketDataReceiveFilter, IReceiveFilter<WebSocketPackageInfo>
+    {      
+
         class MarkReceiveFilter : TerminatorReceiveFilter<WebSocketPackageInfo>
         {
             private static byte[] m_EndMark = new byte[] { 0xff };
 
-            private IWebSocketReceiveFilter m_SwitchReceiveFilter;
+            private IWebSocketDataReceiveFilter m_SwitchReceiveFilter;
 
-            public MarkReceiveFilter(IWebSocketReceiveFilter switchReceiveFilter)
+            public MarkReceiveFilter(IWebSocketDataReceiveFilter switchReceiveFilter)
                 : base(m_EndMark)
             {
                 m_SwitchReceiveFilter = switchReceiveFilter;
@@ -32,10 +38,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         class CloseMarkReceiveFilter : TerminatorReceiveFilter<WebSocketPackageInfo>
         {
-            IWebSocketReceiveFilter m_SwitchReceiveFilter;
+            IWebSocketDataReceiveFilter m_SwitchReceiveFilter;
             private static byte[] m_EndMark = new byte[] { 0x00 };
 
-            public CloseMarkReceiveFilter(IWebSocketReceiveFilter switchReceiveFilter)
+            public CloseMarkReceiveFilter(IWebSocketDataReceiveFilter switchReceiveFilter)
                 : base(m_EndMark)
             {
                 m_SwitchReceiveFilter = switchReceiveFilter;
@@ -53,11 +59,11 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         class LenReceiveFilter : IReceiveFilter<WebSocketPackageInfo>
         {
-            private IWebSocketReceiveFilter m_SwitchReceiveFilter;
+            private IWebSocketDataReceiveFilter m_SwitchReceiveFilter;
             private int m_Length = 0;
             private bool m_LengthLoaded = false;
 
-            public LenReceiveFilter(IWebSocketReceiveFilter switchReceiveFilter)
+            public LenReceiveFilter(IWebSocketDataReceiveFilter switchReceiveFilter)
             {
                 m_SwitchReceiveFilter = switchReceiveFilter;
             }

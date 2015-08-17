@@ -55,8 +55,10 @@
     <Compile Include="ReceiveFilters\DraftHybi10ReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\IHandshakeHandler.cs" />
     <Compile Include="ReceiveFilters\IWebSocketReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\MultipleProtocolSwitchReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\Rfc6455ReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\WebSocketHandshakeReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\WebSocketReceiveFilterFactory.cs" />
     <Compile Include="WebSocketConst.cs" />
     <Compile Include="WebSocketContext.cs" />
     <Compile Include="WebSocketPackageInfo.cs" />

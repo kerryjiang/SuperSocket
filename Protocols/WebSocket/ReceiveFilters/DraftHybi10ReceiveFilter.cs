@@ -29,7 +29,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
     ///|                     Payload Data continued ...                |
     ///+---------------------------------------------------------------+
     /// </summary>
-    class DraftHybi10ReceiveFilter : FixedHeaderReceiveFilter<WebSocketPackageInfo>, IHandshakeHandler
+    class DraftHybi10ReceiveFilter : FixedHeaderReceiveFilter<WebSocketPackageInfo>, IWebSocketReceiveFilter
     {
         private bool m_Masked;
 
@@ -43,15 +43,15 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         protected WebSocketContext Context { get; private set; }
 
-        public DraftHybi10ReceiveFilter(WebSocketContext context)
+        public DraftHybi10ReceiveFilter()
             : base(2)
         {
-            Context = context;
+
         }
 
-        public void Handshake()
+        public void Handshake(WebSocketContext context)
         {
-            var context = Context;
+            Context = context;
 
             var handshakeValidator = context.Channel as IHandshakeValidator;
             var request = context.HandshakeRequest;

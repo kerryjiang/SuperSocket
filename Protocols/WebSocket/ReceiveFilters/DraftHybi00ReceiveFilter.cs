@@ -8,19 +8,19 @@ using System.Security.Cryptography;
 
 namespace SuperSocket.WebSocket.ReceiveFilters
 {
-    class DraftHybi00ReceiveFilter : FixedSizeReceiveFilter<WebSocketPackageInfo>, IHandshakeHandler
+    class DraftHybi00ReceiveFilter : FixedSizeReceiveFilter<WebSocketPackageInfo>, IWebSocketReceiveFilter
     {
         protected WebSocketContext Context { get; private set; }
 
-        public DraftHybi00ReceiveFilter(WebSocketContext context)
+        public DraftHybi00ReceiveFilter()
             : base(8)
         {
-            Context = context;
+
         }
 
-        public void Handshake()
+        public void Handshake(WebSocketContext context)
         {
-            // Do nothing
+            Context = context;
         }
 
         public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
