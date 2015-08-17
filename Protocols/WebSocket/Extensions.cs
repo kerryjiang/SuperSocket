@@ -10,11 +10,11 @@ namespace SuperSocket.WebSocket
     /// </summary>
     public static partial class Extensions
     {
-        private readonly static char[] m_CrCf;
+        private readonly static char[] m_CrCf = new char[] { '\r', '\n' };
 
         static Extensions()
         {
-            m_CrCf = "\r\n".ToArray();
+
         }
 
         /// <summary>
