@@ -332,7 +332,7 @@ namespace SuperSocket.Common
             var newItemsCount = Math.Min(m_TotalItemsCount, m_MaxPoolSize - m_TotalItemsCount);
 
             T[] items;
-            m_ItemsSource[m_CurrentSourceCount] = m_SourceCreator.Create(newItemsCount, out items);
+            m_ItemsSource[m_CurrentSourceCount++] = m_SourceCreator.Create(newItemsCount, out items);
 
             m_TotalItemsCount += newItemsCount;
 
