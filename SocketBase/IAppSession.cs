@@ -16,7 +16,7 @@ namespace SuperSocket.SocketBase
     /// <summary>
     /// The basic interface for appSession
     /// </summary>
-    public interface IAppSession : ISessionBase
+    public interface IAppSession : ISessionBase, ICommunicationChannel
     {
         /// <summary>
         /// Gets the app server.

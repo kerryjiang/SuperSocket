@@ -33,7 +33,7 @@ namespace SuperSocket.SocketBase
     /// <typeparam name="TAppSession">The type of the app session.</typeparam>
     /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
     /// <typeparam name="TKey">The type of the package key.</typeparam>
-    public abstract class AppSession<TAppSession, TPackageInfo, TKey> : IAppSession, IAppSession<TAppSession, TPackageInfo>, IPackageHandler<TPackageInfo>, IThreadExecutingContext
+    public abstract class AppSession<TAppSession, TPackageInfo, TKey> : IAppSession, IAppSession<TAppSession, TPackageInfo>, IPackageHandler<TPackageInfo>, IThreadExecutingContext, ICommunicationChannel
         where TAppSession : AppSession<TAppSession, TPackageInfo, TKey>, IAppSession, new()
         where TPackageInfo : class, IPackageInfo, IPackageInfo<TKey>
     {
@@ -481,6 +481,16 @@ namespace SuperSocket.SocketBase
         {
             var data = this.Charset.GetBytes(string.Format(message, paramValues));
             InternalSend(new ArraySegment<byte>(data, 0, data.Length));
+        }
+
+        void ICommunicationChannel.Send(ArraySegment<byte> segment)
+        {
+            InternalSend(segment);
+        }
+
+        void ICommunicationChannel.Close()
+        {
+            SocketSession.Close(CloseReason.ServerClosing);
         }
 
         #endregion
