@@ -19,9 +19,11 @@ namespace SuperSocket.WebSocket
             appServer.RegisterService<WebSocketServiceProvider>(new WebSocketServiceProvider(appServer));
             appServer.RegisterService<INewSessionHandler>(new WebSocketNewSessionHandler());
         }
+
         public IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
-            return new WebSocketHandshakeReceiveFilter();
+            var websocketContext = new WebSocketContext(appSession, appServer.BufferManager);
+            return new WebSocketHandshakeReceiveFilter(websocketContext);
         }
     }
 }

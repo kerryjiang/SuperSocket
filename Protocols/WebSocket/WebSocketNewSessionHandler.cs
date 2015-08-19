@@ -1,13 +1,13 @@
-﻿using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Logging;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using AnyLog;
 using SuperSocket.Common;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.WebSocket
 {
@@ -38,13 +38,13 @@ namespace SuperSocket.WebSocket
             if (!int.TryParse(config.Options.GetValue("handshakePendingQueueCheckingInterval"), out m_HandshakePendingQueueCheckingInterval))
             {
                 m_HandshakePendingQueueCheckingInterval = 60;// 1 minute default
-                m_Log.ErrorFormat("Invalid configuration value： handshakePendingQueueCheckingInterval");
+                m_Log.ErrorFormat("Invalid configuration value handshakePendingQueueCheckingInterval");
             }
 
             if (!int.TryParse(config.Options.GetValue("openHandshakeTimeOut"), out m_OpenHandshakeTimeOut))
             {
                 m_OpenHandshakeTimeOut = 120;// 2 minute default
-                m_Log.ErrorFormat("Invalid configuration value： openHandshakeTimeOut");
+                m_Log.ErrorFormat("Invalid configuration value openHandshakeTimeOut");
             }
         }
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.SocketBase;
 
 namespace SuperSocket.WebSocket
 {
@@ -77,6 +78,21 @@ namespace SuperSocket.WebSocket
         {
             BufferManager = bufferManager;
             Channel = channel;
+
+            var session = channel as IAppSession;
+
+            if (session != null)
+                session.Items.Add(c_WebSocketContextKey, this);
+        }
+
+        public static WebSocketContext Get(IAppSession session)
+        {
+            object context;
+
+            if (!session.Items.TryGetValue(c_WebSocketContextKey, out context))
+                return null;
+
+            return context as WebSocketContext;
         }
     }
 }
