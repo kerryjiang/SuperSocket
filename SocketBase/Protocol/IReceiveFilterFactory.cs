@@ -15,7 +15,7 @@ namespace SuperSocket.SocketBase.Protocol
     /// Receive filter factory interface
     /// </summary>
     /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
-    public interface IReceiveFilterFactory<TPackageInfo> : IReceiveFilterFactory
+    public interface IReceiveFilterFactory<out TPackageInfo> : IReceiveFilterFactory
         where TPackageInfo : IPackageInfo
     {
         /// <summary>
