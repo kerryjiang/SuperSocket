@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AnyLog, Version=0.1.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\AnyLog.0.1.5.0\lib\net40\AnyLog.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\Reference\Json.NET\Net40\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -49,21 +53,18 @@
     <Compile Include="Config\SubProtocolConfigCollection.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IBinaryDataParser.cs" />
+    <Compile Include="IHandshakeValidator.cs" />
     <Compile Include="OpCode.cs" />
-    <Compile Include="OpHandlers\BinaryHandler.cs" />
-    <Compile Include="OpHandlers\CloseHandler.cs" />
-    <Compile Include="OpHandlers\IOpHandler.cs" />
-    <Compile Include="OpHandlers\OpHandlerBase.cs" />
-    <Compile Include="OpHandlers\PingHandler.cs" />
-    <Compile Include="OpHandlers\PongHandler.cs" />
-    <Compile Include="OpHandlers\TextHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveFilters\DraftHybi00DataReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\DraftHybi00ReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\DraftHybi10ReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\IHandshakeHandler.cs" />
+    <Compile Include="ReceiveFilters\IWebSocketReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\MultipleProtocolSwitchReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\Rfc6455ReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\WebSocketHandshakeReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\WebSocketReceiveFilterFactory.cs" />
     <Compile Include="WebSocketConst.cs" />
     <Compile Include="WebSocketContext.cs" />
     <Compile Include="WebSocketNewSessionHandler.cs" />

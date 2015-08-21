@@ -30,9 +30,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>..\..\Reference\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\..\LogMaster4Net\master\Reference\nunit.framework.dll</HintPath>
     </Reference>
@@ -44,6 +41,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="WebSocket4Net">
       <HintPath>..\..\Reference\WebSocket4Net\net45\Debug\WebSocket4Net.dll</HintPath>
+    </Reference>
+    <Reference Include="AnyLog, Version=0.1.5.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\AnyLog.0.1.5.0\lib\net40\AnyLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -78,6 +79,10 @@
     <ProjectReference Include="..\..\SocketEngine\SuperSocket.SocketEngine.Net45.csproj">
       <Project>{153fef72-191c-43d9-be71-2b351c7ac760}</Project>
       <Name>SuperSocket.SocketEngine.Net45</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\SocketService\SuperSocket.SocketService.Net45.csproj">
+      <Project>{b9113694-7226-4152-938d-3172b11571a1}</Project>
+      <Name>SuperSocket.SocketService.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\WebSocket\SuperSocket.WebSocket.Net45.csproj">
       <Project>{db6dd6e8-abde-4c4a-a3e2-df49c074433b}</Project>

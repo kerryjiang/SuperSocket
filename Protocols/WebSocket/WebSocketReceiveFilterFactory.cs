@@ -22,7 +22,7 @@ namespace SuperSocket.WebSocket
 
         public IReceiveFilter<StringPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint)
         {
-            var websocketContext = new WebSocketContext(appSession, appServer.BufferManager);
+            var websocketContext = new WebSocketContext((ICommunicationChannel)appSession, appServer.BufferManager);
             return new WebSocketHandshakeReceiveFilter(websocketContext);
         }
     }

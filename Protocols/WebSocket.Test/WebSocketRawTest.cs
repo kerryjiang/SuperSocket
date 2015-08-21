@@ -10,7 +10,6 @@ using SuperSocket.ClientEngine.Protocol;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
 using SuperSocket.WebSocket;
 using WebSocket.Test;
