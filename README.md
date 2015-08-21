@@ -1,5 +1,6 @@
 # SuperSocket  [![Build Status](https://travis-ci.org/kerryjiang/SuperSocket.svg?branch=master)](https://travis-ci.org/kerryjiang/SuperSocket)
 
+## This branch is under developing and unstable. If you want a stable version which can be used in your production system, please switch to branch v1.6. ##
 
 **SuperSocket** is a light weight extensible socket application framework.
 You can use it to build a server side socket application easily without thinking about how to use socket, how to maintain the socket connections and how socket works.
