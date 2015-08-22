@@ -57,49 +57,60 @@ namespace SuperSocket.ProtoBase
         /// </returns>
         public virtual ProcessResult Process(ArraySegment<byte> segment, IBufferState state)
         {
-            m_ReceiveCache.Add(segment, state);
+            var receiveCache = m_ReceiveCache;
+
+            receiveCache.Add(segment, state);
 
             var rest = 0;
 
+            var currentReceiveFilter = m_ReceiveFilter;
+
             while (true)
             {
-                var packageInfo = m_ReceiveFilter.Filter(m_ReceiveCache, out rest);
+                var packageInfo = currentReceiveFilter.Filter(receiveCache, out rest);
 
-                if (m_ReceiveFilter.State == FilterState.Error)
+                if (currentReceiveFilter.State == FilterState.Error)
                 {
-                    m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count);
+                    m_BufferRecycler.Return(receiveCache.GetAllCachedItems(), 0, receiveCache.Count);
                     return ProcessResult.Create(ProcessState.Error);
                 }
 
                 if (m_MaxPackageLength > 0)
                 {
-                    var length = m_ReceiveCache.Total;
+                    var length = receiveCache.Total;
 
                     if (length > m_MaxPackageLength)
                     {
-                        m_BufferRecycler.Return(m_ReceiveCache.GetAllCachedItems(), 0, m_ReceiveCache.Count);
+                        m_BufferRecycler.Return(receiveCache.GetAllCachedItems(), 0, receiveCache.Count);
                         return ProcessResult.Create(ProcessState.Error, string.Format("Max package length: {0}, current processed length: {1}", m_MaxPackageLength, length));
                     }
                 }
+
+                var nextReceiveFilter = currentReceiveFilter.NextReceiveFilter;
+                currentReceiveFilter.Reset();
+
+                if (nextReceiveFilter != null)
+                {
+                    currentReceiveFilter = nextReceiveFilter;
+                    m_ReceiveFilter = currentReceiveFilter;
+                }                    
 
                 //Receive continue
                 if (packageInfo == null)
                 {
                     if (rest > 0)
                     {
-                        PushResetData(segment, rest, state);
+                        if(rest != segment.Count)
+                        {
+                            ReturnOtherThanLastBuffer();
+                            PushResetData(segment, rest, state);
+                        }
+                        
                         continue;
                     }
 
                     return ProcessResult.Create(ProcessState.Cached);
                 }
-
-                m_ReceiveFilter.Reset();
-
-                var nextReceiveFilter = m_ReceiveFilter.NextReceiveFilter;
-
-                if (nextReceiveFilter != null)
-                    m_ReceiveFilter = nextReceiveFilter;
 
                 m_PackageHandler.Handle(packageInfo);
 
@@ -107,7 +118,7 @@ namespace SuperSocket.ProtoBase
                         && (packageInfo as IBufferedPackageInfo).Data is BufferList) // and it uses receive buffer directly
                 {
                     // so we need to create a new receive buffer container to use
-                    m_ReceiveCache = new BufferList();
+                    m_ReceiveCache = receiveCache = new BufferList();
 
                     if (rest <= 0)
                     {
