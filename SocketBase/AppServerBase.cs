@@ -514,6 +514,8 @@ namespace SuperSocket.SocketBase
                 TextEncoding = Encoding.GetEncoding(config.TextEncoding);
             else
                 TextEncoding = new ASCIIEncoding();
+
+            AppContext.SetCurrentServer(this);
         }
 
         private bool SetupAdvanced(IServerConfig config)
