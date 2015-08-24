@@ -12,8 +12,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
     {
         protected WebSocketContext Context { get; private set; }
 
+        private const int c_Key3Len = 8;
+
         public DraftHybi00ReceiveFilter()
-            : base(8)
+            : base(c_Key3Len)
         {
 
         }
@@ -59,12 +61,12 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
             using (var stream = this.GetBufferStream(packageData))
             {
-                var secKey3 = bufferManager.GetBuffer(8);
+                var secKey3 = bufferManager.GetBuffer(c_Key3Len);
 
                 try
                 {
-                    stream.Read(secKey3, 0, secKey3.Length);
-                    secret = GetResponseSecurityKey(secKey1, secKey2, new ArraySegment<byte>(secKey3));
+                    stream.Read(secKey3, 0, c_Key3Len);
+                    secret = GetResponseSecurityKey(secKey1, secKey2, new ArraySegment<byte>(secKey3, 0, c_Key3Len));
                 }
                 finally
                 {
