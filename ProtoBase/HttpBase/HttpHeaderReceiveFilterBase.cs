@@ -16,7 +16,7 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Http header terminator
         /// </summary>
-        private static readonly byte[] NewLine = new byte[] { 0x0a, 0x0d };
+        private static readonly byte[] NewLine = new byte[] { 0x0d, 0x0a, 0x0d, 0x0a };
 
         /// <summary>
         /// Header part text encoding
@@ -37,7 +37,18 @@ namespace SuperSocket.ProtoBase
         /// </summary>
         /// <param name="headerEncoding">Header part text encoding</param>
         protected HttpHeaderReceiveFilterBase(Encoding headerEncoding)
-            : base(NewLine)
+            : this(headerEncoding, NewLine)
+        {
+
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpHeaderReceiveFilterBase{TPackageInfo}" /> class.
+        /// </summary>
+        /// <param name="headerEncoding">Header part text encoding</param>
+        /// <param name="terminator">the terminator of the header part</param>
+        protected HttpHeaderReceiveFilterBase(Encoding headerEncoding, byte[] terminator)
+            : base(terminator)
         {
             if (headerEncoding == null)
                 throw new ArgumentNullException("headerEncoding");
