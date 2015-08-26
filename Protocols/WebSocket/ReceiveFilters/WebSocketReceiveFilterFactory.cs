@@ -43,29 +43,26 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
     class MultipleProtocolSwitchReceiveFilterFactory : IWebSocketReceiveFilterFactory
     {
-        protected int[] m_Versions;
+        private byte[] m_SwitchResponse;
 
         public MultipleProtocolSwitchReceiveFilterFactory(int[] versions)
-        {
-            m_Versions = versions;
-        }
-
-        public int Version { get { return 0; } }
-
-        public bool TryHandshake(WebSocketContext context, out IWebSocketReceiveFilter filter)
         {
             var responseBuilder = new StringBuilder();
 
             responseBuilder.AppendWithCrCf("HTTP/1.1 400 Bad Request");
             responseBuilder.AppendWithCrCf("Upgrade: WebSocket");
             responseBuilder.AppendWithCrCf("Connection: Upgrade");
-            responseBuilder.AppendWithCrCf("Sec-WebSocket-Version: " + string.Join(", ", m_Versions.Select(i => i.ToString()).ToArray()));
+            responseBuilder.AppendWithCrCf("Sec-WebSocket-Version: " + string.Join(", ", versions.Select(i => i.ToString()).ToArray()));
             responseBuilder.AppendWithCrCf();
 
-            var switchResponse = Encoding.UTF8.GetBytes(responseBuilder.ToString());
+            m_SwitchResponse = Encoding.UTF8.GetBytes(responseBuilder.ToString());
+        }
 
-            filter = new MultipleProtocolSwitchReceiveFilter(switchResponse);
+        public int Version { get { return 0; } }
 
+        public bool TryHandshake(WebSocketContext context, out IWebSocketReceiveFilter filter)
+        {
+            filter = new MultipleProtocolSwitchReceiveFilter(m_SwitchResponse);
             return true;
         }
     }
