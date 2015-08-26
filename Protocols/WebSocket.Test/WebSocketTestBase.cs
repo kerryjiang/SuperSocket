@@ -49,17 +49,17 @@ namespace WebSocket.Test
             session.Send(e, 0, e.Length);
         }
 
-        [SetUp]
-        public void StartServer()
-        {
-            AppServer.Start();
-        }
+        //[SetUp]
+        //public void StartServer()
+        //{
+        //    AppServer.Start();
+        //}
 
-        [TearDown]
-        public void StopServer()
-        {
-            AppServer.Stop();
-        }
+        //[TearDown]
+        //public void StopServer()
+        //{
+        //    AppServer.Stop();
+        //}
 
         protected WebSocket4Net.WebSocket CreateClient()
         {

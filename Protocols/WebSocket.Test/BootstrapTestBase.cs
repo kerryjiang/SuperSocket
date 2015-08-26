@@ -21,7 +21,7 @@ namespace WebSocket.Test
             get { return m_BootStrap; }
         }
 
-        [TearDown]
+        [TestFixtureTearDown]
         public void ClearBootstrap()
         {
             if (m_BootStrap != null)

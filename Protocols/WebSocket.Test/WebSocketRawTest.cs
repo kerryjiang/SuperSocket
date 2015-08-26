@@ -30,6 +30,8 @@ namespace SuperWebSocketTest
 
         public override void Setup()
         {
+            base.Setup();
+
             var appServer = AppServer;
 
             appServer.NewSessionConnected += appServer_NewSessionConnected;
@@ -67,6 +69,7 @@ namespace SuperWebSocketTest
             socket.Connect(address);
 
             stream = new NetworkStream(socket);
+            stream.ReadTimeout = 5000;
 
             var reader = new StreamReader(stream, m_Encoding, false);
             var writer = new StreamWriter(stream, m_Encoding, 1024 * 10);
