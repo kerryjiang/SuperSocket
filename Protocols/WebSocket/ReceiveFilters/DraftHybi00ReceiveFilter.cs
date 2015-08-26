@@ -51,8 +51,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             responseBuilder.AppendWithCrCf();
             var response = responseBuilder.ToString();
             var encoding = Encoding.UTF8;
-            var data = bufferManager.GetBuffer(encoding.GetMaxByteCount(response.Length));
-            var length = encoding.GetBytes(response, 0, response.Length, data, 0);
+
+            byte[] data = encoding.GetBytes(response);
+
+            context.Channel.Send(new ArraySegment<byte>(data));
 
             var secKey1 = context.HandshakeRequest.Get(WebSocketConstant.SecWebSocketKey1);
             var secKey2 = context.HandshakeRequest.Get(WebSocketConstant.SecWebSocketKey2);
