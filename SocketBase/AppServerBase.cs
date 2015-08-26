@@ -574,6 +574,9 @@ namespace SuperSocket.SocketBase
                 }
             }
 
+            TextEncoder = GetService<IProtoTextEncoder>();
+            DataEncoder = GetService<IProtoDataEncoder>();
+
             var newSessionHandler = GetService<INewSessionHandler>();
 
             if (newSessionHandler != null)
@@ -1926,6 +1929,14 @@ namespace SuperSocket.SocketBase
         }
 
         #endregion IStatusInfoSource
+
+        #region encoder
+
+        internal IProtoTextEncoder TextEncoder { get; private set; }
+
+        internal IProtoDataEncoder DataEncoder { get; private set; }
+
+        #endregion encoder
 
         #region service provider
 
