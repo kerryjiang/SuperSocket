@@ -46,6 +46,8 @@
     <Compile Include="BufferListStream.cs" />
     <Compile Include="Buffer\IBufferManager.cs" />
     <Compile Include="Buffer\NullBufferManager.cs" />
+    <Compile Include="Encoder\IProtoDataEncoder.cs" />
+    <Compile Include="Encoder\IProtoTextEncoder.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FilterState.cs" />
     <Compile Include="HttpBase\HttpHeaderInfo.cs" />
