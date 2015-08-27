@@ -552,28 +552,14 @@ namespace SuperSocket.SocketBase
     public abstract class AppSession<TAppSession> : AppSession<TAppSession, StringPackageInfo>
         where TAppSession : AppSession<TAppSession, StringPackageInfo>, IAppSession, new()
     {
-
-        private bool m_AppendNewLineForResponse = false;
-
-        private static string m_NewLine = "\r\n";
-
         /// <summary>
         /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession&gt;"/> class.
         /// </summary>
         public AppSession()
-            : this(true)
         {
 
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AppSession&lt;TAppSession&gt;"/> class.
-        /// </summary>
-        /// <param name="appendNewLineForResponse">if set to <c>true</c> [append new line for response].</param>
-        public AppSession(bool appendNewLineForResponse)
-        {
-            m_AppendNewLineForResponse = appendNewLineForResponse;
-        }
 
         /// <summary>
         /// Handles the unknown request.
