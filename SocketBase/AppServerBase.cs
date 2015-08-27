@@ -575,6 +575,10 @@ namespace SuperSocket.SocketBase
             }
 
             TextEncoder = GetService<IProtoTextEncoder>();
+
+            if (TextEncoder == null)
+                TextEncoder = new NewLineProtoTextEncoder(TextEncoding);
+
             DataEncoder = GetService<IProtoDataEncoder>();
 
             var newSessionHandler = GetService<INewSessionHandler>();

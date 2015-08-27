@@ -134,8 +134,11 @@
     <Compile Include="Protocol\CommandLineReceiveFilterFactory.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilter.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\DefaultProtoSender.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\IProtoSender.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\NewLineProtoTextEncoder.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Protocol\UdpPackageInfo.cs" />

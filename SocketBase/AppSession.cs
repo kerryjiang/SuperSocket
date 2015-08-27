@@ -296,27 +296,6 @@ namespace SuperSocket.SocketBase
         #region Sending processing
 
         /// <summary>
-        /// Try to send the message to client.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public virtual bool TrySend(string message)
-        {
-            var data = this.Charset.GetBytes(message);
-            return InternalTrySend(new ArraySegment<byte>(data, 0, data.Length));
-        }
-
-        /// <summary>
-        /// Sends the message to client.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        public virtual void Send(string message)
-        {
-            var data = this.Charset.GetBytes(message);
-            Send(data, 0, data.Length);
-        }
-
-        /// <summary>
         /// Try to send the data to client.
         /// </summary>
         /// <param name="data">The data which will be sent.</param>
@@ -325,7 +304,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(byte[] data, int offset, int length)
         {
-            return InternalTrySend(new ArraySegment<byte>(data, offset, length));
+            return TrySend(new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
@@ -336,10 +315,10 @@ namespace SuperSocket.SocketBase
         /// <param name="length">The length.</param>
         public virtual void Send(byte[] data, int offset, int length)
         {
-            InternalSend(new ArraySegment<byte>(data, offset, length));
+            Send(new ArraySegment<byte>(data, offset, length));
         }
 
-        private bool InternalTrySend(ArraySegment<byte> segment)
+        internal bool InternalTrySend(ArraySegment<byte> segment)
         {
             if (!SocketSession.TrySend(segment))
                 return false;
@@ -358,11 +337,16 @@ namespace SuperSocket.SocketBase
             if (!m_Connected)
                 return false;
 
+            var dataEncoder = AppServer.DataEncoder;
+
+            if (dataEncoder != null)
+                return InternalTrySend(dataEncoder.EncodeData(segment));
+
             return InternalTrySend(segment);
         }
 
 
-        private void InternalSend(ArraySegment<byte> segment)
+        internal void InternalSend(ArraySegment<byte> segment)
         {
             if (!m_Connected)
                 return;
@@ -403,10 +387,18 @@ namespace SuperSocket.SocketBase
         /// <param name="segment">The segment which will be sent.</param>
         public virtual void Send(ArraySegment<byte> segment)
         {
+            var dataEncoder = AppServer.DataEncoder;
+
+            if (dataEncoder != null)
+            {
+                InternalSend(dataEncoder.EncodeData(segment));
+                return;
+            }
+
             InternalSend(segment);
         }
 
-        private bool InternalTrySend(IList<ArraySegment<byte>> segments)
+        internal bool InternalTrySend(IList<ArraySegment<byte>> segments)
         {
             if (!SocketSession.TrySend(segments))
                 return false;
@@ -425,10 +417,15 @@ namespace SuperSocket.SocketBase
             if (!m_Connected)
                 return false;
 
+            var dataEncoder = AppServer.DataEncoder;
+
+            if (dataEncoder != null)
+                return InternalTrySend(dataEncoder.EncodeData(segments));
+
             return InternalTrySend(segments);
         }
 
-        private void InternalSend(IList<ArraySegment<byte>> segments)
+        internal void InternalSend(IList<ArraySegment<byte>> segments)
         {
             if (!m_Connected)
                 return;
@@ -469,18 +466,15 @@ namespace SuperSocket.SocketBase
         /// <param name="segments">The segments.</param>
         public virtual void Send(IList<ArraySegment<byte>> segments)
         {
-            InternalSend(segments);
-        }
+            var dataEncoder = AppServer.DataEncoder;
 
-        /// <summary>
-        /// Sends the response.
-        /// </summary>
-        /// <param name="message">The message which will be sent.</param>
-        /// <param name="paramValues">The parameter values.</param>
-        public virtual void Send(string message, params object[] paramValues)
-        {
-            var data = this.Charset.GetBytes(string.Format(message, paramValues));
-            InternalSend(new ArraySegment<byte>(data, 0, data.Length));
+            if (dataEncoder != null)
+            {
+                InternalSend(dataEncoder.EncodeData(segments));
+                return;
+            }
+
+            InternalSend(segments);
         }
 
         void ICommunicationChannel.Send(ArraySegment<byte> segment)
@@ -590,44 +584,52 @@ namespace SuperSocket.SocketBase
             Send("Unknown request: " + requestInfo.Key);
         }
 
-        /// <summary>
-        /// Processes the sending message.
-        /// </summary>
-        /// <param name="rawMessage">The raw message.</param>
-        /// <returns></returns>
-        protected virtual string ProcessSendingMessage(string rawMessage)
-        {
-            if (!m_AppendNewLineForResponse)
-                return rawMessage;
 
-            if (AppServer.Config.Mode == SocketMode.Udp)
-                return rawMessage;
-
-            if (string.IsNullOrEmpty(rawMessage) || !rawMessage.EndsWith(m_NewLine))
-                return rawMessage + m_NewLine;
-            else
-                return rawMessage;
-        }
-
-        /// <summary>
-        /// Sends the specified message.
-        /// </summary>
-        /// <param name="message">The message.</param>
-        /// <returns></returns>
-        public override void Send(string message)
-        {
-            base.Send(ProcessSendingMessage(message));
-        }
 
         /// <summary>
         /// Sends the response.
         /// </summary>
-        /// <param name="message">The message.</param>
-        /// <param name="paramValues">The param values.</param>
-        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
-        public override void Send(string message, params object[] paramValues)
+        /// <param name="message">The message which will be sent.</param>
+        /// <param name="paramValues">The parameter values.</param>
+        public virtual void Send(string message, params object[] paramValues)
         {
-            base.Send(ProcessSendingMessage(message), paramValues);
+            Send(string.Format(message, paramValues));
+        }
+
+        /// <summary>
+        /// Try to send the message to client.
+        /// </summary>
+        /// <param name="message">The message which will be sent.</param>
+        /// <returns>Indicate whether the message was pushed into the sending queue</returns>
+        public virtual bool TrySend(string message)
+        {
+            var textEncoder = AppServer.TextEncoder;
+
+            if (textEncoder != null)
+            {
+                return InternalTrySend(textEncoder.EncodeText(message));
+            }
+
+            var data = this.Charset.GetBytes(message);
+            return InternalTrySend(new ArraySegment<byte>(data, 0, data.Length));
+        }
+
+        /// <summary>
+        /// Sends the message to client.
+        /// </summary>
+        /// <param name="message">The message which will be sent.</param>
+        public virtual void Send(string message)
+        {
+            var textEncoder = AppServer.TextEncoder;
+
+            if (textEncoder != null)
+            {
+                InternalSend(textEncoder.EncodeText(message));
+                return;
+            }
+
+            var data = this.Charset.GetBytes(message);
+            InternalSend(new ArraySegment<byte>(data, 0, data.Length));
         }
     }
 

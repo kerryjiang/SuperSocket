@@ -123,6 +123,9 @@
     <Compile Include="ProtocolMode.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilter.cs" />
     <Compile Include="Protocol\CountSpliterReceiveFilterFactory.cs" />
+    <Compile Include="Protocol\DefaultProtoSender.cs" />
+    <Compile Include="Protocol\IProtoSender.cs" />
+    <Compile Include="Protocol\NewLineProtoTextEncoder.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilter.cs" />
     <Compile Include="Protocol\TerminatorReceiveFilterFactory.cs" />
     <Compile Include="Provider\IProviderMetadata.cs" />
