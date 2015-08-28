@@ -137,5 +137,11 @@ namespace SuperSocket.SocketBase
         /// The pipeline processor.
         /// </value>
         IPipelineProcessor PipelineProcessor { get; }
+
+        /// <summary>
+        /// Can send data over this socket session
+        /// </summary>
+        /// <returns>if yes, you can send; otherwise you cannot</returns>
+        bool CanSend();
     }
 }

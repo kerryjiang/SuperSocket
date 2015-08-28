@@ -446,6 +446,11 @@ namespace SuperSocket.SocketEngine
             get { return m_State >= SocketState.Closed; }
         }
 
+        bool ISocketSession.CanSend()
+        {
+            return !IsInClosingOrClosed;
+        }
+
         /// <summary>
         /// Gets the local end point.
         /// </summary>

@@ -581,6 +581,16 @@ namespace SuperSocket.SocketBase
 
             DataEncoder = GetService<IProtoDataEncoder>();
 
+            ProtoSender = GetService<IProtoSender>();
+
+            if(ProtoSender == null)
+            {
+                if (DataEncoder == null)
+                    ProtoSender = new DefaultProtoSender(Config.SendTimeOut);
+                else
+                    ProtoSender = new EncodeProtoSender(Config.SendTimeOut, DataEncoder);
+            }
+
             var newSessionHandler = GetService<INewSessionHandler>();
 
             if (newSessionHandler != null)
@@ -1939,6 +1949,8 @@ namespace SuperSocket.SocketBase
         internal IProtoTextEncoder TextEncoder { get; private set; }
 
         internal IProtoDataEncoder DataEncoder { get; private set; }
+
+        internal IProtoSender ProtoSender { get; private set; }
 
         #endregion encoder
 

@@ -304,7 +304,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(byte[] data, int offset, int length)
         {
-            return TrySend(new ArraySegment<byte>(data, offset, length));
+            return AppServer.ProtoSender.TrySend(SocketSession, new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
@@ -315,16 +315,7 @@ namespace SuperSocket.SocketBase
         /// <param name="length">The length.</param>
         public virtual void Send(byte[] data, int offset, int length)
         {
-            Send(new ArraySegment<byte>(data, offset, length));
-        }
-
-        internal bool InternalTrySend(ArraySegment<byte> segment)
-        {
-            if (!SocketSession.TrySend(segment))
-                return false;
-
-            LastActiveTime = DateTime.Now;
-            return true;
+            AppServer.ProtoSender.Send(SocketSession, new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
@@ -334,51 +325,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(ArraySegment<byte> segment)
         {
-            if (!m_Connected)
-                return false;
-
-            var dataEncoder = AppServer.DataEncoder;
-
-            if (dataEncoder != null)
-                return InternalTrySend(dataEncoder.EncodeData(segment));
-
-            return InternalTrySend(segment);
-        }
-
-
-        internal void InternalSend(ArraySegment<byte> segment)
-        {
-            if (!m_Connected)
-                return;
-
-            if (InternalTrySend(segment))
-                return;
-
-            var sendTimeOut = Config.SendTimeOut;
-
-            //Don't retry, timeout directly
-            if (sendTimeOut < 0)
-            {
-                throw new TimeoutException("The sending attempt timed out");
-            }
-
-            var timeOutTime = sendTimeOut > 0 ? DateTime.Now.AddMilliseconds(sendTimeOut) : DateTime.Now;
-
-            var spinWait = new SpinWait();
-
-            while (m_Connected)
-            {
-                spinWait.SpinOnce();
-
-                if (InternalTrySend(segment))
-                    return;
-
-                //If sendTimeOut = 0, don't have timeout check
-                if (sendTimeOut > 0 && DateTime.Now >= timeOutTime)
-                {
-                    throw new TimeoutException("The sending attempt timed out");
-                }
-            }
+            return AppServer.ProtoSender.TrySend(SocketSession, segment);
         }
 
         /// <summary>
@@ -387,24 +334,7 @@ namespace SuperSocket.SocketBase
         /// <param name="segment">The segment which will be sent.</param>
         public virtual void Send(ArraySegment<byte> segment)
         {
-            var dataEncoder = AppServer.DataEncoder;
-
-            if (dataEncoder != null)
-            {
-                InternalSend(dataEncoder.EncodeData(segment));
-                return;
-            }
-
-            InternalSend(segment);
-        }
-
-        internal bool InternalTrySend(IList<ArraySegment<byte>> segments)
-        {
-            if (!SocketSession.TrySend(segments))
-                return false;
-
-            LastActiveTime = DateTime.Now;
-            return true;
+            AppServer.ProtoSender.Send(SocketSession, segment);
         }
 
         /// <summary>
@@ -414,50 +344,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue; if it returns false, the sending queue may be full or the socket is not connected</returns>
         public virtual bool TrySend(IList<ArraySegment<byte>> segments)
         {
-            if (!m_Connected)
-                return false;
-
-            var dataEncoder = AppServer.DataEncoder;
-
-            if (dataEncoder != null)
-                return InternalTrySend(dataEncoder.EncodeData(segments));
-
-            return InternalTrySend(segments);
-        }
-
-        internal void InternalSend(IList<ArraySegment<byte>> segments)
-        {
-            if (!m_Connected)
-                return;
-
-            if (InternalTrySend(segments))
-                return;
-
-            var sendTimeOut = Config.SendTimeOut;
-
-            //Don't retry, timeout directly
-            if (sendTimeOut < 0)
-            {
-                throw new TimeoutException("The sending attempt timed out");
-            }
-
-            var timeOutTime = sendTimeOut > 0 ? DateTime.Now.AddMilliseconds(sendTimeOut) : DateTime.Now;
-
-            var spinWait = new SpinWait();
-
-            while (m_Connected)
-            {
-                spinWait.SpinOnce();
-
-                if (InternalTrySend(segments))
-                    return;
-
-                //If sendTimeOut = 0, don't have timeout check
-                if (sendTimeOut > 0 && DateTime.Now >= timeOutTime)
-                {
-                    throw new TimeoutException("The sending attempt timed out");
-                }
-            }
+            return AppServer.ProtoSender.TrySend(SocketSession, segments);
         }
 
         /// <summary>
@@ -466,20 +353,12 @@ namespace SuperSocket.SocketBase
         /// <param name="segments">The segments.</param>
         public virtual void Send(IList<ArraySegment<byte>> segments)
         {
-            var dataEncoder = AppServer.DataEncoder;
-
-            if (dataEncoder != null)
-            {
-                InternalSend(dataEncoder.EncodeData(segments));
-                return;
-            }
-
-            InternalSend(segments);
+            AppServer.ProtoSender.Send(SocketSession, segments);
         }
 
         void ICommunicationChannel.Send(ArraySegment<byte> segment)
         {
-            InternalSend(segment);
+            SocketSession.TrySend(segment);
         }
 
         void ICommunicationChannel.Close()
@@ -593,11 +472,11 @@ namespace SuperSocket.SocketBase
 
             if (textEncoder != null)
             {
-                return InternalTrySend(textEncoder.EncodeText(message));
+                return TrySend(textEncoder.EncodeText(message));
             }
 
             var data = this.Charset.GetBytes(message);
-            return InternalTrySend(new ArraySegment<byte>(data, 0, data.Length));
+            return TrySend(new ArraySegment<byte>(data, 0, data.Length));
         }
 
         /// <summary>
@@ -610,12 +489,12 @@ namespace SuperSocket.SocketBase
 
             if (textEncoder != null)
             {
-                InternalSend(textEncoder.EncodeText(message));
+                Send(textEncoder.EncodeText(message));
                 return;
             }
 
             var data = this.Charset.GetBytes(message);
-            InternalSend(new ArraySegment<byte>(data, 0, data.Length));
+            Send(new ArraySegment<byte>(data, 0, data.Length));
         }
     }
 
