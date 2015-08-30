@@ -51,6 +51,10 @@
     <Compile Include="Config\CommandConfigCollection.cs" />
     <Compile Include="Config\SubProtocolConfig.cs" />
     <Compile Include="Config\SubProtocolConfigCollection.cs" />
+    <Compile Include="Encoders\Hybi00ProtoDataEncoder.cs" />
+    <Compile Include="Encoders\Hybi00ProtoTextEncoder.cs" />
+    <Compile Include="Encoders\Rfc6455ProtoDataEncoder.cs" />
+    <Compile Include="Encoders\Rfc6455ProtoTextEncoder.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IBinaryDataParser.cs" />
     <Compile Include="IHandshakeValidator.cs" />

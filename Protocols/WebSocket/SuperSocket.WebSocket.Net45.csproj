@@ -50,6 +50,10 @@
     <Compile Include="..\..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="Encoders\Hybi00ProtoDataEncoder.cs" />
+    <Compile Include="Encoders\Hybi00ProtoTextEncoder.cs" />
+    <Compile Include="Encoders\Rfc6455ProtoDataEncoder.cs" />
+    <Compile Include="Encoders\Rfc6455ProtoTextEncoder.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="IHandshakeValidator.cs" />
     <Compile Include="OpCode.cs" />
