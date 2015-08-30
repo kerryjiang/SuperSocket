@@ -28,9 +28,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             return null;
         }
 
-        public void Handshake(WebSocketContext context)
+        public bool Handshake(WebSocketContext context)
         {
             Context = context;
+            return true;
         }
 
         public void Reset()

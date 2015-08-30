@@ -49,7 +49,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         }
 
-        public void Handshake(WebSocketContext context)
+        public bool Handshake(WebSocketContext context)
         {
             Context = context;
 
@@ -63,7 +63,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
                 {
                     //TODO: do something like send error code?
                     channel.Close();
-                    return;
+                    return false;
                 }
             }
 
@@ -73,7 +73,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             {
                 //TODO: do something like send error code?
                 channel.Close();
-                return;
+                return false;
             }
 
             var responseBuilder = new StringBuilder();
@@ -88,7 +88,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             {
                 //TODO: do something like send error code?
                 channel.Close();
-                return;
+                return false;
             }
 
             responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseHeadLine10);
@@ -105,6 +105,8 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             responseBuilder.AppendWithCrCf();
             byte[] data = Encoding.UTF8.GetBytes(responseBuilder.ToString());
             channel.Send(new ArraySegment<byte>(data));
+
+            return true;
         }
 
         private int GetPayloadLength(IList<ArraySegment<byte>> packageData, int length)

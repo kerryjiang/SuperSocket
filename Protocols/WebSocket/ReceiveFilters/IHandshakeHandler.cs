@@ -7,6 +7,6 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 {
     interface IHandshakeHandler
     {
-        void Handshake(WebSocketContext context);
+        bool Handshake(WebSocketContext context);
     }
 }

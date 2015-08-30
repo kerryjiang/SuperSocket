@@ -20,9 +20,10 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
         }
 
-        public void Handshake(WebSocketContext context)
+        public bool Handshake(WebSocketContext context)
         {
             Context = context;
+            return true;
         }
 
         public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
