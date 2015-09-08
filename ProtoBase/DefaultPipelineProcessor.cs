@@ -86,8 +86,12 @@ namespace SuperSocket.ProtoBase
                     }
                 }
 
+
                 var nextReceiveFilter = currentReceiveFilter.NextReceiveFilter;
-                currentReceiveFilter.Reset();
+
+                // don't reset the filter if no request is resolved
+                if(packageInfo != null)
+                    currentReceiveFilter.Reset();
 
                 if (nextReceiveFilter != null)
                 {
@@ -102,7 +106,6 @@ namespace SuperSocket.ProtoBase
                     {
                         if(rest != segment.Count)
                         {
-                            ReturnOtherThanLastBuffer();
                             PushResetData(segment, rest, state);
                         }
                         
