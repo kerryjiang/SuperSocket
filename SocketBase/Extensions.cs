@@ -83,14 +83,25 @@ namespace SuperSocket.SocketBase
                 isolation = (IsolationMode)isolationValue;
 
             var catalog = new AggregateCatalog();
-            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IAppServer).Assembly));
 
+            catalog.Catalogs.Add(new AssemblyCatalog(typeof(IAppServer).Assembly));
             catalog.Catalogs.Add(new DirectoryCatalog(AppDomain.CurrentDomain.BaseDirectory, "*.*"));
+
+            var webBinDir = string.Empty;
 
             if (isolation != IsolationMode.None)
             {
-                catalog.Catalogs.Add(new DirectoryCatalog(Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName, "*.*"));
+                var root = Directory.GetParent(AppDomain.CurrentDomain.BaseDirectory).Parent.FullName;
+                catalog.Catalogs.Add(new DirectoryCatalog(root, "*.*"));
+                webBinDir = Path.Combine(root, "bin");
             }
+            else
+            {
+                webBinDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "bin");
+            }
+
+            if (Directory.Exists(webBinDir))
+                catalog.Catalogs.Add(new DirectoryCatalog(webBinDir, "*.*"));
 
             exportProvider = new CompositionContainer(catalog);
 
