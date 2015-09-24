@@ -9,7 +9,7 @@ namespace SuperSocket.WebSocket.Encoders
 {
     class Rfc6455ProtoDataEncoder : IProtoDataEncoder
     {
-        protected ArraySegment<byte> EncodeData(int opCode, bool isFinal, ArraySegment<byte> data)
+        protected ArraySegment<byte> EncodeData(OpCode opCode, bool isFinal, ArraySegment<byte> data)
         {
             var length = data.Count;
 
@@ -30,7 +30,7 @@ namespace SuperSocket.WebSocket.Encoders
             else
             {
                 fragment = new byte[10 + length];
-                fragment[1] = (byte)127;
+                fragment[1] = 127;
 
                 int left = length;
                 int unit = 256;
@@ -45,10 +45,12 @@ namespace SuperSocket.WebSocket.Encoders
                 }
             }
 
+            var intOpCode = (int)opCode;
+
             if (isFinal)
-                fragment[0] = (byte)(opCode | 0x80); //1000 0000
+                fragment[0] = (byte)(intOpCode | 0x80); //1000 0000
             else
-                fragment[0] = (byte)opCode;
+                fragment[0] = (byte)intOpCode;
 
             if (length > 0)
             {
@@ -65,7 +67,7 @@ namespace SuperSocket.WebSocket.Encoders
 
             for(var i = 0; i < data.Count; i++)
             {
-                result.Add(EncodeData((int)OpCode.Binary, i == lastIndex, data[i]));
+                result.Add(EncodeData(i == 0 ? OpCode.Binary : OpCode.Continuation, i == lastIndex, data[i]));
             }
 
             return result;
@@ -73,7 +75,7 @@ namespace SuperSocket.WebSocket.Encoders
 
         public IList<ArraySegment<byte>> EncodeData(ArraySegment<byte> data)
         {
-            return new ArraySegment<byte>[] { EncodeData((int)OpCode.Binary, true, data) };
+            return new ArraySegment<byte>[] { EncodeData(OpCode.Binary, true, data) };
         }
     }
 }

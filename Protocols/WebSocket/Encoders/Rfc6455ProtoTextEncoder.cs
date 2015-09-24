@@ -15,7 +15,7 @@ namespace SuperSocket.WebSocket.Encoders
         {
             return new ArraySegment<byte>[]
                 {
-                    EncodeData((int)OpCode.Binary, true, new ArraySegment<byte>(s_Encoding.GetBytes(message)))
+                    EncodeData(OpCode.Binary, true, new ArraySegment<byte>(s_Encoding.GetBytes(message)))
                 };
         }
     }
