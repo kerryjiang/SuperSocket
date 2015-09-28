@@ -141,8 +141,7 @@ namespace SuperSocket.ProtoBase
             where TStream : BufferListStream, new()
             where TPackageInfo : IPackageInfo
         {
-            //var stream = BufferListStream.GetCurrent<BufferListStream>(); // don't use thread context for BufferListReader for now
-            var stream = new BufferListStream();
+            var stream = BufferListStream.GetCurrent<BufferListStream>(); // don't use thread context for BufferListReader for now
             stream.Initialize(data);
             return stream;
         }
