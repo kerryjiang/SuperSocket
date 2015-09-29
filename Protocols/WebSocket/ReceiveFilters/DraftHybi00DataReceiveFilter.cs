@@ -26,13 +26,13 @@ namespace SuperSocket.WebSocket.ReceiveFilters
                 m_SwitchReceiveFilter = switchReceiveFilter;
             }
 
-            public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override WebSocketPackageInfo ResolvePackage(IBufferStream bufferStream)
             {
                 var context = m_SwitchReceiveFilter.Context;
                 context.OpCode = OpCode.Text;
-                context.PayloadLength = packageData.Sum(d => d.Count);
+                context.PayloadLength = (int)bufferStream.Length;
                 NextReceiveFilter = m_SwitchReceiveFilter;
-                return context.ResolveLastFragment(packageData);
+                return context.ResolveLastFragment(bufferStream.Buffers);
             }
         }
 
@@ -47,13 +47,13 @@ namespace SuperSocket.WebSocket.ReceiveFilters
                 m_SwitchReceiveFilter = switchReceiveFilter;
             }
 
-            public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override WebSocketPackageInfo ResolvePackage(IBufferStream bufferStream)
             {
                 var context = m_SwitchReceiveFilter.Context;
                 context.OpCode = OpCode.Close;
-                context.PayloadLength = packageData.Sum(d => d.Count);
+                context.PayloadLength = (int)bufferStream.Length;
                 NextReceiveFilter = m_SwitchReceiveFilter;
-                return context.ResolveLastFragment(packageData);
+                return context.ResolveLastFragment(bufferStream.Buffers);
             }
         }
 

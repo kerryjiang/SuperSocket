@@ -109,78 +109,75 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             return true;
         }
 
-        private int GetPayloadLength(IList<ArraySegment<byte>> packageData, int length)
+        private int GetPayloadLength(IBufferStream bufferStream, int length)
         {
-            using (var stream = this.GetBufferStream(packageData))
+            if (length == 2)
             {
-                if (length == 2)
+                var flag = bufferStream.ReadByte();
+
+                m_Final = (FINAL_FLAG & flag) == flag;
+                m_OpCode = (sbyte)(flag & 0x08);
+
+                // one byte playload length
+                var playloadLen = (int)bufferStream.ReadByte();
+                //the highest bit is mask indicator
+                m_Masked = playloadLen > 128;
+                // remove the mask byte
+                playloadLen = playloadLen % 128;
+
+                // no extend playload length
+                if (playloadLen < 126)
                 {
-                    var flag = stream.ReadByte();
+                    if (!m_Masked)
+                        return playloadLen;
 
-                    m_Final = (FINAL_FLAG & flag) == flag;
-                    m_OpCode = (sbyte)(flag & 0x08);
-
-                    // one byte playload length
-                    var playloadLen = (int)stream.ReadByte();
-                    //the highest bit is mask indicator
-                    m_Masked = playloadLen > 128;
-                    // remove the mask byte
-                    playloadLen = playloadLen % 128;
-
-                    // no extend playload length
-                    if (playloadLen < 126)
-                    {
-                        if (!m_Masked)
-                            return playloadLen;
-
-                        // masking-key: 4 bytes
-                        return playloadLen + 4;
-                    }
-
-                    // playload length takes 2 bytes
-                    if (playloadLen == 126)
-                    {
-                        ResetSize(4);
-                        return -1;
-                    }
-                    else// playload length takes 8 bytes
-                    {
-                        ResetSize(10);
-                        return -1;
-                    }
+                    // masking-key: 4 bytes
+                    return playloadLen + 4;
                 }
-                else if (length == 4)
+
+                // playload length takes 2 bytes
+                if (playloadLen == 126)
                 {
-                    stream.Skip(2);
-
-                    // 2 bytes
-                    var playloadLen = stream.ReadUInt16();
-
-                    if (m_Masked) // add mask key's length
-                        playloadLen += 4;
-
-                    return playloadLen;
+                    ResetSize(4);
+                    return -1;
                 }
-                else // length = 8
+                else// playload length takes 8 bytes
                 {
-                    stream.Skip(2);
-
-                    // 8 bytes
-                    var playloadLen = stream.ReadUInt64();
-
-                    if (m_Masked) // add mask key's length
-                        playloadLen += 4;
-
-                    return (int)playloadLen;
+                    ResetSize(10);
+                    return -1;
                 }
+            }
+            else if (length == 4)
+            {
+                bufferStream.Skip(2);
+
+                // 2 bytes
+                var playloadLen = bufferStream.ReadUInt16();
+
+                if (m_Masked) // add mask key's length
+                    playloadLen += 4;
+
+                return playloadLen;
+            }
+            else // length = 8
+            {
+                bufferStream.Skip(2);
+
+                // 8 bytes
+                var playloadLen = bufferStream.ReadUInt64();
+
+                if (m_Masked) // add mask key's length
+                    playloadLen += 4;
+
+                return (int)playloadLen;
             }
         }
 
-        protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
+        protected override int GetBodyLengthFromHeader(IBufferStream bufferStream, int length)
         {
             var context = Context;
 
-            var payloadLength = GetPayloadLength(packageData, length);
+            var payloadLength = GetPayloadLength(bufferStream, length);
 
             if (payloadLength > 0)
                 context.PayloadLength = payloadLength;
@@ -190,17 +187,17 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             return payloadLength;
         }
 
-        public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override WebSocketPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
             var context = Context;
 
             if (!m_Final)
             {
-                context.AppendFragment(packageData);
+                context.AppendFragment(bufferStream.Buffers);
                 return null;
             }
 
-            return context.ResolveLastFragment(packageData);
+            return context.ResolveLastFragment(bufferStream.Buffers);
         }
     }
 }

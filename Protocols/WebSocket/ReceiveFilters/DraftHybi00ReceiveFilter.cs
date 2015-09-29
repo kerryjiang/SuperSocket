@@ -26,7 +26,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             return true;
         }
 
-        public override WebSocketPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override WebSocketPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
             var context = Context;
             var bufferManager = context.BufferManager;
@@ -62,19 +62,16 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
             byte[] secret;
 
-            using (var stream = this.GetBufferStream(packageData))
-            {
-                var secKey3 = bufferManager.GetBuffer(c_Key3Len);
+            var secKey3 = bufferManager.GetBuffer(c_Key3Len);
 
-                try
-                {
-                    stream.Read(secKey3, 0, c_Key3Len);
-                    secret = GetResponseSecurityKey(secKey1, secKey2, new ArraySegment<byte>(secKey3, 0, c_Key3Len));
-                }
-                finally
-                {
-                    bufferManager.ReturnBuffer(secKey3);
-                }
+            try
+            {
+                bufferStream.Read(secKey3, 0, c_Key3Len);
+                secret = GetResponseSecurityKey(secKey1, secKey2, new ArraySegment<byte>(secKey3, 0, c_Key3Len));
+            }
+            finally
+            {
+                bufferManager.ReturnBuffer(secKey3);
             }
 
             context.Channel.Send(new ArraySegment<byte>(secret));
