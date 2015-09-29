@@ -7,12 +7,13 @@ using System.Net;
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
+using System.Runtime.Serialization.Formatters;
 using System.Text;
 using System.Threading;
+using AnyLog;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using AnyLog;
 using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketEngine.Configuration;
@@ -577,7 +578,7 @@ namespace SuperSocket.SocketEngine
             if (serverChannel != null)
                 ChannelServices.UnregisterChannel(serverChannel);
 
-            serverChannel = new IpcServerChannel(serverChannelName, bootstrapIpcPort);
+            serverChannel = new IpcServerChannel(serverChannelName, bootstrapIpcPort, new BinaryServerFormatterSinkProvider { TypeFilterLevel = TypeFilterLevel.Full });
             ChannelServices.RegisterChannel(serverChannel, false);
 
             AppDomain.CurrentDomain.SetData("BootstrapIpcPort", bootstrapIpcPort);
