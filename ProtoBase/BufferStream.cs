@@ -13,6 +13,21 @@ namespace SuperSocket.ProtoBase
     public interface IBufferStream
     {
         /// <summary>
+        /// read data from the stream to the specific buffer
+        /// </summary>
+        /// <param name="buffer">the target buffer</param>
+        /// <param name="offset">offset you want to read</param>
+        /// <param name="count">total count you want to read</param>
+        /// <returns></returns>
+        int Read(byte[] buffer, int offset, int count);
+
+        /// <summary>
+        /// Read one byte from the stream
+        /// </summary>
+        /// <returns></returns>
+        int ReadByte();
+
+        /// <summary>
         /// Reads a Int16 number from the current data source.
         /// </summary>
         /// <returns></returns>
@@ -122,6 +137,11 @@ namespace SuperSocket.ProtoBase
         /// Total length of the buffered data
         /// </summary>
         long Length { get; }
+
+        /// <summary>
+        /// All buffered binary segments in the stream
+        /// </summary>
+        IList<ArraySegment<byte>> Buffers { get; }
     }
 
     /// <summary>
@@ -210,6 +230,15 @@ namespace SuperSocket.ProtoBase
             return stream;
         }
 #endif
+
+
+        /// <summary>
+        /// All buffered binary segments in the stream
+        /// </summary>
+        public IList<ArraySegment<byte>> Buffers
+        {
+            get { return m_Segments; }
+        }
 
         /// <summary>
         /// Get current buffer as Stream
