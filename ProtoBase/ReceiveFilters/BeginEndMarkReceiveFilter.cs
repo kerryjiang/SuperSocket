@@ -68,9 +68,9 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Resolves the package binary data to package instance
         /// </summary>
-        /// <param name="packageData">The package binary data.</param>
-        /// <returns></returns>
-        public abstract TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);
+        /// <param name="bufferStream">The received buffer stream.</param>
+        /// <returns>the resolved package instance</returns>
+        public abstract TPackageInfo ResolvePackage(IBufferStream bufferStream);
 
         /// <summary>
         /// Filters the received data.
@@ -147,7 +147,7 @@ namespace SuperSocket.ProtoBase
 
                 data.SetLastItemLength(totalParsed);
 
-                var packageInfo = ResolvePackage(data);
+                var packageInfo = ResolvePackage(this.GetBufferStream(data));
 
                 if (!ReferenceEquals(packageInfo, default(TPackageInfo)))
                 {

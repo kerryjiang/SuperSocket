@@ -10,7 +10,7 @@ namespace SuperSocket.ProtoBase
     /// <summary>
     /// The interface for the stream class whose data is consistent of many data segments
     /// </summary>
-    public interface IBufferListStream
+    public interface IBufferStream
     {
         /// <summary>
         /// Reads a Int16 number from the current data source.
@@ -110,19 +110,24 @@ namespace SuperSocket.ProtoBase
         /// Skips the specified count bytes from the data source.
         /// </summary>
         /// <param name="count">The number of bytes to skip.</param>
-        IBufferListStream Skip(int count);
+        IBufferStream Skip(int count);
 
         /// <summary>
         /// Get current buffer as Stream
         /// </summary>
         /// <returns>the stream represent the current buffer</returns>
         Stream GetCurrentStream();
+
+        /// <summary>
+        /// Total length of the buffered data
+        /// </summary>
+        long Length { get; }
     }
 
     /// <summary>
-    /// The default buffer list stream
+    /// The default buffer stream
     /// </summary>
-    public class BufferListStream : Stream, IBufferListStream
+    public class BufferStream : Stream, IBufferStream
     {
         private IList<ArraySegment<byte>> m_Segments;
 
@@ -140,9 +145,9 @@ namespace SuperSocket.ProtoBase
         private byte[] m_Buffer = new byte[8];
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="BufferListStream"/> class.
+        /// Initializes a new instance of the <see cref="BufferStream"/> class.
         /// </summary>
-        public BufferListStream()
+        public BufferStream()
         {
             
         }
@@ -158,7 +163,9 @@ namespace SuperSocket.ProtoBase
                 throw new ArgumentException("The length of segments must be greater than zero.");
 
             m_Segments = segments;
+            m_CurrentSegmentIndex = 0;
             m_CurrentSegmentOffset = segments[0].Offset;
+            m_Position = 0;
 
             long length = 0;
 
@@ -175,23 +182,23 @@ namespace SuperSocket.ProtoBase
         private const string c_ThreadBufferSegmentStream = "ThreadBufferListStream";
 
         /// <summary>
-        /// Gets the current buffer segment stream from the thread context
+        /// Gets the current buffer stream from the thread context
         /// </summary>
         /// <value>
-        /// The current buffer segment stream
+        /// The current buffer stream
         /// </value>
-        public static BufferListStream GetCurrent()
+        public static BufferStream GetCurrent()
         {
-            return GetCurrent<BufferListStream>();
+            return GetCurrent<BufferStream>();
         }
 
         /// <summary>
-        /// Gets the current buffer segment stream from the thread context
+        /// Gets the current buffer stream from the thread context
         /// </summary>
         /// <typeparam name="TStream">The type of the stream.</typeparam>
         /// <returns></returns>
         public static TStream GetCurrent<TStream>()
-            where TStream : BufferListStream, new()
+            where TStream : BufferStream, new()
         {
             var slot = Thread.GetNamedDataSlot(c_ThreadBufferSegmentStream);
             var stream = Thread.GetData(slot) as TStream;
@@ -456,7 +463,7 @@ namespace SuperSocket.ProtoBase
         /// or
         /// count;exceed the total length
         /// </exception>
-        public IBufferListStream Skip(int count)
+        public IBufferStream Skip(int count)
         {
             CheckInitialized();
 

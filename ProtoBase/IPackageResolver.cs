@@ -15,8 +15,8 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Resolves the package binary data to package instance
         /// </summary>
-        /// <param name="packageData">The package binary data.</param>
+        /// <param name="bufferStream">The received buffer stream.</param>
         /// <returns>the resolved package instance</returns>
-        TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);
+        TPackageInfo ResolvePackage(IBufferStream bufferStream);
     }
 }

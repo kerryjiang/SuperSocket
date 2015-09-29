@@ -73,18 +73,20 @@ namespace SuperSocket.ProtoBase
         protected abstract TPackageInfo ResolveHttpPackageWithoutBody(HttpHeaderInfo header);
 
         /// <summary>
-        /// Resolves the header package.
+        /// Resolves the package binary data to package instance
         /// </summary>
-        /// <param name="packageData">The package data.</param>
-        /// <returns></returns>
-        public override TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        /// <param name="bufferStream">The received buffer stream.</param>
+        /// <returns>the resolved package instance</returns>
+        public override TPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
-            string headerData = HeaderEncoding.GetString(packageData);
+            var length = (int)bufferStream.Length;
+
+            string headerData = bufferStream.ReadString(length, HeaderEncoding);
 
             var header = new HttpHeaderInfo();
             MimeHeaderHelper.ParseHttpHeader(headerData, header);
 
-            var nextReceiveFilter = GetBodyReceiveFilter(header, packageData.Sum(d => d.Count));
+            var nextReceiveFilter = GetBodyReceiveFilter(header, length);
 
             if (nextReceiveFilter != null)
             {

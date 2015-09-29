@@ -65,15 +65,15 @@ namespace SuperSocket.ProtoBase
             data.SetLastItemLength(parsedLength);
             rest = current.Count - parsedLength;
 
-            return ResolvePackage(data);
+            return ResolvePackage(this.GetBufferStream(data));
         }
 
         /// <summary>
         /// Resolves the package binary data to package instance
         /// </summary>
-        /// <param name="packageData">The package binary data.</param>
+        /// <param name="bufferStream">The received buffer stream.</param>
         /// <returns>the resolved package instance</returns>
-        public abstract TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);
+        public abstract TPackageInfo ResolvePackage(IBufferStream bufferStream);
 
         /// <summary>
         /// Gets/sets the next receive filter which will be used when the next network data is received

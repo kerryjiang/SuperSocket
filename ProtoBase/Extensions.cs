@@ -122,10 +122,10 @@ namespace SuperSocket.ProtoBase
         /// <param name="receiveFilter">The receive filter.</param>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        public static BufferListStream GetBufferStream<TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
+        public static BufferStream GetBufferStream<TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
             where TPackageInfo : IPackageInfo
         {
-            return GetBufferStream<BufferListStream, TPackageInfo>(receiveFilter, data);
+            return GetBufferStream<BufferStream, TPackageInfo>(receiveFilter, data);
         }
 
 
@@ -137,11 +137,12 @@ namespace SuperSocket.ProtoBase
         /// <param name="receiveFilter">The receive filter.</param>
         /// <param name="data">The data.</param>
         /// <returns></returns>
-        public static BufferListStream GetBufferStream<TStream, TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
-            where TStream : BufferListStream, new()
+        public static BufferStream GetBufferStream<TStream, TPackageInfo>(this IReceiveFilter<TPackageInfo> receiveFilter, IList<ArraySegment<byte>> data)
+            where TStream : BufferStream, new()
             where TPackageInfo : IPackageInfo
         {
-            var stream = BufferListStream.GetCurrent<BufferListStream>(); // don't use thread context for BufferListReader for now
+            //var stream = new BufferStream();
+            var stream = BufferStream.GetCurrent<BufferStream>(); // don't use thread context for BufferListReader for now
             stream.Initialize(data);
             return stream;
         }

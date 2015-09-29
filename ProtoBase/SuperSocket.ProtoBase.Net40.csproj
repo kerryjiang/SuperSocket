@@ -43,7 +43,7 @@
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BasicStringParser.cs" />
-    <Compile Include="BufferListStream.cs" />
+    <Compile Include="BufferStream.cs" />
     <Compile Include="Buffer\IBufferManager.cs" />
     <Compile Include="Buffer\NullBufferManager.cs" />
     <Compile Include="Encoder\IProtoDataEncoder.cs" />

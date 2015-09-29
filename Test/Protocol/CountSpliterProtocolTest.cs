@@ -19,9 +19,9 @@ namespace SuperSocket.Test.Protocol
 
             }
 
-            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override StringPackageInfo ResolvePackage(IBufferStream bufferStream)
             {
-                var line = Encoding.ASCII.GetString(packageData);
+                var line = bufferStream.ReadString((int)bufferStream.Length, Encoding.ASCII);
                 var arr = line.Split(new char[] { '#' }, StringSplitOptions.RemoveEmptyEntries);
                 return new StringPackageInfo(arr[0], arr[1], new string[] { arr[1] });
             }

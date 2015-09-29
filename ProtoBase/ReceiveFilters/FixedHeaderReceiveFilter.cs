@@ -37,24 +37,24 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Gets the body length from header.
         /// </summary>
-        /// <param name="packageData">The header data.</param>
+        /// <param name="bufferStream">The received buffer stream.</param>
         /// <param name="length">The length of the header.</param>
         /// <returns></returns>
-        protected abstract int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length);
+        protected abstract int GetBodyLengthFromHeader(IBufferStream bufferStream, int length);
 
         /// <summary>
         /// Determines whether this instance [can resolve package] the specified package data.
         /// </summary>
-        /// <param name="packageData">The package data.</param>
+        /// <param name="bufferStream">The received buffer stream.</param>
         /// <returns>
         ///   <c>true</c> if this instance [can resolve package] the specified package data; otherwise, <c>false</c>.
         /// </returns>
-        protected override bool CanResolvePackage(IList<ArraySegment<byte>> packageData)
+        protected override bool CanResolvePackage(IBufferStream bufferStream)
         {
             if (m_FoundHeader)
                 return true;
 
-            var bodyLength = GetBodyLengthFromHeader(packageData, HeaderSize);
+            var bodyLength = GetBodyLengthFromHeader(bufferStream, HeaderSize);
 
             if (bodyLength < 0)
                 State = FilterState.Error;

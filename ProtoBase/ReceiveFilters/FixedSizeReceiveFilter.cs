@@ -47,10 +47,12 @@ namespace SuperSocket.ProtoBase
                 data.SetLastItemLength(data.Last.Count - rest);
             }
 
-            if (!CanResolvePackage(data))
+            var bufferStream = this.GetBufferStream(data);
+
+            if (!CanResolvePackage(bufferStream))
                 return default(TPackageInfo);
 
-            return ResolvePackage(data);
+            return ResolvePackage(bufferStream);
         }
 
         /// <summary>
@@ -93,11 +95,11 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Determines whether this instance [can resolve package] the specified package data.
         /// </summary>
-        /// <param name="packageData">The package data.</param>
+        /// <param name="bufferStream">The received buffer stream.</param>
         /// <returns>
         ///   <c>true</c> if this instance [can resolve package] the specified package data; otherwise, <c>false</c>.
         /// </returns>
-        protected virtual bool CanResolvePackage(IList<ArraySegment<byte>> packageData)
+        protected virtual bool CanResolvePackage(IBufferStream bufferStream)
         {
             return true;
         }
@@ -105,8 +107,8 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Resolves the package binary data to package instance
         /// </summary>
-        /// <param name="packageData">The package binary data.</param>
-        /// <returns></returns>
-        public abstract TPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData);
+        /// <param name="bufferStream">The received buffer stream.</param>
+        /// <returns>the resolved package instance</returns>
+        public abstract TPackageInfo ResolvePackage(IBufferStream bufferStream);
     }
 }

@@ -19,17 +19,19 @@ namespace SuperSocket.Test.Protocol
 
             }
 
-            protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
+            protected override int GetBodyLengthFromHeader(IBufferStream bufferStream, int length)
             {
-                var strLen = Encoding.ASCII.GetString(packageData, 4, 4);
+                var strLen = bufferStream.Skip(4).ReadString(4, Encoding.ASCII);
                 return int.Parse(strLen.TrimStart('0'));
             }
 
-            public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+            public override StringPackageInfo ResolvePackage(IBufferStream bufferStream)
             {
-                var total = packageData.Sum(x => x.Count);
-                var body = Encoding.ASCII.GetString(packageData, HeaderSize, total - HeaderSize);
-                return new StringPackageInfo(Encoding.ASCII.GetString(packageData, 0, 4), body, new string[] { body });
+                var total = (int)bufferStream.Length;
+                var key = bufferStream.ReadString(4, Encoding.ASCII);
+                bufferStream.Skip(4); // skip length part
+                var body = bufferStream.ReadString(total - HeaderSize, Encoding.ASCII);
+                return new StringPackageInfo(key, body, new string[] { body });
             }
         }
 

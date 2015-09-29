@@ -24,9 +24,9 @@ namespace SuperSocket.Facility.PolicyServer
 
         }
 
-        public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override StringPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
-            return new StringPackageInfo(m_DefaultRequestInfoKey, Encoding.UTF8.GetString(packageData), null);
+            return new StringPackageInfo(m_DefaultRequestInfoKey, bufferStream.ReadString((int)bufferStream.Length, Encoding.UTF8), null);
         }
     }
 }

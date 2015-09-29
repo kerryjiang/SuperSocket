@@ -61,13 +61,13 @@ namespace SuperSocket.SocketBase.Protocol
         /// <summary>
         /// Resolves the package.
         /// </summary>
-        /// <param name="packageData">The package data.</param>
+        /// <param name="bufferStream">The received buffer stream.</param>
         /// <returns></returns>
-        public override StringPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override StringPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
             //ignore the first and the last spliter
-            var total = packageData.Sum(d => d.Count);
-            var body = m_Encoding.GetString(packageData, 1, total - 2);
+            var total = (int)bufferStream.Length;
+            var body = bufferStream.Skip(1).ReadString(total - 2, m_Encoding);
             var array = body.Split(m_Spliter);
             return new StringPackageInfo(array[m_KeyIndex], body, array);
         }
