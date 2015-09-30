@@ -5,10 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using AnyLog;
 using NUnit.Framework;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketEngine;
 
 namespace SuperSocket.QuickStart.GPSSocketServer

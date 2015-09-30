@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.RemoteProcessService.Command
 {
@@ -11,7 +11,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(RemoteProcessSession session, StringPackageInfo requestInfo)
         {
             var server = session.AppServer;
 

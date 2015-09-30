@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
-    class ReceiveFilterB : BeginEndMarkReceiveFilter<StringRequestInfo>
+    class ReceiveFilterB : BeginEndMarkReceiveFilter<StringPackageInfo>
     {
         private static byte[] m_BeginMark = new byte[] { (byte)'*' };
         private static byte[] m_EndMark = new byte[] { (byte)'#' };
 
-        private static BasicRequestInfoParser m_Parser = new BasicRequestInfoParser();
+        private static IStringParser m_Parser = new BasicStringParser();
 
         private SwitchReceiveFilter m_SwitchFilter;
 
@@ -22,14 +21,11 @@ namespace SuperSocket.QuickStart.SwitchReceiveFilter
             m_SwitchFilter = switcher;
         }
 
-        public override StringRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override StringPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
-            using (var reader = this.GetBufferReader(packageData))
-            {
-                var requestInfo = m_Parser.Parse(reader.Skip(1).ReadString((int)reader.Length - 2, Encoding.ASCII));
-                NextReceiveFilter = m_SwitchFilter;
-                return requestInfo;
-            }
+            var requestInfo = new StringPackageInfo(bufferStream.Skip(1).ReadString((int)bufferStream.Length - 2, Encoding.ASCII), m_Parser);
+            NextReceiveFilter = m_SwitchFilter;
+            return requestInfo;
         }
     }
 }

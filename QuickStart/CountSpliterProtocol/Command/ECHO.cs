@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.CountSpliterProtocol.Command
 {
-    public class ECHO : CommandBase<AppSession, StringRequestInfo>
+    public class ECHO : CommandBase<AppSession, StringPackageInfo>
     {
-        public override void ExecuteCommand(AppSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(AppSession session, StringPackageInfo requestInfo)
         {
             for (var i = 0; i < requestInfo.Parameters.Length; i++)
             {

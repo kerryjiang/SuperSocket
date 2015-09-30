@@ -9,7 +9,7 @@ namespace SuperSocket.QuickStart.CommandFilter
 {
     public class LoggedInValidationFilter : CommandFilterAttribute
     {
-        public override void OnCommandExecuting(CommandExecutingContext commandContext)
+        public override void OnCommandExecuting(ICommandExecutingContext commandContext)
         {
             var session = commandContext.Session as MyAppSession;
 
@@ -18,7 +18,7 @@ namespace SuperSocket.QuickStart.CommandFilter
                 commandContext.Cancel = true;
         }
 
-        public override void OnCommandExecuted(CommandExecutingContext commandContext)
+        public override void OnCommandExecuted(ICommandExecutingContext commandContext)
         {
 
         }

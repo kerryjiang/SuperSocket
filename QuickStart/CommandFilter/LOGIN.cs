@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.CommandFilter
 {
     [LogTimeCommandFilter]
     public class LOGIN : StringCommandBase<MyAppSession>
     {
-        public override void ExecuteCommand(MyAppSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(MyAppSession session, StringPackageInfo requestInfo)
         {
             if (requestInfo.Parameters == null || requestInfo.Parameters.Length != 2)
                 return;

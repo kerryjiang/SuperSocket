@@ -13,12 +13,12 @@ namespace SuperSocket.QuickStart.CommandFilter
     {
         private long m_Total = 0;
 
-        public override void OnCommandExecuting(CommandExecutingContext commandContext)
+        public override void OnCommandExecuting(ICommandExecutingContext commandContext)
         {
 
         }
 
-        public override void OnCommandExecuted(CommandExecutingContext commandContext)
+        public override void OnCommandExecuted(ICommandExecutingContext commandContext)
         {
             Interlocked.Increment(ref m_Total);
         }

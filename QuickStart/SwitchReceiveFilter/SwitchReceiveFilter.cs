@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.SwitchReceiveFilter
 {
-    public class SwitchReceiveFilter : IReceiveFilter<StringRequestInfo>
+    public class SwitchReceiveFilter : IReceiveFilter<StringPackageInfo>
     {
-        private IReceiveFilter<StringRequestInfo> m_FilterA;
+        private IReceiveFilter<StringPackageInfo> m_FilterA;
         private byte m_BeginMarkA = (byte)'Y';
 
-        private IReceiveFilter<StringRequestInfo> m_FilterB;
+        private IReceiveFilter<StringPackageInfo> m_FilterB;
         private byte m_BeginMarkB = (byte)'*';
 
         public SwitchReceiveFilter()
@@ -21,24 +21,9 @@ namespace SuperSocket.QuickStart.SwitchReceiveFilter
             m_FilterB = new ReceiveFilterB(this);
         }
 
-        public StringRequestInfo Filter(byte[] readBuffer, int offset, int length, bool toBeCopied, out int rest)
+        public StringPackageInfo Filter(BufferList data, out int rest)
         {
-            rest = length;
-            var flag = readBuffer[offset];
-
-            if (flag == m_BeginMarkA)
-                NextReceiveFilter = m_FilterA;
-            else if (flag == m_BeginMarkB)
-                NextReceiveFilter = m_FilterB;
-            else
-                State = FilterState.Error;
-
-            return null;
-        }
-
-        public StringRequestInfo Filter(ReceiveCache data, out int rest)
-        {
-            var current = data.Current;
+            var current = data.Last;
             rest = current.Count;
 
             var flag = current.Array[current.Offset];
@@ -53,7 +38,7 @@ namespace SuperSocket.QuickStart.SwitchReceiveFilter
             return null;
         }
 
-        public IReceiveFilter<StringRequestInfo> NextReceiveFilter { get; private set; }
+        public IReceiveFilter<StringPackageInfo> NextReceiveFilter { get; private set; }
 
         public void Reset()
         {

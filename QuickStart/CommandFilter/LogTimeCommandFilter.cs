@@ -11,12 +11,12 @@ namespace SuperSocket.QuickStart.CommandFilter
 {
     public class LogTimeCommandFilter : CommandFilterAttribute
     {
-        public override void OnCommandExecuting(CommandExecutingContext commandContext)
+        public override void OnCommandExecuting(ICommandExecutingContext commandContext)
         {
             commandContext.Session.Items["StartTime"] = DateTime.Now;
         }
 
-        public override void OnCommandExecuted(CommandExecutingContext commandContext)
+        public override void OnCommandExecuted(ICommandExecutingContext commandContext)
         {
             var session = commandContext.Session;
             var startTime = session.Items.GetValue<DateTime>("StartTime");

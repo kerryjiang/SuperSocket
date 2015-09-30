@@ -1,7 +1,7 @@
 ﻿using System;
 using SuperSocket.Common;
 using SuperSocket.ProtoBase;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 using System.Collections.Generic;
 using System.Text;
 
@@ -15,7 +15,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer
     /// if data[15] = 0x10, the command is a keep alive one
     /// if data[15] = 0x1a, the command is position one
     /// </summary>
-    class GPSReceiveFilter : BeginEndMarkReceiveFilter<BinaryRequestInfo>
+    class GPSReceiveFilter : BeginEndMarkReceiveFilter<BufferedPackageInfo>
     {
         private readonly static byte[] BeginMark = new byte[] { 0x68, 0x68 };
         private readonly static byte[] EndMark = new byte[] { 0x0d, 0x0a };
@@ -26,12 +26,9 @@ namespace SuperSocket.QuickStart.GPSSocketServer
 
         }
 
-        public override BinaryRequestInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override BufferedPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
-            using(var reader = this.GetBufferReader(packageData))
-            {
-                return new BinaryRequestInfo(reader.Skip(15).ReadByte().ToString("X"), packageData);
-            }
+            return new BufferedPackageInfo(bufferStream.Skip(15).ReadByte().ToString("X"), bufferStream.Buffers);
         }
     }
 }

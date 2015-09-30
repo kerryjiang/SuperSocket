@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
+
 
 namespace SuperSocket.QuickStart.GPSSocketServer.Command
 {
-    public class KeepAlive : CommandBase<GPSSession, BinaryRequestInfo>
+    public class KeepAlive : CommandBase<GPSSession, BufferedPackageInfo>
     {
         public override string Name
         {
@@ -17,7 +18,7 @@ namespace SuperSocket.QuickStart.GPSSocketServer.Command
             }
         }
 
-        public override void ExecuteCommand(GPSSession session, BinaryRequestInfo requestInfo)
+        public override void ExecuteCommand(GPSSession session, BufferedPackageInfo requestInfo)
         {
             //You can do nothing, after this command is executed, the LastActiveTime of this session will be updated
             var response = session.AppServer.DefaultResponse;

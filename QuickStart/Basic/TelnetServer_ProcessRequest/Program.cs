@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using SuperSocket.SocketEngine;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace TelnetServer_ProcessRequest
 {
@@ -30,7 +30,7 @@ namespace TelnetServer_ProcessRequest
             }
 
             appServer.NewSessionConnected += new SessionHandler<AppSession>(appServer_NewSessionConnected);
-            appServer.NewRequestReceived += new RequestHandler<AppSession, StringRequestInfo>(appServer_NewRequestReceived);
+            appServer.NewRequestReceived += new RequestHandler<AppSession, StringPackageInfo>(appServer_NewRequestReceived);
 
             Console.WriteLine();
 
@@ -57,7 +57,7 @@ namespace TelnetServer_ProcessRequest
             Console.WriteLine("The server was stopped!");
         }
 
-        static void appServer_NewRequestReceived(AppSession session, StringRequestInfo requestInfo)
+        static void appServer_NewRequestReceived(AppSession session, StringPackageInfo requestInfo)
         {
             switch (requestInfo.Key.ToUpper())
             {

@@ -4,7 +4,7 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.CustomProtocol
 {
@@ -16,23 +16,17 @@ namespace SuperSocket.QuickStart.CustomProtocol
 
         }
 
-        protected override int GetBodyLengthFromHeader(IList<ArraySegment<byte>> packageData, int length)
+        protected override int GetBodyLengthFromHeader(IBufferStream bufferStream, int length)
         {
-            using (var reader = this.GetBufferReader(packageData))
-            {
-                reader.Skip(4);
-                return reader.ReadUInt16();
-            }
+            bufferStream.Skip(4);
+            return bufferStream.ReadUInt16();
         }
 
-        public override BufferedPackageInfo ResolvePackage(IList<ArraySegment<byte>> packageData)
+        public override BufferedPackageInfo ResolvePackage(IBufferStream bufferStream)
         {
-            using (var reader = this.GetBufferReader(packageData))
-            {
-                var key = reader.ReadString(4, Encoding.UTF8);
-                reader.Skip(2);
-                return new BufferedPackageInfo(key, reader.Take((int)reader.Length - 6));
-            }
+            var key = bufferStream.ReadString(4, Encoding.UTF8);
+            bufferStream.Skip(2);
+            return new BufferedPackageInfo(key, bufferStream.Take((int)bufferStream.Length - 6));
         }
     }
 }

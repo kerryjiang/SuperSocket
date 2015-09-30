@@ -4,13 +4,13 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.TelnetServer_Command
 {
-    public class MULT : CommandBase<AppSession, StringRequestInfo>
+    public class MULT : CommandBase<AppSession, StringPackageInfo>
     {
-        public override void ExecuteCommand(AppSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(AppSession session, StringPackageInfo requestInfo)
         {
             var result = 1;
 

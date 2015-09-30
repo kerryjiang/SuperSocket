@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 
 namespace SuperSocket.QuickStart.TelnetServer_AppServer
 {

@@ -5,6 +5,7 @@ using System.Text;
 using System.Diagnostics;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.RemoteProcessService.Command
 {
@@ -12,7 +13,7 @@ namespace SuperSocket.QuickStart.RemoteProcessService.Command
     {
         #region CommandBase<RemotePrcessSession> Members
 
-        public override void ExecuteCommand(RemoteProcessSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(RemoteProcessSession session, StringPackageInfo requestInfo)
         {
             Process[] processes;
 

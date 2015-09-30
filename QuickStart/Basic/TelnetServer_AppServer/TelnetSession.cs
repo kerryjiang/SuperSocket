@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.TelnetServer_AppServer
 {
@@ -14,7 +14,7 @@ namespace SuperSocket.QuickStart.TelnetServer_AppServer
             this.Send("Welcome to SuperSocket Telnet Server");
         }
 
-        protected override void HandleUnknownRequest(StringRequestInfo requestInfo)
+        protected override void HandleUnknownRequest(StringPackageInfo requestInfo)
         {
             this.Send("Unknow request");
         }

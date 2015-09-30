@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase.Command;
-using SuperSocket.SocketBase.Protocol;
 
 namespace SuperSocket.QuickStart.CustomProtocol.Command
 {
@@ -12,7 +11,8 @@ namespace SuperSocket.QuickStart.CustomProtocol.Command
     {
         public override void ExecuteCommand(CustomProtocolSession session, BufferedPackageInfo requestInfo)
         {
-            session.Send(Encoding.ASCII.GetString(requestInfo.Body) + Environment.NewLine);
+            session.Send(requestInfo.Data);
+            session.Send(new ArraySegment<byte>(session.Charset.GetBytes(Environment.NewLine)));
         }
     }
 }

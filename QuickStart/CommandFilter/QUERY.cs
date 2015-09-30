@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Protocol;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.QuickStart.CommandFilter
 {
@@ -12,7 +12,7 @@ namespace SuperSocket.QuickStart.CommandFilter
     [LogTimeCommandFilter(Order = 1)]
     public class QUERY : StringCommandBase<MyAppSession>
     {
-        public override void ExecuteCommand(MyAppSession session, StringRequestInfo requestInfo)
+        public override void ExecuteCommand(MyAppSession session, StringPackageInfo requestInfo)
         {
             //Your code
         }

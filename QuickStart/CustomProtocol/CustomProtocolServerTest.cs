@@ -8,7 +8,7 @@ using System.Text;
 using NUnit.Framework;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using SuperSocket.SocketEngine;
 
 namespace SuperSocket.QuickStart.CustomProtocol

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using SuperSocket.SocketBase;
-using SuperSocket.SocketBase.Logging;
+using AnyLog;
 using SuperSocket.SocketEngine;
 
 namespace SuperSocket.QuickStart.TelnetServer_StartByConfig
