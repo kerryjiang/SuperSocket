@@ -57,7 +57,7 @@ namespace SuperSocket.SocketEngine
             {
                 if (m_IsUdpRequestInfo)
                 {
-                    ProcessPackageWithSessionID(client, remoteEndPoint, receivedData);
+                    ProcessPackageWithSessionID(client, remoteEndPoint, receivedData, saeState);
                 }
                 else
                 {
@@ -75,7 +75,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, ArraySegment<byte> receivedData)
+        void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, ArraySegment<byte> receivedData, SaeState saeState)
         {
             TPackageInfo requestInfo;
 
@@ -86,7 +86,7 @@ namespace SuperSocket.SocketEngine
             try
             {
                 var receiveData = new BufferList();
-                receiveData.Add(receivedData);
+                receiveData.Add(receivedData, saeState);
 
                 requestInfo = this.m_UdpRequestFilter.Filter(receiveData, out rest);
             }
