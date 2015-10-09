@@ -131,6 +131,10 @@ namespace SuperSocket.SocketEngine
                     //If a same name process exited, this process's performance counters instance name could be changed,
                     //so if the old performance counter cannot be access, get the performance counter's name again
                     var newInstanceName = GetPerformanceCounterInstanceName(m_Process);
+
+                    if (string.IsNullOrEmpty(newInstanceName))
+                        break;
+
                     SetupPerformanceCounters(newInstanceName);
                     retry = true;
                 }
