@@ -51,7 +51,7 @@ namespace SuperSocket.ServerManager.Command
                     new CommandResult
                     {
                         Result = false,
-                        Message = string.Format("The server instance \"{0}\" cannot restart now", commandInfo)
+                        Message = string.Format("The server instance \"{0}\" is not running now, so you needn't restart it. Try start command instead.", commandInfo)
                     });
                 return;
             }
