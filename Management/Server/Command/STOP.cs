@@ -50,7 +50,7 @@ namespace SuperSocket.ServerManager.Command
                     new CommandResult
                     {
                         Result = false,
-                        Message = string.Format("The server instance \"{0}\" cannot stop now", commandInfo)
+                        Message = string.Format("The server instance \"{0}\" is not running now, so you needn't stop it.", commandInfo)
                     });
                 return;
             }
