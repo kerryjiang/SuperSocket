@@ -43,6 +43,7 @@ namespace SuperSocket.ServerManager.Command
                     });
                 return;
             }
+
             if(server.State != SocketBase.ServerState.Running)
             {
                 SendJsonMessage(session, token,
@@ -53,6 +54,7 @@ namespace SuperSocket.ServerManager.Command
                     });
                 return;
             }
+
             server.Stop();
 
             var nodeStatus = session.AppServer.CurrentNodeStatus;
