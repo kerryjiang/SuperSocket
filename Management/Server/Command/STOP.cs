@@ -44,6 +44,17 @@ namespace SuperSocket.ServerManager.Command
                 return;
             }
 
+            if(server.State != SocketBase.ServerState.Running)
+            {
+                SendJsonMessage(session, token,
+                    new CommandResult
+                    {
+                        Result = false,
+                        Message = string.Format("The server instance \"{0}\" cannot stop now", commandInfo)
+                    });
+                return;
+            }
+
             server.Stop();
 
             var nodeStatus = session.AppServer.CurrentNodeStatus;

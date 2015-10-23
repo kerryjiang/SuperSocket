@@ -7,6 +7,7 @@ using SuperSocket.ServerManager.Model;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.WebSocket.SubProtocol;
 using SuperSocket.SocketBase.Metadata;
+using System.Threading;
 
 namespace SuperSocket.ServerManager.Command
 {
@@ -44,9 +45,22 @@ namespace SuperSocket.ServerManager.Command
                 return;
             }
 
+            if(server.State != SocketBase.ServerState.Running)
+            {
+                SendJsonMessage(session, token,
+                    new CommandResult
+                    {
+                        Result = false,
+                        Message = string.Format("The server instance \"{0}\" cannot restart now", commandInfo)
+                    });
+                return;
+            }
+
             server.Stop();
+
             while (server.State != SocketBase.ServerState.NotStarted)
             {
+                Thread.Sleep(10);
                 //Wating for stop
                 //TODO:Timeout
             }

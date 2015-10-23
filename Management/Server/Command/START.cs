@@ -44,6 +44,17 @@ namespace SuperSocket.ServerManager.Command
                 return;
             }
 
+            if(server.State != SocketBase.ServerState.NotStarted)
+            {
+                SendJsonMessage(session, token,
+                    new CommandResult
+                    {
+                        Result = false,
+                        Message = string.Format("The server instance \"{0}\" is working", commandInfo)
+                    });
+                return;
+            }
+
             if (server.Start())
             {
                 var nodeStatus = session.AppServer.CurrentNodeStatus;
