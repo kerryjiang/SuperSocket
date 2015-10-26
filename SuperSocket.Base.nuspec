@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>SuperSocket</id>
+    <id>SuperSocket.Base</id>
     <title>SuperSocket</title>
     <version>1.6.5</version>
     <authors>Kerry Jiang</authors>
@@ -18,7 +18,6 @@
       <reference file="SuperSocket.Common.dll" />
       <reference file="SuperSocket.SocketBase.dll" />
       <reference file="SuperSocket.Facility.dll" />
-      <reference file="SuperSocket.SocketEngine.dll" />
     </references>
     <frameworkAssemblies>
       <frameworkAssembly assemblyName="System.Configuration"  />
