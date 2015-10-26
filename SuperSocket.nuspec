@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>SuperSocket.Base</id>
+    <id>SuperSocket</id>
     <title>SuperSocket</title>
     <version>1.6.5</version>
     <authors>Kerry Jiang</authors>
@@ -23,4 +23,15 @@
       <frameworkAssembly assemblyName="System.Configuration"  />
     </frameworkAssemblies>
   </metadata>
+  <files>
+    <file src="bin\net35\$configuration$\SuperSocket.Common.dll" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.SocketBase.dll" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.Facility.dll" target="lib/net35" />
+	<file src="bin\net40\$configuration$\SuperSocket.Common.dll" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.SocketBase.dll" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.Facility.dll" target="lib/net40" />
+	<file src="bin\net45\$configuration$\SuperSocket.Common.dll" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.SocketBase.dll" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.Facility.dll" target="lib/net45" />
+  </files>
 </package>

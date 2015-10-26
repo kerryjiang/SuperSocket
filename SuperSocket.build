@@ -2,6 +2,7 @@
 <project name="SuperSocket" default="makeRelease" xmlns="http://nant.sf.net/schemas/nant.xsd">
   <property name="build.dir" value="${project::get-base-directory()}" />
   <property name="releaseVersion" overwrite="false" value=""></property>
+  <property name="push" overwrite="false" value=""></property>
   
   <target name="zipSourceCode" description="zip the source code">	
     <zip zipfile="SuperSocket${releaseVersionTag}.Source.zip">		
@@ -50,21 +51,6 @@
   </target>
   
   <target name="nugetPack" description="pack the nuget package">
-	<copy file="SuperSocket.nuspec" tofile="nuget\SuperSocket.nuspec" />
-	
-	<property name="netFxVersion" value="net35" />
-	<call target="nugetPackVersion" />
-	
-	<property name="netFxVersion" value="net40" />
-	<call target="nugetPackVersion" />
-	
-	<property name="netFxVersion" value="net45" />
-	<call target="nugetPackVersion" />
-	
-	<copy file="Solution Items\log4net.config" tofile="nuget\content\log4net.config" />
-	<copy file="Solution Items\log4net.unix.config" tofile="nuget\content\log4net.unix.config" />
-	<copy file="SocketService\supersocket.cmd" tofile="nuget\content\supersocket.cmd" />
-	<copy file="SocketService\supersocket.sh" tofile="nuget\content\supersocket.sh" />
 	
 	<loadfile file="nuget.key" property="nuget.key" />
 	
@@ -73,12 +59,20 @@
 	</exec>
 	
 	<exec program="nuget" failonerror="true"> 
-		<arg line="Pack nuget\SuperSocket.nuspec" /> 
+		<arg line="Pack SuperSocket.nuspec -Properties Configuration=Release" /> 
+	</exec>
+	<exec program="nuget" failonerror="true"> 
+		<arg line="Pack SuperSocket.Engine.nuspec -Properties Configuration=Release" /> 
 	</exec>
 	
-	<exec program="nuget" failonerror="true"> 
-		<arg line="Push SuperSocket.${releaseVersion}.nupkg" /> 
-	</exec>
+	<if test="${push}=='true'">
+		<exec program="nuget" failonerror="true"> 
+			<arg line="Push SuperSocket.${releaseVersion}.nupkg" /> 
+		</exec>
+		<exec program="nuget" failonerror="true"> 
+			<arg line="Push SuperSocket.Engine.${releaseVersion}.nupkg" /> 
+		</exec>
+	</if>
   </target>
   
   <target name="nugetPackVersion" description="pack the nuget package">
@@ -134,7 +128,7 @@
 	
 	<property name="netFxVersion" value="net45" />
 	<property name="configuration" value="Debug" />
-	<property name="solutionFile" value="SuperSocket.2012.sln" />
+	<property name="solutionFile" value="SuperSocket.2013.sln" />
     <call target="buildSln" />
 	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net45.csproj" />
 	<call target="buildPrj" />
@@ -142,7 +136,7 @@
 	
 	<property name="netFxVersion" value="net45" />
 	<property name="configuration" value="Release" />
-	<property name="solutionFile" value="SuperSocket.2012.sln" />
+	<property name="solutionFile" value="SuperSocket.2013.sln" />
     <call target="buildSln" />
 	<property name="solutionFile" value="Management\Server\SuperSocket.ServerManager.Net45.csproj" />
 	<call target="buildPrj" />
