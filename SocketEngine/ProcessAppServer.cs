@@ -120,17 +120,19 @@ namespace SuperSocket.SocketEngine
                     OnExceptionThrown(e);
                     return null;
                 }
+
+                m_WorkingProcess.EnableRaisingEvents = true;
+                m_WorkingProcess.ErrorDataReceived += new DataReceivedEventHandler(m_WorkingProcess_ErrorDataReceived);
+                m_WorkingProcess.OutputDataReceived += new DataReceivedEventHandler(m_WorkingProcess_OutputDataReceived);
+                m_WorkingProcess.BeginErrorReadLine();
+                m_WorkingProcess.BeginOutputReadLine();
             }
             else
             {
                 m_WorkingProcess = process;
+                m_WorkingProcess.EnableRaisingEvents = true;
             }
 
-            m_WorkingProcess.EnableRaisingEvents = true;
-            m_WorkingProcess.ErrorDataReceived += new DataReceivedEventHandler(m_WorkingProcess_ErrorDataReceived);
-            m_WorkingProcess.OutputDataReceived += new DataReceivedEventHandler(m_WorkingProcess_OutputDataReceived);
-            m_WorkingProcess.BeginErrorReadLine();
-            m_WorkingProcess.BeginOutputReadLine();
 
             portName = string.Format(portName, m_WorkingProcess.Id);
             m_ServerTag = portName;
