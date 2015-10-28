@@ -53,9 +53,9 @@
     <DocumentationFile>bin\Release\SuperSocket.SocketBase.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AnyLog, Version=0.1.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\AnyLog.0.1.5.0\lib\net40\AnyLog.dll</HintPath>
+    <Reference Include="AnyLog, Version=0.1.6.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\AnyLog.0.1.6.0\lib\net40\AnyLog.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -109,7 +109,6 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="Metadata\StatusInfoAttribute.cs" />
     <Compile Include="IBootstrap.cs" />
-    <Compile Include="ILoggerProvider.cs" />
     <Compile Include="IsolationMode.cs" />
     <Compile Include="Metadata\AppServerMetadataTypeAttribute.cs" />
     <Compile Include="NodeStatus.cs" />
@@ -193,7 +192,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <None Include="packages.SuperSocket.SocketBase.Net40.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

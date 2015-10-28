@@ -168,6 +168,11 @@ namespace SuperSocket.SocketBase
         public ISocketSession SocketSession { get; private set; }
 
         /// <summary>
+        /// Get protocal data sender used by this session
+        /// </summary>
+        private IProtoSender m_DataSender;
+
+        /// <summary>
         /// Gets the config of the server.
         /// </summary>
         public IServerConfig Config
@@ -200,6 +205,7 @@ namespace SuperSocket.SocketBase
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;
+            m_DataSender = castedAppServer.ProtoSender;
             
             socketSession.Initialize(this);
 
@@ -304,7 +310,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(byte[] data, int offset, int length)
         {
-            return AppServer.ProtoSender.TrySend(SocketSession, new ArraySegment<byte>(data, offset, length));
+            return m_DataSender.TrySend(SocketSession, new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
@@ -315,7 +321,7 @@ namespace SuperSocket.SocketBase
         /// <param name="length">The length.</param>
         public virtual void Send(byte[] data, int offset, int length)
         {
-            AppServer.ProtoSender.Send(SocketSession, new ArraySegment<byte>(data, offset, length));
+            m_DataSender.Send(SocketSession, new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
@@ -325,7 +331,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(ArraySegment<byte> segment)
         {
-            return AppServer.ProtoSender.TrySend(SocketSession, segment);
+            return m_DataSender.TrySend(SocketSession, segment);
         }
 
         /// <summary>
@@ -334,7 +340,7 @@ namespace SuperSocket.SocketBase
         /// <param name="segment">The segment which will be sent.</param>
         public virtual void Send(ArraySegment<byte> segment)
         {
-            AppServer.ProtoSender.Send(SocketSession, segment);
+            m_DataSender.Send(SocketSession, segment);
         }
 
         /// <summary>
@@ -344,7 +350,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue; if it returns false, the sending queue may be full or the socket is not connected</returns>
         public virtual bool TrySend(IList<ArraySegment<byte>> segments)
         {
-            return AppServer.ProtoSender.TrySend(SocketSession, segments);
+            return m_DataSender.TrySend(SocketSession, segments);
         }
 
         /// <summary>
@@ -353,7 +359,7 @@ namespace SuperSocket.SocketBase
         /// <param name="segments">The segments.</param>
         public virtual void Send(IList<ArraySegment<byte>> segments)
         {
-            AppServer.ProtoSender.Send(SocketSession, segments);
+            m_DataSender.Send(SocketSession, segments);
         }
 
         void ICommunicationChannel.Send(ArraySegment<byte> segment)
