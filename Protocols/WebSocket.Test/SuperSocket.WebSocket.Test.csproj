@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="AnyLog">
+      <HintPath>..\..\packages\AnyLog.0.1.8\lib\net45\AnyLog.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\..\..\..\LogMaster4Net\master\Reference\nunit.framework.dll</HintPath>
     </Reference>
@@ -41,10 +44,6 @@
     <Reference Include="System.Xml" />
     <Reference Include="WebSocket4Net">
       <HintPath>..\..\Reference\WebSocket4Net\net45\Debug\WebSocket4Net.dll</HintPath>
-    </Reference>
-    <Reference Include="AnyLog, Version=0.1.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\AnyLog.0.1.5.0\lib\net40\AnyLog.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

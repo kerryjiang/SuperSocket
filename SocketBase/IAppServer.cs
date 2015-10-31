@@ -90,9 +90,9 @@ namespace SuperSocket.SocketBase
         void ResetSessionSecurity(IAppSession session, SslProtocols security);
 
         /// <summary>
-        /// Gets the log factory.
+        /// Gets the logger factory.
         /// </summary>
-        ILogFactory LogFactory { get; }
+        ILoggerFactory LoggerFactory { get; }
 
 
         /// <summary>

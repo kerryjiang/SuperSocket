@@ -53,7 +53,7 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Gets the log factory.
         /// </summary>
-        protected ILogFactory LogFactory { get; private set; }
+        protected ILoggerFactory LoggerFactory { get; private set; }
 
         /// <summary>
         /// Gets all the app servers running in this bootstrap
@@ -113,20 +113,20 @@ namespace SuperSocket.SocketEngine
         /// Gets the bootstrap log factory.
         /// </summary>
         /// <returns></returns>
-        private static ILogFactory GetBootstrapLogFactory()
+        private static ILoggerFactory GetBootstrapLoggerFactory()
         {
-            return GetBootstrapLogFactory(string.Empty);
+            return GetBootstrapLoggerFactory(string.Empty);
         }
 
         /// <summary>
-        /// Gets the bootstrap log factory.
+        /// Gets the bootstrap logger factory.
         /// </summary>
-        /// <param name="logFactory">The selected log factory.</param>
+        /// <param name="loggerFactory">The selected logger factory.</param>
         /// <returns></returns>
-        private static ILogFactory GetBootstrapLogFactory(string logFactory)
+        private static ILoggerFactory GetBootstrapLoggerFactory(string loggerFactory)
         {
-            AnyLog.LogFactory.Configurate(AppDomain.CurrentDomain.GetCurrentAppDomainExportProvider(), logFactory);
-            return AnyLog.LogFactory.Current;
+            AnyLog.LoggerFactory.Configurate(AppDomain.CurrentDomain.GetCurrentAppDomainExportProvider(), loggerFactory);
+            return AnyLog.LoggerFactory.Current;
         }
 
         /// <summary>
@@ -134,7 +134,7 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         /// <param name="appServers">The app servers.</param>
         public DefaultBootstrap(IEnumerable<IManagedApp> appServers)
-            : this(new RootConfig(), appServers, GetBootstrapLogFactory())
+            : this(new RootConfig(), appServers, GetBootstrapLoggerFactory())
         {
 
         }
@@ -145,7 +145,7 @@ namespace SuperSocket.SocketEngine
         /// <param name="rootConfig">The root config.</param>
         /// <param name="appServers">The app servers.</param>
         public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IManagedApp> appServers)
-            : this(rootConfig, appServers, GetBootstrapLogFactory())
+            : this(rootConfig, appServers, GetBootstrapLoggerFactory())
         {
 
         }
@@ -155,8 +155,8 @@ namespace SuperSocket.SocketEngine
         /// </summary>
         /// <param name="rootConfig">The root config.</param>
         /// <param name="appServers">The app servers.</param>
-        /// <param name="logFactory">The log factory.</param>
-        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IManagedApp> appServers, ILogFactory logFactory)
+        /// <param name="loggerFactory">The logger factory.</param>
+        public DefaultBootstrap(IRootConfig rootConfig, IEnumerable<IManagedApp> appServers, ILoggerFactory loggerFactory)
         {
             if (rootConfig == null)
                 throw new ArgumentNullException("rootConfig");
@@ -167,7 +167,7 @@ namespace SuperSocket.SocketEngine
             if(!appServers.Any())
                 throw new ArgumentException("appServers must have one item at least", "appServers");
 
-            if (logFactory == null)
+            if (loggerFactory == null)
                 throw new ArgumentNullException("logFactory");
 
             m_RootConfig = rootConfig;
@@ -176,13 +176,13 @@ namespace SuperSocket.SocketEngine
 
             m_AppServers = appServers.ToList();
 
-            m_GlobalLog = logFactory.GetLog(this.GetType().Name);
+            m_GlobalLog = loggerFactory.GetCurrentClassLogger();
 
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
             if (!rootConfig.DisablePerformanceDataCollector)
             {
-                m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, null, logFactory);
+                m_PerfMonitor = new PerformanceMonitor(rootConfig, m_AppServers, null, loggerFactory);
 
                 if (m_GlobalLog.IsDebugEnabled)
                     m_GlobalLog.Debug("The PerformanceMonitor has been initialized!");
@@ -312,24 +312,24 @@ namespace SuperSocket.SocketEngine
         /// Initializes the bootstrap with the configuration, config resolver and log factory.
         /// </summary>
         /// <param name="serverConfigResolver">The server config resolver.</param>
-        /// <param name="logFactory">The log factory.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <returns></returns>
-        public virtual bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver, ILogFactory logFactory)
+        public virtual bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver, ILoggerFactory loggerFactory)
         {
             if (m_Initialized)
                 throw new Exception("The server had been initialized already, you cannot initialize it again!");
 
-            if (logFactory != null && !string.IsNullOrEmpty(m_Config.LogFactory))
+            if (loggerFactory != null && !string.IsNullOrEmpty(m_Config.LogFactory))
             {
-                throw new ArgumentException("You cannot pass in a logFactory parameter, if you have configured a root log factory.", "logFactory");
+                throw new ArgumentException("You cannot pass in a logFactory parameter, if you have configured a root log factory.", "loggerFactory");
             }
 
-            if(logFactory == null)
+            if(loggerFactory == null)
             {
-                logFactory = GetBootstrapLogFactory(m_Config.LogFactory);
+                loggerFactory = GetBootstrapLoggerFactory(m_Config.LogFactory);
             }
 
-            m_GlobalLog = logFactory.GetLog(this.GetType().Name);
+            m_GlobalLog = loggerFactory.GetCurrentClassLogger();
 
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
 
@@ -413,7 +413,7 @@ namespace SuperSocket.SocketEngine
 
             if (!m_Config.DisablePerformanceDataCollector)
             {
-                m_PerfMonitor = new PerformanceMonitor(m_Config, m_AppServers, serverManager, logFactory);
+                m_PerfMonitor = new PerformanceMonitor(m_Config, m_AppServers, serverManager, LoggerFactory);
 
                 if (m_GlobalLog.IsDebugEnabled)
                     m_GlobalLog.Debug("The PerformanceMonitor has been initialized!");
@@ -462,11 +462,11 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Initializes the bootstrap with the configuration
         /// </summary>
-        /// <param name="logFactory">The log factory.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <returns></returns>
-        public virtual bool Initialize(ILogFactory logFactory)
+        public virtual bool Initialize(ILoggerFactory loggerFactory)
         {
-            return Initialize(c => c, logFactory);
+            return Initialize(c => c, loggerFactory);
         }
 
         /// <summary>

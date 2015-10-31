@@ -80,7 +80,7 @@ namespace SuperSocket.SocketBase
                 {
                     if (m_PerfLog == null)
                     {
-                        m_PerfLog = appServer.LogFactory.GetLog(m_PerfLogName);
+                        m_PerfLog = appServer.LoggerFactory.GetLogger(m_PerfLogName);
                     }
                 }
             }

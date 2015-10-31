@@ -19,7 +19,7 @@ namespace SuperSocket.SocketEngine
 
         private Timer m_PerformanceTimer;
         private int m_TimerInterval;
-        private ILog m_PerfLog;
+        private ILog m_PerfLogger;
 
         private IManagedApp[] m_AppServers;
 
@@ -29,9 +29,9 @@ namespace SuperSocket.SocketEngine
 
         private List<KeyValuePair<string, StatusInfoAttribute[]>> m_ServerStatusMetadataSource;
 
-        public PerformanceMonitor(IRootConfig config, IEnumerable<IManagedApp> appServers, IManagedApp serverManager, ILogFactory logFactory)
+        public PerformanceMonitor(IRootConfig config, IEnumerable<IManagedApp> appServers, IManagedApp serverManager, ILoggerFactory logFactory)
         {
-            m_PerfLog = logFactory.GetLog("Performance");
+            m_PerfLogger = logFactory.GetLogger("Performance");
 
             m_AppServers = appServers.ToArray();
 
@@ -144,7 +144,7 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            m_PerfLog.Info(perfBuilder.ToString());
+            m_PerfLogger.Info(perfBuilder.ToString());
 
             nodeStatus.InstancesStatus = instancesStatus.ToArray();
 

@@ -209,11 +209,11 @@ namespace SuperSocket.SocketEngine
         /// <summary>
         /// Initializes the bootstrap with the configuration and config resolver.
         /// </summary>
-        /// <param name="logFactory">The log factory.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <returns></returns>
-        public bool Initialize(ILogFactory logFactory)
+        public bool Initialize(ILoggerFactory loggerFactory)
         {
-            return m_InnerBootstrap.Initialize(logFactory);
+            return m_InnerBootstrap.Initialize(loggerFactory);
         }
 
         /// <summary>
@@ -230,14 +230,14 @@ namespace SuperSocket.SocketEngine
         /// Initializes the bootstrap with the configuration
         /// </summary>
         /// <param name="serverConfigResolver">The server config resolver.</param>
-        /// <param name="logFactory">The log factory.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <returns></returns>
-        public bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver, ILogFactory logFactory)
+        public bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver, ILoggerFactory loggerFactory)
         {
-            if (logFactory != null)
+            if (loggerFactory != null)
                 throw new Exception("You cannot pass in logFactory, if your isolation level is AppDomain!");
 
-            return m_InnerBootstrap.Initialize(serverConfigResolver, logFactory);
+            return m_InnerBootstrap.Initialize(serverConfigResolver, loggerFactory);
         }
 
         /// <summary>

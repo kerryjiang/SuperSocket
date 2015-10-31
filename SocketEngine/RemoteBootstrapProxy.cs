@@ -113,12 +113,12 @@ namespace SuperSocket.SocketEngine
             throw new NotSupportedException();
         }
 
-        public bool Initialize(ILogFactory logFactory)
+        public bool Initialize(ILoggerFactory loggerFactory)
         {
             throw new NotSupportedException();
         }
 
-        public bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver, ILogFactory logFactory)
+        public bool Initialize(Func<IServerConfig, IServerConfig> serverConfigResolver, ILoggerFactory loggerFactory)
         {
             throw new NotSupportedException();
         }

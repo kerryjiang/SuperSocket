@@ -211,7 +211,7 @@ namespace SuperSocket.SocketBase
         /// <value>
         /// The log factory.
         /// </value>
-        public ILogFactory LogFactory { get; private set; }
+        public ILoggerFactory LoggerFactory { get; private set; }
 
 
         /// <summary>
@@ -406,14 +406,14 @@ namespace SuperSocket.SocketBase
         protected virtual void RegisterCompositeTarget(IList<ICompositeTarget> targets)
         {
             // register log factory
-            if (LogFactory == null)
+            if (LoggerFactory == null)
             {
-                targets.Add(new LogFactoryCompositeTarget((value) =>
+                targets.Add(new LoggerFactoryCompositeTarget((value) =>
                 {
-                    LogFactory = value;
-                    Logger = value.GetLog(Name);
+                    LoggerFactory = value;
+                    Logger = value.GetLogger(Name);
                 }));
-            }            
+            }
 
             if(m_SocketServerFactory == null)
             {
@@ -667,13 +667,13 @@ namespace SuperSocket.SocketBase
         /// </summary>
         /// <param name="config">The server config.</param>
         /// <param name="receiveFilterFactory">The receive filter factory.</param>
-        /// <param name="logFactory">The log factory.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IServerConfig config, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
+        public bool Setup(IServerConfig config, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILoggerFactory loggerFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
         {
-            return Setup(new RootConfig(), config, receiveFilterFactory, logFactory, connectionFilters, commandLoaders);
+            return Setup(new RootConfig(), config, receiveFilterFactory, loggerFactory, connectionFilters, commandLoaders);
         }
 
         /// <summary>
@@ -682,11 +682,11 @@ namespace SuperSocket.SocketBase
         /// <param name="rootConfig">The root config.</param>
         /// <param name="config">The server config.</param>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        /// <param name="logFactory">The log factory.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns></returns>
-        public bool Setup(IRootConfig rootConfig, IServerConfig config, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
+        public bool Setup(IRootConfig rootConfig, IServerConfig config, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILoggerFactory loggerFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
         {
             TrySetInitializedState();
 
@@ -728,11 +728,11 @@ namespace SuperSocket.SocketBase
         /// <param name="ip">The ip.</param>
         /// <param name="port">The port.</param>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        /// <param name="logFactory">The log factory.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="connectionFilters">The connection filters.</param>
         /// <param name="commandLoaders">The command loaders.</param>
         /// <returns>return setup result</returns>
-        public bool Setup(string ip, int port, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILogFactory logFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
+        public bool Setup(string ip, int port, IReceiveFilterFactory<TPackageInfo> receiveFilterFactory = null, ILoggerFactory loggerFactory = null, IEnumerable<IConnectionFilter> connectionFilters = null, IEnumerable<ICommandLoader<ICommand<TAppSession, TPackageInfo>>> commandLoaders = null)
         {
             return Setup(new ServerConfig
                             {
@@ -740,7 +740,7 @@ namespace SuperSocket.SocketBase
                                 Port = port
                             },
                           receiveFilterFactory,
-                          logFactory,
+                          loggerFactory,
                           connectionFilters,
                           commandLoaders);
         }
@@ -803,7 +803,7 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         protected virtual ILog CreateLogger(string loggerName)
         {
-            return LogFactory.GetLog(loggerName);
+            return LoggerFactory.GetLogger(loggerName);
         }
 
         /// <summary>
