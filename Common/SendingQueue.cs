@@ -95,7 +95,7 @@ namespace SuperSocket.Common
 
             Interlocked.Increment(ref m_UpdatingCount);
 
-            while (true)
+            while (!m_ReadOnly)
             {
                 bool conflict = false;
 
@@ -129,20 +129,20 @@ namespace SuperSocket.Common
 
             bool conflict;
 
-            while (true)
+            while (!m_ReadOnly)
             {
                 if (TryEnqueue(items, out conflict, trackID))
-                    break;
-
-                if (!conflict)
                 {
                     Interlocked.Decrement(ref m_UpdatingCount);
-                    return false;
+                    return true;
                 }
+
+                if (!conflict)
+                    break;
             }
 
             Interlocked.Decrement(ref m_UpdatingCount);
-            return true;
+            return false;
         }
 
         private bool TryEnqueue(IList<ArraySegment<byte>> items, out bool conflict, ushort trackID)
