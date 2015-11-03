@@ -17,6 +17,10 @@
             <exclude name="**/nuget.key" />
 			<exclude name="*Push.bat" />
 			<exclude name="*SuperSocket.build" />
+			<exclude name="**/*.nuspec" />
+			<exclude name="**/*.userprefs" />
+			<exclude name=".travis.yml" />
+			<exclude name="**/.vs/**" />
 		</fileset>
 	</zip>
   </target>
@@ -65,7 +69,7 @@
 		<arg line="Pack SuperSocket.Engine.nuspec -Properties Configuration=Release" /> 
 	</exec>
 	
-	<if test="${push}=='true'">
+	<if test="${push=='true'}">
 		<exec program="nuget" failonerror="true"> 
 			<arg line="Push SuperSocket.${releaseVersion}.nupkg" /> 
 		</exec>
