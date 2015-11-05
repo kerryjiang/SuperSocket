@@ -1,4 +1,4 @@
-# SuperSocket  [![Build Status](https://travis-ci.org/kerryjiang/SuperSocket.svg?branch=v1.6)](https://travis-ci.org/kerryjiang/SuperSocket)
+# SuperSocket  [![Build Status](https://travis-ci.org/kerryjiang/SuperSocket.svg?branch=v1.6)](https://travis-ci.org/kerryjiang/SuperSocket) [![NuGet Version](https://img.shields.io/nuget/v/SuperSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket/) [![NuGet Downloads](https://img.shields.io/nuget/dt/SuperSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket/)
 
 
 **SuperSocket** is a light weight extensible socket application framework.
