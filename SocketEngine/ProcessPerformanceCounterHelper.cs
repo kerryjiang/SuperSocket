@@ -89,7 +89,18 @@ namespace SuperSocket.SocketEngine
 
                 using (var performanceCounter = new PerformanceCounter("Process", "ID Process", runnedInstance, true))
                 {
-                    if ((int)performanceCounter.RawValue == processId)
+                    var counterProcessId = 0;                    
+
+                    try
+                    {
+                        counterProcessId = (int)performanceCounter.RawValue;
+                    }
+                    catch //that process has been shutdown
+                    {                        
+                        continue;
+                    }
+
+                    if (counterProcessId == processId)
                     {
                         return runnedInstance;
                     }
