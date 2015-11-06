@@ -13,7 +13,7 @@
     <tags>SuperSocket, Socket Server, .Net Socket Server Framework</tags>
     <dependencies>
       <dependency id="log4net" version="2.0.3" />
-	  <dependency id="SuperSocket.Base" version="1.6.5" />
+	  <dependency id="SuperSocket" version="1.6.5" />
     </dependencies>
     <references>      
       <reference file="SuperSocket.SocketEngine.dll" />
