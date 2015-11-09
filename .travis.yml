@@ -1,2 +1,5 @@
 language: csharp
-solution: SuperSocket-Net45.sln
+script:
+  - xbuild SuperSocket-Net45.sln
+  - xbuild SuperSocket-Net40.sln
+  - xbuild SuperSocket.Portable.sln
