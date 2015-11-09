@@ -46,7 +46,9 @@
     <Compile Include="BufferStream.cs" />
     <Compile Include="Buffer\IBufferManager.cs" />
     <Compile Include="Buffer\NullBufferManager.cs" />
+    <Compile Include="CloseReason.cs" />
     <Compile Include="DefaultPipelineProcessor.cs" />
+    <Compile Include="DefaultProtoHandler.cs" />
     <Compile Include="Encoder\IProtoDataEncoder.cs" />
     <Compile Include="Encoder\IProtoTextEncoder.cs" />
     <Compile Include="Extensions.cs" />
@@ -62,6 +64,7 @@
     <Compile Include="IPackageInfo.cs" />
     <Compile Include="IPackageResolver.cs" />
     <Compile Include="IPipelineProcessor.cs" />
+    <Compile Include="IProtoHandler.cs" />
     <Compile Include="IReceiveFilter.cs" />
     <Compile Include="IStringParser.cs" />
     <Compile Include="MimeHeaderHelper.cs" />
@@ -69,6 +72,7 @@
     <Compile Include="ProcessResult.cs" />
     <Compile Include="ProcessState.cs" />
     <Compile Include="Properties\AssemblyInfo.Portable.cs" />
+    <Compile Include="ProtoHandlerBase.cs" />
     <Compile Include="ReceiveFilters\BeginEndMarkReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\CountSpliterReceiveFilter.cs" />
     <Compile Include="ReceiveFilters\FixedHeaderReceiveFilter.cs" />

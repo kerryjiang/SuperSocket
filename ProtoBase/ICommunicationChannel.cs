@@ -20,6 +20,7 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Close the communication channel
         /// </summary>
-        void Close();
+        /// <param name="reason">The reason.</param>
+        void Close(CloseReason reason);
     }
 }

@@ -574,21 +574,20 @@ namespace SuperSocket.SocketBase
                 }
             }
 
-            TextEncoder = GetService<IProtoTextEncoder>();
 
-            if (TextEncoder == null)
-                TextEncoder = new NewLineProtoTextEncoder(TextEncoding);
-
-            DataEncoder = GetService<IProtoDataEncoder>();
-
-            ProtoSender = GetService<IProtoSender>();
+            if (TextEncoder == null && Config.Mode == SocketMode.Tcp && Config.Protocol == ProtocolMode.CommandLine)
+                TextEncoder = new NewLineProtoTextEncoder(TextEncoding);            
 
             if(ProtoSender == null)
             {
-                if (DataEncoder == null)
-                    ProtoSender = new DefaultProtoSender(Config.SendTimeOut);
+                if (Config.Protocol != ProtocolMode.CommandLine)
+                {
+                    ProtoSender = new EncodeProtoSender(Config.SendTimeOut);
+                }
                 else
-                    ProtoSender = new EncodeProtoSender(Config.SendTimeOut, DataEncoder);
+                {
+                    ProtoSender = new DefaultProtoSender(Config.SendTimeOut);
+                }
             }
 
             var newSessionHandler = GetService<INewSessionHandler>();
@@ -1947,8 +1946,6 @@ namespace SuperSocket.SocketBase
         #region encoder
 
         internal IProtoTextEncoder TextEncoder { get; private set; }
-
-        internal IProtoDataEncoder DataEncoder { get; private set; }
 
         internal IProtoSender ProtoSender { get; private set; }
 

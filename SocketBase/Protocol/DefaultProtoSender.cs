@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.SocketBase.Protocol
 {
@@ -15,7 +16,7 @@ namespace SuperSocket.SocketBase.Protocol
             m_SendTimeOut = sendTimeOut;
         }
 
-        protected bool InternalTrySend(ISocketSession session, IList<ArraySegment<byte>> segments)
+        protected bool InternalTrySend(ISocketSession session, IProtoHandler protoHandler, IList<ArraySegment<byte>> segments)
         {
             if (!session.TrySend(segments))
                 return false;
@@ -23,12 +24,12 @@ namespace SuperSocket.SocketBase.Protocol
             return true;
         }
 
-        protected void InternalSend(ISocketSession session, IList<ArraySegment<byte>> segments)
+        protected void InternalSend(ISocketSession session, IProtoHandler protoHandler, IList<ArraySegment<byte>> segments)
         {
-            if (!session.CanSend())
+            if (!session.CanSend() || (protoHandler != null && !protoHandler.CanSend()))
                 return;
 
-            if (InternalTrySend(session, segments))
+            if (InternalTrySend(session, protoHandler, segments))
                 return;
 
             var sendTimeOut = m_SendTimeOut;
@@ -47,7 +48,7 @@ namespace SuperSocket.SocketBase.Protocol
             {
                 spinWait.SpinOnce();
 
-                if (InternalTrySend(session, segments))
+                if (InternalTrySend(session, protoHandler, segments))
                     return;
 
                 //If sendTimeOut = 0, don't have timeout check
@@ -58,7 +59,7 @@ namespace SuperSocket.SocketBase.Protocol
             }
         }
 
-        protected bool InternalTrySend(ISocketSession session, ArraySegment<byte> segment)
+        protected bool InternalTrySend(ISocketSession session, IProtoHandler protoHandler, ArraySegment<byte> segment)
         {
             if (!session.TrySend(segment))
                 return false;
@@ -66,12 +67,12 @@ namespace SuperSocket.SocketBase.Protocol
             return true;
         }
 
-        protected void InternalSend(ISocketSession session, ArraySegment<byte> segment)
+        protected void InternalSend(ISocketSession session, IProtoHandler protoHandler, ArraySegment<byte> segment)
         {
-            if (!session.CanSend())
+            if (!session.CanSend() || (protoHandler != null && !protoHandler.CanSend()))
                 return;
 
-            if (InternalTrySend(session, segment))
+            if (InternalTrySend(session, protoHandler, segment))
                 return;
 
             var sendTimeOut = m_SendTimeOut;
@@ -90,7 +91,7 @@ namespace SuperSocket.SocketBase.Protocol
             {
                 spinWait.SpinOnce();
 
-                if (InternalTrySend(session, segment))
+                if (InternalTrySend(session, protoHandler, segment))
                     return;
 
                 //If sendTimeOut = 0, don't have timeout check
@@ -101,30 +102,30 @@ namespace SuperSocket.SocketBase.Protocol
             }
         }
 
-        public virtual void Send(ISocketSession session, IList<ArraySegment<byte>> segments)
+        public virtual void Send(ISocketSession session, IProtoHandler protoHandler, IList<ArraySegment<byte>> segments)
         {
-            InternalSend(session, segments);
+            InternalSend(session, protoHandler, segments);
         }
 
-        public virtual void Send(ISocketSession session, ArraySegment<byte> data)
+        public virtual void Send(ISocketSession session, IProtoHandler protoHandler, ArraySegment<byte> data)
         {
-            InternalSend(session, new ArraySegment<byte>[] { data });
+            InternalSend(session, protoHandler, new ArraySegment<byte>[] { data });
         }
 
-        public virtual bool TrySend(ISocketSession session, IList<ArraySegment<byte>> segments)
+        public virtual bool TrySend(ISocketSession session, IProtoHandler protoHandler, IList<ArraySegment<byte>> segments)
         {
-            if (!session.CanSend())
+            if (!session.CanSend() || (protoHandler != null && !protoHandler.CanSend()))
                 return false;
 
-            return InternalTrySend(session, segments);
+            return InternalTrySend(session, protoHandler, segments);
         }
 
-        public virtual bool TrySend(ISocketSession session, ArraySegment<byte> data)
+        public virtual bool TrySend(ISocketSession session, IProtoHandler protoHandler, ArraySegment<byte> data)
         {
-            if (!session.CanSend())
+            if (!session.CanSend() || (protoHandler != null && !protoHandler.CanSend()))
                 return false;
 
-            return InternalTrySend(session, data);
+            return InternalTrySend(session, protoHandler, data);
         }
     }
 }

@@ -168,9 +168,12 @@ namespace SuperSocket.SocketBase
         public ISocketSession SocketSession { get; private set; }
 
         /// <summary>
-        /// Get protocal data sender used by this session
+        /// Gets the proto handler.
         /// </summary>
-        private IProtoSender m_DataSender;
+        /// <value>
+        /// The proto handler.
+        /// </value>
+        public IProtoHandler ProtoHandler { get; private set; }
 
         /// <summary>
         /// Gets the config of the server.
@@ -205,7 +208,6 @@ namespace SuperSocket.SocketBase
             SocketSession = socketSession;
             SessionID = socketSession.SessionID;
             m_Connected = true;
-            m_DataSender = castedAppServer.ProtoSender;
             
             socketSession.Initialize(this);
 
@@ -288,7 +290,15 @@ namespace SuperSocket.SocketBase
         /// <param name="reason">The close reason.</param>
         public virtual void Close(CloseReason reason)
         {
-            this.SocketSession.Close(reason);
+            var protoHandler = ProtoHandler;
+
+            if (protoHandler != null)
+            {
+                protoHandler.Close(this, reason);
+                return;
+            }                
+
+            SocketSession.Close(reason);
         }
 
         /// <summary>
@@ -310,7 +320,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(byte[] data, int offset, int length)
         {
-            return m_DataSender.TrySend(SocketSession, new ArraySegment<byte>(data, offset, length));
+            return AppServer.ProtoSender.TrySend(SocketSession, ProtoHandler, new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
@@ -321,7 +331,7 @@ namespace SuperSocket.SocketBase
         /// <param name="length">The length.</param>
         public virtual void Send(byte[] data, int offset, int length)
         {
-            m_DataSender.Send(SocketSession, new ArraySegment<byte>(data, offset, length));
+            AppServer.ProtoSender.Send(SocketSession, ProtoHandler, new ArraySegment<byte>(data, offset, length));
         }
 
         /// <summary>
@@ -331,7 +341,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue</returns>
         public virtual bool TrySend(ArraySegment<byte> segment)
         {
-            return m_DataSender.TrySend(SocketSession, segment);
+            return AppServer.ProtoSender.TrySend(SocketSession, ProtoHandler, segment);
         }
 
         /// <summary>
@@ -340,7 +350,7 @@ namespace SuperSocket.SocketBase
         /// <param name="segment">The segment which will be sent.</param>
         public virtual void Send(ArraySegment<byte> segment)
         {
-            m_DataSender.Send(SocketSession, segment);
+            AppServer.ProtoSender.Send(SocketSession, ProtoHandler, segment);
         }
 
         /// <summary>
@@ -350,7 +360,7 @@ namespace SuperSocket.SocketBase
         /// <returns>Indicate whether the message was pushed into the sending queue; if it returns false, the sending queue may be full or the socket is not connected</returns>
         public virtual bool TrySend(IList<ArraySegment<byte>> segments)
         {
-            return m_DataSender.TrySend(SocketSession, segments);
+            return AppServer.ProtoSender.TrySend(SocketSession, ProtoHandler, segments);
         }
 
         /// <summary>
@@ -359,7 +369,7 @@ namespace SuperSocket.SocketBase
         /// <param name="segments">The segments.</param>
         public virtual void Send(IList<ArraySegment<byte>> segments)
         {
-            m_DataSender.Send(SocketSession, segments);
+            AppServer.ProtoSender.Send(SocketSession, ProtoHandler, segments);
         }
 
         void ICommunicationChannel.Send(ArraySegment<byte> segment)
@@ -367,9 +377,9 @@ namespace SuperSocket.SocketBase
             SocketSession.TrySend(segment);
         }
 
-        void ICommunicationChannel.Close()
+        void ICommunicationChannel.Close(CloseReason reason)
         {
-            SocketSession.Close(CloseReason.ServerClosing);
+            SocketSession.Close(reason);
         }
 
         #endregion

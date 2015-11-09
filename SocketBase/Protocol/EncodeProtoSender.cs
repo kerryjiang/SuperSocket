@@ -9,32 +9,30 @@ namespace SuperSocket.SocketBase.Protocol
 {
     class EncodeProtoSender : DefaultProtoSender
     {
-        private IProtoDataEncoder m_Encoder;
-
-        public EncodeProtoSender(int sendTimeOut, IProtoDataEncoder encoder)
+        public EncodeProtoSender(int sendTimeOut)
             : base(sendTimeOut)
         {
-            m_Encoder = encoder;
+            
         }
 
-        public override void Send(ISocketSession session, ArraySegment<byte> data)
+        public override void Send(ISocketSession session, IProtoHandler protoHandler, ArraySegment<byte> data)
         {
-            base.Send(session, m_Encoder.EncodeData(data));
+            base.Send(session, protoHandler, protoHandler.DataEncoder.EncodeData(data));
         }
 
-        public override void Send(ISocketSession session, IList<ArraySegment<byte>> segments)
+        public override void Send(ISocketSession session, IProtoHandler protoHandler, IList<ArraySegment<byte>> segments)
         {
-            base.Send(session, m_Encoder.EncodeData(segments));
+            base.Send(session, protoHandler, protoHandler.DataEncoder.EncodeData(segments));
         }
 
-        public override bool TrySend(ISocketSession session, ArraySegment<byte> data)
+        public override bool TrySend(ISocketSession session, IProtoHandler protoHandler, ArraySegment<byte> data)
         {
-            return base.TrySend(session, m_Encoder.EncodeData(data));
+            return base.TrySend(session, protoHandler, protoHandler.DataEncoder.EncodeData(data));
         }
 
-        public override bool TrySend(ISocketSession session, IList<ArraySegment<byte>> segments)
+        public override bool TrySend(ISocketSession session, IProtoHandler protoHandler, IList<ArraySegment<byte>> segments)
         {
-            return base.TrySend(session, m_Encoder.EncodeData(segments));
+            return base.TrySend(session, protoHandler, protoHandler.DataEncoder.EncodeData(segments));
         }
     }
 }

@@ -61,8 +61,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             {
                 if(!handshakeValidator.ValidateHandshake(channel, context.HandshakeRequest))
                 {
-                    //TODO: do something like send error code?
-                    channel.Close();
+                    channel.Close(CloseReason.ProtocolError);
                     return false;
                 }
             }
@@ -71,8 +70,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
 
             if (string.IsNullOrEmpty(secWebSocketKey))
             {
-                //TODO: do something like send error code?
-                channel.Close();
+                channel.Close(CloseReason.ProtocolError);
                 return false;
             }
 
@@ -86,8 +84,7 @@ namespace SuperSocket.WebSocket.ReceiveFilters
             }
             catch (Exception)
             {
-                //TODO: do something like send error code?
-                channel.Close();
+                channel.Close(CloseReason.ProtocolError);
                 return false;
             }
 

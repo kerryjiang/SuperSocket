@@ -229,6 +229,17 @@ namespace SuperSocket.ProtoBase
             Thread.SetData(slot, stream);
             return stream;
         }
+#else
+        /// <summary>
+        /// Gets the current buffer stream from the thread context
+        /// </summary>
+        /// <typeparam name="TStream">The type of the stream.</typeparam>
+        /// <returns></returns>
+        public static TStream GetCurrent<TStream>()
+            where TStream : BufferStream, new()
+        {
+            return new TStream();
+        }
 #endif
 
 

@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AnyLog;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 
 namespace SuperSocket.WebSocket

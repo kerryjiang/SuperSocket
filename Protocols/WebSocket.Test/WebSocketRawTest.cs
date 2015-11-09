@@ -8,6 +8,7 @@ using System.Text;
 using NUnit.Framework;
 using SuperSocket.ClientEngine.Protocol;
 using SuperSocket.Common;
+using SuperSocket.ProtoBase;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketEngine;
