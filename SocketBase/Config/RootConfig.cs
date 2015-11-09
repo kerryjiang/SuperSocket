@@ -86,12 +86,12 @@ namespace SuperSocket.SocketBase.Config
         public IsolationMode Isolation { get; set; }
 
         /// <summary>
-        /// Gets/sets the log factory name.
+        /// Gets/sets the logger factory name.
         /// </summary>
         /// <value>
-        /// The log factory.
+        /// The logger factory.
         /// </value>
-        public string LogFactory { get; set; }
+        public string LoggerFactory { get; set; }
 
         /// <summary>
         /// Gets/sets the option elements.

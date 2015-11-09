@@ -48,12 +48,12 @@ namespace SuperSocket.SocketBase.Config
 
 
         /// <summary>
-        /// Gets the log factory name.
+        /// Gets the logger factory name.
         /// </summary>
         /// <value>
-        /// The log factory.
+        /// The logger factory.
         /// </value>
-        string LogFactory { get; }
+        string LoggerFactory { get; }
 
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace SuperSocket.SocketBase.CompositeTargets
     class LoggerFactoryCompositeTarget : SingleResultCompositeTargetCore<ILoggerFactory, ILoggerFactoryMetadata>
     {
         public LoggerFactoryCompositeTarget(Action<ILoggerFactory> callback)
-            : base((config) => config.LogFactory, callback, true)
+            : base((config) => config.LoggerFactory, callback, true)
         {
 
         }

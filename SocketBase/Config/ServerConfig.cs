@@ -337,9 +337,9 @@ namespace SuperSocket.SocketBase.Config
         public IEnumerable<IListenerConfig> Listeners { get; set; }
 
         /// <summary>
-        /// Gets/sets the log factory name.
+        /// Gets/sets the logger factory name.
         /// </summary>
-        public string LogFactory { get; set; }
+        public string LoggerFactory { get; set; }
 
         /// <summary>
         /// Gets/sets the size of the sending queue.

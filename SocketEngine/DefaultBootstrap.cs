@@ -319,14 +319,14 @@ namespace SuperSocket.SocketEngine
             if (m_Initialized)
                 throw new Exception("The server had been initialized already, you cannot initialize it again!");
 
-            if (loggerFactory != null && !string.IsNullOrEmpty(m_Config.LogFactory))
+            if (loggerFactory != null && !string.IsNullOrEmpty(m_Config.LoggerFactory))
             {
                 throw new ArgumentException("You cannot pass in a logFactory parameter, if you have configured a root log factory.", "loggerFactory");
             }
 
             if(loggerFactory == null)
             {
-                loggerFactory = GetBootstrapLoggerFactory(m_Config.LogFactory);
+                loggerFactory = GetBootstrapLoggerFactory(m_Config.LoggerFactory);
             }
 
             m_GlobalLog = loggerFactory.GetCurrentClassLogger();

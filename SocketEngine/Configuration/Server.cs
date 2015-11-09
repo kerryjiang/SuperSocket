@@ -428,12 +428,12 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the logfactory name of the server instance.
         /// </summary>
-        [ConfigurationProperty("logFactory", IsRequired = false, DefaultValue = "")]
-        public string LogFactory
+        [ConfigurationProperty("loggerFactory", IsRequired = false, DefaultValue = "")]
+        public string LoggerFactory
         {
             get
             {
-                return (string)this["logFactory"];
+                return (string)this["loggerFactory"];
             }
         }
 

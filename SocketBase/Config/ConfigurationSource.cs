@@ -42,11 +42,6 @@ namespace SuperSocket.SocketBase.Config
                 this.ConnectionFilters = source.ConnectionFilters.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
             }
 
-            if (source.LogFactories != null && source.LogFactories.Any())
-            {
-                this.LogFactories = source.LogFactories.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
-            }
-
             if (source.ReceiveFilterFactories != null && source.ReceiveFilterFactories.Any())
             {
                 this.ReceiveFilterFactories = source.ReceiveFilterFactories.Select(s => s.CopyPropertiesTo(new TypeProviderConfig())).ToArray();
@@ -74,10 +69,6 @@ namespace SuperSocket.SocketBase.Config
         /// </summary>
         public IEnumerable<ITypeProvider> ConnectionFilters { get; set; }
 
-        /// <summary>
-        /// Gets/sets the log factories definition.
-        /// </summary>
-        public IEnumerable<ITypeProvider> LogFactories { get; set; }
 
         /// <summary>
         /// Gets/sets the Receive filter factories definition.

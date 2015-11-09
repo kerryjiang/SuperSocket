@@ -49,7 +49,7 @@ namespace SuperSocket.Test
 
         void ITestSetup.Setup(IRootConfig rootConfig, IServerConfig serverConfig)
         {            
-            base.Setup(rootConfig, serverConfig, null, new ConsoleLogFactory(), null);
+            base.Setup(rootConfig, serverConfig, null, new ConsoleLoggerFactory(), null);
         }
 
         internal bool SendWelcome { get; private set; }

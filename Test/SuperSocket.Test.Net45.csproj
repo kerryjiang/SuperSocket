@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{BDBB6CE9-C3CE-49C1-A05E-2D7628430A02}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -41,26 +39,13 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AnyLog, Version=0.1.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\AnyLog.0.1.5.0\lib\net40\AnyLog.dll</HintPath>
-    </Reference>
     <Reference Include="IronPython">
       <HintPath>..\Reference\IronPython\Net40\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Dynamic">
       <HintPath>..\Reference\DLR\Net40\Microsoft.Dynamic.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Reference\DLR\Net40\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.5.5.10112, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Reference\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
@@ -72,6 +57,16 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\Reference\DLR\Net40\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\Reference\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Configuration" />
+    <Reference Include="AnyLog">
+      <HintPath>..\packages\AnyLog.0.1.8\lib\net45\AnyLog.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppDomainSocketServerTest.cs" />
@@ -124,7 +119,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Agent\SuperSocket.Agent.Net45.csproj">
-      <Project>{49ba8e71-4f97-40d6-bbe7-22b71d222486}</Project>
+      <Project>{49BA8E71-4F97-40D6-BBE7-22B71D222486}</Project>
       <Name>SuperSocket.Agent.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">
@@ -136,11 +131,11 @@
       <Name>SuperSocket.Dlr.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\Facility\SuperSocket.Facility.Net45.csproj">
-      <Project>{01987bac-c498-44dd-b274-62ea2506b51d}</Project>
+      <Project>{01987BAC-C498-44DD-B274-62EA2506B51D}</Project>
       <Name>SuperSocket.Facility.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\ProtoBase\SuperSocket.ProtoBase.Net45.csproj">
-      <Project>{88c9312e-7520-4f6b-bf25-30da5990d270}</Project>
+      <Project>{88C9312E-7520-4F6B-BF25-30DA5990D270}</Project>
       <Name>SuperSocket.ProtoBase.Net45</Name>
     </ProjectReference>
     <ProjectReference Include="..\SocketBase\SuperSocket.SocketBase.Net45.csproj">

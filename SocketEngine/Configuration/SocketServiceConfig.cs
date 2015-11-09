@@ -54,12 +54,12 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the defined log factory types.
         /// </summary>
-        [ConfigurationProperty("logFactories", IsRequired = false)]
-        public TypeProviderCollection LogFactories
+        [ConfigurationProperty("loggerFactories", IsRequired = false)]
+        public TypeProviderCollection LoggerFactories
         {
             get
             {
-                return this["logFactories"] as TypeProviderCollection;
+                return this["loggerFactories"] as TypeProviderCollection;
             }
         }
 
@@ -174,12 +174,12 @@ namespace SuperSocket.SocketEngine.Configuration
         /// <summary>
         /// Gets the logfactory name of the bootstrap.
         /// </summary>
-        [ConfigurationProperty("logFactory", IsRequired = false, DefaultValue = "")]
-        public string LogFactory
+        [ConfigurationProperty("loggerFactory", IsRequired = false, DefaultValue = "")]
+        public string LoggerFactory
         {
             get
             {
-                return (string)this["logFactory"];
+                return (string)this["loggerFactory"];
             }
         }
 
@@ -273,14 +273,6 @@ namespace SuperSocket.SocketEngine.Configuration
             get
             {
                 return this.ConnectionFilters;
-            }
-        }
-
-        IEnumerable<ITypeProvider> IConfigurationSource.LogFactories
-        {
-            get
-            {
-                return this.LogFactories;
             }
         }
 

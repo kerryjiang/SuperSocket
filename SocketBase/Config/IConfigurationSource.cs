@@ -25,11 +25,6 @@ namespace SuperSocket.SocketBase.Config
         IEnumerable<ITypeProvider> ConnectionFilters { get; }
 
         /// <summary>
-        /// Gets the log factories definition.
-        /// </summary>
-        IEnumerable<ITypeProvider> LogFactories { get; }
-
-        /// <summary>
         /// Gets the Receive filter factories definition.
         /// </summary>
         IEnumerable<ITypeProvider> ReceiveFilterFactories { get; }

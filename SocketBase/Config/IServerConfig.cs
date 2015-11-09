@@ -227,9 +227,9 @@ namespace SuperSocket.SocketBase.Config
         IEnumerable<IListenerConfig> Listeners { get; }
 
         /// <summary>
-        /// Gets the log factory name.
+        /// Gets the logger factory name.
         /// </summary>
-        string LogFactory { get; }
+        string LoggerFactory { get; }
 
 
         /// <summary>
