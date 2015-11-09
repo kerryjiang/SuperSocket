@@ -4,4 +4,3 @@ script:
   - xbuild SuperSocket-Net40.sln
   - nuget restore SuperSocket-Net45.sln
   - xbuild SuperSocket-Net45.sln
-  - xbuild SuperSocket.Portable.sln
