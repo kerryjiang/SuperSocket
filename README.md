@@ -17,9 +17,11 @@ you must be able to use SuperSocket to build your socket application as a part o
 
 **NuGet Packages**
 
-| SuperSocket 			| [![SuperSocket][1]][2]  			|
-| SuperSocket.Engine 	| [![SuperSocket.Engine][3]][4] 	|
-| SuperSocket.WebSocket | [![SuperSocket.WebSocket][5]][6] 	|
+| Name                      | Package                           |
+|---------------------------|-----------------------------------|
+| **SuperSocket** 			    | [![SuperSocket][1]][2]            |
+| **SuperSocket.Engine** 	  | [![SuperSocket.Engine][3]][4]     |
+| **SuperSocket.WebSocket** | [![SuperSocket.WebSocket][5]][6] 	|
 
 
 [1]: https://img.shields.io/nuget/v/SuperSocket.svg?style=flat
