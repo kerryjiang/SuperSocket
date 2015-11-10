@@ -3,7 +3,7 @@
   <metadata>
     <id>SuperSocket.Engine</id>
     <title>SuperSocket.Engine</title>
-    <version>1.6.5.1</version>
+    <version>$version$</version>
     <authors>Kerry Jiang</authors>
     <owners>Kerry Jiang</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
@@ -13,7 +13,7 @@
     <tags>SuperSocket, Socket Server, .Net Socket Server Framework</tags>
     <dependencies>
       <dependency id="log4net" version="2.0.3" />
-	  <dependency id="SuperSocket" version="1.6.5" />
+	  <dependency id="SuperSocket" version="$version$" />
     </dependencies>
     <references>      
       <reference file="SuperSocket.SocketEngine.dll" />

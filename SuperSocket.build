@@ -63,10 +63,13 @@
 	</exec>
 	
 	<exec program="nuget" failonerror="true"> 
-		<arg line="Pack SuperSocket.nuspec -Properties Configuration=Release" /> 
+		<arg line="Pack SuperSocket.nuspec -Properties Configuration=Release;version=${releaseVersion}" /> 
 	</exec>
 	<exec program="nuget" failonerror="true"> 
-		<arg line="Pack SuperSocket.Engine.nuspec -Properties Configuration=Release" /> 
+		<arg line="Pack SuperSocket.Engine.nuspec -Properties Configuration=Release;version=${releaseVersion}" /> 
+	</exec>
+	<exec program="nuget" failonerror="true"> 
+		<arg line="Pack SuperSocket.WebSocket.nuspec -Properties Configuration=Release;version=${releaseVersion}" /> 
 	</exec>
 	
 	<if test="${push=='true'}">
