@@ -522,7 +522,8 @@ namespace SuperSocket.SocketEngine
             ValidateClosed(closeReason);
         }
 
-        protected void OnReceiveError(CloseReason closeReason)
+        // the receive action won't be started for this connection any more
+        protected void OnReceiveTerminated(CloseReason closeReason)
         {
             OnReceiveEnded();
             ValidateClosed(closeReason);

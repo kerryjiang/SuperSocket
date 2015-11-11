@@ -100,8 +100,7 @@ namespace SuperSocket.SocketEngine
             catch (Exception e)
             {
                 LogError(e);
-
-                OnReceiveError(CloseReason.SocketError);
+                OnReceiveTerminated(CloseReason.SocketError);
                 return;
             }
 
@@ -122,14 +121,13 @@ namespace SuperSocket.SocketEngine
             catch (Exception e)
             {
                 LogError(e);
-
-                OnReceiveError(CloseReason.SocketError);
+                OnReceiveTerminated(CloseReason.SocketError);
                 return;
             }
 
             if (thisRead <= 0)
             {
-                OnReceiveError(CloseReason.ClientClosing);
+                OnReceiveTerminated(CloseReason.ClientClosing);
                 return;
             }
 
@@ -162,7 +160,7 @@ namespace SuperSocket.SocketEngine
             catch (Exception exc)
             {
                 LogError(exc);
-                OnReceiveError(CloseReason.SocketError);
+                OnReceiveTerminated(CloseReason.SocketError);
                 return;
             }
         }

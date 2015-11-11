@@ -150,8 +150,7 @@ namespace SuperSocket.SocketEngine
             catch (Exception exc)
             {
                 LogError(exc);
-
-                OnReceiveError(CloseReason.SocketError);
+                OnReceiveTerminated(CloseReason.SocketError);
                 return;
             }
 
@@ -228,7 +227,7 @@ namespace SuperSocket.SocketEngine
         {
             if (!ProcessCompleted(e))
             {
-                OnReceiveError(CloseReason.ClientClosing);
+                OnReceiveTerminated(e.SocketError == SocketError.Success ? CloseReason.ClientClosing : CloseReason.SocketError);
                 return;
             }
 
