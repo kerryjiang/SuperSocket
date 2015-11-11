@@ -141,10 +141,10 @@ namespace SuperSocket.SocketEngine
                     e.SetBuffer(predictOffset, Config.ReceiveBufferSize - offsetDelta);
                 }
 
-                if (IsInClosingOrClosed)
+                // the connection is closing or closed
+                if (!OnReceiveStarted())
                     return;
 
-                OnReceiveStarted();
                 willRaiseEvent = Client.ReceiveAsync(e);
             }
             catch (Exception exc)

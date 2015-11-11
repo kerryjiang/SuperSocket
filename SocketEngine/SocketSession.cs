@@ -47,13 +47,28 @@ namespace SuperSocket.SocketEngine
 
         private void AddStateFlag(int stateValue)
         {
+            AddStateFlag(stateValue, false);
+        }
+
+        private bool AddStateFlag(int stateValue, bool notClosing)
+        {
             while(true)
             {
                 var oldState = m_State;
+
+                if (notClosing)
+                {
+                    // don't update the state if the connection has entered the closing procedure
+                    if (oldState >= SocketState.InClosing)
+                    {
+                        return false;
+                    }
+                }
+
                 var newState = m_State | stateValue;
 
                 if(Interlocked.CompareExchange(ref m_State, newState, oldState) == oldState)
-                    return;
+                    return true;
             }
         }
 
@@ -529,9 +544,11 @@ namespace SuperSocket.SocketEngine
             ValidateClosed(closeReason);
         }
 
-        protected void OnReceiveStarted()
+
+        // return false if the connection has entered the closing procedure or has closed already
+        protected bool OnReceiveStarted()
         {
-            AddStateFlag(SocketState.InReceiving);
+            return AddStateFlag(SocketState.InReceiving, true);
         }
 
         protected void OnReceiveEnded()
