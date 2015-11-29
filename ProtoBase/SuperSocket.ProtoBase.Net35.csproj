@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A40EB3E7-DAE7-49B9-9984-FEC4351C1BF3}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>SuperSocket.ProtoBase</RootNamespace>
+    <AssemblyName>SuperSocket.ProtoBase</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>2</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
+      <Link>GlobalAssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="BasicStringParser.cs" />
+    <Compile Include="BufferedPackageInfo.cs" />
+    <Compile Include="BufferList.cs" />
+    <Compile Include="BufferStream.cs" />
+    <Compile Include="Buffer\IBufferManager.cs" />
+    <Compile Include="Buffer\NullBufferManager.cs" />
+    <Compile Include="CloseReason.cs" />
+    <Compile Include="DefaultPipelineProcessor.cs" />
+    <Compile Include="DefaultProtoHandler.cs" />
+    <Compile Include="Encoder\IProtoDataEncoder.cs" />
+    <Compile Include="Encoder\IProtoTextEncoder.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="FilterState.cs" />
+    <Compile Include="HttpBase\HttpHeaderInfo.cs" />
+    <Compile Include="HttpBase\HttpHeaderReceiveFilterBase.cs" />
+    <Compile Include="HttpBase\HttpPackageInfoBase.cs" />
+    <Compile Include="IBufferedPackageInfo.cs" />
+    <Compile Include="IBufferRecycler.cs" />
+    <Compile Include="IBufferState.cs" />
+    <Compile Include="ICommunicationChannel.cs" />
+    <Compile Include="IPackageHandler.cs" />
+    <Compile Include="IPackageInfo.cs" />
+    <Compile Include="IPackageResolver.cs" />
+    <Compile Include="IPipelineProcessor.cs" />
+    <Compile Include="IProtoHandler.cs" />
+    <Compile Include="IReceiveFilter.cs" />
+    <Compile Include="IStringParser.cs" />
+    <Compile Include="MimeHeaderHelper.cs" />
+    <Compile Include="PackageInfo.cs" />
+    <Compile Include="ProcessResult.cs" />
+    <Compile Include="ProcessState.cs" />
+    <Compile Include="Properties\AssemblyInfo.Portable.cs" />
+    <Compile Include="ProtoHandlerBase.cs" />
+    <Compile Include="ReceiveFilters\BeginEndMarkReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\CountSpliterReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\FixedHeaderReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\FixedSizeReceiveFilter.cs" />
+    <Compile Include="ReceiveFilters\SearchMarkState.cs" />
+    <Compile Include="ReceiveFilters\StateFullSearch.cs" />
+    <Compile Include="ReceiveFilters\TerminatorReceiveFilter.cs" />
+    <Compile Include="StringPackageInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
