@@ -13,9 +13,12 @@
     <tags>SuperSocket, Network Protocol, Protocol Resolving</tags>
 	<references>	  
 	  <reference file="SuperSocket.ProtoBase.dll" />
-	</references>
-	<files>
-      <file src="bin\release\SuperSocket.ProtoBase.dll" target="lib/portable-net40+sl50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
-	</files>
+	</references>	
   </metadata>
+  <files>
+    <file src="bin\release\SuperSocket.ProtoBase.dll" target="lib/portable-net40+sl50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+  </files>
+  <files>
+    <file src="bin\release\SuperSocket.ProtoBase.dll" target="lib/portable-net40+sl50+win+wpa81+wp80+MonoAndroid10+xamarinios10+MonoTouch10" />
+  </files>
 </package>

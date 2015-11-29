@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SuperSocket.ProtoBase
 {
@@ -18,20 +16,12 @@ namespace SuperSocket.ProtoBase
         bool CanSend();
 
         /// <summary>
-        /// Gets the binary data encoder.
+        /// Gets the data encoder.
         /// </summary>
         /// <value>
-        /// The binary data encoder.
+        /// The data encoder.
         /// </value>
         IProtoDataEncoder DataEncoder { get; }
-
-        /// <summary>
-        /// Gets the text encoder.
-        /// </summary>
-        /// <value>
-        /// The text encoder.
-        /// </value>
-        IProtoTextEncoder TextEncoder { get; }
 
 
         /// <summary>

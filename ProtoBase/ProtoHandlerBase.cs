@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SuperSocket.ProtoBase
 {
@@ -19,13 +17,6 @@ namespace SuperSocket.ProtoBase
         /// </value>
         public IProtoDataEncoder DataEncoder { get; set; }
 
-        /// <summary>
-        /// Gets the text encoder.
-        /// </summary>
-        /// <value>
-        /// The text encoder.
-        /// </value>
-        public IProtoTextEncoder TextEncoder { get; set; }
 
         /// <summary>
         /// Determines whether this instance can send.

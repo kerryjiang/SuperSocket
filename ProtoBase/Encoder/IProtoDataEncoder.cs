@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SuperSocket.ProtoBase
 {
@@ -24,5 +23,13 @@ namespace SuperSocket.ProtoBase
         /// <param name="data">the binary segments to be encoded</param>
         /// <returns>the output binary data</returns>
         IList<ArraySegment<byte>> EncodeData(IList<ArraySegment<byte>> data);
+
+
+        /// <summary>
+        /// Encodes the text message.
+        /// </summary>
+        /// <param name="message">The message.</param>
+        /// <returns></returns>
+        IList<ArraySegment<byte>> EncodeText(string message);
     }
 }

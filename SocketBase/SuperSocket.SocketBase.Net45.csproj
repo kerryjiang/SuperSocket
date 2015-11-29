@@ -136,6 +136,7 @@
     <Compile Include="Protocol\DefaultProtoSender.cs" />
     <Compile Include="Protocol\DefaultReceiveFilterFactory.cs" />
     <Compile Include="Protocol\EncodeProtoSender.cs" />
+    <Compile Include="Protocol\IProtocolFactory.cs" />
     <Compile Include="Protocol\IProtoSender.cs" />
     <Compile Include="Protocol\IReceiveFilterFactory.cs" />
     <Compile Include="Protocol\NewLineProtoTextEncoder.cs" />

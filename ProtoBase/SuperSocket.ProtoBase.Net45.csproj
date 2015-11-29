@@ -37,7 +37,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.configuration" />
     <Reference Include="System.Core" />
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
@@ -50,7 +49,6 @@
     <Compile Include="DefaultProtoHandler.cs" />
     <Compile Include="ICommunicationChannel.cs" />
     <Compile Include="Encoder\IProtoDataEncoder.cs" />
-    <Compile Include="Encoder\IProtoTextEncoder.cs" />
     <Compile Include="IProtoHandler.cs" />
     <Compile Include="ProtoHandlerBase.cs" />
     <Compile Include="ReceiveFilters\BeginEndMarkReceiveFilter.cs" />

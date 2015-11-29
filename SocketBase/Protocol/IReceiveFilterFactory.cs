@@ -7,15 +7,8 @@ namespace SuperSocket.SocketBase.Protocol
     /// <summary>
     /// Receive filter factory interface
     /// </summary>
-    public interface IReceiveFilterFactory
-    {
-
-    }
-    /// <summary>
-    /// Receive filter factory interface
-    /// </summary>
     /// <typeparam name="TPackageInfo">The type of the request info.</typeparam>
-    public interface IReceiveFilterFactory<out TPackageInfo> : IReceiveFilterFactory
+    public interface IReceiveFilterFactory<out TPackageInfo>
         where TPackageInfo : IPackageInfo
     {
         /// <summary>
@@ -27,6 +20,6 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns>
         /// the new created request filer assosiated with this socketSession
         /// </returns>
-        IReceiveFilter<TPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint);
+        IReceiveFilter<TPackageInfo> CreateReceiveFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint);
     }
 }
