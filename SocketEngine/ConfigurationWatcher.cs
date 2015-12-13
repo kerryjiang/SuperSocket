@@ -63,6 +63,16 @@ namespace SuperSocket.SocketEngine
             m_Watcher.EnableRaisingEvents = true;
         }
 
+        internal static void Pause()
+        {
+            m_Watcher.EnableRaisingEvents = false;
+        }
+
+        internal static void Resume()
+        {
+            m_Watcher.EnableRaisingEvents = true;
+        }
+
         private static bool NeedsLoadConfig(string filePath)
         {
             return File.GetLastWriteTime(filePath) > m_LastUpdatedTime;
@@ -107,7 +117,7 @@ namespace SuperSocket.SocketEngine
                 if (server == null)
                     continue;
 
-                server.ReportPotentialConfigChange(serverConfig);
+                server.ReportPotentialConfigChange(new ServerConfig(serverConfig));
             }
         }
     }
