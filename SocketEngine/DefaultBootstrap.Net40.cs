@@ -30,11 +30,11 @@ namespace SuperSocket.SocketEngine
             }
 
             var configSource = new ConfigurationSource(m_Config);
-            configSource.Servers = new IServerConfig[] { config };
+            configSource.Servers = new IServerConfig[] { new ServerConfig(config) };
 
             IEnumerable<WorkItemFactoryInfo> workItemFactories;
 
-            using (var factoryInfoLoader = GetWorkItemFactoryInfoLoader(configSource, LogFactory))
+            using (var factoryInfoLoader = GetWorkItemFactoryInfoLoader(configSource, null))
             {
                 try
                 {
@@ -67,7 +67,9 @@ namespace SuperSocket.SocketEngine
                     var serverConfig = new Server();
                     serverConfig.LoadFrom(config);
                     section.Servers.AddNew(serverConfig);
+                    ConfigurationWatcher.Pause();
                     section.GetCurrentConfiguration().Save(ConfigurationSaveMode.Minimal);
+                    ConfigurationWatcher.Resume();
                 }
             }
 
@@ -112,7 +114,9 @@ namespace SuperSocket.SocketEngine
             if (section != null) //file configuration
             {
                 section.Servers.Remove(name);
+                ConfigurationWatcher.Pause();
                 section.GetCurrentConfiguration().Save(ConfigurationSaveMode.Minimal);
+                ConfigurationWatcher.Resume();
             }
         }
     }

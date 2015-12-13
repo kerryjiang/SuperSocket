@@ -159,10 +159,14 @@ namespace SuperSocket.SocketEngine
                 }
                 else
                 {
-                    workItemFactory.LogFactory = m_DefaultLogFactory;
+                    if (m_DefaultLogFactory != null)
+                        workItemFactory.LogFactory = m_DefaultLogFactory;
+                    else
+                        workItemFactory.LogFactory = GetBootstrapLogFactory();
                 }
 
-                factories.Add(workItemFactory.LogFactory);
+                if (workItemFactory.LogFactory != null)
+                    factories.Add(workItemFactory.LogFactory);
 
                 //Initialize Receive filter factory
                 if (!string.IsNullOrEmpty(serverConfig.ReceiveFilterFactory))
