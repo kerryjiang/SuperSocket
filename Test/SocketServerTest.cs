@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -869,6 +870,76 @@ namespace SuperSocket.Test
                 ms.Write(endMark, 0, endMark.Length);
 
             return ms.ToArray();
+        }
+
+        [Test]
+        public void TestAddServerInRuntime()
+        {
+            var configDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config");
+            var filePath = Path.Combine(configDir, DefaultServerConfig);
+            var bakFilePath = Path.Combine(configDir, DefaultServerConfig + ".tmp");
+
+            // backup the configuration file for restore
+            File.Copy(filePath, bakFilePath, true);
+
+            try
+            {
+                TestAddServerInRuntimeImplement();
+            }
+            finally
+            {
+                ClearBootstrap();
+                // restore the configiration file
+                File.Copy(bakFilePath, filePath, true);
+            }
+        }
+
+        void TestAddServerInRuntimeImplement()
+        {
+            StartBootstrap(DefaultServerConfig);
+            var bootstrap = BootStrap as IDynamicBootstrap;
+
+            var options = new NameValueCollection();
+            options["testAtt1"] = "1";
+            options["testAtt2"] = "2";
+
+            Assert.IsTrue(bootstrap.AddAndStart(new ServerConfig
+            {
+                Name = "TestDynamicServer",
+                ServerType = "SuperSocket.Test.TestServer, SuperSocket.Test",
+                Port = 2013,
+                Options = options
+            }));
+
+            EndPoint serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 2013);
+
+            using (Socket socket = CreateClientSocket())
+            {
+                try
+                {
+                    socket.Connect(serverAddress);
+                }
+                catch
+                {
+                    Assert.Fail("Failed to connect to the dynamic created server.");
+                }
+
+                Stream socketStream = GetSocketStream(socket);
+                using (StreamReader reader = new StreamReader(socketStream, m_Encoding, true))
+                using (ConsoleWriter writer = new ConsoleWriter(socketStream, m_Encoding, 1024 * 8))
+                {
+                    string welcomeString = reader.ReadLine();
+                    Assert.AreEqual(string.Format(TestSession.WelcomeMessageFormat, "TestDynamicServer"), welcomeString);
+                    var line = Guid.NewGuid().ToString();
+                    writer.WriteLine("ECHO " + line);
+                    writer.Flush();
+
+                    Assert.AreEqual(line, reader.ReadLine());
+                }
+            }
+
+            BootStrap.GetServerByName("TestDynamicServer").Stop();
+            bootstrap.Remove("TestDynamicServer");
         }
     }
 }
