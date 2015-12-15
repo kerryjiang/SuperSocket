@@ -1,2 +1,5 @@
 language: csharp
-solution: SuperSocket.2013.sln
+script:
+  - xbuild SuperSocket.2013.sln /t:Clean;Rebuild
+  - xbuild SuperSocket.2013.NET40.sln /t:Clean;Rebuild
+  - xbuild SuperSocket.2010.NET35.sln /t:Clean;Rebuild
