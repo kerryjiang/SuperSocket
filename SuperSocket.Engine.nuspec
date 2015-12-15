@@ -29,10 +29,13 @@
 	<file src="SocketService\supersocket.cmd" target="content" />
 	<file src="SocketService\supersocket.sh" target="content" />
     <file src="bin\net35\$configuration$\SuperSocket.SocketEngine.dll" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.SocketEngine.XML" target="lib/net35" />
 	<file src="bin\net35\$configuration$\SuperSocket.SocketService.exe" target="lib/net35" />
 	<file src="bin\net40\$configuration$\SuperSocket.SocketEngine.dll" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.SocketEngine.XML" target="lib/net40" />
 	<file src="bin\net40\$configuration$\SuperSocket.SocketService.exe" target="lib/net40" />
 	<file src="bin\net45\$configuration$\SuperSocket.SocketEngine.dll" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.SocketEngine.XML" target="lib/net45" />
 	<file src="bin\net45\$configuration$\SuperSocket.SocketService.exe" target="lib/net45" />
   </files>
 </package>
