@@ -214,11 +214,20 @@ namespace SuperSocket.SocketBase
             OnInit();
         }
 
+        /// <summary>
+        /// Gets the maximum allowed length of the request.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual int GetMaxRequestLength()
+        {
+            return AppServer.Config.MaxRequestLength;
+        }
+
         IPipelineProcessor IAppSession.CreatePipelineProcessor()
         {
             var receiveFilterFactory = AppServer.ReceiveFilterFactory;
             var receiveFilter = receiveFilterFactory.CreateFilter(AppServer, this, SocketSession.RemoteEndPoint);
-            return new DefaultPipelineProcessor<TPackageInfo>(this, receiveFilter, AppServer.Config.MaxRequestLength, SocketSession as IBufferRecycler);
+            return new DefaultPipelineProcessor<TPackageInfo>(this, receiveFilter, GetMaxRequestLength(), SocketSession as IBufferRecycler);
         }
 
         /// <summary>
