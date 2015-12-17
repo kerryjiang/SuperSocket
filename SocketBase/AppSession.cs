@@ -483,6 +483,15 @@ namespace SuperSocket.SocketBase
         }
 
         /// <summary>
+        /// Gets the maximum allowed length of the request.
+        /// </summary>
+        /// <returns></returns>
+        protected virtual int GetMaxRequestLength()
+        {
+            return AppServer.Config.MaxRequestLength;
+        }
+
+        /// <summary>
         /// Filters the request.
         /// </summary>
         /// <param name="readBuffer">The read buffer.</param>
@@ -528,10 +537,13 @@ namespace SuperSocket.SocketBase
                 currentRequestLength = currentRequestLength + length - rest;
             }
 
-            if (currentRequestLength >= AppServer.Config.MaxRequestLength)
+            var maxRequestLength = GetMaxRequestLength();
+
+            if (currentRequestLength >= maxRequestLength)
             {
                 if (Logger.IsErrorEnabled)
-                    Logger.Error(this, string.Format("Max request length: {0}, current processed length: {1}", AppServer.Config.MaxRequestLength, currentRequestLength));
+                    Logger.Error(this, string.Format("Max request length: {0}, current processed length: {1}", maxRequestLength, currentRequestLength));
+
                 Close(CloseReason.ProtocolError);
                 return null;
             }
