@@ -141,13 +141,21 @@ namespace SuperSocket.SocketEngine
 
             if (process == null)
             {
-                if (!m_ProcessWorkEvent.WaitOne(10000))
+                var startTimeOut = 0;
+
+                int.TryParse(Config.Options.GetValue("startTimeOut", "0"), out startTimeOut);
+
+                if (startTimeOut <= 0)
+                {
+                    startTimeOut = 10;
+                }
+
+                if (!m_ProcessWorkEvent.WaitOne(startTimeOut * 1000))
                 {
                     ShutdownProcess();
                     OnExceptionThrown(new Exception("The remote work item was timeout to setup!"));
                     return null;
                 }
-
                 if (!"Ok".Equals(m_ProcessWorkStatus, StringComparison.OrdinalIgnoreCase))
                 {
                     OnExceptionThrown(new Exception("The Agent process didn't start successfully!"));
