@@ -46,6 +46,8 @@ namespace SuperSocket.SocketEngine
 
         private ProcessPerformanceCounterHelper m_PerformanceCounterHelper;
 
+        private bool m_AutoStartAfterUnexpectedShutdown = true;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ProcessAppServer" /> class.
         /// </summary>
@@ -72,6 +74,17 @@ namespace SuperSocket.SocketEngine
 
                 return m_WorkingProcess.Id;
             }
+        }
+
+        public override bool Setup(IBootstrap bootstrap, IServerConfig config)
+        {
+            if (!base.Setup(bootstrap, config))
+                return false;
+
+            if ("false".Equals(config.Options.GetValue("autoStartAfterUnexpectedShutdown"), StringComparison.OrdinalIgnoreCase))
+                m_AutoStartAfterUnexpectedShutdown = false;
+
+            return true;
         }
 
         protected override IManagedAppBase Start()
@@ -269,7 +282,7 @@ namespace SuperSocket.SocketEngine
             m_WorkingProcess = null;
             m_ProcessWorkStatus = string.Empty;
 
-            if (unexpectedShutdown)
+            if (unexpectedShutdown && m_AutoStartAfterUnexpectedShutdown)
             {
                 //auto restart if meet a unexpected shutdown
                 ((IManagedAppBase)this).Start();
