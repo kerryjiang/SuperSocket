@@ -96,13 +96,11 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// add multiple items into the queue
         /// </summary>
-        /// <param name="itemsSource">the source cof the multiple items to be inserted</param>
-        public void AddRange(Func<IList<ArraySegment<byte>>> itemsSource)
+        /// <param name="items">the multiple items to be inserted</param>
+        public void AddRange(IList<ArraySegment<byte>> items)
         {
             lock (this)
             {
-                var items = itemsSource();
-
                 if ((m_CurrentCount + items.Count) > m_Capacity)
                 {
                     throw new Exception("This sending queue is going to be full, you cannot insert items into it.");

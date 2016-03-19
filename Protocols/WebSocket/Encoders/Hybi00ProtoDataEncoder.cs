@@ -11,12 +11,12 @@ namespace SuperSocket.WebSocket.Encoders
     {
         private const string c_NotSupportErrorMessage = "The websocket of this version cannot used for sending binary data!";
 
-        public IList<ArraySegment<byte>> EncodeData(IList<ArraySegment<byte>> data)
+        public void EncodeData(IOutputBuffer output, IList<ArraySegment<byte>> data)
         {
             throw new NotSupportedException(c_NotSupportErrorMessage);
         }
 
-        public IList<ArraySegment<byte>> EncodeData(ArraySegment<byte> data)
+        public void EncodeData(IOutputBuffer output, ArraySegment<byte> data)
         {
             throw new NotSupportedException(c_NotSupportErrorMessage);
         }

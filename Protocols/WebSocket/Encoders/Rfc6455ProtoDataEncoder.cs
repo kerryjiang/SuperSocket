@@ -60,22 +60,22 @@ namespace SuperSocket.WebSocket.Encoders
             return new ArraySegment<byte>(fragment);
         }
 
-        public IList<ArraySegment<byte>> EncodeData(IList<ArraySegment<byte>> data)
+        public void EncodeData(IOutputBuffer output, IList<ArraySegment<byte>> data)
         {
             var result = new List<ArraySegment<byte>>(data.Count);
             var lastIndex = data.Count - 1;
 
             for(var i = 0; i < data.Count; i++)
             {
-                result.Add(EncodeData(i == 0 ? OpCode.Binary : OpCode.Continuation, i == lastIndex, data[i]));
+                data[i] = EncodeData(i == 0 ? OpCode.Binary : OpCode.Continuation, i == lastIndex, data[i]);
             }
 
-            return result;
+            output.AddRange(data);
         }
 
-        public IList<ArraySegment<byte>> EncodeData(ArraySegment<byte> data)
+        public void EncodeData(IOutputBuffer output, ArraySegment<byte> data)
         {
-            return new ArraySegment<byte>[] { EncodeData(OpCode.Binary, true, data) };
+            output.Add(EncodeData(OpCode.Binary, true, data));
         }
     }
 }

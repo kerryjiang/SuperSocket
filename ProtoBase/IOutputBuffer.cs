@@ -18,7 +18,7 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// add multiple items into the queue
         /// </summary>
-        /// <param name="itemsSource">the source cof the multiple items to be inserted</param>
-        void AddRange(Func<IList<ArraySegment<byte>>> itemsSource);
+        /// <param name="items">the multiple items to be inserted</param>
+        void AddRange(IList<ArraySegment<byte>> items);
     }
 }
