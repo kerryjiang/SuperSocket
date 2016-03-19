@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SuperSocket.ProtoBase
@@ -12,8 +13,9 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Encode text message
         /// </summary>
+        /// <param name="output">the output buffer</param>
         /// <param name="message">the message to be encoded</param>
         /// <returns>the output binary data</returns>
-        IList<ArraySegment<byte>> EncodeText(string message);
+        void EncodeText(IOutputBuffer output, string message);
     }
 }

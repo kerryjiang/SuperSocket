@@ -47,6 +47,7 @@
     <Compile Include="DefaultPipelineProcessor.cs" />
     <Compile Include="DefaultProtoHandler.cs" />
     <Compile Include="Encoder\IProtoDataEncoder.cs" />
+    <Compile Include="Encoder\IProtoObjectEncoder.cs" />
     <Compile Include="Encoder\IProtoTextEncoder.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FilterState.cs" />
@@ -57,6 +58,7 @@
     <Compile Include="IBufferRecycler.cs" />
     <Compile Include="IBufferState.cs" />
     <Compile Include="ICommunicationChannel.cs" />
+    <Compile Include="IOutputBuffer.cs" />
     <Compile Include="IPackageHandler.cs" />
     <Compile Include="IPackageInfo.cs" />
     <Compile Include="IPackageResolver.cs" />
