@@ -42,5 +42,9 @@ namespace SuperSocket.WebSocket.Protocol
         protected string VersionTag { get; private set; }
 
         public abstract bool IsValidCloseCode(int code);
+
+        public abstract IList<ArraySegment<byte>> GetEncodedPackage(int opCode, byte[] data, int offset, int length);
+
+        public abstract IList<ArraySegment<byte>> GetEncodedPackage(int opCode, string message);
     }
 }

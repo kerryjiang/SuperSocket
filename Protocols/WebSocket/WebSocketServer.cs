@@ -10,6 +10,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
@@ -705,6 +706,72 @@ namespace SuperSocket.WebSocket
 
             session.LastActiveTime = DateTime.Now;
         }
+
+        #region broadcast
+
+        /// <summary>
+        /// Broadcasts data to the specified sessions.
+        /// </summary>
+        /// <param name="sessions">The sessions.</param>
+        /// <param name="data">The data.</param>
+        /// <param name="offset">The offset.</param>
+        /// <param name="length">The length.</param>
+        /// <param name="sendFeedback">The send feedback.</param>
+        public void Broadcast(IEnumerable<TWebSocketSession> sessions, byte[] data, int offset, int length, Action<TWebSocketSession, bool> sendFeedback)
+        {
+            IList<ArraySegment<byte>> encodedPackage = null;
+
+            foreach (var s in sessions)
+            {
+                if (encodedPackage == null)
+                {
+                    if (!s.ProtocolProcessor.CanSendBinaryData)
+                        continue;
+
+                    encodedPackage = s.ProtocolProcessor.GetEncodedPackage(OpCode.Binary, data, offset, length);
+                }
+                else
+                {
+                    if (!s.ProtocolProcessor.CanSendBinaryData)
+                        continue;
+                }
+
+                Task.Factory.StartNew(SendRawDataToSession, Tuple.Create(s, encodedPackage, sendFeedback));
+            }
+        }
+
+        /// <summary>
+        /// Broadcasts message to the specified sessions.
+        /// </summary>
+        /// <param name="sessions">The sessions.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="sendFeedback">The send feedback.</param>
+        public void Broadcast(IEnumerable<TWebSocketSession> sessions, string message, Action<TWebSocketSession, bool> sendFeedback)
+        {
+            IList<ArraySegment<byte>> encodedPackage = null;
+            IProtocolProcessor encodingProcessor = null;
+
+            foreach (var s in sessions)
+            {
+                if (encodedPackage == null || encodingProcessor != s.ProtocolProcessor)
+                {
+                    encodedPackage = s.ProtocolProcessor.GetEncodedPackage(OpCode.Text, message);
+                    encodingProcessor = s.ProtocolProcessor;
+                }
+
+                Task.Factory.StartNew(SendRawDataToSession, Tuple.Create(s, encodedPackage, sendFeedback));
+            }
+        }
+
+        private void SendRawDataToSession(object state)
+        {
+            var param = state as Tuple<TWebSocketSession, IList<ArraySegment<byte>>, Action<TWebSocketSession, bool>>;
+            var session = param.Item1;
+            var sendFeedback = param.Item3;
+            sendFeedback(param.Item1, param.Item1.TrySendRawData(param.Item2));
+        }
+
+        #endregion broadcast
 
         #region JSON serialize/deserialize
 

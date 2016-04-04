@@ -137,6 +137,51 @@ namespace SuperSocket.WebSocket.Protocol
             SendPackage(session, OpCode.Ping, ping, 0, ping.Length);
         }
 
+        public override IList<ArraySegment<byte>> GetEncodedPackage(int opCode, byte[] data, int offset, int length)
+        {
+            byte[] head;
+
+            if (length < 126)
+            {
+                head = new byte[2];
+                head[1] = (byte)length;
+            }
+            else if (length < 65536)
+            {
+                head = new byte[4];
+                head[1] = (byte)126;
+                head[2] = (byte)(length / 256);
+                head[3] = (byte)(length % 256);
+            }
+            else
+            {
+                head = new byte[10];
+                head[1] = (byte)127;
+
+                int left = length;
+                int unit = 256;
+
+                for (int i = 9; i > 1; i--)
+                {
+                    head[i] = (byte)(left % unit);
+                    left = left / unit;
+
+                    if (left == 0)
+                        break;
+                }
+            }
+
+            head[0] = (byte)(opCode | 0x80); //No mask by default
+
+            return new ArraySegment<byte>[] { new ArraySegment<byte>(head), new ArraySegment<byte>(data, offset, length) };
+        }
+
+        public override IList<ArraySegment<byte>> GetEncodedPackage(int opCode, string message)
+        {
+            byte[] playloadData = Encoding.UTF8.GetBytes(message);
+            return GetEncodedPackage(opCode, playloadData, 0, playloadData.Length);
+        }
+
         private byte[] GetPackageData(int opCode, byte[] data, int offset, int length)
         {
             byte[] fragment;

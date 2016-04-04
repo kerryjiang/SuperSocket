@@ -114,6 +114,16 @@ namespace SuperSocket.WebSocket.Protocol
             return new ArraySegment<byte>(sendBuffer, 0, bytesCount + 2);
         }
 
+        public override IList<ArraySegment<byte>> GetEncodedPackage(int opCode, byte[] data, int offset, int length)
+        {
+            throw new NotSupportedException();
+        }
+
+        public override IList<ArraySegment<byte>> GetEncodedPackage(int opCode, string message)
+        {
+            return new ArraySegment<byte>[] { GetPackageData(message) };
+        }
+
         public override void SendMessage(IWebSocketSession session, string message)
         {
             var packageData = GetPackageData(message);

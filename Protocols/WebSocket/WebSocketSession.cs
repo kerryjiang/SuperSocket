@@ -475,6 +475,16 @@ namespace SuperSocket.WebSocket
         }
 
         /// <summary>
+        /// Tries the send raw data segments.
+        /// </summary>
+        /// <param name="segments">The segments.</param>
+        /// <returns></returns>
+        internal bool TrySendRawData(IList<ArraySegment<byte>> segments)
+        {
+            return base.TrySend(segments);
+        }
+
+        /// <summary>
         /// Closes the with handshake.
         /// </summary>
         /// <param name="reasonText">The reason text.</param>
