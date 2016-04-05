@@ -119,7 +119,20 @@ namespace SuperSocket.SocketEngine
                 }
                 else
                 {
-                    var serverStatus = s.CollectServerStatus(bootstrapStatus);
+                    StatusInfoCollection serverStatus;
+
+                    try
+                    {
+                        serverStatus = s.CollectServerStatus(bootstrapStatus);
+                    }
+                    catch (Exception e)
+                    {
+                        m_PerfLogger.Error("Failed to CollectServerStatus of " + s.Name, e);
+
+                        perfBuilder.AppendLine(string.Format("{0} ----------------------------------", s.Name));
+                        perfBuilder.AppendLine(string.Format("{0}: {1}", "State", s.State));
+                        continue;
+                    }
 
                     instancesStatus.Add(serverStatus);
 
