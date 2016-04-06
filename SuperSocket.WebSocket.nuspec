@@ -3,7 +3,7 @@
   <metadata>
     <id>SuperSocket.WebSocket</id>
     <title>SuperSocket.WebSocket</title>
-    <version>$version$</version>
+    <version>$version$-beta1</version>
     <authors>Kerry Jiang</authors>
     <owners>Kerry Jiang</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
