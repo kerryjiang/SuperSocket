@@ -57,10 +57,19 @@ namespace SuperSocket.ProtoBase
             var bodyLength = GetBodyLengthFromHeader(bufferStream, HeaderSize);
 
             if (bodyLength < 0)
+            {
                 State = FilterState.Error;
-            else
-                ResetSize(HeaderSize + bodyLength);
+                return false;
+            }
 
+            // no body part
+            if (bodyLength == 0)
+            {
+                m_FoundHeader = true;
+                return true;
+            }
+
+            ResetSize(HeaderSize + bodyLength);
             m_FoundHeader = true;
             return false;
         }
