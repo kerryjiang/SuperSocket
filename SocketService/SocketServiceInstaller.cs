@@ -48,7 +48,7 @@ namespace SuperSocket.SocketService
             Installers.Add(processInstaller);
         }
 
-		private void ProjectInstaller_AfterInstall(object sender, InstallEventArgs e)
+	private void ProjectInstaller_AfterInstall(object sender, InstallEventArgs e)
         {
             ServiceController sc = new ServiceController(serviceInstaller.ServiceName);
             sc.Start();
