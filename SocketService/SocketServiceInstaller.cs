@@ -24,7 +24,6 @@ namespace SuperSocket.SocketService
             serviceInstaller.StartType = ServiceStartMode.Automatic;
             serviceInstaller.ServiceName = ConfigurationManager.AppSettings["ServiceName"];
 
-			// 2016-04-23 txm 增加显示名称
             var serviceDisplayName = ConfigurationManager.AppSettings["ServiceDisplayName"];
             if (!string.IsNullOrEmpty(serviceDisplayName))
                 serviceInstaller.DisplayName = serviceDisplayName;
@@ -41,7 +40,6 @@ namespace SuperSocket.SocketService
 
             serviceInstaller.ServicesDependedOn = servicesDependedOn.ToArray();
 
-			// 2016-04-23 txm 增加注册后即启动
             var serviceStartAfterInstall = ConfigurationManager.AppSettings["ServiceStartAfterInstall"];
             if (!string.IsNullOrEmpty(serviceStartAfterInstall) && serviceStartAfterInstall.ToLower() == "true")
                 this.AfterInstall += new InstallEventHandler(ProjectInstaller_AfterInstall);
