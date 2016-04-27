@@ -3,3 +3,4 @@ obj
 _ReSharper.*
 *.suo
 *.user
+*.lock.json

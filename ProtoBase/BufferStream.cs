@@ -198,7 +198,8 @@ namespace SuperSocket.ProtoBase
         }
 
 
-#if !PCL
+#if !PCL && !NETSTANDARD1_1
+
         private const string c_ThreadBufferSegmentStream = "ThreadBufferListStream";
 
         /// <summary>
