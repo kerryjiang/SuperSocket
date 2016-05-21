@@ -1,6 +1,6 @@
 {
     "name": "SuperSocket.ProtoBase",
-    "version": "1.0.0-*",
+    "version": "1.7.0.6",
     "buildOptions": {
         "emitEntryPoint": false,
         "compile": {
