@@ -1,6 +1,7 @@
 {
     "name": "SuperSocket.ProtoBase",
     "version": "1.7.0.6",
+    "authors": [ "Kerry Jiang", "Other contributors" ],
     "buildOptions": {
         "emitEntryPoint": false,
         "compile": {
@@ -23,6 +24,20 @@
                 "System.IO": "4.1.0-rc2-*",
                 "System.Threading": "4.0.11-rc2-*"
             }
+        }
+    },
+    
+    "packOptions": {
+        "summary": "It is a network protocol resolving library which can be used in both server and client",
+        "tags": [ "SuperSocket", "Network Protocol", "Protocol Analysis" ],
+        "owners": [ "Kerry Jiang" ],
+        "releaseNotes": "First release for .net core",
+        "projectUrl": "http://www.supersocket.net/",
+        "licenseUrl": "http://www.apache.org/licenses/LICENSE-2.0",
+        "requireLicenseAcceptance": true,
+        "repository": {
+            "type": "git",
+            "url": "https://github.com/kerryjiang/SuperSocket/tree/master/ProtoBase"
         }
     }
 }
