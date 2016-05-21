@@ -1,24 +1,27 @@
 {
     "name": "SuperSocket.ProtoBase",
     "version": "1.0.0-*",
-    "compilationOptions": {
-        "emitEntryPoint": false
+    "buildOptions": {
+        "emitEntryPoint": false,
+        "compile": {
+            "include": [ "../../*.cs" ],
+            "exclude": [ "../../assemblyinfo.cs" ],
+            "includeFiles": [ "../../Solution Items/GlobalAssemblyInfo.cs" ],
+            "excludeFiles": [ "../Properties/AssemblyInfo.Portable.cs", "../LINQ.cs", "../Func.cs" ]
+        }
     },
-    
-    "compileFiles": ["../../Solution Items/GlobalAssemblyInfo.cs", "../**/*.cs"],
-    "compileExclude": ["../Properties/AssemblyInfo.Portable.cs", "../LINQ.cs", "../Func.cs"],
-    
+
     "frameworks": {
         "netstandard1.1": {
-            "compilationOptions": {
+            "buildOptions": {
                 "define": [ "NETSTANDARD1_1" ]
             },
             "dependencies": {
-                "System.Linq": "4.1.0-rc3-*",
-                "System.Runtime.Extensions": "4.1.0-rc3-*",
-                "System.Text.Encoding": "4.0.11-rc3-*",
+                "System.Linq": "4.1.0-rc2-*",
+                "System.Runtime.Extensions": "4.1.0-rc2-*",
+                "System.Text.Encoding": "4.0.11-rc2-*",
                 "System.IO": "4.1.0-rc2-*",
-                "System.Threading": "4.0.11-rc3-*"
+                "System.Threading": "4.0.11-rc2-*"
             }
         }
     }
