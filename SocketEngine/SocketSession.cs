@@ -458,8 +458,18 @@ namespace SuperSocket.SocketEngine
             return socket == null;
         }
 
+        private void LogSessionState(string tag)
+        {
+            AppSession.Logger.InfoFormat("Session[{0}]'s State, InClosing:{1}, InSending:{2}, InReceiving:{3} - " + tag, SessionID, CheckState(SocketState.InClosing), CheckState(SocketState.InSending), CheckState(SocketState.InReceiving));
+        }
+
         public virtual void Close(CloseReason reason)
         {
+            if (reason == CloseReason.TimeOut)
+            {
+                LogSessionState("TimeOut");
+            }
+
             //Already in closing procedure
             if (!TryAddStateFlag(SocketState.InClosing))
                 return;
@@ -581,7 +591,7 @@ namespace SuperSocket.SocketEngine
                 if (CheckState(SocketState.InClosing))
                 {
                     // we only keep socket instance after InClosing state when the it is sending
-                    // so we check the if the socket instance is alive now
+                    // so we check if the socket instance is alive now
                     if (forSend)
                     {
                         Socket client;
@@ -590,7 +600,7 @@ namespace SuperSocket.SocketEngine
                         {
                             var sendingQueue = m_SendingQueue;
                             // No data to be sent
-                            if (sendingQueue != null && sendingQueue.Count == 0)
+                            if (forceClose || (sendingQueue != null && sendingQueue.Count == 0))
                             {
                                 if (client != null)// the socket instance is not closed yet, do it now
                                     InternalClose(client, GetCloseReasonFromState(), false);
@@ -614,6 +624,8 @@ namespace SuperSocket.SocketEngine
                     Close(closeReason);
                 }
             }
+
+            LogSessionState(forSend ? "AfterSendReturn" : "AfterReceiveReturn");
         }
 
         public abstract int OrigReceiveOffset { get; }
