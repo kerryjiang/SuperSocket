@@ -529,7 +529,12 @@ namespace SuperSocket.SocketEngine
         // return false if the connection has entered the closing procedure or has closed already
         protected bool OnReceiveStarted()
         {
-            return AddStateFlag(SocketState.InReceiving, true);
+            if (AddStateFlag(SocketState.InReceiving, true))
+                return true;
+
+            // the connection is in closing
+            ValidateClosed(CloseReason.Unknown, false);
+            return false;
         }
 
         protected void OnReceiveEnded()
