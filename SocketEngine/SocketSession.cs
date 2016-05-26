@@ -309,7 +309,7 @@ namespace SuperSocket.SocketEngine
 
             if (IsInClosingOrClosed && TryValidateClosedBySocket(out client))
             {
-                OnSendEnd(true);
+                OnSendEnd();
                 return;
             }
 
@@ -317,9 +317,8 @@ namespace SuperSocket.SocketEngine
 
             if (!m_SendingQueuePool.TryGet(out newQueue))
             {
+                OnSendEnd(CloseReason.InternalError, true);
                 AppSession.Logger.Error("There is no enougth sending queue can be used.");
-                OnSendEnd(false);
-                this.Close(CloseReason.InternalError);
                 return;
             }
 
@@ -332,13 +331,12 @@ namespace SuperSocket.SocketEngine
 
                 if (IsInClosingOrClosed)
                 {
-                    OnSendEnd(true);
+                    OnSendEnd();
                 }
                 else
                 {
-                    OnSendEnd(false);
+                    OnSendEnd(CloseReason.InternalError, true);
                     AppSession.Logger.Error("Failed to switch the sending queue.");
-                    this.Close(CloseReason.InternalError);
                 }
 
                 return;
@@ -350,10 +348,10 @@ namespace SuperSocket.SocketEngine
 
             if (queue.Count == 0)
             {
-                AppSession.Logger.Error("There is no data to be sent in the queue.");
+                
                 m_SendingQueuePool.Push(queue);
-                OnSendEnd(false);
-                this.Close(CloseReason.InternalError);
+                OnSendEnd(CloseReason.InternalError, true);
+                AppSession.Logger.Error("There is no data to be sent in the queue.");
                 return;
             }
 
@@ -362,39 +360,13 @@ namespace SuperSocket.SocketEngine
 
         private void OnSendEnd()
         {
-            OnSendEnd(IsInClosingOrClosed);
+            OnSendEnd(CloseReason.Unknown, false);
         }
 
-        private void OnSendEnd(bool isInClosingOrClosed)
+        private void OnSendEnd(CloseReason closeReason, bool forceClose)
         {
             RemoveStateFlag(SocketState.InSending);
-
-            if (isInClosingOrClosed)
-            {
-                Socket client;
-
-                if (!TryValidateClosedBySocket(out client))
-                {
-                    var sendingQueue = m_SendingQueue;
-                    //No data to be sent
-                    if (sendingQueue != null && sendingQueue.Count == 0)
-                    {
-                        if (client != null)// the socket instance is not closed yet, do it now
-                            InternalClose(client, GetCloseReasonFromState(), false);
-                        else// The UDP mode, the socket instance always is null, fire the closed event directly
-                            OnClosed(GetCloseReasonFromState());
-
-                        return;
-                    }
-
-                    return;
-                }
-
-                if (ValidateNotInSendingReceiving())
-                {
-                    FireCloseEvent();
-                }
-            }
+            ValidateClosed(closeReason, forceClose, true);
         }
 
         protected virtual void OnSendingCompleted(SendingQueue queue)
@@ -415,7 +387,7 @@ namespace SuperSocket.SocketEngine
                     return;
                 }
 
-                OnSendEnd(true);
+                OnSendEnd();
                 return;
             }
             
@@ -533,22 +505,26 @@ namespace SuperSocket.SocketEngine
         {
             queue.Clear();
             m_SendingQueuePool.Push(queue);
-            OnSendEnd();
-            ValidateClosed(closeReason);
+            OnSendEnd(closeReason, true);
         }
 
         // the receive action won't be started for this connection any more
         protected void OnReceiveTerminated(CloseReason closeReason)
         {
             OnReceiveEnded();
-            ValidateClosed(closeReason);
+            ValidateClosed(closeReason, true);
         }
 
 
         // return false if the connection has entered the closing procedure or has closed already
         protected bool OnReceiveStarted()
         {
-            return AddStateFlag(SocketState.InReceiving, true);
+            if (AddStateFlag(SocketState.InReceiving, true))
+                return true;
+
+            // the connection is in closing
+            ValidateClosed(CloseReason.Unknown, false);
+            return false;
         }
 
         protected void OnReceiveEnded()
@@ -589,21 +565,59 @@ namespace SuperSocket.SocketEngine
             OnClosed(GetCloseReasonFromState());
         }
 
-        private void ValidateClosed(CloseReason closeReason)
+        private void ValidateClosed()
         {
-            if (IsClosed)
-                return;
+            // CloseReason.Unknown won't be used
+            ValidateClosed(CloseReason.Unknown, false);
+        }
 
-            if (CheckState(SocketState.InClosing))
+        private void ValidateClosed(CloseReason closeReason, bool forceClose)
+        {
+            ValidateClosed(closeReason, forceClose, false);
+        }
+
+        private void ValidateClosed(CloseReason closeReason, bool forceClose, bool forSend)
+        {
+            lock (this)
             {
-                if (ValidateNotInSendingReceiving())
+                if (IsClosed)
+                    return;
+
+                if (CheckState(SocketState.InClosing))
                 {
-                    FireCloseEvent();
+                    // we only keep socket instance after InClosing state when the it is sending
+                    // so we check if the socket instance is alive now
+                    if (forSend)
+                    {
+                        Socket client;
+
+                        if (!TryValidateClosedBySocket(out client))
+                        {
+                            var sendingQueue = m_SendingQueue;
+                            // No data to be sent
+                            if (forceClose || (sendingQueue != null && sendingQueue.Count == 0))
+                            {
+                                if (client != null)// the socket instance is not closed yet, do it now
+                                    InternalClose(client, GetCloseReasonFromState(), false);
+                                else// The UDP mode, the socket instance always is null, fire the closed event directly
+                                    FireCloseEvent();
+
+                                return;
+                            }
+
+                            return;
+                        }
+                    }
+
+                    if (ValidateNotInSendingReceiving())
+                    {
+                        FireCloseEvent();
+                    }
                 }
-            }
-            else
-            {
-                Close(closeReason);
+                else if (forceClose)
+                {
+                    Close(closeReason);
+                }
             }
         }
 
