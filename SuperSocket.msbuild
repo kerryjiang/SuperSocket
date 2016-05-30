@@ -11,7 +11,7 @@
 		<MSBuild Projects="ProtoBase\SuperSocket.ProtoBase.Net20.csproj" Targets="Clean;Build" Properties="Configuration=$(Configuration);OutputPath=..\bin\net20\$(Configuration);SignAssembly=True;AssemblyOriginatorKeyFile=..\..\..\SignKeys\supersocket.snk"/>
 		<MSBuild Projects="ProtoBase\SuperSocket.ProtoBase.Net35.csproj" Targets="Clean;Build" Properties="Configuration=$(Configuration);OutputPath=..\bin\net35-client\$(Configuration);SignAssembly=True;AssemblyOriginatorKeyFile=..\..\..\SignKeys\supersocket.snk"/>
 		<MSBuild Projects="ProtoBase\SuperSocket.ProtoBase.Portable.csproj" Targets="Clean;Build" Properties="Configuration=$(Configuration);OutputPath=..\bin\profile328\$(Configuration);SignAssembly=True;AssemblyOriginatorKeyFile=..\..\..\SignKeys\supersocket.snk"/>
-		
+		<Exec Command="dotnet build -c $(Configuration) -f netstandard1.1 -o ..\..\bin\netstandard1.1\$(Configuration)" WorkingDirectory="ProtoBase\dotnet" />
 		<GetAssemblyIdentity AssemblyFiles="bin\net20\$(Configuration)\SuperSocket.ProtoBase.dll">
 			<Output TaskParameter="Assemblies" ItemName="myAssemblyInfo"/>
 		</GetAssemblyIdentity>
