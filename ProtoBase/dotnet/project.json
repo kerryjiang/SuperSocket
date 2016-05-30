@@ -5,8 +5,8 @@
     "buildOptions": {
         "emitEntryPoint": false,
         "compile": {
-            "include": [ "../../*.cs" ],
-            "exclude": [ "../../assemblyinfo.cs" ],
+            "include": [ "../**/*.cs" ],
+            "exclude": [ "../dotnet/**/assemblyinfo.cs" ],
             "includeFiles": [ "../../Solution Items/GlobalAssemblyInfo.cs" ],
             "excludeFiles": [ "../Properties/AssemblyInfo.Portable.cs", "../LINQ.cs", "../Func.cs" ]
         }
