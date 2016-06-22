@@ -12,13 +12,7 @@ namespace SuperSocket.ProtoBase
     public class DefaultPipelineProcessor<TPackageInfo> : IPipelineProcessor
         where TPackageInfo : IPackageInfo
     {
-        private IPackageHandler<TPackageInfo> m_PackageHandler;
-
         private IReceiveFilter<TPackageInfo> m_ReceiveFilter;
-
-        private IBufferRecycler m_BufferRecycler;
-
-        private static readonly IBufferRecycler s_NullBufferRecycler = new NullBufferRecycler();
 
         private BufferList m_ReceiveCache;
 
@@ -27,23 +21,27 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultPipelineProcessor{TPackageInfo}"/> class.
         /// </summary>
-        /// <param name="packageHandler">The package handler.</param>
         /// <param name="receiveFilter">The initializing receive filter.</param>
         /// <param name="maxPackageLength">The max package size.</param>
-        /// <param name="bufferRecycler">The buffer recycler.</param>
-        public DefaultPipelineProcessor(IPackageHandler<TPackageInfo> packageHandler, IReceiveFilter<TPackageInfo> receiveFilter, int maxPackageLength = 0, IBufferRecycler bufferRecycler = null)
+        public DefaultPipelineProcessor(IReceiveFilter<TPackageInfo> receiveFilter, int maxPackageLength = 0)
         {
-            m_PackageHandler = packageHandler;
             m_ReceiveFilter = receiveFilter;
-            m_BufferRecycler = bufferRecycler ?? s_NullBufferRecycler;
             m_ReceiveCache = new BufferList();
             m_MaxPackageLength = maxPackageLength;
         }
 
-        private void PushResetData(ArraySegment<byte> raw, int rest, IBufferState state)
+        private void PushResetData(ArraySegment<byte> raw, int rest)
         {
             var segment = new ArraySegment<byte>(raw.Array, raw.Offset + raw.Count - rest, rest);
-            m_ReceiveCache.Add(segment, state);
+            m_ReceiveCache.Add(segment);
+        }
+
+        private IList<IPackageInfo> GetNotNullOne(IList<IPackageInfo> left, IList<IPackageInfo> right)
+        {
+            if (left != null)
+                return left;
+
+            return right;
         }
 
 
@@ -51,19 +49,22 @@ namespace SuperSocket.ProtoBase
         /// Processes the input segment.
         /// </summary>
         /// <param name="segment">The input segment.</param>
-        /// <param name="state">The buffer state.</param>
         /// <returns>
         /// the processing result
         /// </returns>
-        public virtual ProcessResult Process(ArraySegment<byte> segment, IBufferState state)
+        public virtual ProcessResult Process(ArraySegment<byte> segment)
         {
             var receiveCache = m_ReceiveCache;
 
-            receiveCache.Add(segment, state);
+            receiveCache.Add(segment);
 
             var rest = 0;
 
             var currentReceiveFilter = m_ReceiveFilter;
+
+            SingleItemList<IPackageInfo> singlePackage = null;
+
+            List<IPackageInfo> packageList = null;
 
             while (true)
             {
@@ -71,7 +72,6 @@ namespace SuperSocket.ProtoBase
 
                 if (currentReceiveFilter.State == FilterState.Error)
                 {
-                    m_BufferRecycler.Return(receiveCache.GetAllCachedItems(), 0, receiveCache.Count);
                     return ProcessResult.Create(ProcessState.Error);
                 }
 
@@ -81,7 +81,6 @@ namespace SuperSocket.ProtoBase
 
                     if (length > m_MaxPackageLength)
                     {
-                        m_BufferRecycler.Return(receiveCache.GetAllCachedItems(), 0, receiveCache.Count);
                         return ProcessResult.Create(ProcessState.Error, string.Format("Max package length: {0}, current processed length: {1}", m_MaxPackageLength, length));
                     }
                 }
@@ -99,23 +98,37 @@ namespace SuperSocket.ProtoBase
                     m_ReceiveFilter = currentReceiveFilter;
                 }                    
 
-                //Receive continue
+                // continue receive
                 if (packageInfo == null)
                 {
                     if (rest > 0)
                     {
                         if(rest != segment.Count)
                         {
-                            PushResetData(segment, rest, state);
+                            PushResetData(segment, rest);
                         }
                         
                         continue;
                     }
 
-                    return ProcessResult.Create(ProcessState.Cached);
+                    return ProcessResult.Create(ProcessState.Cached, GetNotNullOne(packageList, singlePackage));
                 }
 
-                m_PackageHandler.Handle(packageInfo);
+                if (packageList != null)
+                {
+                    packageList.Add(packageInfo);
+                }
+                else if (singlePackage == null)
+                    singlePackage = new SingleItemList<IPackageInfo>(packageInfo);
+                else
+                {
+                    if (packageList == null)
+                        packageList = new List<IPackageInfo>();
+
+                    packageList.Add(singlePackage[0]);
+                    packageList.Add(packageInfo);
+                    singlePackage = null;
+                }
 
                 if (packageInfo is IBufferedPackageInfo // is a buffered package
                         && (packageInfo as IBufferedPackageInfo).Data is BufferList) // and it uses receive buffer directly
@@ -125,39 +138,41 @@ namespace SuperSocket.ProtoBase
 
                     if (rest <= 0)
                     {
-                        return ProcessResult.Create(ProcessState.Cached);
+                        return ProcessResult.Create(ProcessState.Cached, GetNotNullOne(packageList, singlePackage));
                     }
                 }
                 else
                 {
-                    ReturnOtherThanLastBuffer();
-
                     if (rest <= 0)
                     {
-                        return ProcessResult.Create(ProcessState.Completed);
+                        return ProcessResult.Create(ProcessState.Completed, GetNotNullOne(packageList, singlePackage));
                     }
                 }
 
-                PushResetData(segment, rest, state);
+                PushResetData(segment, rest);
             }
         }
 
-        void ReturnOtherThanLastBuffer()
+
+        /// <summary>
+        /// cleanup the cached the buffer by resolving them into one package at the end of the piple line
+        /// </summary>
+        /// <returns>return the processing result</returns>
+        public ProcessResult CleanUp()
         {
-            var bufferList = m_ReceiveCache.GetAllCachedItems();
-            var count = bufferList.Count;
-            var lastBufferItem = bufferList[count - 1].Key.Array;
+            var currentReceiveFilter = m_ReceiveFilter as ICleanupReceiveFilter<TPackageInfo>;
 
-            for (var i = count - 2; i >= 0; i--)
-            {
-                if (bufferList[i].Key.Array != lastBufferItem)
-                {
-                    m_BufferRecycler.Return(bufferList, 0, i + 1);
-                    break;
-                }
-            }
+            if (currentReceiveFilter == null)
+                throw new Exception("The current receive filter doesn't support cleanup");
 
-            m_ReceiveCache.Clear();
+            var receiveCache = m_ReceiveCache;
+
+            var package = currentReceiveFilter.ResolvePackage(receiveCache);
+
+            if (m_ReceiveFilter.State == FilterState.Error)
+                return ProcessResult.Create(ProcessState.Error);
+
+            return ProcessResult.Create(ProcessState.Completed, new SingleItemList<IPackageInfo>(package));
         }
 
         /// <summary>

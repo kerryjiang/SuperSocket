@@ -10,7 +10,7 @@ namespace SuperSocket.ProtoBase
     /// </summary>
     public sealed class BufferList : IList<ArraySegment<byte>>
     {
-        private List<KeyValuePair<ArraySegment<byte>, IBufferState>> m_List = new List<KeyValuePair<ArraySegment<byte>, IBufferState>>();
+        private List<ArraySegment<byte>> m_List = new List<ArraySegment<byte>>();
 
         /// <summary>
         /// Gets the last buffer segment.
@@ -27,7 +27,7 @@ namespace SuperSocket.ProtoBase
                 if (count == 0)
                     return new ArraySegment<byte>();
 
-                return m_List[count - 1].Key;
+                return m_List[count - 1];
             }
         }
 
@@ -75,7 +75,7 @@ namespace SuperSocket.ProtoBase
         {
             get
             {
-                return m_List[index].Key;
+                return m_List[index];
             }
             set
             {
@@ -87,21 +87,9 @@ namespace SuperSocket.ProtoBase
         /// Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.
         /// </summary>
         /// <param name="item">The object to add to the <see cref="T:System.Collections.Generic.ICollection`1" />.</param>
-        /// <exception cref="System.NotSupportedException"></exception>
         public void Add(ArraySegment<byte> item)
         {
-            throw new NotSupportedException();
-        }
-
-        /// <summary>
-        /// Adds the specified item.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <param name="state">The state.</param>
-        public void Add(ArraySegment<byte> item, IBufferState state)
-        {
-            state.IncreaseReference();
-            m_List.Add(new KeyValuePair<ArraySegment<byte>, IBufferState>(item, state));
+            m_List.Add(item);
             m_Total += item.Count;
         }
 
@@ -113,8 +101,8 @@ namespace SuperSocket.ProtoBase
         {
             var lastPos = m_List.Count - 1;
             var lastItem = m_List[lastPos];
-            var lastSegment = lastItem.Key;
-            m_List[lastPos] = new KeyValuePair<ArraySegment<byte>, IBufferState>(new ArraySegment<byte>(lastSegment.Array, lastSegment.Offset, length), lastItem.Value);
+            var lastSegment = lastItem;
+            m_List[lastPos] = new ArraySegment<byte>(lastSegment.Array, lastSegment.Offset, length);
             m_Total += length - lastSegment.Count;
         }
 
@@ -210,7 +198,7 @@ namespace SuperSocket.ProtoBase
 
             for (int i = 0; i < length; i++)
             {
-                yield return m_List[i].Key;
+                yield return m_List[i];
             }
         }
 
@@ -223,7 +211,7 @@ namespace SuperSocket.ProtoBase
         /// Gets all cached items.
         /// </summary>
         /// <returns></returns>
-        public IList<KeyValuePair<ArraySegment<byte>, IBufferState>> GetAllCachedItems()
+        public IList<ArraySegment<byte>> GetAllCachedItems()
         {
             return m_List;
         }
@@ -239,7 +227,7 @@ namespace SuperSocket.ProtoBase
             for (var i = index; i < segments.Count; i++)
             {
                 var pair = segments[i];
-                var segment = pair.Key;
+                var segment = pair;
                 var offset = segment.Offset;
                 var thisLen = segment.Count;
 
@@ -251,7 +239,7 @@ namespace SuperSocket.ProtoBase
 
                 thisLen = Math.Min(thisLen, rest);
 
-                target.Add(new ArraySegment<byte>(segment.Array, offset, thisLen), pair.Value);
+                target.Add(new ArraySegment<byte>(segment.Array, offset, thisLen));
 
                 rest -= thisLen;
 

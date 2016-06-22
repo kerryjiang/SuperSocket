@@ -32,9 +32,6 @@
     <DocumentationFile>bin\Release\SuperSocket.ProtoBase.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\Solution Items\GlobalAssemblyInfo.cs">
       <Link>GlobalAssemblyInfo.cs</Link>
     </Compile>
@@ -58,8 +55,6 @@
     <Compile Include="HttpBase\HttpHeaderReceiveFilterBase.cs" />
     <Compile Include="HttpBase\HttpPackageInfoBase.cs" />
     <Compile Include="IBufferedPackageInfo.cs" />
-    <Compile Include="IBufferRecycler.cs" />
-    <Compile Include="IBufferState.cs" />
     <Compile Include="ICommunicationChannel.cs" />
     <Compile Include="IOutputBuffer.cs" />
     <Compile Include="IPackageHandler.cs" />
@@ -83,7 +78,11 @@
     <Compile Include="ReceiveFilters\SearchMarkState.cs" />
     <Compile Include="ReceiveFilters\StateFullSearch.cs" />
     <Compile Include="ReceiveFilters\TerminatorReceiveFilter.cs" />
+    <Compile Include="SingleItemList.cs" />
     <Compile Include="StringPackageInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -14,9 +14,8 @@ namespace SuperSocket.ProtoBase
         /// Processes the input segment.
         /// </summary>
         /// <param name="segment">The input segment.</param>
-        /// <param name="state">The buffer state.</param>
         /// <returns>the processing result</returns>
-        ProcessResult Process(ArraySegment<byte> segment, IBufferState state);
+        ProcessResult Process(ArraySegment<byte> segment);
 
         /// <summary>
         /// Gets the received cache.
@@ -25,5 +24,12 @@ namespace SuperSocket.ProtoBase
         /// The cache.
         /// </value>
         BufferList Cache { get; }
+
+
+        /// <summary>
+        /// cleanup the cached the buffer by resolving them into one package at the end of the piple line
+        /// </summary>
+        /// <returns>return the processing result</returns>
+        ProcessResult CleanUp();
     }
 }

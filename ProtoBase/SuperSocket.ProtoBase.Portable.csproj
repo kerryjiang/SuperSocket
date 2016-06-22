@@ -60,8 +60,6 @@
     <Compile Include="HttpBase\HttpHeaderReceiveFilterBase.cs" />
     <Compile Include="HttpBase\HttpPackageInfoBase.cs" />
     <Compile Include="IBufferedPackageInfo.cs" />
-    <Compile Include="IBufferRecycler.cs" />
-    <Compile Include="IBufferState.cs" />
     <Compile Include="ICommunicationChannel.cs" />
     <Compile Include="IOutputBuffer.cs" />
     <Compile Include="IPackageHandler.cs" />
@@ -84,6 +82,7 @@
     <Compile Include="ReceiveFilters\SearchMarkState.cs" />
     <Compile Include="ReceiveFilters\StateFullSearch.cs" />
     <Compile Include="ReceiveFilters\TerminatorReceiveFilter.cs" />
+    <Compile Include="SingleItemList.cs" />
     <Compile Include="StringPackageInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

@@ -41,4 +41,18 @@ namespace SuperSocket.ProtoBase
         /// </summary>
         void Reset();
     }
+
+    /// <summary>
+    /// the interface to support resolving the cached buffers into package without basic network protocol resolving
+    /// </summary>
+    /// <typeparam name="TPackageInfo"></typeparam>
+    public interface ICleanupReceiveFilter<out TPackageInfo>
+    {
+        /// <summary>
+        /// Resolves the package binary data to package instance
+        /// </summary>
+        /// <param name="data">The received buffer.</param>
+        /// <returns>the resolved package instance</returns>
+        TPackageInfo ResolvePackage(BufferList data);
+    }
 }

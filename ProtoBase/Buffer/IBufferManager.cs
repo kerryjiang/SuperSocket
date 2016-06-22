@@ -20,10 +20,5 @@ namespace SuperSocket.ProtoBase
         /// </summary>
         /// <param name="buffer">The buffer.</param>
         void ReturnBuffer(byte[] buffer);
-
-        /// <summary>
-        /// Shrinks this instance.
-        /// </summary>
-        void Shrink();
     }
 }

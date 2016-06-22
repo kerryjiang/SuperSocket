@@ -27,13 +27,5 @@ namespace SuperSocket.ProtoBase
         {
             // do nothing
         }
-
-        /// <summary>
-        /// Shrinks this instance.
-        /// </summary>
-        public void Shrink()
-        {
-            // do nothing
-        }
     }
 }

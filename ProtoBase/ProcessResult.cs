@@ -26,6 +26,12 @@ namespace SuperSocket.ProtoBase
         /// </value>
         public string Message { get; private set; }
 
+
+        /// <summary>
+        /// the all packages which are resolved by this round processing
+        /// </summary>
+        public IList<IPackageInfo> Packages { get; private set; }
+
         /// <summary>
         /// Creates a processing result with the specified state.
         /// </summary>
@@ -46,9 +52,33 @@ namespace SuperSocket.ProtoBase
         /// <returns></returns>
         public static ProcessResult Create(ProcessState state, string message)
         {
+            return Create(state, message, null);
+        }
+
+        /// <summary>
+        /// Creates a processing result with the specified state.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        /// <param name="packages">The packages which were processed in this round.</param>
+        /// <returns></returns>
+        public static ProcessResult Create(ProcessState state, IList<IPackageInfo> packages)
+        {
+            return Create(state, string.Empty, packages);
+        }
+
+        /// <summary>
+        /// Creates a processing result with the specified state.
+        /// </summary>
+        /// <param name="state">The state.</param>
+        /// <param name="message">The message.</param>
+        /// <param name="packages">The packages which were processed in this round.</param>
+        /// <returns></returns>
+        public static ProcessResult Create(ProcessState state, string message, IList<IPackageInfo> packages)
+        {
             var result = new ProcessResult();
             result.State = state;
             result.Message = message;
+            result.Packages = packages;
             return result;
         }
     }

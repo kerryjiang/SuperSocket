@@ -68,8 +68,6 @@
     <Compile Include="HttpBase\HttpPackageInfoBase.cs" />
     <Compile Include="IBufferedPackageInfo.cs" />
     <Compile Include="Buffer\IBufferManager.cs" />
-    <Compile Include="IBufferRecycler.cs" />
-    <Compile Include="IBufferState.cs" />
     <Compile Include="IPackageHandler.cs" />
     <Compile Include="IPackageInfo.cs" />
     <Compile Include="IPackageResolver.cs" />
@@ -84,6 +82,7 @@
     <Compile Include="ProcessState.cs" />
     <Compile Include="ReceiveFilters\SearchMarkState.cs" />
     <Compile Include="ReceiveFilters\StateFullSearch.cs" />
+    <Compile Include="SingleItemList.cs" />
     <Compile Include="StringPackageInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReceiveFilters\TerminatorReceiveFilter.cs" />
