@@ -6,7 +6,7 @@
         "emitEntryPoint": false,
         "compile": {
             "include": [ "../**/*.cs" ],
-            "exclude": [ "../dotnet/**/assemblyinfo.cs" ],
+            "exclude": [ "../dotnet/**/*.cs" ],
             "includeFiles": [ "../../Solution Items/GlobalAssemblyInfo.cs" ],
             "excludeFiles": [ "../Properties/AssemblyInfo.Portable.cs", "../LINQ.cs", "../Func.cs" ]
         }
