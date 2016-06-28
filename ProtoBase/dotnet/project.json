@@ -1,6 +1,6 @@
 {
     "name": "SuperSocket.ProtoBase",
-    "version": "1.7.0.6",
+    "version": "1.7.0.7",
     "authors": [ "Kerry Jiang", "Other contributors" ],
     "buildOptions": {
         "emitEntryPoint": false,
@@ -18,11 +18,11 @@
                 "define": [ "NETSTANDARD1_1" ]
             },
             "dependencies": {
-                "System.Linq": "4.1.0-rc2-*",
-                "System.Runtime.Extensions": "4.1.0-rc2-*",
-                "System.Text.Encoding": "4.0.11-rc2-*",
-                "System.IO": "4.1.0-rc2-*",
-                "System.Threading": "4.0.11-rc2-*"
+                "System.Linq": "4.1.0",
+                "System.Runtime.Extensions": "4.1.0",
+                "System.Text.Encoding": "4.0.11",
+                "System.IO": "4.1.0",
+                "System.Threading": "4.0.11"
             }
         }
     },
