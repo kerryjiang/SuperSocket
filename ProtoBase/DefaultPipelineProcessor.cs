@@ -143,6 +143,8 @@ namespace SuperSocket.ProtoBase
                 }
                 else
                 {
+                    m_ReceiveCache.Clear();
+
                     if (rest <= 0)
                     {
                         return ProcessResult.Create(ProcessState.Completed, GetNotNullOne(packageList, singlePackage));
