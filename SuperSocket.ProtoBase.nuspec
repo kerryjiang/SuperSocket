@@ -3,7 +3,7 @@
   <metadata>
     <id>SuperSocket.ProtoBase</id>
     <title>SuperSocket.ProtoBase, a network protocol resolving library in SuperSocket</title>
-    <version>1.7.0.7</version>
+    <version>1.7.0.8</version>
     <authors>Kerry Jiang</authors>
     <owners>Kerry Jiang</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
