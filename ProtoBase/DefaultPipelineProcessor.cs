@@ -103,7 +103,9 @@ namespace SuperSocket.ProtoBase
                 {
                     if (rest > 0)
                     {
-                        if(rest != segment.Count)
+                        var last = receiveCache.Last;
+
+                        if(rest != last.Count)
                         {
                             PushResetData(segment, rest);
                         }
