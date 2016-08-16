@@ -247,19 +247,5 @@ namespace SuperSocket.SocketEngine
                 base.OnClosed(reason);
             }
         }
-
-        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, IBufferState>> buffers, int offset, int length)
-        {
-            for (var i = 0; i < length; i++)
-            {
-                var buffer = buffers[offset + i];
-                var state = buffer.Value as SaeState;
-
-                if (state != null && state.DecreaseReference() == 0)
-                {
-                    m_SaePoolForReceive.Return(state);
-                }
-            }
-        }
     }
 }

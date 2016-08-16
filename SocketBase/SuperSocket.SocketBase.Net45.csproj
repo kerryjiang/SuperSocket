@@ -185,11 +185,13 @@
     <Compile Include="AppSession.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
     <Compile Include="StatusInfoCollection.cs" />
+    <Compile Include="Utils\ISendingQueue.cs" />
     <Compile Include="Utils\ITransactionGroup.cs" />
     <Compile Include="Utils\ITransactionItem.cs" />
     <Compile Include="Utils\LightweightTransaction.cs" />
     <Compile Include="Utils\SendingQueue.cs" />
     <Compile Include="Utils\SendingQueueSourceCreator.cs" />
+    <Compile Include="Utils\SendingQueueV2.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Common\SuperSocket.Common.Net45.csproj">

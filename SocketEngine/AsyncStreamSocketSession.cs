@@ -383,19 +383,5 @@ namespace SuperSocket.SocketEngine
 
             handler(this, EventArgs.Empty);
         }
-
-        protected override void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, IBufferState>> buffers, int offset, int length)
-        {
-            for (var i = 0; i < length; i++)
-            {
-                var buffer = buffers[offset + i];
-                var state = buffer.Value as BufferState;
-
-                if (state != null && state.DecreaseReference() == 0)
-                {
-                    m_BufferStatePool.Return(state);
-                }
-            }
-        }
     }
 }

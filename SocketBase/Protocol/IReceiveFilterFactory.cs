@@ -20,6 +20,6 @@ namespace SuperSocket.SocketBase.Protocol
         /// <returns>
         /// the new created request filer assosiated with this socketSession
         /// </returns>
-        IReceiveFilter<TPackageInfo> CreateReceiveFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint);
+        IReceiveFilter<TPackageInfo> CreateFilter(IAppServer appServer, IAppSession appSession, IPEndPoint remoteEndPoint);
     }
 }

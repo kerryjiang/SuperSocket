@@ -679,18 +679,5 @@ namespace SuperSocket.SocketEngine
                     Thread.SetData(slot, null);
             }
         }
-
-        /// <summary>
-        /// Returns the buffer.
-        /// </summary>
-        /// <param name="buffers">The buffers.</param>
-        /// <param name="offset">The offset.</param>
-        /// <param name="length">The length.</param>
-        protected abstract void ReturnBuffer(IList<KeyValuePair<ArraySegment<byte>, IBufferState>> buffers, int offset, int length);
-
-        void IBufferRecycler.Return(IList<KeyValuePair<ArraySegment<byte>, IBufferState>> buffers, int offset, int length)
-        {
-            ReturnBuffer(buffers, offset, length);
-        }
     }
 }

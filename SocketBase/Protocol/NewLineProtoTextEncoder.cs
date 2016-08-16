@@ -17,12 +17,9 @@ namespace SuperSocket.SocketBase.Protocol
             m_Encoding = encoding;
         }
 
-        public IList<ArraySegment<byte>> EncodeText(string message)
+        public void EncodeText(IOutputBuffer outout, string message)
         {
-            return new ArraySegment<byte>[]
-                {
-                    new ArraySegment<byte>(m_Encoding.GetBytes(message + s_NewLine))
-                };
+            outout.Add(new ArraySegment<byte>(m_Encoding.GetBytes(message + s_NewLine)));
         }
     }
 }
