@@ -1,4 +1,4 @@
-# SuperSocket  [![Build Status](https://travis-ci.org/kerryjiang/SuperSocket.svg?branch=master)](https://travis-ci.org/kerryjiang/SuperSocket)
+# SuperSocket  [![Build Status](https://travis-ci.org/kerryjiang/SuperSocket.svg?branch=v2.0)](https://travis-ci.org/kerryjiang/SuperSocket)
 
 ## This branch is under developing and unstable. If you want a stable version which can be used in your production system, please switch to branch v1.6. ##
 
