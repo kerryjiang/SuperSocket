@@ -1,0 +1,15 @@
+{
+  "version": "1.0.0-*",
+  "buildOptions": {
+    "debugType": "portable"
+  },
+  "dependencies": {
+  },
+  "frameworks": {
+    "netstandard1.0": {
+      "dependencies": {
+        "System.Runtime": "4.1.0"
+      }
+    }
+  }
+}
