@@ -35,8 +35,8 @@ namespace SuperSocket.SocketEngine
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 m_ListenSocket.Bind(this.EndPoint);
 
-                //Mono doesn't support it
-                if (Platform.SupportSocketIOControlByCodeEnum)
+                // Mono doesn't support it as no ioctl call in Mono.Unix.Native
+                if (Platform.SupportSocketIOControlByCodeEnum && !Platform.isMono)
                 {
                     uint IOC_IN = 0x80000000;
                     uint IOC_VENDOR = 0x18000000;
