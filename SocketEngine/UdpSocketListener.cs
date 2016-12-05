@@ -36,7 +36,7 @@ namespace SuperSocket.SocketEngine
                 m_ListenSocket.Bind(this.EndPoint);
 
                 // Mono doesn't support it as no ioctl call in Mono.Unix.Native
-                if (Platform.SupportSocketIOControlByCodeEnum && !Platform.isMono)
+                if (Platform.SupportSocketIOControlByCodeEnum && !Platform.IsMono)
                 {
                     uint IOC_IN = 0x80000000;
                     uint IOC_VENDOR = 0x18000000;
