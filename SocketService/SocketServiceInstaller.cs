@@ -23,6 +23,11 @@ namespace SuperSocket.SocketService
             processInstaller.Account = ServiceAccount.LocalSystem;
             serviceInstaller.StartType = ServiceStartMode.Automatic;
             serviceInstaller.ServiceName = ConfigurationManager.AppSettings["ServiceName"];
+            
+            // 2016-04-23 增加显示名称
+            var serviceDisplayName = ConfigurationManager.AppSettings["ServiceDisplayName"];
+            if (!string.IsNullOrEmpty(serviceDisplayName))
+                serviceInstaller.DisplayName = serviceDisplayName;
 
             var serviceDescription = ConfigurationManager.AppSettings["ServiceDescription"];
             if (!string.IsNullOrEmpty(serviceDescription))
@@ -35,9 +40,20 @@ namespace SuperSocket.SocketService
                 servicesDependedOn.AddRange(servicesDependedOnConfig.Split(new char[] { ',', ';' }));
 
             serviceInstaller.ServicesDependedOn = servicesDependedOn.ToArray();
+            
+            // 2016-04-23 txm 增加注册后即启动
+            var serviceStartAfterInstall = ConfigurationManager.AppSettings["ServiceStartAfterInstall"];
+            if (!string.IsNullOrEmpty(serviceStartAfterInstall) && serviceStartAfterInstall.ToLower() == "true")
+                this.AfterInstall += new InstallEventHandler(ProjectInstaller_AfterInstall);
 
             Installers.Add(serviceInstaller);
             Installers.Add(processInstaller);
+        }
+        
+        private void ProjectInstaller_AfterInstall(object sender, InstallEventArgs e)
+        {
+            ServiceController sc = new ServiceController(serviceInstaller.ServiceName);
+            sc.Start();
         }
     }
 }
