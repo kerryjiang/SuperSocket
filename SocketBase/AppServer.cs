@@ -15,6 +15,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Security;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketBase
 {
@@ -36,8 +37,9 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer"/> class.
         /// </summary>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory)
-            : base(receiveFilterFactory)
+        /// <param name="socketFactory">The socket factory.</param>
+        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory, ISocketFactory socketFactory = null)
+            : base(receiveFilterFactory, socketFactory)
         {
 
         }
@@ -63,8 +65,9 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession&gt;"/> class.
         /// </summary>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory)
-            : base(receiveFilterFactory)
+        /// <param name="socketFactory">The socket factory.</param>
+        public AppServer(IReceiveFilterFactory<StringRequestInfo> receiveFilterFactory, ISocketFactory socketFactory)
+            : base(receiveFilterFactory, socketFactory)
         {
 
         }
@@ -98,8 +101,9 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServer&lt;TAppSession, TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="protocol">The protocol.</param>
-        protected AppServer(IReceiveFilterFactory<TRequestInfo> protocol)
-            : base(protocol)
+        /// <param name="socketFactory">The socket factory.</param>
+        protected AppServer(IReceiveFilterFactory<TRequestInfo> protocol, ISocketFactory socketFactory = null)
+            : base(protocol, socketFactory)
         {
    
         }

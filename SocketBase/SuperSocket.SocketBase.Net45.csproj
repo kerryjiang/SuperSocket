@@ -100,6 +100,9 @@
     <Compile Include="IActiveConnector.cs" />
     <Compile Include="IBootstrap.cs" />
     <Compile Include="ILoggerProvider.cs" />
+    <Compile Include="Sockets\ISocket.cs" />
+    <Compile Include="Sockets\ISocketAsyncEventArgs.cs" />
+    <Compile Include="Sockets\ISocketFactory.cs" />
     <Compile Include="IsolationMode.cs" />
     <Compile Include="IStatusInfoSource.cs" />
     <Compile Include="ISystemEndPoint.cs" />
@@ -164,11 +167,15 @@
     <Compile Include="Security\CertificateManager.cs" />
     <Compile Include="ServerState.cs" />
     <Compile Include="SessionHandler.cs" />
+    <Compile Include="Sockets\PassthroughSocket.cs" />
+    <Compile Include="Sockets\ISocketEx.cs" />
+    <Compile Include="Sockets\PassthroughSocketFactory.cs" />
     <Compile Include="SocketMode.cs" />
     <Compile Include="AppServer.cs" />
     <Compile Include="AppServerBase.cs" />
     <Compile Include="AppSession.cs" />
     <Compile Include="Command\StringCommandBase.cs" />
+    <Compile Include="Sockets\PassthroughSocketAsyncEventArgs.cs" />
     <Compile Include="StatusInfoCollection.cs" />
   </ItemGroup>
   <ItemGroup>

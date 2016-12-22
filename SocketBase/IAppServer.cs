@@ -12,6 +12,7 @@ using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketBase
 {
@@ -41,6 +42,11 @@ namespace SuperSocket.SocketBase
         /// Gets the Receive filter factory.
         /// </summary>
         object ReceiveFilterFactory { get; }
+
+        /// <summary>
+        /// Gets the socket factory.
+        /// </summary>
+        ISocketFactory SocketFactory { get; }
 
         /// <summary>
         /// Gets the certificate of current server.

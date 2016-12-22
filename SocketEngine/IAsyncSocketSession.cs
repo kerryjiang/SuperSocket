@@ -6,6 +6,7 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketBase.Sockets;
 using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
@@ -14,11 +15,11 @@ namespace SuperSocket.SocketEngine
     {
         SocketAsyncEventArgsProxy SocketAsyncProxy { get; }
         
-        Socket Client { get; }
+        ISocket Client { get; }
     }
 
     interface IAsyncSocketSession : IAsyncSocketSessionBase
     {
-        void ProcessReceive(SocketAsyncEventArgs e);
+        void ProcessReceive(ISocketAsyncEventArgs e);
     }
 }

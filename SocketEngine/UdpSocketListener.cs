@@ -7,17 +7,18 @@ using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
     class UdpSocketListener : SocketListenerBase
     {
-        private Socket m_ListenSocket;
+        private ISocket m_ListenSocket;
 
-        private SocketAsyncEventArgs m_ReceiveSAE;
+        private ISocketAsyncEventArgs m_ReceiveSAE;
 
-        public UdpSocketListener(ListenerInfo info)
-            : base(info)
+        public UdpSocketListener(ListenerInfo info, ISocketFactory socketFactory)
+            : base(info, socketFactory)
         {
 
         }
@@ -31,7 +32,7 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
-                m_ListenSocket = new Socket(this.EndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+                m_ListenSocket = this.SocketFactory.Create(this.EndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
                 m_ListenSocket.Bind(this.EndPoint);
 
@@ -47,10 +48,10 @@ namespace SuperSocket.SocketEngine
                     m_ListenSocket.IOControl((int)SIO_UDP_CONNRESET, optionInValue, optionOutValue);
                 }
 
-                var eventArgs = new SocketAsyncEventArgs();
+                var eventArgs = this.SocketFactory.CreateSocketAsyncEventArgs();
                 m_ReceiveSAE = eventArgs;
 
-                eventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+                eventArgs.Completed += new EventHandler<ISocketAsyncEventArgs>(eventArgs_Completed);
                 eventArgs.RemoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
 
                 int receiveBufferSize = config.ReceiveBufferSize <= 0 ? 2048 : config.ReceiveBufferSize;
@@ -68,7 +69,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        void eventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        void eventArgs_Completed(object sender, ISocketAsyncEventArgs e)
         {
             if (e.SocketError != SocketError.Success)
             {
@@ -113,7 +114,7 @@ namespace SuperSocket.SocketEngine
                 if (m_ListenSocket == null)
                     return;
 
-                m_ReceiveSAE.Completed -= new EventHandler<SocketAsyncEventArgs>(eventArgs_Completed);
+                m_ReceiveSAE.Completed -= new EventHandler<ISocketAsyncEventArgs>(eventArgs_Completed);
                 m_ReceiveSAE.Dispose();
                 m_ReceiveSAE = null;
 

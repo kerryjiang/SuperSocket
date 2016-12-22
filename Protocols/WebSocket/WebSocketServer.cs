@@ -17,6 +17,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 using SuperSocket.WebSocket.Command;
 using SuperSocket.WebSocket.Config;
 using SuperSocket.WebSocket.Protocol;
@@ -105,8 +106,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer&lt;TWebSocketSession&gt;"/> class.
         /// </summary>
         /// <param name="subProtocols">The sub protocols.</param>
-        public WebSocketServer(IEnumerable<ISubProtocol<TWebSocketSession>> subProtocols)
-            : this()
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(IEnumerable<ISubProtocol<TWebSocketSession>> subProtocols, ISocketFactory socketFactory = null)
+            : this(socketFactory)
         {
             if (!subProtocols.Any())
                 return;
@@ -133,8 +135,8 @@ namespace SuperSocket.WebSocket
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketServer&lt;TWebSocketSession&gt;"/> class.
         /// </summary>
-        public WebSocketServer()
-            : base(new WebSocketProtocol())
+        public WebSocketServer(ISocketFactory socketFactory = null)
+            : base(new WebSocketProtocol(), socketFactory)
         {
 
         }

@@ -13,6 +13,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
@@ -113,7 +114,7 @@ namespace SuperSocket.SocketEngine
 
         private ISmartPool<SendingQueue> m_SendingQueuePool;
 
-        public SocketSession(Socket client)
+        public SocketSession(ISocket client)
             : this(Guid.NewGuid().ToString())
         {
             if (client == null)
@@ -305,7 +306,7 @@ namespace SuperSocket.SocketEngine
                 }
             }
 
-            Socket client;
+            ISocket client;
 
             if (IsInClosingOrClosed && TryValidateClosedBySocket(out client))
             {
@@ -378,7 +379,7 @@ namespace SuperSocket.SocketEngine
 
             if (IsInClosingOrClosed)
             {
-                Socket client;
+                ISocket client;
 
                 //has data is being sent and the socket isn't closed
                 if (newQueue.Count > 0 && !TryValidateClosedBySocket(out client))
@@ -410,15 +411,15 @@ namespace SuperSocket.SocketEngine
 
         public Stream GetUnderlyStream()
         {
-            return new NetworkStream(Client);
+            return Client.CreateStream();
         }
 
-        private Socket m_Client;
+        private ISocket m_Client;
         /// <summary>
         /// Gets or sets the client.
         /// </summary>
         /// <value>The client.</value>
-        public Socket Client
+        public ISocket Client
         {
             get { return m_Client; }
         }
@@ -451,7 +452,7 @@ namespace SuperSocket.SocketEngine
         /// <value>The secure protocol.</value>
         public SslProtocols SecureProtocol { get; set; }
 
-        protected virtual bool TryValidateClosedBySocket(out Socket socket)
+        protected virtual bool TryValidateClosedBySocket(out ISocket socket)
         {
             socket = m_Client;
             //Already closed/closing
@@ -464,7 +465,7 @@ namespace SuperSocket.SocketEngine
             if (!TryAddStateFlag(SocketState.InClosing))
                 return;
 
-            Socket client;
+            ISocket client;
 
             //No need to clean the socket instance
             if (TryValidateClosedBySocket(out client))
@@ -485,7 +486,7 @@ namespace SuperSocket.SocketEngine
                 OnClosed(reason);
         }
 
-        private void InternalClose(Socket client, CloseReason reason, bool setCloseReason)
+        private void InternalClose(ISocket client, CloseReason reason, bool setCloseReason)
         {
             if (Interlocked.CompareExchange(ref m_Client, null, client) == client)
             {
@@ -589,7 +590,7 @@ namespace SuperSocket.SocketEngine
                     // so we check if the socket instance is alive now
                     if (forSend)
                     {
-                        Socket client;
+                        ISocket client;
 
                         if (!TryValidateClosedBySocket(out client))
                         {
