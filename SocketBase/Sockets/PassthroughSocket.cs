@@ -138,17 +138,7 @@ namespace SuperSocket.SocketBase.Sockets
         {
             _socket = new Socket(addressFamily, socketType, protocolType);
         }
-
-        /// <summary>
-        /// Instantiates a <see cref="System.Net.Sockets.Socket"/>
-        /// </summary>
-        /// <param name="socketType"></param>
-        /// <param name="protocolType"></param>
-        public PassthroughSocket(SocketType socketType, ProtocolType protocolType)
-        {
-            _socket = new Socket(socketType, protocolType);
-        }
-
+        
         /// <inheritdoc />
         public bool AcceptAsync(ISocketAsyncEventArgs e)
         {

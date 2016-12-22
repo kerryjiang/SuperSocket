@@ -26,17 +26,17 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public event EventHandler<ISocketAsyncEventArgs> Completed;
+        public override event EventHandler<ISocketAsyncEventArgs> Completed;
 
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public ISocket AcceptSocket { get; set; }
+        public override ISocket AcceptSocket { get; set; }
 
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public byte[] Buffer {
+        public override byte[] Buffer {
             get
             {
                 return _socketAsyncEventArgs.Buffer;
@@ -46,7 +46,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public IList<ArraySegment<byte>> BufferList
+        public override IList<ArraySegment<byte>> BufferList
         {
             get
             {
@@ -62,7 +62,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public int BytesTransferred
+        public override int BytesTransferred
         {
             get
             {
@@ -73,7 +73,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public Exception ConnectByNameError
+        public override Exception ConnectByNameError
         {
             get
             {
@@ -84,12 +84,12 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public ISocket ConnectSocket { get; set; }
+        public override ISocket ConnectSocket { get; set; }
 
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public int Count
+        public override int Count
         {
             get
             {
@@ -100,7 +100,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public bool DisconnectReuseSocket
+        public override bool DisconnectReuseSocket
         {
             get
             {
@@ -116,7 +116,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public SocketAsyncOperation LastOperation
+        public override SocketAsyncOperation LastOperation
         {
             get
             {
@@ -127,7 +127,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public int Offset
+        public override int Offset
         {
             get
             {
@@ -138,7 +138,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public IPPacketInformation ReceiveMessageFromPacketInfo
+        public override IPPacketInformation ReceiveMessageFromPacketInfo
         {
             get
             {
@@ -149,7 +149,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public EndPoint RemoteEndPoint
+        public override EndPoint RemoteEndPoint
         {
             get
             {
@@ -165,7 +165,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public SendPacketsElement[] SendPacketsElements
+        public override SendPacketsElement[] SendPacketsElements
         {
             get
             {
@@ -181,7 +181,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public TransmitFileOptions SendPacketsFlags
+        public override TransmitFileOptions SendPacketsFlags
         {
             get
             {
@@ -197,7 +197,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public int SendPacketsSendSize
+        public override int SendPacketsSendSize
         {
             get
             {
@@ -213,7 +213,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public SocketError SocketError
+        public override SocketError SocketError
         {
             get
             {
@@ -229,7 +229,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public SocketFlags SocketFlags
+        public override SocketFlags SocketFlags
         {
             get
             {
@@ -245,7 +245,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public object UserToken
+        public override object UserToken
         {
             get
             {
@@ -278,7 +278,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// <param name="buffer"></param>
         /// <param name="offset"></param>
         /// <param name="count"></param>
-        public void SetBuffer(byte[] buffer, int offset, int count)
+        public override void SetBuffer(byte[] buffer, int offset, int count)
         {
             _socketAsyncEventArgs.SetBuffer(buffer, offset, count);
         }
@@ -288,7 +288,7 @@ namespace SuperSocket.SocketBase.Sockets
         /// </summary>
         /// <param name="offset"></param>
         /// <param name="count"></param>
-        public void SetBuffer(int offset, int count)
+        public override void SetBuffer(int offset, int count)
         {
             _socketAsyncEventArgs.SetBuffer(offset, count);
         }
@@ -316,6 +316,9 @@ namespace SuperSocket.SocketBase.Sockets
         }
 
         /// <inheritdoc />
-        public void Dispose() { }
+        public new void Dispose()
+        {
+            base.Dispose();
+        }
     }
 }
