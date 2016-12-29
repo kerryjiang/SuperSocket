@@ -55,8 +55,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer"/> class.
         /// </summary>
         /// <param name="subProtocols">The sub protocols.</param>
-        public WebSocketServer(IEnumerable<ISubProtocol<WebSocketSession>> subProtocols)
-            : base(subProtocols)
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(IEnumerable<ISubProtocol<WebSocketSession>> subProtocols, ISocketFactory socketFactory = null)
+            : base(subProtocols, socketFactory)
         {
 
         }
@@ -65,8 +66,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer"/> class.
         /// </summary>
         /// <param name="subProtocol">The sub protocol.</param>
-        public WebSocketServer(ISubProtocol<WebSocketSession> subProtocol)
-            : base(subProtocol)
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(ISubProtocol<WebSocketSession> subProtocol, ISocketFactory socketFactory = null)
+            : base(subProtocol, socketFactory)
         {
 
         }
@@ -74,8 +76,8 @@ namespace SuperSocket.WebSocket
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketServer"/> class.
         /// </summary>
-        public WebSocketServer()
-            : base(new List<ISubProtocol<WebSocketSession>>())
+        public WebSocketServer(ISocketFactory socketFactory = null)
+            : base(new List<ISubProtocol<WebSocketSession>>(), socketFactory)
         {
 
         }
@@ -126,8 +128,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer&lt;TWebSocketSession&gt;"/> class.
         /// </summary>
         /// <param name="subProtocol">The sub protocol.</param>
-        public WebSocketServer(ISubProtocol<TWebSocketSession> subProtocol)
-            : this(new List<ISubProtocol<TWebSocketSession>> { subProtocol })
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(ISubProtocol<TWebSocketSession> subProtocol, ISocketFactory socketFactory = null)
+            : this(new List<ISubProtocol<TWebSocketSession>> { subProtocol }, socketFactory)
         {
             
         }
