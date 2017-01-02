@@ -10,6 +10,7 @@ namespace SuperSocket.SocketBase.Sockets
     /// </summary>
     public class PassthroughSocketAsyncEventArgs : ISocketAsyncEventArgs
     {
+        private ISocket _acceptSocket;
         private readonly SocketAsyncEventArgs _socketAsyncEventArgs;
 
         /// <summary>
@@ -31,7 +32,24 @@ namespace SuperSocket.SocketBase.Sockets
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>
         /// </summary>
-        public override ISocket AcceptSocket { get; set; }
+        public override ISocket AcceptSocket {
+            get
+            {
+                return _acceptSocket;
+            }
+            set
+            {
+                if (null == value)
+                {
+                    _acceptSocket = null;
+                    _socketAsyncEventArgs.AcceptSocket = null;
+                }
+                else
+                {
+                    _acceptSocket = value;
+                }
+            }
+        }
 
         /// <summary>
         /// See <see cref="SocketAsyncEventArgs"/>

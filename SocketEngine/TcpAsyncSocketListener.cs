@@ -44,24 +44,14 @@ namespace SuperSocket.SocketEngine
 
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-
-
+                
                 var acceptEventArg = this.SocketFactory.CreateSocketAsyncEventArgs();
                 m_AcceptSAE = acceptEventArg;
                 acceptEventArg.Completed += new EventHandler<ISocketAsyncEventArgs>(acceptEventArg_Completed);
 
                 if (!m_ListenSocket.AcceptAsync(acceptEventArg))
                     ProcessAccept(acceptEventArg);
-
-                /*
-                SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
-                m_AcceptSAE = acceptEventArg;
-                acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
-
-                if (!m_ListenSocket.AcceptAsync(x))
-                    ProcessAccept(acceptEventArg);
-                */
-
+                
                 return true;
 
             }
