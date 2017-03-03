@@ -20,6 +20,28 @@ namespace SuperSocket.Common
         int m_bufferSize;
 
         /// <summary>
+        /// Get the buffer
+        /// </summary>
+        public byte[] Buffer
+        {
+            get
+            {
+                return m_buffer;
+            }
+        }
+
+        /// <summary>
+        /// Get the buffer
+        /// </summary>
+        public int BufferSize
+        {
+            get
+            {
+                return m_bufferSize;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BufferManager"/> class.
         /// </summary>
         /// <param name="totalBytes">The total bytes.</param>
@@ -44,35 +66,35 @@ namespace SuperSocket.Common
         /// <summary>
         /// Assigns a buffer from the buffer pool to the specified SocketAsyncEventArgs object
         /// </summary>
-        /// <returns>true if the buffer was successfully set, else false</returns>
-        public bool SetBuffer(SocketAsyncEventArgs args)
+        /// <returns>A Tuple where Item1 is true if the buffer should be set, else false.
+        /// If Item1 is true then Item2 has the new offset, else 0.
+        /// </returns>
+        public Tuple<bool, int> SetBuffer()
         {
-
+            int offset;
             if (m_freeIndexPool.Count > 0)
             {
-                args.SetBuffer(m_buffer, m_freeIndexPool.Pop(), m_bufferSize);
+                offset = m_freeIndexPool.Pop();
             }
             else
             {
                 if ((m_numBytes - m_bufferSize) < m_currentIndex)
                 {
-                    return false;
+                    return new Tuple<bool, int>(false, 0);
                 }
-                args.SetBuffer(m_buffer, m_currentIndex, m_bufferSize);
+                offset = m_currentIndex;
                 m_currentIndex += m_bufferSize;
             }
-            return true;
+            return new Tuple<bool, int>(true, offset);
         }
 
         /// <summary>
-        /// Removes the buffer from a SocketAsyncEventArg object.  This frees the buffer back to the 
+        /// Removes the buffer from a SocketAsyncEventArg object.  This frees the buffer back to the
         /// buffer pool
         /// </summary>
-        public void FreeBuffer(SocketAsyncEventArgs args)
+        public void FreeBuffer(int offset)
         {
-            m_freeIndexPool.Push(args.Offset);
-            args.SetBuffer(null, 0, 0);
+            m_freeIndexPool.Push(offset);
         }
-
     }
 }

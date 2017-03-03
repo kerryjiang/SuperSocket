@@ -11,24 +11,28 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
 using System.Threading;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
     class UdpSocketSession : SocketSession
     {
-        private Socket m_ServerSocket;
+        private ISocket m_ServerSocket;
+        private ISocketFactory m_SocketFactory;
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint)
+        public UdpSocketSession(ISocket serverSocket, IPEndPoint remoteEndPoint, ISocketFactory socketFactory)
             : base(remoteEndPoint.ToString())
         {
             m_ServerSocket = serverSocket;
+            m_SocketFactory = socketFactory;
             RemoteEndPoint = remoteEndPoint;
         }
 
-        public UdpSocketSession(Socket serverSocket, IPEndPoint remoteEndPoint, string sessionID)
+        public UdpSocketSession(ISocket serverSocket, IPEndPoint remoteEndPoint, string sessionID, ISocketFactory socketFactory)
             : base(sessionID)
         {
             m_ServerSocket = serverSocket;
+            m_SocketFactory = socketFactory;
             RemoteEndPoint = remoteEndPoint;
         }
 
@@ -53,9 +57,9 @@ namespace SuperSocket.SocketEngine
 
         protected override void SendAsync(SendingQueue queue)
         {
-            var e = new SocketAsyncEventArgs();
+            var e = m_SocketFactory.CreateSocketAsyncEventArgs();
 
-            e.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+            e.Completed += new EventHandler<ISocketAsyncEventArgs>(OnSendingCompleted);
             e.RemoteEndPoint = RemoteEndPoint;
             e.UserToken = queue;
 
@@ -66,14 +70,14 @@ namespace SuperSocket.SocketEngine
                 OnSendingCompleted(this, e);
         }
 
-        void CleanSocketAsyncEventArgs(SocketAsyncEventArgs e)
+        void CleanSocketAsyncEventArgs(ISocketAsyncEventArgs e)
         {
             e.UserToken = null;
-            e.Completed -= new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+            e.Completed -= new EventHandler<ISocketAsyncEventArgs>(OnSendingCompleted);
             e.Dispose();
         }
 
-        void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
+        void OnSendingCompleted(object sender, ISocketAsyncEventArgs e)
         {
             var queue = e.UserToken as SendingQueue;
 
@@ -119,7 +123,7 @@ namespace SuperSocket.SocketEngine
             throw new NotSupportedException();
         }
 
-        protected override bool TryValidateClosedBySocket(out Socket socket)
+        protected override bool TryValidateClosedBySocket(out ISocket socket)
         {
             socket = null;
             return false;

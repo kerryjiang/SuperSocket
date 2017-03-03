@@ -14,6 +14,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
@@ -106,7 +107,7 @@ namespace SuperSocket.SocketEngine
             return true;
         }
 
-        protected abstract void OnNewClientAccepted(ISocketListener listener, Socket client, object state);
+        protected abstract void OnNewClientAccepted(ISocketListener listener, ISocket client, object state);
 
         void OnListenerError(ISocketListener listener, Exception e)
         {

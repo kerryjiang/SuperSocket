@@ -7,6 +7,7 @@ using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
@@ -17,12 +18,12 @@ namespace SuperSocket.SocketEngine
     {
         private int m_ListenBackLog;
 
-        private Socket m_ListenSocket;
+        private ISocket m_ListenSocket;
 
-        private SocketAsyncEventArgs m_AcceptSAE;
+        private ISocketAsyncEventArgs m_AcceptSAE;
 
-        public TcpAsyncSocketListener(ListenerInfo info)
-            : base(info)
+        public TcpAsyncSocketListener(ListenerInfo info, ISocketFactory socketFactory)
+            : base(info, socketFactory)
         {
             m_ListenBackLog = info.BackLog;
         }
@@ -34,7 +35,7 @@ namespace SuperSocket.SocketEngine
         /// <returns></returns>
         public override bool Start(IServerConfig config)
         {
-            m_ListenSocket = new Socket(this.Info.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            m_ListenSocket = this.SocketFactory.Create(this.Info.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             try
             {
@@ -43,14 +44,14 @@ namespace SuperSocket.SocketEngine
 
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
                 m_ListenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
-
-                SocketAsyncEventArgs acceptEventArg = new SocketAsyncEventArgs();
+                
+                var acceptEventArg = this.SocketFactory.CreateSocketAsyncEventArgs();
                 m_AcceptSAE = acceptEventArg;
-                acceptEventArg.Completed += new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
+                acceptEventArg.Completed += new EventHandler<ISocketAsyncEventArgs>(acceptEventArg_Completed);
 
                 if (!m_ListenSocket.AcceptAsync(acceptEventArg))
                     ProcessAccept(acceptEventArg);
-
+                
                 return true;
 
             }
@@ -62,14 +63,14 @@ namespace SuperSocket.SocketEngine
         }
 
 
-        void acceptEventArg_Completed(object sender, SocketAsyncEventArgs e)
+        void acceptEventArg_Completed(object sender, ISocketAsyncEventArgs e)
         {
             ProcessAccept(e);
         }
 
-        void ProcessAccept(SocketAsyncEventArgs e)
+        void ProcessAccept(ISocketAsyncEventArgs e)
         {
-            Socket socket = null;
+            ISocket socket = null;
 
             if (e.SocketError != SocketError.Success)
             {
@@ -132,7 +133,7 @@ namespace SuperSocket.SocketEngine
                 if (m_ListenSocket == null)
                     return;
 
-                m_AcceptSAE.Completed -= new EventHandler<SocketAsyncEventArgs>(acceptEventArg_Completed);
+                m_AcceptSAE.Completed -= new EventHandler<ISocketAsyncEventArgs>(acceptEventArg_Completed);
                 m_AcceptSAE.Dispose();
                 m_AcceptSAE = null;
 

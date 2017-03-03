@@ -10,6 +10,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
@@ -41,7 +42,7 @@ namespace SuperSocket.SocketEngine
             m_SendBufferSize = config.SendBufferSize;
         }
 
-        protected IAppSession CreateSession(Socket client, ISocketSession session)
+        protected IAppSession CreateSession(ISocket client, ISocketSession session)
         {
             if (m_SendTimeOut > 0)
                 client.SendTimeout = m_SendTimeOut;
@@ -65,7 +66,7 @@ namespace SuperSocket.SocketEngine
 
         protected override ISocketListener CreateListener(ListenerInfo listenerInfo)
         {
-            return new TcpAsyncSocketListener(listenerInfo);
+            return new TcpAsyncSocketListener(listenerInfo, this.AppServer.SocketFactory);
         }
     }
 }

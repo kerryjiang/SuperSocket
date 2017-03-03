@@ -14,6 +14,7 @@ using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
@@ -59,13 +60,13 @@ namespace SuperSocket.SocketEngine
 
         private bool m_IsReset;
 
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy)
+        public AsyncStreamSocketSession(ISocket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy)
             : this(client, security, socketAsyncProxy, false)
         {
 
         }
 
-        public AsyncStreamSocketSession(Socket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
+        public AsyncStreamSocketSession(ISocket client, SslProtocols security, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
             : base(client)
         {
             SecureProtocol = security;
@@ -171,10 +172,10 @@ namespace SuperSocket.SocketEngine
         {
             //Enable client certificate function only if ClientCertificateRequired is true in the configuration
             if(!certConfig.ClientCertificateRequired)
-                return new SslStream(new NetworkStream(Client), false);
+                return new SslStream(Client.CreateStream(), false); //ToDo:
 
             //Subscribe the client validation callback
-            return new SslStream(new NetworkStream(Client), false, ValidateClientCertificate);
+            return new SslStream(Client.CreateStream(), false, ValidateClientCertificate);
         }
 
         private bool ValidateClientCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
@@ -201,7 +202,7 @@ namespace SuperSocket.SocketEngine
             switch (secureProtocol)
             {
                 case (SslProtocols.None):
-                    m_Stream = new NetworkStream(Client);
+                    m_Stream = Client.CreateStream();
                     break;
                 case (SslProtocols.Default):
                 case (SslProtocols.Tls):

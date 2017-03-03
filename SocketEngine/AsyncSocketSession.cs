@@ -11,6 +11,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Logging;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
@@ -19,19 +20,21 @@ namespace SuperSocket.SocketEngine
     {
         private bool m_IsReset;
 
-        private SocketAsyncEventArgs m_SocketEventArgSend;
+        private ISocketAsyncEventArgs m_SocketEventArgSend;
+        private ISocketFactory m_SocketFactory;
 
-        public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy)
-            : this(client, socketAsyncProxy, false)
+        public AsyncSocketSession(ISocket client, SocketAsyncEventArgsProxy socketAsyncProxy, ISocketFactory socketFactory)
+            : this(client, socketAsyncProxy, false, socketFactory)
         {
 
         }
 
-        public AsyncSocketSession(Socket client, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset)
+        public AsyncSocketSession(ISocket client, SocketAsyncEventArgsProxy socketAsyncProxy, bool isReset, ISocketFactory socketFactory)
             : base(client)
         {
             SocketAsyncProxy = socketAsyncProxy;
             m_IsReset = isReset;
+            m_SocketFactory = socketFactory;
         }
 
         ILog ILoggerProvider.Logger
@@ -49,8 +52,8 @@ namespace SuperSocket.SocketEngine
             if (!SyncSend)
             {
                 //Initialize SocketAsyncEventArgs for sending
-                m_SocketEventArgSend = new SocketAsyncEventArgs();
-                m_SocketEventArgSend.Completed += new EventHandler<SocketAsyncEventArgs>(OnSendingCompleted);
+                m_SocketEventArgSend = m_SocketFactory.CreateSocketAsyncEventArgs();
+                m_SocketEventArgSend.Completed += new EventHandler<ISocketAsyncEventArgs>(OnSendingCompleted);
             }
         }
 
@@ -62,7 +65,7 @@ namespace SuperSocket.SocketEngine
                 StartSession();
         }
 
-        bool ProcessCompleted(SocketAsyncEventArgs e)
+        bool ProcessCompleted(ISocketAsyncEventArgs e)
         {
             if (e.SocketError == SocketError.Success)
             {
@@ -79,7 +82,7 @@ namespace SuperSocket.SocketEngine
             return false;
         }
 
-        void OnSendingCompleted(object sender, SocketAsyncEventArgs e)
+        void OnSendingCompleted(object sender, ISocketAsyncEventArgs e)
         {
             var queue = e.UserToken as SendingQueue;
 
@@ -105,7 +108,7 @@ namespace SuperSocket.SocketEngine
             base.OnSendingCompleted(queue);
         }
 
-        private void ClearPrevSendState(SocketAsyncEventArgs e)
+        private void ClearPrevSendState(ISocketAsyncEventArgs e)
         {
             e.UserToken = null;
 
@@ -120,12 +123,12 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        private void StartReceive(SocketAsyncEventArgs e)
+        private void StartReceive(ISocketAsyncEventArgs e)
         {
             StartReceive(e, 0);
         }
 
-        private void StartReceive(SocketAsyncEventArgs e, int offsetDelta)
+        private void StartReceive(ISocketAsyncEventArgs e, int offsetDelta)
         {
             bool willRaiseEvent = false;
 
@@ -223,7 +226,7 @@ namespace SuperSocket.SocketEngine
 
         public SocketAsyncEventArgsProxy SocketAsyncProxy { get; private set; }
 
-        public void ProcessReceive(SocketAsyncEventArgs e)
+        public void ProcessReceive(ISocketAsyncEventArgs e)
         {
             if (!ProcessCompleted(e))
             {

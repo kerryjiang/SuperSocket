@@ -5,12 +5,13 @@ using System.Net.Sockets;
 using System.Text;
 using SuperSocket.Common;
 using SuperSocket.SocketBase;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine.AsyncSocket
 {
     class SocketAsyncEventArgsProxy
     {
-        public SocketAsyncEventArgs SocketEventArgs { get; private set; }
+        public ISocketAsyncEventArgs SocketEventArgs { get; private set; }
 
         public int OrigOffset { get; private set; }
 
@@ -21,21 +22,21 @@ namespace SuperSocket.SocketEngine.AsyncSocket
 
         }
 
-        public SocketAsyncEventArgsProxy(SocketAsyncEventArgs socketEventArgs)
+        public SocketAsyncEventArgsProxy(ISocketAsyncEventArgs socketEventArgs)
             : this(socketEventArgs, true)
         {
             
         }
 
-        public SocketAsyncEventArgsProxy(SocketAsyncEventArgs socketEventArgs, bool isRecyclable)
+        public SocketAsyncEventArgsProxy(ISocketAsyncEventArgs socketEventArgs, bool isRecyclable)
         {
             SocketEventArgs = socketEventArgs;
             OrigOffset = socketEventArgs.Offset;
-            SocketEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(SocketEventArgs_Completed);
+            SocketEventArgs.Completed += new EventHandler<ISocketAsyncEventArgs>(SocketEventArgs_Completed);
             IsRecyclable = isRecyclable;
         }
 
-        static void SocketEventArgs_Completed(object sender, SocketAsyncEventArgs e)
+        static void SocketEventArgs_Completed(object sender, ISocketAsyncEventArgs e)
         {
             var socketSession = e.UserToken as IAsyncSocketSession;
 

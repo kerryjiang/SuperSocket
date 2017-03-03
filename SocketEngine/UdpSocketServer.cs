@@ -10,6 +10,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
@@ -53,7 +54,7 @@ namespace SuperSocket.SocketEngine
         /// <param name="listener">The listener.</param>
         /// <param name="client">The client.</param>
         /// <param name="state">The state.</param>
-        protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
+        protected override void OnNewClientAccepted(ISocketListener listener, ISocket client, object state)
         {
             var paramArray = state as object[];
 
@@ -79,12 +80,12 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        IAppSession CreateNewSession(Socket listenSocket, IPEndPoint remoteEndPoint, string sessionID)
+        IAppSession CreateNewSession(ISocket listenSocket, IPEndPoint remoteEndPoint, string sessionID)
         {
             if (!DetectConnectionNumber(remoteEndPoint))
                 return null;
 
-            var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID);
+            var socketSession = new UdpSocketSession(listenSocket, remoteEndPoint, sessionID, this.AppServer.SocketFactory);
             var appSession = AppServer.CreateAppSession(socketSession);
 
             if (appSession == null)
@@ -105,7 +106,7 @@ namespace SuperSocket.SocketEngine
         }
 
 
-        void ProcessPackageWithSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
+        void ProcessPackageWithSessionID(ISocket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
         {
             TRequestInfo requestInfo;
             
@@ -169,7 +170,7 @@ namespace SuperSocket.SocketEngine
             m_RequestHandler.ExecuteCommand(appSession, requestInfo);
         }
 
-        void ProcessPackageWithoutSessionID(Socket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
+        void ProcessPackageWithoutSessionID(ISocket listenSocket, IPEndPoint remoteEndPoint, byte[] receivedData)
         {
             var sessionID = remoteEndPoint.ToString();
             var appSession = AppServer.GetSessionByID(sessionID);
@@ -211,7 +212,7 @@ namespace SuperSocket.SocketEngine
 
         protected override ISocketListener CreateListener(ListenerInfo listenerInfo)
         {
-            return new UdpSocketListener(listenerInfo);
+            return new UdpSocketListener(listenerInfo, this.AppServer.SocketFactory);
         }
 
         public override void ResetSessionSecurity(IAppSession session, System.Security.Authentication.SslProtocols security)
@@ -227,7 +228,7 @@ namespace SuperSocket.SocketEngine
         Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint, EndPoint localEndPoint)
         {
             var taskSource = new TaskCompletionSource<ActiveConnectResult>();
-            var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            var socket = this.AppServer.SocketFactory.Create(targetEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
 
             if (localEndPoint != null)
             {

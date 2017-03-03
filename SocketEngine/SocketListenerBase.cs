@@ -6,21 +6,24 @@ using System.Net.Sockets;
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
     abstract class SocketListenerBase : ISocketListener
     {
         public ListenerInfo Info { get; private set; }
+        public ISocketFactory SocketFactory { get; private set; }
 
         public IPEndPoint EndPoint
         {
             get { return Info.EndPoint; }
         }
 
-        protected SocketListenerBase(ListenerInfo info)
+        protected SocketListenerBase(ListenerInfo info, ISocketFactory socketFactory)
         {
             Info = info;
+            SocketFactory = socketFactory ?? new PassthroughSocketFactory();
         }
 
         /// <summary>
@@ -49,7 +52,7 @@ namespace SuperSocket.SocketEngine
             OnError(new Exception(errorMessage));
         }
 
-        protected virtual void OnNewClientAccepted(Socket socket, object state)
+        protected virtual void OnNewClientAccepted(ISocket socket, object state)
         {
             var handler = NewClientAccepted;
 
@@ -57,7 +60,7 @@ namespace SuperSocket.SocketEngine
                 handler(this, socket, state);
         }
 
-        protected void OnNewClientAcceptedAsync(Socket socket, object state)
+        protected void OnNewClientAcceptedAsync(ISocket socket, object state)
         {
             var handler = NewClientAccepted;
 

@@ -1,18 +1,17 @@
-using System;
 using System.Net.Sockets;
 
-namespace SuperSocket.Common
+namespace SuperSocket.SocketBase.Sockets
 {
     /// <summary>
     /// Socket extension class
     /// </summary>
-    public static class SocketEx
+    public static class ISocketEx
     {
         /// <summary>
         /// Close the socket safely.
         /// </summary>
         /// <param name="socket">The socket.</param>
-        public static void SafeClose(this Socket socket)
+        public static void SafeClose(this ISocket socket)
         {
             if (socket == null)
                 return;
@@ -42,7 +41,7 @@ namespace SuperSocket.Common
         /// </summary>
         /// <param name="client">The client.</param>
         /// <param name="data">The data.</param>
-        public static void SendData(this Socket client, byte[] data)
+        public static void SendData(this ISocket client, byte[] data)
         {
             SendData(client, data, 0, data.Length);
         }
@@ -54,7 +53,7 @@ namespace SuperSocket.Common
         /// <param name="data">The data.</param>
         /// <param name="offset">The offset.</param>
         /// <param name="length">The length.</param>
-        public static void SendData(this Socket client, byte[] data, int offset, int length)
+        public static void SendData(this ISocket client, byte[] data, int offset, int length)
         {
             int sent = 0;
             int thisSent = 0;

@@ -6,12 +6,13 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
 using System.Net.Sockets;
 using System.Net;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketEngine
 {
     delegate void ErrorHandler(ISocketListener listener, Exception e);
 
-    delegate void NewClientAcceptHandler(ISocketListener listener, Socket client, object state);
+    delegate void NewClientAcceptHandler(ISocketListener listener, ISocket client, object state);
 
     /// <summary>
     /// The interface for socket listener

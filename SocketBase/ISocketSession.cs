@@ -5,8 +5,8 @@ using System.Text;
 using System.IO;
 using System.Net;
 using System.Security.Authentication;
-using System.Net.Sockets;
 using SuperSocket.SocketBase.Command;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketBase
 {
@@ -104,7 +104,7 @@ namespace SuperSocket.SocketBase
         /// <summary>
         /// Gets the client socket.
         /// </summary>
-        Socket Client { get; }
+        ISocket Client { get; }
 
         /// <summary>
         /// Gets the local listening endpoint.
@@ -128,7 +128,6 @@ namespace SuperSocket.SocketBase
         /// Gets the app session assosiated with this socket session.
         /// </summary>
         IAppSession AppSession { get; }
-
 
         /// <summary>
         /// Gets the original receive buffer offset.

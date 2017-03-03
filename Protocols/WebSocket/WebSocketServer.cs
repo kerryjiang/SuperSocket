@@ -17,6 +17,7 @@ using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Config;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 using SuperSocket.WebSocket.Command;
 using SuperSocket.WebSocket.Config;
 using SuperSocket.WebSocket.Protocol;
@@ -54,8 +55,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer"/> class.
         /// </summary>
         /// <param name="subProtocols">The sub protocols.</param>
-        public WebSocketServer(IEnumerable<ISubProtocol<WebSocketSession>> subProtocols)
-            : base(subProtocols)
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(IEnumerable<ISubProtocol<WebSocketSession>> subProtocols, ISocketFactory socketFactory = null)
+            : base(subProtocols, socketFactory)
         {
 
         }
@@ -64,8 +66,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer"/> class.
         /// </summary>
         /// <param name="subProtocol">The sub protocol.</param>
-        public WebSocketServer(ISubProtocol<WebSocketSession> subProtocol)
-            : base(subProtocol)
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(ISubProtocol<WebSocketSession> subProtocol, ISocketFactory socketFactory = null)
+            : base(subProtocol, socketFactory)
         {
 
         }
@@ -73,8 +76,8 @@ namespace SuperSocket.WebSocket
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketServer"/> class.
         /// </summary>
-        public WebSocketServer()
-            : base(new List<ISubProtocol<WebSocketSession>>())
+        public WebSocketServer(ISocketFactory socketFactory = null)
+            : base(new List<ISubProtocol<WebSocketSession>>(), socketFactory)
         {
 
         }
@@ -105,8 +108,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer&lt;TWebSocketSession&gt;"/> class.
         /// </summary>
         /// <param name="subProtocols">The sub protocols.</param>
-        public WebSocketServer(IEnumerable<ISubProtocol<TWebSocketSession>> subProtocols)
-            : this()
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(IEnumerable<ISubProtocol<TWebSocketSession>> subProtocols, ISocketFactory socketFactory = null)
+            : this(socketFactory)
         {
             if (!subProtocols.Any())
                 return;
@@ -124,8 +128,9 @@ namespace SuperSocket.WebSocket
         /// Initializes a new instance of the <see cref="WebSocketServer&lt;TWebSocketSession&gt;"/> class.
         /// </summary>
         /// <param name="subProtocol">The sub protocol.</param>
-        public WebSocketServer(ISubProtocol<TWebSocketSession> subProtocol)
-            : this(new List<ISubProtocol<TWebSocketSession>> { subProtocol })
+        /// <param name="socketFactory"></param>
+        public WebSocketServer(ISubProtocol<TWebSocketSession> subProtocol, ISocketFactory socketFactory = null)
+            : this(new List<ISubProtocol<TWebSocketSession>> { subProtocol }, socketFactory)
         {
             
         }
@@ -133,8 +138,8 @@ namespace SuperSocket.WebSocket
         /// <summary>
         /// Initializes a new instance of the <see cref="WebSocketServer&lt;TWebSocketSession&gt;"/> class.
         /// </summary>
-        public WebSocketServer()
-            : base(new WebSocketProtocol())
+        public WebSocketServer(ISocketFactory socketFactory = null)
+            : base(new WebSocketProtocol(), socketFactory)
         {
 
         }

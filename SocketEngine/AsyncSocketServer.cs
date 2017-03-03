@@ -13,6 +13,7 @@ using SuperSocket.Common;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Command;
 using SuperSocket.SocketBase.Protocol;
+using SuperSocket.SocketBase.Sockets;
 using SuperSocket.SocketEngine.AsyncSocket;
 
 namespace SuperSocket.SocketEngine
@@ -51,15 +52,17 @@ namespace SuperSocket.SocketEngine
                 }
 
                 // preallocate pool of SocketAsyncEventArgs objects
-                SocketAsyncEventArgs socketEventArg;
+                ISocketAsyncEventArgs socketEventArg;
 
                 var socketArgsProxyList = new List<SocketAsyncEventArgsProxy>(AppServer.Config.MaxConnectionNumber);
 
                 for (int i = 0; i < AppServer.Config.MaxConnectionNumber; i++)
                 {
                     //Pre-allocate a set of reusable SocketAsyncEventArgs
-                    socketEventArg = new SocketAsyncEventArgs();
-                    m_BufferManager.SetBuffer(socketEventArg);
+                    socketEventArg = AppServer.SocketFactory.CreateSocketAsyncEventArgs();
+                    var bufferInfo = m_BufferManager.SetBuffer();
+                    if (bufferInfo.Item1)
+                        socketEventArg.SetBuffer(m_BufferManager.Buffer, bufferInfo.Item2, m_BufferManager.BufferSize);
 
                     socketArgsProxyList.Add(new SocketAsyncEventArgsProxy(socketEventArg));
                 }
@@ -79,7 +82,7 @@ namespace SuperSocket.SocketEngine
             }
         }
 
-        protected override void OnNewClientAccepted(ISocketListener listener, Socket client, object state)
+        protected override void OnNewClientAccepted(ISocketListener listener, ISocket client, object state)
         {
             if (IsStopped)
                 return;
@@ -87,7 +90,7 @@ namespace SuperSocket.SocketEngine
             ProcessNewClient(client, listener.Info.Security);
         }
 
-        private IAppSession ProcessNewClient(Socket client, SslProtocols security)
+        private IAppSession ProcessNewClient(ISocket client, SslProtocols security)
         {
             //Get the socket for the accepted client connection and put it into the 
             //ReadEventArg object user token
@@ -104,7 +107,7 @@ namespace SuperSocket.SocketEngine
             ISocketSession socketSession;
 
             if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
+                socketSession = new AsyncSocketSession(client, socketEventArgsProxy, this.AppServer.SocketFactory);
             else
                 socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
 
@@ -171,7 +174,7 @@ namespace SuperSocket.SocketEngine
             var socketAsyncProxy = ((IAsyncSocketSessionBase)session.SocketSession).SocketAsyncProxy;
 
             if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(session.SocketSession.Client, socketAsyncProxy, true);
+                socketSession = new AsyncSocketSession(session.SocketSession.Client, socketAsyncProxy, true, this.AppServer.SocketFactory);
             else
                 socketSession = new AsyncStreamSocketSession(session.SocketSession.Client, security, socketAsyncProxy, true);
 
@@ -239,9 +242,9 @@ namespace SuperSocket.SocketEngine
         {
             public TaskCompletionSource<ActiveConnectResult> TaskSource { get; private set; }
 
-            public Socket Socket { get; private set; }
+            public ISocket Socket { get; private set; }
 
-            public ActiveConnectState(TaskCompletionSource<ActiveConnectResult> taskSource, Socket socket)
+            public ActiveConnectState(TaskCompletionSource<ActiveConnectResult> taskSource, ISocket socket)
             {
                 TaskSource = taskSource;
                 Socket = socket;
@@ -256,7 +259,7 @@ namespace SuperSocket.SocketEngine
         Task<ActiveConnectResult> IActiveConnector.ActiveConnect(EndPoint targetEndPoint, EndPoint localEndPoint)
         {
             var taskSource = new TaskCompletionSource<ActiveConnectResult>();
-            var socket = new Socket(targetEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var socket = this.AppServer.SocketFactory.Create(targetEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             if (localEndPoint != null)
             {

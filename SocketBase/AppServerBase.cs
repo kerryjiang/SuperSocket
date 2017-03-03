@@ -16,6 +16,7 @@ using SuperSocket.SocketBase.Metadata;
 using SuperSocket.SocketBase.Protocol;
 using SuperSocket.SocketBase.Provider;
 using SuperSocket.SocketBase.Security;
+using SuperSocket.SocketBase.Sockets;
 
 namespace SuperSocket.SocketBase
 {
@@ -81,6 +82,14 @@ namespace SuperSocket.SocketBase
         {
             get { return this.ReceiveFilterFactory; }
         }
+
+        /// <summary>
+        /// Gets or sets the socket factory.
+        /// </summary>
+        /// <value>
+        /// The socket factory.
+        /// </value>
+        public virtual ISocketFactory SocketFactory { get; protected set; }
 
         private List<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> m_CommandLoaders = new List<ICommandLoader<ICommand<TAppSession, TRequestInfo>>>();
 
@@ -175,9 +184,11 @@ namespace SuperSocket.SocketBase
         /// Initializes a new instance of the <see cref="AppServerBase&lt;TAppSession, TRequestInfo&gt;"/> class.
         /// </summary>
         /// <param name="receiveFilterFactory">The Receive filter factory.</param>
-        public AppServerBase(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory)
+        /// <param name="socketFactory"></param>
+        public AppServerBase(IReceiveFilterFactory<TRequestInfo> receiveFilterFactory, ISocketFactory socketFactory = null)
         {
             this.ReceiveFilterFactory = receiveFilterFactory;
+            this.SocketFactory = socketFactory ?? new PassthroughSocketFactory();
         }
 
         /// <summary>
