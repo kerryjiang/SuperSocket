@@ -56,7 +56,7 @@ namespace SuperSocket.SocketBase.Protocol
             if (pos > 0)
             {
                 name = source.Substring(0, pos);
-                param = source.Substring(pos + 1);
+                param = source.Substring(pos + m_Spliter.Length);
             }
             else
             {
