@@ -774,7 +774,9 @@ namespace SuperSocket.SocketBase
         /// <returns></returns>
         protected virtual bool SetupCommandLoaders(List<ICommandLoader<ICommand<TAppSession, TRequestInfo>>> commandLoaders)
         {
-            commandLoaders.Add(new ReflectCommandLoader<ICommand<TAppSession, TRequestInfo>>());
+	    var reflectionLoader = new ReflectCommandLoader<ICommand<TAppSession, TRequestInfo>>();
+ 	    reflectionLoader.Initialize(RootConfig, this);
+            commandLoaders.Add(reflectionLoader);
             return true;
         }
 
