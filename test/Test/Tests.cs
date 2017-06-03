@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Server;
@@ -28,7 +29,11 @@ namespace Tests
 
             var dic = new Dictionary<string, string>
             {
-                { "Name", "TestServer" } ,
+                { "name", "TestServer" },
+                { "listeners:0:ip", "Any" },
+                { "listeners:0:port", "80" },
+                { "listeners:1:ip", "Ipv6Any" },
+                { "listeners:1:port", "81" }
             };
 
             var builder = new ConfigurationBuilder().AddInMemoryCollection(dic);
@@ -36,6 +41,12 @@ namespace Tests
             
             Assert.True(server.Configure(config));
             Assert.Equal("TestServer", server.Name);
+
+            Assert.Equal(2, server.Listeners.Length);
+            Assert.Equal(IPAddress.Any, server.Listeners[0].EndPoint.Address);
+            Assert.Equal(80, server.Listeners[0].EndPoint.Port);
+            Assert.Equal(IPAddress.IPv6Any, server.Listeners[1].EndPoint.Address);
+            Assert.Equal(81, server.Listeners[1].EndPoint.Port);
         }
     }
 }

@@ -6,9 +6,10 @@
   "dependencies": {
   },
   "frameworks": {
-    "netstandard1.0": {
+    "netstandard1.3": {
       "dependencies": {
-        "System.Runtime": "4.1.0"
+        "System.Runtime": "4.1.0",
+        "System.Net.Primitives": "4.0.11"
       }
     }
   }
