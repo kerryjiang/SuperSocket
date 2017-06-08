@@ -6,6 +6,6 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install dotnet-dev-1.0.4
 script:
-  - dotnet restore
   - cd src/SuperSocket.Server
+  - dotnet restore
   - dotnet build
