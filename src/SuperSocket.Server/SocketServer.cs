@@ -121,6 +121,11 @@ namespace SuperSocket.Server
                 return false;
             }
 
+            foreach (var listener in listenSockets)
+            {
+                AcceptClients(listener);
+            }
+
             return true;
         }
 
@@ -131,6 +136,8 @@ namespace SuperSocket.Server
 
         private async void AcceptClients(SocketListener socketListener)
         {
+            _logger.LogDebug($"The listener {socketListener.Listener.EndPoint} started accepting new clients.");
+
             var token = _cancellationTokenSource.Token;
             
             while (!token.IsCancellationRequested)
