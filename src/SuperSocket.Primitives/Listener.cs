@@ -30,8 +30,13 @@ namespace SuperSocket
             }
             
             EndPoint = new IPEndPoint(ipAddress, config.Port);
+            BackLog = config.BackLog <= 0 ? DefaultBackLog : config.BackLog;
         }
 
         public IPEndPoint EndPoint { get; set; }
+
+        public int BackLog { get; set; }
+
+        public const int DefaultBackLog = 20;
     }
 }

@@ -15,8 +15,8 @@ namespace SuperSocket.Server
 
             var socket = _listenSocket = new Socket(Listener.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
-            socket.Bind(Listener.EndPoint);
-            socket.Listen(100);
+            socket.Bind(listener.EndPoint);
+            socket.Listen(listener.BackLog);
         }
 
         public async Task<Socket> AcceptAsync()
