@@ -95,6 +95,11 @@ namespace SuperSocket.Server
             return true;
         }
 
+        private void OnNewClientAccept(Socket client)
+        {
+
+        }
+
         private async void AcceptClients(Listener listener)
         {
             var socketListener = new SocketListener(listener);
@@ -105,7 +110,7 @@ namespace SuperSocket.Server
             {
                 var socket = await socketListener.AcceptAsync();
 
-                
+                OnNewClientAccept(socket);
 
                 if (token.IsCancellationRequested)
                     break;
