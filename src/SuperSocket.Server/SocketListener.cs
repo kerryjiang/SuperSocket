@@ -1,3 +1,4 @@
+using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 
@@ -12,11 +13,23 @@ namespace SuperSocket.Server
         public SocketListener(Listener listener)
         {
             Listener = listener;
+        }
 
-            var socket = _listenSocket = new Socket(Listener.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+        public void StartListen()
+        {
+            var socket = new Socket(Listener.EndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
-            socket.Bind(listener.EndPoint);
-            socket.Listen(listener.BackLog);
+            try
+            {
+                socket.Bind(Listener.EndPoint);
+                socket.Listen(Listener.BackLog);
+                _listenSocket = socket;
+            }
+            catch (Exception e)
+            {
+                socket.Dispose();
+                throw e;
+            }
         }
 
         public async Task<Socket> AcceptAsync()

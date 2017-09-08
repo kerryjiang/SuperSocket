@@ -1,13 +1,14 @@
 using System;
+using System.Linq;
+using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.Threading;
+using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Linq;
 using SuperSocket.Config;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using System.Threading;
 
 namespace SuperSocket.Server
 {
@@ -33,6 +34,8 @@ namespace SuperSocket.Server
         public Listener[] Listeners { get; private set; }
 
         protected internal ILoggerFactory LoggerFactory { get; private set; }
+
+        private ILogger _logger;
 
         private bool _initialized = false;
 
@@ -73,6 +76,8 @@ namespace SuperSocket.Server
                     .GetService<ILoggerFactory>()
                     .AddConsole(LogLevel.Debug);
 
+            _logger = LoggerFactory.CreateLogger("SocketServer");
+
             ConfigureListeners(Config);
 
             return _initialized = true;
@@ -89,8 +94,32 @@ namespace SuperSocket.Server
         {
             if (!_initialized)
                 throw new Exception("The server has not been initialized successfully!");
+
+            var listenSockets = new List<SocketListener>(Listeners.Length);
             
-            Listeners.Select(l => Task.Run(() => AcceptClients(l)));
+            foreach (var listener in Listeners)
+            {
+                var listenSocket = new SocketListener(listener);
+
+                try
+                {
+                    listenSocket.StartListen();
+                    _logger.LogDebug($"Listen the endpoint {listener.EndPoint} suceeded.");
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError($"Listen the endpoint {listener.EndPoint} failed.", e);
+                    continue;
+                }
+                
+                listenSockets.Add(listenSocket);
+            }
+
+            if (!listenSockets.Any())
+            {
+                _logger.LogError($"No listener was started!");
+                return false;
+            }
 
             return true;
         }
@@ -100,10 +129,8 @@ namespace SuperSocket.Server
 
         }
 
-        private async void AcceptClients(Listener listener)
+        private async void AcceptClients(SocketListener socketListener)
         {
-            var socketListener = new SocketListener(listener);
-
             var token = _cancellationTokenSource.Token;
             
             while (!token.IsCancellationRequested)
@@ -115,6 +142,8 @@ namespace SuperSocket.Server
                 if (token.IsCancellationRequested)
                     break;
             }
+
+            _logger.LogDebug($"The listener {socketListener.Listener.EndPoint} was stopped.");
         }
 
         public void Stop()
