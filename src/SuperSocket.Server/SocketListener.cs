@@ -36,5 +36,11 @@ namespace SuperSocket.Server
         {
             return await _listenSocket.AcceptAsync();
         }
+
+        public void Stop()
+        {
+            _listenSocket.Dispose();
+            _listenSocket = null;
+        }
     }
 }

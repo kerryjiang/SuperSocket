@@ -47,6 +47,10 @@ namespace SuperSocket.Server
 
         public Listener[] Listeners { get; private set; }
 
+        private IList<SocketListener> _socketListeners;
+
+        private Task[] _listeningTasks;
+
         protected internal ILoggerFactory LoggerFactory { get; private set; }
 
         private ILogger _logger;
@@ -109,7 +113,7 @@ namespace SuperSocket.Server
             if (!_initialized)
                 throw new Exception("The server has not been initialized successfully!");
 
-            var listenSockets = new List<SocketListener>(Listeners.Length);
+            var listenSockets = _socketListeners = new List<SocketListener>(Listeners.Length);
             
             foreach (var listener in Listeners)
             {
@@ -135,10 +139,8 @@ namespace SuperSocket.Server
                 return false;
             }
 
-            foreach (var listener in listenSockets)
-            {
-                AcceptClients(listener);
-            }
+            _listeningTasks = listenSockets.Select(l => AcceptClients(l))
+                .ToArray();
 
             return true;
         }
@@ -148,7 +150,7 @@ namespace SuperSocket.Server
             Interlocked.Increment(ref _sessionCount);
         }
 
-        private async void AcceptClients(SocketListener socketListener)
+        private async Task AcceptClients(SocketListener socketListener)
         {
             _logger.LogDebug($"The listener {socketListener.Listener.EndPoint} started accepting new clients.");
 
@@ -156,12 +158,18 @@ namespace SuperSocket.Server
             
             while (!token.IsCancellationRequested)
             {
-                var socket = await socketListener.AcceptAsync();
+                try
+                {
+                    var socket = await socketListener.AcceptAsync();
+                    OnNewClientAccept(socket);
+                }
+                catch (Exception e)
+                {
+                    if (token.IsCancellationRequested)
+                        break;
 
-                OnNewClientAccept(socket);
-
-                if (token.IsCancellationRequested)
-                    break;
+                    _logger.LogError("Failed to accept new client", e);
+                }
             }
 
             _logger.LogDebug($"The listener {socketListener.Listener.EndPoint} was stopped.");
@@ -169,7 +177,20 @@ namespace SuperSocket.Server
 
         public void Stop()
         {
+            _logger.LogDebug("The server is stopping...");
             _cancellationTokenSource.Cancel();
+
+            _logger.LogDebug("Waiting for all listeners to stop...");
+
+            foreach (var l in _socketListeners)
+            {
+                l.Stop();
+            }
+
+            Task.WaitAll(_listeningTasks);
+
+            _logger.LogDebug("All listeners have stoppped.");
+            _logger.LogDebug("The server stopped.");
         }
     }
 }
