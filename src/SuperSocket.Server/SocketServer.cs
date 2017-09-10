@@ -20,6 +20,20 @@ namespace SuperSocket.Server
 
         public ServerConfig Config { get; private set; }
 
+        private long _sessionCount;
+
+        /// <summary>
+        /// Total session count
+        /// </summary>
+        /// <returns>total session count</returns>
+        public long SessionCount
+        {
+            get
+            {
+                return _sessionCount;
+            }
+        }
+
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         /// <summary>
@@ -131,7 +145,7 @@ namespace SuperSocket.Server
 
         private void OnNewClientAccept(Socket client)
         {
-
+            Interlocked.Increment(ref _sessionCount);
         }
 
         private async void AcceptClients(SocketListener socketListener)
