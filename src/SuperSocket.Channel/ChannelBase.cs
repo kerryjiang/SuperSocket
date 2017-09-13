@@ -7,6 +7,7 @@ namespace SuperSocket.Channel
     {
         public abstract Task<ArraySegment<byte>> ReceiveAsync();
         public abstract Task SendAsync(ArraySegment<byte> data);
+        public abstract void Close();
 
         private EventHandler _closed;
 

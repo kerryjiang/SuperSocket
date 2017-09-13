@@ -12,5 +12,11 @@ namespace SuperSocket.Channel
         {
             Socket = socket;
         }
+
+        protected override void OnClosed()
+        {
+            Socket = null;
+            base.OnClosed();
+        }
     }
 }

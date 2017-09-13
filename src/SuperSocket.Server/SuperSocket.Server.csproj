@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
+    <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />
   </ItemGroup>
 
   <ItemGroup>

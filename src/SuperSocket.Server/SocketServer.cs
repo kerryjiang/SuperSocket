@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.Config;
+using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
@@ -148,6 +149,20 @@ namespace SuperSocket.Server
         private void OnNewClientAccept(Socket client)
         {
             Interlocked.Increment(ref _sessionCount);
+            Task.Run(() => StartSession(client));
+        }
+
+        private void StartSession(Socket client)
+        {
+            IChannel channel = new TcpSocketChannel(client);
+            channel.Closed += OnChannelClosed;
+        }
+
+        private void OnChannelClosed(object sender, EventArgs e)
+        {
+            IChannel channel = sender as IChannel;
+            channel.Closed -= OnChannelClosed;
+            Interlocked.Decrement(ref _sessionCount);
         }
 
         private async Task AcceptClients(SocketListener socketListener)

@@ -9,6 +9,8 @@ namespace SuperSocket.Channel
 
         Task<ArraySegment<byte>> ReceiveAsync();
 
+        void Close();
+
         event EventHandler Closed;
     }
 }
