@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.Config;
 using SuperSocket.Channel;
+using System.IO.Pipelines;
 
 namespace SuperSocket.Server
 {
@@ -48,9 +49,7 @@ namespace SuperSocket.Server
 
         public Listener[] Listeners { get; private set; }
 
-        private IList<SocketListener> _socketListeners;
-
-        private Task[] _listeningTasks;
+        private IList<IPipelineConnectionListener> _socketListeners;
 
         protected internal ILoggerFactory LoggerFactory { get; private set; }
 
@@ -70,7 +69,7 @@ namespace SuperSocket.Server
                 throw new ArgumentNullException(nameof(services));
 
             if (config == null)
-                throw new ArgumentNullException(nameof(config));
+                throw new ArgumentNullException(nameof(config));            
             
             // prepare service collections
             _serviceCollection = services.AddOptions() // activate options
@@ -114,15 +113,16 @@ namespace SuperSocket.Server
             if (!_initialized)
                 throw new Exception("The server has not been initialized successfully!");
 
-            var listenSockets = _socketListeners = new List<SocketListener>(Listeners.Length);
+            var listenSockets = _socketListeners = new List<IPipelineConnectionListener>(Listeners.Length);
             
             foreach (var listener in Listeners)
             {
-                var listenSocket = new SocketListener(listener);
+                var listenSocket = _serviceProvider.GetService<IPipelineConnectionListener>();
 
                 try
                 {
-                    listenSocket.StartListen();
+                    listenSocket.OnConnection(HandleNewClient);
+                    listenSocket.Start(listener.EndPoint);
                     _logger.LogDebug($"Listen the endpoint {listener.EndPoint} suceeded.");
                 }
                 catch (Exception e)
@@ -140,16 +140,13 @@ namespace SuperSocket.Server
                 return false;
             }
 
-            _listeningTasks = listenSockets.Select(l => AcceptClients(l))
-                .ToArray();
-
             return true;
         }
 
-        private void OnNewClientAccept(Socket client)
+        private Task HandleNewClient(IPipeConnection connection)
         {
             Interlocked.Increment(ref _sessionCount);
-            Task.Run(() => StartSession(client));
+            return Task.CompletedTask;
         }
 
         private void StartSession(Socket client)
@@ -165,31 +162,6 @@ namespace SuperSocket.Server
             Interlocked.Decrement(ref _sessionCount);
         }
 
-        private async Task AcceptClients(SocketListener socketListener)
-        {
-            _logger.LogDebug($"The listener {socketListener.Listener.EndPoint} started accepting new clients.");
-
-            var token = _cancellationTokenSource.Token;
-            
-            while (!token.IsCancellationRequested)
-            {
-                try
-                {
-                    var socket = await socketListener.AcceptAsync();
-                    OnNewClientAccept(socket);
-                }
-                catch (Exception e)
-                {
-                    if (token.IsCancellationRequested)
-                        break;
-
-                    _logger.LogError("Failed to accept new client", e);
-                }
-            }
-
-            _logger.LogDebug($"The listener {socketListener.Listener.EndPoint} was stopped.");
-        }
-
         public void Stop()
         {
             _logger.LogDebug("The server is stopping...");
@@ -201,8 +173,6 @@ namespace SuperSocket.Server
             {
                 l.Stop();
             }
-
-            Task.WaitAll(_listeningTasks);
 
             _logger.LogDebug("All listeners have stoppped.");
             _logger.LogDebug("The server stopped.");
