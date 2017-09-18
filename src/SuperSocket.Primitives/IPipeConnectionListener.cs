@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SuperSocket
 {
-    public interface IPipelineConnectionListener
+    public interface IPipeConnectionListener
     {
         void Start(IPEndPoint endpoint);
 

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+        <TargetFramework>netstandard1.3</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Pipelines.Networking.Libuv" Version="0.1.0-e170912-3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
+  </ItemGroup>
+  
+</Project>
