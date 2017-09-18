@@ -49,7 +49,7 @@ namespace SuperSocket.Server
 
         public Listener[] Listeners { get; private set; }
 
-        private IList<IPipelineConnectionListener> _socketListeners;
+        private IList<IPipeConnectionListener> _socketListeners;
 
         protected internal ILoggerFactory LoggerFactory { get; private set; }
 
@@ -113,11 +113,11 @@ namespace SuperSocket.Server
             if (!_initialized)
                 throw new Exception("The server has not been initialized successfully!");
 
-            var listenSockets = _socketListeners = new List<IPipelineConnectionListener>(Listeners.Length);
+            var listenSockets = _socketListeners = new List<IPipeConnectionListener>(Listeners.Length);
             
             foreach (var listener in Listeners)
             {
-                var listenSocket = _serviceProvider.GetService<IPipelineConnectionListener>();
+                var listenSocket = _serviceProvider.GetService<IPipeConnectionListener>();
 
                 try
                 {
