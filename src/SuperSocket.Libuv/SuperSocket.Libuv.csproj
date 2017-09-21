@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.IO.Pipelines.Networking.Libuv" Version="0.1.0-e170912-3" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="1.1.1" />
   </ItemGroup>
 
   <ItemGroup>
