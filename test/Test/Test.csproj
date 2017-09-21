@@ -9,6 +9,8 @@
 
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.NetSocket/SuperSocket.NetSocket.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Libuv/SuperSocket.Libuv.csproj" />
   </ItemGroup>
 
   <ItemGroup>

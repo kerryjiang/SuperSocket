@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Tests
 {
-    public class Tests
+    public class ConfigTest
     {
         [Fact]
         public void TestConfigureArgumentExceptions() 
@@ -80,7 +80,7 @@ namespace Tests
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
 
             await Task.Delay(1);
-            
+
             Assert.Equal(1, server.SessionCount);
 
             server.Stop();

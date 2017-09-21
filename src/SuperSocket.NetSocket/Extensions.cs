@@ -9,7 +9,7 @@ namespace SuperSocket
 {
     public static class Extensions
     {
-        public static void UseNetSocketListener(IServiceCollection services)
+        public static void UseNetSocketListener(this IServiceCollection services)
         {
             services.AddTransient<IPipeConnectionListener, NetSocketPipeConnectionListener>();
         }
