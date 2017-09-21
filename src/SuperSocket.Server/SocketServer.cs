@@ -121,8 +121,7 @@ namespace SuperSocket.Server
 
                 try
                 {
-                    listenSocket.OnConnection(HandleNewClient);
-                    listenSocket.Start(listener.EndPoint);
+                    listenSocket.Start(listener.EndPoint, HandleNewClient);
                     _logger.LogDebug($"Listen the endpoint {listener.EndPoint} suceeded.");
                 }
                 catch (Exception e)

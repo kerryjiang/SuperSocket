@@ -7,10 +7,8 @@ namespace SuperSocket
 {
     public interface IPipeConnectionListener
     {
-        void Start(IPEndPoint endpoint);
+        void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback);
 
         void Stop();
-
-        void OnConnection(Func<IPipeConnection, Task> callback);
     }
 }

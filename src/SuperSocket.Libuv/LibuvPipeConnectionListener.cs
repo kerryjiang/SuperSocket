@@ -2,24 +2,33 @@ using System;
 using System.IO.Pipelines;
 using System.Net;
 using System.Threading.Tasks;
+using System.IO.Pipelines.Networking.Libuv;
 
 namespace SuperSocket.Libuv
 {
     public class LibuvPipeConnectionListener : IPipeConnectionListener
     {
-        public void OnConnection(Func<IPipeConnection, Task> callback)
+        private UvTcpListener _listener;
+        private UvThread _uvThread;
+
+        public LibuvPipeConnectionListener()
         {
-            throw new NotImplementedException();
+            
         }
 
-        public void Start(IPEndPoint endpoint)
+        public void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback)
         {
-            throw new NotImplementedException();
+            _uvThread = new UvThread();
+            _listener = new UvTcpListener(_uvThread, endpoint);
+            _listener.OnConnection((c) => callback(c));
+            _listener.StartAsync().GetAwaiter().GetResult();
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            _listener.Dispose();
+            _listener = null;
+            _uvThread = null;
         }
     }
 }

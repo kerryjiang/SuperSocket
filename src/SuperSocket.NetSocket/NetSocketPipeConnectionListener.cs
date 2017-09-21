@@ -2,24 +2,24 @@ using System;
 using System.IO.Pipelines;
 using System.Net;
 using System.Threading.Tasks;
+using System.IO.Pipelines.Networking.Sockets;
 
 namespace SuperSocket.NetSocket
 {
     public class NetSocketPipeConnectionListener : IPipeConnectionListener
     {
-        public void OnConnection(Func<IPipeConnection, Task> callback)
+        private SocketListener _socketListener;
+        public void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback)
         {
-            throw new NotImplementedException();
-        }
-
-        public void Start(IPEndPoint endpoint)
-        {
-            throw new NotImplementedException();
+            _socketListener = new SocketListener();
+            _socketListener.Start(endpoint);
+            _socketListener.OnConnection((c) => callback(c));
         }
 
         public void Stop()
         {
-            throw new NotImplementedException();
+            _socketListener.Stop();
+            _socketListener = null;
         }
     }
 }
