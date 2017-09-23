@@ -145,19 +145,14 @@ namespace SuperSocket.Server
         private Task HandleNewClient(IPipeConnection connection)
         {
             Interlocked.Increment(ref _sessionCount);
+            var session = new AppSession(connection);
+            session.Closed += OnSessionClosed;
+            Task.Run(async () =>  await session.ProcessRequest());
             return Task.CompletedTask;
         }
 
-        private void StartSession(Socket client)
+        private void OnSessionClosed(object sender, EventArgs e)
         {
-            IChannel channel = new TcpSocketChannel(client);
-            channel.Closed += OnChannelClosed;
-        }
-
-        private void OnChannelClosed(object sender, EventArgs e)
-        {
-            IChannel channel = sender as IChannel;
-            channel.Closed -= OnChannelClosed;
             Interlocked.Decrement(ref _sessionCount);
         }
 

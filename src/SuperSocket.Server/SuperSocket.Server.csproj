@@ -10,10 +10,10 @@
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
     <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />
+    <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="SuperSocket.ProtoBase" Version="1.7.0.17" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="1.1.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="1.1.1" />
@@ -25,5 +25,5 @@
     <PackageReference Include="System.IO.Pipelines" Version="0.1.0-e170912-3" />
     <PackageReference Include="System.Net.Sockets" Version="4.3.0" />
   </ItemGroup>
-  
+
 </Project>
