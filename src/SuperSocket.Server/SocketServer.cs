@@ -11,6 +11,7 @@ using Microsoft.Extensions.Options;
 using SuperSocket.Config;
 using SuperSocket.Channel;
 using System.IO.Pipelines;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
@@ -57,13 +58,11 @@ namespace SuperSocket.Server
 
         private bool _initialized = false;
 
-        public bool Configure(IConfiguration config)
-        {
-            var services = new ServiceCollection();
-            return Configure(services, config);
-        }
+        private IAppSessionFactory _appSessionFactory;
 
-        public bool Configure(IServiceCollection services, IConfiguration config)
+        public bool Configure<TPackageInfo, TPipelineFilter>(IServiceCollection services, IConfiguration config, Action<IAppSession, TPackageInfo> packageHandler = null)
+            where TPackageInfo : class
+            where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
             if (services == null)
                 throw new ArgumentNullException(nameof(services));
@@ -95,6 +94,8 @@ namespace SuperSocket.Server
                     .AddConsole(LogLevel.Debug);
 
             _logger = LoggerFactory.CreateLogger("SocketServer");
+
+            _appSessionFactory = new AppSessionFactory<TPackageInfo, TPipelineFilter>(packageHandler);
 
             ConfigureListeners(Config);
 
@@ -145,7 +146,7 @@ namespace SuperSocket.Server
         private Task HandleNewClient(IPipeConnection connection)
         {
             Interlocked.Increment(ref _sessionCount);
-            var session = new AppSession(connection);
+            var session = _appSessionFactory.Create(connection);
             session.Closed += OnSessionClosed;
             Task.Run(async () =>  await session.ProcessRequest());
             return Task.CompletedTask;

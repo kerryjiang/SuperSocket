@@ -5,29 +5,21 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.Server
 {
-    public class AppSession
+    public abstract class AppSession : IAppSession
     {
         private IPipeConnection _pipeConnection;
 
-        public AppSession(IPipeConnection pipeConnection)
+        protected IPipeConnection PipeConnection
+        {
+            get { return _pipeConnection; }
+        }
+
+        public void Initialize(IPipeConnection pipeConnection)
         {
             _pipeConnection = pipeConnection;
         }
 
-        public async Task ProcessRequest()
-        {
-            var input = _pipeConnection.Input;
-
-            while (true)
-            {
-                var result = await input.ReadAsync();
-
-                if (result.IsCompleted)
-                    break;
-            }
-
-            await Task.CompletedTask;
-        }
+        public abstract Task ProcessRequest();
 
         private EventHandler _closed;
 
@@ -37,7 +29,7 @@ namespace SuperSocket.Server
             remove { _closed -= value; }
         }
 
-        protected void OnClosed()
+        protected virtual void OnClosed()
         {
             _closed?.Invoke(this, EventArgs.Empty);
         }
