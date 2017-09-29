@@ -11,7 +11,7 @@ namespace SuperSocket.Server
         where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
     {
         Action<IAppSession, TPackageInfo> _packageHandler;
-        
+
         public AppSessionFactory(Action<IAppSession, TPackageInfo> handler)
         {
             _packageHandler = handler;
@@ -21,7 +21,10 @@ namespace SuperSocket.Server
         {
             var session = new AppSession<TPackageInfo>(new TPipelineFilter());
             session.Initialize(pipeConnection);
-            session.PackageReceived += _packageHandler;
+
+            if (_packageHandler != null)
+                session.PackageReceived += _packageHandler;
+                
             return session;
         }
     }

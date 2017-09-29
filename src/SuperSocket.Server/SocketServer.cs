@@ -59,13 +59,15 @@ namespace SuperSocket.Server
         private bool _initialized = false;
 
         private IAppSessionFactory _appSessionFactory;
-
-        public bool Configure<TPackageInfo, TPipelineFilter>(IServiceCollection services, IConfiguration config, Action<IAppSession, TPackageInfo> packageHandler = null)
+        
+        public bool Configure<TPackageInfo, TPipelineFilter>(IConfiguration config, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
             if (services == null)
-                throw new ArgumentNullException(nameof(services));
+            {
+                services = new ServiceCollection();
+            }
 
             if (config == null)
                 throw new ArgumentNullException(nameof(config));            
@@ -95,9 +97,9 @@ namespace SuperSocket.Server
 
             _logger = LoggerFactory.CreateLogger("SocketServer");
 
-            _appSessionFactory = new AppSessionFactory<TPackageInfo, TPipelineFilter>(packageHandler);
-
             ConfigureListeners(Config);
+
+            _appSessionFactory = new AppSessionFactory<TPackageInfo, TPipelineFilter>(packageHandler);
 
             return _initialized = true;
         }
