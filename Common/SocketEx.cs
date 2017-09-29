@@ -17,12 +17,10 @@ namespace SuperSocket.Common
             if (socket == null)
                 return;
 
-            if (!socket.Connected)
-                return;
-            
             try
             {
-                socket.Shutdown(SocketShutdown.Both);
+                if (socket.Connected)
+                    socket.Shutdown(SocketShutdown.Both);
             }
             catch
             {
