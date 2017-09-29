@@ -34,7 +34,7 @@ namespace Tests
 
             RegisterServices(services);
             
-            Assert.True(server.Configure(services, config));
+            Assert.True(server.Configure<FakePackageInfo, FakePipelineFilter>(config, services));
             Assert.Equal("TestServer", server.Name);
 
             Assert.True(server.Start());
