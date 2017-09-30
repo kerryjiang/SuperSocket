@@ -150,8 +150,13 @@ namespace SuperSocket.Server
             Interlocked.Increment(ref _sessionCount);
             var session = _appSessionFactory.Create(connection);
             session.Closed += OnSessionClosed;
-            Task.Run(async () =>  await session.ProcessRequest());
+            Task.Run(async () =>  await ProcessRequest(session));
             return Task.CompletedTask;
+        }
+
+        private async Task ProcessRequest(IAppSession session)
+        {
+            await session.ProcessRequest();
         }
 
         private void OnSessionClosed(object sender, EventArgs e)

@@ -19,12 +19,41 @@ namespace SuperSocket.Server
         {
             var input = PipeConnection.Input;
 
+            var consumed = new ReadCursor();
+            var examined = new ReadCursor();
+
+            var currentPipelineFilter = _pipelineFilter;
+
             while (true)
             {
                 var result = await input.ReadAsync();
 
                 if (result.IsCompleted)
+                {
+                    OnClosed();
                     break;
+                }
+
+                var buffer = result.Buffer;
+
+                var filterResult = currentPipelineFilter.Filter(buffer, out consumed, out examined);
+
+                switch (filterResult.State)
+                {
+                    case (ProcessState.Cached):
+                        continue;
+                    
+                    case (ProcessState.Error):
+                        break;
+
+                    default:
+                        OnPackageReceived(filterResult.Package);
+                        break;
+                }
+
+                if (currentPipelineFilter.NextFilter != null)
+                    _pipelineFilter = currentPipelineFilter.NextFilter;
+
             }
 
             await Task.CompletedTask;

@@ -21,8 +21,6 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// The processor is in error state
         /// </summary>
-        Error,
-        
-        Closed
+        Error
     }
 }
