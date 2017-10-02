@@ -19,8 +19,8 @@ namespace SuperSocket.Server
         {
             var input = PipeConnection.Input;
 
-            var consumed = new ReadCursor();
-            var examined = new ReadCursor();
+            //var consumed = new ReadCursor();
+            //var examined = new ReadCursor();
 
             var currentPipelineFilter = _pipelineFilter;
 
@@ -36,23 +36,23 @@ namespace SuperSocket.Server
 
                 var buffer = result.Buffer;
 
-                var filterResult = currentPipelineFilter.Filter(buffer, out consumed, out examined);
-
-                switch (filterResult.State)
+                while (true)
                 {
-                    case (ProcessState.Cached):
-                        continue;
-                    
-                    case (ProcessState.Error):
+                    var packageInfo = currentPipelineFilter.Filter(ref buffer);
+
+                    if (currentPipelineFilter.NextFilter != null)
+                        _pipelineFilter = currentPipelineFilter = currentPipelineFilter.NextFilter;
+                
+                    // continue receive...
+                    if (packageInfo == null)
                         break;
 
-                    default:
-                        OnPackageReceived(filterResult.Package);
+                    // already get a package
+                    OnPackageReceived(packageInfo);
+
+                    if (buffer.Length == 0) // no more data
                         break;
                 }
-
-                if (currentPipelineFilter.NextFilter != null)
-                    _pipelineFilter = currentPipelineFilter.NextFilter;
 
             }
 

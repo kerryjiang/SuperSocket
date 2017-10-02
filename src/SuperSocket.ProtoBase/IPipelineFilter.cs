@@ -8,7 +8,7 @@ namespace SuperSocket.ProtoBase
     public interface IPipelineFilter<TPackageInfo>
         where TPackageInfo : class
     {
-        FilterResult<TPackageInfo> Filter(ReadableBuffer buffer, out ReadCursor consumed, out ReadCursor examined);
+        TPackageInfo Filter(ref ReadableBuffer buffer);
 
         IPipelineFilter<TPackageInfo> NextFilter { get; }
     }

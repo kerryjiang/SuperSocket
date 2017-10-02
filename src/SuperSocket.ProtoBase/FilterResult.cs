@@ -13,5 +13,10 @@ namespace SuperSocket.ProtoBase
     public class FilterResult<TPackageInfo> : FilterResult
     {
         public TPackageInfo Package { get; set; }
+
+        public FilterResult(TPackageInfo package)
+        {
+            Package = package;
+        }
     }
 }
