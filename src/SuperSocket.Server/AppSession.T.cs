@@ -19,41 +19,43 @@ namespace SuperSocket.Server
         {
             var input = PipeConnection.Input;
 
-            //var consumed = new ReadCursor();
-            //var examined = new ReadCursor();
-
             var currentPipelineFilter = _pipelineFilter;
 
             while (true)
             {
                 var result = await input.ReadAsync();
-
-                if (result.IsCompleted)
-                {
-                    OnClosed();
-                    break;
-                }
-
                 var buffer = result.Buffer;
 
-                while (true)
+                try
                 {
-                    var packageInfo = currentPipelineFilter.Filter(ref buffer);
-
-                    if (currentPipelineFilter.NextFilter != null)
-                        _pipelineFilter = currentPipelineFilter = currentPipelineFilter.NextFilter;
-                
-                    // continue receive...
-                    if (packageInfo == null)
+                    if (result.IsCompleted)
+                    {
+                        OnClosed();
                         break;
+                    }
 
-                    // already get a package
-                    OnPackageReceived(packageInfo);
+                    while (true)
+                    {
+                        var packageInfo = currentPipelineFilter.Filter(ref buffer);
 
-                    if (buffer.Length == 0) // no more data
-                        break;
+                        if (currentPipelineFilter.NextFilter != null)
+                            _pipelineFilter = currentPipelineFilter = currentPipelineFilter.NextFilter;
+                    
+                        // continue receive...
+                        if (packageInfo == null)
+                            break;
+
+                        // already get a package
+                        OnPackageReceived(packageInfo);
+
+                        if (buffer.Length == 0) // no more data
+                            break;
+                    }
                 }
-
+                finally
+                {
+                    input.Advance(buffer.Start, buffer.End);
+                }
             }
 
             await Task.CompletedTask;
