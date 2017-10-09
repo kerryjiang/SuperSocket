@@ -17,7 +17,7 @@ namespace Tests
     {
         public IPipelineFilter<FakePackageInfo> NextFilter => throw new NotImplementedException();
 
-        public FilterResult<FakePackageInfo> Filter(ReadableBuffer buffer, out ReadCursor consumed, out ReadCursor examined)
+        public FakePackageInfo Filter(ref ReadableBuffer buffer)
         {
             throw new NotImplementedException();
         }
