@@ -1,4 +1,6 @@
 using System;
+using System.Buffers;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Net;
@@ -23,9 +25,9 @@ namespace Tests
 
         }
 
-        public override LinePackageInfo ResolvePackage(ReadableBuffer buffer)
+        public override LinePackageInfo ResolvePackage(ReadOnlyBuffer<byte> buffer)
         {
-            return new LinePackageInfo { Line = buffer.GetUtf8String() };
+            return new LinePackageInfo { Line = buffer.GetUtf8Span() };
         }
     }
 }

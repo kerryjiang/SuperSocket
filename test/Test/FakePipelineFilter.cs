@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Net;
@@ -17,7 +18,7 @@ namespace Tests
     {
         public IPipelineFilter<FakePackageInfo> NextFilter => throw new NotImplementedException();
 
-        public FakePackageInfo Filter(ref ReadableBuffer buffer)
+        public FakePackageInfo Filter(ref ReadOnlyBuffer<byte> buffer)
         {
             throw new NotImplementedException();
         }

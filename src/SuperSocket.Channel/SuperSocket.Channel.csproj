@@ -1,8 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\tools\Common.props" />
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxStableVersion)" />
   </ItemGroup>
 </Project>

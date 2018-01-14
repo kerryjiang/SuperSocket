@@ -1,12 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+  <Import Project="..\..\tools\Common.props" />
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="0.1.0-e170912-3" />
-    <PackageReference Include="System.IO.Pipelines.Extensions" Version="0.1.0-e170912-3" />
+    <PackageReference Include="System.IO.Pipelines" Version="$(CoreFxLabVersion)" />
+    <PackageReference Include="System.IO.Pipelines.Extensions" Version="$(CoreFxLabVersion)" />
+    <PackageReference Include="System.Buffers.Primitives" Version="$(CoreFxLabVersion)" />
   </ItemGroup>
 
 </Project>

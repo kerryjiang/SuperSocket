@@ -1,4 +1,6 @@
 using System;
+using System.Buffers;
+using System.Collections.Sequences;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -13,10 +15,10 @@ namespace SuperSocket.ProtoBase
         {
             _terminator = terminator;
         }
-        public override TPackageInfo Filter(ref ReadableBuffer buffer)
+        public override TPackageInfo Filter(ref ReadOnlyBuffer<byte> buffer)
         {
-            ReadableBuffer slice;
-            ReadCursor cursor;
+            ReadOnlyBuffer<byte> slice;
+            Position cursor;
 
             if (!buffer.TrySliceTo(new Span<byte>(_terminator), out slice, out cursor))
             {
@@ -27,6 +29,6 @@ namespace SuperSocket.ProtoBase
             return ResolvePackage(slice);
         }
 
-        public abstract TPackageInfo ResolvePackage(ReadableBuffer buffer);
+        public abstract TPackageInfo ResolvePackage(ReadOnlyBuffer<byte> buffer);
     }
 }
