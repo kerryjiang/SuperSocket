@@ -4,5 +4,6 @@
     <CoreFxStableVersion>4.3.0</CoreFxStableVersion>
     <CoreFxLabVersion>0.1.0-e180113-1</CoreFxLabVersion>
     <MSExtensionsVersion>1.1.1</MSExtensionsVersion>
+    <LibuvVersion>1.9.1</LibuvVersion>
   </PropertyGroup>
 </Project>
