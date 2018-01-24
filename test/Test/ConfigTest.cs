@@ -1,23 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO.Pipelines;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using SuperSocket;
-using SuperSocket.ProtoBase;
-using SuperSocket.Server;
-using Xunit;
-
-namespace Tests
+﻿namespace Tests
 {
     public class ConfigTest
     {
-
         [Fact]
-        public void TestConfigureArgumentExceptions() 
+        public void TestConfigureArgumentExceptions()
         {
             var server = new SocketServer();
 
@@ -26,7 +12,7 @@ namespace Tests
         }
 
         [Fact]
-        public void TestConfigure() 
+        public void TestConfigure()
         {
             var server = new SocketServer();
 
@@ -42,7 +28,7 @@ namespace Tests
 
             var builder = new ConfigurationBuilder().AddInMemoryCollection(dic);
             var config = builder.Build();
-            
+
             Assert.True(server.Configure<FakePackageInfo, FakePipelineFilter>(config));
             Assert.Equal("TestServer", server.Name);
 
@@ -56,7 +42,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task TestSessionCount() 
+        public async Task TestSessionCount()
         {
             var server = new SocketServer();
 
@@ -69,7 +55,7 @@ namespace Tests
 
             var builder = new ConfigurationBuilder().AddInMemoryCollection(dic);
             var config = builder.Build();
-            
+
             Assert.True(server.Configure<FakePackageInfo, FakePipelineFilter>(config));
             Assert.Equal("TestServer", server.Name);
 

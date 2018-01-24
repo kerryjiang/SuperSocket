@@ -1,14 +1,15 @@
 using System;
 using System.IO.Pipelines;
+using System.IO.Pipelines.Networking.Sockets;
 using System.Net;
 using System.Threading.Tasks;
-using System.IO.Pipelines.Networking.Sockets;
 
 namespace SuperSocket.NetSocket
 {
     public class NetSocketPipeConnectionListener : IPipeConnectionListener
     {
         private SocketListener _socketListener;
+
         public void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback)
         {
             _socketListener = new SocketListener();

@@ -1,8 +1,8 @@
 using System;
 using System.IO.Pipelines;
+using System.IO.Pipelines.Networking.Libuv;
 using System.Net;
 using System.Threading.Tasks;
-using System.IO.Pipelines.Networking.Libuv;
 
 namespace SuperSocket.Libuv
 {
@@ -13,7 +13,6 @@ namespace SuperSocket.Libuv
 
         public LibuvPipeConnectionListener()
         {
-            
         }
 
         public void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback)

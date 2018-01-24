@@ -4,7 +4,7 @@ namespace SuperSocket.Config
     {
         public string Ip { get; set; }
 
-        public int Port  { get; set; }
+        public int Port { get; set; }
 
         public int BackLog { get; set; }
     }

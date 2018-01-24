@@ -1,17 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using SuperSocket;
-using SuperSocket.ProtoBase;
-using SuperSocket.Server;
-using Xunit;
-
 namespace Tests
 {
     public abstract class TestBase
@@ -47,7 +33,7 @@ namespace Tests
         }
 
         [Fact]
-        public async Task TestSessionCount() 
+        public async Task TestSessionCount()
         {
             var server = CreateSocketServer<FakePackageInfo, FakePipelineFilter>();
 
@@ -67,17 +53,16 @@ namespace Tests
         }
 
         [Fact]
-        public async Task TestConsoleProtocol() 
+        public async Task TestConsoleProtocol()
         {
             var server = CreateSocketServer<LinePackageInfo, NewLinePipelineFilter>();
 
-            
             Assert.True(server.Start());
             Assert.Equal(0, server.SessionCount);
 
             var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
-            
+
             using (var stream = new NetworkStream(client))
             using (var streamReader = new StreamReader(stream, Encoding.UTF8, true))
             using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024 * 1024 * 4))
