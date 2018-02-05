@@ -50,7 +50,7 @@ namespace SuperSocket.Server
 
         public Listener[] Listeners { get; private set; }
 
-        private IList<IPipeConnectionListener> _socketListeners;
+        private IList<IDuplexPipeListener> _socketListeners;
 
         protected internal ILoggerFactory LoggerFactory { get; private set; }
 
@@ -116,11 +116,11 @@ namespace SuperSocket.Server
             if (!_initialized)
                 throw new Exception("The server has not been initialized successfully!");
 
-            var listenSockets = _socketListeners = new List<IPipeConnectionListener>(Listeners.Length);
+            var listenSockets = _socketListeners = new List<IDuplexPipeListener>(Listeners.Length);
             
             foreach (var listener in Listeners)
             {
-                var listenSocket = _serviceProvider.GetService<IPipeConnectionListener>();
+                var listenSocket = _serviceProvider.GetService<IDuplexPipeListener>();
 
                 try
                 {
@@ -129,7 +129,7 @@ namespace SuperSocket.Server
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"Listen the endpoint {listener.EndPoint} failed.", e);
+                    _logger.LogError($"Listen the endpoint {listener.EndPoint} failed. {e.Message}", e);
                     continue;
                 }
                 
@@ -145,10 +145,10 @@ namespace SuperSocket.Server
             return true;
         }
 
-        private Task HandleNewClient(IPipeConnection connection)
+        private Task HandleNewClient(IDuplexPipe pipe)
         {
             Interlocked.Increment(ref _sessionCount);
-            var session = _appSessionFactory.Create(connection);
+            var session = _appSessionFactory.Create(pipe);
             session.Closed += OnSessionClosed;
             Task.Run(async () =>  await ProcessRequest(session));
             return Task.CompletedTask;

@@ -12,7 +12,7 @@ namespace SuperSocket
     {
         public static void UseLibuvListener(this IServiceCollection services)
         {
-            services.AddTransient<IPipeConnectionListener, LibuvPipeConnectionListener>();
+            services.AddTransient<IDuplexPipeListener, LibuvPipeListener>();
         }
     }
 }

@@ -23,6 +23,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxStableVersion)" />
     <PackageReference Include="System.IO.Pipelines" Version="$(CoreFxLabVersion)" />
+    <PackageReference Include="System.Buffers.Primitives" Version="$(CoreFxLabVersion)" />
     <PackageReference Include="System.Net.Sockets" Version="$(CoreFxStableVersion)" />
   </ItemGroup>
 

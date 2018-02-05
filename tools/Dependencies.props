@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RuntimeFrameworkVersion>2.1.0-preview2-25711-01</RuntimeFrameworkVersion>
     <CoreFxStableVersion>4.3.0</CoreFxStableVersion>
-    <CoreFxLabVersion>0.1.0-e180113-1</CoreFxLabVersion>
+    <CoreFxLabVersion>0.1.0-preview2-180204-1</CoreFxLabVersion>
     <MSExtensionsVersion>1.1.1</MSExtensionsVersion>
     <LibuvVersion>1.9.1</LibuvVersion>
   </PropertyGroup>

@@ -7,6 +7,6 @@ namespace SuperSocket.Server
 {
     public interface IAppSessionFactory
     {
-        IAppSession Create(IPipeConnection pipeConnection);
+        IAppSession Create(IDuplexPipe pipe);
     }
 }

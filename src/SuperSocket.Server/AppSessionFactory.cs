@@ -17,10 +17,10 @@ namespace SuperSocket.Server
             _packageHandler = handler;
         }
 
-        public IAppSession Create(IPipeConnection pipeConnection)
+        public IAppSession Create(IDuplexPipe pipe)
         {
             var session = new AppSession<TPackageInfo>(new TPipelineFilter());
-            session.Initialize(pipeConnection);
+            session.Initialize(pipe);
 
             if (_packageHandler != null)
                 session.PackageReceived += _packageHandler;

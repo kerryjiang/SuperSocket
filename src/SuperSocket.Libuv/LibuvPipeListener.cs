@@ -6,17 +6,17 @@ using System.IO.Pipelines.Networking.Libuv;
 
 namespace SuperSocket.Libuv
 {
-    public class LibuvPipeConnectionListener : IPipeConnectionListener
+    public class LibuvPipeListener : IDuplexPipeListener
     {
         private UvTcpListener _listener;
         private UvThread _uvThread;
 
-        public LibuvPipeConnectionListener()
+        public LibuvPipeListener()
         {
             
         }
 
-        public void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback)
+        public void Start(IPEndPoint endpoint, Func<IDuplexPipe, Task> callback)
         {
             _uvThread = new UvThread();
             _listener = new UvTcpListener(_uvThread, endpoint);

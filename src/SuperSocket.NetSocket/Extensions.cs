@@ -11,7 +11,7 @@ namespace SuperSocket
     {
         public static void UseNetSocketListener(this IServiceCollection services)
         {
-            services.AddTransient<IPipeConnectionListener, NetSocketPipeConnectionListener>();
+            services.AddTransient<IDuplexPipeListener, NetSocketPipeListener>();
         }
     }
 }

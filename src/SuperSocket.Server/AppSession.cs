@@ -2,21 +2,22 @@ using System;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using System.Buffers;
 
 namespace SuperSocket.Server
 {
     public abstract class AppSession : IAppSession
     {
-        private IPipeConnection _pipeConnection;
+        private IDuplexPipe _pipe;
 
-        protected IPipeConnection PipeConnection
+        protected IDuplexPipe Pipe
         {
-            get { return _pipeConnection; }
+            get { return _pipe; }
         }
 
-        public void Initialize(IPipeConnection pipeConnection)
+        public void Initialize(IDuplexPipe pipe)
         {
-            _pipeConnection = pipeConnection;
+            _pipe = pipe;
         }
 
         public abstract Task ProcessRequest();
@@ -32,6 +33,13 @@ namespace SuperSocket.Server
         protected virtual void OnClosed()
         {
             _closed?.Invoke(this, EventArgs.Empty);
+        }
+
+        public async Task SendAsync(ReadOnlyBuffer<byte> buffer)
+        {
+            var pipe = _pipe;
+            pipe.Output.Write(buffer);
+            await pipe.Output.FlushAsync();
         }
     }
 }

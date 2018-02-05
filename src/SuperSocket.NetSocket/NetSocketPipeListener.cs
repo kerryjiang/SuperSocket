@@ -7,14 +7,14 @@ using System.Net.Sockets;
 
 namespace SuperSocket.NetSocket
 {
-    public class NetSocketPipeConnectionListener : IPipeConnectionListener
+    public class NetSocketPipeListener : IDuplexPipeListener
     {
         private SocketListener _socketListener;
-        public void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback)
+
+        public void Start(IPEndPoint endpoint, Func<IDuplexPipe, Task> callback)
         {
             _socketListener = new SocketListener();
             _socketListener.Start(endpoint);
-            _socketListener.ListeningSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
             _socketListener.OnConnection((c) => callback(c));
         }
 

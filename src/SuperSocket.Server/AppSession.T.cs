@@ -17,7 +17,7 @@ namespace SuperSocket.Server
 
         public override async Task ProcessRequest()
         {
-            var input = PipeConnection.Input;
+            var input = Pipe.Input;
 
             var currentPipelineFilter = _pipelineFilter;
 

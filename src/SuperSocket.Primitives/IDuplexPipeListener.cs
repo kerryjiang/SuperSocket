@@ -5,9 +5,9 @@ using System.Threading.Tasks;
 
 namespace SuperSocket
 {
-    public interface IPipeConnectionListener
+    public interface IDuplexPipeListener
     {
-        void Start(IPEndPoint endpoint, Func<IPipeConnection, Task> callback);
+        void Start(IPEndPoint endpoint, Func<IDuplexPipe, Task> callback);
 
         void Stop();
     }

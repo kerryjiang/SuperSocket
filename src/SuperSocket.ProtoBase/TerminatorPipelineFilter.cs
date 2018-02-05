@@ -18,7 +18,7 @@ namespace SuperSocket.ProtoBase
         public override TPackageInfo Filter(ref ReadOnlyBuffer<byte> buffer)
         {
             ReadOnlyBuffer<byte> slice;
-            Position cursor;
+            SequencePosition cursor;
 
             if (!buffer.TrySliceTo(new Span<byte>(_terminator), out slice, out cursor))
             {
