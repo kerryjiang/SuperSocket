@@ -231,6 +231,7 @@ namespace SuperSocket.Common
             return (Configuration)configProperty.GetValue(configElement, null);
         }
 
+#if !NETSTANDARD2_0
         private static void ResetConfigurationForMono(AppDomain appDomain, string configFilePath)
         {
             appDomain.SetupInformation.ConfigurationFile = configFilePath;
@@ -283,5 +284,6 @@ namespace SuperSocket.Common
             else
                 ResetConfigurationForDotNet(appDomain, configFilePath);
         }
+#endif
     }
 }
