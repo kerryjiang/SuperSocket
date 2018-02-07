@@ -11,7 +11,6 @@
     <ProjectReference Include="../../src/SuperSocket.NetSocket/SuperSocket.NetSocket.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Libuv/SuperSocket.Libuv.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
@@ -19,6 +18,9 @@
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="$(CoreFxStableVersion)" />
     <PackageReference Include="System.IO.Pipelines.Text.Primitives" Version="$(CoreFxLabVersion)" />
     <PackageReference Include="Libuv" Version="$(LibuvVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(MSExtensionsVersion)" />
   </ItemGroup>
-
+  <ItemGroup>
+      <Compile Remove="LibuvTest.cs" />
+  </ItemGroup>
 </Project>

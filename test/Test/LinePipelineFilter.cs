@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Net;
@@ -14,13 +15,16 @@ using Xunit;
 
 namespace Tests
 {
-    public class FakePipelineFilter : IPipelineFilter<FakePackageInfo>
+    public class LinePipelineFilter : IPipelineFilter<LinePackageInfo>
     {
-        public IPipelineFilter<FakePackageInfo> NextFilter => throw new NotImplementedException();
+        public IPipelineFilter<LinePackageInfo> NextFilter => this;
 
-        public FakePackageInfo Filter(ref ReadOnlyBuffer<byte> buffer)
+        public LinePackageInfo Filter(ref ReadOnlyBuffer<byte> buffer)
         {
-            throw new NotImplementedException();
+            return new LinePackageInfo
+            {
+                Line = Encodings.Utf8.ToString(buffer.ToSpan())
+            };
         }
     }
 }

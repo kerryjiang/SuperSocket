@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
@@ -38,6 +40,11 @@ namespace Tests
 
             var builder = new ConfigurationBuilder().AddInMemoryCollection(configDict);
             var config = builder.Build();
+            
+            services.AddSingleton(new LoggerFactory()
+                .AddConsole()
+                .AddDebug());
+            services.AddLogging();
 
             RegisterServices(services);
 
@@ -49,7 +56,10 @@ namespace Tests
         [Fact]
         public async Task TestSessionCount() 
         {
-            var server = CreateSocketServer<FakePackageInfo, FakePipelineFilter>();
+            var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
+            {
+                await s.SendAsync(Encoding.UTF8.GetBytes(p.Line + "\r\n").AsReadOnlySpan());
+            });
 
             Assert.Equal("TestServer", server.Name);
 
@@ -83,6 +93,7 @@ namespace Tests
             using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024 * 1024 * 4))
             {
                 await streamWriter.WriteLineAsync("Hello World");
+                await streamWriter.FlushAsync();
                 var line = await streamReader.ReadLineAsync();
                 Assert.Equal("Hello World", line);
             }
