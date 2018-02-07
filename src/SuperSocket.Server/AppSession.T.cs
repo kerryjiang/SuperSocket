@@ -54,7 +54,7 @@ namespace SuperSocket.Server
                 }
                 finally
                 {
-                    input.Advance(buffer.Start, buffer.End);
+                    input.AdvanceTo(buffer.Start, buffer.End);
                 }
             }
 

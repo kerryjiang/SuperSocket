@@ -12,7 +12,7 @@ namespace SuperSocket.Server
 
         Task ProcessRequest();
 
-        Task SendAsync(ReadOnlyBuffer<byte> buffer);
+        Task SendAsync(ReadOnlySpan<byte> data);
 
         event EventHandler Closed;
     }

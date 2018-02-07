@@ -35,11 +35,16 @@ namespace SuperSocket.Server
             _closed?.Invoke(this, EventArgs.Empty);
         }
 
-        public async Task SendAsync(ReadOnlyBuffer<byte> buffer)
+        public Task SendAsync(ReadOnlySpan<byte> buffer)
         {
             var pipe = _pipe;
             pipe.Output.Write(buffer);
-            await pipe.Output.FlushAsync();
+            return FlushAsync(pipe.Output);
+        }
+
+        async Task FlushAsync(PipeWriter buffer)
+        {
+            await buffer.FlushAsync();
         }
     }
 }
