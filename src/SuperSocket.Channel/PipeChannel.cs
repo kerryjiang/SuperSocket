@@ -1,18 +1,26 @@
-using System;
+﻿using System;
+using System.Buffers;
 using System.IO.Pipelines;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 
-namespace SuperSocket.Server
+namespace SuperSocket.Channel
 {
-    public class AppSession<TPackageInfo> : AppSession
+    public class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IPipeChannel<TPackageInfo>, IChannel<TPackageInfo>, IPipeChannel, IChannel
         where TPackageInfo : class
     {
-        IPipelineFilter<TPackageInfo> _pipelineFilter;
-        public AppSession(IPipelineFilter<TPackageInfo> pipelineFilter)
+        protected IDuplexPipe Pipe { get; private set; }
+
+        private IPipelineFilter<TPackageInfo> _pipelineFilter;
+        
+        public PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter)
         {
             _pipelineFilter = pipelineFilter;
+        }
+
+        public void Initialize(IDuplexPipe pipe)
+        {
+            Pipe = pipe;
         }
 
         public override async Task ProcessRequest()
@@ -60,18 +68,17 @@ namespace SuperSocket.Server
 
             await Task.CompletedTask;
         }
-        
-        private Action<IAppSession, TPackageInfo> _packageReceived;
 
-        public event Action<IAppSession, TPackageInfo> PackageReceived
+        public override Task SendAsync(ReadOnlySpan<byte> buffer)
         {
-            add { _packageReceived += value; }
-            remove { _packageReceived -= value; }
+            var pipe = Pipe;
+            pipe.Output.Write(buffer);
+            return FlushAsync(pipe.Output);
         }
 
-        protected void OnPackageReceived(TPackageInfo package)
+        async Task FlushAsync(PipeWriter buffer)
         {
-            _packageReceived?.Invoke(this, package);
+            await buffer.FlushAsync();
         }
     }
 }

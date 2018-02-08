@@ -1,13 +1,27 @@
 ﻿using System;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
 
 namespace SuperSocket.Channel
 {
-    public abstract class ChannelBase : IChannel
+    public abstract class ChannelBase<TPackageInfo> : IChannel<TPackageInfo>, IChannel
+        where TPackageInfo : class
     {
-        public abstract Task<ArraySegment<byte>> ReceiveAsync();
-        public abstract Task SendAsync(ArraySegment<byte> data);
-        public abstract void Close();
+        public abstract Task ProcessRequest();
+        public abstract Task SendAsync(ReadOnlySpan<byte> data);
+
+        private Action<IChannel, TPackageInfo> _packageReceived;
+
+        public event Action<IChannel, TPackageInfo> PackageReceived
+        {
+            add { _packageReceived += value; }
+            remove { _packageReceived -= value; }
+        }
+
+        protected void OnPackageReceived(TPackageInfo package)
+        {
+            _packageReceived?.Invoke(this, package);
+        }
 
         private EventHandler _closed;
 

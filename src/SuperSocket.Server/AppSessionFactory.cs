@@ -2,6 +2,7 @@ using System;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Threading.Tasks;
+using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
@@ -23,9 +24,14 @@ namespace SuperSocket.Server
             session.Initialize(pipe);
 
             if (_packageHandler != null)
-                session.PackageReceived += _packageHandler;
+                session.PackageReceived += OnPackageReceived;
                 
             return session;
+        }
+
+        private void OnPackageReceived(IChannel channel, TPackageInfo packageInfo)
+        {
+            _packageHandler((IAppSession)channel, packageInfo);
         }
     }
 }

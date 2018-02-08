@@ -5,5 +5,10 @@
   </PropertyGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
     <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxStableVersion)" />
+    <PackageReference Include="System.IO.Pipelines" Version="$(CoreFxLabVersion)" />
+    <PackageReference Include="System.Buffers.Primitives" Version="$(CoreFxLabVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
 </Project>

@@ -15,7 +15,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class SocketServer
+    public class AppServer
     {
         private IServiceCollection _serviceCollection;
 
