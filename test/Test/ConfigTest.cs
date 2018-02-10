@@ -19,7 +19,7 @@ namespace Tests
         [Fact]
         public void TestConfigureArgumentExceptions() 
         {
-            var server = new SocketServer();
+            var server = new AppServer();
 
             Assert.Throws<ArgumentNullException>("config",
                 () => server.Configure<LinePackageInfo, LinePipelineFilter>(default(ConfigurationRoot)));
@@ -28,7 +28,7 @@ namespace Tests
         [Fact]
         public void TestConfigure() 
         {
-            var server = new SocketServer();
+            var server = new AppServer();
 
             var dic = new Dictionary<string, string>
             {

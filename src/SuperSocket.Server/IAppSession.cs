@@ -7,7 +7,7 @@ using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
-    public interface IAppSession
+    public interface IAppSession : IChannel
     {
         AppServer AppServer { get; }
     }

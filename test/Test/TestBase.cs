@@ -20,7 +20,7 @@ namespace Tests
     {
         protected abstract void RegisterServices(IServiceCollection services);
 
-        protected SocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        protected AppServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
@@ -34,7 +34,7 @@ namespace Tests
                 };
             }
 
-            var server = new SocketServer();
+            var server = new AppServer();
 
             var services = new ServiceCollection();
 
