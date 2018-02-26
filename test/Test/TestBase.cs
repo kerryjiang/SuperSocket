@@ -53,7 +53,7 @@ namespace Tests
             return server;
         }
 
-        [Fact]
+        //[Fact]
         public async Task TestSessionCount() 
         {
             var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
@@ -76,7 +76,7 @@ namespace Tests
             server.Stop();
         }
 
-        [Fact]
+        //[Fact]
         public async Task TestConsoleProtocol() 
         {
             var server = CreateSocketServer<LinePackageInfo, NewLinePipelineFilter>();

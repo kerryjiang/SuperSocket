@@ -8,6 +8,7 @@
     <PackageReference Include="System.IO.Pipelines" Version="$(CoreFxLabVersion)" />
     <PackageReference Include="System.IO.Pipelines.Extensions" Version="$(CoreFxLabVersion)" />
     <PackageReference Include="System.Buffers.Primitives" Version="$(CoreFxLabVersion)" />
+    <PackageReference Include="System.IO.Pipelines.Text.Primitives" Version="$(CoreFxLabVersion)" />
   </ItemGroup>
 
 </Project>
