@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
@@ -12,9 +13,12 @@ namespace SuperSocket.Channel
         protected IDuplexPipe Pipe { get; private set; }
 
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
+
+        private TransportConnection _transportConnection;
         
-        public PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter)
+        public PipeChannel(TransportConnection transportConnection, IPipelineFilter<TPackageInfo> pipelineFilter)
         {
+            _transportConnection = transportConnection;
             _pipelineFilter = pipelineFilter;
         }
 
@@ -25,7 +29,7 @@ namespace SuperSocket.Channel
 
         public override async Task ProcessRequest()
         {
-            var input = Pipe.Input;
+            var input = _transportConnection.Application.Input;
 
             var currentPipelineFilter = _pipelineFilter;
 
