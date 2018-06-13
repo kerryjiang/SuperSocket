@@ -1,9 +1,10 @@
 <Project>
   <PropertyGroup>
-    <RuntimeFrameworkVersion>2.1.0-preview2-25711-01</RuntimeFrameworkVersion>
-    <CoreFxStableVersion>4.3.0</CoreFxStableVersion>
-    <CoreFxLabVersion>0.1.0-preview2-180206-1</CoreFxLabVersion>
-    <MSExtensionsVersion>1.1.1</MSExtensionsVersion>
-    <LibuvVersion>1.9.1</LibuvVersion>
+    <RuntimeFrameworkVersion>2.1.0</RuntimeFrameworkVersion>
+    <CoreFxVersion>4.3.0</CoreFxVersion>
+    <PipelinesVersion>4.5.0</PipelinesVersion>
+    <MSExtensionsVersion>2.1.0</MSExtensionsVersion>
+    <SystemBuffersVersion>4.5.0</SystemBuffersVersion>
+    <KestrelVersion>2.1.0-*</KestrelVersion>
   </PropertyGroup>
 </Project>
