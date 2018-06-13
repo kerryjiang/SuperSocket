@@ -1,17 +1,16 @@
 ﻿using System;
 using System.Buffers;
-using System.IO.Pipelines;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
+using System.IO.Pipelines;
 using SuperSocket.ProtoBase;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
+
 
 namespace SuperSocket.Channel
 {
-    public class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IPipeChannel<TPackageInfo>, IChannel<TPackageInfo>, IPipeChannel, IChannel
+    public class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel
         where TPackageInfo : class
     {
-        protected IDuplexPipe Pipe { get; private set; }
-
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
         private TransportConnection _transportConnection;
@@ -20,11 +19,6 @@ namespace SuperSocket.Channel
         {
             _transportConnection = transportConnection;
             _pipelineFilter = pipelineFilter;
-        }
-
-        public void Initialize(IDuplexPipe pipe)
-        {
-            Pipe = pipe;
         }
 
         public override async Task ProcessRequest()
@@ -75,7 +69,7 @@ namespace SuperSocket.Channel
 
         public override Task SendAsync(ReadOnlySpan<byte> buffer)
         {
-            var pipe = Pipe;
+            var pipe = _transportConnection.Application;
             pipe.Output.Write(buffer);
             return FlushAsync(pipe.Output);
         }

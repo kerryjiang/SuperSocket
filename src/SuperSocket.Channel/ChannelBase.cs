@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO.Pipelines;
 using System.Threading.Tasks;
 
 namespace SuperSocket.Channel
