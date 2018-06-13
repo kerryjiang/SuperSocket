@@ -1,6 +1,6 @@
 using System;
 using System.Buffers;
-using System.IO.Pipelines.Text.Primitives;
+using System.Text;
 
 namespace SuperSocket.ProtoBase
 {
@@ -13,9 +13,9 @@ namespace SuperSocket.ProtoBase
 
         }
 
-        public override LinePackageInfo ResolvePackage(ReadOnlyBuffer<byte> buffer)
+        public override LinePackageInfo ResolvePackage(ReadOnlySequence<byte> buffer)
         {
-            return new LinePackageInfo { Line = buffer.GetUtf8Span() };
+            return new LinePackageInfo { Line = buffer.GetUtf8String() };
         }
     }
 }

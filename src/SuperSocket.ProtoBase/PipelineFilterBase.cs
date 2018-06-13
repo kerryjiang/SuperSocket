@@ -1,8 +1,5 @@
 using System;
 using System.Buffers;
-using System.IO.Pipelines;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 
 namespace SuperSocket.ProtoBase
 {
@@ -11,6 +8,6 @@ namespace SuperSocket.ProtoBase
     {
         public IPipelineFilter<TPackageInfo> NextFilter { get; protected set; }
 
-        public abstract TPackageInfo Filter(ref ReadOnlyBuffer<byte> buffer);
+        public abstract TPackageInfo Filter(ref ReadOnlySequence<byte> buffer);
     }
 }
