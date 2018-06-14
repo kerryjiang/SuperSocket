@@ -1,14 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\tools\Common.props" />
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>SuperSocket.Primitives</AssemblyName>
     <PackageId>SuperSocket.Primitives</PackageId>
   </PropertyGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.3' ">
-    <PackageReference Include="System.Runtime" Version="$(CoreFxStableVersion)" />
-    <PackageReference Include="System.Net.Primitives" Version="$(CoreFxStableVersion)" />
-    <PackageReference Include="System.IO.Pipelines" Version="$(CoreFxLabVersion)" />
+  <ItemGroup>
+    <PackageReference Include="System.Runtime" Version="$(CoreFxVersion)" />
+    <PackageReference Include="System.Net.Primitives" Version="$(CoreFxVersion)" />
+    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
   </ItemGroup>
 </Project>
