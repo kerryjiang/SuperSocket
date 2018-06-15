@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <Import Project="..\..\tools\Common.props" />
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>SuperSocket.Server</AssemblyName>
     <PackageId>SuperSocket.Server</PackageId>
@@ -12,7 +12,7 @@
     <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />
     <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MSExtensionsVersion)" />
@@ -21,10 +21,10 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxStableVersion)" />
-    <PackageReference Include="System.IO.Pipelines" Version="$(CoreFxLabVersion)" />
-    <PackageReference Include="System.Buffers.Primitives" Version="$(CoreFxLabVersion)" />
-    <PackageReference Include="System.Net.Sockets" Version="$(CoreFxStableVersion)" />
+    <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxVersion)" />
+    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
+    <PackageReference Include="System.Net.Sockets" Version="$(CoreFxVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions" Version="$(KestrelVersion)" />
   </ItemGroup>
 
 </Project>

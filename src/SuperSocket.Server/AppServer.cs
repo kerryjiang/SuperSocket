@@ -12,6 +12,7 @@ using SuperSocket.Config;
 using SuperSocket.Channel;
 using System.IO.Pipelines;
 using SuperSocket.ProtoBase;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 
 namespace SuperSocket.Server
 {
@@ -48,9 +49,7 @@ namespace SuperSocket.Server
             get { return Config.Name; }
         }
 
-        public Listener[] Listeners { get; private set; }
-
-        private IList<IDuplexPipeListener> _socketListeners;
+        private IList<ITransport> _transports;
 
         protected internal ILoggerFactory LoggerFactory { get; private set; }
 
@@ -58,7 +57,7 @@ namespace SuperSocket.Server
 
         private bool _initialized = false;
 
-        private IAppSessionFactory _appSessionFactory;
+        private ITransportFactory _transportFactory;
         
         public bool Configure<TPackageInfo, TPipelineFilter>(IConfiguration config, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
@@ -97,87 +96,21 @@ namespace SuperSocket.Server
 
             _logger = LoggerFactory.CreateLogger("SocketServer");
 
-            ConfigureListeners(Config);
-
-            _appSessionFactory = new AppSessionFactory<TPackageInfo, TPipelineFilter>(packageHandler);
-
             return _initialized = true;
         }
 
-        private void ConfigureListeners(ServerConfig serverConfig)
-        {
-            Listeners = serverConfig
-                .Listeners
-                .Select(l => new Listener(l)).ToArray();
-        }
 
-        public bool Start()
+
+        public Task<bool> StartAsync()
         {
             if (!_initialized)
                 throw new Exception("The server has not been initialized successfully!");
-
-            var listenSockets = _socketListeners = new List<IDuplexPipeListener>(Listeners.Length);
             
-            foreach (var listener in Listeners)
-            {
-                var listenSocket = _serviceProvider.GetService<IDuplexPipeListener>();
-
-                try
-                {
-                    listenSocket.Start(listener.EndPoint, HandleNewClient);
-                    _logger.LogDebug($"Listen the endpoint {listener.EndPoint} suceeded.");
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError($"Listen the endpoint {listener.EndPoint} failed. {e.Message}", e);
-                    continue;
-                }
-                
-                listenSockets.Add(listenSocket);
-            }
-
-            if (!listenSockets.Any())
-            {
-                _logger.LogError($"No listener was started!");
-                return false;
-            }
-
-            return true;
+            throw new NotImplementedException();
         }
-
-        private Task HandleNewClient(IDuplexPipe pipe)
+        public Task StopAsync()
         {
-            Interlocked.Increment(ref _sessionCount);
-            var session = _appSessionFactory.Create(pipe);
-            session.Closed += OnSessionClosed;
-            Task.Run(async () =>  await ProcessRequest(session));
-            return Task.CompletedTask;
-        }
-
-        private async Task ProcessRequest(IAppSession session)
-        {
-            await session.ProcessRequest();
-        }
-
-        private void OnSessionClosed(object sender, EventArgs e)
-        {
-            Interlocked.Decrement(ref _sessionCount);
-        }
-
-        public void Stop()
-        {
-            _logger.LogDebug("The server is stopping...");
-            _cancellationTokenSource.Cancel();
-
-            _logger.LogDebug("Waiting for all listeners to stop...");
-
-            foreach (var l in _socketListeners)
-            {
-                l.Stop();
-            }
-
-            _logger.LogDebug("All listeners have stoppped.");
-            _logger.LogDebug("The server stopped.");
+            throw new NotImplementedException();
         }
     }
 }
