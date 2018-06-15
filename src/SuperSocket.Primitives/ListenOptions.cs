@@ -1,6 +1,6 @@
 namespace SuperSocket.Config
 {
-    public class ListenerConfig
+    public class ListenOptions
     {
         public string Ip { get; set; }
 

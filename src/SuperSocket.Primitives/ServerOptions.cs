@@ -1,9 +1,9 @@
 namespace SuperSocket.Config
 {
-    public class ServerConfig
+    public class ServerOptions
     {
         public string Name { get; set; }
 
-        public ListenerConfig[] Listeners { get; set; }
+        public ListenOptions[] Listeners { get; set; }
     }
 }
