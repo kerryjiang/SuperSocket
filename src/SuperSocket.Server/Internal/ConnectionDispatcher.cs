@@ -4,11 +4,13 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Buffers;
 using SuperSocket.Channel;
+using SuperSocket.ProtoBase;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 
 namespace SuperSocket.Server
 {
-    public interface IAppSession : IChannel
+    internal class ConnectionDispatcher : IConnectionDispatcher
     {
-        IServer Server { get; }
+        
     }
 }

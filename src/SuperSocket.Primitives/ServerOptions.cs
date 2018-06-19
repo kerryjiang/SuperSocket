@@ -1,4 +1,4 @@
-namespace SuperSocket.Config
+namespace SuperSocket
 {
     public class ServerOptions
     {

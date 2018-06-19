@@ -18,6 +18,6 @@ namespace SuperSocket.Server
 
         }
 
-        public AppServer AppServer { get; internal set; }
+        public IServer Server { get; internal set; }
     }
 }

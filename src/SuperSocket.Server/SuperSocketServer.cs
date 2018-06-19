@@ -16,27 +16,13 @@ using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 
 namespace SuperSocket.Server
 {
-    public class AppServer
+    public class SuperSocketServer : IServer
     {
         private IServiceCollection _serviceCollection;
 
         private IServiceProvider _serviceProvider;
 
-        public ServerConfig Config { get; private set; }
-
-        private long _sessionCount;
-
-        /// <summary>
-        /// Total session count
-        /// </summary>
-        /// <returns>total session count</returns>
-        public long SessionCount
-        {
-            get
-            {
-                return _sessionCount;
-            }
-        }
+        public ServerOptions Options { get; private set; }
 
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -46,7 +32,7 @@ namespace SuperSocket.Server
         /// <returns>the name of the server instance</returns>
         public string Name 
         {
-            get { return Config.Name; }
+            get { return Options.Name; }
         }
 
         private IList<ITransport> _transports;
@@ -55,62 +41,68 @@ namespace SuperSocket.Server
 
         private ILogger _logger;
 
-        private bool _initialized = false;
+        private bool _configured = false;
 
         private ITransportFactory _transportFactory;
         
-        public bool Configure<TPackageInfo, TPipelineFilter>(IConfiguration config, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, ITransportFactory transportFactory, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
-            if (services == null)
-            {
-                services = new ServiceCollection();
-            }
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
 
-            if (config == null)
-                throw new ArgumentNullException(nameof(config));            
+            Options = options;
+
+            if (transportFactory == null)
+                throw new ArgumentNullException(nameof(transportFactory));
+
+            _transportFactory = transportFactory;
+                
+            if (services == null)
+                services = new ServiceCollection();
             
             // prepare service collections
             _serviceCollection = services.AddOptions() // activate options
-                .AddLogging() // add logging
-                .Configure<ServerConfig>(config);
+                .AddLogging();// add logging
 
             // build service provider
             _serviceProvider = services.BuildServiceProvider();
-
-            // get server config
-            var serverConfigOption = _serviceProvider.GetService<IOptions<ServerConfig>>();
-
-            if (serverConfigOption == null || serverConfigOption.Value == null)
-            {
-                throw new ArgumentException("Invalid configuration", nameof(config));
-            }
-
-            Config = serverConfigOption.Value;
 
             // initialize logger factory
             LoggerFactory = _serviceProvider
                     .GetService<ILoggerFactory>()
                     .AddConsole(LogLevel.Debug);
 
-            _logger = LoggerFactory.CreateLogger("SocketServer");
+            _logger = LoggerFactory.CreateLogger("SuperSocket");
 
-            return _initialized = true;
+            _transports = new List<ITransport>();
+
+            foreach (var l in options.Listeners)
+            {
+                _transports.Add(_transportFactory.Create(new EndPointInformation(l), new ConnectionDispatcher()));
+            }
+
+            return _configured = true;
         }
 
-
-
-        public Task<bool> StartAsync()
+        public async Task<bool> StartAsync()
         {
-            if (!_initialized)
+            if (!_configured)
                 throw new Exception("The server has not been initialized successfully!");
-            
-            throw new NotImplementedException();
+
+            foreach (var transport in _transports)
+            {
+                await transport.BindAsync();
+            }
         }
-        public Task StopAsync()
+
+        public async Task StopAsync()
         {
-            throw new NotImplementedException();
+            foreach (var transport in _transports)
+            {
+                await transport.UnbindAsync();
+            }
         }
     }
 }
