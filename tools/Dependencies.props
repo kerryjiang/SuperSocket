@@ -1,10 +1,10 @@
 <Project>
   <PropertyGroup>
-    <RuntimeFrameworkVersion>2.1.0</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>2.2.0</RuntimeFrameworkVersion>
     <CoreFxVersion>4.3.0</CoreFxVersion>
-    <PipelinesVersion>4.5.0</PipelinesVersion>
-    <MSExtensionsVersion>2.1.0</MSExtensionsVersion>
-    <SystemBuffersVersion>4.5.0</SystemBuffersVersion>
-    <KestrelVersion>2.1.0-*</KestrelVersion>
+    <PipelinesVersion>4.5.2</PipelinesVersion>
+    <MSExtensionsVersion>2.2.0</MSExtensionsVersion>
+    <SystemBuffersVersion>4.5.1</SystemBuffersVersion>
+    <KestrelVersion>2.2.0-*</KestrelVersion>
   </PropertyGroup>
 </Project>
