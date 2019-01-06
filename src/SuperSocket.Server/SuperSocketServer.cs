@@ -3,14 +3,13 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
+using System.IO.Pipelines;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SuperSocket.Config;
 using SuperSocket.Channel;
-using System.IO.Pipelines;
 using SuperSocket.ProtoBase;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 
@@ -64,15 +63,16 @@ namespace SuperSocket.Server
             
             // prepare service collections
             _serviceCollection = services.AddOptions() // activate options
-                .AddLogging();// add logging
+                .AddLogging((loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                });// add logging
 
             // build service provider
             _serviceProvider = services.BuildServiceProvider();
 
             // initialize logger factory
-            LoggerFactory = _serviceProvider
-                    .GetService<ILoggerFactory>()
-                    .AddConsole(LogLevel.Debug);
+            LoggerFactory = _serviceProvider.GetService<ILoggerFactory>();
 
             _logger = LoggerFactory.CreateLogger("SuperSocket");
 
@@ -80,7 +80,7 @@ namespace SuperSocket.Server
 
             foreach (var l in options.Listeners)
             {
-                _transports.Add(_transportFactory.Create(new EndPointInformation(l), new ConnectionDispatcher()));
+                _transports.Add(_transportFactory.Create(new SuperSocketEndPointInformation(l), new ConnectionDispatcher()));
             }
 
             return _configured = true;
@@ -89,12 +89,30 @@ namespace SuperSocket.Server
         public async Task<bool> StartAsync()
         {
             if (!_configured)
-                throw new Exception("The server has not been initialized successfully!");
+                _logger.LogError("The server has not been initialized successfully!");
+
+            var binded = 0;
 
             foreach (var transport in _transports)
             {
-                await transport.BindAsync();
+                try
+                {
+                    await transport.BindAsync();
+                    binded++;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Failed to bind the transport {transport.ToString()}.");
+                }
             }
+
+            if (binded == 0)
+            {
+                _logger.LogCritical("No transport binded successfully.");
+                return false;
+            }
+
+            return true;
         }
 
         public async Task StopAsync()
