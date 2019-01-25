@@ -76,11 +76,13 @@ namespace SuperSocket.Server
 
             _logger = LoggerFactory.CreateLogger("SuperSocket");
 
+            var connectionDispatcher = new ConnectionDispatcher<TPackageInfo, TPipelineFilter>();
+
             _transports = new List<ITransport>();
 
             foreach (var l in options.Listeners)
             {
-                _transports.Add(_transportFactory.Create(new SuperSocketEndPointInformation(l), new ConnectionDispatcher()));
+                _transports.Add(_transportFactory.Create(new SuperSocketEndPointInformation(l), connectionDispatcher));
             }
 
             return _configured = true;

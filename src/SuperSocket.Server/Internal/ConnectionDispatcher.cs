@@ -8,11 +8,14 @@ using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 
 namespace SuperSocket.Server
 {
-    internal class ConnectionDispatcher : IConnectionDispatcher
+    internal class ConnectionDispatcher<TPackageInfo, TPipelineFilter> : IConnectionDispatcher
+        where TPackageInfo : class
+        where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
     {
         public Task OnConnection(TransportConnection connection)
         {
-            throw new NotImplementedException();
+            var session = new AppSession<TPackageInfo>(connection, new TPipelineFilter());
+            return session.ProcessRequest();
         }
     }
 }
