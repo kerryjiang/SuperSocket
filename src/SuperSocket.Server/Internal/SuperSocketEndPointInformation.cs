@@ -15,7 +15,23 @@ namespace SuperSocket.Server
         public SuperSocketEndPointInformation(ListenOptions listenOptions)
         {
             Type = ListenType.IPEndPoint;
-            IPEndPoint = new IPEndPoint(IPAddress.Parse(listenOptions.Ip), listenOptions.Port);
+
+            var ip = IPAddress.None;
+
+            if ("any".Equals(listenOptions.Ip, StringComparison.OrdinalIgnoreCase))
+            {
+                ip = IPAddress.Any;
+            }
+            else if ("ipv6any".Equals(listenOptions.Ip, StringComparison.OrdinalIgnoreCase))
+            {
+                ip = IPAddress.IPv6Any;
+            }
+            else
+            {
+                ip = IPAddress.Parse(listenOptions.Ip);
+            }
+
+            IPEndPoint = new IPEndPoint(ip, listenOptions.Port);
         }
 
         public ListenType Type { get; set; }
