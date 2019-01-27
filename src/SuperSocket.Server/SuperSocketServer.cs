@@ -42,9 +42,11 @@ namespace SuperSocket.Server
 
         private bool _configured = false;
 
+        private ISuperSocketConnectionDispatcher _connectionDispatcher;
+
         private ITransportFactory _transportFactory;
         
-        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, ITransportFactory transportFactory, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, IServiceCollection services = null, ITransportFactory transportFactory = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
@@ -62,11 +64,7 @@ namespace SuperSocket.Server
                 services = new ServiceCollection();
             
             // prepare service collections
-            _serviceCollection = services.AddOptions() // activate options
-                .AddLogging((loggingBuilder) =>
-                {
-                    loggingBuilder.AddConsole();
-                });// add logging
+            _serviceCollection = services.AddOptions(); // activate options                
 
             // build service provider
             _serviceProvider = services.BuildServiceProvider();
@@ -76,16 +74,26 @@ namespace SuperSocket.Server
 
             _logger = LoggerFactory.CreateLogger("SuperSocket");
 
-            var connectionDispatcher = new ConnectionDispatcher<TPackageInfo, TPipelineFilter>();
+            if (_transportFactory == null)
+            {
+                _transportFactory = _serviceProvider.GetRequiredService<ITransportFactory>();
+            }
+
+            _connectionDispatcher = new ConnectionDispatcher<TPackageInfo, TPipelineFilter>();
 
             _transports = new List<ITransport>();
 
             foreach (var l in options.Listeners)
             {
-                _transports.Add(_transportFactory.Create(new SuperSocketEndPointInformation(l), connectionDispatcher));
+                _transports.Add(_transportFactory.Create(new SuperSocketEndPointInformation(l), _connectionDispatcher));
             }
 
             return _configured = true;
+        }
+
+        public int SessionCount
+        {
+            get { return _connectionDispatcher.SessionCount; }
         }
 
         public async Task<bool> StartAsync()
