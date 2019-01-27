@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 
 namespace SuperSocket.Server
@@ -55,16 +56,16 @@ namespace SuperSocket.Server
 
             Options = options;
 
-            if (transportFactory == null)
-                throw new ArgumentNullException(nameof(transportFactory));
 
             _transportFactory = transportFactory;
                 
             if (services == null)
                 services = new ServiceCollection();
-            
+
             // prepare service collections
-            _serviceCollection = services.AddOptions(); // activate options                
+            _serviceCollection = services.AddOptions(); // activate options     
+
+            _serviceCollection.AddSingleton<IApplicationLifetime, SuperSocketApplicationLifetime>();
 
             // build service provider
             _serviceProvider = services.BuildServiceProvider();
@@ -77,6 +78,11 @@ namespace SuperSocket.Server
             if (_transportFactory == null)
             {
                 _transportFactory = _serviceProvider.GetRequiredService<ITransportFactory>();
+                
+                if (_transportFactory == null)
+                {
+                    throw new ArgumentNullException(nameof(transportFactory));
+                }
             }
 
             _connectionDispatcher = new ConnectionDispatcher<TPackageInfo, TPipelineFilter>();

@@ -24,6 +24,7 @@
     <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
     <PackageReference Include="System.Net.Sockets" Version="$(CoreFxVersion)" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting.Abstractions" Version="$(KestrelVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions" Version="$(KestrelVersion)" />
   </ItemGroup>
 
