@@ -20,7 +20,7 @@ namespace Tests
     {
         protected abstract void RegisterServices(IServiceCollection services);
 
-        protected AppServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        protected SuperSocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
@@ -28,27 +28,27 @@ namespace Tests
             {
                 configDict = new Dictionary<string, string>
                 {
-                    { "name", "TestServer" },
-                    { "listeners:0:ip", "Any" },
-                    { "listeners:0:port", "4040" }
+                    { "serverOptions:name", "TestServer" },
+                    { "serverOptions:listeners:0:ip", "Any" },
+                    { "serverOptions:listeners:0:port", "4040" }
                 };
             }
 
-            var server = new AppServer();
+            var server = new SuperSocketServer();
 
             var services = new ServiceCollection();
 
             var builder = new ConfigurationBuilder().AddInMemoryCollection(configDict);
             var config = builder.Build();
             
-            services.AddSingleton(new LoggerFactory()
-                .AddConsole()
-                .AddDebug());
-            services.AddLogging();
+            services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
             RegisterServices(services);
 
-            Assert.True(server.Configure<TPackageInfo, TPipelineFilter>(config, services, packageHandler));
+            var serverOptions = new ServerOptions();
+            config.GetSection("serverOptions").Bind(serverOptions);
+
+            Assert.True(server.Configure<TPackageInfo, TPipelineFilter>(serverOptions, services, packageHandler: packageHandler));
 
             return server;
         }
@@ -58,12 +58,12 @@ namespace Tests
         {
             var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
             {
-                await s.SendAsync(Encoding.UTF8.GetBytes(p.Line + "\r\n").AsReadOnlySpan());
+                await s.SendAsync(Encoding.UTF8.GetBytes(p.Line + "\r\n"));
             });
 
             Assert.Equal("TestServer", server.Name);
 
-            Assert.True(server.Start());
+            Assert.True(await server.StartAsync());
             Assert.Equal(0, server.SessionCount);
 
             var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -73,16 +73,16 @@ namespace Tests
 
             Assert.Equal(1, server.SessionCount);
 
-            server.Stop();
+            await server.StopAsync();
         }
 
         //[Fact]
         public async Task TestConsoleProtocol() 
         {
-            var server = CreateSocketServer<LinePackageInfo, NewLinePipelineFilter>();
+            var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>();
 
             
-            Assert.True(server.Start());
+            Assert.True(await server.StartAsync());
             Assert.Equal(0, server.SessionCount);
 
             var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -98,7 +98,7 @@ namespace Tests
                 Assert.Equal("Hello World", line);
             }
 
-            server.Stop();
+            await server.StopAsync();
         }
     }
 }
