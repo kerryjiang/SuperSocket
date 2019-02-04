@@ -11,8 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
 
 namespace SuperSocket.Server
 {
@@ -35,19 +33,15 @@ namespace SuperSocket.Server
             get { return Options.Name; }
         }
 
-        private IList<ITransport> _transports;
-
         protected internal ILoggerFactory LoggerFactory { get; private set; }
 
         private ILogger _logger;
 
         private bool _configured = false;
 
-        private ISuperSocketConnectionDispatcher _connectionDispatcher;
-
-        private ITransportFactory _transportFactory;
+        private IList<IListener> _listeners;
         
-        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, IServiceCollection services = null, ITransportFactory transportFactory = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
@@ -55,17 +49,12 @@ namespace SuperSocket.Server
                 throw new ArgumentNullException(nameof(options));
 
             Options = options;
-
-
-            _transportFactory = transportFactory;
                 
             if (services == null)
                 services = new ServiceCollection();
 
             // prepare service collections
             _serviceCollection = services.AddOptions(); // activate options     
-
-            _serviceCollection.AddSingleton<IApplicationLifetime, SuperSocketApplicationLifetime>();
 
             // build service provider
             _serviceProvider = services.BuildServiceProvider();
@@ -75,50 +64,42 @@ namespace SuperSocket.Server
 
             _logger = LoggerFactory.CreateLogger("SuperSocket");
 
-            if (_transportFactory == null)
-            {
-                _transportFactory = _serviceProvider.GetRequiredService<ITransportFactory>();
-                
-                if (_transportFactory == null)
-                {
-                    throw new ArgumentNullException(nameof(transportFactory));
-                }
-            }
+            var listenerFactory = _serviceProvider.GetService<IListenerFactory>();
 
-            _connectionDispatcher = new ConnectionDispatcher<TPackageInfo, TPipelineFilter>();
+            if (listenerFactory == null)
+                listenerFactory = new TcpSocketListenerFactory();
 
-            _transports = new List<ITransport>();
+            _listeners = new List<IListener>();
 
             foreach (var l in options.Listeners)
             {
-                _transports.Add(_transportFactory.Create(new SuperSocketEndPointInformation(l), _connectionDispatcher));
+                _listeners.Add(listenerFactory.CreateListener(l));
             }
 
             return _configured = true;
         }
 
-        public int SessionCount
-        {
-            get { return _connectionDispatcher.SessionCount; }
-        }
+        public int SessionCount { get; private set; }
 
         public async Task<bool> StartAsync()
         {
+            await Task.Delay(0);
+
             if (!_configured)
                 _logger.LogError("The server has not been initialized successfully!");
 
             var binded = 0;
 
-            foreach (var transport in _transports)
+            foreach (var listener in _listeners)
             {
                 try
                 {
-                    await transport.BindAsync();
+                    listener.Start();
                     binded++;
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"Failed to bind the transport {transport.ToString()}.");
+                    _logger.LogError(e, $"Failed to bind the transport {listener.ToString()}.");
                 }
             }
 
@@ -133,10 +114,8 @@ namespace SuperSocket.Server
 
         public async Task StopAsync()
         {
-            foreach (var transport in _transports)
-            {
-                await transport.UnbindAsync();
-            }
+            var tasks = _listeners.Select(l => l.StopAsync()).ToArray();
+            await Task.WhenAll(tasks);
         }
     }
 }

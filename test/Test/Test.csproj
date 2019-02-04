@@ -15,9 +15,6 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.1" />
     <PackageReference Include="System.Runtime.Serialization.Primitives" Version="$(CoreFxVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions" Version="$(KestrelVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Libuv" Version="$(KestrelVersion)" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets" Version="$(KestrelVersion)" />
   </ItemGroup>
   <ItemGroup>
       <Compile Remove="LibuvTest.cs" />

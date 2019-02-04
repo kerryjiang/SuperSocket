@@ -2,5 +2,6 @@
   <Import Project="Dependencies.props" />
   <PropertyGroup>
     <LangVersion>7.2</LangVersion>
+    <LibTargetFramework>netstandard2.0</LibTargetFramework>
   </PropertyGroup>
 </Project>

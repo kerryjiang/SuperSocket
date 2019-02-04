@@ -2,34 +2,39 @@
 using System.Buffers;
 using System.Threading.Tasks;
 using System.IO.Pipelines;
+using System.Net.Sockets;
 using SuperSocket.ProtoBase;
-using Microsoft.AspNetCore.Server.Kestrel.Transport.Abstractions.Internal;
-
+using System.Runtime.InteropServices;
 
 namespace SuperSocket.Channel
 {
-    public class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel
+    public abstract class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel
         where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
-
-        private TransportConnection _transportConnection;
         
-        public PipeChannel(TransportConnection transportConnection, IPipelineFilter<TPackageInfo> pipelineFilter)
+        public PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter)
         {
-            _transportConnection = transportConnection;
             _pipelineFilter = pipelineFilter;
         }
 
-        public override async Task ProcessRequest()
+        protected internal ArraySegment<T> GetArrayByMemory<T>(ReadOnlyMemory<T> memory)
         {
-            var input = _transportConnection.Application.Input;
+            if (!MemoryMarshal.TryGetArray(memory, out var result))
+            {
+                throw new InvalidOperationException("Buffer backed by array was expected");
+            }
 
+            return result;
+        }
+
+        protected async Task ReadPipeAsync(PipeReader reader)
+        {
             var currentPipelineFilter = _pipelineFilter;
 
             while (true)
             {
-                var result = await input.ReadAsync();
+                var result = await reader.ReadAsync();
                 var buffer = result.Buffer;
 
                 try
@@ -60,23 +65,11 @@ namespace SuperSocket.Channel
                 }
                 finally
                 {
-                    input.AdvanceTo(buffer.Start, buffer.End);
+                    reader.AdvanceTo(buffer.Start, buffer.End);
                 }
             }
 
-            await Task.CompletedTask;
-        }
-
-        public override Task SendAsync(ReadOnlySpan<byte> buffer)
-        {
-            var pipe = _transportConnection.Application;
-            pipe.Output.Write(buffer);
-            return FlushAsync(pipe.Output);
-        }
-
-        async Task FlushAsync(PipeWriter buffer)
-        {
-            await buffer.FlushAsync();
+            reader.Complete();
         }
     }
 }

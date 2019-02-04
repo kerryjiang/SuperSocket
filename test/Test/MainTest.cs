@@ -16,9 +16,12 @@ using Xunit;
 
 namespace Tests
 {
-    public abstract class TestBase
+    public class MainTest
     {
-        protected abstract void RegisterServices(IServiceCollection services);
+        protected virtual void RegisterServices(IServiceCollection services)
+        {
+
+        }
 
         protected SuperSocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
@@ -53,12 +56,12 @@ namespace Tests
             return server;
         }
 
-        //[Fact]
+        [Fact]
         public async Task TestSessionCount() 
         {
             var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
             {
-                await s.SendAsync(Encoding.UTF8.GetBytes(p.Line + "\r\n"));
+                await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Line + "\r\n")));
             });
 
             Assert.Equal("TestServer", server.Name);
