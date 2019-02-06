@@ -2,16 +2,9 @@
   <Import Project="..\..\tools\Common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
-    <ProjectReference Include="../../src/SuperSocket.NetSocket/SuperSocket.NetSocket.csproj" />
-    <ProjectReference Include="../../src/SuperSocket.Libuv/SuperSocket.Libuv.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="System.Runtime.Serialization.Primitives" Version="$(CoreFxStableVersion)" />
-    <PackageReference Include="System.IO.Pipelines.Text.Primitives" Version="$(PipelinesVersion)" />
-    <PackageReference Include="Libuv" Version="$(LibuvVersion)" />
   </ItemGroup>
 </Project>

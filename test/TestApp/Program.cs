@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Buffers;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +17,7 @@ namespace TestApp
 {
     class Program
     {
-        static AppServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        static SuperSocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
@@ -24,49 +25,51 @@ namespace TestApp
             {
                 configDict = new Dictionary<string, string>
                 {
-                    { "name", "TestServer" },
-                    { "listeners:0:ip", "Any" },
-                    { "listeners:0:port", "4040" }
+                    { "serverOptions:name", "TestServer" },
+                    { "serverOptions:listeners:0:ip", "Any" },
+                    { "serverOptions:listeners:0:port", "4040" }
                 };
             }
 
-            var server = new AppServer();
+            var server = new SuperSocketServer();
 
             var services = new ServiceCollection();
 
             var builder = new ConfigurationBuilder().AddInMemoryCollection(configDict);
             var config = builder.Build();
             
-            services.AddSingleton(new LoggerFactory().AddConsole());
-            services.AddLogging();
+            services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
 
-            RegisterServices(services);
+            var serverOptions = new ServerOptions();
+            config.GetSection("serverOptions").Bind(serverOptions);
 
-            server.Configure<TPackageInfo, TPipelineFilter>(config, services, packageHandler);
+            server.Configure<TPackageInfo, TPipelineFilter>(serverOptions, services, packageHandler: packageHandler);
 
             return server;
         }
 
-        static void RegisterServices(IServiceCollection services)
+        static void Main(string[] args)
         {
-            services.UseNetSocketListener();
+            RunAsync().Wait();
         }
 
-        static void Main(string[] args)
+        static async Task RunAsync()
         {
             var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) => 
             {
-                await s.SendAsync(Encoding.UTF8.GetBytes(p.Line).AsReadOnlySpan());                
+                await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Line).AsMemory());                
             });
             
-            server.Start();
+            await server.StartAsync();
+
+            Console.WriteLine("The server is started.");
 
             while (Console.ReadLine().ToLower() != "c")
             {
                 continue;
             }
             
-            server.Stop();
+            await server.StopAsync();
         }
     }
 }
