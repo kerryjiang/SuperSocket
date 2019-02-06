@@ -2,11 +2,15 @@
 using System.Threading.Tasks;
 using SuperSocket;
 
-namespace SuperSocket.Channel
+namespace SuperSocket
 {
-    public interface IChannel : IChannelBase
+    public interface IChannel
     {
         Task ProcessRequest();
+
+        Task<int> SendAsync(ReadOnlyMemory<byte> data);
+
+        event EventHandler Closed;
     }
 
     public interface IChannel<TPackageInfo> : IChannel

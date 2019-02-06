@@ -4,7 +4,7 @@ namespace SuperSocket
 {
     public interface IAppSession
     {
-        IChannelBase Channel { get; }
+        IChannel Channel { get; }
 
         IServerInfo Server { get; }
     }

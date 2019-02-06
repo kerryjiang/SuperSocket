@@ -11,14 +11,17 @@ namespace SuperSocket.Server
 {
     public class AppSession : IAppSession
     {
-        internal AppSession(IServerInfo server, IChannelBase channel)
+        internal AppSession(IServerInfo server, IChannel channel)
         {
             Server = server;
             Channel = channel;
+            SessionID = Guid.NewGuid().ToString();
         }
 
-        public IServerInfo Server { get; internal set; }
+        public string SessionID { get; private set; }
 
-        public IChannelBase Channel { get; private set; }
+        public IServerInfo Server { get; private set; }
+
+        public IChannel Channel { get; private set; }
     }
 }

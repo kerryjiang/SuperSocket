@@ -39,11 +39,13 @@ namespace SuperSocket.Server
 
         private bool _configured = false;
 
+        private int _sessionCount;
+
         private IList<IListener> _listeners;
         
-        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+
+        public bool Configure<TPackageInfo>(ServerOptions options, IServiceCollection services = null, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
-            where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
@@ -64,6 +66,14 @@ namespace SuperSocket.Server
 
             _logger = LoggerFactory.CreateLogger("SuperSocket");
 
+            if (pipelineFilterFactory == null)
+            {
+                pipelineFilterFactory = _serviceProvider.GetService<IPipelineFilterFactory<TPackageInfo>>();
+            }
+
+            if (pipelineFilterFactory == null)
+                throw new ArgumentNullException("pipelineFilterFactory");
+
             var listenerFactory = _serviceProvider.GetService<IListenerFactory>();
 
             if (listenerFactory == null)
@@ -73,13 +83,49 @@ namespace SuperSocket.Server
 
             foreach (var l in options.Listeners)
             {
-                _listeners.Add(listenerFactory.CreateListener(l));
+                var listener = listenerFactory.CreateListener<TPackageInfo>(l, pipelineFilterFactory);
+                listener.NewClientAccepted += OnNewClientAccept;
+                _listeners.Add(listener);
             }
 
             return _configured = true;
         }
 
-        public int SessionCount { get; private set; }
+        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+            where TPackageInfo : class
+            where TPipelineFilter: IPipelineFilter<TPackageInfo>, new()
+        {
+            return Configure<TPackageInfo>(options, services, new DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter>(), packageHandler: packageHandler);
+        }
+
+        protected virtual void OnNewClientAccept(IListener listener, IChannel channel)
+        {
+            var session = new AppSession(this, channel);
+            HandleSession(session).Start();
+        }
+
+        private async Task HandleSession(AppSession session)
+        {
+            Interlocked.Increment(ref _sessionCount);
+
+            try
+            {
+                _logger.LogInformation($"A new session connected: {session.SessionID}");
+                await session.Channel.ProcessRequest();
+                _logger.LogInformation($"The session disconnected: {session.SessionID}");
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Failed to handle the session {session.SessionID}.", e);
+            }
+            
+            Interlocked.Decrement(ref _sessionCount);
+        }
+
+        public int SessionCount
+        {
+            get { return _sessionCount; }
+        }
 
         public async Task<bool> StartAsync()
         {

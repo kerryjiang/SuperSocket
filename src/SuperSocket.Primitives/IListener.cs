@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SuperSocket
 {
-    public delegate void NewClientAcceptHandler(IListener listener, IChannelBase channel, object state);
+    public delegate void NewClientAcceptHandler(IListener listener, IChannel channel);
 
     public interface IListener
     {
