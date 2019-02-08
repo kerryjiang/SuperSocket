@@ -41,7 +41,6 @@ namespace SuperSocket.Channel
                 {
                     if (result.IsCompleted)
                     {
-                        OnClosed();
                         break;
                     }
 
