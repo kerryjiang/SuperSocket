@@ -78,7 +78,15 @@ namespace SuperSocket.Server
         {
             while (!_cancellationTokenSource.IsCancellationRequested)
             {
-                OnNewClientAccept(await listenSocket.AcceptAsync());
+                try
+                {
+                    var client = await listenSocket.AcceptAsync();
+                    OnNewClientAccept(client);
+                }
+                catch
+                {
+                    break;
+                }
             }
 
             _stopTaskCompletionSource.TrySetResult(true);
