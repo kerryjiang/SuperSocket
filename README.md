@@ -16,4 +16,4 @@ you must be able to use SuperSocket to build your socket application as a part o
 - **License**: 				[http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0)
 
 
-*Copyright 2010-2015 Kerry Jiang (kerry-jiang@hotmail.com)*
+*Copyright 2010-2019 Kerry Jiang (kerry-jiang@hotmail.com)*
