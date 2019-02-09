@@ -101,10 +101,10 @@ namespace SuperSocket.Server
         protected virtual void OnNewClientAccept(IListener listener, IChannel channel)
         {
             var session = new AppSession(this, channel);
-            HandleSession(session).Start();
+            HandleSession(session);
         }
 
-        private async Task HandleSession(AppSession session)
+        private async void HandleSession(AppSession session)
         {
             Interlocked.Increment(ref _sessionCount);
 
