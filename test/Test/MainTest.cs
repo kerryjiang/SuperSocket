@@ -56,7 +56,7 @@ namespace Tests
             return server;
         }
 
-        [Fact]
+        [Fact] 
         public async Task TestSessionCount() 
         {
             var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
@@ -67,23 +67,38 @@ namespace Tests
             Assert.Equal("TestServer", server.Name);
 
             Assert.True(await server.StartAsync());
+            Console.WriteLine("Started.");
+
             Assert.Equal(0, server.SessionCount);
+            Console.WriteLine("SessionCount:" + server.SessionCount);
 
             var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+            Console.WriteLine("Connected.");
 
-            await Task.Delay(1);
+            await Task.Delay(1000);
 
             Assert.Equal(1, server.SessionCount);
+            Console.WriteLine("SessionCount:" + server.SessionCount);
+
+            client.Shutdown(SocketShutdown.Both);
+            client.Close();
+
+            await Task.Delay(1000);
+
+            Assert.Equal(0, server.SessionCount);
+            Console.WriteLine("SessionCount:" + server.SessionCount);
 
             await server.StopAsync();
         }
 
-        //[Fact]
+        [Fact]
         public async Task TestConsoleProtocol() 
         {
-            var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>();
-
+            var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: (s, p) =>
+            {
+                s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
+            });
             
             Assert.True(await server.StartAsync());
             Assert.Equal(0, server.SessionCount);
@@ -95,7 +110,7 @@ namespace Tests
             using (var streamReader = new StreamReader(stream, Encoding.UTF8, true))
             using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024 * 1024 * 4))
             {
-                await streamWriter.WriteLineAsync("Hello World");
+                await streamWriter.WriteAsync("Hello World\r\n");
                 await streamWriter.FlushAsync();
                 var line = await streamReader.ReadLineAsync();
                 Assert.Equal("Hello World", line);

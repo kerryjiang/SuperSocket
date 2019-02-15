@@ -42,6 +42,9 @@ namespace SuperSocket.Server
         private int _sessionCount;
 
         private IList<IListener> _listeners;
+
+
+        private Action<IAppSession> _sessionInitializer;
         
 
         public bool Configure<TPackageInfo>(ServerOptions options, IServiceCollection services = null, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory = null, Action<IAppSession, TPackageInfo> packageHandler = null)
@@ -85,6 +88,25 @@ namespace SuperSocket.Server
             {
                 var listener = listenerFactory.CreateListener<TPackageInfo>(l, pipelineFilterFactory);
                 listener.NewClientAccepted += OnNewClientAccept;
+
+                if (packageHandler != null)
+                {
+                    _sessionInitializer = (s) =>
+                    {
+                        (s.Channel as IChannel<TPackageInfo>).PackageReceived += (ch, p) =>
+                        {
+                            try
+                            {
+                                packageHandler(s, p);
+                            }
+                            catch (Exception e)
+                            {
+                                OnSessionError(s, e);
+                            }                            
+                        };
+                    };
+                }
+
                 _listeners.Add(listener);
             }
 
@@ -101,6 +123,7 @@ namespace SuperSocket.Server
         protected virtual void OnNewClientAccept(IListener listener, IChannel channel)
         {
             var session = new AppSession(this, channel);
+            _sessionInitializer.Invoke(session);
             HandleSession(session);
         }
 
@@ -120,6 +143,11 @@ namespace SuperSocket.Server
             }
             
             Interlocked.Decrement(ref _sessionCount);
+        }
+
+        protected virtual void OnSessionError(IAppSession session, Exception exception)
+        {
+            _logger.LogError($"Session[{session.SessionID}]: session exception.", exception);
         }
 
         public int SessionCount

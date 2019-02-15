@@ -8,6 +8,6 @@ namespace SuperSocket.ProtoBase
     {
         public IPipelineFilter<TPackageInfo> NextFilter { get; protected set; }
 
-        public abstract TPackageInfo Filter(ref ReadOnlySequence<byte> buffer);
+        public abstract TPackageInfo Filter(ref SequenceReader<byte>  reader);
     }
 }

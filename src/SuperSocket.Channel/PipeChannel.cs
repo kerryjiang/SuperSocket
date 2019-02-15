@@ -30,45 +30,61 @@ namespace SuperSocket.Channel
 
         protected async Task ReadPipeAsync(PipeReader reader)
         {
-            var currentPipelineFilter = _pipelineFilter;
-
             while (true)
             {
                 var result = await reader.ReadAsync();
+
                 var buffer = result.Buffer;
+
+                SequencePosition consumed = buffer.Start;
+                SequencePosition examined = buffer.End;
 
                 try
                 {
                     if (result.IsCompleted)
-                    {
                         break;
-                    }
 
-                    while (true)
-                    {
-                        var packageInfo = currentPipelineFilter.Filter(ref buffer);
-
-                        if (currentPipelineFilter.NextFilter != null)
-                            _pipelineFilter = currentPipelineFilter = currentPipelineFilter.NextFilter;
-                    
-                        // continue receive...
-                        if (packageInfo == null)
-                            break;
-
-                        // already get a package
-                        OnPackageReceived(packageInfo);
-
-                        if (buffer.Length == 0) // no more data
-                            break;
-                    }
+                    ReaderBuffer(result, out consumed, out examined);
                 }
                 finally
                 {
-                    reader.AdvanceTo(buffer.Start, buffer.End);
+                    reader.AdvanceTo(consumed, examined);
                 }
             }
 
             reader.Complete();
+        }
+
+        private void ReaderBuffer(ReadResult result, out SequencePosition consumed, out SequencePosition examined)
+        {
+            var buffer = result.Buffer;
+
+            consumed = buffer.Start;
+            examined = buffer.End;
+
+            var seqReader = new SequenceReader<byte>(buffer);
+            var currentPipelineFilter = _pipelineFilter;
+
+            var packageInfo = currentPipelineFilter.Filter(ref seqReader);
+
+            if (currentPipelineFilter.NextFilter != null)
+                _pipelineFilter = currentPipelineFilter = currentPipelineFilter.NextFilter;
+        
+            // continue receive...
+            if (packageInfo == null)
+                return;
+
+            // already get a package
+            OnPackageReceived(packageInfo);
+
+            if (seqReader.End) // no more data
+            {
+                consumed = buffer.End;
+            }
+            else
+            {
+                consumed = seqReader.Position;
+            }
         }
     }
 }

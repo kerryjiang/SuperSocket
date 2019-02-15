@@ -15,20 +15,26 @@ namespace SuperSocket.ProtoBase
             _terminator = terminator;
         }
         
-        public override TPackageInfo Filter(ref ReadOnlySequence<byte> buffer)
+        public override TPackageInfo Filter(ref SequenceReader<byte> reader)
         {
-            ReadOnlySequence<byte> slice;
-            SequencePosition cursor;
+            var terminator =  new ReadOnlySpan<byte>(_terminator);
 
-            if (!buffer.TrySliceTo(new Span<byte>(_terminator), out slice, out cursor))
+            if (!reader.TryReadToAny(out ReadOnlySpan<byte> pack, terminator, advancePastDelimiter:false))
             {
                 return null;
             }
 
-            buffer = buffer.Slice(cursor).Slice(_terminator.Length);
-            return ResolvePackage(slice);
+            for (var i = 0; i < _terminator.Length - 1; i++)
+            {
+                if (!reader.IsNext(_terminator, advancePast: true))
+                {
+                    return null;
+                }
+            }
+
+            return ResolvePackage(pack);
         }
 
-        public abstract TPackageInfo ResolvePackage(ReadOnlySequence<byte> buffer);
+        public abstract TPackageInfo ResolvePackage(ReadOnlySpan<byte> buffer);
     }
 }
