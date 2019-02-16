@@ -46,7 +46,9 @@ namespace SuperSocket.Server
             return new IPEndPoint(ipAddress, port);
         }
 
-        public bool Start()
+        public bool IsRunning { get; private set; }
+
+        public void Start()
         {
             var options = Options;
 
@@ -55,22 +57,24 @@ namespace SuperSocket.Server
                 var listenEndpoint = GetListenEndPoint(options.Ip, options.Port);
                 var listenSocket = _listenSocket = new Socket(listenEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 
+                listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
+                listenSocket.LingerState = new LingerOption(false, 0);
+
+                if (options.NoDelay)
+                    listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+                
                 listenSocket.Bind(listenEndpoint);
                 listenSocket.Listen(options.BackLog);
 
-                listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
-
-                if (options.NoDelay)
-                    listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.DontLinger, true);
+                IsRunning = true;
 
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 KeepAccept(listenSocket);
-                return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                return false;
+                throw new Exception($"Failed to listen on {options.Ip}:{options.Port}.", e);
             }
         }
 
@@ -107,6 +111,7 @@ namespace SuperSocket.Server
         public Task StopAsync()
         {
             _stopTaskCompletionSource = new TaskCompletionSource<bool>();
+
             _cancellationTokenSource.Cancel();
             _listenSocket.Close();
             

@@ -8,8 +8,9 @@ namespace SuperSocket
     public interface IListener
     {
         ListenOptions Options { get; }
-        bool Start();
+        void Start();
         event NewClientAcceptHandler NewClientAccepted;
         Task StopAsync();
+        bool IsRunning { get; }
     }
 }

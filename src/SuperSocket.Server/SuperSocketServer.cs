@@ -188,7 +188,7 @@ namespace SuperSocket.Server
 
         public async Task StopAsync()
         {
-            var tasks = _listeners.Select(l => l.StopAsync()).ToArray();
+            var tasks = _listeners.Where(l => l.IsRunning).Select(l => l.StopAsync()).ToArray();
             await Task.WhenAll(tasks);
         }
     }
