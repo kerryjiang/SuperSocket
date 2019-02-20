@@ -4,3 +4,4 @@ _ReSharper.*
 *.suo
 *.user
 *.lock.json
+*.log
