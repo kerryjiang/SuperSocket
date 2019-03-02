@@ -20,7 +20,7 @@ namespace SuperSocket.ProtoBase
             var terminator =  _terminator;
             var terminatorSpan = terminator.Span;
 
-            if (!reader.TryReadToAny(out ReadOnlySpan<byte> pack, terminatorSpan, advancePastDelimiter: false))
+            if (!reader.TryReadToAny(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
             {
                 return null;
             }
@@ -36,6 +36,6 @@ namespace SuperSocket.ProtoBase
             return ResolvePackage(pack);
         }
 
-        public abstract TPackageInfo ResolvePackage(ReadOnlySpan<byte> buffer);
+        public abstract TPackageInfo ResolvePackage(ReadOnlySequence<byte> buffer);
     }
 }

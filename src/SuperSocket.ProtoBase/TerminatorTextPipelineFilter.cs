@@ -13,9 +13,9 @@ namespace SuperSocket.ProtoBase
 
         }
 
-        public override TextPackageInfo ResolvePackage(ReadOnlySpan<byte> buffer)
+        public override TextPackageInfo ResolvePackage(ReadOnlySequence<byte> buffer)
         {
-            return new TextPackageInfo { Text = Encoding.UTF8.GetString(buffer) };
+            return new TextPackageInfo { Text = buffer.GetString(Encoding.UTF8) };
         }
     }
 }
