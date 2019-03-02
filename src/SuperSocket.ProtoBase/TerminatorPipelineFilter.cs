@@ -8,25 +8,26 @@ namespace SuperSocket.ProtoBase
     public abstract class TerminatorPipelineFilter<TPackageInfo> : PipelineFilterBase<TPackageInfo>
         where TPackageInfo : class
     {
-        private byte[] _terminator;
+        private ReadOnlyMemory<byte> _terminator;
 
-        public TerminatorPipelineFilter(byte[] terminator)
+        public TerminatorPipelineFilter(ReadOnlyMemory<byte> terminator)
         {
             _terminator = terminator;
         }
         
         public override TPackageInfo Filter(ref SequenceReader<byte> reader)
         {
-            var terminator =  new ReadOnlySpan<byte>(_terminator);
+            var terminator =  _terminator;
+            var terminatorSpan = terminator.Span;
 
-            if (!reader.TryReadToAny(out ReadOnlySpan<byte> pack, terminator, advancePastDelimiter:false))
+            if (!reader.TryReadToAny(out ReadOnlySpan<byte> pack, terminatorSpan, advancePastDelimiter:false))
             {
                 return null;
             }
 
             for (var i = 0; i < _terminator.Length - 1; i++)
             {
-                if (!reader.IsNext(_terminator, advancePast: true))
+                if (!reader.IsNext(terminatorSpan, advancePast: true))
                 {
                     return null;
                 }
