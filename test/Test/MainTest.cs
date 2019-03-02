@@ -16,6 +16,7 @@ using Xunit;
 
 namespace Tests
 {
+    [Collection("Basic")]
     public class MainTest : TestBase
     {
 

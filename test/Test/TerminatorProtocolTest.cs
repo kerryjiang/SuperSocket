@@ -16,6 +16,7 @@ using Xunit;
 
 namespace Tests
 {
+    [Collection("Protocol.Terminator")]
     public class TerminatorProtocolTest : ProtocolTestBase
     {
         protected override string CreateRequest(string sourceLine)

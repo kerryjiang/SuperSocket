@@ -106,8 +106,8 @@ namespace Tests
             }
         }
 
-        //[Fact]
-        public void TestBatchRequest()
+        [Fact]
+        public virtual void TestBatchRequest()
         {
             using (var socket = CreateClient())
             {
@@ -138,8 +138,8 @@ namespace Tests
             }
         }
 
-        //[Fact]
-        public void TestBreakRequest()
+        [Fact]
+        public virtual void TestBreakRequest()
         {
             using (var socket = CreateClient())
             {
