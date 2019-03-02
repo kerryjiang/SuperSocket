@@ -124,10 +124,10 @@ namespace SuperSocket.Server
         {
             var session = new AppSession(this, channel);
             _sessionInitializer.Invoke(session);
-            HandleSession(session);
+            HandleSession(session).DoNotAwait();
         }
 
-        private async void HandleSession(AppSession session)
+        private async Task HandleSession(AppSession session)
         {
             Interlocked.Increment(ref _sessionCount);
 

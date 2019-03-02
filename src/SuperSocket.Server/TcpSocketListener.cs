@@ -70,7 +70,7 @@ namespace SuperSocket.Server
 
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                KeepAccept(listenSocket);
+                KeepAccept(listenSocket).DoNotAwait();
             }
             catch (Exception e)
             {
@@ -78,7 +78,7 @@ namespace SuperSocket.Server
             }
         }
 
-        private async void KeepAccept(Socket listenSocket)
+        private async Task KeepAccept(Socket listenSocket)
         {
             while (!_cancellationTokenSource.IsCancellationRequested)
             {
@@ -87,7 +87,7 @@ namespace SuperSocket.Server
                     var client = await listenSocket.AcceptAsync();
                     OnNewClientAccept(client);
                 }
-                catch
+                catch (Exception)
                 {
                     break;
                 }
