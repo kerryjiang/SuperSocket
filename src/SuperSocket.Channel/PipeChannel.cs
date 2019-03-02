@@ -83,7 +83,7 @@ namespace SuperSocket.Channel
             }
             else
             {
-                consumed = seqReader.Position;
+                examined = consumed = seqReader.Position;
             }
         }
     }

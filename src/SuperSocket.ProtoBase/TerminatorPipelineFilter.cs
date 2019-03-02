@@ -20,7 +20,7 @@ namespace SuperSocket.ProtoBase
             var terminator =  _terminator;
             var terminatorSpan = terminator.Span;
 
-            if (!reader.TryReadToAny(out ReadOnlySpan<byte> pack, terminatorSpan, advancePastDelimiter:false))
+            if (!reader.TryReadToAny(out ReadOnlySpan<byte> pack, terminatorSpan, advancePastDelimiter: false))
             {
                 return null;
             }
