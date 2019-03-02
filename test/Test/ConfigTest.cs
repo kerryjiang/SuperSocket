@@ -16,13 +16,13 @@ namespace Tests
     public class ConfigTest
     {
 
-        [Fact]
+        //[Fact]
         public void TestConfigureArgumentExceptions() 
         {
             var server = new SuperSocketServer();
 
             Assert.Throws<ArgumentNullException>("options",
-                () => server.Configure<LinePackageInfo, LinePipelineFilter>(null));
+                () => server.Configure<TextPackageInfo, LinePipelineFilter>(null));
         }
 
         // [Fact]

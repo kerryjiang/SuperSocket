@@ -25,10 +25,10 @@ namespace Tests
 
         protected override SuperSocketServer CreateSevrer()
         {
-            return CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
+            return CreateSocketServer<TextPackageInfo>(packageHandler: async (s, p) =>
             {
-                await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Line + "\r\n")));
-            });
+                await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
+            }, pipeLineFilterFactory: (x) => new TerminatorTextPipelineFilter(new byte[] { (byte)'#', (byte)'#' }));
         }
     }
 }

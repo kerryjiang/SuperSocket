@@ -22,9 +22,9 @@ namespace Tests
         [Fact] 
         public async Task TestSessionCount() 
         {
-            var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
+            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
             {
-                await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Line + "\r\n")));
+                await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
             });
 
             Assert.Equal("TestServer", server.Name);
@@ -39,7 +39,7 @@ namespace Tests
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
             Console.WriteLine("Connected.");
 
-            await Task.Delay(1000);
+            await Task.Delay(3000);
 
             Assert.Equal(1, server.SessionCount);
             Console.WriteLine("SessionCount:" + server.SessionCount);
@@ -58,7 +58,7 @@ namespace Tests
         [Fact]
         public async Task TestConsoleProtocol() 
         {
-            var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: (s, p) =>
+            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: (s, p) =>
             {
                 s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
             });
