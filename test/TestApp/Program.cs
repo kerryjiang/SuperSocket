@@ -55,10 +55,10 @@ namespace TestApp
 
         static async Task RunAsync()
         {
-            var server = CreateSocketServer<LinePackageInfo, LinePipelineFilter>(packageHandler: async (s, p) => 
-            {
-                await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Line).AsMemory());                
-            });
+            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
+                {
+                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n").AsMemory());
+                });
             
             await server.StartAsync();
 
