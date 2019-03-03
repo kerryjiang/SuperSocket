@@ -33,9 +33,7 @@ namespace SuperSocket.ProtoBase
                 }
             }
 
-            return ResolvePackage(pack);
+            return DecodePackage(pack);
         }
-
-        public abstract TPackageInfo ResolvePackage(ReadOnlySequence<byte> buffer);
     }
 }

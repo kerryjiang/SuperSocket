@@ -28,7 +28,7 @@ namespace Tests
 
             }
 
-            public override TextPackageInfo ResolvePackage(ReadOnlySequence<byte> buffer)
+            protected override TextPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
             {
                 return new TextPackageInfo { Text = buffer.GetString(Encoding.UTF8) };
             }
