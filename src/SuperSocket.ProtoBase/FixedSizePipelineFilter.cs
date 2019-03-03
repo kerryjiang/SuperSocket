@@ -21,11 +21,22 @@ namespace SuperSocket.ProtoBase
                 return null;
 
             var pack = reader.Sequence.Slice(0, _size);
-            reader.Advance(_size);
 
-            return ResolvePackage(pack);
+            if (!CanDecodePackage(pack))
+                return null;
+
+            reader.Advance(_size);
+            return DecodePackage(pack);
         }
 
-        public abstract TPackageInfo ResolvePackage(ReadOnlySequence<byte> buffer);
+        protected virtual bool CanDecodePackage(ReadOnlySequence<byte> buffer)
+        {
+            return true;
+        }
+
+        protected void ResetSize(int size)
+        {
+            _size = size;
+        }
     }
 }
