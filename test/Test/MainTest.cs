@@ -1,24 +1,22 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using SuperSocket;
 using SuperSocket.ProtoBase;
-using SuperSocket.Server;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
     [Collection("Basic")]
     public class MainTest : TestBase
     {
+        public MainTest(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+
+        }
 
         [Fact] 
         public async Task TestSessionCount() 
@@ -31,19 +29,19 @@ namespace Tests
             Assert.Equal("TestServer", server.Name);
 
             Assert.True(await server.StartAsync());
-            Console.WriteLine("Started.");
+            OutputHelper.WriteLine("Started.");
 
             Assert.Equal(0, server.SessionCount);
-            Console.WriteLine("SessionCount:" + server.SessionCount);
+            OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
 
             var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
-            Console.WriteLine("Connected.");
+            OutputHelper.WriteLine("Connected.");
 
             await Task.Delay(3000);
 
             Assert.Equal(1, server.SessionCount);
-            Console.WriteLine("SessionCount:" + server.SessionCount);
+            OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
 
             client.Shutdown(SocketShutdown.Both);
             client.Close();
@@ -51,7 +49,7 @@ namespace Tests
             await Task.Delay(1000);
 
             Assert.Equal(0, server.SessionCount);
-            Console.WriteLine("SessionCount:" + server.SessionCount);
+            OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
 
             await server.StopAsync();
         }

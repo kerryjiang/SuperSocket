@@ -1,24 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
-using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
     [Collection("Protocol.Terminator")]
     public class TerminatorProtocolTest : ProtocolTestBase
     {
+        public TerminatorProtocolTest(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+
+        }
+
         protected override string CreateRequest(string sourceLine)
         {
             return string.Format("{0}##", sourceLine);
