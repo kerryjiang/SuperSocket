@@ -5,15 +5,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
-using SuperSocket;
-using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
@@ -21,7 +15,7 @@ namespace Tests
     {
         SuperSocketServer _server;
 
-        protected ProtocolTestBase()
+        protected ProtocolTestBase(ITestOutputHelper outputHelper) : base(outputHelper)
         {
             _server = CreateSevrer();
             _server.StartAsync().Wait();

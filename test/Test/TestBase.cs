@@ -1,23 +1,25 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
     public abstract class TestBase
     {
+        protected readonly ITestOutputHelper OutputHelper;
+
+        protected TestBase(ITestOutputHelper outputHelper)
+        {
+            OutputHelper = outputHelper;
+        }
+
         protected virtual void RegisterServices(IServiceCollection services)
         {
 
