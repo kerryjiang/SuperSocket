@@ -14,12 +14,18 @@ using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
     [Collection("Protocol.FixedHeader")]
     public class FixedHeaderProtocolTest : ProtocolTestBase
     {
+        public FixedHeaderProtocolTest(ITestOutputHelper outputHelper) : base(outputHelper)
+        {
+
+        }
+
         class MyFixedHeaderPiplelineFilter : FixedHeaderPipelineFilter<TextPackageInfo>
         {
             public MyFixedHeaderPiplelineFilter()

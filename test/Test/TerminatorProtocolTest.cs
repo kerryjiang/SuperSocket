@@ -2,6 +2,7 @@ using System;
 using System.Text;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
+using Xunit;
 using Xunit.Abstractions;
 
 namespace Tests
