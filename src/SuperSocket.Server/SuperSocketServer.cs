@@ -1,15 +1,10 @@
 using System;
 using System.Linq;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
-using System.IO.Pipelines;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
@@ -75,7 +70,7 @@ namespace SuperSocket.Server
             }
 
             if (pipelineFilterFactory == null)
-                throw new ArgumentNullException("pipelineFilterFactory");
+                throw new ArgumentNullException(nameof(pipelineFilterFactory));
 
             var listenerFactory = _serviceProvider.GetService<IListenerFactory>();
 
@@ -93,17 +88,20 @@ namespace SuperSocket.Server
                 {
                     _sessionInitializer = (s) =>
                     {
-                        (s.Channel as IChannel<TPackageInfo>).PackageReceived += (ch, p) =>
+                        if (s.Channel is IChannel<TPackageInfo> channel)
                         {
-                            try
+                            channel.PackageReceived += (ch, p) =>
                             {
-                                packageHandler(s, p);
-                            }
-                            catch (Exception e)
-                            {
-                                OnSessionError(s, e);
-                            }                            
-                        };
+                                try
+                                {
+                                    packageHandler(s, p);
+                                }
+                                catch (Exception e)
+                                {
+                                    OnSessionError(s, e);
+                                }
+                            };
+                        }
                     };
                 }
 
@@ -117,7 +115,7 @@ namespace SuperSocket.Server
             where TPackageInfo : class
             where TPipelineFilter: IPipelineFilter<TPackageInfo>, new()
         {
-            return Configure<TPackageInfo>(options, services, new DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter>(), packageHandler: packageHandler);
+            return Configure(options, services, new DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter>(), packageHandler: packageHandler);
         }
 
         protected virtual void OnNewClientAccept(IListener listener, IChannel channel)
@@ -162,24 +160,24 @@ namespace SuperSocket.Server
             if (!_configured)
                 _logger.LogError("The server has not been initialized successfully!");
 
-            var binded = 0;
+            var bound = 0;
 
             foreach (var listener in _listeners)
             {
                 try
                 {
                     listener.Start();
-                    binded++;
+                    bound++;
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError(e, $"Failed to bind the transport {listener.ToString()}.");
+                    _logger.LogError(e, $"Failed to bind the transport {listener}.");
                 }
             }
 
-            if (binded == 0)
+            if (bound == 0)
             {
-                _logger.LogCritical("No transport binded successfully.");
+                _logger.LogCritical("No transport bound successfully.");
                 return false;
             }
 
