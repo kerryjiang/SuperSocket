@@ -5,10 +5,10 @@ namespace SuperSocket.ProtoBase
     public abstract class FixedHeaderPipelineFilter<TPackageInfo> : FixedSizePipelineFilter<TPackageInfo>
         where TPackageInfo : class
     {
-        private bool _foundHeader = false;
-        private int _headerSize;
+        private bool _foundHeader;
+        private readonly int _headerSize;
 
-        public FixedHeaderPipelineFilter(int headerSize)
+        protected FixedHeaderPipelineFilter(int headerSize)
             : base(headerSize)
         {
             _headerSize = headerSize;

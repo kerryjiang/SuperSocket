@@ -11,8 +11,8 @@ namespace SuperSocket.Channel
         where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
-        
-        public PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter)
+
+        protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter)
         {
             _pipelineFilter = pipelineFilter;
         }
@@ -67,7 +67,7 @@ namespace SuperSocket.Channel
             var packageInfo = currentPipelineFilter.Filter(ref seqReader);
 
             if (currentPipelineFilter.NextFilter != null)
-                _pipelineFilter = currentPipelineFilter = currentPipelineFilter.NextFilter;
+                _pipelineFilter = currentPipelineFilter.NextFilter;
         
             // continue receive...
             if (packageInfo == null)
