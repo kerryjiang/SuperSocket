@@ -11,10 +11,10 @@ namespace SuperSocket.Server
             SessionID = Guid.NewGuid().ToString();
         }
 
-        public string SessionID { get; private set; }
+        public string SessionID { get; }
 
-        public IServerInfo Server { get; private set; }
+        public IServerInfo Server { get; }
 
-        public IChannel Channel { get; private set; }
+        public IChannel Channel { get; }
     }
 }

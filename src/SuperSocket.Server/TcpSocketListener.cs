@@ -12,8 +12,8 @@ namespace SuperSocket.Server
 
         private CancellationTokenSource _cancellationTokenSource;
         private TaskCompletionSource<bool> _stopTaskCompletionSource;
-        private Func<Socket, IChannel> _channelFactory;
-        public ListenOptions Options { get; private set; }
+        private readonly Func<Socket, IChannel> _channelFactory;
+        public ListenOptions Options { get; }
 
         public TcpSocketListener(ListenOptions options, Func<Socket, IChannel> channelFactory)
         {
@@ -23,7 +23,7 @@ namespace SuperSocket.Server
 
         private IPEndPoint GetListenEndPoint(string ip, int port)
         {
-            var ipAddress = IPAddress.None;
+            IPAddress ipAddress;
 
             if ("any".Equals(ip, StringComparison.OrdinalIgnoreCase))
             {
@@ -97,10 +97,7 @@ namespace SuperSocket.Server
         {
             var handler = NewClientAccepted;
 
-            if (handler == null)
-                return;
-
-            handler(this, _channelFactory(socket));
+            handler?.Invoke(this, _channelFactory(socket));
         }
 
         public Task StopAsync()

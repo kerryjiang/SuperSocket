@@ -12,7 +12,7 @@ namespace SuperSocket
         event EventHandler Closed;
     }
 
-    public interface IChannel<TPackageInfo> : IChannel
+    public interface IChannel<out TPackageInfo> : IChannel
         where TPackageInfo : class
     {
         event Action<IChannel, TPackageInfo> PackageReceived;

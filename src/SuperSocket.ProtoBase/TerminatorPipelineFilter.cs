@@ -6,7 +6,7 @@ namespace SuperSocket.ProtoBase
     public abstract class TerminatorPipelineFilter<TPackageInfo> : PipelineFilterBase<TPackageInfo>
         where TPackageInfo : class
     {
-        private ReadOnlyMemory<byte> _terminator;
+        private readonly ReadOnlyMemory<byte> _terminator;
 
         public TerminatorPipelineFilter(ReadOnlyMemory<byte> terminator)
         {

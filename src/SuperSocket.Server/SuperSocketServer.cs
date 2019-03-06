@@ -29,7 +29,7 @@ namespace SuperSocket.Server
 
         private ILogger _logger;
 
-        private bool _configured = false;
+        private bool _configured;
 
         private int _sessionCount;
 

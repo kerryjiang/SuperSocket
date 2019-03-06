@@ -7,7 +7,7 @@ namespace SuperSocket.ProtoBase
     {
         private int _size;
 
-        public FixedSizePipelineFilter(int size)
+        protected FixedSizePipelineFilter(int size)
         {
             _size = size;
         }
