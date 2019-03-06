@@ -17,15 +17,15 @@ namespace Tests
 
         protected override string CreateRequest(string sourceLine)
         {
-            return string.Format("{0}##", sourceLine);
+            return $"{sourceLine}##";
         }
 
-        protected override SuperSocketServer CreateSevrer()
+        protected override SuperSocketServer CreateServer()
         {
-            return CreateSocketServer<TextPackageInfo>(packageHandler: async (s, p) =>
+            return CreateSocketServer(packageHandler: async (s, p) =>
             {
                 await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
-            }, pipeLineFilterFactory: (x) => new TerminatorTextPipelineFilter(new byte[] { (byte)'#', (byte)'#' }));
+            }, pipeLineFilterFactory: (x) => new TerminatorTextPipelineFilter(new[] { (byte)'#', (byte)'#' }));
         }
     }
 }

@@ -5,7 +5,7 @@ namespace SuperSocket.ProtoBase
     public class DelegatePipelineFilterFactory<TPackageInfo> : IPipelineFilterFactory<TPackageInfo>
         where TPackageInfo : class
     {
-        private Func<object, IPipelineFilter<TPackageInfo>> _factory;
+        private readonly Func<object, IPipelineFilter<TPackageInfo>> _factory;
 
         public DelegatePipelineFilterFactory(Func<object, IPipelineFilter<TPackageInfo>> factory)
         {

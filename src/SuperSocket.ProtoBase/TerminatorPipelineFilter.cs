@@ -8,7 +8,7 @@ namespace SuperSocket.ProtoBase
     {
         private readonly ReadOnlyMemory<byte> _terminator;
 
-        public TerminatorPipelineFilter(ReadOnlyMemory<byte> terminator)
+        protected TerminatorPipelineFilter(ReadOnlyMemory<byte> terminator)
         {
             _terminator = terminator;
         }
