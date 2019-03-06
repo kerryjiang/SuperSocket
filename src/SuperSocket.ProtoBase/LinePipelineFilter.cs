@@ -4,7 +4,7 @@ namespace SuperSocket.ProtoBase
     {
 
         public LinePipelineFilter()
-            : base(new byte[] { (byte)'\r', (byte)'\n' })
+            : base(new[] { (byte)'\r', (byte)'\n' })
         {
 
         }
