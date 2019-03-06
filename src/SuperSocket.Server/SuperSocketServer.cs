@@ -23,10 +23,7 @@ namespace SuperSocket.Server
         /// Server's name
         /// </summary>
         /// <returns>the name of the server instance</returns>
-        public string Name 
-        {
-            get { return Options.Name; }
-        }
+        public string Name => Options.Name;
 
         protected internal ILoggerFactory LoggerFactory { get; private set; }
 
@@ -148,10 +145,7 @@ namespace SuperSocket.Server
             _logger.LogError($"Session[{session.SessionID}]: session exception.", exception);
         }
 
-        public int SessionCount
-        {
-            get { return _sessionCount; }
-        }
+        public int SessionCount => _sessionCount;
 
         public async Task<bool> StartAsync()
         {

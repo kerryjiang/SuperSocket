@@ -13,8 +13,8 @@ namespace SuperSocket.Channel
 
         public event Action<IChannel, TPackageInfo> PackageReceived
         {
-            add { _packageReceived += value; }
-            remove { _packageReceived -= value; }
+            add => _packageReceived += value;
+            remove => _packageReceived -= value;
         }
 
         protected void OnPackageReceived(TPackageInfo package)
@@ -26,8 +26,8 @@ namespace SuperSocket.Channel
 
         public event EventHandler Closed
         {
-            add { _closed += value; }
-            remove { _closed -= value; }
+            add => _closed += value;
+            remove => _closed -= value;
         }
 
         protected virtual void OnClosed()
