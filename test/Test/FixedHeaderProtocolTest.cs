@@ -16,9 +16,9 @@ namespace Tests
 
         }
 
-        class MyFixedHeaderPiplelineFilter : FixedHeaderPipelineFilter<TextPackageInfo>
+        class MyFixedHeaderPipelineFilter : FixedHeaderPipelineFilter<TextPackageInfo>
         {
-            public MyFixedHeaderPiplelineFilter()
+            public MyFixedHeaderPipelineFilter()
                 : base(4)
             {
 
@@ -41,9 +41,9 @@ namespace Tests
             return sourceLine.Length.ToString().PadLeft(4) + sourceLine;
         }
 
-        protected override SuperSocketServer CreateSevrer()
+        protected override SuperSocketServer CreateServer()
         {
-            return CreateSocketServer<TextPackageInfo, MyFixedHeaderPiplelineFilter>(packageHandler: async (s, p) =>
+            return CreateSocketServer<TextPackageInfo, MyFixedHeaderPipelineFilter>(packageHandler: async (s, p) =>
             {
                 await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
             });
