@@ -1,6 +1,3 @@
-using System;
-
-
 namespace SuperSocket.ProtoBase
 {
     public class TextPackageInfo
