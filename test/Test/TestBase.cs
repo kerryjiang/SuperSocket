@@ -29,13 +29,13 @@ namespace Tests
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
-            return CreateSocketServer<TPackageInfo>(configDict, packageHandler,  new DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter>());
+            return CreateSocketServer(configDict, packageHandler,  new DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter>());
         }
 
         protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null, Func<object, IPipelineFilter<TPackageInfo>> pipeLineFilterFactory = null)
             where TPackageInfo : class
         {
-            return CreateSocketServer<TPackageInfo>(configDict, packageHandler,  new DelegatePipelineFilterFactory<TPackageInfo>(pipeLineFilterFactory));
+            return CreateSocketServer(configDict, packageHandler,  new DelegatePipelineFilterFactory<TPackageInfo>(pipeLineFilterFactory));
         }
 
         protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null, IPipelineFilterFactory<TPackageInfo> filterFactory = null)
@@ -65,7 +65,7 @@ namespace Tests
             var serverOptions = new ServerOptions();
             config.GetSection("serverOptions").Bind(serverOptions);
 
-            Assert.True(server.Configure<TPackageInfo>(serverOptions, services, packageHandler: packageHandler, pipelineFilterFactory: filterFactory));
+            Assert.True(server.Configure(serverOptions, services, packageHandler: packageHandler, pipelineFilterFactory: filterFactory));
 
             return server;
         }

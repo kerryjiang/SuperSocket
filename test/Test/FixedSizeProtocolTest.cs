@@ -16,9 +16,9 @@ namespace Tests
 
         }
 
-        class MyFixedSizePiplelineFilter : FixedSizePipelineFilter<TextPackageInfo>
+        class MyFixedSizePipelineFilter : FixedSizePipelineFilter<TextPackageInfo>
         {
-            public MyFixedSizePiplelineFilter()
+            public MyFixedSizePipelineFilter()
                 : base(36)
             {
 
@@ -35,9 +35,9 @@ namespace Tests
             return sourceLine;
         }
 
-        protected override SuperSocketServer CreateSevrer()
+        protected override SuperSocketServer CreateServer()
         {
-            return CreateSocketServer<TextPackageInfo, MyFixedSizePiplelineFilter>(packageHandler: async (s, p) =>
+            return CreateSocketServer<TextPackageInfo, MyFixedSizePipelineFilter>(packageHandler: async (s, p) =>
             {
                 await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
             });

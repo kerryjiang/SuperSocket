@@ -13,15 +13,15 @@ namespace Tests
 {
     public abstract class ProtocolTestBase : TestBase, IDisposable
     {
-        SuperSocketServer _server;
+        readonly SuperSocketServer _server;
 
         protected ProtocolTestBase(ITestOutputHelper outputHelper) : base(outputHelper)
         {
-            _server = CreateSevrer();
+            _server = CreateServer();
             _server.StartAsync().Wait();
         }
 
-        protected abstract SuperSocketServer CreateSevrer();
+        protected abstract SuperSocketServer CreateServer();
 
         protected Socket CreateClient()
         {
