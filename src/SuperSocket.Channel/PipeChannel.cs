@@ -43,7 +43,15 @@ namespace SuperSocket.Channel
                     if (result.IsCompleted)
                         break;
 
-                    ReaderBuffer(result, out consumed, out examined);
+                    while (true)
+                    {
+                        ReaderBuffer(buffer, out consumed, out examined);
+
+                        if (examined.Equals(buffer.End))
+                            break;
+
+                        buffer = buffer.Slice(examined);
+                    }
                 }
                 finally
                 {
@@ -54,10 +62,8 @@ namespace SuperSocket.Channel
             reader.Complete();
         }
 
-        private void ReaderBuffer(ReadResult result, out SequencePosition consumed, out SequencePosition examined)
+        private void ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
         {
-            var buffer = result.Buffer;
-
             consumed = buffer.Start;
             examined = buffer.End;
 

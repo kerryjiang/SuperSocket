@@ -7,7 +7,7 @@ namespace SuperSocket.ProtoBase
         where TPackageInfo : class
     {
         private bool _foundHeader;
-        private int _headerSize;
+        private readonly int _headerSize;
         private int _totalSize;
 
         protected FixedHeaderPipelineFilter(int headerSize)
@@ -48,7 +48,7 @@ namespace SuperSocket.ProtoBase
             {
                 Reset();
                 reader.Advance(totalSize);
-                return DecodePackage(reader.Sequence.Slice(totalSize));
+                return DecodePackage(reader.Sequence.Slice(0, totalSize));
             }
             else if (reader.Length == totalSize)
             {
@@ -66,7 +66,6 @@ namespace SuperSocket.ProtoBase
         private void Reset()
         {
             _foundHeader = false;
-            _headerSize = 0;
             _totalSize = 0;
         }
     }
