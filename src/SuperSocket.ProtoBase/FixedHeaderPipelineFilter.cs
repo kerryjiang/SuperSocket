@@ -7,7 +7,7 @@ namespace SuperSocket.ProtoBase
         where TPackageInfo : class
     {
         private bool _foundHeader;
-        private readonly int _headerSize;
+        private int _headerSize;
         private int _totalSize;
 
         protected FixedHeaderPipelineFilter(int headerSize)
