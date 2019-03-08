@@ -36,7 +36,7 @@ namespace Tests
         protected abstract string CreateRequest(string sourceLine);
 
         [Fact]
-        public void TestNormalRequest()
+        public virtual void TestNormalRequest()
         {
             using (var socket = CreateClient())
             {
@@ -56,7 +56,7 @@ namespace Tests
         }
 
         [Fact]
-        public void TestMiddleBreak()
+        public virtual void TestMiddleBreak()
         {
             for (var i = 0; i < 100; i++)
             {
@@ -76,7 +76,7 @@ namespace Tests
         }
 
         [Fact]
-        public void TestFragmentRequest()
+        public virtual void TestFragmentRequest()
         {
             using (var socket = CreateClient())
             {
