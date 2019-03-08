@@ -2,7 +2,7 @@ using System.Buffers;
 
 namespace SuperSocket.ProtoBase
 {
-    public abstract class FixedSizePipelineFilter<TPackageInfo> : PipelineFilterBase<TPackageInfo>
+    public class FixedSizePipelineFilter<TPackageInfo> : PipelineFilterBase<TPackageInfo>
         where TPackageInfo : class
     {
         private int _size;
@@ -19,21 +19,8 @@ namespace SuperSocket.ProtoBase
 
             var pack = reader.Sequence.Slice(0, _size);
 
-            if (!CanDecodePackage(pack))
-                return null;
-
             reader.Advance(_size);
             return DecodePackage(pack);
-        }
-
-        protected virtual bool CanDecodePackage(ReadOnlySequence<byte> buffer)
-        {
-            return true;
-        }
-
-        protected void ResetSize(int size)
-        {
-            _size = size;
         }
     }
 }
