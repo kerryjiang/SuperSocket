@@ -109,5 +109,10 @@ namespace SuperSocket.Server
             
             return _stopTaskCompletionSource.Task;
         }
+
+        public override string ToString()
+        {
+            return Options.ToString();
+        }
     }
 }
