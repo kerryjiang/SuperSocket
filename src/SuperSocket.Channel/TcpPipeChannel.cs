@@ -73,7 +73,7 @@ namespace SuperSocket.Channel
             _socket = null;
             OnClosed();
         }
-        public override async Task<int> SendAsync(ReadOnlyMemory<byte> buffer)
+        public override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer)
         {
             return await _socket.SendAsync(GetArrayByMemory(buffer), SocketFlags.None);
         }

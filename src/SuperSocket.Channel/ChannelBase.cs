@@ -7,7 +7,7 @@ namespace SuperSocket.Channel
         where TPackageInfo : class
     {
         public abstract Task ProcessRequest();
-        public abstract Task<int> SendAsync(ReadOnlyMemory<byte> buffer);
+        public abstract ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer);
 
         private Action<IChannel, TPackageInfo> _packageReceived;
 

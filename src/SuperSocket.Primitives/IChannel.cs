@@ -7,7 +7,7 @@ namespace SuperSocket
     {
         Task ProcessRequest();
 
-        Task<int> SendAsync(ReadOnlyMemory<byte> data);
+        ValueTask<int> SendAsync(ReadOnlyMemory<byte> data);
 
         event EventHandler Closed;
     }
