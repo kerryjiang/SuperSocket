@@ -14,7 +14,7 @@ namespace SuperSocket
 
         public override string ToString()
         {
-            return $"{nameof(Ip)} = {Ip},{nameof(Port)} = {Port},{nameof(Path)} = {Path},{nameof(BackLog)} = {BackLog},{nameof(NoDelay)} = {NoDelay}";
+            return $"{nameof(Ip)}={Ip}, {nameof(Port)}={Port}, {nameof(Path)}={Path}, {nameof(BackLog)}={BackLog}, {nameof(NoDelay)}={NoDelay}";
         }
     }
 }
