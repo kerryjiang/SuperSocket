@@ -5,5 +5,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Memory" Version="$(SystemBuffersVersion)" />
+    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
   </ItemGroup>
 </Project>
