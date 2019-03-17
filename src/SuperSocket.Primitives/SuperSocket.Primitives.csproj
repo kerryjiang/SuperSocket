@@ -10,5 +10,9 @@
     <PackageReference Include="System.Runtime" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.Net.Primitives" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
 </Project>

@@ -78,7 +78,7 @@ namespace SuperSocket.Server
 
             foreach (var l in options.Listeners)
             {
-                var listener = listenerFactory.CreateListener<TPackageInfo>(l, pipelineFilterFactory);
+                var listener = listenerFactory.CreateListener<TPackageInfo>(l, LoggerFactory, pipelineFilterFactory);
                 listener.NewClientAccepted += OnNewClientAccept;
 
                 if (packageHandler != null)
@@ -129,7 +129,7 @@ namespace SuperSocket.Server
             try
             {
                 _logger.LogInformation($"A new session connected: {session.SessionID}");
-                await session.Channel.ProcessRequest();
+                await session.Channel.StartAsync();
                 _logger.LogInformation($"The session disconnected: {session.SessionID}");
             }
             catch (Exception e)
