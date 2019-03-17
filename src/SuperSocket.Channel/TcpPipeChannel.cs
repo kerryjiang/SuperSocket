@@ -3,6 +3,9 @@ using System.Threading.Tasks;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using SuperSocket.ProtoBase;
+using System.Buffers;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Channel
 {
@@ -11,9 +14,11 @@ namespace SuperSocket.Channel
     {
 
         private Socket _socket;
+
+        private List<ArraySegment<byte>> _segmentsForSend;
         
-        public TcpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter)
-            : base(pipelineFilter)
+        public TcpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ILogger logger)
+            : base(pipelineFilter, logger)
         {
             _socket = socket;
         }
@@ -61,7 +66,7 @@ namespace SuperSocket.Channel
             return await socket.ReceiveAsync(GetArrayByMemory((ReadOnlyMemory<byte>)memory), socketFlags);
         }
 
-        public override async Task ProcessRequest()
+        protected override async Task ProcessReads()
         {
             var pipe = new Pipe();
 
@@ -73,9 +78,31 @@ namespace SuperSocket.Channel
             _socket = null;
             OnClosed();
         }
-        public override async ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer)
+
+        protected override async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
         {
-            return await _socket.SendAsync(GetArrayByMemory(buffer), SocketFlags.None);
+            if (buffer.IsSingleSegment)
+            {
+                return await _socket.SendAsync(GetArrayByMemory(buffer.First), SocketFlags.None);
+            }
+            
+            if (_segmentsForSend != null)
+            {
+                _segmentsForSend = new List<ArraySegment<byte>>();
+            }
+            else
+            {
+                _segmentsForSend.Clear();
+            }
+
+            var segments = _segmentsForSend;
+
+            foreach (var piece in buffer)
+            {
+                _segmentsForSend.Add(GetArrayByMemory(piece));
+            }
+            
+            return await _socket.SendAsync(_segmentsForSend, SocketFlags.None);
         }
     }
 }

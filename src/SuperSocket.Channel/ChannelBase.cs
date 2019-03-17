@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Threading.Tasks;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
 {
     public abstract class ChannelBase<TPackageInfo> : IChannel<TPackageInfo>, IChannel
         where TPackageInfo : class
     {
-        public abstract Task ProcessRequest();
-        public abstract ValueTask<int> SendAsync(ReadOnlyMemory<byte> buffer);
+        public abstract Task StartAsync();
+
+        public abstract ValueTask SendAsync(ReadOnlyMemory<byte> buffer);
+
+        public abstract ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
         private Action<IChannel, TPackageInfo> _packageReceived;
 

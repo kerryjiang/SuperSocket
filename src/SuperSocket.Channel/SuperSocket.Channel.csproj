@@ -7,6 +7,7 @@
     <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.Net.Sockets" Version="$(CoreFxVersion)" />
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />

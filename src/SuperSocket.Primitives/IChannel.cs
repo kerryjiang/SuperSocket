@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket
 {
     public interface IChannel
     {
-        Task ProcessRequest();
+        Task StartAsync();
 
-        ValueTask<int> SendAsync(ReadOnlyMemory<byte> data);
+        ValueTask SendAsync(ReadOnlyMemory<byte> data);
+
+        ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
         event EventHandler Closed;
     }

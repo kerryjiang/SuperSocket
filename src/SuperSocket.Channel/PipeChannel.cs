@@ -2,8 +2,10 @@
 using System.Buffers;
 using System.Threading.Tasks;
 using System.IO.Pipelines;
-using SuperSocket.ProtoBase;
 using System.Runtime.InteropServices;
+using Microsoft.Extensions.Logging;
+using SuperSocket.ProtoBase;
+
 
 namespace SuperSocket.Channel
 {
@@ -12,9 +14,79 @@ namespace SuperSocket.Channel
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
-        protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter)
+        private Pipe Output { get; }
+
+        protected ILogger Logger { get; }
+
+        protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ILogger logger)
         {
             _pipelineFilter = pipelineFilter;
+            Logger = logger;
+            Output = new Pipe();
+        }
+
+        public override async Task StartAsync()
+        {
+            try
+            {
+                var readsTask = ProcessReads();
+                var sendsTask = ProcessSends();
+
+                await Task.WhenAll(readsTask, sendsTask);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Unhandled exception in the method PipeChannel.StartAsync.");
+            }
+        }
+
+        protected abstract Task ProcessReads();
+
+        protected async Task ProcessSends()
+        {
+            var output = Output.Reader;
+
+            while (true)
+            {
+                var result = await output.ReadAsync();
+
+                if (result.IsCanceled)
+                    break;
+
+                var completed = result.IsCompleted;
+
+                var buffer = result.Buffer;
+                var end = buffer.End;
+                
+                if (!buffer.IsEmpty)
+                {
+                    await SendAsync(buffer);
+                }
+
+                output.AdvanceTo(end);
+
+                if (completed)
+                {
+                    break;
+                }
+            }
+        }
+
+        protected abstract ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer);
+
+
+        public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
+        {
+            var writer = Output.Writer;
+            await writer.WriteAsync(buffer);
+            await writer.FlushAsync();
+        }
+
+        public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        {
+            var writer = Output.Writer;
+            packageEncoder.Encode(writer, package);
+            await writer.FlushAsync();
         }
 
         protected internal ArraySegment<T> GetArrayByMemory<T>(ReadOnlyMemory<T> memory)
@@ -40,8 +112,10 @@ namespace SuperSocket.Channel
 
                 try
                 {
-                    if (result.IsCompleted)
+                    if (result.IsCanceled)
                         break;
+
+                    var completed = result.IsCompleted;
 
                     while (true)
                     {
@@ -52,6 +126,9 @@ namespace SuperSocket.Channel
 
                         buffer = buffer.Slice(examined);
                     }
+
+                    if (completed)
+                        break;
                 }
                 finally
                 {
