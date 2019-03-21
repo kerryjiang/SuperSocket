@@ -60,7 +60,16 @@ namespace SuperSocket.Channel
                 
                 if (!buffer.IsEmpty)
                 {
-                    await SendAsync(buffer);
+                    try
+                    {
+                        await SendAsync(buffer);
+                    }
+                    catch (Exception e)
+                    {
+                        Logger.LogError(e, "Exception happened in SendAsync");
+                        output.Complete(e);
+                        return;
+                    }
                 }
 
                 output.AdvanceTo(end);
@@ -70,6 +79,8 @@ namespace SuperSocket.Channel
                     break;
                 }
             }
+
+            output.Complete();
         }
 
         protected abstract ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer);
@@ -137,6 +148,7 @@ namespace SuperSocket.Channel
             }
 
             reader.Complete();
+            Output.Writer.Complete();
         }
 
         private void ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)

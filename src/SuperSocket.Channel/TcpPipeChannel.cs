@@ -31,9 +31,9 @@ namespace SuperSocket.Channel
             {
                 try
                 {
-                    Memory<byte> memory = writer.GetMemory(minimumBufferSize);
+                    var memory = writer.GetMemory(minimumBufferSize);
 
-                    int bytesRead = await ReceiveAsync(socket, memory, SocketFlags.None);
+                    var bytesRead = await ReceiveAsync(socket, memory, SocketFlags.None);         
 
                     if (bytesRead == 0)
                     {
@@ -43,13 +43,14 @@ namespace SuperSocket.Channel
                     // Tell the PipeWriter how much was read
                     writer.Advance(bytesRead);
                 }
-                catch
+                catch (Exception e)
                 {
+                    Logger.LogError(e, "Exception happened in ReceiveAsync");
                     break;
                 }
 
                 // Make the data available to the PipeReader
-                FlushResult result = await writer.FlushAsync();
+                var result = await writer.FlushAsync();
 
                 if (result.IsCompleted)
                 {
@@ -86,7 +87,7 @@ namespace SuperSocket.Channel
                 return await _socket.SendAsync(GetArrayByMemory(buffer.First), SocketFlags.None);
             }
             
-            if (_segmentsForSend != null)
+            if (_segmentsForSend == null)
             {
                 _segmentsForSend = new List<ArraySegment<byte>>();
             }
