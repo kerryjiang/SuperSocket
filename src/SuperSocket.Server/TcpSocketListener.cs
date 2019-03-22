@@ -3,6 +3,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
+using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {

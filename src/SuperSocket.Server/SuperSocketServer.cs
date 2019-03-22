@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SuperSocket.ProtoBase;
+using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {

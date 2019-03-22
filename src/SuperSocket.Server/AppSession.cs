@@ -1,4 +1,5 @@
 using System;
+using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {

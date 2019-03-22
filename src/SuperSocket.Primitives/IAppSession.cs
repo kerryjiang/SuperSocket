@@ -1,3 +1,5 @@
+using SuperSocket.Channel;
+
 namespace SuperSocket
 {
     public interface IAppSession

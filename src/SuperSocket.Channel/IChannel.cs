@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 
-namespace SuperSocket
+namespace SuperSocket.Channel
 {
     public interface IChannel
     {

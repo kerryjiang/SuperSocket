@@ -11,6 +11,5 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
-    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
   </ItemGroup>
 </Project>
