@@ -23,6 +23,12 @@ namespace SuperSocket.Channel
             _socket = socket;
         }
 
+        protected override void OnClosed()
+        {
+            _socket = null;
+            base.OnClosed();
+        }
+
         private async Task FillPipeAsync(Socket socket, PipeWriter writer)
         {
             const int minimumBufferSize = 512;
@@ -60,6 +66,7 @@ namespace SuperSocket.Channel
 
             // Signal to the reader that we're done writing
             writer.Complete();
+            Output.Writer.Complete();
         }
 
         private async Task<int> ReceiveAsync(Socket socket, Memory<byte> memory, SocketFlags socketFlags)
@@ -75,9 +82,6 @@ namespace SuperSocket.Channel
             Task reading = ReadPipeAsync(pipe.Reader);
 
             await Task.WhenAll(reading, writing);
-
-            _socket = null;
-            OnClosed();
         }
 
         protected override async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)

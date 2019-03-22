@@ -14,7 +14,7 @@ namespace SuperSocket.Channel
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
-        private Pipe Output { get; }
+        protected Pipe Output { get; }
 
         protected ILogger Logger { get; }
 
@@ -33,6 +33,7 @@ namespace SuperSocket.Channel
                 var sendsTask = ProcessSends();
 
                 await Task.WhenAll(readsTask, sendsTask);
+                OnClosed();
             }
             catch (Exception e)
             {
@@ -148,7 +149,6 @@ namespace SuperSocket.Channel
             }
 
             reader.Complete();
-            Output.Writer.Complete();
         }
 
         private void ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
