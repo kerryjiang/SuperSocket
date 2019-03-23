@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\tools\Common.props" />
+  <PropertyGroup>
+    <TargetFramework>$(LibTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="System.Net.Sockets" Version="$(CoreFxVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />
+    <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
+  </ItemGroup>
+</Project>
