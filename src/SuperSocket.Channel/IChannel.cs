@@ -13,6 +13,8 @@ namespace SuperSocket.Channel
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
         event EventHandler Closed;
+
+        void Close();
     }
 
     public interface IChannel<out TPackageInfo> : IChannel

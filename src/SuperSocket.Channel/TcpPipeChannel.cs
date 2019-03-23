@@ -2,10 +2,11 @@
 using System.Threading.Tasks;
 using System.IO.Pipelines;
 using System.Net.Sockets;
-using SuperSocket.ProtoBase;
+using System.Threading;
 using System.Buffers;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
 {
@@ -108,6 +109,26 @@ namespace SuperSocket.Channel
             }
             
             return await _socket.SendAsync(_segmentsForSend, SocketFlags.None);
+        }
+
+        public override void Close()
+        {
+            var socket = _socket;
+
+            if (socket == null)
+                return;
+
+            if (Interlocked.CompareExchange(ref _socket, null, socket) == socket)
+            {
+                try
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                }
+                finally
+                {
+                    socket.Close();
+                }
+            }
         }
     }
 }

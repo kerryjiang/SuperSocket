@@ -38,5 +38,7 @@ namespace SuperSocket.Channel
         {
             _closed?.Invoke(this, EventArgs.Empty);
         }
+
+        public abstract void Close();
     }
 }
