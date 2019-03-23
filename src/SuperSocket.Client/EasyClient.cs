@@ -11,7 +11,11 @@ namespace SuperSocket.Client
     public abstract class EasyClient<TPackage> : EasyClient<TPackage, TPackage>
         where TPackage : class
     {
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Action<TPackage> handler, IPackageEncoder<TPackage> packageEncoder = null, ILogger logger = null)
+            : base(pipelineFilter, handler, packageEncoder, logger)
+        {
 
+        }
     }
 
     public abstract class EasyClient<TReceivePackage, TSendPackage>
@@ -28,7 +32,7 @@ namespace SuperSocket.Client
 
         private IPackageEncoder<TSendPackage> _packageEncoder;
 
-        public void Initialize(IPipelineFilter<TReceivePackage> pipelineFilter, Action<TReceivePackage> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, Action<TReceivePackage> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
         {
             _pipelineFilter = pipelineFilter;
             _handler = handler;
