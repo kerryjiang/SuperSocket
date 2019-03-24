@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Client
 {
-    public abstract class EasyClient<TPackage> : EasyClient<TPackage, TPackage>
+    public class EasyClient<TPackage> : EasyClient<TPackage, TPackage>
         where TPackage : class
     {
         public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Action<TPackage> handler, IPackageEncoder<TPackage> packageEncoder = null, ILogger logger = null)
@@ -18,7 +18,7 @@ namespace SuperSocket.Client
         }
     }
 
-    public abstract class EasyClient<TReceivePackage, TSendPackage>
+    public class EasyClient<TReceivePackage, TSendPackage>
         where TReceivePackage : class
         where TSendPackage : class
     {
