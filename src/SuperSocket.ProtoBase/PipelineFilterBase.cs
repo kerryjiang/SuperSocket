@@ -15,5 +15,10 @@ namespace SuperSocket.ProtoBase
         {
             return Decoder.Decode(buffer);
         }
+
+        public virtual void Reset()
+        {
+
+        }
     }
 }

@@ -11,5 +11,7 @@ namespace SuperSocket.ProtoBase
         TPackageInfo Filter(ref SequenceReader<byte> reader);
 
         IPipelineFilter<TPackageInfo> NextFilter { get; }
+
+        void Reset();
     }
 }
