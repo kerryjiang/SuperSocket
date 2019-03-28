@@ -7,5 +7,7 @@ namespace SuperSocket
         Task<bool> StartAsync();
 
         Task StopAsync();
+
+        void Use<TMiddleware>() where TMiddleware : IMiddleware;
     }
 }
