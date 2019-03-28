@@ -168,6 +168,7 @@ namespace SuperSocket.Channel
             if (packageInfo == null)
                 return;
 
+            currentPipelineFilter.Reset();
             // already get a package
             OnPackageReceived(packageInfo);
 
