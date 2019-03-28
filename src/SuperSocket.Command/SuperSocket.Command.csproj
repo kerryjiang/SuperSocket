@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\tools\Common.props" />
+  <PropertyGroup>
+    <TargetFramework>$(LibTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
+  </ItemGroup>
+</Project>
