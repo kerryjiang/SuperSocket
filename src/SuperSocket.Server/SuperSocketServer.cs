@@ -36,9 +36,20 @@ namespace SuperSocket.Server
 
         private IList<IListener> _listeners;
 
-
         private Action<IAppSession> _sessionInitializer;
-        
+
+        private IMiddleware _middleware;
+
+        public void Use<TMiddleware>()
+            where TMiddleware : IMiddleware
+        {
+            var middleware = _serviceProvider.GetService<TMiddleware>();
+
+            if (_middleware == null)
+                _middleware = middleware;
+            else
+                _middleware.Next = middleware;
+        }        
 
         public bool Configure<TPackageInfo>(ServerOptions options, IServiceCollection services = null, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory = null, Action<IAppSession, TPackageInfo> packageHandler = null)
             where TPackageInfo : class
@@ -119,8 +130,20 @@ namespace SuperSocket.Server
         protected virtual void OnNewClientAccept(IListener listener, IChannel channel)
         {
             var session = new AppSession(this, channel);
+
             _sessionInitializer.Invoke(session);
             HandleSession(session).DoNotAwait();
+        }
+
+        private void RegisterMiddleware(IAppSession session)
+        {
+            var middleware = _middleware;
+
+            while (middleware != null)
+            {
+                middleware.Register(this, session);
+                middleware = middleware.Next;
+            }
         }
 
         private async Task HandleSession(AppSession session)
