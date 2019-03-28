@@ -40,7 +40,7 @@ namespace SuperSocket.Server
 
         private IMiddleware _middleware;
 
-        void IServer.Use<TMiddleware>()
+        public void Use<TMiddleware>()
             where TMiddleware : IMiddleware
         {
             var middleware = _serviceProvider.GetService<TMiddleware>();
