@@ -1,3 +1,4 @@
+dist: xenial
 addons:
   snaps:
   - name: dotnet-sdk
@@ -6,8 +7,6 @@ addons:
 language: csharp
 mono: none
 sudo: required
-dist: xenial
-dotnet: 2.2
 script:
     - sudo snap alias dotnet-sdk.dotnet dotnet
     - dotnet restore
