@@ -11,7 +11,7 @@ namespace SuperSocket.Client
     public class EasyClient<TPackage> : EasyClient<TPackage, TPackage>
         where TPackage : class
     {
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Action<TPackage> handler, IPackageEncoder<TPackage> packageEncoder = null, ILogger logger = null)
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Func<TPackage, Task> handler, IPackageEncoder<TPackage> packageEncoder = null, ILogger logger = null)
             : base(pipelineFilter, handler, packageEncoder, logger)
         {
 
@@ -28,11 +28,11 @@ namespace SuperSocket.Client
 
         private ILogger _logger;
 
-        private Action<TReceivePackage> _handler;
+        private Func<TReceivePackage, Task> _handler;
 
         private IPackageEncoder<TSendPackage> _packageEncoder;
 
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, Action<TReceivePackage> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, Func<TReceivePackage, Task> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
         {
             _pipelineFilter = pipelineFilter;
             _handler = handler;
@@ -48,14 +48,8 @@ namespace SuperSocket.Client
             {
                 await socket.ConnectAsync(remoteEndPoint);
                 _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, _logger);
-                _channel.PackageReceived += (c, p) => 
-                {
-                    _handler(p);
-                };
-                _channel.Closed += (s, e) =>
-                {
-                    Closed?.Invoke(s, e);
-                };
+                _channel.PackageReceived += OnPackageReceived;
+                _channel.Closed += OnClosed;
                 return true;
             }
             catch (Exception e)
@@ -63,6 +57,18 @@ namespace SuperSocket.Client
                 OnError($"Failed to connect to {remoteEndPoint}", e);
                 return false;
             }
+        }
+
+        private void OnClosed(object sender, EventArgs e)
+        {
+            _channel.PackageReceived -= OnPackageReceived;
+            _channel.Closed -= OnClosed;
+            Closed?.Invoke(sender, e);
+        }
+
+        protected async Task OnPackageReceived(IChannel channel, TReceivePackage package)
+        {
+            await _handler?.Invoke(package);
         }
 
         protected void OnError(string message, Exception exception)

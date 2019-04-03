@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -25,20 +26,20 @@ namespace Tests
 
         }
 
-        protected SuperSocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        protected SuperSocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
             return CreateSocketServer(configDict, packageHandler,  new DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter>());
         }
 
-        protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null, Func<object, IPipelineFilter<TPackageInfo>> pipeLineFilterFactory = null)
+        protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null, Func<object, IPipelineFilter<TPackageInfo>> pipeLineFilterFactory = null)
             where TPackageInfo : class
         {
             return CreateSocketServer(configDict, packageHandler,  new DelegatePipelineFilterFactory<TPackageInfo>(pipeLineFilterFactory));
         }
 
-        protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Action<IAppSession, TPackageInfo> packageHandler = null, IPipelineFilterFactory<TPackageInfo> filterFactory = null)
+        protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null, IPipelineFilterFactory<TPackageInfo> filterFactory = null)
             where TPackageInfo : class
         {
             if (configDict == null)

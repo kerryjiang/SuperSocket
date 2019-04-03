@@ -57,9 +57,9 @@ namespace Tests
         [Fact]
         public async Task TestConsoleProtocol() 
         {
-            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: (s, p) =>
+            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
             {
-                s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
+                await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
             });
             
             Assert.True(await server.StartAsync());

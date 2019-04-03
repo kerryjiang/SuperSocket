@@ -51,7 +51,7 @@ namespace SuperSocket.Server
                 _middleware.Next = middleware;
         }        
 
-        public bool Configure<TPackageInfo>(ServerOptions options, IServiceCollection services = null, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        public bool Configure<TPackageInfo>(ServerOptions options, IServiceCollection services = null, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null)
             where TPackageInfo : class
         {
             if (options == null)
@@ -99,11 +99,11 @@ namespace SuperSocket.Server
                     {
                         if (s.Channel is IChannel<TPackageInfo> channel)
                         {
-                            channel.PackageReceived += (ch, p) =>
+                            channel.PackageReceived += async (ch, p) =>
                             {
                                 try
                                 {
-                                    packageHandler(s, p);
+                                    await packageHandler(s, p);
                                 }
                                 catch (Exception e)
                                 {
@@ -120,7 +120,7 @@ namespace SuperSocket.Server
             return _configured = true;
         }
 
-        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, IServiceCollection services = null, Action<IAppSession, TPackageInfo> packageHandler = null)
+        public bool Configure<TPackageInfo, TPipelineFilter>(ServerOptions options, IServiceCollection services = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter: IPipelineFilter<TPackageInfo>, new()
         {

@@ -13,17 +13,17 @@ namespace SuperSocket.Channel
 
         public abstract ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
-        private Action<IChannel, TPackageInfo> _packageReceived;
+        private Func<IChannel, TPackageInfo, Task> _packageReceived;
 
-        public event Action<IChannel, TPackageInfo> PackageReceived
+        public event Func<IChannel, TPackageInfo, Task> PackageReceived
         {
             add => _packageReceived += value;
             remove => _packageReceived -= value;
         }
 
-        protected void OnPackageReceived(TPackageInfo package)
+        protected async Task OnPackageReceived(TPackageInfo package)
         {
-            _packageReceived?.Invoke(this, package);
+            await _packageReceived?.Invoke(this, package);
         }
 
         private EventHandler _closed;

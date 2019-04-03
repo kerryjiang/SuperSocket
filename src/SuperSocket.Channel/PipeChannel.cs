@@ -131,7 +131,12 @@ namespace SuperSocket.Channel
 
                     while (true)
                     {
-                        ReaderBuffer(buffer, out consumed, out examined);
+                        var package = ReaderBuffer(buffer, out consumed, out examined);
+
+                        if (package != null)
+                        {
+                            await OnPackageReceived(package);
+                        }
 
                         if (examined.Equals(buffer.End))
                             break;
@@ -151,7 +156,7 @@ namespace SuperSocket.Channel
             reader.Complete();
         }
 
-        private void ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
+        private TPackageInfo ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
         {
             consumed = buffer.Start;
             examined = buffer.End;
@@ -166,11 +171,9 @@ namespace SuperSocket.Channel
         
             // continue receive...
             if (packageInfo == null)
-                return;
+                return null;
 
             currentPipelineFilter.Reset();
-            // already get a package
-            OnPackageReceived(packageInfo);
 
             if (seqReader.End) // no more data
             {
@@ -180,6 +183,8 @@ namespace SuperSocket.Channel
             {
                 examined = consumed = seqReader.Position;
             }
+
+            return packageInfo;
         }
     }
 }

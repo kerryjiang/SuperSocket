@@ -20,6 +20,6 @@ namespace SuperSocket.Channel
     public interface IChannel<out TPackageInfo> : IChannel
         where TPackageInfo : class
     {
-        event Action<IChannel, TPackageInfo> PackageReceived;
+        event Func<IChannel, TPackageInfo, Task> PackageReceived;
     }
 }
