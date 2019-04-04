@@ -102,13 +102,17 @@ namespace SuperSocket.SocketEngine
             }
 
             ISocketSession socketSession;
+            IAppSession session=null;
 
-            if (security == SslProtocols.None)
-                socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
-            else
-                socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
+            try
+            {
+                if (security == SslProtocols.None)
+                    socketSession = new AsyncSocketSession(client, socketEventArgsProxy);
+                else
+                    socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
 
-            var session = CreateSession(client, socketSession);
+                session = CreateSession(client, socketSession);
+            }finally{}
 
             if (session == null)
             {
