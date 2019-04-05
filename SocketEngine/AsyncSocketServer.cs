@@ -112,7 +112,7 @@ namespace SuperSocket.SocketEngine
                     socketSession = new AsyncStreamSocketSession(client, security, socketEventArgsProxy);
 
                 session = CreateSession(client, socketSession);
-            }finally{}
+            }catch{}
 
             if (session == null)
             {
