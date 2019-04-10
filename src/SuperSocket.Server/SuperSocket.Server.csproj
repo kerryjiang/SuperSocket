@@ -15,6 +15,7 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MSExtensionsVersion)" />
