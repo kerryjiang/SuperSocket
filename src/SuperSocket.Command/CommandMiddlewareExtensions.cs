@@ -7,7 +7,7 @@ namespace SuperSocket.Command
         public static void UseCommand<TKey, TPackageInfo>(this IServer server)
             where TPackageInfo : IKeyedPackageInfo<TKey>
         {
-            server.Use<CommandMiddleware<TKey, TPackageInfo>>();
+            server.UseMiddleware<CommandMiddleware<TKey, TPackageInfo>>();
         }
     }
 }
