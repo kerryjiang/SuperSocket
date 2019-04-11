@@ -8,6 +8,6 @@ namespace SuperSocket
 
         Task StopAsync();
 
-        void Use<TMiddleware>() where TMiddleware : IMiddleware;
+        void UseMiddleware<TMiddleware>() where TMiddleware : IMiddleware;
     }
 }
