@@ -10,7 +10,7 @@ namespace SuperSocket.Server
             where TPackageInfo : class
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
-            return new TcpSocketListener(options, (s) => new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), loggerFactory.CreateLogger(nameof(IChannel))));
+            return new TcpSocketListener(options, (s) => new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), loggerFactory.CreateLogger(nameof(IChannel))), loggerFactory.CreateLogger(nameof(TcpSocketListener)));
         }
     }
 }

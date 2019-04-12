@@ -47,7 +47,13 @@ namespace SuperSocket.Server
             {
                 var listener = _listenerFactory.CreateListener<TReceivePackageInfo>(l, _loggerFactory, _pipelineFilterFactory);
                 listener.NewClientAccepted += OnNewClientAccept;
-                listener.Start();
+                
+                if (!listener.Start())
+                {
+                    _logger.LogError($"Failed to listen {listener}.");
+                    continue;
+                }
+
                 _listeners.Add(listener);
             }
 

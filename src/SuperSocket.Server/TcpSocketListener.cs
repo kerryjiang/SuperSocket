@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System.Net;
 using SuperSocket.Channel;
+using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Server
 {
@@ -15,11 +16,13 @@ namespace SuperSocket.Server
         private TaskCompletionSource<bool> _stopTaskCompletionSource;
         private readonly Func<Socket, IChannel> _channelFactory;
         public ListenOptions Options { get; }
+        private ILogger _logger;
 
-        public TcpSocketListener(ListenOptions options, Func<Socket, IChannel> channelFactory)
+        public TcpSocketListener(ListenOptions options, Func<Socket, IChannel> channelFactory, ILogger logger)
         {
             Options = options;
             _channelFactory = channelFactory;
+            _logger = logger;
         }
 
         private IPEndPoint GetListenEndPoint(string ip, int port)
@@ -44,7 +47,7 @@ namespace SuperSocket.Server
 
         public bool IsRunning { get; private set; }
 
-        public void Start()
+        public bool Start()
         {
             var options = Options;
 
@@ -67,10 +70,12 @@ namespace SuperSocket.Server
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 KeepAccept(listenSocket).DoNotAwait();
+                return true;
             }
             catch (Exception e)
             {
-                throw new Exception($"Failed to listen on {options.Ip}:{options.Port}.", e);
+                _logger.LogError(e, "The listener failed to start.");
+                return false;
             }
         }
 
