@@ -1,6 +1,8 @@
 using System;
 using System.Buffers;
 using System.Text;
+using Microsoft.Extensions.Hosting;
+using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using Xunit;
@@ -35,12 +37,15 @@ namespace Tests
             return sourceLine;
         }
 
-        protected override SuperSocketServer CreateServer()
+        protected override IServer CreateServer()
         {
-            return CreateSocketServer<TextPackageInfo, MyFixedSizePipelineFilter>(packageHandler: async (s, p) =>
-            {
-                await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
-            });
+            var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedSizePipelineFilter>()
+                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                {
+                    await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
+                }).Build() as IServer;
+                
+            return server;
         }
     }
 }

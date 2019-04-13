@@ -8,6 +8,8 @@ namespace SuperSocket
 
         Task StopAsync();
 
+        int SessionCount { get; }
+
         void UseMiddleware<TMiddleware>() where TMiddleware : IMiddleware;
     }
 }

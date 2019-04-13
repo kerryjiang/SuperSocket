@@ -13,6 +13,22 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
+    public class SuperSocketService<TReceivePackageInfo, TPipelineFilterFactory> : SuperSocketService<TReceivePackageInfo>
+        where TReceivePackageInfo : class
+        where TPipelineFilterFactory : IPipelineFilterFactory<TReceivePackageInfo>, new()
+    {
+        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory, Func<IAppSession, TReceivePackageInfo, Task> packageHandler)
+            : base(serviceProvider, serverOptions, loggerFactory, listenerFactory, packageHandler)
+        {
+
+        }
+
+        protected override IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
+        {
+            return new TPipelineFilterFactory();
+        }
+    }
+
     public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer
         where TReceivePackageInfo : class
     {
@@ -26,17 +42,25 @@ namespace SuperSocket.Server
         private Func<IAppSession, TReceivePackageInfo, Task> _packageHandler;
         private int _sessionCount;
         public string Name { get; }
+        public int SessionCount => _sessionCount;
+
         private IMiddleware _rootMiddleware;
 
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory, Func<IAppSession, TReceivePackageInfo, Task> packageHandler)
         {
             Name = _serverOptions.Value.Name;
             _serviceProvider = serviceProvider;
+            _pipelineFilterFactory = GetPipelineFilterFactory();
             _serverOptions = serverOptions;
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _listenerFactory = listenerFactory;
             _packageHandler = packageHandler;
+        }
+
+        protected virtual IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
+        {
+            return _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
         }
 
         private Task<bool> StartListenAsync()
@@ -115,10 +139,6 @@ namespace SuperSocket.Server
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            _pipelineFilterFactory = _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
-            
-            _listenerFactory = _serviceProvider.GetService<IListenerFactory>();
-
             if (_listenerFactory == null)
                 _listenerFactory = new TcpSocketListenerFactory();
             

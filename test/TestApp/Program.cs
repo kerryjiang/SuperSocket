@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
 using SuperSocket.ProtoBase;
@@ -13,35 +14,32 @@ namespace TestApp
 {
     class Program
     {
-        static SuperSocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null)
+        static IHostBuilder CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
-            if (configDict == null)
-            {
-                configDict = new Dictionary<string, string>
+            var hostBuilder = new HostBuilder()
+                .ConfigureAppConfiguration((hostCtx, configApp) =>
                 {
-                    { "serverOptions:name", "TestServer" },
-                    { "serverOptions:listeners:0:ip", "Any" },
-                    { "serverOptions:listeners:0:port", "4040" }
-                };
-            }
+                    configApp.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        { "serverOptions:name", "TestServer" },
+                        { "serverOptions:listeners:0:ip", "Any" },
+                        { "serverOptions:listeners:0:port", "4040" }
+                    });
+                })
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                })
+                .ConfigureServices((hostCtx, services) =>
+                {
+                    services.AddOptions();
+                    services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
+                })
+                .UseSuperSocket<TPackageInfo, TPipelineFilter>();
 
-            var server = new SuperSocketServer();
-
-            var services = new ServiceCollection();
-
-            var builder = new ConfigurationBuilder().AddInMemoryCollection(configDict);
-            var config = builder.Build();
-            
-            services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
-
-            var serverOptions = new ServerOptions();
-            config.GetSection("serverOptions").Bind(serverOptions);
-
-            server.Configure<TPackageInfo, TPipelineFilter>(serverOptions, services, packageHandler: packageHandler);
-
-            return server;
+            return hostBuilder;
         }
 
         static void Main(string[] args)
@@ -51,10 +49,11 @@ namespace TestApp
 
         static async Task RunAsync()
         {
-            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: async (s, p) => 
-            {
-                await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text).AsMemory());                
-            });
+            var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                {
+                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text).AsMemory());
+                }).Build() as IServer;
             
             await server.StartAsync();
 

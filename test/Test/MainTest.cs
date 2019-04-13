@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using Xunit;
 using Xunit.Abstractions;
+using Microsoft.Extensions.Hosting;
+using SuperSocket;
 
 namespace Tests
 {
@@ -21,10 +23,11 @@ namespace Tests
         [Fact] 
         public async Task TestSessionCount() 
         {
-            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
-            {
-                await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
-            });
+            var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                {
+                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
+                }).Build() as IServer;
 
             Assert.Equal("TestServer", server.Name);
 
@@ -57,10 +60,11 @@ namespace Tests
         [Fact]
         public async Task TestConsoleProtocol() 
         {
-            var server = CreateSocketServer<TextPackageInfo, LinePipelineFilter>(packageHandler: async (s, p) =>
-            {
-                await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
-            });
+            var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                {
+                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
+                }).Build() as IServer;
             
             Assert.True(await server.StartAsync());
             Assert.Equal(0, server.SessionCount);

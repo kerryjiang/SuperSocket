@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using SuperSocket;
 using SuperSocket.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -13,7 +14,7 @@ namespace Tests
 {
     public abstract class ProtocolTestBase : TestBase, IDisposable
     {
-        readonly SuperSocketServer _server;
+        readonly IServer _server;
 
         protected ProtocolTestBase(ITestOutputHelper outputHelper) : base(outputHelper)
         {
@@ -21,7 +22,7 @@ namespace Tests
             _server.StartAsync().Wait();
         }
 
-        protected abstract SuperSocketServer CreateServer();
+        protected abstract IServer CreateServer();
 
         protected Socket CreateClient()
         {

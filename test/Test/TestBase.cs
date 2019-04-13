@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
 using SuperSocket.ProtoBase;
@@ -21,54 +22,50 @@ namespace Tests
             OutputHelper = outputHelper;
         }
 
-        protected virtual void RegisterServices(IServiceCollection services)
+        protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
         {
 
         }
 
-        protected SuperSocketServer CreateSocketServer<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null)
+
+        protected IHostBuilder CreateSocketServerBuilder<TPackageInfo>(Func<object, IPipelineFilter<TPackageInfo>> filterFactory)
+            where TPackageInfo : class
+        {
+            return CreateSocketServerBuilderBase().UseSuperSocket<TPackageInfo>(filterFactory);
+        }
+
+        protected IHostBuilder CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>()
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
-            return CreateSocketServer(configDict, packageHandler,  new DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter>());
+            return CreateSocketServerBuilderBase().UseSuperSocket<TPackageInfo, TPipelineFilter>();
         }
 
-        protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null, Func<object, IPipelineFilter<TPackageInfo>> pipeLineFilterFactory = null)
-            where TPackageInfo : class
+        protected IHostBuilder CreateSocketServerBuilderBase()
         {
-            return CreateSocketServer(configDict, packageHandler,  new DelegatePipelineFilterFactory<TPackageInfo>(pipeLineFilterFactory));
-        }
-
-        protected SuperSocketServer CreateSocketServer<TPackageInfo>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null, IPipelineFilterFactory<TPackageInfo> filterFactory = null)
-            where TPackageInfo : class
-        {
-            if (configDict == null)
-            {
-                configDict = new Dictionary<string, string>
+            var hostBuilder = new HostBuilder()
+                .ConfigureAppConfiguration((hostCtx, configApp) =>
                 {
-                    { "serverOptions:name", "TestServer" },
-                    { "serverOptions:listeners:0:ip", "Any" },
-                    { "serverOptions:listeners:0:port", "4040" }
-                };
-            }
+                    configApp.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        { "serverOptions:name", "TestServer" },
+                        { "serverOptions:listeners:0:ip", "Any" },
+                        { "serverOptions:listeners:0:port", "4040" }
+                    });
+                })
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                })
+                .ConfigureServices((hostCtx, services) =>
+                {
+                    services.AddOptions();
+                    services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
+                    ConfigureServices(hostCtx, services);
+                });
 
-            var server = new SuperSocketServer();
-
-            var services = new ServiceCollection();
-
-            var builder = new ConfigurationBuilder().AddInMemoryCollection(configDict);
-            var config = builder.Build();
-            
-            services.AddLogging(loggingBuilder => loggingBuilder.AddConsole());
-
-            RegisterServices(services);
-
-            var serverOptions = new ServerOptions();
-            config.GetSection("serverOptions").Bind(serverOptions);
-
-            Assert.True(server.Configure(serverOptions, services, packageHandler: packageHandler, pipelineFilterFactory: filterFactory));
-
-            return server;
+            return hostBuilder;
         }
     }
 }

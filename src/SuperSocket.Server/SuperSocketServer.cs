@@ -10,6 +10,7 @@ using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
+    [Obsolete]
     public class SuperSocketServer : IServer
     {
         private IServiceCollection _serviceCollection;
