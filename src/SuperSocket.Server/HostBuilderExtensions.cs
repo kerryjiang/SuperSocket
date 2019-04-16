@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -60,6 +62,12 @@ namespace Microsoft.Extensions.Hosting
                     services.AddSingleton<Func<IAppSession, TReceivePackage, Task>>(packageHandler);
                 }
             );
+        }
+
+        public static IServer BuildAsServer(this IHostBuilder hostBuilder)
+        {
+            var host = hostBuilder.Build();
+            return host.Services.GetService<IEnumerable<IHostedService>>().OfType<IServer>().FirstOrDefault();
         }
     }
 }
