@@ -48,7 +48,8 @@ namespace SuperSocket.Server
 
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory, Func<IAppSession, TReceivePackageInfo, Task> packageHandler)
         {
-            Name = _serverOptions.Value.Name;
+            _serverOptions = serverOptions;
+            Name = serverOptions.Value.Name;
             _serviceProvider = serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
             _serverOptions = serverOptions;
