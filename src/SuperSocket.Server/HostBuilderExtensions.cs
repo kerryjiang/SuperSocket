@@ -26,6 +26,7 @@ namespace Microsoft.Extensions.Hosting
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
+                    services.TryAdd(new ServiceDescriptor(typeof(IListenerFactory), typeof(TcpSocketListenerFactory), ServiceLifetime.Singleton));
                     services.AddSingleton<IPipelineFilterFactory<TReceivePackage>>(new DelegatePipelineFilterFactory<TReceivePackage>(filterFactory));
                     services.AddSingleton<IHostedService, SuperSocketService<TReceivePackage>>();
                 }
