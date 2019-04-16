@@ -43,7 +43,7 @@ namespace Tests
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
                     await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
-                }).Build() as IServer;
+                }).BuildAsServer() as IServer;
                 
             return server;
         }

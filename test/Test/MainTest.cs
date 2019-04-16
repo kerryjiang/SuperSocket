@@ -27,7 +27,7 @@ namespace Tests
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
                     await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
-                }).Build() as IServer;
+                }).BuildAsServer();
 
             Assert.Equal("TestServer", server.Name);
 
@@ -64,7 +64,7 @@ namespace Tests
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
                     await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
-                }).Build() as IServer;
+                }).BuildAsServer() as IServer;
             
             Assert.True(await server.StartAsync());
             Assert.Equal(0, server.SessionCount);
