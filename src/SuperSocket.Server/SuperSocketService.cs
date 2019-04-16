@@ -139,9 +139,6 @@ namespace SuperSocket.Server
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            if (_listenerFactory == null)
-                _listenerFactory = new TcpSocketListenerFactory();
-            
             await StartListenAsync();
         }
 

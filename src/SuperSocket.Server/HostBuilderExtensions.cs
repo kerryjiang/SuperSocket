@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
@@ -41,6 +42,7 @@ namespace Microsoft.Extensions.Hosting
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
+                    services.TryAdd(new ServiceDescriptor(typeof(IListenerFactory), typeof(TcpSocketListenerFactory), ServiceLifetime.Singleton));
                     services.AddSingleton<IHostedService, SuperSocketService<TReceivePackage, TPipelineFilterFactory>>();
                 }
             );
