@@ -2,8 +2,8 @@
 
 namespace SuperSocket.Command
 {
-    public class IKeyedPackageInfo<TKey>
+    public interface IKeyedPackageInfo<TKey>
     {
-        public TKey Key { get; set; }
+        TKey Key { get; }
     }
 }
