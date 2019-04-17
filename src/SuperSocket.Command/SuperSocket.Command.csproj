@@ -5,6 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
+    <PackageReference Include="System.Reflection" Version="$(CoreFxVersion)" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />

@@ -6,6 +6,6 @@ namespace SuperSocket.Command
 {
     public interface ICommandSource
     {
-        IEnumerable<Type> GetCommandTypes();
+        IEnumerable<Type> GetCommandTypes(Predicate<Type> critera);
     }
 }

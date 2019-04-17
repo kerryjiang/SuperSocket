@@ -1,8 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using SuperSocket.Command;
 
-namespace SuperSocket.Command
+namespace SuperSocket
 {
     public static class CommandMiddlewareExtensions
     {
