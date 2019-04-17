@@ -76,4 +76,22 @@ namespace SuperSocket.Command
                 yield return CommandType;
         }
     }
+
+    public static class CommandOptionsExtensions
+    {
+        public static void AddCommand<TCommand>(this CommandOptions commandOptions)
+        {
+            commandOptions.CommandSources.Add(new ActualCommand { CommandType = typeof(TCommand) });
+        }
+
+        public static void AddCommand(this CommandOptions commandOptions, Type commandType)
+        {
+            commandOptions.CommandSources.Add(new ActualCommand { CommandType = commandType });
+        }
+
+        public static void AddCommandAssembly(this CommandOptions commandOptions, Assembly commandAssembly)
+        {
+            commandOptions.CommandSources.Add(new ActualCommandAssembly { Assembly = commandAssembly });
+        }
+    }
 }

@@ -10,7 +10,7 @@ using SuperSocket.Channel;
 namespace SuperSocket.Command
 {
     public class CommandMiddleware<TKey, TPackageInfo> : MiddlewareBase
-        where TPackageInfo : IKeyedPackageInfo<TKey>
+        where TPackageInfo : class, IKeyedPackageInfo<TKey>
     {
         private Dictionary<TKey, ICommand<TKey>> _commands;
 
