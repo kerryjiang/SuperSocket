@@ -1,27 +1,22 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using SuperSocket;
 
 
-namespace Microsoft.Extensions.Hosting
+namespace SuperSocket
 {
     public static class HostBuilderExtensions
     {
-
-        private const string _middlewareTypesTag = "MiddlewareTypes";
-
         public static IHostBuilder UseMiddleware<TMiddleware>(this IHostBuilder builder)
-            where TMiddleware : IMiddleware
+            where TMiddleware : class, IMiddleware
         {
-            var types = builder.Properties[_middlewareTypesTag] as List<Type>;
-
-            if (types == null)
-                builder.Properties[_middlewareTypesTag] = types = new List<Type>();
-
-            types.Add(typeof(TMiddleware));
-
-            return builder;
+            return builder.ConfigureServices((ctx, services) => 
+            {
+                services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, TMiddleware>());
+            });
         }
     }
 }

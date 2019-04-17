@@ -44,7 +44,7 @@ namespace SuperSocket.Server
         public string Name { get; }
         public int SessionCount => _sessionCount;
 
-        private IMiddleware _rootMiddleware;
+        private IMiddleware[] _middlewares;
 
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory, Func<IAppSession, TReceivePackageInfo, Task> packageHandler)
         {
@@ -57,6 +57,13 @@ namespace SuperSocket.Server
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _listenerFactory = listenerFactory;
             _packageHandler = packageHandler;
+
+            InitializeMiddlewares();
+        }
+
+        private void InitializeMiddlewares()
+        {
+            _middlewares = _serviceProvider.GetServices<IMiddleware>().ToArray();
         }
 
         protected virtual IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
@@ -94,6 +101,16 @@ namespace SuperSocket.Server
 
         private void InitializeSession(AppSession session)
         {
+            var middlewares = _middlewares;
+
+            if (middlewares != null && middlewares.Length > 0)
+            {
+                for (var i = 0; i < middlewares.Length; i++)
+                {
+                    middlewares[i].Register(this, session);
+                }
+            }
+
             var packageHandler = _packageHandler;
 
             if (packageHandler != null)
@@ -158,27 +175,6 @@ namespace SuperSocket.Server
         async Task IServer.StopAsync()
         {
             await StopAsync(CancellationToken.None);
-        }
-
-        public void UseMiddleware<TMiddleware>()
-            where TMiddleware : IMiddleware
-        {
-            var middleware = _serviceProvider.GetService<TMiddleware>();
-
-            IMiddleware lastMiddleware = _rootMiddleware;
-
-            while (lastMiddleware != null)
-            {
-                if (lastMiddleware.Next == null)
-                    break;
-
-                lastMiddleware = lastMiddleware.Next;
-            }
-
-            if (lastMiddleware == null)
-                _rootMiddleware = middleware;
-            else
-                lastMiddleware.Next = middleware;
         }
     }
 }
