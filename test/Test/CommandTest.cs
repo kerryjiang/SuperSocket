@@ -81,7 +81,7 @@ namespace Tests
             {
 
             }
-            
+
             protected override StringPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
             {
                 var text = buffer.GetString(Encoding.UTF8);
@@ -107,9 +107,12 @@ namespace Tests
             var server = CreateSocketServerBuilder<StringPackageInfo, MyPipelineFilter>()
                 .UseCommand<string, StringPackageInfo>(commandOptions =>
                 {
+                    // register commands one by one
                     commandOptions.AddCommand<ADD>();
                     commandOptions.AddCommand<MULT>();
                     commandOptions.AddCommand<SUB>();
+
+                    // register all commands in one aassembly
                     //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
                 }).BuildAsServer();
 
