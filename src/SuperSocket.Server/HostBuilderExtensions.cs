@@ -5,11 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 
-namespace Microsoft.Extensions.Hosting
+namespace SuperSocket
 {
     public static class HostBuilderExtensions
     {
@@ -26,7 +27,7 @@ namespace Microsoft.Extensions.Hosting
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.TryAdd(new ServiceDescriptor(typeof(IListenerFactory), typeof(TcpSocketListenerFactory), ServiceLifetime.Singleton));
+                    services.TryAdd(ServiceDescriptor.Singleton<IListenerFactory, TcpSocketListenerFactory>());
                     services.AddSingleton<IPipelineFilterFactory<TReceivePackage>>(new DelegatePipelineFilterFactory<TReceivePackage>(filterFactory));
                     services.AddSingleton<IHostedService, SuperSocketService<TReceivePackage>>();
                 }
@@ -43,7 +44,7 @@ namespace Microsoft.Extensions.Hosting
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.TryAdd(new ServiceDescriptor(typeof(IListenerFactory), typeof(TcpSocketListenerFactory), ServiceLifetime.Singleton));
+                    services.TryAdd(ServiceDescriptor.Singleton<IListenerFactory, TcpSocketListenerFactory>());
                     services.AddSingleton<IHostedService, SuperSocketService<TReceivePackage, TPipelineFilterFactory>>();
                 }
             );
