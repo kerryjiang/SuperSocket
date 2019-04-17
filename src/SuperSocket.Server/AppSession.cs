@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using SuperSocket.Channel;
 
 namespace SuperSocket.Server
@@ -10,6 +11,7 @@ namespace SuperSocket.Server
             Server = server;
             Channel = channel;
             SessionID = Guid.NewGuid().ToString();
+            channel.Closed += OnSessionClosed;
         }
 
         public string SessionID { get; }
@@ -17,5 +19,14 @@ namespace SuperSocket.Server
         public IServerInfo Server { get; }
 
         public IChannel Channel { get; }
+
+        public EventHandler Closed;
+
+        private void OnSessionClosed(object sender, EventArgs e)
+        {
+            var channel = sender as IChannel;
+            channel.Closed -= OnSessionClosed;
+            Closed?.Invoke(this, e);
+        }
     }
 }
