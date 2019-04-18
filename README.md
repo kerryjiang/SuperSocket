@@ -19,7 +19,6 @@
 
 ## Warning: the master branch is for SuperSocket 2.0. SuperSocket 2.0 is a fresh .NET Core only version, which is under developing and unstable. If you want a stable version which can be used in your production system, please switch to branch v1.6. ##
 
----
 
 ## SuperSocket 2.0 Roadmap:
 
