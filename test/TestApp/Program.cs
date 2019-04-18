@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,13 +50,13 @@ namespace TestApp
 
         static async Task RunAsync()
         {
-            var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+            var host = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
-                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text).AsMemory());
-                }).Build() as IServer;
+                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text));
+                }).Build();
             
-            await server.StartAsync();
+            await host.StartAsync(CancellationToken.None);
 
             Console.WriteLine("The server is started.");
 
@@ -64,7 +65,7 @@ namespace TestApp
                 continue;
             }
             
-            await server.StopAsync();
+            await host.StopAsync(CancellationToken.None);
         }
     }
 }
