@@ -17,8 +17,8 @@ namespace SuperSocket.Server
         where TReceivePackageInfo : class
         where TPipelineFilterFactory : IPipelineFilterFactory<TReceivePackageInfo>, new()
     {
-        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory, Func<IAppSession, TReceivePackageInfo, Task> packageHandler)
-            : base(serviceProvider, serverOptions, loggerFactory, listenerFactory, packageHandler)
+        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory)
+            : base(serviceProvider, serverOptions, loggerFactory, listenerFactory)
         {
 
         }
@@ -46,7 +46,7 @@ namespace SuperSocket.Server
 
         private IMiddleware[] _middlewares;
 
-        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory, Func<IAppSession, TReceivePackageInfo, Task> packageHandler)
+        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory)
         {
             _serverOptions = serverOptions;
             Name = serverOptions.Value.Name;
@@ -56,7 +56,7 @@ namespace SuperSocket.Server
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _listenerFactory = listenerFactory;
-            _packageHandler = packageHandler;
+            _packageHandler = serviceProvider.GetService<Func<IAppSession, TReceivePackageInfo, Task>>();
 
             InitializeMiddlewares();
         }
