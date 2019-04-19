@@ -42,7 +42,7 @@ namespace Tests
             var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedSizePipelineFilter>()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
-                    await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
+                    await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Utf8Encoding.GetBytes(p.Text + "\r\n")));
                 }).BuildAsServer() as IServer;
                 
             return server;

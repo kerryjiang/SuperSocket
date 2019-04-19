@@ -28,13 +28,13 @@ namespace Tests
 
             protected override int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer)
             {
-                var strLen = buffer.GetString(Encoding.ASCII);
+                var strLen = buffer.GetString(Utf8Encoding);
                 return int.Parse(strLen.TrimStart('0'));
             }
 
             protected override TextPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
             {
-                return new TextPackageInfo { Text = buffer.Slice(4).GetString(Encoding.UTF8) };
+                return new TextPackageInfo { Text = buffer.Slice(4).GetString(Utf8Encoding) };
             }
         }
 
@@ -48,7 +48,7 @@ namespace Tests
             return CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
-                    await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Encoding.UTF8.GetBytes(p.Text + "\r\n")));
+                    await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Utf8Encoding.GetBytes(p.Text + "\r\n")));
                 }).BuildAsServer() as IServer;
         }
     }

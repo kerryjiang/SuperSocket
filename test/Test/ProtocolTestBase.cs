@@ -42,8 +42,8 @@ namespace Tests
             using (var socket = CreateClient())
             {
                 var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Encoding.ASCII, true))
-                using (var writer = new ConsoleWriter(socketStream, Encoding.ASCII, 1024 * 8))
+                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                 {
                     var line = Guid.NewGuid().ToString();
                     writer.Write(CreateRequest(line));
@@ -64,8 +64,8 @@ namespace Tests
                 using (var socket = CreateClient())
                 {
                     var socketStream = new NetworkStream(socket);
-                    using (var reader = new StreamReader(socketStream, Encoding.ASCII, true))
-                    using (var writer = new ConsoleWriter(socketStream, Encoding.ASCII, 1024 * 8))
+                    using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
                         var line = Guid.NewGuid().ToString();
                         var sendingLine = CreateRequest(line);
@@ -82,8 +82,8 @@ namespace Tests
             using (var socket = CreateClient())
             {
                 var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Encoding.ASCII, true))
-                using (var writer = new ConsoleWriter(socketStream, Encoding.ASCII, 1024 * 8))
+                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                 {
                     var line = Guid.NewGuid().ToString();
                     var request = CreateRequest(line);
@@ -107,8 +107,8 @@ namespace Tests
             using (var socket = CreateClient())
             {
                 var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Encoding.ASCII, true))
-                using (var writer = new ConsoleWriter(socketStream, Encoding.ASCII, 1024 * 8))
+                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                 {
                     int size = 100;
 
@@ -139,8 +139,8 @@ namespace Tests
             using (var socket = CreateClient())
             {
                 var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Encoding.ASCII, true))
-                using (var writer = new ConsoleWriter(socketStream, Encoding.ASCII, 1024 * 8))
+                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                 {
                     int size = 1000;
 

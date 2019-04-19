@@ -6,13 +6,15 @@ using System.Net.Sockets;
 using System.Text;
 using System.Buffers;
 using System.Threading.Tasks;
-using SuperSocket.ProtoBase;
-using Xunit;
-using Xunit.Abstractions;
-using Microsoft.Extensions.Hosting;
+using System.Reflection;
+using System.Collections.Generic;
 using SuperSocket;
 using SuperSocket.Command;
-using System.Reflection;
+using SuperSocket.ProtoBase;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace Tests
 {
@@ -114,19 +116,21 @@ namespace Tests
 
                     // register all commands in one aassembly
                     //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
-                }).BuildAsServer();
+                }, StringComparer.OrdinalIgnoreCase).BuildAsServer();
 
             Assert.Equal("TestServer", server.Name);
 
             Assert.True(await server.StartAsync());
+            OutputHelper.WriteLine("Server started.");
+
 
             var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
             OutputHelper.WriteLine("Connected.");
 
             using (var stream = new NetworkStream(client))
-            using (var streamReader = new StreamReader(stream, Encoding.UTF8, true))
-            using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024 * 1024 * 4))
+            using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+            using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
             {
                 await streamWriter.WriteAsync("ADD 1 2 3\r\n");
                 await streamWriter.FlushAsync();
@@ -138,7 +142,7 @@ namespace Tests
                 line = await streamReader.ReadLineAsync();
                 Assert.Equal("10", line);
 
-                await streamWriter.WriteAsync("MULT 8 2\r\n");
+                await streamWriter.WriteAsync("SUB 8 2\r\n");
                 await streamWriter.FlushAsync();
                 line = await streamReader.ReadLineAsync();
                 Assert.Equal("6", line);

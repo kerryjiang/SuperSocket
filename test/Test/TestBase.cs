@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +17,8 @@ namespace Tests
     public abstract class TestBase
     {
         protected readonly ITestOutputHelper OutputHelper;
+
+        protected static readonly Encoding Utf8Encoding = new UTF8Encoding();
 
         protected TestBase(ITestOutputHelper outputHelper)
         {

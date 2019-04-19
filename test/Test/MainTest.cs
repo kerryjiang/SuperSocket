@@ -15,7 +15,8 @@ namespace Tests
     [Collection("Basic")]
     public class MainTest : TestBase
     {
-        public MainTest(ITestOutputHelper outputHelper) : base(outputHelper)
+        public MainTest(ITestOutputHelper outputHelper)
+            : base(outputHelper)
         {
 
         }
@@ -26,7 +27,7 @@ namespace Tests
             var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
-                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
+                    await s.Channel.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
                 }).BuildAsServer();
 
             Assert.Equal("TestServer", server.Name);
@@ -63,7 +64,7 @@ namespace Tests
             var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
-                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes("Hello World\r\n"));
+                    await s.Channel.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
                 }).BuildAsServer() as IServer;
             
             Assert.True(await server.StartAsync());
@@ -73,8 +74,8 @@ namespace Tests
             await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
             
             using (var stream = new NetworkStream(client))
-            using (var streamReader = new StreamReader(stream, Encoding.UTF8, true))
-            using (var streamWriter = new StreamWriter(stream, Encoding.UTF8, 1024 * 1024 * 4))
+            using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+            using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
             {
                 await streamWriter.WriteAsync("Hello World\r\n");
                 await streamWriter.FlushAsync();
