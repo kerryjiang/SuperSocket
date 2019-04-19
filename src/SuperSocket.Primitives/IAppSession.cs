@@ -1,3 +1,4 @@
+using System;
 using SuperSocket.Channel;
 
 namespace SuperSocket
@@ -9,5 +10,7 @@ namespace SuperSocket
         IChannel Channel { get; }
 
         IServerInfo Server { get; }
+
+        event EventHandler Closed;
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace SuperSocket
@@ -9,5 +10,7 @@ namespace SuperSocket
         Task StopAsync();
 
         int SessionCount { get; }
+
+        IServiceProvider ServiceProvider { get; }
     }
 }

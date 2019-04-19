@@ -33,6 +33,12 @@ namespace SuperSocket.Server
         where TReceivePackageInfo : class
     {
         private readonly IServiceProvider _serviceProvider;
+
+        public IServiceProvider ServiceProvider
+        {
+            get { return _serviceProvider; }
+        }
+        
         private readonly IOptions<ServerOptions> _serverOptions;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
