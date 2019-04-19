@@ -116,7 +116,7 @@ namespace Tests
 
                     // register all commands in one aassembly
                     //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
-                }, StringComparer.OrdinalIgnoreCase).BuildAsServer();
+                }).BuildAsServer();
 
             Assert.Equal("TestServer", server.Name);
 
