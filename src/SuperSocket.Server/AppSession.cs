@@ -20,7 +20,7 @@ namespace SuperSocket.Server
 
         public IChannel Channel { get; }
 
-        public EventHandler Closed;
+        public event EventHandler Closed;
 
         private void OnSessionClosed(object sender, EventArgs e)
         {
