@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Command;
@@ -24,6 +25,16 @@ namespace SuperSocket
                 .ConfigureServices((hostCtx, services) =>
                 {
                     services.Configure(configurator);
+                });
+        }
+
+         public static IHostBuilder UseCommand<TKey, TPackageInfo>(this IHostBuilder builder, Action<CommandOptions> configurator, IEqualityComparer<TKey> comparer)
+            where TPackageInfo : class, IKeyedPackageInfo<TKey>
+        {
+            return builder.UseCommand<TKey, TPackageInfo>(configurator)
+                .ConfigureServices((hostCtx, services) =>
+                {
+                    services.AddSingleton<IEqualityComparer<TKey>>(comparer);
                 });
         }
     }

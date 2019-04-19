@@ -13,15 +13,21 @@ namespace SuperSocket.Command
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
     {
         private Dictionary<TKey, ICommand<TKey>> _commands;
+        
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
         {
             var commandInterface = typeof(ICommand<TKey, TPackageInfo>).GetTypeInfo();
             var asyncCommandInterface = typeof(IAsyncCommand<TKey, TPackageInfo>).GetTypeInfo();            
             var commandTypes = commandOptions.Value.GetCommandTypes((t) => commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t));
+            var comparer = serviceProvider.GetService<IEqualityComparer<TKey>>();
 
-            _commands = commandTypes.Select(t =>  ActivatorUtilities.CreateInstance(serviceProvider, t) as ICommand<TKey>)
-                .ToDictionary(x => x.Key);
+            var commands = commandTypes.Select(t =>  ActivatorUtilities.CreateInstance(serviceProvider, t) as ICommand<TKey>);
+
+            if (comparer == null)
+                _commands = commands.ToDictionary(x => x.Key);
+            else
+                _commands = commands.ToDictionary(x => x.Key, comparer);
         }
 
         public override void Register(IServer server, IAppSession session)
@@ -48,11 +54,11 @@ namespace SuperSocket.Command
 
             if (asyncCommand != null)
             {
-                await asyncCommand.ExecuteAsync(null, package);
+                await asyncCommand.ExecuteAsync(session, package);
                 return;
             }
 
-            ((ICommand<TKey, TPackageInfo>)command).Execute(null, package);
+            ((ICommand<TKey, TPackageInfo>)command).Execute(session, package);
         }
     }
 }
