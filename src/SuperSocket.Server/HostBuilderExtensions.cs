@@ -68,6 +68,16 @@ namespace SuperSocket
             );
         }
 
+        public static IHostBuilder ConfigureSuperSocket(this IHostBuilder hostBuilder, Action<ServerOptions> configurator)
+        {
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.Configure<ServerOptions>(configurator);
+                }
+            );
+        }
+
         public static IServer BuildAsServer(this IHostBuilder hostBuilder)
         {
             var host = hostBuilder.Build();
