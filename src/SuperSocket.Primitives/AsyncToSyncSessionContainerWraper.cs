@@ -17,5 +17,10 @@ namespace SuperSocket
         {
             return _asyncSessionContainer.GetSessionByIDAsync(sessionID).Result;
         }
+
+        public int GetSessionCount()
+        {
+            return _asyncSessionContainer.GetSessionCountAsync().Result;
+        }
     }
 }

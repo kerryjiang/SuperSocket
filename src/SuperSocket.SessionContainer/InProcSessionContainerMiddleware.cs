@@ -36,5 +36,10 @@ namespace SuperSocket.SessionContainer
             _sessions.TryGetValue(sessionID, out IAppSession session);
             return session;
         }
+
+        public int GetSessionCount()
+        {
+            return _sessions.Count;
+        }
     }
 }
