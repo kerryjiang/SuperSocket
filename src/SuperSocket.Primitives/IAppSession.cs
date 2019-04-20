@@ -12,5 +12,7 @@ namespace SuperSocket
         IServerInfo Server { get; }
 
         event EventHandler Closed;
+
+        object State { get; set; }
     }
 }
