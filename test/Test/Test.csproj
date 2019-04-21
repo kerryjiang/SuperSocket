@@ -8,6 +8,7 @@
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Command/SuperSocket.Command.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.SessionContainer/SuperSocket.SessionContainer.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.Reflection" Version="$(CoreFxVersion)" />
