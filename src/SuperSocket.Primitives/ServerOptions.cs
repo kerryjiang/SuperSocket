@@ -1,6 +1,8 @@
+using SuperSocket.Channel;
+
 namespace SuperSocket
 {
-    public class ServerOptions
+    public class ServerOptions : ChannelOptions
     {
         public string Name { get; set; }
 

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.IO.Pipelines;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SuperSocket.ProtoBase;
 
 
@@ -18,9 +19,12 @@ namespace SuperSocket.Channel
 
         protected ILogger Logger { get; }
 
-        protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ILogger logger)
+        protected ChannelOptions Options { get; }
+
+        protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, ILogger logger)
         {
             _pipelineFilter = pipelineFilter;
+            Options = options;
             Logger = logger;
             Output = new Pipe();
         }

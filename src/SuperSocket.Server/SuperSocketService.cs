@@ -81,9 +81,11 @@ namespace SuperSocket.Server
         {
             _listeners = new List<IListener>();
 
-            foreach (var l in _serverOptions.Value.Listeners)
+            var serverOptions = _serverOptions.Value;
+
+            foreach (var l in serverOptions.Listeners)
             {
-                var listener = _listenerFactory.CreateListener<TReceivePackageInfo>(l, _loggerFactory, _pipelineFilterFactory);
+                var listener = _listenerFactory.CreateListener<TReceivePackageInfo>(l, serverOptions, _loggerFactory, _pipelineFilterFactory);
                 listener.NewClientAccepted += OnNewClientAccept;
                 
                 if (!listener.Start())

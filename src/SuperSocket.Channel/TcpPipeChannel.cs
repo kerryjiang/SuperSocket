@@ -6,6 +6,7 @@ using System.Threading;
 using System.Buffers;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
@@ -18,8 +19,8 @@ namespace SuperSocket.Channel
 
         private List<ArraySegment<byte>> _segmentsForSend;
         
-        public TcpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ILogger logger)
-            : base(pipelineFilter, logger)
+        public TcpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, ILogger logger)
+            : base(pipelineFilter, options, logger)
         {
             _socket = socket;
         }
