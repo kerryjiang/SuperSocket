@@ -47,7 +47,7 @@ namespace SuperSocket.Client
             try
             {
                 await socket.ConnectAsync(remoteEndPoint);
-                _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, _logger);
+                _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, new ChannelOptions(), _logger);
                 _channel.PackageReceived += OnPackageReceived;
                 _channel.Closed += OnClosed;
                 return true;
