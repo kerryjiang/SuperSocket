@@ -33,14 +33,14 @@ namespace SuperSocket.Channel
 
         private async Task FillPipeAsync(Socket socket, PipeWriter writer)
         {
-            const int minimumBufferSize = 512;
+            var options = Options;
 
             while (true)
             {
                 try
                 {
-                    var bufferSize = minimumBufferSize;
-                    var maxPackageLength = Options.MaxPackageLength;
+                    var bufferSize = options.ReceiveBufferSize;
+                    var maxPackageLength = options.MaxPackageLength;
 
                     if (maxPackageLength > 0)
                         bufferSize = Math.Min(bufferSize, maxPackageLength);
