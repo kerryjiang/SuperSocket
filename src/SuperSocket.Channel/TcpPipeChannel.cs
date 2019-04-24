@@ -39,7 +39,13 @@ namespace SuperSocket.Channel
             {
                 try
                 {
-                    var memory = writer.GetMemory(minimumBufferSize);
+                    var bufferSize = minimumBufferSize;
+                    var maxPackageLength = Options.MaxPackageLength;
+
+                    if (maxPackageLength > 0)
+                        bufferSize = Math.Min(bufferSize, maxPackageLength);
+
+                    var memory = writer.GetMemory(bufferSize);
 
                     var bytesRead = await ReceiveAsync(socket, memory, SocketFlags.None);         
 

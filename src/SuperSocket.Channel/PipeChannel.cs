@@ -142,6 +142,17 @@ namespace SuperSocket.Channel
                             await OnPackageReceived(package);
                         }
 
+                        var maxPackageLength = Options.MaxPackageLength;
+
+                        if (maxPackageLength > 0 && buffer.Length > maxPackageLength)
+                        {
+                            Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
+                            completed = true;
+                            // close the the connection directly
+                            Close();
+                            break;
+                        }
+
                         if (examined.Equals(buffer.End))
                             break;
 
