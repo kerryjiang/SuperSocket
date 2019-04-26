@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <RuntimeFrameworkVersion>2.2.0</RuntimeFrameworkVersion>
+    <RuntimeFrameworkVersion>3.0.0-preview4-27615-11</RuntimeFrameworkVersion>
     <CoreFxVersion>4.3.0</CoreFxVersion>
     <PipelinesVersion>4.5.2</PipelinesVersion>
     <MSExtensionsVersion>2.2.0</MSExtensionsVersion>
