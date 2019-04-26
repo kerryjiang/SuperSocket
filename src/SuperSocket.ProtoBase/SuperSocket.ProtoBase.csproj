@@ -4,7 +4,7 @@
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Memory" Version="$(SystemBuffersVersion)" />
+    <PackageReference Include="System.Memory" Version="$(SystemMemoryVersion)" />
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
   </ItemGroup>
 </Project>

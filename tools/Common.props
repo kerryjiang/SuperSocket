@@ -2,6 +2,7 @@
   <Import Project="Dependencies.props" />
   <PropertyGroup>
     <LangVersion>7.2</LangVersion>
+    <RuntimeFrameworkVersion>3.0.0-preview4-27615-11</RuntimeFrameworkVersion>
     <LibTargetFramework>netcoreapp3.0</LibTargetFramework>
   </PropertyGroup>
 </Project>
