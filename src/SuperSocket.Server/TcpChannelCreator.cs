@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Server
 {
-    public class TcpSocketListener : IListener
+    public class TcpChannelCreator : IChannelCreator
     {
         private Socket _listenSocket;
 
@@ -18,7 +18,7 @@ namespace SuperSocket.Server
         public ListenOptions Options { get; }
         private ILogger _logger;
 
-        public TcpSocketListener(ListenOptions options, Func<Socket, IChannel> channelFactory, ILogger logger)
+        public TcpChannelCreator(ListenOptions options, Func<Socket, IChannel> channelFactory, ILogger logger)
         {
             Options = options;
             _channelFactory = channelFactory;
@@ -106,19 +106,29 @@ namespace SuperSocket.Server
             handler?.Invoke(this, _channelFactory(socket));
         }
 
+        public IChannel CreateChannel(object connection)
+        {
+            return _channelFactory((Socket)connection);
+        }
+
         public Task StopAsync()
         {
+            var listenSocket = _listenSocket;
+
+            if (listenSocket == null)
+                return Task.Delay(0);
+
             _stopTaskCompletionSource = new TaskCompletionSource<bool>();
 
             _cancellationTokenSource.Cancel();
-            _listenSocket.Close();
+            listenSocket.Close();
             
             return _stopTaskCompletionSource.Task;
         }
 
         public override string ToString()
         {
-            return Options.ToString();
+            return Options?.ToString();
         }
     }
 }

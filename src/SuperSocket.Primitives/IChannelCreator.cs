@@ -3,13 +3,16 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public delegate void NewClientAcceptHandler(IListener listener, IChannel channel);
+    public delegate void NewClientAcceptHandler(IChannelCreator listener, IChannel channel);
 
-    public interface IListener
+    public interface IChannelCreator
     {
         ListenOptions Options { get; }
         bool Start();
         event NewClientAcceptHandler NewClientAccepted;
+
+        IChannel CreateChannel(object connection);
+
         Task StopAsync();
         bool IsRunning { get; }
     }

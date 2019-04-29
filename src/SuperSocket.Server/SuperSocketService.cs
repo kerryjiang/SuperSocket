@@ -17,8 +17,8 @@ namespace SuperSocket.Server
         where TReceivePackageInfo : class
         where TPipelineFilterFactory : IPipelineFilterFactory<TReceivePackageInfo>, new()
     {
-        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory)
-            : base(serviceProvider, serverOptions, loggerFactory, listenerFactory)
+        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
+            : base(serviceProvider, serverOptions, loggerFactory, channelCreatorFactory)
         {
 
         }
@@ -29,7 +29,7 @@ namespace SuperSocket.Server
         }
     }
 
-    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer
+    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister
         where TReceivePackageInfo : class
     {
         private readonly IServiceProvider _serviceProvider;
@@ -43,8 +43,8 @@ namespace SuperSocket.Server
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private IPipelineFilterFactory<TReceivePackageInfo> _pipelineFilterFactory;
-        private IListenerFactory _listenerFactory;
-        private List<IListener> _listeners;
+        private IChannelCreatorFactory _channelCreatorFactory;
+        private List<IChannelCreator> _channelCreators;
         private Func<IAppSession, TReceivePackageInfo, Task> _packageHandler;
         private int _sessionCount;
         public string Name { get; }
@@ -52,7 +52,7 @@ namespace SuperSocket.Server
 
         private IMiddleware[] _middlewares;
 
-        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IListenerFactory listenerFactory)
+        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
         {
             _serverOptions = serverOptions;
             Name = serverOptions.Value.Name;
@@ -61,7 +61,7 @@ namespace SuperSocket.Server
             _serverOptions = serverOptions;
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
-            _listenerFactory = listenerFactory;
+            _channelCreatorFactory = channelCreatorFactory;
             _packageHandler = serviceProvider.GetService<Func<IAppSession, TReceivePackageInfo, Task>>();
 
             InitializeMiddlewares();
@@ -77,34 +77,68 @@ namespace SuperSocket.Server
             return _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
         }
 
+        private bool AddChannelCreator(ListenOptions listenOptions, ServerOptions serverOptions)
+        {
+            var listener = _channelCreatorFactory.CreateChannelCreator<TReceivePackageInfo>(listenOptions, serverOptions, _loggerFactory, _pipelineFilterFactory);
+            listener.NewClientAccepted += OnNewClientAccept;
+            
+            if (!listener.Start())
+            {
+                _logger.LogError($"Failed to listen {listener}.");
+                return false;
+            }
+
+            _channelCreators.Add(listener);
+            return true;
+        }
+
         private Task<bool> StartListenAsync()
         {
-            _listeners = new List<IListener>();
+            _channelCreators = new List<IChannelCreator>();
 
             var serverOptions = _serverOptions.Value;
 
-            foreach (var l in serverOptions.Listeners)
+            if (serverOptions.Listeners != null && serverOptions.Listeners.Any())
             {
-                var listener = _listenerFactory.CreateListener<TReceivePackageInfo>(l, serverOptions, _loggerFactory, _pipelineFilterFactory);
-                listener.NewClientAccepted += OnNewClientAccept;
-                
-                if (!listener.Start())
+                foreach (var l in serverOptions.Listeners)
                 {
-                    _logger.LogError($"Failed to listen {listener}.");
-                    continue;
+                    if (!AddChannelCreator(l, serverOptions))
+                    {
+                        _logger.LogError($"Failed to listen {l}.");
+                        continue;
+                    }
                 }
+            }
+            else
+            {
+                _logger.LogWarning("No listner was defined, so this server only can accept connections from the ActiveConnect.");
 
-                _listeners.Add(listener);
+                if (!AddChannelCreator(null, serverOptions))
+                {
+                    _logger.LogError($"Failed to add the channel creator.");
+                    return Task.FromResult(false);
+                }
             }
 
             return Task.FromResult(true);
         }
 
-        protected virtual void OnNewClientAccept(IListener listener, IChannel channel)
+        protected virtual void OnNewClientAccept(IChannelCreator listener, IChannel channel)
+        {
+            AcceptNewChannel(channel);
+        }
+
+        private void AcceptNewChannel(IChannel channel)
         {
             var session = new AppSession(this, channel);
             InitializeSession(session);            
             HandleSession(session).DoNotAwait();
+        }
+
+        void IChannelRegister.RegisterChannel(object connection)
+        {
+            var channel = _channelCreators.FirstOrDefault().CreateChannel(connection);
+            AcceptNewChannel(channel);
         }
 
         private void InitializeSession(AppSession session)
@@ -170,7 +204,7 @@ namespace SuperSocket.Server
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            var tasks = _listeners.Where(l => l.IsRunning).Select(l => l.StopAsync()).ToArray();
+            var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => l.StopAsync()).ToArray();
             await Task.WhenAll(tasks);
         }
 

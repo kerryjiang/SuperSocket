@@ -27,7 +27,7 @@ namespace SuperSocket
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.TryAdd(ServiceDescriptor.Singleton<IListenerFactory, TcpSocketListenerFactory>());
+                    services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
                     services.AddSingleton<IPipelineFilterFactory<TReceivePackage>>(new DelegatePipelineFilterFactory<TReceivePackage>(filterFactory));
                     services.AddSingleton<IHostedService, SuperSocketService<TReceivePackage>>();
                 }
@@ -44,7 +44,7 @@ namespace SuperSocket
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.TryAdd(ServiceDescriptor.Singleton<IListenerFactory, TcpSocketListenerFactory>());
+                    services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
                     services.AddSingleton<IHostedService, SuperSocketService<TReceivePackage, TPipelineFilterFactory>>();
                 }
             );
