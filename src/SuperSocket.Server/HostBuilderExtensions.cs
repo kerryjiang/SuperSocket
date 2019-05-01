@@ -83,10 +83,5 @@ namespace SuperSocket
             var host = hostBuilder.Build();
             return host.Services.GetService<IEnumerable<IHostedService>>().OfType<IServer>().FirstOrDefault();
         }
-
-        public static IHostBuilder UseTelnetNegotiation(this IHostBuilder hostBuilder)
-        {
-            return hostBuilder.UseMiddleware<TelnetNegotiationMiddleware>();
-        }
     }
 }
