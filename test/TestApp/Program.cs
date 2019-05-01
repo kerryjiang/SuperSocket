@@ -51,9 +51,10 @@ namespace TestApp
         static async Task RunAsync()
         {
             var host = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .UseTelnetNegotiation()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
-                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text));
+                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
                 }).Build();
             
             await host.StartAsync(CancellationToken.None);
