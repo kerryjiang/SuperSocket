@@ -43,30 +43,20 @@ namespace TestApp
             return hostBuilder;
         }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            RunAsync().Wait();
+            await RunAsync();
         }
 
         static async Task RunAsync()
         {
             var host = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
-                .UseTelnetNegotiation()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
                     await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
                 }).Build();
             
-            await host.StartAsync(CancellationToken.None);
-
-            Console.WriteLine("The server is started.");
-
-            while (Console.ReadLine().ToLower() != "c")
-            {
-                continue;
-            }
-            
-            await host.StopAsync(CancellationToken.None);
+            await host.RunAsync();
         }
     }
 }
