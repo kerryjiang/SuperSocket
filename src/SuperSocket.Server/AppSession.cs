@@ -22,6 +22,8 @@ namespace SuperSocket.Server
 
         public object State { get; set; }
 
+        public event EventHandler Connected;
+
         public event EventHandler Closed;
 
         private void OnSessionClosed(object sender, EventArgs e)
@@ -29,6 +31,11 @@ namespace SuperSocket.Server
             var channel = sender as IChannel;
             channel.Closed -= OnSessionClosed;
             Closed?.Invoke(this, e);
+        }
+
+        internal void OnSessionConnected()
+        {
+            Connected?.Invoke(this, EventArgs.Empty);
         }
     }
 }

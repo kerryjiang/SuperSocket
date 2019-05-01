@@ -181,6 +181,7 @@ namespace SuperSocket.Server
             try
             {
                 _logger.LogInformation($"A new session connected: {session.SessionID}");
+                session.OnSessionConnected();
                 await session.Channel.StartAsync();
                 _logger.LogInformation($"The session disconnected: {session.SessionID}");
             }
