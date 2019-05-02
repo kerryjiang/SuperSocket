@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\tools\Common.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Command/SuperSocket.Command.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
+  </ItemGroup>
+</Project>
