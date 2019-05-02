@@ -15,11 +15,13 @@ namespace TestApp
 {
     class Program
     {
-        static IHostBuilder CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>(Dictionary<string, string> configDict = null, Func<IAppSession, TPackageInfo, Task> packageHandler = null)
-            where TPackageInfo : class
-            where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
+        static IHostBuilder CreateSocketServerBuilder()
         {
-            var hostBuilder = new HostBuilder()
+            return SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>()
+                .ConfigurePackageHandler(async (s, p) =>
+                {
+                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
+                })
                 .ConfigureAppConfiguration((hostCtx, configApp) =>
                 {
                     configApp.AddInMemoryCollection(new Dictionary<string, string>
@@ -37,25 +39,12 @@ namespace TestApp
                 {
                     services.AddOptions();
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
-                })
-                .UseSuperSocket<TPackageInfo, TPipelineFilter>();
-
-            return hostBuilder;
+                });
         }
 
         static async Task Main(string[] args)
         {
-            await RunAsync();
-        }
-
-        static async Task RunAsync()
-        {
-            var host = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
-                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
-                {
-                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
-                }).Build();
-            
+            var host = CreateSocketServerBuilder().Build();        
             await host.RunAsync();
         }
     }
