@@ -11,7 +11,7 @@ using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 
-namespace TestApp
+namespace EchoServer
 {
     class Program
     {
