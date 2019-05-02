@@ -11,20 +11,6 @@ using SuperSocket.Server;
 
 namespace SuperSocket
 {
-/*     public interface IHostBuilder<TReceivePackage, TPipelineFilter> : IHostBuilder
-        where TReceivePackage : class
-        where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
-    {
-        
-    }
-
-    public class SuperSocketHostBuilder<TReceivePackage, TPipelineFilter> : HostBuilder, IHostBuilder<TReceivePackage, TPipelineFilter>
-        where TReceivePackage : class
-        where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
-    {
-        
-    } */
-
     public interface IHostBuilder<TReceivePackage> : IHostBuilder
         where TReceivePackage : class
     {
