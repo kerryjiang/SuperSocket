@@ -46,9 +46,9 @@ namespace Tests
         protected override IServer CreateServer()
         {
             return CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>()
-                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                .ConfigurePackageHandler(async (s, p) =>
                 {
-                    await s.Channel.SendAsync(new ReadOnlyMemory<byte>(Utf8Encoding.GetBytes(p.Text + "\r\n")));
+                    await s.Channel.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;
         }
     }

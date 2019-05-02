@@ -36,7 +36,7 @@ namespace Tests
                 {
                     options.MaxPackageLength = 100;
                 })
-                .ConfigurePackageHandler<TextPackageInfo>(async (s, p) =>
+                .ConfigurePackageHandler(async (s, p) =>
                 {
                     await s.Channel.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer();

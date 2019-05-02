@@ -25,7 +25,7 @@ namespace Tests
         public async Task TestSessionCount() 
         {
             var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
-                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                .ConfigurePackageHandler(async (s, p) =>
                 {
                     await s.Channel.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
                 }).BuildAsServer();

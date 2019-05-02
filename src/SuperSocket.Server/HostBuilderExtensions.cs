@@ -78,10 +78,37 @@ namespace SuperSocket
             );
         }
 
+        public static IHostBuilder<TReceivePackage> ConfigureSuperSocket<TReceivePackage>(this IHostBuilder<TReceivePackage> hostBuilder, Action<ServerOptions> configurator)
+            where TReceivePackage : class
+        {
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.Configure<ServerOptions>(configurator);
+                }
+            ) as IHostBuilder<TReceivePackage>;
+        }
+
         public static IServer BuildAsServer(this IHostBuilder hostBuilder)
         {
             var host = hostBuilder.Build();
             return host.Services.GetService<IEnumerable<IHostedService>>().OfType<IServer>().FirstOrDefault();
+        }
+
+        public static IHostBuilder<TReceivePackage> ConfigurePackageHandler<TReceivePackage>(this IHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, TReceivePackage, Task> packageHandler)
+            where TReceivePackage : class
+        {
+            if (packageHandler == null)
+            {
+                return hostBuilder;
+            }
+
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<Func<IAppSession, TReceivePackage, Task>>(packageHandler);
+                }
+            ) as IHostBuilder<TReceivePackage>;
         }
     }
 }

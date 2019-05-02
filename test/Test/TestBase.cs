@@ -31,23 +31,22 @@ namespace Tests
         }
 
 
-        protected IHostBuilder CreateSocketServerBuilder<TPackageInfo>(Func<object, IPipelineFilter<TPackageInfo>> filterFactory)
+        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo>(Func<object, IPipelineFilter<TPackageInfo>> filterFactory)
             where TPackageInfo : class
         {
-            return CreateSocketServerBuilderBase().UseSuperSocket<TPackageInfo>(filterFactory);
+            return Configure(SuperSocketHostBuilder.Create<TPackageInfo>(filterFactory)) as IHostBuilder<TPackageInfo>;
         }
 
-        protected IHostBuilder CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>()
+        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>()
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
-            return CreateSocketServerBuilderBase().UseSuperSocket<TPackageInfo, TPipelineFilter>();
+            return Configure(SuperSocketHostBuilder.Create<TPackageInfo, TPipelineFilter>()) as IHostBuilder<TPackageInfo>;
         }
 
-        protected IHostBuilder CreateSocketServerBuilderBase()
+        protected IHostBuilder Configure(IHostBuilder hostBuilder)
         {
-            var hostBuilder = new HostBuilder()
-                .ConfigureAppConfiguration((hostCtx, configApp) =>
+            return hostBuilder.ConfigureAppConfiguration((hostCtx, configApp) =>
                 {
                     configApp.AddInMemoryCollection(new Dictionary<string, string>
                     {
@@ -67,8 +66,6 @@ namespace Tests
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
                     ConfigureServices(hostCtx, services);
                 });
-
-            return hostBuilder;
         }
     }
 }
