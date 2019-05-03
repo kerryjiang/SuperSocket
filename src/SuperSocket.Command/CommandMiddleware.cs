@@ -9,11 +9,38 @@ using SuperSocket.Channel;
 
 namespace SuperSocket.Command
 {
+    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo, TPackageMapper> : CommandMiddleware<TKey, TPackageInfo>
+        where TPackageInfo : class, IKeyedPackageInfo<TKey>
+        where TNetPackageInfo : class
+        where TPackageMapper : IPackageMapper<TNetPackageInfo, TPackageInfo>, new()
+    {
+        
+        private TPackageMapper _packageMapper = new TPackageMapper();
+
+        public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
+            : base(serviceProvider, commandOptions)
+        {
+
+        }
+
+        public override void Register(IServer server, IAppSession session)
+        {
+            var channel = session.Channel as IChannel<TNetPackageInfo>;
+            
+            if (channel == null)
+                throw new Exception("Unmatched package type.");
+            
+            channel.PackageReceived += async (ch, p) =>
+            {
+                await OnPackageReceived(session, _packageMapper.Map(p));
+            };
+        }
+    }
+
     public class CommandMiddleware<TKey, TPackageInfo> : MiddlewareBase
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
     {
-        private Dictionary<TKey, ICommand<TKey>> _commands;
-        
+        private Dictionary<TKey, ICommand<TKey>> _commands;        
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
         {
@@ -43,7 +70,7 @@ namespace SuperSocket.Command
             };
         }
 
-        private async Task OnPackageReceived(IAppSession session, TPackageInfo package)
+        protected async Task OnPackageReceived(IAppSession session, TPackageInfo package)
         {
             if (!_commands.TryGetValue(package.Key, out ICommand<TKey> command))
             {
