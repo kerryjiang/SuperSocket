@@ -11,14 +11,6 @@ using SuperSocket.Server;
 
 namespace SuperSocket
 {
-    public interface IHostBuilder<TReceivePackage> : IHostBuilder
-        where TReceivePackage : class
-    {
-        
-    }
-
-    
-
     class SuperSocketHostBuilder<TReceivePackage> : HostBuilder, IHostBuilder<TReceivePackage>
         where TReceivePackage : class
     {
