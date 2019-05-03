@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\tools\Common.props" />
+  <PropertyGroup>
+    <TargetFramework>$(LibTargetFramework)</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperSocket.WebSocket/SuperSocket.WebSocket.csproj" />
+    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
+    <ProjectReference Include="../SuperSocket.Server/SuperSocket.Server.csproj" />
+    <ProjectReference Include="../SuperSocket.Command/SuperSocket.Command.csproj" />
+  </ItemGroup>
+</Project>
