@@ -17,7 +17,7 @@ namespace CommandServer
         static IHostBuilder CreateSocketServerBuilder()
         {
             return SuperSocketHostBuilder.Create<StringPackageInfo, CommandLinePipelineFilter>()
-                .UseCommand<string, StringPackageInfo>((commandOptions) =>
+                .UseCommand((commandOptions) =>
                 {
                     // register commands one by one
                     commandOptions.AddCommand<ADD>();

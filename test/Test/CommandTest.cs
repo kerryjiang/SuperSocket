@@ -107,7 +107,7 @@ namespace Tests
         public async Task TestCommands()
         {
             var server = CreateSocketServerBuilder<StringPackageInfo, MyPipelineFilter>()
-                .UseCommand<string, StringPackageInfo>(commandOptions =>
+                .UseCommand(commandOptions =>
                 {
                     // register commands one by one
                     commandOptions.AddCommand<ADD>();
