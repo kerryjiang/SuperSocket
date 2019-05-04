@@ -168,9 +168,9 @@ namespace SuperSocket.Server
 
             if (packageHandler != null)
             {
-                if (session.Channel is IChannel<TReceivePackageInfo> channel)
+                if (session.Channel is IChannel<TReceivePackageInfo> packegedChannel)
                 {
-                    channel.PackageReceived += async (ch, p) =>
+                    packegedChannel.PackageReceived += async (ch, p) =>
                     {
                         try
                         {
