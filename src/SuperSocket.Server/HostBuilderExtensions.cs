@@ -52,6 +52,25 @@ namespace SuperSocket
             return hostBuilder;
         }
 
+        public static IHostBuilder UseSession<TSession>(this IHostBuilder hostBuilder)
+            where TSession : AppSession, new()
+        {
+            return hostBuilder.UseSessionFactory<GenericSessionFactory<TSession>>();
+        }
+
+        public static IHostBuilder UseSessionFactory<TSessionFactory>(this IHostBuilder hostBuilder)
+            where TSessionFactory : class, ISessionFactory
+        {
+            hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<ISessionFactory, TSessionFactory>();
+                }
+            );
+
+            return hostBuilder;
+        }
+
         public static IHostBuilder ConfigurePackageHandler<TReceivePackage>(this IHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, Task> packageHandler)
             where TReceivePackage : class
         {

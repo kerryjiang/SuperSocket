@@ -50,6 +50,8 @@ namespace SuperSocket.Server
         public string Name { get; }
         public int SessionCount => _sessionCount;
 
+        private ISessionFactory _sessionFactory;
+
         private IMiddleware[] _middlewares;
 
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
@@ -63,6 +65,13 @@ namespace SuperSocket.Server
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _channelCreatorFactory = channelCreatorFactory;
             _packageHandler = serviceProvider.GetService<Func<IAppSession, TReceivePackageInfo, Task>>();
+            
+            // initialize session factory
+            _sessionFactory = serviceProvider.GetService<ISessionFactory>();
+
+            if (_sessionFactory == null)
+                _sessionFactory = new DefaultSessionFactory();
+
 
             InitializeMiddlewares();
         }
@@ -130,8 +139,8 @@ namespace SuperSocket.Server
 
         private void AcceptNewChannel(IChannel channel)
         {
-            var session = new AppSession(this, channel);
-            InitializeSession(session);            
+            var session = _sessionFactory.Create() as AppSession;
+            InitializeSession(session, channel);
             HandleSession(session).DoNotAwait();
         }
 
@@ -141,8 +150,10 @@ namespace SuperSocket.Server
             AcceptNewChannel(channel);
         }
 
-        private void InitializeSession(AppSession session)
+        private void InitializeSession(IAppSession session, IChannel channel)
         {
+            session.Initialize(this, channel);
+
             var middlewares = _middlewares;
 
             if (middlewares != null && middlewares.Length > 0)

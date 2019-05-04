@@ -6,19 +6,23 @@ namespace SuperSocket.Server
 {
     public class AppSession : IAppSession
     {
-        internal AppSession(IServerInfo server, IChannel channel)
+        public AppSession()
+        {
+            SessionID = Guid.NewGuid().ToString();
+        }
+
+        void IAppSession.Initialize(IServerInfo server, IChannel channel)
         {
             Server = server;
             Channel = channel;
-            SessionID = Guid.NewGuid().ToString();
             channel.Closed += OnSessionClosed;
         }
 
         public string SessionID { get; }
 
-        public IServerInfo Server { get; }
+        public IServerInfo Server { get; private set; }
 
-        public IChannel Channel { get; }
+        public IChannel Channel { get; private set; }
 
         public object State { get; set; }
 
