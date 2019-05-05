@@ -7,12 +7,12 @@ using SuperSocket.Command;
 
 namespace SuperSocket.WebSocket.Server
 {
-    public interface IWebSocketHostBuilder : IHostBuilder
+    public interface IWebSocketHostBuilder : IHostBuilder<WebSocketPackage>
     {
         
     }
 
-    class InternalWebSocketHostBuilder : HostBuilder, IWebSocketHostBuilder
+    class InternalWebSocketHostBuilder : SuperSocketHostBuilder<WebSocketPackage>, IWebSocketHostBuilder
     {
 
     }
@@ -21,8 +21,9 @@ namespace SuperSocket.WebSocket.Server
     {
         public static IWebSocketHostBuilder Create()
         {
-            var hostBuilder = new InternalWebSocketHostBuilder();
-            return hostBuilder.UseSuperSocketWebSocket() as IWebSocketHostBuilder;
+            return new InternalWebSocketHostBuilder()
+                .ConfigureDefaults()
+                .UseSuperSocketWebSocket() as IWebSocketHostBuilder;
         }
 
         public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder)

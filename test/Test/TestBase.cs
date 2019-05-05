@@ -62,8 +62,6 @@ namespace Tests
                 })
                 .ConfigureServices((hostCtx, services) =>
                 {
-                    services.AddOptions();
-                    services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
                     ConfigureServices(hostCtx, services);
                 });
         }

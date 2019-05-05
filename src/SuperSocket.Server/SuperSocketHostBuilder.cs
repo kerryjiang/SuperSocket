@@ -11,10 +11,17 @@ using SuperSocket.Server;
 
 namespace SuperSocket
 {
-    class SuperSocketHostBuilder<TReceivePackage> : HostBuilder, IHostBuilder<TReceivePackage>
+    public class SuperSocketHostBuilder<TReceivePackage> : HostBuilder, IHostBuilder<TReceivePackage>
         where TReceivePackage : class
     {
-        
+        public IHostBuilder<TReceivePackage> ConfigureDefaults()
+        {
+            return this.ConfigureServices((hostCtx, services) =>
+                {
+                    services.AddOptions();
+                    services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
+                }) as IHostBuilder<TReceivePackage>;
+        }
     }
 
     public static class SuperSocketHostBuilder
@@ -23,15 +30,17 @@ namespace SuperSocket
             where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
-            var hostBuilder = new SuperSocketHostBuilder<TReceivePackage>();
-            return hostBuilder.UseSuperSocket<TReceivePackage, TPipelineFilter>() as IHostBuilder<TReceivePackage>;
+            return new SuperSocketHostBuilder<TReceivePackage>()
+                .ConfigureDefaults()
+                .UseSuperSocket<TReceivePackage, TPipelineFilter>() as IHostBuilder<TReceivePackage>;
         }
 
         public static IHostBuilder<TReceivePackage> Create<TReceivePackage>(Func<object, IPipelineFilter<TReceivePackage>> filterFactory)
             where TReceivePackage : class
         {
-            var hostBuilder = new SuperSocketHostBuilder<TReceivePackage>();
-            return hostBuilder.UseSuperSocket<TReceivePackage>(filterFactory) as IHostBuilder<TReceivePackage>;
+            return new SuperSocketHostBuilder<TReceivePackage>()
+                .ConfigureDefaults()
+                .UseSuperSocket<TReceivePackage>(filterFactory) as IHostBuilder<TReceivePackage>;
         }
     }
 }

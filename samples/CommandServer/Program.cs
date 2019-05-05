@@ -39,11 +39,6 @@ namespace CommandServer
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
                     loggingBuilder.AddConsole();
-                })
-                .ConfigureServices((hostCtx, services) =>
-                {
-                    services.AddOptions();
-                    services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
                 });
         }
 
