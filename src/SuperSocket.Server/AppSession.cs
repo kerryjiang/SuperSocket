@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
 
@@ -29,6 +30,40 @@ namespace SuperSocket.Server
         public event EventHandler Connected;
 
         public event EventHandler Closed;
+
+        
+        private Dictionary<object, object> _items;
+
+        public object this[object name]
+        {
+            get
+            {
+                var items = _items;
+
+                if (items == null)
+                    return null;
+
+                object value;
+                
+                if (items.TryGetValue(name, out value))
+                    return value;
+
+                return null;
+            }
+
+            set
+            {
+                lock (this)
+                {
+                    var items = _items;
+
+                    if (items == null)
+                        items = _items = new Dictionary<object, object>();
+
+                    items[name] = value;
+                }
+            }
+        }
 
         private void OnSessionClosed(object sender, EventArgs e)
         {

@@ -18,5 +18,7 @@ namespace SuperSocket
         object State { get; set; }
 
         void Initialize(IServerInfo server, IChannel channel);
+
+        object this[object name] { get; set; }
     }
 }
