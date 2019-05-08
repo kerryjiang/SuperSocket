@@ -23,8 +23,7 @@ namespace SuperSocket.WebSocket.Server
         {
             return new InternalWebSocketHostBuilder()
                 .ConfigureDefaults()
-                .UseSuperSocketWebSocket()
-                .UseSession<WebSocketSession>() as IWebSocketHostBuilder;
+                .UseSuperSocketWebSocket() as IWebSocketHostBuilder;
         }
 
         public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder)
