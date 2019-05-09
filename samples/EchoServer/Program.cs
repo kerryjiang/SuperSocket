@@ -15,31 +15,32 @@ namespace EchoServer
 {
     class Program
     {
-        static IHostBuilder CreateSocketServerBuilder()
+        static async Task Main(string[] args)
         {
-            return SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>()
+            var host = SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>()
                 .ConfigurePackageHandler(async (s, p) =>
                 {
                     await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
                 })
-                .ConfigureAppConfiguration((hostCtx, configApp) =>
-                {
-                    configApp.AddInMemoryCollection(new Dictionary<string, string>
-                    {
-                        { "serverOptions:name", "TestServer" },
-                        { "serverOptions:listeners:0:ip", "Any" },
-                        { "serverOptions:listeners:0:port", "4040" }
-                    });
-                })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
                     loggingBuilder.AddConsole();
-                });
-        }
+                })
+                .ConfigureServices((hostCtx, services) =>
+                {
+                    services.Configure<ServerOptions>(options =>
+                    {
+                        options.Name = "Echo Server";
+                        options.Listeners = new [] {
+                            new ListenOptions
+                            {
+                                Ip = "Any",
+                                Port = 4040
+                            }
+                        };
+                    });
+                }).Build();
 
-        static async Task Main(string[] args)
-        {
-            var host = CreateSocketServerBuilder().Build();        
             await host.RunAsync();
         }
     }
