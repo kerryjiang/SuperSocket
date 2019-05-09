@@ -26,19 +26,16 @@ namespace EchoServer
                 {
                     loggingBuilder.AddConsole();
                 })
-                .ConfigureServices((hostCtx, services) =>
+                .ConfigureSuperSocket(options =>
                 {
-                    services.Configure<ServerOptions>(options =>
-                    {
-                        options.Name = "Echo Server";
-                        options.Listeners = new [] {
-                            new ListenOptions
-                            {
-                                Ip = "Any",
-                                Port = 4040
-                            }
-                        };
-                    });
+                    options.Name = "Echo Server";
+                    options.Listeners = new [] {
+                        new ListenOptions
+                        {
+                            Ip = "Any",
+                            Port = 4040
+                        }
+                    };
                 }).Build();
 
             await host.RunAsync();
