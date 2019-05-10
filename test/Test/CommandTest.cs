@@ -21,13 +21,6 @@ namespace Tests
     [Collection("Command")]
     public class CommandTest : TestBase
     {
-        class StringPackageInfo : IKeyedPackageInfo<string>
-        {
-            public string Key { get; set; }
-
-            public string[] Parameters { get; set; }
-        }
-
         class ADD : IAsyncCommand<string, StringPackageInfo>
         {
             public string Key => "ADD";

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SuperSocket.Command
+namespace SuperSocket
 {
     public interface IKeyedPackageInfo<TKey>
     {

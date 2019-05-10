@@ -1,7 +1,6 @@
-using SuperSocket.Command;
-using SuperSocket.ProtoBase;
+using SuperSocket;
 
-namespace CommandServer
+namespace SuperSocket
 {
     public class StringPackageInfo : IKeyedPackageInfo<string>
     {
