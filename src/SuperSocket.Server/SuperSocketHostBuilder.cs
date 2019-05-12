@@ -18,6 +18,12 @@ namespace SuperSocket
         {
             return this.ConfigureServices((hostCtx, services) =>
                 {
+                    // if the package type is StringPackageInfo
+                    if (typeof(TReceivePackage) == typeof(StringPackageInfo))
+                    {
+                        services.AddSingleton<IPackageDecoder<StringPackageInfo>, DefaultStringPackageDecoder>();
+                    }
+
                     services.AddOptions();
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
                 }) as IHostBuilder<TReceivePackage>;

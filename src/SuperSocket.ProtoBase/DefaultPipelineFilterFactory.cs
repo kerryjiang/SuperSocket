@@ -1,10 +1,18 @@
+using System;
+
 namespace SuperSocket.ProtoBase
 {
-    public class DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter> : IPipelineFilterFactory<TPackageInfo>
+    public class DefaultPipelineFilterFactory<TPackageInfo, TPipelineFilter> : PipelineFilterFactoryBase<TPackageInfo>
         where TPackageInfo : class
         where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
     {
-        public IPipelineFilter<TPackageInfo> Create(object client)
+        public DefaultPipelineFilterFactory(IServiceProvider serviceProvider)
+            : base(serviceProvider)
+        {
+
+        }
+
+        protected override IPipelineFilter<TPackageInfo> CreateCore(object client)
         {
             return new TPipelineFilter();
         }

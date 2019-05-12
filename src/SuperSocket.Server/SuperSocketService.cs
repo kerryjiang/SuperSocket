@@ -13,22 +13,6 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class SuperSocketService<TReceivePackageInfo, TPipelineFilterFactory> : SuperSocketService<TReceivePackageInfo>
-        where TReceivePackageInfo : class
-        where TPipelineFilterFactory : IPipelineFilterFactory<TReceivePackageInfo>, new()
-    {
-        public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
-            : base(serviceProvider, serverOptions, loggerFactory, channelCreatorFactory)
-        {
-
-        }
-
-        protected override IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
-        {
-            return new TPipelineFilterFactory();
-        }
-    }
-
     public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister
         where TReceivePackageInfo : class
     {

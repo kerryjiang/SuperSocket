@@ -22,13 +22,6 @@ namespace Tests
     [Collection("SessionContaner")]
     public class SessionContanerTest : TestBase
     {
-        class StringPackageInfo : IKeyedPackageInfo<string>
-        {
-            public string Key { get; set; }
-
-            public string[] Parameters { get; set; }
-        }
-
         class SESS : IAsyncCommand<string, StringPackageInfo>
         {
             public string Key => "SESS";
