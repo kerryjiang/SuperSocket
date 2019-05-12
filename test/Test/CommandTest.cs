@@ -33,7 +33,7 @@ namespace Tests
                     .Select(p => int.Parse(p))
                     .Sum();
 
-                await session.Channel.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+                await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
             }
         }
 
@@ -49,7 +49,7 @@ namespace Tests
                     .Select(p => int.Parse(p))
                     .Aggregate((x, y) => x * y);
 
-                await session.Channel.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+                await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
             }
         }
 
@@ -65,7 +65,7 @@ namespace Tests
                     .Select(p => int.Parse(p))
                     .Aggregate((x, y) => x - y);
 
-                await session.Channel.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+                await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
             }
         }
 

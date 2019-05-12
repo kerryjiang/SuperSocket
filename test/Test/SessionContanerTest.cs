@@ -30,7 +30,7 @@ namespace Tests
 
             public async Task ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
-                await session.Channel.SendAsync(Encoding.UTF8.GetBytes(session.SessionID + "\r\n"));
+                await session.SendAsync(Encoding.UTF8.GetBytes(session.SessionID + "\r\n"));
             }
         }
 

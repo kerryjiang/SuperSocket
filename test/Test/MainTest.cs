@@ -27,7 +27,7 @@ namespace Tests
             var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
                 .ConfigurePackageHandler(async (s, p) =>
                 {
-                    await s.Channel.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
+                    await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
                 }).BuildAsServer();
 
             Assert.Equal("TestServer", server.Name);
@@ -64,7 +64,7 @@ namespace Tests
             var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
                 .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
-                    await s.Channel.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
+                    await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
                 }).BuildAsServer() as IServer;
             
             Assert.True(await server.StartAsync());

@@ -20,7 +20,7 @@ namespace EchoServer
             var host = SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>()
                 .ConfigurePackageHandler(async (s, p) =>
                 {
-                    await s.Channel.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
+                    await s.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {

@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using SuperSocket.Channel;
 
 namespace SuperSocket
@@ -8,6 +9,8 @@ namespace SuperSocket
         string SessionID { get; }
 
         IChannel Channel { get; }
+
+        ValueTask SendAsync(ReadOnlyMemory<byte> data);
 
         IServerInfo Server { get; }
 

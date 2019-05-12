@@ -7,6 +7,8 @@ namespace SuperSocket.Server
 {
     public class AppSession : IAppSession
     {
+        private IChannel _channel;
+
         public AppSession()
         {
             SessionID = Guid.NewGuid().ToString();
@@ -15,22 +17,24 @@ namespace SuperSocket.Server
         void IAppSession.Initialize(IServerInfo server, IChannel channel)
         {
             Server = server;
-            Channel = channel;
-            channel.Closed += OnSessionClosed;
+            _channel = channel;
+            _channel.Closed += OnSessionClosed;
         }
 
         public string SessionID { get; }
 
         public IServerInfo Server { get; private set; }
 
-        public IChannel Channel { get; private set; }
+       IChannel IAppSession.Channel
+       {
+           get { return _channel; }
+       }
 
         public object State { get; set; }
 
         public event EventHandler Connected;
 
         public event EventHandler Closed;
-
         
         private Dictionary<object, object> _items;
 
@@ -75,6 +79,14 @@ namespace SuperSocket.Server
         internal void OnSessionConnected()
         {
             Connected?.Invoke(this, EventArgs.Empty);
+        }
+
+        public ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        {
+            lock (_channel)
+            {
+                return _channel.SendAsync(data);
+            }
         }
     }
 }
