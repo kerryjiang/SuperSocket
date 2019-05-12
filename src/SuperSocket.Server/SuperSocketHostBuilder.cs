@@ -21,7 +21,7 @@ namespace SuperSocket
                     // if the package type is StringPackageInfo
                     if (typeof(TReceivePackage) == typeof(StringPackageInfo))
                     {
-                        services.AddSingleton<IPackageDecoder<StringPackageInfo>, DefaultStringPackageDecoder>();
+                        services.TryAdd(new ServiceDescriptor(typeof(IPackageDecoder<StringPackageInfo>), typeof(DefaultStringPackageDecoder), ServiceLifetime.Singleton));
                     }
 
                     services.AddOptions();
