@@ -15,17 +15,5 @@ namespace CommandServer
         {
 
         }
-
-        protected override StringPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
-        {
-            var text = buffer.GetString(Encoding.UTF8);
-            var parts = text.Split(' ');
-
-            return new StringPackageInfo
-            {
-                Key = parts[0],
-                Parameters = parts.Skip(1).ToArray()
-            };
-        }
     }
 }
