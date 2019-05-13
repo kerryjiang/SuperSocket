@@ -16,6 +16,7 @@ namespace SuperSocket
             return new StringPackageInfo
             {
                 Key = parts[0],
+                Body = text,
                 Parameters = parts.Skip(1).ToArray()
             };
         }
