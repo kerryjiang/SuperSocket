@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket.WebSocket;
 using SuperSocket.Command;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.Server
 {

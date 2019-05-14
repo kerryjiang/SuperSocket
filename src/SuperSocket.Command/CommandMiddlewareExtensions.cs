@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Command;
 using System.Reflection;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket
 {

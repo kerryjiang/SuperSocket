@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Channel;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Command
 {

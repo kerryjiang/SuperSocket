@@ -1,6 +1,6 @@
 using SuperSocket;
 
-namespace SuperSocket
+namespace SuperSocket.ProtoBase
 {
     public class StringPackageInfo : IKeyedPackageInfo<string>
     {
