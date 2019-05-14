@@ -69,15 +69,6 @@ namespace Tests
             }
         }
 
-        class MyPipelineFilter : TerminatorPipelineFilter<StringPackageInfo>
-        {
-            public MyPipelineFilter()
-                : base(new[] { (byte)'\r', (byte)'\n' })
-            {
-
-            }
-        }
-
         public CommandTest(ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
@@ -87,7 +78,7 @@ namespace Tests
         [Fact] 
         public async Task TestCommands()
         {
-            var server = CreateSocketServerBuilder<StringPackageInfo, MyPipelineFilter>()
+            var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>()
                 .UseCommand(commandOptions =>
                 {
                     // register commands one by one
