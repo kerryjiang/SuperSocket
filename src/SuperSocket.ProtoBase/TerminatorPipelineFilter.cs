@@ -3,12 +3,12 @@ using System.Buffers;
 
 namespace SuperSocket.ProtoBase
 {
-    public abstract class TerminatorPipelineFilter<TPackageInfo> : PipelineFilterBase<TPackageInfo>
+    public class TerminatorPipelineFilter<TPackageInfo> : PipelineFilterBase<TPackageInfo>
         where TPackageInfo : class
     {
         private readonly ReadOnlyMemory<byte> _terminator;
 
-        protected TerminatorPipelineFilter(ReadOnlyMemory<byte> terminator)
+        public TerminatorPipelineFilter(ReadOnlyMemory<byte> terminator)
         {
             _terminator = terminator;
         }
