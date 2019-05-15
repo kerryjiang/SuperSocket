@@ -1,5 +1,6 @@
 bin
 obj
+publish
 _ReSharper.*
 *.suo
 *.user
