@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>SuperSocket</id>
+        <version>2.0.0-preview1</version>
+        <description>SuperSocket is a light weight extensible socket application framework. You can use it to build an always connected socket application easily without thinking about how to use socket, how to maintain the socket connections and how socket works. It is a pure C# project which is designed to be extended, so it is easy to be integrated to your existing systems as long as they are developed in .NET language.</description>
+        <authors>Kerry Jiang and other contributors</authors>
+        <projectUrl>https://github.com/kerryjiang/supersocket</projectUrl>
+        <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+        <language>en-US</language>
+        <tags>Socket, Socket Server, SuperSocket, Network Protocol</tags>
+        <repository type="git" url="https://github.com/kerryjiang/supersocket" branch="master" commit="e840e941c20d98d782550399474c229914466e72" />
+    </metadata>
+    <files>
+        <file src="publish\SuperSocket.*.dll" target="lib/netstandard2" />
+        <file src="publish\SuperSocket.*.*.dll" target="lib" />
+    </files>
+</package>
