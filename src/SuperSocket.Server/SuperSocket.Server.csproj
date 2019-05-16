@@ -23,9 +23,6 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxVersion)" />
-    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
-    <PackageReference Include="System.Net.Sockets" Version="$(CoreFxVersion)" />
   </ItemGroup>
 
 </Project>

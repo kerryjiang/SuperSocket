@@ -4,9 +4,6 @@
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Threading.Tasks" Version="$(CoreFxVersion)" />
-    <PackageReference Include="System.Net.Sockets" Version="$(CoreFxVersion)" />
-    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
   </ItemGroup>

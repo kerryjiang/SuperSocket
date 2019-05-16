@@ -4,7 +4,6 @@
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Net.Sockets" Version="$(CoreFxVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
   </ItemGroup>
   <ItemGroup>

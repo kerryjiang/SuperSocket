@@ -12,8 +12,6 @@
     <ProjectReference Include="../../src/SuperSocket.SessionContainer/SuperSocket.SessionContainer.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Reflection" Version="$(CoreFxVersion)" />
-    <PackageReference Include="System.Memory" Version="$(SystemMemoryVersion)" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
     <PackageReference Include="xunit" Version="2.4.1" />
