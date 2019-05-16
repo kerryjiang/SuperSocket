@@ -7,3 +7,5 @@ _ReSharper.*
 *.lock.json
 *.log
 .vs
+.DS_Store
+.nupkg
