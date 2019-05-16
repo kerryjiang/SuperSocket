@@ -5,14 +5,31 @@
         <version>2.0.0-preview1</version>
         <description>SuperSocket is a light weight extensible socket application framework. You can use it to build an always connected socket application easily without thinking about how to use socket, how to maintain the socket connections and how socket works. It is a pure C# project which is designed to be extended, so it is easy to be integrated to your existing systems as long as they are developed in .NET language.</description>
         <authors>Kerry Jiang and other contributors</authors>
-        <projectUrl>https://github.com/kerryjiang/supersocket</projectUrl>
+        <projectUrl>http://www.supersocket.net</projectUrl>
         <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
         <language>en-US</language>
         <tags>Socket, Socket Server, SuperSocket, Network Protocol</tags>
-        <repository type="git" url="https://github.com/kerryjiang/supersocket" branch="master" commit="e840e941c20d98d782550399474c229914466e72" />
+        <repository type="git" url="https://github.com/kerryjiang/supersocket" branch="master" commit="4548126f2060fc9f3d8f8a10100bb60e41587ff0" />
+        <dependencies>
+            <group targetFramework="netcoreapp3.0">
+                <dependency id="Microsoft.Extensions.DependencyInjection" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Hosting.Abstractions" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Hosting" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Configuration" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Configuration.Binder" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Options" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Options.ConfigurationExtensions" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Logging" version="3.0.0-preview5.19227.9" />
+                <dependency id="Microsoft.Extensions.Logging.Console" version="3.0.0-preview5.19227.9" />
+            </group>
+        </dependencies>
     </metadata>
     <files>
-        <file src="publish\SuperSocket.*.dll" target="lib/netstandard2" />
-        <file src="publish\SuperSocket.*.*.dll" target="lib" />
+        <file src="publish/SuperSocket.Primitives.dll" target="lib/netcoreapp3.0" />
+        <file src="publish/SuperSocket.Channel.dll" target="lib/netcoreapp3.0" />
+        <file src="publish/SuperSocket.ProtoBase.dll" target="lib/netcoreapp3.0" />
+        <file src="publish/SuperSocket.Server.dll" target="lib/netcoreapp3.0" />
+        <file src="publish/SuperSocket.Command.dll" target="lib/netcoreapp3.0" />
+        <file src="publish/SuperSocket.SessionContainer.dll" target="lib/netcoreapp3.0" />
     </files>
 </package>
