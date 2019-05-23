@@ -9,6 +9,8 @@ namespace SuperSocket.WebSocket
 
         public string Message { get; set; }
 
+        public HttpHeader HttpHeader { get; set; }
+
         public ReadOnlySequence<byte> Data { get; set; }
     }
 }

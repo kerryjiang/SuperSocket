@@ -8,6 +8,6 @@ namespace SuperSocket.WebSocket.Server
     {
         public bool Handshaked { get; internal set; }
 
-        public NameValueCollection HeaderItems { get; internal set; }
+        public HttpHeader HttpHeader { get; internal set; }
     }
 }
