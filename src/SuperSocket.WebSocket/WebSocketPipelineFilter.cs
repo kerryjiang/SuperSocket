@@ -20,7 +20,7 @@ namespace SuperSocket.WebSocket
         
         public IPackageDecoder<WebSocketPackage> Decoder { get; set; }
 
-        public IPipelineFilter<WebSocketPackage> NextFilter { get; set; }
+        public IPipelineFilter<WebSocketPackage> NextFilter { get; internal set; }
 
         public WebSocketPackage Filter(ref SequenceReader<byte> reader)
         {
@@ -47,6 +47,7 @@ namespace SuperSocket.WebSocket
                 OpCode = OpCode.Handshake
             };
 
+            NextFilter = new WebSocketDataPipelineFilter();
             return package;
         }
 
