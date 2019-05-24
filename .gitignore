@@ -8,4 +8,4 @@ _ReSharper.*
 *.log
 .vs
 .DS_Store
-.nupkg
+*.nupkg
