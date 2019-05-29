@@ -44,7 +44,7 @@ namespace SuperSocket.WebSocket
             get { return ((m_InnerData[1] & 0x80) == 0x80); }
         }
 
-        public sbyte PayloadLenght
+        public sbyte PayloadLength
         {
             get { return (sbyte)(m_InnerData[1] & 0x7f); }
         }
@@ -58,7 +58,7 @@ namespace SuperSocket.WebSocket
                 if (m_ActualPayloadLength >= 0)
                     return m_ActualPayloadLength;
 
-                var payloadLength = PayloadLenght;
+                var payloadLength = PayloadLength;
 
                 if (payloadLength < 126)
                     m_ActualPayloadLength = payloadLength;
