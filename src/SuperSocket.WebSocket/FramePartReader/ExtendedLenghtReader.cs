@@ -11,7 +11,7 @@ namespace SuperSocket.WebSocket.FramePartReader
         {
             int required = 2;
 
-            if (frame.PayloadLenght == 126)
+            if (frame.PayloadLength == 126)
                 required += 2;
             else
                 required += 8;

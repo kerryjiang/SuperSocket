@@ -15,7 +15,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                 return -1;
             }
 
-            if (frame.PayloadLenght < 126)
+            if (frame.PayloadLength < 126)
             {
                 if (frame.HasMask)
                     nextPartReader = MaskKeyReader;
