@@ -48,5 +48,25 @@ namespace SuperSocket.WebSocket.Server
                     services.Configure(configurator);
                 }) as IWebSocketHostBuilder;
         }
+
+        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo>(this IWebSocketHostBuilder builder)
+            where TPackageInfo : class, IKeyedPackageInfo<TKey>
+        {
+            return builder.UseMiddleware<CommandMiddleware<TKey, WebSocketPackage, TPackageInfo>>()
+                .ConfigureServices((hostCxt, services) =>
+                {
+                    services.Configure<CommandOptions>(hostCxt.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
+                }) as IWebSocketHostBuilder;
+        }
+
+        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo>(this IWebSocketHostBuilder builder, Action<CommandOptions> configurator)
+            where TPackageInfo : class, IKeyedPackageInfo<TKey>
+        {
+             return builder.UseCommand<TKey, TPackageInfo>()
+                .ConfigureServices((hostCtx, services) =>
+                {
+                    services.Configure(configurator);
+                }) as IWebSocketHostBuilder;
+        }
     }
 }

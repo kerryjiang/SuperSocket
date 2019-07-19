@@ -10,18 +10,39 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Command
 {
-    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo, TPackageMapper> : CommandMiddleware<TKey, TPackageInfo>
+    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo, TPackageMapper> : CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo>
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
         where TNetPackageInfo : class
         where TPackageMapper : IPackageMapper<TNetPackageInfo, TPackageInfo>, new()
     {
-        
-        private TPackageMapper _packageMapper = new TPackageMapper();
+        protected override IPackageMapper<TNetPackageInfo, TPackageInfo> GetPackageMapper()
+        {
+            return new TPackageMapper();
+        }
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
         {
 
+        }
+    }
+
+    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo> : CommandMiddleware<TKey, TPackageInfo>
+        where TPackageInfo : class, IKeyedPackageInfo<TKey>
+        where TNetPackageInfo : class
+    {
+
+        IPackageMapper<TNetPackageInfo, TPackageInfo> _packageMapper;
+
+        protected virtual IPackageMapper<TNetPackageInfo, TPackageInfo> GetPackageMapper()
+        {
+            return _packageMapper;
+        }
+
+        public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
+            : base(serviceProvider, commandOptions)
+        {
+            _packageMapper = serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
         public override void Register(IServer server, IAppSession session)
@@ -30,10 +51,12 @@ namespace SuperSocket.Command
             
             if (channel == null)
                 throw new Exception("Unmatched package type.");
+
+            var packageMapper = GetPackageMapper();
             
             channel.PackageReceived += async (ch, p) =>
             {
-                await OnPackageReceived(session, _packageMapper.Map(p));
+                await OnPackageReceived(session, packageMapper.Map(p));
             };
         }
     }
