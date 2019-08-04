@@ -1,5 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\tools\Common.props" />
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <DebugType>portable</DebugType>

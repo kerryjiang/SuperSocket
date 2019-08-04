@@ -1,5 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="..\..\tools\Common.props" />
   <PropertyGroup>
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
   </PropertyGroup>
