@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket.WebSocket;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
+using System.Threading.Tasks;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -24,14 +25,18 @@ namespace SuperSocket.WebSocket.Server
         {
             return new InternalWebSocketHostBuilder()
                 .ConfigureDefaults()
-                .UseSuperSocketWebSocket() as IWebSocketHostBuilder;
+                .UseSuperSocketWebSocket()
+                .ConfigureServices((ctx, services) =>
+                {
+                    services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
+                }) as IWebSocketHostBuilder;
         }
 
         public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
         {
-            return builder.UseMiddleware<CommandMiddleware<TKey, WebSocketPackage, TPackageInfo, TPackageMapper>>()
+            return builder.UseMiddleware<WebSocketCommandMiddleware<TKey, TPackageInfo, TPackageMapper>>()
                 .ConfigureServices((hostCxt, services) =>
                 {
                     services.Configure<CommandOptions>(hostCxt.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
