@@ -29,7 +29,7 @@ namespace SuperSocket.Server
         private IPipelineFilterFactory<TReceivePackageInfo> _pipelineFilterFactory;
         private IChannelCreatorFactory _channelCreatorFactory;
         private List<IChannelCreator> _channelCreators;
-        private Func<IAppSession, TReceivePackageInfo, Task> _packageHandler;
+        private IPackageHandler<TReceivePackageInfo> _packageHandler;
         private int _sessionCount;
         public string Name { get; }
         public int SessionCount => _sessionCount;
@@ -48,7 +48,7 @@ namespace SuperSocket.Server
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _channelCreatorFactory = channelCreatorFactory;
-            _packageHandler = serviceProvider.GetService<Func<IAppSession, TReceivePackageInfo, Task>>();
+            _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
             
             // initialize session factory
             _sessionFactory = serviceProvider.GetService<ISessionFactory>();
@@ -144,7 +144,10 @@ namespace SuperSocket.Server
             {
                 for (var i = 0; i < middlewares.Length; i++)
                 {
-                    middlewares[i].Register(this, session);
+                    var mw = middlewares[i];
+
+                    if (mw.AutoRegister)
+                        mw.Register(this, session);
                 }
             }
 
@@ -158,7 +161,7 @@ namespace SuperSocket.Server
                     {
                         try
                         {
-                            await packageHandler(session, p);
+                            await packageHandler.Handle(session, p);
                         }
                         catch (Exception e)
                         {

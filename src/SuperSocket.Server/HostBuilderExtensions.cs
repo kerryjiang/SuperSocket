@@ -90,7 +90,7 @@ namespace SuperSocket
             return hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.AddSingleton<Func<IAppSession, TReceivePackage, Task>>(packageHandler);
+                    services.AddSingleton<IPackageHandler<TReceivePackage>>(new DelegatePackageHandler<TReceivePackage>(packageHandler));
                 }
             );
         }
