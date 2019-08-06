@@ -36,39 +36,20 @@ namespace SuperSocket.WebSocket.Server
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
         {
-            return builder.UseMiddleware<WebSocketCommandMiddleware<TKey, TPackageInfo, TPackageMapper>>()
-                .ConfigureServices((hostCxt, services) =>
-                {
-                    services.Configure<CommandOptions>(hostCxt.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
-                }) as IWebSocketHostBuilder;
-        }
-
-        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder, Action<CommandOptions> configurator)
-            where TPackageInfo : class, IKeyedPackageInfo<TKey>
-            where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
-        {
-             return builder.UseCommand<TKey, TPackageInfo, TPackageMapper>()
-                .ConfigureServices((hostCtx, services) =>
-                {
-                    services.Configure(configurator);
-                }) as IWebSocketHostBuilder;
-        }
-
-        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo>(this IWebSocketHostBuilder builder)
-            where TPackageInfo : class, IKeyedPackageInfo<TKey>
-        {
-            return builder.UseMiddleware<CommandMiddleware<TKey, WebSocketPackage, TPackageInfo>>()
-                .ConfigureServices((hostCxt, services) =>
-                {
-                    services.Configure<CommandOptions>(hostCxt.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
-                }) as IWebSocketHostBuilder;
-        }
+            return builder.ConfigureServices((ctx, services) => 
+            {
+                services.AddSingleton<IWebSocketCommandMiddleware, WebSocketCommandMiddleware<TKey, TPackageInfo, TPackageMapper>>();
+            }).ConfigureServices((ctx, services) =>
+            {
+                services.Configure<CommandOptions>(ctx.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
+            }) as IWebSocketHostBuilder;
+        }        
 
         public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo>(this IWebSocketHostBuilder builder, Action<CommandOptions> configurator)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
         {
              return builder.UseCommand<TKey, TPackageInfo>()
-                .ConfigureServices((hostCtx, services) =>
+                .ConfigureServices((ctx, services) =>
                 {
                     services.Configure(configurator);
                 }) as IWebSocketHostBuilder;
