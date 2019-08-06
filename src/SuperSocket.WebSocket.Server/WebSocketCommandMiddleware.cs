@@ -23,7 +23,5 @@ namespace SuperSocket.WebSocket.Server
         {
             
         }
-
-        public override bool AutoRegister { get; } = false;
     }
 }

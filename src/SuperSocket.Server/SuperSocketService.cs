@@ -144,10 +144,7 @@ namespace SuperSocket.Server
             {
                 for (var i = 0; i < middlewares.Length; i++)
                 {
-                    var mw = middlewares[i];
-
-                    if (mw.AutoRegister)
-                        mw.Register(this, session);
+                    middlewares[i].Register(this, session);
                 }
             }
 
