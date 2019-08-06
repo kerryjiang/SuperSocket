@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SuperSocket.WebSocket.FramePartReader
 {
-    class ExtendedLenghtReader : DataFramePartReader
+    class ExtendedLengthReader : DataFramePartReader
     {
         public override int Process(int lastLength, WebSocketDataFrame frame, out IDataFramePartReader nextPartReader)
         {

@@ -10,7 +10,7 @@ namespace SuperSocket.WebSocket.FramePartReader
         static DataFramePartReader()
         {
             FixPartReader = new FixPartReader();
-            ExtendedLenghtReader = new ExtendedLenghtReader();
+            ExtendedLenghtReader = new ExtendedLengthReader();
             MaskKeyReader = new MaskKeyReader();
             PayloadDataReader = new PayloadDataReader();
         }
