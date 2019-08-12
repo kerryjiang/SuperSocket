@@ -8,21 +8,21 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class MaskKeyReader : DataFramePartReader
     {
-        public override int Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
+        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
         {
             int required = 4;
 
             if (reader.Length < required)
             {
                 nextPartReader = this;
-                return -1;
+                return false;
             }
 
             package.MaskKey = reader.Sequence.Slice(0, 4).ToArray();
             reader.Advance(4);
 
             nextPartReader = PayloadDataReader;
-            return 0;
+            return false;
         }
     }
 }

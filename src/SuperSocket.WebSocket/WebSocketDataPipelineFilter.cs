@@ -7,7 +7,8 @@ namespace SuperSocket.WebSocket
 {
     public class WebSocketDataPipelineFilter : IPipelineFilter<WebSocketPackage>
     {
-        public IPackageDecoder<WebSocketPackage> Decoder { get; set; }        
+        public IPackageDecoder<WebSocketPackage> Decoder { get; set; } 
+               
 
         public IPipelineFilter<WebSocketPackage> NextFilter => null;
 
@@ -25,10 +26,11 @@ namespace SuperSocket.WebSocket
                 _currentPartReader = DataFramePartReader.NewReader;
             }
 
-            _currentPartReader.Process(package, ref reader, out IDataFramePartReader nextPartReader);
-
-            if (nextPartReader != null)
+            if (!_currentPartReader.Process(package, ref reader, out IDataFramePartReader nextPartReader))
+            {
+                _currentPartReader = nextPartReader;
                 return null;
+            }
 
             Reset();
             return package;

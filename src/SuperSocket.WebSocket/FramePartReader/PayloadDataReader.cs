@@ -8,19 +8,19 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class PayloadDataReader : DataFramePartReader
     {
-        public override int Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
+        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
         {
             long required = package.PayloadLength;
 
             if (reader.Length < required)
             {
                 nextPartReader = this;
-                return -1;
+                return false;
             }
 
             package.Data = reader.Sequence;
             nextPartReader = null;
-            return 0;
+            return true;
         }
     }
 }
