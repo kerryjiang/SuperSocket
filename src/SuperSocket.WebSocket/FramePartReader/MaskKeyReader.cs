@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,29 +8,20 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class MaskKeyReader : DataFramePartReader
     {
-        public override int Process(int lastLength, WebSocketDataFrame frame, out IDataFramePartReader nextPartReader)
+        public override int Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
         {
-            int required = lastLength + 4;
+            int required = 4;
 
-            if (frame.Length < required)
+            if (reader.Length < required)
             {
                 nextPartReader = this;
                 return -1;
             }
 
-            //frame.MaskKey = frame.InnerData.ToArrayData(lastLength, 4);
+            package.MaskKey = reader.Sequence.Slice(0, 4).ToArray();
+            reader.Advance(4);
 
-            if (frame.ActualPayloadLength == 0)
-            {
-                nextPartReader = null;
-                return (int)((long)frame.Length - required);
-            }
-
-            nextPartReader = new PayloadDataReader();
-
-            if (frame.Length > required)
-                return nextPartReader.Process(required, frame, out nextPartReader);
-
+            nextPartReader = PayloadDataReader;
             return 0;
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,36 +8,42 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class FixPartReader : DataFramePartReader
     {
-        public override int Process(int lastLength, WebSocketDataFrame frame, out IDataFramePartReader nextPartReader)
+        public override int Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
         {
-            if (frame.Length < 2)
+            if (reader.Length < 2)
             {
                 nextPartReader = this;
                 return -1;
             }
 
-            if (frame.PayloadLength < 126)
+            reader.TryRead(out byte firstByte);
+            package.OpCode = (OpCode)firstByte;
+            package.OpCodeByte = firstByte;
+
+            reader.TryRead(out byte secondByte);
+            package.PayloadLength = secondByte & 0x7f;
+            package.HasMask = (secondByte & 0x80) == 0x80;
+
+            if (package.PayloadLength >= 126)
             {
-                if (frame.HasMask)
+                nextPartReader = ExtendedLenghtReader;
+            }
+            else
+            {
+                if (package.HasMask)
                     nextPartReader = MaskKeyReader;
                 else
                 {
-                    if (frame.ActualPayloadLength == 0)
+                    // no body
+                    if (package.PayloadLength == 0)
                     {
                         nextPartReader = null;
-                        return (int)((long)frame.Length - 2);
+                        return 0;
                     }
 
                     nextPartReader = PayloadDataReader;
                 }
             }
-            else
-            {
-                nextPartReader = ExtendedLenghtReader;
-            }
-
-            if (frame.Length > 2)
-                return nextPartReader.Process(2, frame, out nextPartReader);
 
             return 0;
         }

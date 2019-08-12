@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,7 +16,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             PayloadDataReader = new PayloadDataReader();
         }
 
-        public abstract int Process(int lastLength, WebSocketDataFrame frame, out IDataFramePartReader nextPartReader);
+        public abstract int Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader);
 
         public static IDataFramePartReader NewReader
         {
