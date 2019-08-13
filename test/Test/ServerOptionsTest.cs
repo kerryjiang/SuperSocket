@@ -20,7 +20,7 @@ using System.Threading;
 namespace Tests
 {
     [Collection("ServerOptions")]
-    public class ServerOptionsTest : TestBase
+    public class ServerOptionsTest : TestClassBase
     {
         public ServerOptionsTest(ITestOutputHelper outputHelper)
             : base(outputHelper)

@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace Tests
 {
-    public abstract class ProtocolTestBase : TestBase, IDisposable
+    public abstract class ProtocolTestBase : TestClassBase, IDisposable
     {
         readonly IServer _server;
 

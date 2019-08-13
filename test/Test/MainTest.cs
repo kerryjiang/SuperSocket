@@ -13,7 +13,7 @@ using SuperSocket;
 namespace Tests
 {
     [Collection("Basic")]
-    public class MainTest : TestBase
+    public class MainTest : TestClassBase
     {
         public MainTest(ITestOutputHelper outputHelper)
             : base(outputHelper)

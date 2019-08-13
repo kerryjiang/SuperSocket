@@ -12,15 +12,15 @@ using SuperSocket.Server;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Tests
+namespace TestBase
 {
-    public abstract class TestBase
+    public abstract class TestClassBase
     {
         protected readonly ITestOutputHelper OutputHelper;
 
         protected static readonly Encoding Utf8Encoding = new UTF8Encoding();
 
-        protected TestBase(ITestOutputHelper outputHelper)
+        protected TestClassBase(ITestOutputHelper outputHelper)
         {
             OutputHelper = outputHelper;
         }

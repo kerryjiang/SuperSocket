@@ -16,11 +16,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using System.Threading;
+using TestBase;
 
 namespace Tests
 {
     [Collection("SessionContaner")]
-    public class SessionContanerTest : TestBase
+    public class SessionContanerTest : TestClassBase
     {
         class SESS : IAsyncCommand<string, StringPackageInfo>
         {

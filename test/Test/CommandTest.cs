@@ -19,7 +19,7 @@ using Xunit.Abstractions;
 namespace Tests
 {
     [Collection("Command")]
-    public class CommandTest : TestBase
+    public class CommandTest : TestClassBase
     {
         class ADD : IAsyncCommand<string, StringPackageInfo>
         {
