@@ -9,6 +9,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
+using TestBase;
 
 namespace Tests
 {

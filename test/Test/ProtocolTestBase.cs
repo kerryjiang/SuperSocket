@@ -9,6 +9,7 @@ using SuperSocket;
 using SuperSocket.Server;
 using Xunit;
 using Xunit.Abstractions;
+using TestBase;
 
 namespace Tests
 {
