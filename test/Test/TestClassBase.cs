@@ -12,7 +12,7 @@ using SuperSocket.Server;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace TestBase
+namespace Tests
 {
     public abstract class TestClassBase
     {

@@ -9,10 +9,9 @@ using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
-using TestBase;
 using SuperSocket.WebSocket.Server;
 
-namespace WebSocket.Test
+namespace Tests.WebSocket
 {
     public abstract class WebSocketServerTestBase : TestClassBase
     {

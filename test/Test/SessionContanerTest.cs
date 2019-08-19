@@ -16,7 +16,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using System.Threading;
-using TestBase;
 
 namespace Tests
 {

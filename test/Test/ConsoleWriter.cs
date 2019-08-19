@@ -1,7 +1,7 @@
 using System.IO;
 using System.Text;
 
-namespace TestBase
+namespace Tests
 {
     public class ConsoleWriter : StreamWriter
     {

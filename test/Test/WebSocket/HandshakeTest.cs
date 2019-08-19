@@ -10,12 +10,11 @@ using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
-using TestBase;
 using System.Net.WebSockets;
 
-namespace WebSocket.Test
+namespace Tests.WebSocket
 {
-    [Collection("Basic")]
+    [Collection("WebSocket")]
     public class HandshakeTest : WebSocketServerTestBase
     {
         public HandshakeTest(ITestOutputHelper outputHelper)
@@ -24,7 +23,8 @@ namespace WebSocket.Test
 
         }
 
-        [Fact] 
+
+        [Fact]
         public async Task TestHandshake() 
         {
             using (var server = CreateWebSocketServerBuilder()
