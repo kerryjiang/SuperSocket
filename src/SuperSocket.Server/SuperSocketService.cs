@@ -254,9 +254,9 @@ namespace SuperSocket.Server
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
-        ValueTask IAsyncDisposable.DisposeAsync() => Dispose(true);
+        ValueTask IAsyncDisposable.DisposeAsync() => DisposeAsync(true);
 
-        protected virtual async ValueTask Dispose(bool disposing)
+        protected virtual async ValueTask DisposeAsync(bool disposing)
         {
             if (!disposedValue)
             {
@@ -280,7 +280,7 @@ namespace SuperSocket.Server
 
         void IDisposable.Dispose()
         {
-            Dispose(true).GetAwaiter().GetResult();
+            DisposeAsync(true).GetAwaiter().GetResult();
         }
 
         #endregion
