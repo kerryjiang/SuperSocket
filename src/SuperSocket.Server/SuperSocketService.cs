@@ -22,7 +22,7 @@ namespace SuperSocket.Server
         {
             get { return _serviceProvider; }
         }
-        
+
         private readonly IOptions<ServerOptions> _serverOptions;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
@@ -35,7 +35,7 @@ namespace SuperSocket.Server
         public string Name { get; }
 
         private int _sessionCount;
-        
+
         public int SessionCount => _sessionCount;
 
         private ISessionFactory _sessionFactory;
@@ -60,7 +60,7 @@ namespace SuperSocket.Server
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _channelCreatorFactory = channelCreatorFactory;
             _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
-            
+
             // initialize session factory
             _sessionFactory = serviceProvider.GetService<ISessionFactory>();
 
@@ -85,7 +85,7 @@ namespace SuperSocket.Server
         {
             var listener = _channelCreatorFactory.CreateChannelCreator<TReceivePackageInfo>(listenOptions, serverOptions, _loggerFactory, _pipelineFilterFactory);
             listener.NewClientAccepted += OnNewClientAccept;
-            
+
             if (!listener.Start())
             {
                 _logger.LogError($"Failed to listen {listener}.");
@@ -198,7 +198,7 @@ namespace SuperSocket.Server
             {
                 _logger.LogError($"Failed to handle the session {session.SessionID}.", e);
             }
-            
+
             Interlocked.Decrement(ref _sessionCount);
         }
 
@@ -210,7 +210,7 @@ namespace SuperSocket.Server
         public async Task StartAsync(CancellationToken cancellationToken)
         {
             var state = _state;
-            
+
             if (state != ServerState.None && state != ServerState.Stopped)
             {
                 throw new InvalidOperationException($"The server cannot be started right now, because its state is {state}.");
@@ -226,12 +226,12 @@ namespace SuperSocket.Server
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             var state = _state;
-            
+
             if (state != ServerState.Started)
             {
                 throw new InvalidOperationException($"The server cannot be stopped right now, because its state is {state}.");
             }
-            
+
             _state = ServerState.Stopping;
 
             var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => l.StopAsync()).ToArray();
@@ -254,7 +254,9 @@ namespace SuperSocket.Server
         #region IDisposable Support
         private bool disposedValue = false; // To detect redundant calls
 
-        protected virtual void Dispose(bool disposing)
+        ValueTask IAsyncDisposable.DisposeAsync() => Dispose(true);
+
+        protected virtual async ValueTask Dispose(bool disposing)
         {
             if (!disposedValue)
             {
@@ -264,7 +266,7 @@ namespace SuperSocket.Server
                     {
                         if (_state != ServerState.Started)
                         {
-                            StopAsync(CancellationToken.None).Wait();
+                            await StopAsync(CancellationToken.None);
                         }
                     }
                     catch
@@ -278,7 +280,7 @@ namespace SuperSocket.Server
 
         void IDisposable.Dispose()
         {
-            Dispose(true);
+            Dispose(true).GetAwaiter().GetResult();
         }
 
         #endregion

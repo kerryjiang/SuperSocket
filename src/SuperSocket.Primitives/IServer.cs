@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SuperSocket
 {
-    public interface IServer : IServerInfo, IDisposable
+    public interface IServer : IServerInfo, IDisposable, IAsyncDisposable
     {
         Task<bool> StartAsync();
 
