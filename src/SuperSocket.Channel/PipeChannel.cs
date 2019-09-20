@@ -139,7 +139,14 @@ namespace SuperSocket.Channel
 
                         if (package != null)
                         {
-                            await OnPackageReceived(package);
+                            try
+                            {
+                                await OnPackageReceived(package);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.LogError(ex,$"Execution of the command failed");
+                            }
                         }
 
                         var maxPackageLength = Options.MaxPackageLength;
