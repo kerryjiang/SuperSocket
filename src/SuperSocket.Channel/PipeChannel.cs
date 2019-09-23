@@ -2,6 +2,7 @@
 using System.Buffers;
 using System.Threading.Tasks;
 using System.IO.Pipelines;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,6 +15,10 @@ namespace SuperSocket.Channel
         where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
+
+        private LinkedList<TPackageInfo> _receivedPackages = new LinkedList<TPackageInfo>();
+
+        private TaskCompletionSource<bool> _waitForNewPackageTaskSource = new TaskCompletionSource<bool>();
 
         protected Pipe Output { get; }
 
@@ -35,13 +40,69 @@ namespace SuperSocket.Channel
             {
                 var readsTask = ProcessReads();
                 var sendsTask = ProcessSends();
+                var processTask = ProcessPackages();
 
                 await Task.WhenAll(readsTask, sendsTask);
-                OnClosed();
+
+                OnIOClosed();
+                
+                await processTask;                
             }
             catch (Exception e)
             {
                 Logger.LogError(e, "Unhandled exception in the method PipeChannel.StartAsync.");
+            }
+            finally
+            {
+                OnClosed();
+            }
+        }
+
+        private void OnIOClosed()
+        {
+            _waitForNewPackageTaskSource?.SetResult(false);
+        }
+
+        async Task ProcessPackages()
+        {
+            var receivedPackages = _receivedPackages;
+
+            var result = await _waitForNewPackageTaskSource.Task;
+
+            if (!result)
+                return;
+
+            while (true)
+            {
+                var package = default(TPackageInfo);
+
+                lock (receivedPackages)
+                {
+                    if (receivedPackages.Count > 0)
+                    {
+                        package = receivedPackages.First.Value;
+                        receivedPackages.RemoveFirst();
+
+                        if (receivedPackages.Count == 0)
+                        {
+                            _waitForNewPackageTaskSource = new TaskCompletionSource<bool>();
+                        }
+                    }
+                }
+
+                if (package != null)
+                {
+                    await OnPackageReceived(package);
+                }
+                else
+                {
+                    result = await _waitForNewPackageTaskSource.Task;
+
+                    if (!result)
+                    {
+                        break;
+                    }
+                }
             }
         }
 
@@ -133,30 +194,10 @@ namespace SuperSocket.Channel
 
                     var completed = result.IsCompleted;
 
-                    while (true)
+                    if (buffer.Length > 0)
                     {
-                        var package = ReaderBuffer(buffer, out consumed, out examined);
-
-                        if (package != null)
-                        {
-                            await OnPackageReceived(package);
-                        }
-
-                        var maxPackageLength = Options.MaxPackageLength;
-
-                        if (maxPackageLength > 0 && buffer.Length > maxPackageLength)
-                        {
-                            Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
+                        if (!ReaderBuffer(buffer, out consumed, out examined))
                             completed = true;
-                            // close the the connection directly
-                            Close();
-                            break;
-                        }
-
-                        if (examined.Equals(buffer.End))
-                            break;
-
-                        buffer = buffer.Slice(examined);
                     }
 
                     if (completed)
@@ -171,35 +212,64 @@ namespace SuperSocket.Channel
             reader.Complete();
         }
 
-        private TPackageInfo ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
+        private bool ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
         {
             consumed = buffer.Start;
             examined = buffer.End;
 
+            var maxPackageLength = Options.MaxPackageLength;
+
             var seqReader = new SequenceReader<byte>(buffer);
-            var currentPipelineFilter = _pipelineFilter;
 
-            var packageInfo = currentPipelineFilter.Filter(ref seqReader);
-
-            if (currentPipelineFilter.NextFilter != null)
-                _pipelineFilter = currentPipelineFilter.NextFilter;
-        
-            // continue receive...
-            if (packageInfo == null)
-                return null;
-
-            currentPipelineFilter.Reset();
-
-            if (seqReader.End) // no more data
+            while (true)
             {
-                consumed = buffer.End;
-            }
-            else
-            {
-                examined = consumed = seqReader.Position;
+                var currentPipelineFilter = _pipelineFilter;
+
+                var packageInfo = currentPipelineFilter.Filter(ref seqReader);
+
+                if (currentPipelineFilter.NextFilter != null)
+                    _pipelineFilter = currentPipelineFilter.NextFilter;
+
+                var pos = seqReader.Position.GetInteger();
+
+                if (maxPackageLength > 0 && pos > maxPackageLength)
+                {
+                    Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
+                    // close the the connection directly
+                    Close();
+                    return false;
+                }
+            
+                // continue receive...
+                if (packageInfo == null)
+                {
+                    continue;
+                }
+
+                currentPipelineFilter.Reset();
+
+                lock (_receivedPackages)
+                {
+                    _receivedPackages.AddLast(packageInfo);
+
+                    if (_receivedPackages.Count == 1)
+                    {
+                        _waitForNewPackageTaskSource.SetResult(true);
+                    }
+                }
+
+                if (seqReader.End) // no more data
+                {
+                    consumed = buffer.End;
+                    break;
+                }
+                else
+                {
+                    examined = consumed = seqReader.Position;
+                }
             }
 
-            return packageInfo;
+            return true;        
         }
     }
 }
