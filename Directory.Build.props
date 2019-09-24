@@ -3,6 +3,6 @@
   <PropertyGroup>
     <Version>2.0.0-preview1</Version>
     <LangVersion>7.2</LangVersion>    
-    <LibTargetFramework>netcoreapp3.0</LibTargetFramework>
+    <LibTargetFramework>netstandard2.1</LibTargetFramework>
   </PropertyGroup>
 </Project>
