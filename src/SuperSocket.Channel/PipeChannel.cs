@@ -20,18 +20,21 @@ namespace SuperSocket.Channel
 
         private TaskCompletionSource<bool> _waitForNewPackageTaskSource = new TaskCompletionSource<bool>();
 
-        protected Pipe Output { get; }
+        protected Pipe Out { get; }
+
+        protected Pipe In { get; }
 
         protected ILogger Logger { get; }
 
         protected ChannelOptions Options { get; }
 
-        protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, ILogger logger)
+        protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
         {
             _pipelineFilter = pipelineFilter;
             Options = options;
-            Logger = logger;
-            Output = new Pipe();
+            Logger = options.Logger;
+            Out = options.Out ?? new Pipe();
+            In = options.In ?? new Pipe();
         }
 
         public override async Task StartAsync()
@@ -57,6 +60,54 @@ namespace SuperSocket.Channel
                 OnClosed();
             }
         }
+
+        private async Task FillPipeAsync(PipeWriter writer)
+        {
+            var options = Options;
+
+            while (true)
+            {
+                try
+                {
+                    var bufferSize = options.ReceiveBufferSize;
+                    var maxPackageLength = options.MaxPackageLength;
+
+                    if (maxPackageLength > 0)
+                        bufferSize = Math.Min(bufferSize, maxPackageLength);
+
+                    var memory = writer.GetMemory(bufferSize);
+
+                    var bytesRead = await FillPipeWithDataAsync(memory);         
+
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+
+                    // Tell the PipeWriter how much was read
+                    writer.Advance(bytesRead);
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(e, "Exception happened in ReceiveAsync");
+                    break;
+                }
+
+                // Make the data available to the PipeReader
+                var result = await writer.FlushAsync();
+
+                if (result.IsCompleted)
+                {
+                    break;
+                }
+            }
+
+            // Signal to the reader that we're done writing
+            writer.Complete();
+            Out.Writer.Complete();// TODO: should complete the output right now?
+        }
+
+        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory);
 
         private void OnIOClosed()
         {
@@ -106,11 +157,19 @@ namespace SuperSocket.Channel
             }
         }
 
-        protected abstract Task ProcessReads();
+        protected virtual async Task ProcessReads()
+        {
+            var pipe = In;
+
+            Task writing = FillPipeAsync(pipe.Writer);
+            Task reading = ReadPipeAsync(pipe.Reader);
+
+            await Task.WhenAll(reading, writing);
+        }
 
         protected async Task ProcessSends()
         {
-            var output = Output.Reader;
+            var output = Out.Reader;
 
             while (true)
             {
@@ -154,14 +213,14 @@ namespace SuperSocket.Channel
 
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
         {
-            var writer = Output.Writer;
+            var writer = Out.Writer;
             await writer.WriteAsync(buffer);
             await writer.FlushAsync();
         }
 
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            var writer = Output.Writer;
+            var writer = Out.Writer;
             packageEncoder.Encode(writer, package);
             await writer.FlushAsync();
         }

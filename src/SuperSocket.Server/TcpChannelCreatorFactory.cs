@@ -10,7 +10,8 @@ namespace SuperSocket.Server
             where TPackageInfo : class
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
-            return new TcpChannelCreator(options, (s) => new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions, loggerFactory.CreateLogger(nameof(IChannel))), loggerFactory.CreateLogger(nameof(TcpChannelCreator)));
+            channelOptions.Logger = loggerFactory.CreateLogger(nameof(IChannel));
+            return new TcpChannelCreator(options, (s) => new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions), loggerFactory.CreateLogger(nameof(TcpChannelCreator)));
         }
     }
 }
