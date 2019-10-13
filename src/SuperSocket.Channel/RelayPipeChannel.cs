@@ -28,14 +28,19 @@ namespace SuperSocket.Channel
             Out.Writer.Complete();
         }
 
-        protected override ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
+        protected override Task FillPipeAsync(PipeWriter writer)
         {
-            throw new NotImplementedException();
+            return Task.Delay(0);
+        }
+
+        protected override async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
+        {
+            await Out.Writer.WriteAsync(buffer);
         }
 
         protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory)
         {
-            throw new NotImplementedException();
+            throw new NotSupportedException();
         }
     }
 }
