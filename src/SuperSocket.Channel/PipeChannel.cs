@@ -11,7 +11,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
 {
-    public abstract class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel
+    public abstract class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
         where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
@@ -22,7 +22,17 @@ namespace SuperSocket.Channel
 
         protected Pipe Out { get; }
 
+        Pipe IPipeChannel.Out
+        {
+            get { return Out; }
+        }
+
         protected Pipe In { get; }
+
+        Pipe IPipeChannel.In
+        {
+            get { return In; }
+        }
 
         protected ILogger Logger { get; }
 
@@ -61,7 +71,7 @@ namespace SuperSocket.Channel
             }
         }
 
-        private async Task FillPipeAsync(PipeWriter writer)
+        protected virtual async Task FillPipeAsync(PipeWriter writer)
         {
             var options = Options;
 
