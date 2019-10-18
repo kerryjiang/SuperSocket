@@ -7,18 +7,16 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.ProtoBase;
-
+using System.Collections;
+using System.Threading.Tasks.Sources;
+using System.Threading;
 
 namespace SuperSocket.Channel
 {
-    public abstract class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
+    public abstract partial class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
         where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
-
-        private LinkedList<TPackageInfo> _receivedPackages = new LinkedList<TPackageInfo>();
-
-        private TaskCompletionSource<bool> _waitForNewPackageTaskSource = new TaskCompletionSource<bool>();
 
         protected Pipe Out { get; }
 
@@ -45,6 +43,7 @@ namespace SuperSocket.Channel
             Logger = options.Logger;
             Out = options.Out ?? new Pipe();
             In = options.In ?? new Pipe();
+            _packageTaskSource = new ManualResetValueTaskSourceCore<TPackageInfo>();
         }
 
         public override async Task StartAsync()
@@ -55,11 +54,7 @@ namespace SuperSocket.Channel
                 var sendsTask = ProcessSends();
                 var processTask = ProcessPackages();
 
-                await Task.WhenAll(readsTask, sendsTask);
-
-                OnIOClosed();
-                
-                await processTask;                
+                await Task.WhenAll(readsTask, sendsTask, processTask);
             }
             catch (Exception e)
             {
@@ -68,6 +63,19 @@ namespace SuperSocket.Channel
             finally
             {
                 OnClosed();
+            }
+        }
+
+        private async Task ProcessPackages()
+        {
+            while (true)
+            {
+                var package = await ReceivePackage();
+
+                if (package == null)
+                    break;
+
+                await OnPackageReceived(package);
             }
         }
 
@@ -118,54 +126,6 @@ namespace SuperSocket.Channel
         }
 
         protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory);
-
-        private void OnIOClosed()
-        {
-            _waitForNewPackageTaskSource?.SetResult(false);
-        }
-
-        async Task ProcessPackages()
-        {
-            var receivedPackages = _receivedPackages;
-
-            var result = await _waitForNewPackageTaskSource.Task;
-
-            if (!result)
-                return;
-
-            while (true)
-            {
-                var package = default(TPackageInfo);
-
-                lock (receivedPackages)
-                {
-                    if (receivedPackages.Count > 0)
-                    {
-                        package = receivedPackages.First.Value;
-                        receivedPackages.RemoveFirst();
-
-                        if (receivedPackages.Count == 0)
-                        {
-                            _waitForNewPackageTaskSource = new TaskCompletionSource<bool>();
-                        }
-                    }
-                }
-
-                if (package != null)
-                {
-                    await OnPackageReceived(package);
-                }
-                else
-                {
-                    result = await _waitForNewPackageTaskSource.Task;
-
-                    if (!result)
-                    {
-                        break;
-                    }
-                }
-            }
-        }
 
         protected virtual async Task ProcessReads()
         {
@@ -266,7 +226,10 @@ namespace SuperSocket.Channel
                     if (buffer.Length > 0)
                     {
                         if (!ReaderBuffer(buffer, out consumed, out examined))
+                        {
                             completed = true;
+                            break;
+                        }                        
                     }
 
                     if (completed)
@@ -306,26 +269,20 @@ namespace SuperSocket.Channel
                     Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
                     // close the the connection directly
                     Close();
+                    _packageTaskSource.SetResult(null);
                     return false;
                 }
             
                 // continue receive...
                 if (packageInfo == null)
                 {
-                    continue;
+                    return true;
                 }
 
                 currentPipelineFilter.Reset();
 
-                lock (_receivedPackages)
-                {
-                    _receivedPackages.AddLast(packageInfo);
-
-                    if (_receivedPackages.Count == 1)
-                    {
-                        _waitForNewPackageTaskSource.SetResult(true);
-                    }
-                }
+                _packageTaskSource.SetResult(packageInfo);
+                _packageTaskSource.Reset();        
 
                 if (seqReader.End) // no more data
                 {
@@ -338,7 +295,7 @@ namespace SuperSocket.Channel
                 }
             }
 
-            return true;        
+            return true;
         }
     }
 }
