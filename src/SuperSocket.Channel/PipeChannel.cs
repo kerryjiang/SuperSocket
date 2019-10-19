@@ -72,6 +72,8 @@ namespace SuperSocket.Channel
             {
                 var package = await ReceivePackage();
 
+                _packageTaskSource.Reset();
+
                 if (package == null)
                     break;
 
@@ -282,7 +284,6 @@ namespace SuperSocket.Channel
                 currentPipelineFilter.Reset();
 
                 _packageTaskSource.SetResult(packageInfo);
-                _packageTaskSource.Reset();        
 
                 if (seqReader.End) // no more data
                 {
