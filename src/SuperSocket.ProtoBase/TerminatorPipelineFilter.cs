@@ -18,19 +18,10 @@ namespace SuperSocket.ProtoBase
             var terminator =  _terminator;
             var terminatorSpan = terminator.Span;
 
-            if (!reader.TryReadToAny(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
-            {
+            if (!reader.TryReadTo(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
                 return null;
-            }
 
-            for (var i = 0; i < _terminator.Length - 1; i++)
-            {
-                if (!reader.IsNext(terminatorSpan, advancePast: true))
-                {
-                    return null;
-                }
-            }
-
+            reader.Advance(terminator.Length);          
             return DecodePackage(pack);
         }
     }
