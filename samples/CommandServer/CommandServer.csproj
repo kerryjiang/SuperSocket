@@ -5,7 +5,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SuperSocket" Version="2.0.0-*" />
+    <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Command/SuperSocket.Command.csproj" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
   </ItemGroup>
 </Project>
