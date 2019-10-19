@@ -4,5 +4,6 @@
     <Version>2.0.0-preview1</Version>
     <LangVersion>8.0</LangVersion>    
     <LibTargetFramework>netstandard2.1</LibTargetFramework>
+    <PackageProjectUrl>https://github.com/kerryjiang/supersocket</PackageProjectUrl>
   </PropertyGroup>
 </Project>
