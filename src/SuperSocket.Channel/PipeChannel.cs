@@ -39,20 +39,20 @@ namespace SuperSocket.Channel
         protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
         {
             _pipelineFilter = pipelineFilter;
+            _packageTaskSource = new ManualResetValueTaskSourceCore<TPackageInfo>();
             Options = options;
             Logger = options.Logger;
             Out = options.Out ?? new Pipe();
             In = options.In ?? new Pipe();
-            _packageTaskSource = new ManualResetValueTaskSourceCore<TPackageInfo>();
         }
 
         public override async Task StartAsync()
         {
             try
             {
-                var readsTask = ProcessReads();
-                var sendsTask = ProcessSends();
                 var processTask = ProcessPackages();
+                var readsTask = ProcessReads();
+                var sendsTask = ProcessSends();                
 
                 await Task.WhenAll(readsTask, sendsTask, processTask);
             }
