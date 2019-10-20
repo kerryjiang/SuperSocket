@@ -28,14 +28,14 @@
     - Session container
     - First beta release
 
-- 2019 Q3:
+- 2019 Q3-Q4:
     - Fix issues and do enhancements for the existing features
     - Features requested by users
     - TLS Socket
     - Performance test/tuning
     - Second beta release
 
-- 2019 Q4:
+- 2020 H1:
     - Fix issues of the existing features
     - Other features requested by users
     - Stable release
