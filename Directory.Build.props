@@ -1,7 +1,7 @@
 <Project>
   <Import Project="Dependencies.props" />
   <PropertyGroup>
-    <Version>2.0.0-preview1-2</Version>
+    <Version>2.0.0-preview1-3</Version>
     <LangVersion>8.0</LangVersion>    
     <LibTargetFramework>netstandard2.1</LibTargetFramework>
     <PackageProjectUrl>https://github.com/kerryjiang/supersocket</PackageProjectUrl>
