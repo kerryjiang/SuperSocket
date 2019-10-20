@@ -74,6 +74,9 @@ namespace SuperSocket.Server
         private void InitializeMiddlewares()
         {
             _middlewares = _serviceProvider.GetServices<IMiddleware>().ToArray();
+
+            if (_packageHandler == null)
+                _packageHandler = _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
         }
 
         protected virtual IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
@@ -161,26 +164,6 @@ namespace SuperSocket.Server
                     middlewares[i].Register(this, session);
                 }
             }
-
-            var packageHandler = _packageHandler;
-
-            if (packageHandler != null)
-            {
-                if (session.Channel is IChannel<TReceivePackageInfo> packegedChannel)
-                {
-                    packegedChannel.PackageReceived += async (ch, p) =>
-                    {
-                        try
-                        {
-                            await packageHandler.Handle(session, p);
-                        }
-                        catch (Exception e)
-                        {
-                            OnSessionError(session, e);
-                        }
-                    };
-                }
-            }
         }
 
         private async Task HandleSession(AppSession session)
@@ -191,8 +174,17 @@ namespace SuperSocket.Server
             {
                 _logger.LogInformation($"A new session connected: {session.SessionID}");
                 session.OnSessionConnected();
-                await ((IAppSession)session).Channel.StartAsync();
+
+                var channel = session.Channel as IChannel<TReceivePackageInfo>;
+
+                await foreach (var p in channel.RunAsync())
+                {
+                    await _packageHandler?.Handle(session, p);
+                }
+
                 _logger.LogInformation($"The session disconnected: {session.SessionID}");
+
+                session.OnSessionClosed(EventArgs.Empty);                
             }
             catch (Exception e)
             {

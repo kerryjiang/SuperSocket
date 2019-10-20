@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using SuperSocket;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
@@ -15,15 +16,10 @@ namespace SuperSocket.Command
         where TNetPackageInfo : class
         where TPackageMapper : IPackageMapper<TNetPackageInfo, TPackageInfo>, new()
     {
-        protected override IPackageMapper<TNetPackageInfo, TPackageInfo> GetPackageMapper()
-        {
-            return new TPackageMapper();
-        }
-
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
         {
-
+            PackageMapper = new TPackageMapper();
         }
     }
 
@@ -32,36 +28,21 @@ namespace SuperSocket.Command
         where TNetPackageInfo : class
     {
 
-        IPackageMapper<TNetPackageInfo, TPackageInfo> _packageMapper;
-
-        protected virtual IPackageMapper<TNetPackageInfo, TPackageInfo> GetPackageMapper()
-        {
-            return _packageMapper;
-        }
+        protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; set; }
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
         {
-            _packageMapper = serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
+            PackageMapper = serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
-        public override void Register(IServer server, IAppSession session)
+        protected async Task OnPackageReceived(IAppSession session, TNetPackageInfo package)
         {
-            var channel = session.Channel as IChannel<TNetPackageInfo>;
-            
-            if (channel == null)
-                throw new Exception("Unmatched package type.");
-
-            var packageMapper = GetPackageMapper();
-            
-            channel.PackageReceived += async (ch, p) =>
-            {
-                await OnPackageReceived(session, packageMapper.Map(p));
-            };
+            await base.OnPackageReceived(session, PackageMapper.Map(package));
         }
     }
 
-    public class CommandMiddleware<TKey, TPackageInfo> : MiddlewareBase
+    public class CommandMiddleware<TKey, TPackageInfo> : MiddlewareBase, IPackageHandler<TPackageInfo>
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
     {
         private Dictionary<TKey, ICommand<TKey>> _commands;        
@@ -83,15 +64,7 @@ namespace SuperSocket.Command
 
         public override void Register(IServer server, IAppSession session)
         {
-            var channel = session.Channel as IChannel<TPackageInfo>;
-            
-            if (channel == null)
-                throw new Exception("Unmatched package type.");
-            
-            channel.PackageReceived += async (ch, p) =>
-            {
-                await OnPackageReceived(session, p);
-            };
+
         }
 
         protected async Task OnPackageReceived(IAppSession session, TPackageInfo package)
@@ -110,6 +83,11 @@ namespace SuperSocket.Command
             }
 
             ((ICommand<TKey, TPackageInfo>)command).Execute(session, package);
+        }
+
+        Task IPackageHandler<TPackageInfo>.Handle(IAppSession session, TPackageInfo package)
+        {
+            return OnPackageReceived(session, package);
         }
     }
 }

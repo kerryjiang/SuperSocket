@@ -46,28 +46,11 @@ namespace SuperSocket.Channel
             In = options.In ?? new Pipe();
         }
 
-        public override async Task StartAsync()
+        public async override IAsyncEnumerable<TPackageInfo> RunAsync()
         {
-            try
-            {
-                var processTask = ProcessPackages();
-                var readsTask = ProcessReads();
-                var sendsTask = ProcessSends();                
-
-                await Task.WhenAll(readsTask, sendsTask, processTask);
-            }
-            catch (Exception e)
-            {
-                Logger.LogError(e, "Unhandled exception in the method PipeChannel.StartAsync.");
-            }
-            finally
-            {
-                OnClosed();
-            }
-        }
-
-        private async Task ProcessPackages()
-        {
+            var readsTask = ProcessReads();
+            var sendsTask = ProcessSends();
+            
             while (true)
             {
                 var package = await ReceivePackage();
@@ -75,12 +58,30 @@ namespace SuperSocket.Channel
                 _packageTaskSource.Reset();
 
                 if (package == null)
-                    break;
+                {
+                    await HandleClosing(readsTask, sendsTask);
+                    yield break;
+                }
 
-                await OnPackageReceived(package);
+                yield return package;
             }
         }
 
+        private async Task HandleClosing(Task readsTask, Task sendsTask)
+        {
+            try
+            {
+                await Task.WhenAll(readsTask, sendsTask);
+            }
+            catch (Exception e)
+            {
+                Logger.LogError(e, "Unhandled exception in the method PipeChannel.Run.");
+            }
+            finally
+            {
+                OnClosed();
+            }
+        }
         protected virtual async Task FillPipeAsync(PipeWriter writer)
         {
             var options = Options;

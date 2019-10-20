@@ -9,6 +9,11 @@ namespace SuperSocket.Server
     {
         private IChannel _channel;
 
+        internal IChannel Channel
+        {
+            get { return _channel; }
+        }
+
         public AppSession()
         {
             SessionID = Guid.NewGuid().ToString();
@@ -18,7 +23,6 @@ namespace SuperSocket.Server
         {
             Server = server;
             _channel = channel;
-            _channel.Closed += OnSessionClosed;
         }
 
         public string SessionID { get; }
@@ -69,10 +73,8 @@ namespace SuperSocket.Server
             }
         }
 
-        private void OnSessionClosed(object sender, EventArgs e)
+        internal void OnSessionClosed(EventArgs e)
         {
-            var channel = sender as IChannel;
-            channel.Closed -= OnSessionClosed;
             Closed?.Invoke(this, e);
         }
 
