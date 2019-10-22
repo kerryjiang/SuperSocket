@@ -14,7 +14,7 @@ namespace SuperSocket.WebSocket
         
         private static readonly char _TAB = '\t';
 
-        private static readonly char _COLON = '\t';
+        private static readonly char _COLON = ':';
 
         private static readonly ReadOnlyMemory<byte> _headerTerminator = new byte[] { (byte)'\r', (byte)'\n', (byte)'\r', (byte)'\n' };
         
@@ -26,18 +26,10 @@ namespace SuperSocket.WebSocket
         {
             var terminatorSpan = _headerTerminator.Span;
 
-            if (!reader.TryReadToAny(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
-            {
+            if (!reader.TryReadTo(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
                 return null;
-            }
 
-            for (var i = 0; i < terminatorSpan.Length - 1; i++)
-            {
-                if (!reader.IsNext(terminatorSpan, advancePast: true))
-                {
-                    return null;
-                }
-            }
+            reader.Advance(terminatorSpan.Length);
 
             var header = ParseHttpHeaderItems(pack);
 
