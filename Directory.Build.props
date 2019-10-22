@@ -5,5 +5,6 @@
     <LangVersion>8.0</LangVersion>    
     <LibTargetFramework>netstandard2.1</LibTargetFramework>
     <PackageProjectUrl>https://github.com/kerryjiang/supersocket</PackageProjectUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
   </PropertyGroup>
 </Project>
