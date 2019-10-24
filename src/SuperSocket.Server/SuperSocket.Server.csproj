@@ -4,6 +4,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SuperSocket.Server</AssemblyName>
     <PackageId>SuperSocket.Server</PackageId>
+    <Description>SuperSocket server hosting library.</Description>
   </PropertyGroup>
 
   <ItemGroup>

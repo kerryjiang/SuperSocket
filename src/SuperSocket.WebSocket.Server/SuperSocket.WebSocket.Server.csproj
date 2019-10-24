@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
+    <Description>SuperSocket WebSocket server.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.WebSocket/SuperSocket.WebSocket.csproj" />
