@@ -9,3 +9,4 @@ _ReSharper.*
 .vs
 .DS_Store
 *.nupkg
+*.snupkg
