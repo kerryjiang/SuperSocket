@@ -8,6 +8,6 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     interface IDataFramePartReader
     {
-        bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader);
+        bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader, out bool needMoreData);
     }
 }

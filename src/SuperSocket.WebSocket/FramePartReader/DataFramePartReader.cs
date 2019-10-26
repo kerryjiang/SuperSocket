@@ -16,7 +16,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             PayloadDataReader = new PayloadDataReader();
         }
 
-        public abstract bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader);
+        public abstract bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader, out bool needMoreData);
 
         public static IDataFramePartReader NewReader
         {

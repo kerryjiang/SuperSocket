@@ -8,32 +8,44 @@ namespace SuperSocket.WebSocket
     public class WebSocketDataPipelineFilter : IPipelineFilter<WebSocketPackage>
     {
         public IPackageDecoder<WebSocketPackage> Decoder { get; set; } 
-               
 
         public IPipelineFilter<WebSocketPackage> NextFilter => null;
 
         private IDataFramePartReader _currentPartReader;
 
+        private HttpHeader _httpHeader;
+
         private WebSocketPackage _currentPackage;
+
+        public WebSocketDataPipelineFilter(HttpHeader httpHeader)
+        {
+            _httpHeader = httpHeader;
+        }
 
         public WebSocketPackage Filter(ref SequenceReader<byte> reader)
         {
             var package = _currentPackage;
 
-            if (package == null)
+            if (_currentPackage == null)
             {
-                _currentPackage = package = new WebSocketPackage();
+                _currentPackage = new WebSocketPackage { HttpHeader = _httpHeader };
                 _currentPartReader = DataFramePartReader.NewReader;
             }
 
-            if (!_currentPartReader.Process(package, ref reader, out IDataFramePartReader nextPartReader))
+            while (true)
             {
-                _currentPartReader = nextPartReader;
-                return null;
-            }
+                if (_currentPartReader.Process(package, ref reader, out IDataFramePartReader nextPartReader, out bool needMoreData))
+                {
+                    Reset();
+                    return package;
+                }
 
-            Reset();
-            return package;
+                if (nextPartReader != null)
+                    _currentPartReader = nextPartReader;
+
+                if (needMoreData || reader.Remaining <= 0)
+                    return null;
+            }
         }
 
         public void Reset()

@@ -39,7 +39,7 @@ namespace SuperSocket.WebSocket
                 OpCode = OpCode.Handshake
             };
 
-            NextFilter = new WebSocketDataPipelineFilter();
+            NextFilter = new WebSocketDataPipelineFilter(header);
             return package;
         }
 

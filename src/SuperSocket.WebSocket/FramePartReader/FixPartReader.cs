@@ -8,13 +8,16 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class FixPartReader : DataFramePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
+        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader, out bool needMoreData)
         {
             if (reader.Length < 2)
             {
                 nextPartReader = this;
+                needMoreData = true;
                 return false;
             }
+
+            needMoreData = false;
 
             reader.TryRead(out byte firstByte);
             package.OpCode = (OpCode)firstByte;

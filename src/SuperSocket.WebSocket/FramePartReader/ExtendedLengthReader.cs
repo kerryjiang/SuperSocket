@@ -8,7 +8,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class ExtendedLengthReader : DataFramePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader)
+        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader, out bool needMoreData)
         {
             int required;
 
@@ -19,9 +19,12 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             if (reader.Length < required)
             {
-                nextPartReader = this;
+                nextPartReader = null;
+                needMoreData = true;
                 return false;
             }
+
+            needMoreData = false;
 
             if (required == 2)
             {
