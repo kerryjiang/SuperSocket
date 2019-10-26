@@ -28,12 +28,12 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             if (required == 2)
             {
-                reader.TryReadLittleEndian(out short len);
+                reader.TryReadBigEndian(out short len);
                 package.PayloadLength = len;
             }
             else // required == 8 (long)
             {
-                reader.TryReadLittleEndian(out long len);
+                reader.TryReadBigEndian(out long len);
                 package.PayloadLength = len;
             }
 
