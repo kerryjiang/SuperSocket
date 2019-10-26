@@ -20,7 +20,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             needMoreData = false;
 
             reader.TryRead(out byte firstByte);
-            package.OpCode = (OpCode)firstByte;
+            package.OpCode = (OpCode)(firstByte & 0x0f);
             package.OpCodeByte = firstByte;
 
             reader.TryRead(out byte secondByte);
