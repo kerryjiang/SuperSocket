@@ -26,9 +26,9 @@ namespace SuperSocket.WebSocket
         {
             var package = _currentPackage;
 
-            if (_currentPackage == null)
+            if (package == null)
             {
-                _currentPackage = new WebSocketPackage { HttpHeader = _httpHeader };
+                package = _currentPackage = new WebSocketPackage { HttpHeader = _httpHeader };
                 _currentPartReader = DataFramePartReader.NewReader;
             }
 
