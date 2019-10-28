@@ -12,7 +12,7 @@ namespace SuperSocket.WebSocket.FramePartReader
         {
             if (reader.Length < 2)
             {
-                nextPartReader = this;
+                nextPartReader = null;
                 needMoreData = true;
                 return false;
             }

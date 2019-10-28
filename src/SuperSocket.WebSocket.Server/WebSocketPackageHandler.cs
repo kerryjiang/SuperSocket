@@ -46,6 +46,11 @@ namespace SuperSocket.WebSocket.Server
                 return;
             }
 
+            if (package.OpCode == OpCode.Close)
+            {
+                
+            }
+
             var websocketCommandMiddleware = _websocketCommandMiddleware;
 
             if (websocketCommandMiddleware != null)
