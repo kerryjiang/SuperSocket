@@ -4,16 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace SuperSocket.MySQL.FramePartReader
+namespace SuperSocket.MySQL.PackagePartReader
 {
     /// <summary>
     /// https://dev.mysql.com/doc/dev/mysql-server/8.0.11/page_protocol_com_query_response.html
     /// </summary>
-    sealed class PackageHeadReader : DataFramePartReader
+    sealed class PackageHeadReader : PackagePartReader
     {
-        public override bool Process(QueryResult package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader, out bool needMoreData)
+        public override bool Process(QueryResult package, ref SequenceReader<byte> reader, out IPackagePartReader nextPartReader, out bool needMoreData)
         {
-            var firstByte = reader.TryRead();
+            reader.TryRead(out byte firstByte);
 
             if (firstByte == 0xFF)
             {

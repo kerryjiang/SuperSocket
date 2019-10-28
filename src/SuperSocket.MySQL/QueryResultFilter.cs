@@ -1,7 +1,7 @@
 using System;
 using System.Buffers;
 using SuperSocket.ProtoBase;
-using SuperSocket.MySQL.FramePartReader;
+using SuperSocket.MySQL.PackagePartReader;
 
 namespace SuperSocket.MySQL
 {
@@ -11,23 +11,23 @@ namespace SuperSocket.MySQL
 
         public IPipelineFilter<QueryResult> NextFilter => null;
 
-        private IDataFramePartReader _currentPartReader;
+        private IPackagePartReader _currentPartReader;
 
         private QueryResult _currentPackage;
 
-        public WebSocketPackage Filter(ref SequenceReader<byte> reader)
+        public QueryResult Filter(ref SequenceReader<byte> reader)
         {
             var package = _currentPackage;
 
             if (package == null)
             {
                 package = _currentPackage = new QueryResult();
-                _currentPartReader = DataFramePartReader.NewReader;
+                _currentPartReader = PackagePartReader.PackagePartReader.NewReader;
             }
 
             while (true)
             {
-                if (_currentPartReader.Process(package, ref reader, out IDataFramePartReader nextPartReader, out bool needMoreData))
+                if (_currentPartReader.Process(package, ref reader, out IPackagePartReader nextPartReader, out bool needMoreData))
                 {
                     Reset();
                     return package;
