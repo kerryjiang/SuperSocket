@@ -37,19 +37,12 @@ namespace SuperSocket.ProtoBase
 
             var endMark =  _endMark.Span;
 
-            if (!reader.TryReadToAny(out ReadOnlySequence<byte> pack, endMark, advancePastDelimiter: false))
+            if (!reader.TryReadTo(out ReadOnlySequence<byte> pack, endMark, advancePastDelimiter: false))
             {
                 return null;
             }
 
-            for (var i = 0; i < endMark.Length - 1; i++)
-            {
-                if (!reader.IsNext(endMark, advancePast: true))
-                {
-                    return null;
-                }
-            }
-
+            reader.Advance(endMark.Length);
             return DecodePackage(pack);
         }
 
