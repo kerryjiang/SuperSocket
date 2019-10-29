@@ -9,7 +9,7 @@ namespace SuperSocket.Server
     {
         private IChannel _channel;
 
-        internal IChannel Channel
+        protected internal IChannel Channel
         {
             get { return _channel; }
         }
@@ -89,6 +89,11 @@ namespace SuperSocket.Server
             {
                 return _channel.SendAsync(data);
             }
+        }
+
+        public void Close()
+        {
+            Channel?.Close();
         }
     }
 }

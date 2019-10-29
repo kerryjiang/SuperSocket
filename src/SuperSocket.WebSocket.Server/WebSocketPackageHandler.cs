@@ -13,7 +13,7 @@ namespace SuperSocket.WebSocket.Server
     {
         private const string _magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         private IServiceProvider _serviceProvider;
-        private IWebSocketCommandMiddleware _websocketCommandMiddleware;
+        private IPackageHandler<WebSocketPackage> _websocketCommandMiddleware;
 
         public WebSocketPackageHandler(IServiceProvider serviceProvider)
         {
@@ -21,7 +21,7 @@ namespace SuperSocket.WebSocket.Server
             _websocketCommandMiddleware = serviceProvider
                 .GetServices<IMiddleware>()
                 .OfType<IWebSocketCommandMiddleware>()
-                .FirstOrDefault();
+                .FirstOrDefault() as IPackageHandler<WebSocketPackage>;
         }
 
         public async Task Handle(IAppSession session, WebSocketPackage package)
@@ -48,14 +48,22 @@ namespace SuperSocket.WebSocket.Server
 
             if (package.OpCode == OpCode.Close)
             {
-                
+                var message = new WebSocketMessage();
+
+                message.OpCode = OpCode.Close;
+                message.Message = package.Message;
+
+                await websocketSession.SendAsync(message);
+                websocketSession.Close();
+                return;
             }
 
+            // application command
             var websocketCommandMiddleware = _websocketCommandMiddleware;
 
             if (websocketCommandMiddleware != null)
             {
-                websocketCommandMiddleware.Register(session.Server as IServer, session);
+                await websocketCommandMiddleware.Handle(session, package);
             }
         }
 

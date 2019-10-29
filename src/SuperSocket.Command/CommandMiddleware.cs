@@ -19,33 +19,46 @@ namespace SuperSocket.Command
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
         {
-            PackageMapper = new TPackageMapper();
+     
+        }
+
+        protected override IPackageMapper<TNetPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
+        {
+            return new TPackageMapper();
         }
     }
 
-    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo> : CommandMiddleware<TKey, TPackageInfo>
+    public class CommandMiddleware<TKey, TPackageInfo> : CommandMiddleware<TKey, TPackageInfo, TPackageInfo>
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
-        where TNetPackageInfo : class
     {
 
-        protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; set; }
+        class TransparentMapper : IPackageMapper<TPackageInfo, TPackageInfo>
+        {
+            public TPackageInfo Map(TPackageInfo package)
+            {
+                return package;
+            }
+        }
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
         {
-            PackageMapper = serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
+
         }
 
-        protected async Task OnPackageReceived(IAppSession session, TNetPackageInfo package)
+        protected override IPackageMapper<TPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
         {
-            await base.OnPackageReceived(session, PackageMapper.Map(package));
+            return new TransparentMapper();
         }
     }
 
-    public class CommandMiddleware<TKey, TPackageInfo> : MiddlewareBase, IPackageHandler<TPackageInfo>
+    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo> : MiddlewareBase, IPackageHandler<TNetPackageInfo>
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
+        where TNetPackageInfo : class
     {
-        private Dictionary<TKey, ICommand<TKey>> _commands;        
+        private Dictionary<TKey, ICommand<TKey>> _commands;
+
+        protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; private set; }    
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
         {
@@ -60,6 +73,13 @@ namespace SuperSocket.Command
                 _commands = commands.ToDictionary(x => x.Key);
             else
                 _commands = commands.ToDictionary(x => x.Key, comparer);
+
+            PackageMapper = CreatePackageMapper(serviceProvider);
+        }
+
+        protected virtual IPackageMapper<TNetPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
+        {
+            return serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
         public override void Register(IServer server, IAppSession session)
@@ -67,7 +87,7 @@ namespace SuperSocket.Command
 
         }
 
-        protected async Task OnPackageReceived(IAppSession session, TPackageInfo package)
+        protected virtual async Task HandlePackage(IAppSession session, TPackageInfo package)
         {
             if (!_commands.TryGetValue(package.Key, out ICommand<TKey> command))
             {
@@ -85,9 +105,14 @@ namespace SuperSocket.Command
             ((ICommand<TKey, TPackageInfo>)command).Execute(session, package);
         }
 
-        Task IPackageHandler<TPackageInfo>.Handle(IAppSession session, TPackageInfo package)
+        protected virtual async Task OnPackageReceived(IAppSession session, TPackageInfo package)
         {
-            return OnPackageReceived(session, package);
+            await HandlePackage(session, package);
+        }
+
+        Task IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package)
+        {
+            return HandlePackage(session, PackageMapper.Map(package));
         }
     }
 }

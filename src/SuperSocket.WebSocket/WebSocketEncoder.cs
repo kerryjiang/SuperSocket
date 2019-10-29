@@ -6,7 +6,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket
 {
-    class WebSocketEncoder : IPackageEncoder<WebSocketMessage>
+    public class WebSocketEncoder : IPackageEncoder<WebSocketMessage>
     {
         private static readonly Encoding _textEncoding = Encoding.UTF8;
 

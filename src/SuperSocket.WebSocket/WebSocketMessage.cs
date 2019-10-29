@@ -3,7 +3,7 @@ using System.Buffers;
 
 namespace SuperSocket.WebSocket
 {
-    struct WebSocketMessage
+    public struct WebSocketMessage
     {
         public OpCode OpCode { get; set; }
 
