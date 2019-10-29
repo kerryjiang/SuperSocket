@@ -145,9 +145,9 @@ namespace SuperSocket.Server
             HandleSession(session).DoNotAwait();
         }
 
-        void IChannelRegister.RegisterChannel(object connection)
+        async Task IChannelRegister.RegisterChannel(object connection)
         {
-            var channel = _channelCreators.FirstOrDefault().CreateChannel(connection);
+            var channel = await _channelCreators.FirstOrDefault().CreateChannel(connection);
             AcceptNewChannel(channel);
         }
 

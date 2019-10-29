@@ -8,12 +8,15 @@ namespace SuperSocket
     public interface IChannelCreator
     {
         ListenOptions Options { get; }
+
         bool Start();
+
         event NewClientAcceptHandler NewClientAccepted;
 
-        IChannel CreateChannel(object connection);
+        Task<IChannel> CreateChannel(object connection);
 
         Task StopAsync();
+
         bool IsRunning { get; }
     }
 }

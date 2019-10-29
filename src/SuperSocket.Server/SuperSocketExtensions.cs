@@ -24,7 +24,7 @@ namespace SuperSocket
             try
             {
                 await socket.ConnectAsync(remoteEndpoint);
-                (server as IChannelRegister).RegisterChannel(socket);
+                await (server as IChannelRegister).RegisterChannel(socket);
                 return true;
             }
             catch (Exception e)

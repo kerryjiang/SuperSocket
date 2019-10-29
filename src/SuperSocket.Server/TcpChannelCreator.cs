@@ -14,11 +14,11 @@ namespace SuperSocket.Server
 
         private CancellationTokenSource _cancellationTokenSource;
         private TaskCompletionSource<bool> _stopTaskCompletionSource;
-        private readonly Func<Socket, IChannel> _channelFactory;
+        private readonly Func<Socket, Task<IChannel>> _channelFactory;
         public ListenOptions Options { get; }
         private ILogger _logger;
 
-        public TcpChannelCreator(ListenOptions options, Func<Socket, IChannel> channelFactory, ILogger logger)
+        public TcpChannelCreator(ListenOptions options, Func<Socket, Task<IChannel>> channelFactory, ILogger logger)
         {
             Options = options;
             _channelFactory = channelFactory;
@@ -86,7 +86,7 @@ namespace SuperSocket.Server
                 try
                 {
                     var client = await listenSocket.AcceptAsync();
-                    OnNewClientAccept(client);
+                    await OnNewClientAccept(client);
                 }
                 catch (Exception)
                 {
@@ -99,16 +99,16 @@ namespace SuperSocket.Server
 
         public event NewClientAcceptHandler NewClientAccepted;
 
-        private void OnNewClientAccept(Socket socket)
+        private async Task OnNewClientAccept(Socket socket)
         {
             var handler = NewClientAccepted;
 
-            handler?.Invoke(this, _channelFactory(socket));
+            handler?.Invoke(this, await _channelFactory(socket));
         }
 
-        public IChannel CreateChannel(object connection)
+        public async Task<IChannel> CreateChannel(object connection)
         {
-            return _channelFactory((Socket)connection);
+            return await _channelFactory((Socket)connection);
         }
 
         public Task StopAsync()

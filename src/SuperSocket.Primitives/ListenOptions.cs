@@ -1,3 +1,5 @@
+using System.Security.Authentication;
+
 namespace SuperSocket
 {
     public class ListenOptions
@@ -12,9 +14,12 @@ namespace SuperSocket
 
         public bool NoDelay { get; set; }
 
+        public SslProtocols Security { get; set; }
+        
+
         public override string ToString()
         {
-            return $"{nameof(Ip)}={Ip}, {nameof(Port)}={Port}, {nameof(Path)}={Path}, {nameof(BackLog)}={BackLog}, {nameof(NoDelay)}={NoDelay}";
+            return $"{nameof(Ip)}={Ip}, {nameof(Port)}={Port}, {nameof(Security)}={Security}, {nameof(Path)}={Path}, {nameof(BackLog)}={BackLog}, {nameof(NoDelay)}={NoDelay}";
         }
     }
 }
