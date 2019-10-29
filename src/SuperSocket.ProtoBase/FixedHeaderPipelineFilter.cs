@@ -23,43 +23,44 @@ namespace SuperSocket.ProtoBase
                 if (reader.Length < _headerSize)
                     return null;
                 
-                _foundHeader = true;
+                
                 var header = reader.Sequence.Slice(0, _headerSize);
                 var bodyLength = GetBodyLengthFromHeader(header);
                 
                 if (bodyLength < 0)
-                {
                     throw new ProtocolException("Failed to get body length from the package header.");
-                }
-                else if (bodyLength == 0)
-                {
-                    reader.Advance(_headerSize);
+
+                // rewind to the original postion
+                // don't consume any data from the reader
+                reader.Rewind(reader.Position.GetInteger());
+                
+                if (bodyLength == 0)
                     return DecodePackage(header);
-                }
-                else
-                {
-                    _totalSize = _headerSize + bodyLength;
-                }
+                
+                _foundHeader = true;
+                _totalSize = _headerSize + bodyLength;
+
+                return Filter(ref reader);
             }
 
             var totalSize = _totalSize;
 
+            var sequence = reader.Sequence;
+
             if (reader.Length > totalSize)
             {
-                reader.Advance(totalSize);
-                return DecodePackage(reader.Sequence.Slice(0, totalSize));
-            }
-            else if (reader.Length == totalSize)
-            {
-                reader.Advance(totalSize);                        
-                return DecodePackage(reader.Sequence);
+                sequence = sequence.Slice(0, totalSize);
             }
 
-            return null;           
+            var package = DecodePackage(sequence);
+
+            // mark the data consumed
+            reader.Advance(totalSize);
+
+            return package;        
         }
         
         protected abstract int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer);
-
 
         public override void Reset()
         {
