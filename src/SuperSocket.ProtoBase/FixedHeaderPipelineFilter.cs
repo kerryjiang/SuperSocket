@@ -21,18 +21,13 @@ namespace SuperSocket.ProtoBase
             if (!_foundHeader)
             {
                 if (reader.Length < _headerSize)
-                    return null;
-                
+                    return null;                
                 
                 var header = reader.Sequence.Slice(0, _headerSize);
                 var bodyLength = GetBodyLengthFromHeader(header);
                 
                 if (bodyLength < 0)
                     throw new ProtocolException("Failed to get body length from the package header.");
-
-                // rewind to the original postion
-                // don't consume any data from the reader
-                reader.Rewind(reader.Position.GetInteger());
                 
                 if (bodyLength == 0)
                     return DecodePackage(header);

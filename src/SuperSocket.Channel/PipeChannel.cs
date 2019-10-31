@@ -265,9 +265,13 @@ namespace SuperSocket.Channel
                 if (currentPipelineFilter.NextFilter != null)
                     _pipelineFilter = currentPipelineFilter.NextFilter;
 
-                var pos = seqReader.Position.GetInteger();
+                var len = seqReader.Consumed;
 
-                if (maxPackageLength > 0 && pos > maxPackageLength)
+                // nothing has been consumed, need more data
+                if (len == 0)
+                    len = seqReader.Length;
+
+                if (maxPackageLength > 0 && len > maxPackageLength)
                 {
                     Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
                     // close the the connection directly
@@ -294,6 +298,7 @@ namespace SuperSocket.Channel
                 else
                 {
                     examined = consumed = seqReader.Position;
+                    seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(seqReader.Consumed));
                 }
             }
 
