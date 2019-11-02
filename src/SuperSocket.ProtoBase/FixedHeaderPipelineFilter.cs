@@ -34,25 +34,17 @@ namespace SuperSocket.ProtoBase
                 
                 _foundHeader = true;
                 _totalSize = _headerSize + bodyLength;
-
-                return Filter(ref reader);
             }
 
             var totalSize = _totalSize;
 
-            var sequence = reader.Sequence;
+            if (reader.Length < totalSize)
+                return null;
 
-            if (reader.Length > totalSize)
-            {
-                sequence = sequence.Slice(0, totalSize);
-            }
-
-            var package = DecodePackage(sequence);
-
-            // mark the data consumed
+            var pack = reader.Sequence.Slice(0, totalSize);
             reader.Advance(totalSize);
 
-            return package;        
+            return DecodePackage(pack);        
         }
         
         protected abstract int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer);
