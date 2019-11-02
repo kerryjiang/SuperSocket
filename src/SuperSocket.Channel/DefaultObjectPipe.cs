@@ -73,8 +73,8 @@ namespace SuperSocket.Channel
             {
                 if (_waiting)
                 {
-                    _taskSourceCore.SetResult(target);
-                    _waiting = false;                    
+                    _waiting = false;
+                    _taskSourceCore.SetResult(target);                    
                     return _length;
                 }
 
@@ -140,7 +140,7 @@ namespace SuperSocket.Channel
                         _lastReadIsWait = false;
                     }
                     
-                    _length--;                    
+                    _length--;
                     return new ValueTask<T>(value);
                 }                    
 
