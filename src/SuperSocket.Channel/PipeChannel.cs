@@ -10,7 +10,9 @@ using SuperSocket.ProtoBase;
 using System.Collections;
 using System.Threading.Tasks.Sources;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
+[assembly: InternalsVisibleTo("Test")] 
 namespace SuperSocket.Channel
 {
     public abstract partial class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
@@ -32,6 +34,8 @@ namespace SuperSocket.Channel
             get { return In; }
         }
 
+        private IObjectPipe<TPackageInfo> _packagePipe;
+
         protected ILogger Logger { get; }
 
         protected ChannelOptions Options { get; }
@@ -39,7 +43,7 @@ namespace SuperSocket.Channel
         protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
         {
             _pipelineFilter = pipelineFilter;
-            _packageTaskSource = new ManualResetValueTaskSourceCore<TPackageInfo>();
+            _packagePipe = new DefaultObjectPipe<TPackageInfo>();
             Options = options;
             Logger = options.Logger;
             Out = options.Out ?? new Pipe();
@@ -53,9 +57,7 @@ namespace SuperSocket.Channel
             
             while (true)
             {
-                var package = await ReceivePackage();
-
-                _packageTaskSource.Reset();
+                var package = await _packagePipe.ReadAsync();
 
                 if (package == null)
                 {
@@ -276,7 +278,7 @@ namespace SuperSocket.Channel
                     Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
                     // close the the connection directly
                     Close();
-                    _packageTaskSource.SetResult(null);
+                    _packagePipe.Write(null);
                     return false;
                 }
             
@@ -288,7 +290,7 @@ namespace SuperSocket.Channel
 
                 currentPipelineFilter.Reset();
 
-                _packageTaskSource.SetResult(packageInfo);
+                _packagePipe.Write(packageInfo);
 
                 if (seqReader.End) // no more data
                 {
