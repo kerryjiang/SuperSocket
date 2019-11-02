@@ -41,6 +41,7 @@ namespace SuperSocket.Channel
         private ManualResetValueTaskSourceCore<T> _taskSourceCore;
         private bool _waiting = false;
         private bool _lastReadIsWait = false;
+        private int _length;
 
         public DefaultObjectPipe()
         {
@@ -66,15 +67,15 @@ namespace SuperSocket.Channel
             _current = segment;
         }
 
-        public void Write(T target)
+        public int Write(T target)
         {
             lock (_syncRoot)
             {
                 if (_waiting)
                 {
                     _taskSourceCore.SetResult(target);
-                    _waiting = false;
-                    return;
+                    _waiting = false;                    
+                    return _length;
                 }
 
                 var current = _current;
@@ -86,6 +87,8 @@ namespace SuperSocket.Channel
                 }
 
                 current.Write(target);
+                _length++;
+                return _length;
             }            
         }
 
@@ -137,6 +140,7 @@ namespace SuperSocket.Channel
                         _lastReadIsWait = false;
                     }
                     
+                    _length--;                    
                     return new ValueTask<T>(value);
                 }                    
 
