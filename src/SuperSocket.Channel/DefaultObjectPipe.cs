@@ -5,7 +5,7 @@ using System.Threading.Tasks.Sources;
 
 namespace SuperSocket.Channel
 {
-    internal class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>
+    internal class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
     {
         class BufferSegment
         {
@@ -165,5 +165,40 @@ namespace SuperSocket.Channel
         {
             _taskSourceCore.OnCompleted(continuation, state, token, flags);
         }
+
+        #region IDisposable Support
+        private bool disposedValue = false; // To detect redundant calls
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    lock (_syncRoot)
+                    {
+                        // return all segments into the pool
+                        var segment = _first;
+
+                        while (segment != null)
+                        {
+                            _pool.Return(segment.Array);
+                            segment = segment.Next;
+                        }
+
+                        _first = null;
+                        _current = null;
+                    }
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        void IDisposable.Dispose()
+        {
+            Dispose(true);
+        }
+        #endregion
     }
 }
