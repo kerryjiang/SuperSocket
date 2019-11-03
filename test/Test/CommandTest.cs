@@ -18,7 +18,7 @@ using Xunit.Abstractions;
 
 namespace Tests
 {
-    [Collection("Command")]
+    [Trait("Category", "Command")]
     public class CommandTest : TestClassBase
     {
         class ADD : IAsyncCommand<string, StringPackageInfo>
@@ -75,7 +75,7 @@ namespace Tests
 
         }
 
-        [Fact] 
+        [Fact]
         public async Task TestCommands()
         {
             var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>()

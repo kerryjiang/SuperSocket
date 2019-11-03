@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace Tests
 {
-    [Collection("ServerOptions")]
+    [Trait("Category", "ServerOptions")]
     public class ServerOptionsTest : TestClassBase
     {
         public ServerOptionsTest(ITestOutputHelper outputHelper)

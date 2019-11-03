@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace Tests
 {
-    [Collection("SessionContaner")]
+    [Trait("Category", "SessionContaner")]
     public class SessionContanerTest : TestClassBase
     {
         class SESS : IAsyncCommand<string, StringPackageInfo>

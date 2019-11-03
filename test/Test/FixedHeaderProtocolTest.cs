@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Tests
 {
-    [Collection("Protocol.FixedHeader")]
+    [Trait("Category", "Protocol.FixedHeader")]
     public class FixedHeaderProtocolTest : ProtocolTestBase
     {
         public FixedHeaderProtocolTest(ITestOutputHelper outputHelper) : base(outputHelper)
@@ -51,5 +51,26 @@ namespace Tests
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;
         }
+
+   /*      [Fact]
+        [Trait("Category", "Protocol.FixedHeader.TestNormalRequest")]
+        public override void TestNormalRequest()
+        {
+            base.TestNormalRequest();
+        }
+
+        [Fact]
+        [Trait("Category", "Protocol.FixedHeader.TestMiddleBreak")]
+        public override void TestMiddleBreak()
+        {
+            base.TestMiddleBreak();
+        }
+
+        [Fact]
+        [Trait("Category", "Protocol.FixedHeader.TestFragmentRequest")]
+        public override void TestFragmentRequest()
+        {
+            base.TestFragmentRequest();
+        } */
     }
 }

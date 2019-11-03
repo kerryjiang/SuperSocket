@@ -10,7 +10,7 @@ using Xunit.Abstractions;
 
 namespace Tests
 {
-    [Collection("Protocol.FixedSize")]
+    [Trait("Category", "Protocol.FixedSize")]
     public class FixedSizeProtocolTest : ProtocolTestBase
     {
         public FixedSizeProtocolTest(ITestOutputHelper outputHelper) : base(outputHelper)

@@ -12,7 +12,7 @@ using SuperSocket;
 
 namespace Tests
 {
-    [Collection("Basic")]
+    [Trait("Category", "Basic")]
     public class MainTest : TestClassBase
     {
         public MainTest(ITestOutputHelper outputHelper)
