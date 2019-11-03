@@ -28,16 +28,6 @@ namespace SuperSocket.Channel
             Out.Writer.Complete();
         }
 
-        protected override async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
-        {
-            foreach (var piece in buffer)
-            {
-                await Out.Writer.WriteAsync(piece);
-            }
-            
-            return (int)buffer.Length;
-        }
-
         protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory)
         {
             throw new NotSupportedException();

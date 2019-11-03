@@ -183,7 +183,24 @@ namespace SuperSocket.Channel
             output.Complete();
         }
 
-        protected abstract ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer);
+        protected virtual async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
+        {
+            var writer = Out.Writer;
+
+            var totalWritten = 0;
+
+            foreach (var piece in buffer)
+            {
+                var result = await writer.WriteAsync(piece);
+
+                if (!result.IsCompleted)
+                    break;
+
+                totalWritten += piece.Length;
+            }
+                     
+            return totalWritten;
+        }
 
 
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
@@ -267,7 +284,11 @@ namespace SuperSocket.Channel
                 if (currentPipelineFilter.NextFilter != null)
                     _pipelineFilter = currentPipelineFilter.NextFilter;
 
-                var len = seqReader.Consumed;
+                var bytesConsumed = seqReader.Consumed;
+
+                //Console.WriteLine($"Consumed {bytesConsumed} of {seqReader.Length}");
+
+                var len = bytesConsumed;
 
                 // nothing has been consumed, need more data
                 if (len == 0)
@@ -294,13 +315,13 @@ namespace SuperSocket.Channel
 
                 if (seqReader.End) // no more data
                 {
-                    consumed = buffer.End;
+                    examined = consumed = buffer.End;
                     break;
                 }
                 else
                 {
-                    examined = consumed = seqReader.Position;
-                    seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(seqReader.Consumed));
+                    examined = consumed = buffer.GetPosition(bytesConsumed);
+                    seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
                 }
             }
 

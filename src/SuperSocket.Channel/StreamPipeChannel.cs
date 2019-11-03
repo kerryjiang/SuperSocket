@@ -30,16 +30,6 @@ namespace SuperSocket.Channel
             base.OnClosed();
         }
 
-        protected override async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
-        {
-            foreach (var piece in buffer)
-            {
-                await _stream.WriteAsync(piece);
-            }
-
-            return (int)buffer.Length;
-        }
-
         protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory)
         {
             return await _stream.ReadAsync(memory);
