@@ -198,7 +198,7 @@ namespace SuperSocket.Channel
 
                 totalWritten += piece.Length;
             }
-                     
+
             return totalWritten;
         }
 
@@ -271,6 +271,8 @@ namespace SuperSocket.Channel
             consumed = buffer.Start;
             examined = buffer.End;
 
+            var bytesConsumedTotal = 0L;
+
             var maxPackageLength = Options.MaxPackageLength;
 
             var seqReader = new SequenceReader<byte>(buffer);
@@ -285,8 +287,7 @@ namespace SuperSocket.Channel
                     _pipelineFilter = currentPipelineFilter.NextFilter;
 
                 var bytesConsumed = seqReader.Consumed;
-
-                //Console.WriteLine($"Consumed {bytesConsumed} of {seqReader.Length}");
+                bytesConsumedTotal += bytesConsumed;
 
                 var len = bytesConsumed;
 
@@ -306,6 +307,7 @@ namespace SuperSocket.Channel
                 // continue receive...
                 if (packageInfo == null)
                 {
+                    consumed = buffer.GetPosition(bytesConsumedTotal);
                     return true;
                 }
 
@@ -316,16 +318,11 @@ namespace SuperSocket.Channel
                 if (seqReader.End) // no more data
                 {
                     examined = consumed = buffer.End;
-                    break;
+                    return true;
                 }
-                else
-                {
-                    examined = consumed = buffer.GetPosition(bytesConsumed);
-                    seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
-                }
+                
+                seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
             }
-
-            return true;
         }
     }
 }

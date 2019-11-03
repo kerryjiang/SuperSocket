@@ -21,8 +21,14 @@ namespace SuperSocket.ProtoBase
             if (!reader.TryReadTo(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
                 return null;
 
-            reader.Advance(terminator.Length);          
-            return DecodePackage(pack);
+            try
+            {
+                return DecodePackage(pack);
+            }
+            finally
+            {
+                reader.Advance(terminator.Length);
+            }
         }
     }
 }

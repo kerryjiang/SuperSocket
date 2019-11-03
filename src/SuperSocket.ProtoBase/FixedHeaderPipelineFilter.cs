@@ -42,9 +42,15 @@ namespace SuperSocket.ProtoBase
                 return null;
 
             var pack = reader.Sequence.Slice(0, totalSize);
-            reader.Advance(totalSize);
 
-            return DecodePackage(pack);        
+            try
+            {
+                return DecodePackage(pack);
+            }
+            finally
+            {
+                reader.Advance(totalSize);
+            } 
         }
         
         protected abstract int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer);

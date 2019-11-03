@@ -19,8 +19,14 @@ namespace SuperSocket.ProtoBase
 
             var pack = reader.Sequence.Slice(0, _size);
 
-            reader.Advance(_size);
-            return DecodePackage(pack);
+            try
+            {
+                return DecodePackage(pack);
+            }
+            finally
+            {
+                reader.Advance(_size);
+            }
         }
     }
 }
