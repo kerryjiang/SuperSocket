@@ -10,5 +10,7 @@ namespace SuperSocket.Channel
         Pipe In { get; }
 
         Pipe Out { get; }
+
+        IPipelineFilter PipelineFilter { get; }
     }
 }

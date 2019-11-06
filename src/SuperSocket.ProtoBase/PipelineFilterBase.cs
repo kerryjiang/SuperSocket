@@ -9,11 +9,13 @@ namespace SuperSocket.ProtoBase
         
         public IPackageDecoder<TPackageInfo> Decoder { get; set; }
 
+        public object Context { get; set; }
+
         public abstract TPackageInfo Filter(ref SequenceReader<byte>  reader);
 
         protected virtual TPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
         {
-            return Decoder.Decode(buffer);
+            return Decoder.Decode(buffer, Context);
         }
 
         public virtual void Reset()

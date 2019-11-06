@@ -8,7 +8,7 @@ namespace SuperSocket
 {
     public class DefaultStringPackageDecoder : IPackageDecoder<StringPackageInfo>
     {
-        public StringPackageInfo Decode(ReadOnlySequence<byte> buffer)
+        public StringPackageInfo Decode(ReadOnlySequence<byte> buffer, object context)
         {
             var text = buffer.GetString(Encoding.UTF8);
             var parts = text.Split(' ');

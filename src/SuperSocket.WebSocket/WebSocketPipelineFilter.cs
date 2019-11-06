@@ -118,5 +118,7 @@ namespace SuperSocket.WebSocket
         {
             
         }
+
+        public object Context { get; set; }
     }
 }

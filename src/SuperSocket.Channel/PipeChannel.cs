@@ -34,6 +34,11 @@ namespace SuperSocket.Channel
             get { return In; }
         }
 
+        IPipelineFilter IPipeChannel.PipelineFilter
+        {
+            get { return _pipelineFilter; }
+        }
+
         private IObjectPipe<TPackageInfo> _packagePipe;
 
         protected ILogger Logger { get; }
@@ -283,8 +288,13 @@ namespace SuperSocket.Channel
 
                 var packageInfo = currentPipelineFilter.Filter(ref seqReader);
 
-                if (currentPipelineFilter.NextFilter != null)
-                    _pipelineFilter = currentPipelineFilter.NextFilter;
+                var nextFilter = currentPipelineFilter.NextFilter;
+
+                if (nextFilter != null)
+                {
+                    nextFilter.Context = currentPipelineFilter.Context; // pass through the context
+                    _pipelineFilter = nextFilter;
+                }
 
                 var bytesConsumed = seqReader.Consumed;
                 bytesConsumedTotal += bytesConsumed;

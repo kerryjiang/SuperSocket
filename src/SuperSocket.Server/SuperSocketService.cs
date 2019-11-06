@@ -151,9 +151,19 @@ namespace SuperSocket.Server
             AcceptNewChannel(channel);
         }
 
+        protected virtual object CreatePipelineContext(IAppSession session)
+        {
+            return session;
+        }
+
         private void InitializeSession(IAppSession session, IChannel channel)
         {
             session.Initialize(this, channel);
+
+            if (channel is IPipeChannel pipeChannel)
+            {
+                pipeChannel.PipelineFilter.Context = CreatePipelineContext(session);
+            }
 
             var middlewares = _middlewares;
 

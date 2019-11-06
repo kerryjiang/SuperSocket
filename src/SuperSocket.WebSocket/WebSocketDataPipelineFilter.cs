@@ -53,5 +53,7 @@ namespace SuperSocket.WebSocket
             _currentPackage = null;
             _currentPartReader = null;
         }
+
+        public object Context { get; set; }
     }
 }
