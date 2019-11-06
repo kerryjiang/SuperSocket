@@ -17,7 +17,7 @@ namespace SuperSocket.MySQL.PackagePartReader
                 return false;
             }
 
-            reader.TryReadBigEndian(out short errorCode);
+            reader.TryReadLittleEndian(out short errorCode);
             package.ErrorCode = errorCode;
             nextPartReader = ErrorMessagePartRealer;
             needMoreData = false;

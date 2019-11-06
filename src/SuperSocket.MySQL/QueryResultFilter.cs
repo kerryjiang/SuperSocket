@@ -46,5 +46,7 @@ namespace SuperSocket.MySQL
             _currentPackage = null;
             _currentPartReader = null;
         }
+
+        public object Context { get; set; }
     }
 }
