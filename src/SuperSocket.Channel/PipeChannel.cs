@@ -262,6 +262,13 @@ namespace SuperSocket.Channel
                     if (completed)
                         break;
                 }
+                catch (Exception e)
+                {
+                    Logger.LogCritical(e, "Protocol error");
+                    // close the connection if get a protocol error
+                    Close();
+                    break;
+                }
                 finally
                 {
                     reader.AdvanceTo(consumed, examined);
