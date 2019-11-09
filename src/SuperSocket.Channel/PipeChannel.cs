@@ -4,13 +4,10 @@ using System.Threading.Tasks;
 using System.IO.Pipelines;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using SuperSocket.ProtoBase;
-using System.Collections;
-using System.Threading.Tasks.Sources;
-using System.Threading;
 using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Logging;
+using SuperSocket.ProtoBase;
+
 
 [assembly: InternalsVisibleTo("Test")] 
 namespace SuperSocket.Channel
@@ -167,7 +164,7 @@ namespace SuperSocket.Channel
                 {
                     try
                     {
-                        await SendAsync(buffer);
+                        await SendOverIOAsync(buffer);
                     }
                     catch (Exception e)
                     {
@@ -188,31 +185,13 @@ namespace SuperSocket.Channel
             output.Complete();
         }
 
-        protected virtual async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
-        {
-            var writer = Out.Writer;
-
-            var totalWritten = 0;
-
-            foreach (var piece in buffer)
-            {
-                var result = await writer.WriteAsync(piece);
-
-                if (!result.IsCompleted)
-                    break;
-
-                totalWritten += piece.Length;
-            }
-
-            return totalWritten;
-        }
+        protected abstract ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer);
 
 
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
         {
             var writer = Out.Writer;
             await writer.WriteAsync(buffer);
-            await writer.FlushAsync();
         }
 
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)

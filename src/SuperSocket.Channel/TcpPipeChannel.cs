@@ -41,7 +41,7 @@ namespace SuperSocket.Channel
             return await socket.ReceiveAsync(GetArrayByMemory((ReadOnlyMemory<byte>)memory), socketFlags);
         }
 
-        protected override async ValueTask<int> SendAsync(ReadOnlySequence<byte> buffer)
+        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer)
         {
             if (buffer.IsSingleSegment)
             {

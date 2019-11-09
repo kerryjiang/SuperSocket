@@ -34,5 +34,19 @@ namespace SuperSocket.Channel
         {
             return await _stream.ReadAsync(memory);
         }
+
+        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer)
+        {
+            var total = 0;
+
+            foreach (var data in buffer)
+            {
+                await _stream.WriteAsync(data);
+                total += data.Length;
+            }
+
+            await _stream.FlushAsync();
+            return total;
+        }
     }
 }
