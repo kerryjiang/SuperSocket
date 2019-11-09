@@ -31,7 +31,8 @@ namespace SuperSocket.Server
         private IChannelCreatorFactory _channelCreatorFactory;
         private List<IChannelCreator> _channelCreators;
         private IPackageHandler<TReceivePackageInfo> _packageHandler;
-
+        private Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>> _errorHandler;
+        
         public string Name { get; }
 
         private int _sessionCount;
@@ -60,7 +61,17 @@ namespace SuperSocket.Server
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _channelCreatorFactory = channelCreatorFactory;
             _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
+            _errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>();
 
+            if (_errorHandler == null)
+            {
+                _errorHandler = async (s, e) =>
+                {
+                    _logger.LogError(e.Message, e.InnerException);
+                    return await new ValueTask<bool>(true);
+                };
+            }
+            
             // initialize session factory
             _sessionFactory = serviceProvider.GetService<ISessionFactory>();
 
@@ -189,7 +200,19 @@ namespace SuperSocket.Server
 
                 await foreach (var p in channel.RunAsync())
                 {
-                    await _packageHandler?.Handle(session, p);
+                    try
+                    {
+                        await _packageHandler?.Handle(session, p);
+                    }
+                    catch (Exception e)
+                    {
+                        var toClose = await _errorHandler(session, new PackageHandlingException<TReceivePackageInfo>($"Session {session.SessionID} got an error when handle a package.", p, e));
+
+                        if (toClose)
+                        {
+                            session.Close();
+                        }
+                    }                    
                 }
 
                 _logger.LogInformation($"The session disconnected: {session.SessionID}");

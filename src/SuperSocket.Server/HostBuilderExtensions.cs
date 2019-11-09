@@ -73,13 +73,13 @@ namespace SuperSocket
             return hostBuilder;
         }
 
-        public static IHostBuilder ConfigurePackageHandler<TReceivePackage>(this IHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, Task> packageHandler)
+        public static IHostBuilder ConfigurePackageHandler<TReceivePackage>(this IHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, Task> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
             where TReceivePackage : class
         {
-            return ConfigurePackageHandlerCore<TReceivePackage>(hostBuilder, packageHandler);
+            return ConfigurePackageHandlerCore<TReceivePackage>(hostBuilder, packageHandler, errorHandler: errorHandler);
         }
 
-        private static IHostBuilder ConfigurePackageHandlerCore<TReceivePackage>(IHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, Task> packageHandler)
+        private static IHostBuilder ConfigurePackageHandlerCore<TReceivePackage>(IHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, Task> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
             where TReceivePackage : class
         {
             if (packageHandler == null)
@@ -91,6 +91,9 @@ namespace SuperSocket
                 (hostCtx, services) =>
                 {
                     services.AddSingleton<IPackageHandler<TReceivePackage>>(new DelegatePackageHandler<TReceivePackage>(packageHandler));
+
+                    if (errorHandler != null)
+                        services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
                 }
             );
         }
@@ -99,6 +102,17 @@ namespace SuperSocket
             where TReceivePackage : class
         {
             return ConfigurePackageHandlerCore<TReceivePackage>(hostBuilder, packageHandler) as IHostBuilder<TReceivePackage>;
+        }
+
+        private static IHostBuilder ConfigureErrorHandler<TReceivePackage>(IHostBuilder hostBuilder, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler)
+            where TReceivePackage : class
+        {
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
         }
 
         public static IHostBuilder ConfigurePackageDecoder<TReceivePackage>(this IHostBuilder hostBuilder, IPackageDecoder<TReceivePackage> packageDecoder)

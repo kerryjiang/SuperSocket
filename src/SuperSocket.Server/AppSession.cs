@@ -93,7 +93,13 @@ namespace SuperSocket.Server
 
         public void Close()
         {
-            Channel?.Close();
+            try
+            {
+                Channel?.Close();
+            }
+            catch
+            {
+            }
         }
     }
 }
