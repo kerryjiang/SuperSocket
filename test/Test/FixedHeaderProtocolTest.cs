@@ -51,26 +51,5 @@ namespace Tests
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;
         }
-
-   /*      [Fact]
-        [Trait("Category", "Protocol.FixedHeader.TestNormalRequest")]
-        public override void TestNormalRequest()
-        {
-            base.TestNormalRequest();
-        }
-
-        [Fact]
-        [Trait("Category", "Protocol.FixedHeader.TestMiddleBreak")]
-        public override void TestMiddleBreak()
-        {
-            base.TestMiddleBreak();
-        }
-
-        [Fact]
-        [Trait("Category", "Protocol.FixedHeader.TestFragmentRequest")]
-        public override void TestFragmentRequest()
-        {
-            base.TestFragmentRequest();
-        } */
     }
 }

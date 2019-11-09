@@ -19,15 +19,14 @@ namespace Tests
 
         protected override string CreateRequest(string sourceLine)
         {
-            return $"{sourceLine}#";
+            return $"{sourceLine}##";
         }
 
         protected override IServer CreateServer()
         {
-            var server = CreateSocketServerBuilder<TextPackageInfo>((x) => new TerminatorTextPipelineFilter(new[] { (byte)'#' }))
+            var server = CreateSocketServerBuilder<TextPackageInfo>((x) => new TerminatorTextPipelineFilter(new[] { (byte)'#', (byte)'#' }))
                 .ConfigurePackageHandler(async (s, p) =>
                 {
-                    //OutputHelper.WriteLine(p.Text);
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;
 
