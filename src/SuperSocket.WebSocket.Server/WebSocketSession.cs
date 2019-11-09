@@ -18,5 +18,14 @@ namespace SuperSocket.WebSocket.Server
         {
             return this.Channel.SendAsync(_messageEncoder, message);
         }
+
+        public ValueTask SendAsync(string message)
+        {
+            return SendAsync(new WebSocketMessage
+            {
+                OpCode = OpCode.Text,
+                Message = message,
+            });
+        }
     }
 }

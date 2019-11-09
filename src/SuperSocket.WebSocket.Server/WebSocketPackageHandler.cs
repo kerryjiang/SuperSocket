@@ -15,13 +15,18 @@ namespace SuperSocket.WebSocket.Server
         private IServiceProvider _serviceProvider;
         private IPackageHandler<WebSocketPackage> _websocketCommandMiddleware;
 
+        private Func<WebSocketSession, WebSocketPackage, Task> _packageHandlerDelegate;
+
         public WebSocketPackageHandler(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+
             _websocketCommandMiddleware = serviceProvider
                 .GetServices<IMiddleware>()
                 .OfType<IWebSocketCommandMiddleware>()
                 .FirstOrDefault() as IPackageHandler<WebSocketPackage>;
+
+            _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
         }
 
         public async Task Handle(IAppSession session, WebSocketPackage package)
@@ -54,7 +59,7 @@ namespace SuperSocket.WebSocket.Server
                 message.Data = package.Data;
 
                 await websocketSession.SendAsync(message);
-                
+
                 //After both sending and receiving a Close message, the server MUST close the underlying TCP connection immediately
                 websocketSession.Close();                
                 return;
@@ -66,7 +71,13 @@ namespace SuperSocket.WebSocket.Server
             if (websocketCommandMiddleware != null)
             {
                 await websocketCommandMiddleware.Handle(session, package);
+                return;
             }
+
+            var packageHandleDelegate = _packageHandlerDelegate;
+            
+            if (packageHandleDelegate != null)
+                await packageHandleDelegate(websocketSession, package);
         }
 
         private async Task<bool> HandleHandshake(IAppSession session, WebSocketPackage p)

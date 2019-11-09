@@ -21,9 +21,14 @@ namespace Tests.WebSocket
 
         }
 
-        protected IHostBuilder CreateWebSocketServerBuilder()
+        protected IHostBuilder CreateWebSocketServerBuilder(Func<IWebSocketHostBuilder,IWebSocketHostBuilder> configurator = null)
         {
-            return Configure(WebSocketHostBuilder.Create());
+            var builder = WebSocketHostBuilder.Create();
+            
+            if (configurator != null)
+                builder = configurator(builder);
+
+            return Configure(builder);
         }
     }
 }

@@ -32,6 +32,14 @@ namespace SuperSocket.WebSocket.Server
                 }) as IWebSocketHostBuilder;
         }
 
+        public static IWebSocketHostBuilder ConfigureWebSocketMessageHandler(this IWebSocketHostBuilder builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
+        {
+            return builder.ConfigureServices((ctx, services) => 
+            {
+                services.AddSingleton<Func<WebSocketSession, WebSocketPackage, Task>>(handler);
+            }) as IWebSocketHostBuilder;
+        }
+
         public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
