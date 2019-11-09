@@ -3,6 +3,7 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Runtime.InteropServices;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.FramePartReader
@@ -28,14 +29,58 @@ namespace SuperSocket.WebSocket.FramePartReader
             if (package.HasMask)
                 DecodeMask(seq, package.MaskKey);
 
-            if (package.OpCode != OpCode.Text)
+            if (package.Data.Length == 0)
                 package.Data = seq;
             else
-                package.Message = seq.GetString(Encoding.UTF8);
+                package.Data = ConcactSequence(package.Data, seq);
 
-            reader.Advance(required);
+            try
+            {
+                if (package.FIN)
+                {
+                    if (package.OpCode == OpCode.Text)
+                    {
+                        package.Message = package.Data.GetString(Encoding.UTF8);
+                        package.Data = default;
+                    }
+
+                    return true;
+                }
+                else
+                {
+                    // start to process next fragment
+                    nextPartReader = FixPartReader;
+                    return false;
+                }
+            }
+            finally
+            {
+                reader.Advance(required);
+            }
+        }
+
+        private ReadOnlySequence<byte> ConcactSequence(ReadOnlySequence<byte> first, ReadOnlySequence<byte> second)
+        {
+            SequenceSegment head = first.Start.GetObject() as SequenceSegment;
+            SequenceSegment tail = first.End.GetObject() as SequenceSegment;
             
-            return true;
+            if (head == null)
+            {
+                foreach (var segment in first)
+                {                
+                    if (head == null)
+                        tail = head = new SequenceSegment(segment);
+                    else
+                        tail = tail.SetNext(segment);
+                }
+            }
+
+            foreach (var segment in second)
+            {
+                tail = tail.SetNext(segment);
+            }
+
+            return new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
         internal unsafe void DecodeMask(ReadOnlySequence<byte> sequence, byte[] mask)
