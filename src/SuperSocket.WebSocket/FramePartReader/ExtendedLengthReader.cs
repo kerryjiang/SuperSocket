@@ -17,7 +17,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             else
                 required = 8;
 
-            if (reader.Length < required)
+            if (reader.Remaining < required)
             {
                 nextPartReader = null;
                 needMoreData = true;

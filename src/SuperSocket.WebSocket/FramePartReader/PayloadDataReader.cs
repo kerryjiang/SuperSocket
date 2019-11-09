@@ -15,15 +15,18 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             long required = package.PayloadLength;
 
-            if (reader.Length < required)
-            {                
+            if (reader.Remaining < required)
+            {
                 needMoreData = true;
                 return false;
             }
 
             needMoreData = false;
 
-            var seq = reader.Sequence.Slice(0, required);
+            var seq = reader.Sequence.Slice(reader.Consumed, required);
+
+            if (package.HasMask)
+                DecodeMask(seq, package.MaskKey);
 
             if (package.OpCode == OpCode.Binary)
                 package.Data = seq;
@@ -33,6 +36,25 @@ namespace SuperSocket.WebSocket.FramePartReader
             reader.Advance(required);
             
             return true;
+        }
+
+        private unsafe void DecodeMask(ReadOnlySequence<byte> sequence, byte[] mask)
+        {
+            var index = 0;
+            var maskLen = mask.Length;
+
+            foreach (var piece in sequence)
+            {
+                fixed (byte* ptr = &piece.Span.GetPinnableReference())
+                {
+                    var span = new Span<byte>(ptr, piece.Span.Length);
+
+                    for (var i = 0; i < span.Length; i++)
+                    {
+                        span[i] = (byte)(span[i] ^ mask[index++ % maskLen]);
+                    }
+                }      
+            }
         }
     }
 }

@@ -12,7 +12,7 @@ namespace SuperSocket.WebSocket.FramePartReader
         {
             int required = 4;
 
-            if (reader.Length < required)
+            if (reader.Remaining < required)
             {
                 nextPartReader = null;
                 needMoreData = true;
@@ -21,7 +21,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             needMoreData = false;
 
-            package.MaskKey = reader.Sequence.Slice(0, 4).ToArray();
+            package.MaskKey = reader.Sequence.Slice(reader.Consumed, 4).ToArray();
             reader.Advance(4);
 
             nextPartReader = PayloadDataReader;
