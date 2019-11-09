@@ -28,7 +28,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             if (package.HasMask)
                 DecodeMask(seq, package.MaskKey);
 
-            if (package.OpCode == OpCode.Binary)
+            if (package.OpCode != OpCode.Text)
                 package.Data = seq;
             else
                 package.Message = seq.GetString(Encoding.UTF8);
@@ -38,7 +38,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             return true;
         }
 
-        private unsafe void DecodeMask(ReadOnlySequence<byte> sequence, byte[] mask)
+        internal unsafe void DecodeMask(ReadOnlySequence<byte> sequence, byte[] mask)
         {
             var index = 0;
             var maskLen = mask.Length;
@@ -53,7 +53,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                     {
                         span[i] = (byte)(span[i] ^ mask[index++ % maskLen]);
                     }
-                }      
+                }
             }
         }
     }

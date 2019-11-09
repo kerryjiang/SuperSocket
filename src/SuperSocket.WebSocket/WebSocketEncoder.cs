@@ -103,7 +103,7 @@ namespace SuperSocket.WebSocket
         
         public int Encode(PipeWriter writer, WebSocketMessage pack)
         {
-            if (pack.OpCode == OpCode.Binary)
+            if (pack.OpCode != OpCode.Text)
                 return EncodeBinaryMessage(writer, pack);
             
             var minSzie = pack.Message.Length;

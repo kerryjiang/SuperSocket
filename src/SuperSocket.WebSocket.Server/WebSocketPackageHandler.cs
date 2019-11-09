@@ -51,10 +51,12 @@ namespace SuperSocket.WebSocket.Server
                 var message = new WebSocketMessage();
 
                 message.OpCode = OpCode.Close;
-                message.Message = package.Message;
+                message.Data = package.Data;
 
                 await websocketSession.SendAsync(message);
-                websocketSession.Close();
+                
+                //After both sending and receiving a Close message, the server MUST close the underlying TCP connection immediately
+                websocketSession.Close();                
                 return;
             }
 
