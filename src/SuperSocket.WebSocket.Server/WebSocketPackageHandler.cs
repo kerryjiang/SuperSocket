@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -27,6 +28,25 @@ namespace SuperSocket.WebSocket.Server
                 .FirstOrDefault() as IPackageHandler<WebSocketPackage>;
 
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
+        }
+
+        private CloseStatus GetCloseStatusFromPackage(WebSocketPackage package)
+        {
+            var reader = new SequenceReader<byte>(package.Data);
+
+            reader.TryReadBigEndian(out short closeReason);
+
+            var closeStatus = new CloseStatus
+            {
+                Reason = (CloseReason)closeReason
+            };
+
+            if (reader.Remaining > 0)
+            {
+                closeStatus.ReasonText = package.Data.Slice(2).GetString(Encoding.UTF8);
+            }
+
+            return closeStatus;
         }
 
         public async Task Handle(IAppSession session, WebSocketPackage package)
@@ -53,9 +73,11 @@ namespace SuperSocket.WebSocket.Server
 
             if (package.OpCode == OpCode.Close)
             {
-                if (!websocketSession.InClosing)
+                if (websocketSession.CloseStatus == null)
                 {
-                    websocketSession.InClosing = true;
+                    var closeStatus = GetCloseStatusFromPackage(package);
+
+                    websocketSession.CloseStatus = closeStatus;
 
                     var message = new WebSocketMessage();
 

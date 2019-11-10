@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Specialized;
+using System.Text;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
@@ -13,7 +14,7 @@ namespace SuperSocket.WebSocket.Server
 
         public HttpHeader HttpHeader { get; internal set; }
 
-        internal bool InClosing { get; set; }
+        internal CloseStatus CloseStatus { get; set; }
 
         private static readonly IPackageEncoder<WebSocketMessage> _messageEncoder = new WebSocketEncoder();
 
@@ -31,18 +32,40 @@ namespace SuperSocket.WebSocket.Server
             });
         }
 
-        public ValueTask CloseAsync(CloseReason reason)
+        public ValueTask CloseAsync(CloseReason reason, string reasonText = null)
         {
             var closeReasonCode = (short)reason;
+
+            var closeStatus = new CloseStatus
+            {
+                Reason = reason
+            };
+
+            var textEncodedLen = 0;
+
+            if (!string.IsNullOrEmpty(reasonText))
+                textEncodedLen = Encoding.UTF8.GetMaxByteCount(reasonText.Length);
+
+            var buffer = new byte[textEncodedLen + 2];
+
+            buffer[0] = (byte) (closeReasonCode / 256);
+            buffer[1] = (byte) (closeReasonCode % 256);
+
+            var length = 2;
+
+            if (!string.IsNullOrEmpty(reasonText))
+            {
+                closeStatus.ReasonText = reasonText;
+                var span = new Span<byte>(buffer, 2, buffer.Length - 2);
+                length += Encoding.UTF8.GetBytes(reasonText.AsSpan(), span);
+            }
+
+            CloseStatus = closeStatus;
 
             return SendAsync(new WebSocketMessage
             {
                 OpCode = OpCode.Close,
-                Data = new ReadOnlySequence<byte>(new byte[]
-                {
-                    (byte) (closeReasonCode / 256),
-                    (byte) (closeReasonCode % 256)
-                })
+                Data = new ReadOnlySequence<byte>(buffer, 0, length)
             });
         }
     }
