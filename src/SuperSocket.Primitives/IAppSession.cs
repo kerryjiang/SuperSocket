@@ -19,7 +19,7 @@ namespace SuperSocket
 
         event EventHandler Closed;
 
-        object State { get; set; }
+        object DataContext { get; set; }
 
         void Initialize(IServerInfo server, IChannel channel);
 

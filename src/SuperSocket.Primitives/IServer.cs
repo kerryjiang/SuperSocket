@@ -9,7 +9,6 @@ namespace SuperSocket
 
         Task StopAsync();
 
-
         int SessionCount { get; }
 
         IServiceProvider ServiceProvider { get; }

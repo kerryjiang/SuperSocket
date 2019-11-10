@@ -50,6 +50,8 @@ namespace SuperSocket.Server
             get { return _state; }
         }
 
+        public object DataContext { get; set; }
+
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
         {
             _serverOptions = serverOptions;

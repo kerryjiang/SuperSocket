@@ -34,7 +34,7 @@ namespace SuperSocket.Server
            get { return _channel; }
        }
 
-        public object State { get; set; }
+        public object DataContext { get; set; }
 
         public event EventHandler Connected;
 
