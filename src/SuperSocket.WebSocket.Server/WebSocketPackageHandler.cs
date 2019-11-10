@@ -53,15 +53,20 @@ namespace SuperSocket.WebSocket.Server
 
             if (package.OpCode == OpCode.Close)
             {
-                var message = new WebSocketMessage();
+                if (!websocketSession.InClosing)
+                {
+                    websocketSession.InClosing = true;
 
-                message.OpCode = OpCode.Close;
-                message.Data = package.Data;
+                    var message = new WebSocketMessage();
 
-                await websocketSession.SendAsync(message);
+                    message.OpCode = OpCode.Close;
+                    message.Data = package.Data;
+
+                    await websocketSession.SendAsync(message);
+                }                
 
                 //After both sending and receiving a Close message, the server MUST close the underlying TCP connection immediately
-                websocketSession.Close();                
+                websocketSession.Close();            
                 return;
             }
 
