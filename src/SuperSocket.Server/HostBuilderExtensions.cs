@@ -162,6 +162,11 @@ namespace SuperSocket
         public static IServer BuildAsServer(this IHostBuilder hostBuilder)
         {
             var host = hostBuilder.Build();
+            return host.AsServer();
+        }
+
+        public static IServer AsServer(this IHost host)
+        {
             return host.Services.GetService<IEnumerable<IHostedService>>().OfType<IServer>().FirstOrDefault();
         }
     }
