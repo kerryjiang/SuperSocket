@@ -26,6 +26,7 @@ namespace SuperSocket.WebSocket.Server
             return new InternalWebSocketHostBuilder()
                 .ConfigureDefaults()
                 .UseSuperSocketWebSocket()
+                .UseMiddleware<HandshakeCheckMiddleware>()
                 .ConfigureServices((ctx, services) =>
                 {
                     services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();

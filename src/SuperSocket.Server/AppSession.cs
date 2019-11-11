@@ -22,10 +22,15 @@ namespace SuperSocket.Server
         void IAppSession.Initialize(IServerInfo server, IChannel channel)
         {
             Server = server;
+            StartTime = DateTime.Now;
             _channel = channel;
         }
 
         public string SessionID { get; }
+
+        public DateTime StartTime { get; private set; }
+
+        public bool IsConnected { get; private set; }
 
         public IServerInfo Server { get; private set; }
 
@@ -75,11 +80,13 @@ namespace SuperSocket.Server
 
         internal void OnSessionClosed(EventArgs e)
         {
+            IsConnected = false;
             Closed?.Invoke(this, e);
         }
 
         internal void OnSessionConnected()
         {
+            IsConnected = true;
             Connected?.Invoke(this, EventArgs.Empty);
         }
 

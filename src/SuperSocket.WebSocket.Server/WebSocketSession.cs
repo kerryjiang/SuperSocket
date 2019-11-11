@@ -14,6 +14,10 @@ namespace SuperSocket.WebSocket.Server
 
         public HttpHeader HttpHeader { get; internal set; }
 
+        public DateTime CloseHandshakeStartTime { get; private set; }
+
+        public event EventHandler CloseHandshakeStarted;
+
         internal CloseStatus CloseStatus { get; set; }
 
         private static readonly IPackageEncoder<WebSocketMessage> _messageEncoder = new WebSocketEncoder();
@@ -62,11 +66,19 @@ namespace SuperSocket.WebSocket.Server
 
             CloseStatus = closeStatus;
 
+            CloseHandshakeStartTime = DateTime.Now;
+            OnCloseHandshakeStarted();
+
             return SendAsync(new WebSocketMessage
             {
                 OpCode = OpCode.Close,
                 Data = new ReadOnlySequence<byte>(buffer, 0, length)
             });
+        }
+
+        private void OnCloseHandshakeStarted()
+        {
+            CloseHandshakeStarted?.Invoke(this, EventArgs.Empty);
         }
     }
 }

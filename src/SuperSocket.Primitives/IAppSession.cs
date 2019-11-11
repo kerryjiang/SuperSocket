@@ -9,6 +9,8 @@ namespace SuperSocket
     {
         string SessionID { get; }
 
+        DateTime StartTime { get; }
+
         IChannel Channel { get; }
 
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
@@ -24,5 +26,7 @@ namespace SuperSocket
         void Initialize(IServerInfo server, IChannel channel);
 
         object this[object name] { get; set; }
+
+        bool IsConnected { get; }
     }
 }
