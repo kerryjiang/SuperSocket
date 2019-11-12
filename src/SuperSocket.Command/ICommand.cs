@@ -4,11 +4,14 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Command
 {
-    public interface ICommand<TKey>
+    public interface ICommand
+    {
+        string Name { get; }
+    }
+
+    public interface ICommand<TKey> : ICommand
     {
         TKey Key { get; }
-
-        string Name { get; }
     }
 
     public interface ICommand<TKey, TPackageInfo> : ICommand<TKey>
