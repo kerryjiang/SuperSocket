@@ -191,14 +191,31 @@ namespace SuperSocket.Channel
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
         {
             var writer = Out.Writer;
-            await writer.WriteAsync(buffer);
+            WriteBuffer(writer, buffer);
+            await writer.FlushAsync();
+        }
+
+        private void WriteBuffer(PipeWriter writer, ReadOnlyMemory<byte> buffer)
+        {
+            lock (writer)
+            {
+                writer.Write(buffer.Span);
+            }
         }
 
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             var writer = Out.Writer;
-            packageEncoder.Encode(writer, package);
+            WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
             await writer.FlushAsync();
+        }
+
+        private void WritePackageWithEncoder<TPackage>(PipeWriter writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        {
+            lock (writer)
+            {
+                packageEncoder.Encode(writer, package);
+            }
         }
 
         protected internal ArraySegment<T> GetArrayByMemory<T>(ReadOnlyMemory<T> memory)
