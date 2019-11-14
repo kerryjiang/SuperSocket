@@ -242,7 +242,10 @@ namespace SuperSocket.Channel
                 try
                 {
                     if (result.IsCanceled)
+                    {
+                        WriteEOFPackage();
                         break;
+                    }
 
                     var completed = result.IsCompleted;
 
@@ -256,13 +259,17 @@ namespace SuperSocket.Channel
                     }
 
                     if (completed)
+                    {
+                        WriteEOFPackage();
                         break;
+                    }
                 }
                 catch (Exception e)
                 {
                     Logger.LogCritical(e, "Protocol error");
                     // close the connection if get a protocol error
                     Close();
+                    WriteEOFPackage();
                     break;
                 }
                 finally
@@ -272,6 +279,11 @@ namespace SuperSocket.Channel
             }
 
             reader.Complete();
+        }
+
+        private void WriteEOFPackage()
+        {
+            _packagePipe.Write(null);
         }
 
         private bool ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
@@ -313,7 +325,6 @@ namespace SuperSocket.Channel
                     Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
                     // close the the connection directly
                     Close();
-                    _packagePipe.Write(null);
                     return false;
                 }
             
