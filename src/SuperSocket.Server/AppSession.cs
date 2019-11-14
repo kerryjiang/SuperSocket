@@ -34,10 +34,10 @@ namespace SuperSocket.Server
 
         public IServerInfo Server { get; private set; }
 
-       IChannel IAppSession.Channel
-       {
-           get { return _channel; }
-       }
+        IChannel IAppSession.Channel
+        {
+            get { return _channel; }
+        }
 
         public object DataContext { get; set; }
 
