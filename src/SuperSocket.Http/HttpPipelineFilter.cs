@@ -22,16 +22,48 @@ namespace SuperSocket.Http
 
         public IPipelineFilter<HttpRequest> NextFilter { get; internal set; }
 
+        private HttpRequest _currentRequest;
+
+        private long _bodyLength;
+
         public HttpRequest Filter(ref SequenceReader<byte> reader)
         {
-            var terminatorSpan = _headerTerminator.Span;
+            if (_bodyLength == 0)
+            {
+                var terminatorSpan = _headerTerminator.Span;
 
-            if (!reader.TryReadTo(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
+                if (!reader.TryReadTo(out ReadOnlySequence<byte> pack, terminatorSpan, advancePastDelimiter: false))
+                    return null;
+
+                reader.Advance(terminatorSpan.Length);
+                
+                var request = ParseHttpHeaderItems(pack);
+
+                var contentLength = request.Items?["content-length"];
+
+                if (string.IsNullOrEmpty(contentLength)) // no content
+                    return request;
+
+                var bodyLength = long.Parse(contentLength);
+
+                if (bodyLength == 0)
+                    return request;
+                    
+                _bodyLength = bodyLength;
+                _currentRequest = request;
+
+                return Filter(ref reader);
+            }
+
+            if (reader.Remaining < _bodyLength)
                 return null;
 
-            reader.Advance(terminatorSpan.Length);
-            
-            return ParseHttpHeaderItems(pack);
+            var seq = reader.Sequence;
+
+            _currentRequest.Body = seq.Slice(reader.Consumed, _bodyLength).GetString(Encoding.UTF8);
+            reader.Advance(_bodyLength);
+
+            return _currentRequest;
         }
 
         private HttpRequest ParseHttpHeaderItems(ReadOnlySequence<byte> header)
@@ -107,7 +139,8 @@ namespace SuperSocket.Http
 
         public void Reset()
         {
-            
+            _bodyLength = 0;
+            _currentRequest = null;
         }
 
         public object Context { get; set; }

@@ -13,6 +13,8 @@ namespace SuperSocket.Http
 
         public NameValueCollection Items { get; private set; }
 
+        public string Body { get; set; }
+
         public HttpRequest(string method, string path, string httpVersion, NameValueCollection items)
         {
             Method = method;
