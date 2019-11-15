@@ -251,7 +251,7 @@ namespace SuperSocket.Channel
 
                     if (buffer.Length > 0)
                     {
-                        if (!ReaderBuffer(buffer, out consumed, out examined))
+                        if (!ReaderBuffer(ref buffer, out consumed, out examined))
                         {
                             completed = true;
                             break;
@@ -286,7 +286,7 @@ namespace SuperSocket.Channel
             _packagePipe.Write(null);
         }
 
-        private bool ReaderBuffer(ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
+        private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
         {
             consumed = buffer.Start;
             examined = buffer.End;
