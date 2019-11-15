@@ -88,7 +88,7 @@ namespace SuperSocket.WebSocket.Server
                 }                
 
                 //After both sending and receiving a Close message, the server MUST close the underlying TCP connection immediately
-                websocketSession.Close();            
+                websocketSession.CloseWithoutHandshake();
                 return;
             }
 

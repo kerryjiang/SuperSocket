@@ -80,5 +80,28 @@ namespace SuperSocket.WebSocket.Server
         {
             CloseHandshakeStarted?.Invoke(this, EventArgs.Empty);
         }
+
+        internal void CloseWithoutHandshake()
+        {
+            base.Close();
+        }
+
+        public new void Close()
+        {
+            if (CloseStatus != null)
+            {
+                base.Close();
+                return;
+            }
+            
+            try
+            {
+                CloseAsync(CloseReason.NormalClosure).GetAwaiter().GetResult();
+            }
+            catch
+            {
+
+            }            
+        }
     }
 }

@@ -27,8 +27,9 @@ namespace SuperSocket.WebSocket.Server
 
         public override ValueTask<bool> HandleSession(IAppSession session)
         {
-            _openHandshakePendingQueue.Enqueue(session as WebSocketSession);
-            (session as WebSocketSession).CloseHandshakeStarted += OnCloseHandshakeStarted;            
+            var websocketSession = session as WebSocketSession;
+            _openHandshakePendingQueue.Enqueue(websocketSession);
+            websocketSession.CloseHandshakeStarted += OnCloseHandshakeStarted;            
             return new ValueTask<bool>(true);
         }
 
@@ -36,11 +37,6 @@ namespace SuperSocket.WebSocket.Server
         {
             var session = sender as WebSocketSession;
             session.CloseHandshakeStarted -= OnCloseHandshakeStarted;
-            _closeHandshakePendingQueue.Enqueue(session);
-        }
-
-        internal void EnqueueClosingSession(WebSocketSession session)
-        {
             _closeHandshakePendingQueue.Enqueue(session);
         }
 
