@@ -88,6 +88,11 @@ namespace SuperSocket.Server
         {
             _middlewares = _serviceProvider.GetServices<IMiddleware>().ToArray();
 
+            foreach (var m in _middlewares)
+            {
+                m.Register(this);
+            }
+
             if (_packageHandler == null)
                 _packageHandler = _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
         }
@@ -154,8 +159,7 @@ namespace SuperSocket.Server
         private void AcceptNewChannel(IChannel channel)
         {
             var session = _sessionFactory.Create() as AppSession;
-            InitializeSession(session, channel);
-            HandleSession(session).DoNotAwait();
+            HandleSession(session, channel).DoNotAwait();
         }
 
         async Task IChannelRegister.RegisterChannel(object connection)
@@ -169,7 +173,7 @@ namespace SuperSocket.Server
             return session;
         }
 
-        private void InitializeSession(IAppSession session, IChannel channel)
+        private async ValueTask<bool> InitializeSession(IAppSession session, IChannel channel)
         {
             session.Initialize(this, channel);
 
@@ -184,23 +188,33 @@ namespace SuperSocket.Server
             {
                 for (var i = 0; i < middlewares.Length; i++)
                 {
-                    middlewares[i].Register(this, session);
+                    var result = await middlewares[i].HandleSession(session);
+
+                    if (!result)
+                        return false;
                 }
             }
+
+            return true;
         }
 
-        private async Task HandleSession(AppSession session)
+        private async ValueTask HandleSession(AppSession session, IChannel channel)
         {
-            Interlocked.Increment(ref _sessionCount);
+            var result = await InitializeSession(session, channel);
+
+            if (!result)
+                return;
 
             try
             {
+                Interlocked.Increment(ref _sessionCount);
+
                 _logger.LogInformation($"A new session connected: {session.SessionID}");
                 session.OnSessionConnected();
 
-                var channel = session.Channel as IChannel<TReceivePackageInfo>;
+                var packageChannel = channel as IChannel<TReceivePackageInfo>;
 
-                await foreach (var p in channel.RunAsync())
+                await foreach (var p in packageChannel.RunAsync())
                 {
                     try
                     {
@@ -225,8 +239,10 @@ namespace SuperSocket.Server
             {
                 _logger.LogError($"Failed to handle the session {session.SessionID}.", e);
             }
-
-            Interlocked.Decrement(ref _sessionCount);
+            finally
+            {
+                Interlocked.Decrement(ref _sessionCount);
+            }
         }
 
         protected virtual void OnSessionError(IAppSession session, Exception exception)

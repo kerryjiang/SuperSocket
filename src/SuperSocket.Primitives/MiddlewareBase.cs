@@ -1,8 +1,15 @@
 
+using System.Threading.Tasks;
+
 namespace SuperSocket
 {
     public abstract class MiddlewareBase : IMiddleware
     {
-        public abstract void Register(IServer server, IAppSession session);
+        public virtual void Register(IServer server)
+        {
+
+        }
+        
+        public abstract ValueTask<bool> HandleSession(IAppSession session);
     }
 }

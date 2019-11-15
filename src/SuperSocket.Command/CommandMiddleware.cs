@@ -80,9 +80,9 @@ namespace SuperSocket.Command
             return serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
-        public override void Register(IServer server, IAppSession session)
+        public override ValueTask<bool> HandleSession(IAppSession session)
         {
-
+            return new ValueTask<bool>(true);
         }
 
         protected virtual async Task HandlePackage(IAppSession session, TPackageInfo package)
@@ -121,18 +121,15 @@ namespace SuperSocket.Command
 
             public IReadOnlyList<ICommandFilter> Filters { get; private set; }
 
-            public TKey Key
-            {
-                get
-                {
-                    return Command.Key;
-                }
-            }
+            public TKey Key { get; }
 
             public CommandSet(IServiceProvider serviceProvider, Type commandType)
             {
-                Command = ActivatorUtilities.CreateInstance(serviceProvider, commandType) as ICommand<TKey, TPackageInfo>;
-                AsyncCommand = Command as IAsyncCommand<TKey, TPackageInfo>;
+                var command = ActivatorUtilities.CreateInstance(serviceProvider, commandType) as ICommand<TKey>;
+                
+                Key = command.Key;
+                Command = command  as ICommand<TKey, TPackageInfo>;
+                AsyncCommand = command as IAsyncCommand<TKey, TPackageInfo>;
 
                 Filters = commandType.GetCustomAttributes(false)
                     .OfType<CommandFilterBaseAttribute>()

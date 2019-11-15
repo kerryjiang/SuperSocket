@@ -17,10 +17,11 @@ namespace SuperSocket.SessionContainer
             _sessions = new ConcurrentDictionary<string, IAppSession>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public override void Register(IServer server, IAppSession session)
+        public override ValueTask<bool> HandleSession(IAppSession session)
         {
             session.Closed += OnSessionClosed;
             _sessions.TryAdd(session.SessionID, session);
+            return new ValueTask<bool>(true);
         }
 
         private void OnSessionClosed(object sender, EventArgs e)
