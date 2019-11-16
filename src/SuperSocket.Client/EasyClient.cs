@@ -8,19 +8,25 @@ using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Client
 {
-    public class EasyClient<TPackage> : EasyClient<TPackage, TPackage>
+    public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>
         where TPackage : class
     {
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Func<TPackage, Task> handler, IPackageEncoder<TPackage> packageEncoder = null, ILogger logger = null)
-            : base(pipelineFilter, handler, packageEncoder, logger)
+        private IPackageEncoder<TSendPackage> _packageEncoder;
+        
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Func<TPackage, Task> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
+            : base(pipelineFilter, handler, logger)
         {
+            _packageEncoder = packageEncoder;
+        }
 
+        public virtual async ValueTask SendAsync(TSendPackage package)
+        {
+            await SendAsync(_packageEncoder, package);
         }
     }
 
-    public class EasyClient<TReceivePackage, TSendPackage>
+    public class EasyClient<TReceivePackage>
         where TReceivePackage : class
-        where TSendPackage : class
     {
         private IPipelineFilter<TReceivePackage> _pipelineFilter;
 
@@ -30,13 +36,10 @@ namespace SuperSocket.Client
 
         private Func<TReceivePackage, Task> _handler;
 
-        private IPackageEncoder<TSendPackage> _packageEncoder;
-
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, Func<TReceivePackage, Task> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, Func<TReceivePackage, Task> handler, ILogger logger = null)
         {
             _pipelineFilter = pipelineFilter;
             _handler = handler;
-            _packageEncoder = packageEncoder;
             _logger = logger;
         }
 
@@ -90,9 +93,9 @@ namespace SuperSocket.Client
             await _channel.SendAsync(data);
         }
 
-        public virtual async ValueTask SendAsync(TSendPackage package)
+        public virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
         {
-            await _channel.SendAsync(_packageEncoder, package);
+            await _channel.SendAsync(packageEncoder, package);
         }
 
         public event EventHandler Closed;
