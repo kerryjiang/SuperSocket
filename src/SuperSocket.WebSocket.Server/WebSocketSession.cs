@@ -14,6 +14,11 @@ namespace SuperSocket.WebSocket.Server
 
         public HttpHeader HttpHeader { get; internal set; }
 
+        public string Path
+        {
+            get { return HttpHeader.Path; }
+        }
+
         public DateTime CloseHandshakeStartTime { get; private set; }
 
         public event EventHandler CloseHandshakeStarted;
@@ -93,7 +98,7 @@ namespace SuperSocket.WebSocket.Server
                 base.Close();
                 return;
             }
-            
+
             try
             {
                 CloseAsync(CloseReason.NormalClosure).GetAwaiter().GetResult();
