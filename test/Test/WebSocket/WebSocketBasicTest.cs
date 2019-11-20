@@ -42,8 +42,11 @@ namespace Tests.WebSocket
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                await Task.Delay(1 * 1000);
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
             }
         }
 
@@ -93,6 +96,8 @@ namespace Tests.WebSocket
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
             }
         }
     }
