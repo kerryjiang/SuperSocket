@@ -85,10 +85,13 @@ namespace SuperSocket.WebSocket.Server
                     message.Data = package.Data;
 
                     await websocketSession.SendAsync(message);
-                }                
+                }  
+                else
+                {
+                    //After both sending and receiving a Close message, the server MUST close the underlying TCP connection immediately
+                    websocketSession.CloseWithoutHandshake();
+                }
 
-                //After both sending and receiving a Close message, the server MUST close the underlying TCP connection immediately
-                websocketSession.CloseWithoutHandshake();
                 return;
             }
 
