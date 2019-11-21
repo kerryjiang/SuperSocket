@@ -185,6 +185,15 @@ namespace SuperSocket.Channel
             output.Complete();
         }
 
+
+        private void CheckChannelOpen()
+        {
+            if (this.IsClosed)
+            {
+                throw new Exception("Channel is closed now, send is not allowed.");
+            }
+        }
+
         protected abstract ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer);
 
 
@@ -199,6 +208,7 @@ namespace SuperSocket.Channel
         {
             lock (writer)
             {
+                CheckChannelOpen();
                 writer.Write(buffer.Span);
             }
         }
@@ -214,6 +224,7 @@ namespace SuperSocket.Channel
         {
             lock (writer)
             {
+                CheckChannelOpen();
                 packageEncoder.Encode(writer, package);
             }
         }

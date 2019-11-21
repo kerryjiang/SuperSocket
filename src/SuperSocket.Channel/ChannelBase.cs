@@ -14,9 +14,11 @@ namespace SuperSocket.Channel
 
         public abstract ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
         
+        public bool IsClosed { get; private set; }
+
         protected virtual void OnClosed()
         {
-
+            IsClosed = true;
         }
 
         public abstract void Close();
