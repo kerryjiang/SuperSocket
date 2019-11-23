@@ -94,6 +94,16 @@ namespace SuperSocket.WebSocket.Server
 
                 return;
             }
+            else if (package.OpCode == OpCode.Ping)
+            {
+                var message = new WebSocketMessage();
+
+                message.OpCode = OpCode.Pong;
+                message.Data = package.Data;
+
+                await websocketSession.SendAsync(message);
+                return;
+            }
 
             // application command
             var websocketCommandMiddleware = _websocketCommandMiddleware;
