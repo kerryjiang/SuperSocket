@@ -2,6 +2,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -11,17 +12,23 @@ namespace SuperSocket.WebSocket.Server
 
         private ConcurrentQueue<WebSocketSession> _closeHandshakePendingQueue = new ConcurrentQueue<WebSocketSession>();
         
-        private const int _handshakePendingQueueCheckingInterval = 60;// 1 minute by default
-
-        private const int _openHandshakeTimeOut = 120;// 2 minutes default
-
-        private const int _closeHandshakeTimeOut = 120;// 2 minutes default
-
         private Timer _checkingTimer;
+
+        private readonly HandshakeOptions _options;
+
+        public HandshakeCheckMiddleware(IOptions<HandshakeOptions> handshakeOptions)
+        {
+            var options = handshakeOptions.Value;
+
+            if (options == null)
+                options = new HandshakeOptions();
+
+            _options = options;        
+        }
 
         public override void Register(IServer server)
         {
-            _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _handshakePendingQueueCheckingInterval * 1000, _handshakePendingQueueCheckingInterval * 1000); // hardcode to 1 minute for now
+            _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _options.CheckingInterval * 1000, _options.CheckingInterval * 1000); // hardcode to 1 minute for now
         }
 
 
@@ -51,14 +58,14 @@ namespace SuperSocket.WebSocket.Server
                 if (!_openHandshakePendingQueue.TryPeek(out session))
                     break;
 
-                if (session.Handshaked || !session.IsConnected)
+                if (session.Handshaked || session.State == SessionState.Closed)
                 {
                     //Handshaked or not connected
                     _openHandshakePendingQueue.TryDequeue(out session);
                     continue;
                 }
 
-                if (DateTime.Now < session.StartTime.AddSeconds(_openHandshakeTimeOut))
+                if (DateTime.Now < session.StartTime.AddSeconds(_options.OpenHandshakeTimeOut))
                     break;
 
                 //Timeout, dequeue and then close
@@ -73,14 +80,14 @@ namespace SuperSocket.WebSocket.Server
                 if (!_closeHandshakePendingQueue.TryPeek(out session))
                     break;
 
-                if (!session.IsConnected)
+                if (session.State == SessionState.Closed)
                 {
                     //the session has been closed
                     _closeHandshakePendingQueue.TryDequeue(out session);
                     continue;
                 }
 
-                if (DateTime.Now < session.CloseHandshakeStartTime.AddSeconds(_closeHandshakeTimeOut))
+                if (DateTime.Now < session.CloseHandshakeStartTime.AddSeconds(_options.CloseHandshakeTimeOut))
                     break;
 
                 //Timeout, dequeue and then close
@@ -89,7 +96,7 @@ namespace SuperSocket.WebSocket.Server
                 session.Close();
             }
 
-            _checkingTimer.Change(_handshakePendingQueueCheckingInterval * 1000, _handshakePendingQueueCheckingInterval * 1000);
+            _checkingTimer.Change(_options.CheckingInterval * 1000, _options.CheckingInterval * 1000);
         }        
     }
 }

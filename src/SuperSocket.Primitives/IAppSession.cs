@@ -27,6 +27,6 @@ namespace SuperSocket
 
         object this[object name] { get; set; }
 
-        bool IsConnected { get; }
+        SessionState State { get; }
     }
 }

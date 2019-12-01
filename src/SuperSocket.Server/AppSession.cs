@@ -30,7 +30,7 @@ namespace SuperSocket.Server
 
         public DateTime StartTime { get; private set; }
 
-        public bool IsConnected { get; private set; }
+        public SessionState State { get; private set; } = SessionState.Initialized;
 
         public IServerInfo Server { get; private set; }
 
@@ -80,13 +80,13 @@ namespace SuperSocket.Server
 
         internal void OnSessionClosed(EventArgs e)
         {
-            IsConnected = false;
+            State = SessionState.Closed;
             Closed?.Invoke(this, e);
         }
 
         internal void OnSessionConnected()
         {
-            IsConnected = true;
+            State = SessionState.Connected;
             Connected?.Invoke(this, EventArgs.Empty);
         }
 
