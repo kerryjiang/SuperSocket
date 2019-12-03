@@ -9,6 +9,11 @@ namespace SuperSocket
         {
 
         }
+
+        public virtual void Shutdown(IServer server)
+        {
+            
+        }
         
         public abstract ValueTask<bool> HandleSession(IAppSession session);
     }

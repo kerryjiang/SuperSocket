@@ -31,6 +31,10 @@ namespace SuperSocket.WebSocket.Server
             _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _options.CheckingInterval * 1000, _options.CheckingInterval * 1000); // hardcode to 1 minute for now
         }
 
+        public override void Shutdown(IServer server)
+        {
+            _checkingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        }
 
         public override ValueTask<bool> HandleSession(IAppSession session)
         {
@@ -70,7 +74,8 @@ namespace SuperSocket.WebSocket.Server
 
                 //Timeout, dequeue and then close
                 _openHandshakePendingQueue.TryDequeue(out session);
-                session.Close();
+                Console.WriteLine("Handshake timeout");
+                session.CloseWithoutHandshake();
             }
 
             while (true)
@@ -93,7 +98,7 @@ namespace SuperSocket.WebSocket.Server
                 //Timeout, dequeue and then close
                 _closeHandshakePendingQueue.TryDequeue(out session);
                 //Needn't send closing handshake again
-                session.Close();
+                session.CloseWithoutHandshake();
             }
 
             _checkingTimer.Change(_options.CheckingInterval * 1000, _options.CheckingInterval * 1000);
