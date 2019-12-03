@@ -97,6 +97,21 @@ namespace SuperSocket.Server
                 _packageHandler = _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
         }
 
+        private void ShutdownMiddlewares()
+        {
+            foreach (var m in _middlewares)
+            {
+                try
+                {
+                    m.Shutdown(this);
+                }
+                catch(Exception e)
+                {
+                    _logger.LogError(e, $"The exception was thrown from the middleware {m.GetType().Name} when it is being shutdown.");
+                }                
+            }
+        }
+
         protected virtual IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
         {
             return _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
@@ -277,7 +292,9 @@ namespace SuperSocket.Server
 
             _state = ServerState.Stopping;
 
-            var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => l.StopAsync()).ToArray();
+            var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => l.StopAsync())
+                .Union(new Task[] { Task.Run(ShutdownMiddlewares) });
+
             await Task.WhenAll(tasks);
 
             _state = ServerState.Stopped;
@@ -307,13 +324,14 @@ namespace SuperSocket.Server
                 {
                     try
                     {
-                        if (_state != ServerState.Started)
+                        if (_state == ServerState.Started)
                         {
                             await StopAsync(CancellationToken.None);
                         }
                     }
-                    catch
+                    catch (Exception e)
                     {
+                        _logger.LogError(e, "Failed to stop the server");
                     }
                 }
 
