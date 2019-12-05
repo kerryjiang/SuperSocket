@@ -15,7 +15,9 @@ namespace SuperSocket
         public bool NoDelay { get; set; }
 
         public SslProtocols Security { get; set; }
-        
+
+        public CertificateOptions CertificateOptions { get; set; }
+                
 
         public override string ToString()
         {

@@ -5,6 +5,7 @@ using System.Threading;
 using System.Net;
 using SuperSocket.Channel;
 using Microsoft.Extensions.Logging;
+using System.Security.Authentication;
 
 namespace SuperSocket.Server
 {
@@ -53,6 +54,11 @@ namespace SuperSocket.Server
 
             try
             {
+                if (options.Security != SslProtocols.None && options.CertificateOptions != null)
+                {
+                    options.CertificateOptions.EnsureCertificate();
+                }
+
                 var listenEndpoint = GetListenEndPoint(options.Ip, options.Port);
                 var listenSocket = _listenSocket = new Socket(listenEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 
