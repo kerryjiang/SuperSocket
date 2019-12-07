@@ -13,5 +13,7 @@ namespace Tests
         void Configurate(HostBuilderContext context, IServiceCollection services);
 
         Stream GetClientStream(Socket socket);
+
+        string WebSocketSchema { get; }
     }
 }

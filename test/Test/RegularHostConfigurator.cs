@@ -13,6 +13,8 @@ namespace Tests
 {
     public class RegularHostConfigurator : IHostConfigurator
     {
+        public string WebSocketSchema => "ws";
+
         public void Configurate(HostBuilderContext context, IServiceCollection services)
         {
             // do nothing

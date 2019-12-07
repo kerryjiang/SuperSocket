@@ -15,6 +15,8 @@ namespace Tests
 {
     public class SecureHostConfigurator : IHostConfigurator
     {
+        public string WebSocketSchema => "wss";
+
         public void Configurate(HostBuilderContext context, IServiceCollection services)
         {
             services.Configure<ServerOptions>((options) =>

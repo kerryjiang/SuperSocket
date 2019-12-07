@@ -33,7 +33,9 @@ namespace Tests.WebSocket
         [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestHandshake(Type hostConfiguratorType) 
         {
-            using (var server = CreateWebSocketServerBuilder(hostConfigurator: CreateObject<IHostConfigurator>(hostConfiguratorType))
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateWebSocketServerBuilder(hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
@@ -41,7 +43,7 @@ namespace Tests.WebSocket
 
                 var websocket = new ClientWebSocket();
 
-                await websocket.ConnectAsync(new Uri("ws://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
