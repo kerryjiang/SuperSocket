@@ -9,9 +9,11 @@ using SuperSocket.ProtoBase;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
+using System.Security.Authentication;
 using SuperSocket;
 using SuperSocket.WebSocket.Server;
 using System.Net.WebSockets;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Tests.WebSocket
 {
@@ -26,10 +28,12 @@ namespace Tests.WebSocket
 
         }
 
-        [Fact]
-        public async Task TestHandshake() 
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestHandshake(Type hostConfiguratorType) 
         {
-            using (var server = CreateWebSocketServerBuilder()
+            using (var server = CreateWebSocketServerBuilder(hostConfigurator: CreateObject<IHostConfigurator>(hostConfiguratorType))
                 .BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
@@ -50,8 +54,48 @@ namespace Tests.WebSocket
             }
         }
 
+        /*
         [Fact]
-        public async Task TestMessageSendReceive() 
+        [Trait("Category", "WebSocketHandshakeTimeOut")]
+        public async Task TestHandshakeTimeOut() 
+        {
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                builder.ConfigureServices((ctx, services) =>
+                {
+                    services.Configure<HandshakeOptions>(options =>
+                    {
+                        options.CheckingInterval = 1;
+                        options.OpenHandshakeTimeOut = 1;
+                    });
+                });
+                return builder;
+            }).BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                
+                var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
+                await socket.ConnectAsync(endPoint);
+                Assert.True(socket.Connected);
+                await Task.Delay(1000 * 5);
+
+                Assert.False(IsConnected(socket));
+
+                Assert.Equal(0, socket.Send(new byte[1024]));
+
+                await server.StopAsync();
+            }
+        }
+        */
+
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestMessageSendReceive(Type hostConfiguratorType) 
         {
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
@@ -59,8 +103,7 @@ namespace Tests.WebSocket
                 {
                     await session.SendAsync(message.Message);
                 });
-            })
-                .BuildAsServer())
+            }, CreateObject<IHostConfigurator>(hostConfiguratorType)).BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");

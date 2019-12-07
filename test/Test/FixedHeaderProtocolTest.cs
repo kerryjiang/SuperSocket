@@ -43,9 +43,9 @@ namespace Tests
             return sourceLine.Length.ToString().PadLeft(4) + sourceLine;
         }
 
-        protected override IServer CreateServer()
+        protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
-            return CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>()
+            return CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>(hostConfigurator)
                 .ConfigurePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));

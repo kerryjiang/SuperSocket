@@ -75,10 +75,12 @@ namespace Tests
 
         }
 
-        [Fact]
-        public async Task TestCommands()
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommands(Type hostConfiguratorType)
         {
-            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>()
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(CreateObject<IHostConfigurator>(hostConfiguratorType))
                 .UseCommand(commandOptions =>
                 {
                     // register commands one by one

@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using SuperSocket;
 using SuperSocket.Server;
 using Xunit;
@@ -12,17 +13,15 @@ using Xunit.Abstractions;
 
 namespace Tests
 {
-    public abstract class ProtocolTestBase : TestClassBase, IDisposable
+    public abstract class ProtocolTestBase : TestClassBase
     {
-        readonly IServer _server;
-
+        
         protected ProtocolTestBase(ITestOutputHelper outputHelper) : base(outputHelper)
         {
-            _server = CreateServer();
-            _server.StartAsync().Wait();
+  
         }
 
-        protected abstract IServer CreateServer();
+        protected abstract IServer CreateServer(IHostConfigurator hostConfigurator);
 
         protected Socket CreateClient()
         {
@@ -36,31 +35,17 @@ namespace Tests
 
         protected abstract string CreateRequest(string sourceLine);
 
-        [Fact]
-        public virtual void TestNormalRequest()
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public virtual async Task TestNormalRequest(Type hostConfiguratorType)
         {
-            using (var socket = CreateClient())
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateServer(hostConfigurator))
             {
-                var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
-                {
-                    var line = Guid.NewGuid().ToString();
-                    writer.Write(CreateRequest(line));
-                    writer.Flush();
+                await server.StartAsync();
 
-                    var receivedLine = reader.ReadLine();
-
-                    Assert.Equal(line, receivedLine);
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void TestMiddleBreak()
-        {
-            for (var i = 0; i < 100; i++)
-            {
                 using (var socket = CreateClient())
                 {
                     var socketStream = new NetworkStream(socket);
@@ -68,134 +53,198 @@ namespace Tests
                     using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
                         var line = Guid.NewGuid().ToString();
-                        var sendingLine = CreateRequest(line);
-                        writer.Write(sendingLine.Substring(0, sendingLine.Length / 2));
+                        writer.Write(CreateRequest(line));
                         writer.Flush();
-                    }
-                }
-            }
-        }
 
-        [Fact]
-        public virtual void TestFragmentRequest()
-        {
-            using (var socket = CreateClient())
-            {
-                var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
-                {
-                    var line = Guid.NewGuid().ToString();
-                    var request = CreateRequest(line);
-
-                    for (var i = 0; i < request.Length; i++)
-                    {
-                        writer.Write(request[i]);
-                        writer.Flush();
-                        Thread.Sleep(50);
-                    }
-
-                    var receivedLine = reader.ReadLine();
-                    Assert.Equal(line, receivedLine);
-                }
-            }
-        }
-
-        [Fact]
-        public virtual void TestBatchRequest()
-        {
-            using (var socket = CreateClient())
-            {
-                var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
-                {
-                    int size = 100;
-
-                    var lines = new string[size];
-
-                    for (var i = 0; i < size; i++)
-                    {
-                        var line = Guid.NewGuid().ToString();
-                        lines[i] = line;
-                        var request = CreateRequest(line);
-                        writer.Write(request);
-                    }
-
-                    writer.Flush();
-
-                    for (var i = 0; i < size; i++)
-                    {
                         var receivedLine = reader.ReadLine();
-                        Assert.Equal(lines[i], receivedLine);
+
+                        Assert.Equal(line, receivedLine);
                     }
                 }
+
+                await server.StopAsync();
             }
         }
 
-        [Fact]
-        public virtual void TestBreakRequest()
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public virtual async Task TestMiddleBreak(Type hostConfiguratorType)
         {
-            using (var socket = CreateClient())
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateServer(hostConfigurator))
             {
-                var socketStream = new NetworkStream(socket);
-                using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
+                await server.StartAsync();
+
+                for (var i = 0; i < 100; i++)
                 {
-                    int size = 1000;
+                    using (var socket = CreateClient())
+                    {
+                        var socketStream = new NetworkStream(socket);
+                        using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                        using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
+                        {
+                            var line = Guid.NewGuid().ToString();
+                            var sendingLine = CreateRequest(line);
+                            writer.Write(sendingLine.Substring(0, sendingLine.Length / 2));
+                            writer.Flush();
+                        }
+                    }
+                }
 
-                    var lines = new string[size];
+                await server.StopAsync();
+            }
+        }
 
-                    var sb = new StringBuilder();
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public virtual async Task TestFragmentRequest(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
-                    for (var i = 0; i < size; i++)
+            using (var server = CreateServer(hostConfigurator))
+            {
+                await server.StartAsync();
+
+                using (var socket = CreateClient())
+                {
+                    var socketStream = new NetworkStream(socket);
+                    using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
                         var line = Guid.NewGuid().ToString();
-                        lines[i] = line;
-                        sb.Append(CreateRequest(line));
-                    }
+                        var request = CreateRequest(line);
 
-                    var source = sb.ToString();
-
-                    var rd = new Random();
-
-                    var rounds = new List<KeyValuePair<int, int>>();
-
-                    var rest = source.Length;
-
-                    while (rest > 0)
-                    {
-                        if (rest == 1)
+                        for (var i = 0; i < request.Length; i++)
                         {
-                            rounds.Add(new KeyValuePair<int, int>(source.Length - rest, 1));
-                            rest = 0;
-                            break;
+                            writer.Write(request[i]);
+                            writer.Flush();
+                            Thread.Sleep(50);
                         }
 
-                        var thisRound = rd.Next(1, rest);
-                        rounds.Add(new KeyValuePair<int, int>(source.Length - rest, thisRound));
-                        rest -= thisRound;
-                    }
-
-                    for (var i = 0; i < rounds.Count; i++)
-                    {
-                        var r = rounds[i];
-                        writer.Write(source.Substring(r.Key, r.Value));
-                        writer.Flush();
-                    }
-
-                    for (var i = 0; i < size; i++)
-                    {
                         var receivedLine = reader.ReadLine();
-                        Assert.Equal(lines[i], receivedLine);
+                        Assert.Equal(line, receivedLine);
                     }
                 }
+
+                await server.StopAsync();
             }
         }
 
-        public void Dispose()
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public virtual async Task TestBatchRequest(Type hostConfiguratorType)
         {
-            _server.StopAsync().Wait();
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateServer(hostConfigurator))
+            {
+                await server.StartAsync();
+
+                using (var socket = CreateClient())
+                {
+                    var socketStream = new NetworkStream(socket);
+                    using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
+                    {
+                        int size = 100;
+
+                        var lines = new string[size];
+
+                        for (var i = 0; i < size; i++)
+                        {
+                            var line = Guid.NewGuid().ToString();
+                            lines[i] = line;
+                            var request = CreateRequest(line);
+                            writer.Write(request);
+                        }
+
+                        writer.Flush();
+
+                        for (var i = 0; i < size; i++)
+                        {
+                            var receivedLine = reader.ReadLine();
+                            Assert.Equal(lines[i], receivedLine);
+                        }
+                    }
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public virtual async Task TestBreakRequest(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateServer(hostConfigurator))
+            {
+                await server.StartAsync();
+
+                using (var socket = CreateClient())
+                {
+                    var socketStream = new NetworkStream(socket);
+                    using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
+                    {
+                        int size = 1000;
+
+                        var lines = new string[size];
+
+                        var sb = new StringBuilder();
+
+                        for (var i = 0; i < size; i++)
+                        {
+                            var line = Guid.NewGuid().ToString();
+                            lines[i] = line;
+                            sb.Append(CreateRequest(line));
+                        }
+
+                        var source = sb.ToString();
+
+                        var rd = new Random();
+
+                        var rounds = new List<KeyValuePair<int, int>>();
+
+                        var rest = source.Length;
+
+                        while (rest > 0)
+                        {
+                            if (rest == 1)
+                            {
+                                rounds.Add(new KeyValuePair<int, int>(source.Length - rest, 1));
+                                rest = 0;
+                                break;
+                            }
+
+                            var thisRound = rd.Next(1, rest);
+                            rounds.Add(new KeyValuePair<int, int>(source.Length - rest, thisRound));
+                            rest -= thisRound;
+                        }
+
+                        for (var i = 0; i < rounds.Count; i++)
+                        {
+                            var r = rounds[i];
+                            writer.Write(source.Substring(r.Key, r.Value));
+                            writer.Flush();
+                        }
+
+                        for (var i = 0; i < size; i++)
+                        {
+                            var receivedLine = reader.ReadLine();
+                            Assert.Equal(lines[i], receivedLine);
+                        }
+                    }
+                }
+
+                await server.StopAsync();
+            }
         }
     }
 }

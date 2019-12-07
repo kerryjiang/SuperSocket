@@ -28,10 +28,14 @@ namespace Tests
 
         }
 
-        [Fact] 
-        public async Task MaxPackageLength()
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task MaxPackageLength(Type hostConfiguratorType)
         {
-            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .ConfigureSuperSocket((options) =>
                 {
                     options.MaxPackageLength = 100;
@@ -52,7 +56,7 @@ namespace Tests
                 await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
                 OutputHelper.WriteLine("Connected.");
 
-                using (var stream = new NetworkStream(client))
+                using (var stream = hostConfigurator.GetClientStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {

@@ -31,22 +31,27 @@ namespace Tests
         }
 
 
-        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo>(Func<object, IPipelineFilter<TPackageInfo>> filterFactory)
+        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo>(Func<object, IPipelineFilter<TPackageInfo>> filterFactory, IHostConfigurator configurator = null)
             where TPackageInfo : class
         {
-            return Configure(SuperSocketHostBuilder.Create<TPackageInfo>(filterFactory)) as IHostBuilder<TPackageInfo>;
+            return Configure(SuperSocketHostBuilder.Create<TPackageInfo>(filterFactory), configurator) as IHostBuilder<TPackageInfo>;
         }
 
-        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>()
+        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>(IHostConfigurator configurator = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
-            return Configure(SuperSocketHostBuilder.Create<TPackageInfo, TPipelineFilter>()) as IHostBuilder<TPackageInfo>;
+            return Configure(SuperSocketHostBuilder.Create<TPackageInfo, TPipelineFilter>(), configurator) as IHostBuilder<TPackageInfo>;
         }
 
-        protected IHostBuilder Configure(IHostBuilder hostBuilder)
+        protected T CreateObject<T>(Type type)
         {
-            return hostBuilder.ConfigureAppConfiguration((hostCtx, configApp) =>
+            return (T)ActivatorUtilities.CreateFactory(type, null).Invoke(null, null);
+        }
+
+        protected IHostBuilder Configure(IHostBuilder hostBuilder, IHostConfigurator configurator = null)
+        {
+            var builder = hostBuilder.ConfigureAppConfiguration((hostCtx, configApp) =>
                 {
                     configApp.AddInMemoryCollection(new Dictionary<string, string>
                     {
@@ -64,6 +69,16 @@ namespace Tests
                 {
                     ConfigureServices(hostCtx, services);
                 });
+            
+            if (configurator != null)
+            {
+                builder = builder.ConfigureServices((ctx, services) =>
+                {
+                    configurator.Configurate(ctx, services);
+                });
+            }
+
+            return builder;
         }
     }
 }

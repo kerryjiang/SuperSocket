@@ -37,9 +37,9 @@ namespace Tests
             return sourceLine;
         }
 
-        protected override IServer CreateServer()
+        protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
-            var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedSizePipelineFilter>()
+            var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedSizePipelineFilter>(hostConfigurator)
                 .ConfigurePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
