@@ -48,7 +48,7 @@ namespace Tests
 
                 using (var socket = CreateClient())
                 {
-                    var socketStream = hostConfigurator.GetClientStream(socket);
+                    var socketStream = await hostConfigurator.GetClientStream(socket);
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
                     using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
@@ -81,7 +81,7 @@ namespace Tests
                 {
                     using (var socket = CreateClient())
                     {
-                        var socketStream = hostConfigurator.GetClientStream(socket);
+                        var socketStream = await hostConfigurator.GetClientStream(socket);
                         using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
                         using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                         {
@@ -110,7 +110,7 @@ namespace Tests
 
                 using (var socket = CreateClient())
                 {
-                    var socketStream = hostConfigurator.GetClientStream(socket);
+                    var socketStream = await hostConfigurator.GetClientStream(socket);
 
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
                     using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
@@ -147,7 +147,7 @@ namespace Tests
 
                 using (var socket = CreateClient())
                 {
-                    var socketStream = hostConfigurator.GetClientStream(socket);
+                    var socketStream = await hostConfigurator.GetClientStream(socket);
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
                     using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
@@ -190,7 +190,7 @@ namespace Tests
 
                 using (var socket = CreateClient())
                 {
-                    var socketStream = hostConfigurator.GetClientStream(socket);
+                    var socketStream = await hostConfigurator.GetClientStream(socket);
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
                     using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {

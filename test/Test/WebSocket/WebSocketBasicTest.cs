@@ -43,6 +43,8 @@ namespace Tests.WebSocket
 
                 var websocket = new ClientWebSocket();
 
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
                 await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);

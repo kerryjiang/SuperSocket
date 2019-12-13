@@ -56,7 +56,7 @@ namespace Tests
                 await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
                 OutputHelper.WriteLine("Connected.");
 
-                using (var stream = hostConfigurator.GetClientStream(client))
+                using (var stream = await hostConfigurator.GetClientStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {

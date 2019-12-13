@@ -46,7 +46,7 @@ namespace Tests
 
         protected T CreateObject<T>(Type type)
         {
-            return (T)ActivatorUtilities.CreateFactory(type, null).Invoke(null, null);
+            return (T)ActivatorUtilities.CreateFactory(type, new Type[0]).Invoke(null, null);
         }
 
         protected IHostBuilder Configure(IHostBuilder hostBuilder, IHostConfigurator configurator = null)

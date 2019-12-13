@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -20,9 +21,9 @@ namespace Tests
             // do nothing
         }
 
-        public Stream GetClientStream(Socket socket)
+        public ValueTask<Stream> GetClientStream(Socket socket)
         {
-            return new NetworkStream(socket);
+            return new ValueTask<Stream>(new NetworkStream(socket));
         }
     }
 }

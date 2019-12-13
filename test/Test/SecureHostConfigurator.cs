@@ -4,6 +4,7 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +23,7 @@ namespace Tests
             services.Configure<ServerOptions>((options) =>
                 {
                     var listener = options.Listeners[0];
-                    listener.Security = SslProtocols.Tls13;
+                    listener.Security = SslProtocols.Tls13 | SslProtocols.Tls12;
                     listener.CertificateOptions = new CertificateOptions
                     {
                         FilePath = "SuperSocket.pfx",
@@ -31,9 +32,14 @@ namespace Tests
                 });
         }
 
-        public Stream GetClientStream(Socket socket)
+        public async ValueTask<Stream> GetClientStream(Socket socket)
         {
-            return new SslStream(new NetworkStream(socket), false);
+            var stream = new SslStream(new NetworkStream(socket), false);
+            var options = new SslClientAuthenticationOptions();
+            options.TargetHost = "supersocket";
+            options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+            await stream.AuthenticateAsClientAsync(options);
+            return stream;
         }
     }
 }

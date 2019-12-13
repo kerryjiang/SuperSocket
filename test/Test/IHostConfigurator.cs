@@ -1,6 +1,7 @@
 using System.IO;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
@@ -12,7 +13,7 @@ namespace Tests
     {
         void Configurate(HostBuilderContext context, IServiceCollection services);
 
-        Stream GetClientStream(Socket socket);
+        ValueTask<Stream> GetClientStream(Socket socket);
 
         string WebSocketSchema { get; }
     }
