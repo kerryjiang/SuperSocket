@@ -80,7 +80,8 @@ namespace Tests
         [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestCommands(Type hostConfiguratorType)
         {
-            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(CreateObject<IHostConfigurator>(hostConfiguratorType))
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
                 .UseCommand(commandOptions =>
                 {
                     // register commands one by one
@@ -103,7 +104,7 @@ namespace Tests
                 await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
                 OutputHelper.WriteLine("Connected.");
 
-                using (var stream = new NetworkStream(client))
+                using (var stream = await hostConfigurator.GetClientStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
