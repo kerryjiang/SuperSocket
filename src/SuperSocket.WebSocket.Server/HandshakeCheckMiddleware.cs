@@ -74,7 +74,6 @@ namespace SuperSocket.WebSocket.Server
 
                 //Timeout, dequeue and then close
                 _openHandshakePendingQueue.TryDequeue(out session);
-                Console.WriteLine("Handshake timeout");
                 session.CloseWithoutHandshake();
             }
 
