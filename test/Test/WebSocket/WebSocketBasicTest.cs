@@ -101,20 +101,24 @@ namespace Tests.WebSocket
         [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestMessageSendReceive(Type hostConfiguratorType) 
         {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
                 return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     await session.SendAsync(message.Message);
                 });
-            }, CreateObject<IHostConfigurator>(hostConfiguratorType)).BuildAsServer())
+            }, hostConfigurator).BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");
 
                 var websocket = new ClientWebSocket();
 
-                await websocket.ConnectAsync(new Uri("ws://localhost:4040"), CancellationToken.None);
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
