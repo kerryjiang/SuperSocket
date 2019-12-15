@@ -27,7 +27,7 @@ namespace SuperSocket.Server
                     var authOptions = new SslServerAuthenticationOptions();
                     authOptions.EnabledSslProtocols = options.Security;
                     authOptions.ServerCertificate = options.CertificateOptions.Certificate;
-                    var stream = new SslStream(new NetworkStream(s));
+                    var stream = new SslStream(new NetworkStream(s, true), false);
                     await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None);
                     return new StreamPipeChannel<TPackageInfo>(stream, filterFactory.Create(s), channelOptions);
                 });
