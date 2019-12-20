@@ -114,7 +114,9 @@ namespace SuperSocket.Channel
                 }
                 catch (Exception e)
                 {
-                    Logger.LogError(e, "Exception happened in ReceiveAsync");
+                    if (!IsIgnorableException(e))
+                        Logger.LogError(e, "Exception happened in ReceiveAsync");
+                    
                     break;
                 }
 
@@ -130,6 +132,11 @@ namespace SuperSocket.Channel
             // Signal to the reader that we're done writing
             writer.Complete();
             Out.Writer.Complete();// TODO: should complete the output right now?
+        }
+
+        protected virtual bool IsIgnorableException(Exception e)
+        {
+            return false;
         }
 
         protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory);

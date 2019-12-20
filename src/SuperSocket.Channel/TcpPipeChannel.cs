@@ -86,5 +86,16 @@ namespace SuperSocket.Channel
                 }
             }
         }
+
+        protected override bool IsIgnorableException(Exception e)
+        {
+            if (e is SocketException se)
+            {
+                if (se.ErrorCode == 89)
+                    return true;
+            }
+
+            return false;
+        }
     }
 }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.IO;
 using System.IO.Pipelines;
 using SuperSocket.ProtoBase;
+using System.Net.Sockets;
 
 namespace SuperSocket.Channel
 {
@@ -47,6 +48,20 @@ namespace SuperSocket.Channel
 
             await _stream.FlushAsync();
             return total;
+        }
+
+        protected override bool IsIgnorableException(Exception e)
+        {
+            if (e.InnerException != null)
+                return IsIgnorableException(e.InnerException);
+
+            if (e is SocketException se)
+            {
+                if (se.ErrorCode == 89)
+                    return true;
+            }
+
+            return false;
         }
     }
 }
