@@ -3,7 +3,6 @@ mono: none
 dotnet: 3.1.100
 sudo: required
 script:
-    - dotnet restore
     - dotnet build
 global:
     - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
