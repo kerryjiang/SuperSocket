@@ -19,6 +19,8 @@ namespace SuperSocket.WebSocket.Server
             get { return HttpHeader.Path; }
         }
 
+        public string SubProtocol { get; internal set; }
+
         public DateTime CloseHandshakeStartTime { get; private set; }
 
         public event EventHandler CloseHandshakeStarted;

@@ -18,6 +18,8 @@ namespace SuperSocket.WebSocket.Server
 
         private Func<WebSocketSession, WebSocketPackage, Task> _packageHandlerDelegate;
 
+        private ISubProtocolSelector _subProtocolSelector;
+
         public WebSocketPackageHandler(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
@@ -28,6 +30,7 @@ namespace SuperSocket.WebSocket.Server
                 .FirstOrDefault() as IPackageHandler<WebSocketPackage>;
 
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
+            _subProtocolSelector = serviceProvider.GetService<ISubProtocolSelector>();
         }
 
         private CloseStatus GetCloseStatusFromPackage(WebSocketPackage package)
@@ -58,6 +61,30 @@ namespace SuperSocket.WebSocket.Server
                 // handshake failure
                 if (!await HandleHandshake(session, package))
                     return;
+
+                var subProtocol = package.HttpHeader.Items["Sec-WebSocket-Protocol"];
+
+                if (!string.IsNullOrEmpty(subProtocol))
+                {
+                    var subProtocols = subProtocol.Split(',');
+
+                    for (var i = 0; i < subProtocols.Length; i++)
+                    {
+                        subProtocols[i] = subProtocols[i].Trim();
+                    }
+
+                    var subProtocolSelector = _subProtocolSelector;
+
+                    if (subProtocolSelector != null)
+                    {
+                        var subProtocolSelected = await subProtocolSelector.Select(subProtocols, package.HttpHeader);
+
+                        if (!string.IsNullOrEmpty(subProtocolSelected))
+                        {
+                            websocketSession.SubProtocol = subProtocolSelected;
+                        }
+                    }
+                }
 
                 websocketSession.Handshaked = true;
                 return;
