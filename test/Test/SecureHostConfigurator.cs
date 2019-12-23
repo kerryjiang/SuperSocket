@@ -26,7 +26,7 @@ namespace Tests
                     listener.Security = SslProtocols.Tls13 | SslProtocols.Tls12;
                     listener.CertificateOptions = new CertificateOptions
                     {
-                        FilePath = "SuperSocket.pfx",
+                        FilePath = "supersocket.pfx",
                         Password = "supersocket"
                     };
                 });
