@@ -14,6 +14,12 @@ namespace SuperSocket.Channel
         // 4k by default
         public int ReceiveBufferSize { get; set; } = 1024 * 4;
 
+        // 4k by default
+        public int SendBufferSize { get; set; } = 1024 * 4;
+
+        public int ReceiveTimeout { get; set; }
+
+        public int SendTimeout { get; set; }
 
         public ILogger Logger { get; set; }
 

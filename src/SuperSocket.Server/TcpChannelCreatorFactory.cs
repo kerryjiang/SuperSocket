@@ -12,18 +12,80 @@ namespace SuperSocket.Server
 {
     public class TcpChannelCreatorFactory : IChannelCreatorFactory
     {
+        protected virtual void ApplySocketOptions(Socket socket, ListenOptions listenOptions, ChannelOptions channelOptions, ILogger logger)
+        {
+            try
+            {
+                if (listenOptions.NoDelay)
+                    socket.NoDelay = true;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to set NoDelay for the socket.");
+            }
+
+            try
+            {
+                if (channelOptions.ReceiveBufferSize > 0)
+                    socket.ReceiveBufferSize = channelOptions.ReceiveBufferSize;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to set ReceiveBufferSize for the socket.");
+            }
+
+            try
+            {
+                if (channelOptions.SendBufferSize > 0)
+                    socket.SendBufferSize = channelOptions.SendBufferSize;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to set SendBufferSize for the socket.");
+            }
+
+            try
+            {
+                if (channelOptions.ReceiveTimeout > 0)
+                    socket.ReceiveTimeout = channelOptions.ReceiveTimeout;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to set ReceiveTimeout for the socket.");
+            }
+
+            try
+            {
+                if (channelOptions.SendTimeout > 0)
+                    socket.SendTimeout = channelOptions.SendTimeout;
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to set SendTimeout for the socket.");
+            }
+        }
+
         public IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
             where TPackageInfo : class
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
             channelOptions.Logger = loggerFactory.CreateLogger(nameof(IChannel));
 
+            var channelFactoryLogger = loggerFactory.CreateLogger(nameof(TcpChannelCreator));
+
             if (options.Security == SslProtocols.None)
-                return new TcpChannelCreator(options, (s) => Task.FromResult((new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions)) as IChannel), loggerFactory.CreateLogger(nameof(TcpChannelCreator)));
+            {
+                return new TcpChannelCreator(options, (s) => 
+                {                    
+                    ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);          
+                    return Task.FromResult((new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions)) as IChannel);
+                }, channelFactoryLogger);
+            }
             else
             {
                 var channelFactory = new Func<Socket, Task<IChannel>>(async (s) =>
                 {
+                    ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);
                     var authOptions = new SslServerAuthenticationOptions();
                     authOptions.EnabledSslProtocols = options.Security;
                     authOptions.ServerCertificate = options.CertificateOptions.Certificate;
@@ -32,7 +94,7 @@ namespace SuperSocket.Server
                     return new StreamPipeChannel<TPackageInfo>(stream, filterFactory.Create(s), channelOptions);
                 });
 
-                return new TcpChannelCreator(options, channelFactory, loggerFactory.CreateLogger(nameof(TcpChannelCreator)));
+                return new TcpChannelCreator(options, channelFactory, channelFactoryLogger);
             }
         }
     }
