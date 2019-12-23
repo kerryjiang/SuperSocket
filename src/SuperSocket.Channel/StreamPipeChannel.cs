@@ -57,7 +57,7 @@ namespace SuperSocket.Channel
 
             if (e is SocketException se)
             {
-                if (se.ErrorCode == 89)
+                if (se.IsIgnorableSocketException())
                     return true;
             }
 
