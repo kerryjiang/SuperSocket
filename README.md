@@ -39,7 +39,3 @@
     - Fix issues of the existing features
     - Other features requested by users
     - Stable release
-
----
-
-*Copyright 2010-2019 Kerry Jiang (kerry-jiang@hotmail.com)*
