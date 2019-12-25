@@ -67,11 +67,7 @@ namespace SuperSocket.Server
 
             if (_errorHandler == null)
             {
-                _errorHandler = async (s, e) =>
-                {
-                    _logger.LogError(e.Message, e.InnerException);
-                    return await new ValueTask<bool>(true);
-                };
+                _errorHandler = OnSessionErrorAsync;
             }
             
             // initialize session factory
@@ -213,6 +209,17 @@ namespace SuperSocket.Server
             return true;
         }
 
+
+        protected virtual ValueTask OnSessionConnectedAsync(IAppSession session)
+        {
+            return new ValueTask();
+        }
+
+        protected virtual ValueTask OnSessionClosedAsync(IAppSession session)
+        {
+            return new ValueTask();
+        }
+
         private async ValueTask HandleSession(AppSession session, IChannel channel)
         {
             var result = await InitializeSession(session, channel);
@@ -225,7 +232,17 @@ namespace SuperSocket.Server
                 Interlocked.Increment(ref _sessionCount);
 
                 _logger.LogInformation($"A new session connected: {session.SessionID}");
+
                 session.OnSessionConnected();
+
+                try
+                {
+                    await OnSessionConnectedAsync(session);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "There is one exception thrown from the method OnSessionConnectedAsync().");
+                }
 
                 var packageChannel = channel as IChannel<TReceivePackageInfo>;
 
@@ -245,10 +262,6 @@ namespace SuperSocket.Server
                         }
                     }                    
                 }
-
-                _logger.LogInformation($"The session disconnected: {session.SessionID}");
-
-                session.OnSessionClosed(EventArgs.Empty);                
             }
             catch (Exception e)
             {
@@ -256,13 +269,26 @@ namespace SuperSocket.Server
             }
             finally
             {
+                _logger.LogInformation($"The session disconnected: {session.SessionID}");
+
+                try
+                {
+                    session.OnSessionClosed(EventArgs.Empty);
+                    await OnSessionClosedAsync(session); 
+                }
+                catch (Exception exc)
+                {
+                    _logger.LogError(exc, "There is one exception thrown from the method OnSessionClosedAsync().");
+                }                
+
                 Interlocked.Decrement(ref _sessionCount);
             }
         }
 
-        protected virtual void OnSessionError(IAppSession session, Exception exception)
+        protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession session, PackageHandlingException<TReceivePackageInfo> exception)
         {
             _logger.LogError($"Session[{session.SessionID}]: session exception.", exception);
+            return new ValueTask<bool>(true);
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -279,6 +305,25 @@ namespace SuperSocket.Server
             await StartListenAsync(cancellationToken);
 
             _state = ServerState.Started;
+
+            try
+            {
+                await OnStartedAsync();
+            }
+            catch(Exception e)
+            {
+                _logger.LogError(e, "There is one exception thrown from the method OnStartedAsync().");
+            }
+        }
+
+        protected virtual ValueTask OnStartedAsync()
+        {
+            return new ValueTask();
+        }
+
+        protected virtual ValueTask OnStopAsync()
+        {
+            return new ValueTask();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
@@ -296,6 +341,15 @@ namespace SuperSocket.Server
                 .Union(new Task[] { Task.Run(ShutdownMiddlewares) });
 
             await Task.WhenAll(tasks);
+
+            try
+            {
+                await OnStopAsync();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "There is an exception thrown from the method OnStopAsync().");
+            }
 
             _state = ServerState.Stopped;
         }
