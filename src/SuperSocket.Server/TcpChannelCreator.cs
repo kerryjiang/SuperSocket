@@ -109,7 +109,22 @@ namespace SuperSocket.Server
         {
             var handler = NewClientAccepted;
 
-            handler?.Invoke(this, await _channelFactory(socket));
+            if (handler == null)
+                return;
+
+            IChannel channel = null;
+
+            try
+            {
+                channel = await _channelFactory(socket);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Failed to create channel for {socket.RemoteEndPoint}.");
+                return;
+            }            
+
+            handler.Invoke(this, channel);
         }
 
         public async Task<IChannel> CreateChannel(object connection)
