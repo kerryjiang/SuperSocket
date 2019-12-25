@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Pipelines;
 using SuperSocket.ProtoBase;
 using System.Net.Sockets;
+using System.Net;
 
 namespace SuperSocket.Channel
 {
@@ -13,10 +14,11 @@ namespace SuperSocket.Channel
     {
         private Stream _stream;
 
-        public StreamPipeChannel(Stream stream, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
+        public StreamPipeChannel(Stream stream, EndPoint remoteEndPoint, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
             : base(pipelineFilter, options)
         {
             _stream = stream;
+            RemoteEndPoint = remoteEndPoint;
         }
 
         public override void Close()

@@ -23,6 +23,7 @@ namespace SuperSocket.Channel
             : base(pipelineFilter, options)
         {
             _socket = socket;
+            RemoteEndPoint = socket.RemoteEndPoint;
         }
 
         protected override void OnClosed()

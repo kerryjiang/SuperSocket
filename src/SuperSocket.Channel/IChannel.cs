@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 
@@ -14,6 +15,8 @@ namespace SuperSocket.Channel
         void Close();
 
         bool IsClosed { get; }
+
+        EndPoint RemoteEndPoint { get; }
     }
 
     public interface IChannel<TPackageInfo> : IChannel

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
 
@@ -40,6 +41,11 @@ namespace SuperSocket.Server
         }
 
         public object DataContext { get; set; }
+
+        public EndPoint RemoteEndPoint
+        {
+            get { return _channel.RemoteEndPoint; }
+        }
 
         public event EventHandler Connected;
 

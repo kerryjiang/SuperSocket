@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 
@@ -15,6 +16,8 @@ namespace SuperSocket.Channel
         public abstract ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
         
         public bool IsClosed { get; private set; }
+
+        public EndPoint RemoteEndPoint { get; protected set; }
 
         protected virtual void OnClosed()
         {
