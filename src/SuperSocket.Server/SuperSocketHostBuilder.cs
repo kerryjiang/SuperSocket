@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
@@ -16,7 +17,14 @@ namespace SuperSocket
     {
         public IHostBuilder<TReceivePackage> ConfigureDefaults()
         {
-            return this.ConfigureServices((hostCtx, services) =>
+            var hostBuilder = this.ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    var env = hostingContext.HostingEnvironment;
+                    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                          .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                });
+
+            return hostBuilder.ConfigureServices((hostCtx, services) =>
                 {
                     // if the package type is StringPackageInfo
                     if (typeof(TReceivePackage) == typeof(StringPackageInfo))
