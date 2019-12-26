@@ -124,6 +124,7 @@ namespace SuperSocket.Server
                 return false;
             }
 
+            _logger.LogInformation($"The listener [{listener}] has been started.");
             _channelCreators.Add(listener);
             return true;
         }
@@ -330,6 +331,12 @@ namespace SuperSocket.Server
             return new ValueTask();
         }
 
+        private async Task StopListener(IChannelCreator listener)
+        {
+            await listener.StopAsync();
+            _logger.LogInformation($"The listener [{listener}] has been stopped.");
+        }
+
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             var state = _state;
@@ -341,7 +348,7 @@ namespace SuperSocket.Server
 
             _state = ServerState.Stopping;
 
-            var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => l.StopAsync())
+            var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => StopListener(l))
                 .Union(new Task[] { Task.Run(ShutdownMiddlewares) });
 
             await Task.WhenAll(tasks);
