@@ -8,4 +8,9 @@
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 </Project>
