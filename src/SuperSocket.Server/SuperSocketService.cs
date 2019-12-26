@@ -199,10 +199,14 @@ namespace SuperSocket.Server
             {
                 for (var i = 0; i < middlewares.Length; i++)
                 {
-                    var result = await middlewares[i].HandleSession(session);
+                    var middleware = middlewares[i];
+                    var result = await middleware.HandleSession(session);
 
                     if (!result)
+                    {
+                        _logger.LogWarning($"A session from {session.RemoteEndPoint} was rejected by the middleware {middleware.GetType().Name}.");
                         return false;
+                    }
                 }
             }
 
