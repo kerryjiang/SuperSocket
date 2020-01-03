@@ -5,6 +5,7 @@ using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
@@ -12,6 +13,13 @@ namespace SuperSocket.Server
 {
     public class TcpChannelCreatorFactory : IChannelCreatorFactory
     {
+        private Action<Socket> _socketOptionsSetter;
+
+        public TcpChannelCreatorFactory(IServiceProvider serviceProvider)
+        {
+            _socketOptionsSetter = serviceProvider.GetService<Action<Socket>>();
+        }
+
         protected virtual void ApplySocketOptions(Socket socket, ListenOptions listenOptions, ChannelOptions channelOptions, ILogger logger)
         {
             try
@@ -62,6 +70,15 @@ namespace SuperSocket.Server
             catch (Exception e)
             {
                 logger.LogWarning(e, "Failed to set SendTimeout for the socket.");
+            }
+
+            try
+            {
+                _socketOptionsSetter?.Invoke(socket);
+            }
+            catch (Exception e)
+            {
+                logger.LogWarning(e, "Failed to run socketOptionSetter for the socket.");
             }
         }
 

@@ -1,14 +1,14 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Text;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
+
 
 namespace SuperSocket
 {
@@ -180,6 +180,16 @@ namespace SuperSocket
                     services.Configure<ServerOptions>(configurator);
                 }
             ) as IHostBuilder<TReceivePackage>;
+        }
+
+        public static IHostBuilder ConfigureSocketOptionsSetter(IHostBuilder hostBuilder, Func<Socket> socketOptionsSetter)
+        {
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<Func<Socket>>(socketOptionsSetter);
+                }
+            );
         }
 
         public static IServer BuildAsServer(this IHostBuilder hostBuilder)
