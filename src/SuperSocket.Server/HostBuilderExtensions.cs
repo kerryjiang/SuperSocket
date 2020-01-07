@@ -161,6 +161,20 @@ namespace SuperSocket
             );
         }
 
+        public static IHostBuilder ConfigureSessionHandler(this IHostBuilder hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, ValueTask> onClosed = null)
+        {
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<SessionHandlers>(new SessionHandlers
+                    {
+                        Connected = onConnected,
+                        Closed = onClosed
+                    });
+                }
+            );
+        }
+
         public static IHostBuilder ConfigureSuperSocket(this IHostBuilder hostBuilder, Action<ServerOptions> configurator)
         {
             return hostBuilder.ConfigureServices(

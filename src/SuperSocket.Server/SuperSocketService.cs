@@ -52,6 +52,8 @@ namespace SuperSocket.Server
 
         public object DataContext { get; set; }
 
+        private SessionHandlers _sessionHandlers;
+
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
         {
             _serverOptions = serverOptions;
@@ -64,6 +66,7 @@ namespace SuperSocket.Server
             _channelCreatorFactory = channelCreatorFactory;
             _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
             _errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>();
+            _sessionHandlers = serviceProvider.GetService<SessionHandlers>();
 
             if (_errorHandler == null)
             {
@@ -217,11 +220,21 @@ namespace SuperSocket.Server
 
         protected virtual ValueTask OnSessionConnectedAsync(IAppSession session)
         {
+            var connectedHandler = _sessionHandlers?.Connected;
+
+            if (connectedHandler != null)
+                return connectedHandler.Invoke(session);
+
             return new ValueTask();
         }
 
         protected virtual ValueTask OnSessionClosedAsync(IAppSession session)
         {
+            var closedHandler = _sessionHandlers?.Closed;
+
+            if (closedHandler != null)
+                return closedHandler.Invoke(session);
+
             return new ValueTask();
         }
 
