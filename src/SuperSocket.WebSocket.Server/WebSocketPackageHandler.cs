@@ -62,6 +62,8 @@ namespace SuperSocket.WebSocket.Server
                 if (!await HandleHandshake(session, package))
                     return;
 
+                websocketSession.HttpHeader = package.HttpHeader;
+
                 var subProtocol = package.HttpHeader.Items["Sec-WebSocket-Protocol"];
 
                 if (!string.IsNullOrEmpty(subProtocol))
