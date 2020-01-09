@@ -54,10 +54,11 @@ namespace SuperSocket.WebSocket.Server
             }) as IWebSocketHostBuilder;
         }        
 
-        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo>(this IWebSocketHostBuilder builder, Action<CommandOptions> configurator)
+        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder, Action<CommandOptions> configurator)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
+            where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
         {
-             return builder.UseCommand<TKey, TPackageInfo>()
+             return builder.UseCommand<TKey, TPackageInfo, TPackageMapper>()
                 .ConfigureServices((ctx, services) =>
                 {
                     services.Configure(configurator);

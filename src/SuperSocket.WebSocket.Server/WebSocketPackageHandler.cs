@@ -26,9 +26,7 @@ namespace SuperSocket.WebSocket.Server
             _serviceProvider = serviceProvider;
 
             _websocketCommandMiddleware = serviceProvider
-                .GetServices<IMiddleware>()
-                .OfType<IWebSocketCommandMiddleware>()
-                .FirstOrDefault() as IPackageHandler<WebSocketPackage>;
+                .GetService<IWebSocketCommandMiddleware>() as IPackageHandler<WebSocketPackage>;
 
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
             _subProtocolSelector = serviceProvider.GetService<ISubProtocolSelector>();
