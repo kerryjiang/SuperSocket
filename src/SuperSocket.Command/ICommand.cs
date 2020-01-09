@@ -14,13 +14,25 @@ namespace SuperSocket.Command
         TKey Key { get; }
     }
 
-    public interface ICommand<TKey, TPackageInfo> : ICommand<TKey>
+    public interface ICommand<TKey, TPackageInfo> : ICommand<TKey, IAppSession, TPackageInfo>
     {
-        void Execute(IAppSession session, TPackageInfo package);
+
     }
 
-    public interface IAsyncCommand<TKey, TPackageInfo> : ICommand<TKey>
+    public interface ICommand<TKey, TAppSession, TPackageInfo> : ICommand<TKey>
+        where TAppSession : IAppSession
     {
-        Task ExecuteAsync(IAppSession session, TPackageInfo package);
+        void Execute(TAppSession session, TPackageInfo package);
+    }
+
+    public interface IAsyncCommand<TKey, TPackageInfo> : IAsyncCommand<TKey, IAppSession, TPackageInfo>
+    {
+
+    }
+
+    public interface IAsyncCommand<TKey, TAppSession, TPackageInfo> : ICommand<TKey>
+        where TAppSession : IAppSession
+    {
+        Task ExecuteAsync(TAppSession session, TPackageInfo package);
     }
 }

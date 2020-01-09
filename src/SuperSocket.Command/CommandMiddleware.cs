@@ -54,18 +54,25 @@ namespace SuperSocket.Command
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
         where TNetPackageInfo : class
     {
-        private Dictionary<TKey, CommandSet> _commands;
+        private Dictionary<TKey, ICommandSet> _commands;
 
         protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; private set; }    
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
         {
-            var commandInterface = typeof(ICommand<TKey, TPackageInfo>).GetTypeInfo();
-            var asyncCommandInterface = typeof(IAsyncCommand<TKey, TPackageInfo>).GetTypeInfo();            
+            var sessionFactory = serviceProvider.GetService<ISessionFactory>();
+            var sessionType = sessionFactory == null ? typeof(IAppSession) : sessionFactory.SessionType;
+
+            var genericTypes = new [] { typeof(TKey), sessionType, typeof(TPackageInfo)};
+
+            var commandInterface = typeof(ICommand<,,>).GetTypeInfo().MakeGenericType(genericTypes);
+            var asyncCommandInterface = typeof(IAsyncCommand<,,>).GetTypeInfo().MakeGenericType(genericTypes);
+
             var commandTypes = commandOptions.Value.GetCommandTypes((t) => commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t));
             var comparer = serviceProvider.GetService<IEqualityComparer<TKey>>();
 
-            var commands = commandTypes.Select(t =>  new CommandSet(serviceProvider, t));
+            var commandSetFactory = ActivatorUtilities.CreateInstance(null, typeof(CommandSetFactory<>).MakeGenericType(typeof(TKey), typeof(TNetPackageInfo), typeof(TPackageInfo), sessionType)) as ICommandSetFactory;
+            var commands = commandTypes.Select(t =>  commandSetFactory.Create(serviceProvider, t));
 
             if (comparer == null)
                 _commands = commands.ToDictionary(x => x.Key);
@@ -87,20 +94,12 @@ namespace SuperSocket.Command
 
         protected virtual async Task HandlePackage(IAppSession session, TPackageInfo package)
         {
-            if (!_commands.TryGetValue(package.Key, out CommandSet commandSet))
+            if (!_commands.TryGetValue(package.Key, out ICommandSet commandSet))
             {
                 return;
             }
 
-            var asyncCommand = commandSet.AsyncCommand;
-
-            if (asyncCommand != null)
-            {
-                await asyncCommand.ExecuteAsync(session, package);
-                return;
-            }
-
-            commandSet.Command.Execute(session, package);
+            await commandSet.ExecuteAsync(session, package);
         }
 
         protected virtual async Task OnPackageReceived(IAppSession session, TPackageInfo package)
@@ -113,23 +112,53 @@ namespace SuperSocket.Command
             return HandlePackage(session, PackageMapper.Map(package));
         }
 
-        class CommandSet
+        interface ICommandSet
         {
-            public IAsyncCommand<TKey, TPackageInfo> AsyncCommand { get; private set; }
+            TKey Key { get; }
 
-            public ICommand<TKey, TPackageInfo> Command { get; private set; }
+            ValueTask ExecuteAsync(IAppSession session, TPackageInfo package);
+        }
+
+        interface ICommandSetFactory
+        {
+            ICommandSet Create(IServiceProvider serviceProvider, Type commandType);
+        }
+
+        class CommandSetFactory<TAppSession> : ICommandSetFactory
+            where TAppSession : IAppSession
+        
+        {
+            public ICommandSet Create(IServiceProvider serviceProvider, Type commandType)
+            {
+                var commandSet = new CommandSet<TAppSession>();
+                commandSet.Initialize(serviceProvider, commandType);
+                return commandSet;
+            }
+        }
+
+        class CommandSet<TAppSession> : ICommandSet
+            where TAppSession : IAppSession
+        {
+            public IAsyncCommand<TKey, TAppSession, TPackageInfo> AsyncCommand { get; private set; }
+
+            public ICommand<TKey, TAppSession, TPackageInfo> Command { get; private set; }
 
             public IReadOnlyList<ICommandFilter> Filters { get; private set; }
 
-            public TKey Key { get; }
+            public TKey Key { get; private set; }
 
-            public CommandSet(IServiceProvider serviceProvider, Type commandType)
+            public CommandSet()
+            {
+
+            }
+
+            public void Initialize(IServiceProvider serviceProvider, Type commandType)
             {
                 var command = ActivatorUtilities.CreateInstance(serviceProvider, commandType) as ICommand<TKey>;
                 
                 Key = command.Key;
-                Command = command  as ICommand<TKey, TPackageInfo>;
-                AsyncCommand = command as IAsyncCommand<TKey, TPackageInfo>;
+                Command = command  as ICommand<TKey, TAppSession, TPackageInfo>;
+                AsyncCommand = command as IAsyncCommand<TKey, TAppSession, TPackageInfo>;
 
                 Filters = commandType.GetCustomAttributes(false)
                     .OfType<CommandFilterBaseAttribute>()
@@ -145,15 +174,17 @@ namespace SuperSocket.Command
                     return;
                 }
 
+                var appSession = (TAppSession)session;
+
                 var asyncCommand = AsyncCommand;
 
                 if (asyncCommand != null)
                 {
-                    await asyncCommand.ExecuteAsync(session, package);
+                    await asyncCommand.ExecuteAsync(appSession, package);
                     return;
                 }
 
-                Command.Execute(session, package);
+                Command.Execute(appSession, package);
             }
 
             private async ValueTask ExecuteAsyncWithFilter(IAppSession session, TPackageInfo package)
@@ -185,19 +216,20 @@ namespace SuperSocket.Command
                 }
 
                 if (cancelled)
-                    return;
+                    return;                
 
                 try
                 {
+                    var appSession = (TAppSession)session;
                     var asyncCommand = AsyncCommand;
 
                     if (asyncCommand != null)
                     {
-                        await asyncCommand.ExecuteAsync(session, package);
+                        await asyncCommand.ExecuteAsync(appSession, package);
                     }
                     else
                     {
-                        Command.Execute(session, package);
+                        Command.Execute(appSession, package);
                     }                    
                 }
                 catch (Exception e)
