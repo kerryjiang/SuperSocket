@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using Xunit;
 using Xunit.Abstractions;
-using Microsoft.Extensions.Hosting;
-using System.Security.Authentication;
+using System.Linq;
 using SuperSocket;
+using SuperSocket.Command;
 using SuperSocket.WebSocket.Server;
 using System.Net.WebSockets;
 using Microsoft.Extensions.DependencyInjection;
@@ -163,6 +163,115 @@ namespace Tests.WebSocket
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
                 await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommands(Type hostConfiguratorType) 
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                return builder
+                    .UseCommand<string, StringPackageInfo, StringPackageConverter>(commandOptions =>
+                    {
+                        // register commands one by one
+                        commandOptions.AddCommand<ADD>();
+                        commandOptions.AddCommand<MULT>();
+                        commandOptions.AddCommand<SUB>();
+                        // register all commands in one aassembly
+                        //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
+                    });
+            }, hostConfigurator).BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var websocket = new ClientWebSocket();
+
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                var receiveBuffer = new byte[256];
+
+                Assert.Equal("11", await GetWebSocketReply(websocket, receiveBuffer, "ADD 5 6"));
+                Assert.Equal("8", await GetWebSocketReply(websocket, receiveBuffer, "SUB 10 2"));
+                Assert.Equal("21", await GetWebSocketReply(websocket, receiveBuffer, "MULT 3 7"));
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
+            }
+        }
+
+        private async ValueTask<string> GetWebSocketReply(ClientWebSocket websocket, byte[] receiveBuffer, string request)
+        {
+            var data = _encoding.GetBytes(request);
+            var segment = new ArraySegment<byte>(data, 0, data.Length);
+
+            await websocket.SendAsync(new ArraySegment<byte>(data, 0, data.Length), WebSocketMessageType.Text, true, CancellationToken.None);
+            
+            var receiveSegment = new ArraySegment<byte>(receiveBuffer, 0, receiveBuffer.Length);
+            var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
+
+            Assert.Equal(WebSocketMessageType.Text, result.MessageType);
+
+            return _encoding.GetString(receiveBuffer, 0, result.Count);
+        }
+
+        class ADD : IAsyncCommand<string, WebSocketSession, StringPackageInfo>
+        {
+            public string Key => "ADD";
+
+            public string Name => Key;
+
+            public async Task ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            {
+                var result = package.Parameters
+                    .Select(p => int.Parse(p))
+                    .Sum();
+
+                await session.SendAsync(result.ToString());
+            }
+        }
+
+        class MULT : IAsyncCommand<string, WebSocketSession, StringPackageInfo>
+        {
+            public string Key => "MULT";
+
+            public string Name => Key;
+
+            public async Task ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            {
+                var result = package.Parameters
+                    .Select(p => int.Parse(p))
+                    .Aggregate((x, y) => x * y);
+
+                await session.SendAsync(result.ToString());
+            }
+        }
+
+        class SUB : IAsyncCommand<string, WebSocketSession, StringPackageInfo>
+        {
+            public string Key => "SUB";
+
+            public string Name => Key;
+
+            public async Task ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            {
+                var result = package.Parameters
+                    .Select(p => int.Parse(p))
+                    .Aggregate((x, y) => x - y);
+
+                await session.SendAsync(result.ToString());
             }
         }
     }
