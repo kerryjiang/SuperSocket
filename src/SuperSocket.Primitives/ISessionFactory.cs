@@ -6,5 +6,7 @@ namespace SuperSocket
     public interface ISessionFactory
     {
         IAppSession Create();
+
+        Type SessionType { get; }
     }
 }
