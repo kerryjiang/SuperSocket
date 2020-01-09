@@ -10,7 +10,7 @@ namespace SuperSocket
         public static IHostBuilder UseSuperSocketWebSocket(this IHostBuilder builder)
         {
             return builder
-                .UseSuperSocket<WebSocketPackage, WebSocketPipelineFilter>()
+                .UseSuperSocket<WebSocketPackage, WebSocketPipelineFilter, WebSocketService>()
                 .UseSession<WebSocketSession>();
         }
     }

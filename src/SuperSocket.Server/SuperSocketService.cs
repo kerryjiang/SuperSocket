@@ -204,9 +204,8 @@ namespace SuperSocket.Server
                 for (var i = 0; i < middlewares.Length; i++)
                 {
                     var middleware = middlewares[i];
-                    var result = await middleware.HandleSession(session);
 
-                    if (!result)
+                    if (!await middleware.HandleSession(session))
                     {
                         _logger.LogWarning($"A session from {session.RemoteEndPoint} was rejected by the middleware {middleware.GetType().Name}.");
                         return false;
@@ -238,29 +237,46 @@ namespace SuperSocket.Server
             return new ValueTask();
         }
 
-        private async ValueTask HandleSession(AppSession session, IChannel channel)
+        protected virtual async ValueTask FireSessionConnectedEvent(AppSession session)
         {
-            var result = await InitializeSession(session, channel);
-
-            if (!result)
-                return;
+            _logger.LogInformation($"A new session connected: {session.SessionID}");
 
             try
             {
                 Interlocked.Increment(ref _sessionCount);
-
-                _logger.LogInformation($"A new session connected: {session.SessionID}");
-
                 session.OnSessionConnected();
+                await OnSessionConnectedAsync(session);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "There is one exception thrown from the event handler of SessionConnected.");
+            }
+        }
 
-                try
-                {
-                    await OnSessionConnectedAsync(session);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, "There is one exception thrown from the method OnSessionConnectedAsync().");
-                }
+        protected virtual async ValueTask FireSessionClosedEvent(AppSession session)
+        {
+            _logger.LogInformation($"The session disconnected: {session.SessionID}");
+
+            try
+            {
+                Interlocked.Decrement(ref _sessionCount);
+                session.OnSessionClosed(EventArgs.Empty);
+                await OnSessionClosedAsync(session); 
+            }
+            catch (Exception exc)
+            {
+                _logger.LogError(exc, "There is one exception thrown from the event of OnSessionClosed.");
+            }
+        }
+
+        private async ValueTask HandleSession(AppSession session, IChannel channel)
+        {
+            if (!await InitializeSession(session, channel))
+                return;
+
+            try
+            {
+                await FireSessionConnectedEvent(session);
 
                 var packageChannel = channel as IChannel<TReceivePackageInfo>;
 
@@ -287,19 +303,7 @@ namespace SuperSocket.Server
             }
             finally
             {
-                _logger.LogInformation($"The session disconnected: {session.SessionID}");
-
-                try
-                {
-                    session.OnSessionClosed(EventArgs.Empty);
-                    await OnSessionClosedAsync(session); 
-                }
-                catch (Exception exc)
-                {
-                    _logger.LogError(exc, "There is one exception thrown from the method OnSessionClosedAsync().");
-                }                
-
-                Interlocked.Decrement(ref _sessionCount);
+                await FireSessionClosedEvent(session);
             }
         }
 

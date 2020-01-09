@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -58,11 +59,13 @@ namespace SuperSocket.WebSocket.Server
             
             if (package.OpCode == OpCode.Handshake)
             {
+                websocketSession.HttpHeader = package.HttpHeader;
+
                 // handshake failure
-                if (!await HandleHandshake(session, package))
+                if (!(await HandleHandshake(session, package)))
                     return;
 
-                websocketSession.HttpHeader = package.HttpHeader;
+                websocketSession.Handshaked = true;
 
                 var subProtocol = package.HttpHeader.Items["Sec-WebSocket-Protocol"];
 
@@ -88,7 +91,7 @@ namespace SuperSocket.WebSocket.Server
                     }
                 }
 
-                websocketSession.Handshaked = true;
+                await (session.Server as WebSocketService).OnSessionHandshakeCompleted(websocketSession);
                 return;
             }
 
@@ -149,7 +152,7 @@ namespace SuperSocket.WebSocket.Server
                 await packageHandleDelegate(websocketSession, package);
         }
 
-        private async Task<bool> HandleHandshake(IAppSession session, WebSocketPackage p)
+        private async ValueTask<bool> HandleHandshake(IAppSession session, WebSocketPackage p)
         {
             const string requiredVersion = "13";
             var version = p.HttpHeader.Items[WebSocketConstant.SecWebSocketVersion];

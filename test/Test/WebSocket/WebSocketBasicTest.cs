@@ -35,19 +35,35 @@ namespace Tests.WebSocket
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
-            using (var server = CreateWebSocketServerBuilder(hostConfigurator: hostConfigurator)
+            var serverSessionPath = string.Empty;
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                builder.ConfigureSessionHandler((s) =>
+                {
+                    serverSessionPath = (s as WebSocketSession).Path;
+                    return new ValueTask();
+                });
+
+                return builder;
+            }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");
 
+                var path = "/app/talk";
+
                 var websocket = new ClientWebSocket();
 
                 websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040" + path), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
+
+                // test path
+                Assert.Equal(path, serverSessionPath);
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 await Task.Delay(1 * 1000);
