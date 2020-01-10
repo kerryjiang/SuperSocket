@@ -43,7 +43,7 @@ namespace SuperSocket.SessionContainer
             return _sessions.Count;
         }
 
-        public IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera)
+        public IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera = null)
         {
             var enumerator = _sessions.GetEnumerator();
 
@@ -51,12 +51,12 @@ namespace SuperSocket.SessionContainer
             {
                 var s = enumerator.Current.Value;
 
-                if(critera(s))
+                if(critera == null || critera(s))
                     yield return s;
             }
         }
 
-        public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera) where TAppSession : IAppSession
+        public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera = null) where TAppSession : IAppSession
         {
             var enumerator = _sessions.GetEnumerator();
 
@@ -64,7 +64,7 @@ namespace SuperSocket.SessionContainer
             {
                 if (enumerator.Current.Value is TAppSession s)
                 {
-                    if (critera(s))
+                    if (critera == null || critera(s))
                         yield return s;
                 }
             }

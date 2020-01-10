@@ -11,9 +11,9 @@ namespace SuperSocket
 
         int GetSessionCount();
 
-        IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera);
+        IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera = null);
 
-        IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera)
+        IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera = null)
             where TAppSession : IAppSession;
     }
 
@@ -23,9 +23,9 @@ namespace SuperSocket
 
         Task<int> GetSessionCountAsync();
 
-        Task<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> critera);
+        Task<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> critera = null);
 
-        Task<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> critera)
+        Task<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> critera = null)
             where TAppSession : IAppSession;
     }
 }
