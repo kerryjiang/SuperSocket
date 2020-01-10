@@ -15,10 +15,17 @@ namespace SuperSocket.Channel
         private Stream _stream;
 
         public StreamPipeChannel(Stream stream, EndPoint remoteEndPoint, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
+            : this(stream, remoteEndPoint, null, pipelineFilter, options)
+        {
+            
+        }
+
+        public StreamPipeChannel(Stream stream, EndPoint remoteEndPoint, EndPoint localEndPoint, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
             : base(pipelineFilter, options)
         {
             _stream = stream;
             RemoteEndPoint = remoteEndPoint;
+            LocalEndPoint = localEndPoint;
         }
 
         public override void Close()

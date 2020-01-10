@@ -108,7 +108,7 @@ namespace SuperSocket.Server
                     authOptions.ServerCertificate = options.CertificateOptions.Certificate;
                     var stream = new SslStream(new NetworkStream(s, true), false);
                     await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None);
-                    return new StreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, filterFactory.Create(s), channelOptions);
+                    return new StreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, s.LocalEndPoint, filterFactory.Create(s), channelOptions);
                 });
 
                 return new TcpChannelCreator(options, channelFactory, channelFactoryLogger);

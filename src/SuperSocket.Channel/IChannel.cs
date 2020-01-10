@@ -17,6 +17,8 @@ namespace SuperSocket.Channel
         bool IsClosed { get; }
 
         EndPoint RemoteEndPoint { get; }
+
+        EndPoint LocalEndPoint { get; }
     }
 
     public interface IChannel<TPackageInfo> : IChannel

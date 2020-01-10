@@ -24,6 +24,7 @@ namespace SuperSocket.Channel
         {
             _socket = socket;
             RemoteEndPoint = socket.RemoteEndPoint;
+            LocalEndPoint = socket.LocalEndPoint;
         }
 
         protected override void OnClosed()

@@ -44,7 +44,12 @@ namespace SuperSocket.Server
 
         public EndPoint RemoteEndPoint
         {
-            get { return _channel.RemoteEndPoint; }
+            get { return _channel?.RemoteEndPoint; }
+        }
+
+        public EndPoint LocalEndPoint
+        {
+            get { return _channel?.LocalEndPoint; }
         }
 
         public event EventHandler Connected;

@@ -19,6 +19,8 @@ namespace SuperSocket.Channel
 
         public EndPoint RemoteEndPoint { get; protected set; }
 
+        public EndPoint LocalEndPoint { get; protected set; }
+
         protected virtual void OnClosed()
         {
             IsClosed = true;
