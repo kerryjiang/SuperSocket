@@ -96,6 +96,11 @@ namespace SuperSocket
             return hostBuilder;
         }
 
+        public static IHostBuilder UseClearIdleSession(this IHostBuilder hostBuilder)
+        {
+            return hostBuilder.UseMiddleware<ClearIdleSessionMiddleware>();
+        }
+
         public static IHostBuilder ConfigurePackageHandler<TReceivePackage>(this IHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, Task> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
             where TReceivePackage : class
         {
