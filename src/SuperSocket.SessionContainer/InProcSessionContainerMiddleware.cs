@@ -42,5 +42,32 @@ namespace SuperSocket.SessionContainer
         {
             return _sessions.Count;
         }
+
+        public IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera)
+        {
+            var enumerator = _sessions.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                var s = enumerator.Current.Value;
+
+                if(critera(s))
+                    yield return s;
+            }
+        }
+
+        public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera) where TAppSession : IAppSession
+        {
+            var enumerator = _sessions.GetEnumerator();
+
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Current.Value is TAppSession s)
+                {
+                    if (critera(s))
+                        yield return s;
+                }
+            }
+        }
     }
 }
