@@ -23,13 +23,13 @@ namespace SuperSocket.Server
         void IAppSession.Initialize(IServerInfo server, IChannel channel)
         {
             Server = server;
-            StartTime = DateTime.Now;
+            StartTime = DateTimeOffset.Now;
             _channel = channel;
         }
 
         public string SessionID { get; }
 
-        public DateTime StartTime { get; private set; }
+        public DateTimeOffset StartTime { get; private set; }
 
         public SessionState State { get; private set; } = SessionState.Initialized;
 
@@ -50,6 +50,11 @@ namespace SuperSocket.Server
         public EndPoint LocalEndPoint
         {
             get { return _channel?.LocalEndPoint; }
+        }
+
+        public DateTimeOffset LastActiveTime
+        {
+            get { return _channel?.LastActiveTime ?? DateTimeOffset.MinValue; }
         }
 
         public event EventHandler Connected;

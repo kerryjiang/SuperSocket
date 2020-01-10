@@ -109,6 +109,8 @@ namespace SuperSocket.Channel
                         break;
                     }
 
+                    LastActiveTime = DateTimeOffset.Now;
+                    
                     // Tell the PipeWriter how much was read
                     writer.Advance(bytesRead);
                 }
@@ -172,6 +174,7 @@ namespace SuperSocket.Channel
                     try
                     {
                         await SendOverIOAsync(buffer);
+                        LastActiveTime = DateTimeOffset.Now;
                     }
                     catch (Exception e)
                     {

@@ -19,6 +19,8 @@ namespace SuperSocket.Channel
         EndPoint RemoteEndPoint { get; }
 
         EndPoint LocalEndPoint { get; }
+
+        DateTimeOffset LastActiveTime { get; }
     }
 
     public interface IChannel<TPackageInfo> : IChannel

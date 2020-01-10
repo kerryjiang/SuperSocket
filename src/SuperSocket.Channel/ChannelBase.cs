@@ -21,6 +21,8 @@ namespace SuperSocket.Channel
 
         public EndPoint LocalEndPoint { get; protected set; }
 
+        public DateTimeOffset LastActiveTime { get; protected set; }
+
         protected virtual void OnClosed()
         {
             IsClosed = true;

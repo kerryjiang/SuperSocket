@@ -10,7 +10,9 @@ namespace SuperSocket
     {
         string SessionID { get; }
 
-        DateTime StartTime { get; }
+        DateTimeOffset StartTime { get; }
+
+        DateTimeOffset LastActiveTime { get; }
 
         IChannel Channel { get; }
 
