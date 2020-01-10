@@ -29,9 +29,12 @@ namespace SuperSocket.WebSocket.Server
 
         private static readonly IPackageEncoder<WebSocketMessage> _messageEncoder = new WebSocketEncoder();
 
-        public ValueTask SendAsync(WebSocketMessage message)
+        public virtual ValueTask SendAsync(WebSocketMessage message)
         {
-            return this.Channel.SendAsync(_messageEncoder, message);
+            lock (Channel)
+            {
+                return this.Channel.SendAsync(_messageEncoder, message);
+            }
         }
 
         public ValueTask SendAsync(string message)
@@ -40,6 +43,15 @@ namespace SuperSocket.WebSocket.Server
             {
                 OpCode = OpCode.Text,
                 Message = message,
+            });
+        }
+
+        public override ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        {
+            return SendAsync(new WebSocketMessage
+            {
+                OpCode = OpCode.Binary,
+                Data = new ReadOnlySequence<byte>(data),
             });
         }
 

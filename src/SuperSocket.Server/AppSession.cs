@@ -96,7 +96,7 @@ namespace SuperSocket.Server
             Connected?.Invoke(this, EventArgs.Empty);
         }
 
-        public ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        public virtual ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
             lock (_channel)
             {
