@@ -60,7 +60,7 @@ namespace SuperSocket.WebSocket.Server
                 websocketSession.HttpHeader = package.HttpHeader;
 
                 // handshake failure
-                if (!(await HandleHandshake(session, package)))
+                if (!(await HandleHandshake(websocketSession, package)))
                     return;
 
                 websocketSession.Handshaked = true;
@@ -150,7 +150,7 @@ namespace SuperSocket.WebSocket.Server
                 await packageHandleDelegate(websocketSession, package);
         }
 
-        private async ValueTask<bool> HandleHandshake(IAppSession session, WebSocketPackage p)
+        private async ValueTask<bool> HandleHandshake(WebSocketSession session, WebSocketPackage p)
         {
             const string requiredVersion = "13";
             var version = p.HttpHeader.Items[WebSocketConstant.SecWebSocketVersion];
@@ -186,7 +186,7 @@ namespace SuperSocket.WebSocket.Server
 
             byte[] data = Encoding.UTF8.GetBytes(responseBuilder.ToString());
 
-            await session.SendAsync(data);
+            await session.SendRawAsync(data);
             return true;
         }
     }

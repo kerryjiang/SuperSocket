@@ -46,6 +46,11 @@ namespace SuperSocket.WebSocket.Server
             });
         }
 
+        internal ValueTask SendRawAsync(ReadOnlyMemory<byte> data)
+        {
+            return base.SendAsync(data);
+        }
+
         public override ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
             return SendAsync(new WebSocketMessage
