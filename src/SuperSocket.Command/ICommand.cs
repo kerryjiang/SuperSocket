@@ -33,6 +33,6 @@ namespace SuperSocket.Command
     public interface IAsyncCommand<TKey, TAppSession, TPackageInfo> : ICommand<TKey>
         where TAppSession : IAppSession
     {
-        Task ExecuteAsync(TAppSession session, TPackageInfo package);
+        ValueTask ExecuteAsync(TAppSession session, TPackageInfo package);
     }
 }

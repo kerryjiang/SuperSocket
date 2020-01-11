@@ -28,7 +28,7 @@ namespace Tests
 
             public string Name => Key;
 
-            public async Task ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 await session.SendAsync(Encoding.UTF8.GetBytes(session.SessionID + "\r\n"));
             }

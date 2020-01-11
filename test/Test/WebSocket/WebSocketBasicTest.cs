@@ -233,7 +233,7 @@ namespace Tests.WebSocket
 
             public string Name => Key;
 
-            public async Task ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
@@ -249,7 +249,7 @@ namespace Tests.WebSocket
 
             public string Name => Key;
 
-            public async Task ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
@@ -265,7 +265,7 @@ namespace Tests.WebSocket
 
             public string Name => Key;
 
-            public async Task ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))

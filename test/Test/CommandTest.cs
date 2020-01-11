@@ -27,7 +27,7 @@ namespace Tests
 
             public string Name => Key;
 
-            public async Task ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
@@ -43,7 +43,7 @@ namespace Tests
 
             public string Name => Key;
 
-            public async Task ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
@@ -59,7 +59,7 @@ namespace Tests
 
             public string Name => Key;
 
-            public async Task ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
