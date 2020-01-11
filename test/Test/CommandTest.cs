@@ -115,5 +115,117 @@ namespace Tests
                 await server.StopAsync();
             }
         }
+
+        class IncreaseCountCommandFilterAttribute : AsyncCommandFilterAttribute
+        {
+            public override ValueTask OnCommandExecutedAsync(CommandExecutingContext commandContext)
+            {
+                return new ValueTask();
+            }
+
+            public override ValueTask<bool> OnCommandExecutingAsync(CommandExecutingContext commandContext)
+            {
+                var sessionState = commandContext.Session.DataContext as SessionState;
+                sessionState.ExecutionCount++;
+                return new ValueTask<bool>(false);
+            }
+        }
+
+        class DecreaseCountCommandFilterAttribute : CommandFilterAttribute
+        {
+            public override void OnCommandExecuted(CommandExecutingContext commandContext)
+            {
+      
+            }
+
+            public override bool OnCommandExecuting(CommandExecutingContext commandContext)
+            {
+                var sessionState = commandContext.Session.DataContext as SessionState;
+                sessionState.ExecutionCount--;
+                return false;
+            }
+        }
+
+        [IncreaseCountCommandFilter]
+        class COUNT : IAsyncCommand<StringPackageInfo>
+        {
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+            {
+                await session.SendAsync(Encoding.UTF8.GetBytes("OK\r\n"));
+            }
+        }
+
+        [DecreaseCountCommandFilter]
+        class COUNTDOWN : IAsyncCommand<StringPackageInfo>
+        {
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+            {
+                await session.SendAsync(Encoding.UTF8.GetBytes("OK\r\n"));
+            }
+        }
+
+        class SessionState
+        {
+            public int ExecutionCount { get; set; }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommandFilter(Type hostConfiguratorType)
+        {
+            var sessionState = new SessionState();
+
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+                .UseCommand(commandOptions =>
+                {
+                    commandOptions.AddCommand<COUNT>();
+                    commandOptions.AddCommand<COUNTDOWN>();
+                })
+                .ConfigureSessionHandler((s) =>
+                {
+                    s.DataContext = sessionState;
+                    return new ValueTask();
+                })
+                .BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    for (var i = 1; i <= 100; i++)
+                    {
+                        await streamWriter.WriteAsync("COUNT\r\n");
+                        await streamWriter.FlushAsync();
+                        var line = await streamReader.ReadLineAsync();
+
+                        Assert.Equal(i, sessionState.ExecutionCount);
+                    }
+
+                    for (var i = 99; i >= 0; i--)
+                    {
+                        await streamWriter.WriteAsync("COUNTDOWN\r\n");
+                        await streamWriter.FlushAsync();
+                        var line = await streamReader.ReadLineAsync();
+
+                        Assert.Equal(i, sessionState.ExecutionCount);
+                    }
+                }
+
+                await server.StopAsync();
+            }
+        }
     }
 }
