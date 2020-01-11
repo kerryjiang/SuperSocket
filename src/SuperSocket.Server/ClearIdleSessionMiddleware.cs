@@ -31,12 +31,7 @@ namespace SuperSocket.Server
             _logger = loggerFactory.CreateLogger<ClearIdleSessionMiddleware>();
         }
 
-        public override ValueTask<bool> HandleSession(IAppSession session)
-        {
-            return new ValueTask<bool>(true);
-        }
-
-        public override void Register(IServer server)
+        public override void Start(IServer server)
         {
             _timer = new Timer(OnTimerCallback, null, _serverOptions.ClearIdleSessionInterval * 1000, _serverOptions.ClearIdleSessionInterval * 1000);
         }
@@ -75,7 +70,9 @@ namespace SuperSocket.Server
 
         public override void Shutdown(IServer server)
         {
-            _timer?.Dispose();
+            _timer.Change(Timeout.Infinite, Timeout.Infinite);
+            _timer.Dispose();
+            _timer = null;
         }
     }
 }

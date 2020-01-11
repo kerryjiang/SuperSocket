@@ -26,7 +26,7 @@ namespace SuperSocket.WebSocket.Server
             _options = options;        
         }
 
-        public override void Register(IServer server)
+        public override void Start(IServer server)
         {
             _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _options.CheckingInterval * 1000, _options.CheckingInterval * 1000); // hardcode to 1 minute for now
         }
@@ -34,9 +34,11 @@ namespace SuperSocket.WebSocket.Server
         public override void Shutdown(IServer server)
         {
             _checkingTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            _checkingTimer.Dispose();
+            _checkingTimer = null;
         }
 
-        public override ValueTask<bool> HandleSession(IAppSession session)
+        public override ValueTask<bool> RegisterSession(IAppSession session)
         {
             var websocketSession = session as WebSocketSession;
             _openHandshakePendingQueue.Enqueue(websocketSession);

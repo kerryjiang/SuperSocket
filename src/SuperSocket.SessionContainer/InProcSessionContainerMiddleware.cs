@@ -17,7 +17,7 @@ namespace SuperSocket.SessionContainer
             _sessions = new ConcurrentDictionary<string, IAppSession>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public override ValueTask<bool> HandleSession(IAppSession session)
+        public override ValueTask<bool> RegisterSession(IAppSession session)
         {
             session.Closed += OnSessionClosed;
             _sessions.TryAdd(session.SessionID, session);

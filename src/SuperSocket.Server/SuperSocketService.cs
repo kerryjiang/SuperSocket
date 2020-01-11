@@ -89,7 +89,7 @@ namespace SuperSocket.Server
 
             foreach (var m in _middlewares)
             {
-                m.Register(this);
+                m.Start(this);
             }
 
             if (_packageHandler == null)
@@ -205,7 +205,7 @@ namespace SuperSocket.Server
                 {
                     var middleware = middlewares[i];
 
-                    if (!await middleware.HandleSession(session))
+                    if (!await middleware.RegisterSession(session))
                     {
                         _logger.LogWarning($"A session from {session.RemoteEndPoint} was rejected by the middleware {middleware.GetType().Name}.");
                         return false;

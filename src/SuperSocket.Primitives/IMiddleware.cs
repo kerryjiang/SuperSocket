@@ -5,10 +5,10 @@ namespace SuperSocket
 {
     public interface IMiddleware
     {
-        void Register(IServer server);
+        void Start(IServer server);
 
         void Shutdown(IServer server);
 
-        ValueTask<bool> HandleSession(IAppSession session);
+        ValueTask<bool> RegisterSession(IAppSession session);
     }
 }

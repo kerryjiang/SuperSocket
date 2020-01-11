@@ -5,7 +5,7 @@ namespace SuperSocket
 {
     public abstract class MiddlewareBase : IMiddleware
     {
-        public virtual void Register(IServer server)
+        public virtual void Start(IServer server)
         {
 
         }
@@ -15,6 +15,9 @@ namespace SuperSocket
             
         }
         
-        public abstract ValueTask<bool> HandleSession(IAppSession session);
+        public virtual ValueTask<bool> RegisterSession(IAppSession session)
+        {
+            return new ValueTask<bool>(true);
+        }
     }
 }

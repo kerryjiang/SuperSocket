@@ -96,11 +96,6 @@ namespace SuperSocket.Command
             return serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
-        public override ValueTask<bool> HandleSession(IAppSession session)
-        {
-            return new ValueTask<bool>(true);
-        }
-
         protected virtual async Task HandlePackage(IAppSession session, TPackageInfo package)
         {
             if (!_commands.TryGetValue(package.Key, out ICommandSet commandSet))
