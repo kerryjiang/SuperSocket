@@ -7,13 +7,11 @@ using SuperSocket.ProtoBase;
 
 namespace CommandServer
 {
-    public class MULT : IAsyncCommand<string, StringPackageInfo>
+    [Command]
+    public class MULT : IAsyncCommand<StringPackageInfo>
     {
-        public string Key => "MULT";
 
-        public string Name => Key;
-
-        public async Task ExecuteAsync(IAppSession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
         {
             var result = package.Parameters
                 .Select(p => int.Parse(p))

@@ -7,13 +7,10 @@ using SuperSocket.ProtoBase;
 
 namespace CommandServer
 {
-    public class ADD : IAsyncCommand<string, StringPackageInfo>
+    [Command("add")]
+    public class ADD : IAsyncCommand<StringPackageInfo>
     {
-        public string Key => "ADD";
-
-        public string Name => Key;
-
-        public async Task ExecuteAsync(IAppSession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
         {
             var result = package.Parameters
                 .Select(p => int.Parse(p))
