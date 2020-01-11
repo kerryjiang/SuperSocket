@@ -63,18 +63,18 @@ namespace SuperSocket.Command
             var sessionFactory = serviceProvider.GetService<ISessionFactory>();
             var sessionType = sessionFactory == null ? typeof(IAppSession) : sessionFactory.SessionType;
 
-            var genericTypes = new [] { typeof(TKey), sessionType, typeof(TPackageInfo)};
+            var genericTypes = new [] { sessionType, typeof(TPackageInfo)};
 
-            var commandInterface = typeof(ICommand<,,>).GetTypeInfo().MakeGenericType(genericTypes);
-            var asyncCommandInterface = typeof(IAsyncCommand<,,>).GetTypeInfo().MakeGenericType(genericTypes);
+            var commandInterface = typeof(ICommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
+            var asyncCommandInterface = typeof(IAsyncCommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
 
             var commandTypes = commandOptions.Value.GetCommandTypes((t) => commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t));
 
             if (sessionType == typeof(IAppSession)) // still support short form command interfaces
             {
-                genericTypes = new [] { typeof(TKey), typeof(TPackageInfo)};
-                commandInterface = typeof(ICommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
-                asyncCommandInterface = typeof(IAsyncCommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
+                genericTypes = new [] { typeof(TPackageInfo)};
+                commandInterface = typeof(ICommand<>).GetTypeInfo().MakeGenericType(genericTypes);
+                asyncCommandInterface = typeof(IAsyncCommand<>).GetTypeInfo().MakeGenericType(genericTypes);
                 commandTypes = commandTypes.Union(commandOptions.Value.GetCommandTypes((t) => commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t)));
             }
 
@@ -143,26 +143,78 @@ namespace SuperSocket.Command
         class CommandSet<TAppSession> : ICommandSet
             where TAppSession : IAppSession
         {
-            public IAsyncCommand<TKey, TAppSession, TPackageInfo> AsyncCommand { get; private set; }
+            public IAsyncCommand<TAppSession, TPackageInfo> AsyncCommand { get; private set; }
 
-            public ICommand<TKey, TAppSession, TPackageInfo> Command { get; private set; }
+            public ICommand<TAppSession, TPackageInfo> Command { get; private set; }
 
             public IReadOnlyList<ICommandFilter> Filters { get; private set; }
+            
+            public CommandMetadata Metadata { get; private set; }
 
             public TKey Key { get; private set; }
 
+            private readonly bool _isKeyString = false;
+
             public CommandSet()
             {
+                _isKeyString = typeof(TKey) == typeof(string);
+            }
 
+            private CommandMetadata GetCommandMetadata(Type commandType)
+            {
+                var cmdAtt = commandType.GetCustomAttribute(typeof(CommandAttribute)) as CommandAttribute;
+                var cmdMeta = default(CommandMetadata);
+
+                if (cmdAtt == null)
+                {
+                    if (!_isKeyString)
+                    {
+                        throw new Exception($"The command {commandType.FullName} needs a CommandAttribute defined.");
+                    }
+
+                    cmdMeta = new CommandMetadata(commandType.Name, commandType.Name);
+                }
+                else
+                {
+                    var cmdName = cmdAtt.Name;
+
+                    if (string.IsNullOrEmpty(cmdName))
+                        cmdName = commandType.Name;
+
+                    if (cmdAtt.Key == null)
+                    {
+                        if (!_isKeyString)
+                        {
+                            throw new Exception($"The command {commandType.FullName} needs a Key in type '{typeof(TKey).Name}' defined in its CommandAttribute.");
+                        }
+
+                        cmdMeta = new CommandMetadata(cmdName, cmdName);
+                    }
+                    else
+                    {
+                        cmdMeta = new CommandMetadata(cmdName, cmdAtt.Key);
+                    }
+                }
+
+                return cmdMeta;
             }
 
             public void Initialize(IServiceProvider serviceProvider, Type commandType)
             {
-                var command = ActivatorUtilities.CreateInstance(serviceProvider, commandType) as ICommand<TKey>;
-                
-                Key = command.Key;
-                Command = command  as ICommand<TKey, TAppSession, TPackageInfo>;
-                AsyncCommand = command as IAsyncCommand<TKey, TAppSession, TPackageInfo>;
+                var command = ActivatorUtilities.CreateInstance(serviceProvider, commandType) as ICommand;                
+                var cmdMeta = GetCommandMetadata(commandType);
+
+                try
+                {
+                    Key = (TKey)cmdMeta.Key;
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"The command {cmdMeta.Name}'s Key {cmdMeta.Key} cannot be converted to the desired type '{typeof(TKey).Name}'.", e);
+                }                
+
+                Command = command as ICommand<TAppSession, TPackageInfo>;
+                AsyncCommand = command as IAsyncCommand<TAppSession, TPackageInfo>;
 
                 Filters = commandType.GetCustomAttributes(false)
                     .OfType<CommandFilterBaseAttribute>()

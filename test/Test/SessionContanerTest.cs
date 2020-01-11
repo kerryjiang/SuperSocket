@@ -22,12 +22,8 @@ namespace Tests
     [Trait("Category", "SessionContaner")]
     public class SessionContanerTest : TestClassBase
     {
-        class SESS : IAsyncCommand<string, StringPackageInfo>
+        class SESS : IAsyncCommand<StringPackageInfo>
         {
-            public string Key => "SESS";
-
-            public string Name => Key;
-
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 await session.SendAsync(Encoding.UTF8.GetBytes(session.SessionID + "\r\n"));

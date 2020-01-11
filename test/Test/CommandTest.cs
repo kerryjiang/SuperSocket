@@ -21,12 +21,8 @@ namespace Tests
     [Trait("Category", "Command")]
     public class CommandTest : TestClassBase
     {
-        class ADD : IAsyncCommand<string, StringPackageInfo>
+        class ADD : IAsyncCommand<StringPackageInfo>
         {
-            public string Key => "ADD";
-
-            public string Name => Key;
-
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
@@ -37,12 +33,8 @@ namespace Tests
             }
         }
 
-        class MULT : IAsyncCommand<string, StringPackageInfo>
+        class MULT : IAsyncCommand<StringPackageInfo>
         {
-            public string Key => "MULT";
-
-            public string Name => Key;
-
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
@@ -53,12 +45,8 @@ namespace Tests
             }
         }
 
-        class SUB : IAsyncCommand<string, StringPackageInfo>
+        class SUB : IAsyncCommand<StringPackageInfo>
         {
-            public string Key => "SUB";
-
-            public string Name => Key;
-
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 var result = package.Parameters

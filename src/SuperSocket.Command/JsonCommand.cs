@@ -6,24 +6,14 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Command
 {
-    public abstract class JsonCommand<TKey, TJsonObject> : JsonCommand<TKey, IAppSession, TJsonObject>
+    public abstract class JsonCommand<TJsonObject> : JsonCommand<IAppSession, TJsonObject>
     {
 
     }
 
-    public abstract class JsonCommand<TKey, TAppSession, TJsonObject> : ICommand<TKey, TAppSession, IStringPackage>
+    public abstract class JsonCommand<TAppSession, TJsonObject> : ICommand<TAppSession, IStringPackage>
         where TAppSession : IAppSession
     {
-        public abstract TKey Key { get; }
-
-        public virtual string Name
-        {
-            get
-            {
-                return Key.ToString();
-            }
-        }
-
         public virtual void Execute(TAppSession session, IStringPackage package)
         {
             var content = package.Body;            
@@ -38,24 +28,14 @@ namespace SuperSocket.Command
         }
     }
 
-    public abstract class JsonAsyncCommand<TKey, TJsonObject> : JsonAsyncCommand<TKey, IAppSession, TJsonObject>
+    public abstract class JsonAsyncCommand<TJsonObject> : JsonAsyncCommand<IAppSession, TJsonObject>
     {
 
     }
 
-    public abstract class JsonAsyncCommand<TKey, TAppSession, TJsonObject> : IAsyncCommand<TKey, TAppSession, IStringPackage>
+    public abstract class JsonAsyncCommand<TAppSession, TJsonObject> : IAsyncCommand<TAppSession, IStringPackage>
         where TAppSession : IAppSession
     {
-        public TKey Key { get; }
-
-        public virtual string Name
-        {
-            get
-            {
-                return Key.ToString();
-            }
-        }
-
         public virtual async ValueTask ExecuteAsync(TAppSession session, IStringPackage package)
         {
             var content = package.Body;

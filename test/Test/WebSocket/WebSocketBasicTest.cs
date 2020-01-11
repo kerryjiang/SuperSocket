@@ -227,12 +227,8 @@ namespace Tests.WebSocket
             return _encoding.GetString(receiveBuffer, 0, result.Count);
         }
 
-        class ADD : IAsyncCommand<string, WebSocketSession, StringPackageInfo>
+        class ADD : IAsyncCommand<WebSocketSession, StringPackageInfo>
         {
-            public string Key => "ADD";
-
-            public string Name => Key;
-
             public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
@@ -243,12 +239,8 @@ namespace Tests.WebSocket
             }
         }
 
-        class MULT : IAsyncCommand<string, WebSocketSession, StringPackageInfo>
+        class MULT : IAsyncCommand<WebSocketSession, StringPackageInfo>
         {
-            public string Key => "MULT";
-
-            public string Name => Key;
-
             public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
@@ -259,12 +251,8 @@ namespace Tests.WebSocket
             }
         }
 
-        class SUB : IAsyncCommand<string, WebSocketSession, StringPackageInfo>
+        class SUB : IAsyncCommand<WebSocketSession, StringPackageInfo>
         {
-            public string Key => "SUB";
-
-            public string Name => Key;
-
             public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
