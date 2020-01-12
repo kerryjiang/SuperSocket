@@ -169,8 +169,6 @@ namespace SuperSocket.WebSocket.Server
                 return false;
             }
 
-            var responseBuilder = new StringBuilder();
-
             string secKeyAccept = string.Empty;
 
             try
@@ -182,15 +180,18 @@ namespace SuperSocket.WebSocket.Server
                 return false;
             }
 
-            responseBuilder.Append(WebSocketConstant.ResponseHeadLine10);
-            responseBuilder.Append(WebSocketConstant.ResponseUpgradeLine);
-            responseBuilder.Append(WebSocketConstant.ResponseConnectionLine);
-            responseBuilder.AppendFormat(WebSocketConstant.ResponseAcceptLine, secKeyAccept);
-            responseBuilder.AppendWithCrCf();
+            var encoding = _textEncoding;
 
-            byte[] data = Encoding.UTF8.GetBytes(responseBuilder.ToString());
+            await session.Channel.SendAsync((writer) =>
+            {
+                writer.Write(WebSocketConstant.ResponseHeadLine10, encoding);
+                writer.Write(WebSocketConstant.ResponseUpgradeLine, encoding);
+                writer.Write(WebSocketConstant.ResponseConnectionLine, encoding);
+                writer.Write(string.Format(WebSocketConstant.ResponseAcceptLine, secKeyAccept), encoding);
+                writer.Write("\r\n", encoding);
+                writer.FlushAsync().GetAwaiter().GetResult();
+            });
 
-            await session.SendAsync(data);
             return true;
         }
     }
