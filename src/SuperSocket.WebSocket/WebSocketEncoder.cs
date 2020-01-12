@@ -58,23 +58,8 @@ namespace SuperSocket.WebSocket
             head[0] = opCodeFlag;
 
             writer.Advance(expectedHeadLength);
-
-            var encoder = _textEncoding.GetEncoder();
-            var completed = false;
-            var totalBytes = 0;
-
-            while (!completed)
-            {
-                var span = writer.GetSpan();
-
-                encoder.Convert(text, span, false, out int charsUsed, out int bytesUsed, out completed);
-                
-                if (charsUsed > 0)
-                    text = text.Slice(charsUsed);
-
-                totalBytes += bytesUsed;
-                writer.Advance(bytesUsed);
-            }
+            
+            var totalBytes = writer.Write(text, _textEncoding);
 
             WriteLength(ref head, totalBytes);
             writer.FlushAsync().GetAwaiter().GetResult();
