@@ -45,7 +45,7 @@ namespace SuperSocket
                     services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
                     services.AddSingleton<Func<object, IPipelineFilter<TReceivePackage>>>(filterFactory);
                     services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DelegatePipelineFilterFactory<TReceivePackage>>();                    
-                    services.AddSingleton<IHostedService, TSuperSocketService>();
+                    services.AddHostedService<TSuperSocketService>();
                 }
             );
 
@@ -70,7 +70,7 @@ namespace SuperSocket
                 {
                     services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
                     services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, TPipelineFilterFactory>();
-                    services.AddSingleton<IHostedService, TSuperSocketService>();
+                    services.AddHostedService<TSuperSocketService>();
                 }
             );
 
