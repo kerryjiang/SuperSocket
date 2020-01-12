@@ -14,7 +14,11 @@ namespace SuperSocket.WebSocket.Server
     public class WebSocketPackageHandler : IPackageHandler<WebSocketPackage>
     {
         private const string _magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+        private static Encoding _textEncoding = new UTF8Encoding(false);
+        
         private IServiceProvider _serviceProvider;
+
         private IPackageHandler<WebSocketPackage> _websocketCommandMiddleware;
 
         private Func<WebSocketSession, WebSocketPackage, Task> _packageHandlerDelegate;
@@ -150,7 +154,7 @@ namespace SuperSocket.WebSocket.Server
                 await packageHandleDelegate(websocketSession, package);
         }
 
-        private async ValueTask<bool> HandleHandshake(WebSocketSession session, WebSocketPackage p)
+        private async ValueTask<bool> HandleHandshake(IAppSession session, WebSocketPackage p)
         {
             const string requiredVersion = "13";
             var version = p.HttpHeader.Items[WebSocketConstant.SecWebSocketVersion];
@@ -178,15 +182,17 @@ namespace SuperSocket.WebSocket.Server
                 return false;
             }
 
-            responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseHeadLine10);
-            responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseUpgradeLine);
-            responseBuilder.AppendWithCrCf(WebSocketConstant.ResponseConnectionLine);
-            responseBuilder.AppendFormatWithCrCf(WebSocketConstant.ResponseAcceptLine, secKeyAccept);
-            responseBuilder.AppendWithCrCf();
+            await session.Channel.SendAsync((writer) =>
+            {
+                var total = writer.Write(WebSocketConstant.ResponseHeadLine10, _textEncoding);
+                total += writer.Write(WebSocketConstant.ResponseUpgradeLine, _textEncoding);
+                total += writer.Write(WebSocketConstant.ResponseConnectionLine, _textEncoding);
+                total += writer.Write(string.Format(WebSocketConstant.ResponseAcceptLine, secKeyAccept), _textEncoding);
+                total += writer.Write("\r\n", _textEncoding);
+                writer.Advance(total);
+                writer.FlushAsync().GetAwaiter().GetResult();
+            });
 
-            byte[] data = Encoding.UTF8.GetBytes(responseBuilder.ToString());
-
-            await session.SendRawAsync(data);
             return true;
         }
     }
