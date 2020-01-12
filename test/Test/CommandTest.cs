@@ -47,13 +47,21 @@ namespace Tests
 
         class SUB : IAsyncCommand<StringPackageInfo>
         {
+            private IPackageEncoder<string> _encoder;
+
+            public SUB(IPackageEncoder<string> encoder)
+            {
+                _encoder = encoder;
+            }
+
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
                     .Aggregate((x, y) => x - y);
-
-                await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+                
+                // encode the text message by encoder
+                await session.SendAsync(_encoder, result.ToString() + "\r\n");
             }
         }
 
@@ -149,18 +157,32 @@ namespace Tests
         [IncreaseCountCommandFilter]
         class COUNT : IAsyncCommand<StringPackageInfo>
         {
+            private IPackageEncoder<string> _encoder;
+
+            public COUNT(IPackageEncoder<string> encoder)
+            {
+                _encoder = encoder;
+            }
+
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
-                await session.SendAsync(Encoding.UTF8.GetBytes("OK\r\n"));
+                await session.SendAsync(_encoder, "OK\r\n");
             }
         }
 
         [DecreaseCountCommandFilter]
         class COUNTDOWN : IAsyncCommand<StringPackageInfo>
         {
+            private IPackageEncoder<string> _encoder;
+
+            public COUNTDOWN(IPackageEncoder<string> encoder)
+            {
+                _encoder = encoder;
+            }
+
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
-                await session.SendAsync(Encoding.UTF8.GetBytes("OK\r\n"));
+                await session.SendAsync(_encoder, "OK\r\n");
             }
         }
 
