@@ -230,6 +230,13 @@ namespace SuperSocket.Channel
             await writer.FlushAsync();
         }
 
+        public override async ValueTask SendAsync(Action<PipeWriter> write)
+        {
+            var writer = Out.Writer;
+            write(writer);
+            await writer.FlushAsync();
+        }
+
         private void WritePackageWithEncoder<TPackage>(PipeWriter writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             lock (writer)

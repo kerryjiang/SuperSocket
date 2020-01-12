@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket
 {
@@ -21,6 +22,8 @@ namespace SuperSocket
         EndPoint LocalEndPoint { get; }
 
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
+
+        ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
         IServerInfo Server { get; }
 

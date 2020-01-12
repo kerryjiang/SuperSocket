@@ -1,4 +1,6 @@
+using System;
 using System.Buffers;
+using System.IO.Pipelines;
 using System.Text;
 
 namespace SuperSocket.ProtoBase
@@ -21,6 +23,28 @@ namespace SuperSocket.ProtoBase
                     span = span.Slice(count);
                 }
             });
+        }
+
+        public static int Write(this PipeWriter writer, ReadOnlySpan<char> text, Encoding encoding)
+        {
+            var encoder = encoding.GetEncoder();
+            var completed = false;
+            var totalBytes = 0;
+
+            while (!completed)
+            {
+                var span = writer.GetSpan();
+
+                encoder.Convert(text, span, false, out int charsUsed, out int bytesUsed, out completed);
+                
+                if (charsUsed > 0)
+                    text = text.Slice(charsUsed);
+
+                totalBytes += bytesUsed;
+                writer.Advance(bytesUsed);
+            }
+
+            return totalBytes;
         }
     }
 }

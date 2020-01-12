@@ -12,9 +12,39 @@ using SuperSocket.Server;
 
 namespace SuperSocket
 {
-    public class SuperSocketHostBuilder<TReceivePackage> : HostBuilder, IHostBuilder<TReceivePackage>
+    public class SuperSocketHostBuilder<TReceivePackage> : IHostBuilder<TReceivePackage>
         where TReceivePackage : class
     {
+
+        private HostBuilder _hostBuilder;
+
+        public SuperSocketHostBuilder()
+        {
+            _hostBuilder = new HostBuilder();
+        }
+
+        public IDictionary<object, object> Properties => _hostBuilder.Properties;
+
+        public IHost Build()
+        {
+            return _hostBuilder.ConfigureServices((ctx, services) => 
+            {
+                services.TryAdd(new ServiceDescriptor(typeof(IPackageEncoder<string>), typeof(DefaultStringEncoderForDI), ServiceLifetime.Singleton));
+            }).Build();
+        }
+
+        public IHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
+        {
+            _hostBuilder.ConfigureAppConfiguration(configureDelegate);
+            return this;
+        }
+
+        public IHostBuilder ConfigureContainer<TContainerBuilder>(Action<HostBuilderContext, TContainerBuilder> configureDelegate)
+        {
+            _hostBuilder.ConfigureContainer<TContainerBuilder>(configureDelegate);
+            return this;
+        }
+
         public IHostBuilder<TReceivePackage> ConfigureDefaults()
         {
             var hostBuilder = this.ConfigureAppConfiguration((hostingContext, config) =>
@@ -35,6 +65,30 @@ namespace SuperSocket
                     services.AddOptions();
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
                 }) as IHostBuilder<TReceivePackage>;
+        }
+
+        public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
+        {
+            _hostBuilder.ConfigureHostConfiguration(configureDelegate);
+            return this;
+        }
+
+        public IHostBuilder ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        {
+            _hostBuilder.ConfigureServices(configureDelegate);
+            return this;
+        }
+
+        public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
+        {
+            _hostBuilder.UseServiceProviderFactory<TContainerBuilder>(factory);
+            return this;
+        }
+
+        public IHostBuilder UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory)
+        {
+            _hostBuilder.UseServiceProviderFactory<TContainerBuilder>(factory);
+            return this;
         }
     }
 

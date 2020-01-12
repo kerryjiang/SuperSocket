@@ -1,3 +1,4 @@
+using System.Text;
 using SuperSocket.Channel;
 
 namespace SuperSocket
@@ -7,6 +8,8 @@ namespace SuperSocket
         public string Name { get; set; }
 
         public ListenOptions[] Listeners { get; set; }
+
+        public Encoding DefaultTextEncoding { get; set; }
 
         public int ClearIdleSessionInterval { get; set; } = 120;
 

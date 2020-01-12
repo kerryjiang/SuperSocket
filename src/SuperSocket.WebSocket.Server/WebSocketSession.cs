@@ -37,7 +37,7 @@ namespace SuperSocket.WebSocket.Server
             }
         }
 
-        public ValueTask SendAsync(string message)
+        public virtual ValueTask SendAsync(string message)
         {
             return SendAsync(new WebSocketMessage
             {
@@ -46,12 +46,7 @@ namespace SuperSocket.WebSocket.Server
             });
         }
 
-        internal ValueTask SendRawAsync(ReadOnlyMemory<byte> data)
-        {
-            return base.SendAsync(data);
-        }
-
-        public override ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        public virtual ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
             return SendAsync(new WebSocketMessage
             {
