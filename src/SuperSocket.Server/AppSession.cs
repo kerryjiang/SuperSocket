@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
@@ -106,11 +107,19 @@ namespace SuperSocket.Server
             Connected?.Invoke(this, EventArgs.Empty);
         }
 
-        public virtual ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data)
         {
             lock (_channel)
             {
                 return _channel.SendAsync(data);
+            }
+        }
+
+        ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        {
+            lock (_channel)
+            {
+                return _channel.SendAsync(packageEncoder, package);
             }
         }
 

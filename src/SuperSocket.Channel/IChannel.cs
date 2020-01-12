@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO.Pipelines;
 using System.Net;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
@@ -11,6 +12,8 @@ namespace SuperSocket.Channel
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
 
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
+
+        ValueTask SendAsync(Action<PipeWriter> write);
 
         void Close();
 
