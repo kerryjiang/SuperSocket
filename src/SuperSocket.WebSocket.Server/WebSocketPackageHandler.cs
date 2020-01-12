@@ -182,17 +182,15 @@ namespace SuperSocket.WebSocket.Server
                 return false;
             }
 
-            await session.Channel.SendAsync((writer) =>
-            {
-                var total = writer.Write(WebSocketConstant.ResponseHeadLine10, _textEncoding);
-                total += writer.Write(WebSocketConstant.ResponseUpgradeLine, _textEncoding);
-                total += writer.Write(WebSocketConstant.ResponseConnectionLine, _textEncoding);
-                total += writer.Write(string.Format(WebSocketConstant.ResponseAcceptLine, secKeyAccept), _textEncoding);
-                total += writer.Write("\r\n", _textEncoding);
-                writer.Advance(total);
-                writer.FlushAsync().GetAwaiter().GetResult();
-            });
+            responseBuilder.Append(WebSocketConstant.ResponseHeadLine10);
+            responseBuilder.Append(WebSocketConstant.ResponseUpgradeLine);
+            responseBuilder.Append(WebSocketConstant.ResponseConnectionLine);
+            responseBuilder.AppendFormat(WebSocketConstant.ResponseAcceptLine, secKeyAccept);
+            responseBuilder.AppendWithCrCf();
 
+            byte[] data = Encoding.UTF8.GetBytes(responseBuilder.ToString());
+
+            await session.SendAsync(data);
             return true;
         }
     }
