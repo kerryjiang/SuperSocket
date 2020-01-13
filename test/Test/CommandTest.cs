@@ -135,7 +135,7 @@ namespace Tests
             {
                 var sessionState = commandContext.Session.DataContext as SessionState;
                 sessionState.ExecutionCount++;
-                return new ValueTask<bool>(false);
+                return new ValueTask<bool>(true);
             }
         }
 
@@ -150,7 +150,7 @@ namespace Tests
             {
                 var sessionState = commandContext.Session.DataContext as SessionState;
                 sessionState.ExecutionCount--;
-                return false;
+                return true;
             }
         }
 
