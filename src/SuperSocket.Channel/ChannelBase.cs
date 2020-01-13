@@ -24,7 +24,7 @@ namespace SuperSocket.Channel
 
         public EndPoint LocalEndPoint { get; protected set; }
 
-        public DateTimeOffset LastActiveTime { get; protected set; }
+        public DateTimeOffset LastActiveTime { get; protected set; } = DateTimeOffset.Now;
 
         protected virtual void OnClosed()
         {
