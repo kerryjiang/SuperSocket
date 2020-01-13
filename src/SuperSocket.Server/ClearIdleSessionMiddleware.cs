@@ -19,10 +19,8 @@ namespace SuperSocket.Server
 
         public ClearIdleSessionMiddleware(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory)
         {
-            _sessionContainer = serviceProvider.GetServices<IMiddleware>()
-                .OfType<ISessionContainer>()
-                .FirstOrDefault();
-
+            _sessionContainer = serviceProvider.GetService<ISessionContainer>();
+            
             if (_sessionContainer == null)
                 throw new Exception($"{nameof(ClearIdleSessionMiddleware)} needs a middleware of {nameof(ISessionContainer)}");
 
