@@ -14,7 +14,7 @@ namespace SuperSocket
             {
                 services.AddSingleton<InProcSessionContainerMiddleware>();
                 services.AddSingleton<ISessionContainer>((s) => s.GetRequiredService<InProcSessionContainerMiddleware>());
-                services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware>(s => s.GetRequiredService<InProcSessionContainerMiddleware>()));
+                services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, InProcSessionContainerMiddleware>(s => s.GetRequiredService<InProcSessionContainerMiddleware>()));
             });
         }
     }
