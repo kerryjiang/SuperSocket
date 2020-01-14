@@ -21,6 +21,9 @@ namespace SuperSocket.Channel
             if (se.ErrorCode == 54)
                 return true;
 
+            if (se.ErrorCode == 995)
+                return true;
+
             return false;
         }
     }
