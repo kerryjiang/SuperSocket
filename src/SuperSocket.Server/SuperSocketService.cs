@@ -13,7 +13,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister
+    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister, ILoggerAccessor
         where TReceivePackageInfo : class
     {
         private readonly IServiceProvider _serviceProvider;
@@ -26,6 +26,16 @@ namespace SuperSocket.Server
         private readonly IOptions<ServerOptions> _serverOptions;
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
+
+        internal protected ILogger Logger
+        {
+            get { return _logger; }
+        }
+
+        ILogger ILoggerAccessor.Logger
+        {
+            get { return _logger; }
+        }
 
         private IPipelineFilterFactory<TReceivePackageInfo> _pipelineFilterFactory;
         private IChannelCreatorFactory _channelCreatorFactory;

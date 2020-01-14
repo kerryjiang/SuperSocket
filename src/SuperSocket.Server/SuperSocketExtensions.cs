@@ -37,5 +37,10 @@ namespace SuperSocket
                 return false;
             }
         }
+
+        public static ILogger GetDefaultLogger(this IAppSession session)
+        {
+            return (session.Server as ILoggerAccessor)?.Logger;
+        }
     }
 }
