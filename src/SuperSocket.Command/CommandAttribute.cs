@@ -9,9 +9,19 @@ namespace SuperSocket.Command
 
         public object Key { get; set; }
 
-        public CommandAttribute(string name, object key)
+        public CommandAttribute()
         {
-            Name = name;
+
+        }
+
+        public CommandAttribute(string name)
+        {
+
+        }
+
+        public CommandAttribute(string name, object key)
+            : this(name)
+        {
             Key = key;
         }
     }
