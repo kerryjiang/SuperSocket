@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.IO.Pipelines;
 using System.Text;
 using SuperSocket.ProtoBase;
 
@@ -47,7 +46,7 @@ namespace SuperSocket.WebSocket
             }
         }
 
-        private int EncodeFragment(PipeWriter writer, OpCode opCode, int expectedHeadLength, ReadOnlySpan<char> text, bool isFinal)
+        private int EncodeFragment(IBufferWriter<byte> writer, OpCode opCode, int expectedHeadLength, ReadOnlySpan<char> text, bool isFinal)
         {
             var head = writer.GetSpan(expectedHeadLength);
 
@@ -62,11 +61,10 @@ namespace SuperSocket.WebSocket
             var totalBytes = writer.Write(text, _textEncoding);
 
             WriteLength(ref head, totalBytes);
-            writer.FlushAsync().GetAwaiter().GetResult();
             return totalBytes + expectedHeadLength;
         }
 
-        public int EncodeBinaryMessage(PipeWriter writer, WebSocketMessage pack)
+        public int EncodeBinaryMessage(IBufferWriter<byte> writer, WebSocketMessage pack)
         {
             var head = writer.GetSpan(10);
 
@@ -82,11 +80,10 @@ namespace SuperSocket.WebSocket
                 writer.Advance(dataPiece.Length);
             }
 
-            writer.FlushAsync().GetAwaiter().GetResult();
             return (int)(pack.Data.Length + headLen);
         }
         
-        public int Encode(PipeWriter writer, WebSocketMessage pack)
+        public int Encode(IBufferWriter<byte> writer, WebSocketMessage pack)
         {
             if (pack.OpCode != OpCode.Text)
                 return EncodeBinaryMessage(writer, pack);

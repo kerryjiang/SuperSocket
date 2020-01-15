@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.IO.Pipelines;
 using System.Text;
 
 namespace SuperSocket.ProtoBase
@@ -25,7 +24,7 @@ namespace SuperSocket.ProtoBase
             });
         }
 
-        public static int Write(this PipeWriter writer, ReadOnlySpan<char> text, Encoding encoding)
+        public static int Write(this IBufferWriter<byte> writer, ReadOnlySpan<char> text, Encoding encoding)
         {
             var encoder = encoding.GetEncoder();
             var completed = false;

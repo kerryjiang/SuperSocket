@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
 using SuperSocket.ProtoBase;
@@ -20,7 +21,7 @@ namespace SuperSocket
             _encoding = encoding;
         }
 
-        public int Encode(PipeWriter writer, string pack)
+        public int Encode(IBufferWriter<byte> writer, string pack)
         {
             return writer.Write(pack, _encoding);
         }
