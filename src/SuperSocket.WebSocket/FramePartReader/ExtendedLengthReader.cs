@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.FramePartReader
 {
-    class ExtendedLengthReader : DataFramePartReader
+    class ExtendedLengthReader : PackagePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IDataFramePartReader nextPartReader, out bool needMoreData)
+        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
         {
             int required;
 
