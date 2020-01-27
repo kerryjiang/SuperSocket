@@ -4,6 +4,7 @@
     <Description>SuperSocket library to abstract underlying communications as channel with pipeline.</Description>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
   </ItemGroup>

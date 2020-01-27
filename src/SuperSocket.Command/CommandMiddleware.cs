@@ -252,7 +252,7 @@ namespace SuperSocket.Command
 
                 var filters = Filters;
 
-                var cancelled = false;
+                var continued = true;
 
                 for (var i = 0; i < filters.Count; i++)
                 {
@@ -260,18 +260,18 @@ namespace SuperSocket.Command
                     
                     if (f is AsyncCommandFilterAttribute asyncCommandFilter)
                     {
-                        cancelled = await asyncCommandFilter.OnCommandExecutingAsync(context);
+                        continued = await asyncCommandFilter.OnCommandExecutingAsync(context);
                     }
                     else if (f is CommandFilterAttribute commandFilter)
                     {
-                        cancelled = commandFilter.OnCommandExecuting(context);
+                        continued = commandFilter.OnCommandExecuting(context);
                     }
 
-                    if (cancelled)
+                    if (!continued)
                         break;
                 }
 
-                if (cancelled)
+                if (!continued)
                     return;                
 
                 try

@@ -5,13 +5,23 @@ namespace SuperSocket.Command
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class CommandAttribute : Attribute
     {
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
-        public object Key { get; private set; }
+        public object Key { get; set; }
 
-        public CommandAttribute(string name = null, object key = null)
+        public CommandAttribute()
         {
-            Name = name;
+
+        }
+
+        public CommandAttribute(string name)
+        {
+
+        }
+
+        public CommandAttribute(string name, object key)
+            : this(name)
+        {
             Key = key;
         }
     }

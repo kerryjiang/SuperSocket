@@ -3,7 +3,4 @@
     <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket protocol decoding library.</Description>
   </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
-  </ItemGroup>
 </Project>

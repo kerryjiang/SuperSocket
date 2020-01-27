@@ -5,55 +5,26 @@ using SuperSocket.WebSocket.FramePartReader;
 
 namespace SuperSocket.WebSocket
 {
-    public class WebSocketDataPipelineFilter : IPipelineFilter<WebSocketPackage>
+    public class WebSocketDataPipelineFilter : PackagePartsPipelineFilter<WebSocketPackage>
     {
-        public IPackageDecoder<WebSocketPackage> Decoder { get; set; } 
-
-        public IPipelineFilter<WebSocketPackage> NextFilter => null;
-
-        private IDataFramePartReader _currentPartReader;
-
         private HttpHeader _httpHeader;
-
-        private WebSocketPackage _currentPackage;
-
+        
         public WebSocketDataPipelineFilter(HttpHeader httpHeader)
         {
             _httpHeader = httpHeader;
         }
 
-        public WebSocketPackage Filter(ref SequenceReader<byte> reader)
+        protected override WebSocketPackage CreatePackage()
         {
-            var package = _currentPackage;
-
-            if (package == null)
+            return new WebSocketPackage
             {
-                package = _currentPackage = new WebSocketPackage { HttpHeader = _httpHeader };
-                _currentPartReader = DataFramePartReader.NewReader;
-            }
-
-            while (true)
-            {
-                if (_currentPartReader.Process(package, ref reader, out IDataFramePartReader nextPartReader, out bool needMoreData))
-                {
-                    Reset();
-                    return package;
-                }
-
-                if (nextPartReader != null)
-                    _currentPartReader = nextPartReader;
-
-                if (needMoreData || reader.Remaining <= 0)
-                    return null;
-            }
+                HttpHeader = _httpHeader
+            };
         }
 
-        public void Reset()
+        protected override IPackagePartReader<WebSocketPackage> GetFirstPartReader()
         {
-            _currentPackage = null;
-            _currentPartReader = null;
+            return PackagePartReader.NewReader;
         }
-
-        public object Context { get; set; }
     }
 }

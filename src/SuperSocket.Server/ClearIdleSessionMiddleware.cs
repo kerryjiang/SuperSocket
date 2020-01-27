@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
@@ -23,7 +20,7 @@ namespace SuperSocket.Server
         public ClearIdleSessionMiddleware(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory)
         {
             _sessionContainer = serviceProvider.GetService<ISessionContainer>();
-
+            
             if (_sessionContainer == null)
                 throw new Exception($"{nameof(ClearIdleSessionMiddleware)} needs a middleware of {nameof(ISessionContainer)}");
 
