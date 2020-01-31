@@ -14,6 +14,7 @@ namespace SuperSocket.SessionContainer
 
         public InProcSessionContainerMiddleware(IServiceProvider serviceProvider)
         {
+            Order = int.MaxValue; // make sure it is the last middleware
             _sessions = new ConcurrentDictionary<string, IAppSession>(StringComparer.OrdinalIgnoreCase);
         }
 

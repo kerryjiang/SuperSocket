@@ -95,7 +95,9 @@ namespace SuperSocket.Server
 
         private void InitializeMiddlewares()
         {
-            _middlewares = _serviceProvider.GetServices<IMiddleware>().ToArray();
+            _middlewares = _serviceProvider.GetServices<IMiddleware>()
+                .OrderBy(m => m.Order)
+                .ToArray();
 
             foreach (var m in _middlewares)
             {

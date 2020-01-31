@@ -5,6 +5,8 @@ namespace SuperSocket
 {
     public abstract class MiddlewareBase : IMiddleware
     {
+        public int Order { get; protected set; } = 0;
+
         public virtual void Start(IServer server)
         {
 
