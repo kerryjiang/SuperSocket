@@ -68,14 +68,14 @@ namespace SuperSocket.Command
             var commandInterface = typeof(ICommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
             var asyncCommandInterface = typeof(IAsyncCommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
 
-            var commandTypes = commandOptions.Value.GetCommandTypes((t) => commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t));
+            var commandTypes = commandOptions.Value.GetCommandTypes((t) => (commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t)) && !t.IsAbstract);
 
             if (sessionType == typeof(IAppSession)) // still support short form command interfaces
             {
                 genericTypes = new [] { typeof(TPackageInfo)};
                 commandInterface = typeof(ICommand<>).GetTypeInfo().MakeGenericType(genericTypes);
                 asyncCommandInterface = typeof(IAsyncCommand<>).GetTypeInfo().MakeGenericType(genericTypes);
-                commandTypes = commandTypes.Union(commandOptions.Value.GetCommandTypes((t) => commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t)));
+                commandTypes = commandTypes.Union(commandOptions.Value.GetCommandTypes((t) => (commandInterface.IsAssignableFrom(t) || asyncCommandInterface.IsAssignableFrom(t)) && !t.IsAbstract));
             }
 
             var comparer = serviceProvider.GetService<IEqualityComparer<TKey>>();
