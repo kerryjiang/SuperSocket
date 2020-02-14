@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -8,31 +9,21 @@ namespace SuperSocket.WebSocket.Server
 {
     public class WebSocketService : SuperSocketService<WebSocketPackage>
     {
+        IMiddleware _sessionContainerMiddleware;
         public WebSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
             : base(serviceProvider, serverOptions, loggerFactory, channelCreatorFactory)
         {
-
+            _sessionContainerMiddleware = Middlewares.FirstOrDefault(m => m is IAsyncSessionContainer || m is ISessionContainer);
         }
 
-        internal ValueTask OnSessionHandshakeCompleted(WebSocketSession session)
+        internal async ValueTask OnSessionHandshakeCompleted(WebSocketSession session)
         {
-            return base.FireSessionConnectedEvent(session);
-        }
+            var sessionContainer = _sessionContainerMiddleware;
 
-        protected override async ValueTask FireSessionConnectedEvent(AppSession session)
-        {
-            var websocketSession = session as WebSocketSession;
+            if (sessionContainer != null)
+                await sessionContainer.RegisterSession(session);
 
-            if (websocketSession.Handshaked)
-                await base.FireSessionConnectedEvent(session);
-        }
-
-        protected override async ValueTask FireSessionClosedEvent(AppSession session)
-        {
-            var websocketSession = session as WebSocketSession;
-
-            if (websocketSession.Handshaked)
-                await base.FireSessionClosedEvent(session);
+            await base.FireSessionConnectedEvent(session);
         }
     }
 }

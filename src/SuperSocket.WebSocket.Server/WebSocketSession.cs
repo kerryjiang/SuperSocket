@@ -8,7 +8,7 @@ using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {
-    public class WebSocketSession : AppSession
+    public class WebSocketSession : AppSession, IHandshakeRequiredSession
     {
         public bool Handshaked { get; internal set; }
 

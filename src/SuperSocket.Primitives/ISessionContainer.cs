@@ -19,13 +19,13 @@ namespace SuperSocket
 
     public interface IAsyncSessionContainer
     {
-        Task<IAppSession> GetSessionByIDAsync(string sessionID);
+        ValueTask<IAppSession> GetSessionByIDAsync(string sessionID);
 
-        Task<int> GetSessionCountAsync();
+        ValueTask<int> GetSessionCountAsync();
 
-        Task<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> critera = null);
+        ValueTask<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> critera = null);
 
-        Task<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> critera = null)
+        ValueTask<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> critera = null)
             where TAppSession : IAppSession;
     }
 }

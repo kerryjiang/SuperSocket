@@ -16,6 +16,8 @@ namespace SuperSocket.WebSocket.Server
 
         private readonly HandshakeOptions _options;
 
+        private IMiddleware _sessionContainerMiddleware;
+
         public HandshakeCheckMiddleware(IOptions<HandshakeOptions> handshakeOptions)
         {
             var options = handshakeOptions.Value;
@@ -28,6 +30,7 @@ namespace SuperSocket.WebSocket.Server
 
         public override void Start(IServer server)
         {
+            _sessionContainerMiddleware = server.GetSessionContainer() as IMiddleware;
             _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _options.CheckingInterval * 1000, _options.CheckingInterval * 1000); // hardcode to 1 minute for now
         }
 
@@ -36,6 +39,7 @@ namespace SuperSocket.WebSocket.Server
             _checkingTimer.Change(Timeout.Infinite, Timeout.Infinite);
             _checkingTimer.Dispose();
             _checkingTimer = null;
+            _sessionContainerMiddleware = null;
         }
 
         public override ValueTask<bool> RegisterSession(IAppSession session)
@@ -68,6 +72,12 @@ namespace SuperSocket.WebSocket.Server
                 {
                     //Handshaked or not connected
                     _openHandshakePendingQueue.TryDequeue(out session);
+
+                    if (session.Handshaked)
+                    {
+                        _sessionContainerMiddleware.RegisterSession(session);
+                    }
+
                     continue;
                 }
 

@@ -53,6 +53,11 @@ namespace SuperSocket.Server
 
         private IMiddleware[] _middlewares;
 
+        protected IMiddleware[] Middlewares
+        {
+            get { return _middlewares; }
+        }
+
         private ServerState _state = ServerState.None;
 
         public ServerState State
@@ -251,6 +256,12 @@ namespace SuperSocket.Server
 
         protected virtual async ValueTask FireSessionConnectedEvent(AppSession session)
         {
+            if (session is IHandshakeRequiredSession hanshakeSession)
+            {
+                if (!hanshakeSession.Handshaked)
+                    return;
+            }
+
             _logger.LogInformation($"A new session connected: {session.SessionID}");
 
             try
@@ -267,6 +278,12 @@ namespace SuperSocket.Server
 
         protected virtual async ValueTask FireSessionClosedEvent(AppSession session)
         {
+            if (session is IHandshakeRequiredSession hanshakeSession)
+            {
+                if (!hanshakeSession.Handshaked)
+                    return;
+            }
+
             _logger.LogInformation($"The session disconnected: {session.SessionID}");
 
             try

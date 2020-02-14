@@ -20,6 +20,12 @@ namespace SuperSocket.SessionContainer
 
         public override ValueTask<bool> RegisterSession(IAppSession session)
         {
+            if (session is IHandshakeRequiredSession handshakeSession)
+            {
+                if (!handshakeSession.Handshaked)
+                    return new ValueTask<bool>(true);
+            }
+            
             session.Closed += OnSessionClosed;
             _sessions.TryAdd(session.SessionID, session);
             return new ValueTask<bool>(true);
