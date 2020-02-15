@@ -328,7 +328,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                _logger.LogError($"Failed to handle the session {session.SessionID}.", e);
+                _logger.LogError(e, $"Failed to handle the session {session.SessionID}.");
             }
             finally
             {
@@ -338,7 +338,7 @@ namespace SuperSocket.Server
 
         protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession session, PackageHandlingException<TReceivePackageInfo> exception)
         {
-            _logger.LogError($"Session[{session.SessionID}]: session exception.", exception);
+            _logger.LogError(exception, $"Session[{session.SessionID}]: session exception.");
             return new ValueTask<bool>(true);
         }
 
