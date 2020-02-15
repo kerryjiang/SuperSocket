@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
@@ -25,7 +26,9 @@ namespace SuperSocket.WebSocket.Server
 
         private ISubProtocolSelector _subProtocolSelector;
 
-        public WebSocketPackageHandler(IServiceProvider serviceProvider)
+        private ILogger _logger;
+
+        public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
         {
             _serviceProvider = serviceProvider;
 
@@ -34,10 +37,21 @@ namespace SuperSocket.WebSocket.Server
 
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
             _subProtocolSelector = serviceProvider.GetService<ISubProtocolSelector>();
+            _logger = loggerFactory.CreateLogger<WebSocketPackageHandler>();
         }
 
         private CloseStatus GetCloseStatusFromPackage(WebSocketPackage package)
         {
+            if (package.Data.Length < 2)
+            {
+                _logger.LogWarning($"This close handshake (data length: {package.Data.Length}) doesn't include any close reason or reason text, so default it to normal closure.");
+
+                return new CloseStatus
+                {
+                    Reason = CloseReason.NormalClosure
+                };
+            }
+
             var reader = new SequenceReader<byte>(package.Data);
 
             reader.TryReadBigEndian(out short closeReason);
