@@ -17,25 +17,12 @@
 
 ---
 
-## Warning: the master branch is for SuperSocket 2.0. SuperSocket 2.0 is a fresh .NET Core only version, which is under developing and unstable. If you want a stable version which can be used in your production system, please switch to branch v1.6. ##
-
-
 ## SuperSocket 2.0 Roadmap:
 
-- 2019 Q2:
-    - Basic pipeline filters
-    - Commands
-    - Session container
-    - First preview
-
-- 2019 Q3-Q4:
-    - Fix issues and do enhancements for the existing features
-    - Features requested by users
-    - TLS Socket
-    - Performance test/tuning
-    - Second preview
 
 - 2020 H1:
+    - Documentation
+    - Performance test/tuning
     - Fix issues of the existing features
     - Other features requested by users
     - Stable release
