@@ -72,12 +72,6 @@ namespace SuperSocket.WebSocket.Server
                 {
                     //Handshaked or not connected
                     _openHandshakePendingQueue.TryDequeue(out session);
-
-                    if (session.Handshaked)
-                    {
-                        _sessionContainerMiddleware.RegisterSession(session);
-                    }
-
                     continue;
                 }
 
