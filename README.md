@@ -23,6 +23,7 @@
 - 2020 H1:
     - Documentation
     - Performance test/tuning
+    - SuperSocket.Client
     - Fix issues of the existing features
     - Other features requested by users
     - Stable release
