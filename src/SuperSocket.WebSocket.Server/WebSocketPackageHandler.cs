@@ -132,7 +132,14 @@ namespace SuperSocket.WebSocket.Server
                     message.OpCode = OpCode.Close;
                     message.Data = package.Data;
 
-                    await websocketSession.SendAsync(message);
+                    try
+                    {
+                        await websocketSession.SendAsync(message);
+                    }
+                    catch (InvalidOperationException)
+                    {
+                         // support the case the client close the connection right after it send the close handshake
+                    }
                 }  
                 else
                 {
