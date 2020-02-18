@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 using Microsoft.Extensions.Logging;
+
 
 namespace SuperSocket.Client
 {
@@ -13,8 +15,8 @@ namespace SuperSocket.Client
     {
         private IPackageEncoder<TSendPackage> _packageEncoder;
         
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Func<TPackage, Task> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
-            : base(pipelineFilter, handler, logger)
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
+            : base(pipelineFilter, logger)
         {
             _packageEncoder = packageEncoder;
         }
@@ -34,12 +36,11 @@ namespace SuperSocket.Client
 
         private ILogger _logger;
 
-        private Func<TReceivePackage, Task> _handler;
+        IAsyncEnumerator<TReceivePackage> _packageEnumerator;
 
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, Func<TReceivePackage, Task> handler, ILogger logger = null)
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger = null)
         {
             _pipelineFilter = pipelineFilter;
-            _handler = handler;
             _logger = logger;
         }
 
@@ -50,10 +51,13 @@ namespace SuperSocket.Client
             try
             {
                 await socket.ConnectAsync(remoteEndPoint);
+
                 _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, new ChannelOptions
                 {
                     Logger = _logger
                 });
+
+                _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();                
                 return true;
             }
             catch (Exception e)
@@ -63,24 +67,20 @@ namespace SuperSocket.Client
             }
         }
 
-        private async Task HandleSokcet(IChannel<TReceivePackage> channel)
+        public async ValueTask<TReceivePackage> ReceiveAsync()
         {
-            await foreach (var p in channel.RunAsync())
-            {
-                await OnPackageReceived(channel as IChannel, p);
-            }
+            var enumerator = _packageEnumerator;
 
-            OnClosed(channel, EventArgs.Empty);
+            if (await enumerator.MoveNextAsync())
+                return enumerator.Current;
+
+            OnClosed(_channel, EventArgs.Empty);
+            return null;
         }
 
         private void OnClosed(object sender, EventArgs e)
         {
             Closed?.Invoke(sender, e);
-        }
-
-        protected async Task OnPackageReceived(IChannel channel, TReceivePackage package)
-        {
-            await _handler?.Invoke(package);
         }
 
         protected void OnError(string message, Exception exception)
