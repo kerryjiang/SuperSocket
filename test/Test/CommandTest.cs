@@ -15,12 +15,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
+using SuperSocket.Server;
 
 namespace Tests
 {
     [Trait("Category", "Command")]
     public class CommandTest : TestClassBase
     {
+        public class MySession : AppSession
+        {
+
+        }
+        
         class ADD : IAsyncCommand<StringPackageInfo>
         {
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
@@ -62,6 +68,30 @@ namespace Tests
                 
                 // encode the text message by encoder
                 await session.SendAsync(_encoder, result.ToString() + "\r\n");
+            }
+        }
+
+        class DIV : IAsyncCommand<MySession, StringPackageInfo>
+        {
+            private IPackageEncoder<string> _encoder;
+
+            public DIV(IPackageEncoder<string> encoder)
+            {
+                _encoder = encoder;
+            }
+
+            public async ValueTask ExecuteAsync(MySession session, StringPackageInfo package)
+            {
+                var values = package
+                    .Parameters
+                    .Select(p => int.Parse(p))
+                    .ToArray();
+
+                var result = values[0] / values[1];
+
+                var socketSession = session as IAppSession;                
+                // encode the text message by encoder
+                await socketSession.SendAsync(_encoder, result.ToString() + "\r\n");
             }
         }
 
@@ -118,6 +148,66 @@ namespace Tests
                     await streamWriter.FlushAsync();
                     line = await streamReader.ReadLineAsync();
                     Assert.Equal("6", line);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommandsWithCustomSession(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+                .UseCommand(commandOptions =>
+                {
+                    // register commands one by one
+                    commandOptions.AddCommand<ADD>();
+                    commandOptions.AddCommand<MULT>();
+                    commandOptions.AddCommand<SUB>();
+                    commandOptions.AddCommand<DIV>();
+                    // register all commands in one aassembly
+                    //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
+                })
+                .UseSession<MySession>()
+                .BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("ADD 1 2 3\r\n");
+                    await streamWriter.FlushAsync();
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal("6", line);
+
+                    await streamWriter.WriteAsync("MULT 2 5\r\n");
+                    await streamWriter.FlushAsync();
+                    line = await streamReader.ReadLineAsync();
+                    Assert.Equal("10", line);
+
+                    await streamWriter.WriteAsync("SUB 8 2\r\n");
+                    await streamWriter.FlushAsync();
+                    line = await streamReader.ReadLineAsync();
+                    Assert.Equal("6", line);
+
+                    await streamWriter.WriteAsync("DIV 8 2\r\n");
+                    await streamWriter.FlushAsync();
+                    line = await streamReader.ReadLineAsync();
+                    Assert.Equal("4", line);
                 }
 
                 await server.StopAsync();
