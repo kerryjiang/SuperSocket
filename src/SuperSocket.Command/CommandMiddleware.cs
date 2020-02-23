@@ -100,7 +100,7 @@ namespace SuperSocket.Command
                 return null;
             }).Where(t => t != null);            
             
-            var commands = commandTypes.Select(t => t.CommandSetFactory.Create(serviceProvider, t.CommandType));
+            var commands = commandTypes.Select(t => t.CommandSetFactory.Create(serviceProvider, t.CommandType, commandOptions.Value));
 
             var comparer = serviceProvider.GetService<IEqualityComparer<TKey>>();
 
@@ -159,17 +159,17 @@ namespace SuperSocket.Command
 
         interface ICommandSetFactory
         {
-            ICommandSet Create(IServiceProvider serviceProvider, Type commandType);
+            ICommandSet Create(IServiceProvider serviceProvider, Type commandType, CommandOptions commandOptions);
         }
 
         class CommandSetFactory<TAppSession> : ICommandSetFactory
             where TAppSession : IAppSession
         
         {
-            public ICommandSet Create(IServiceProvider serviceProvider, Type commandType)
+            public ICommandSet Create(IServiceProvider serviceProvider, Type commandType, CommandOptions commandOptions)
             {
                 var commandSet = new CommandSet<TAppSession>();
-                commandSet.Initialize(serviceProvider, commandType);
+                commandSet.Initialize(serviceProvider, commandType, commandOptions);
                 return commandSet;
             }
         }
@@ -233,7 +233,7 @@ namespace SuperSocket.Command
                 return cmdMeta;
             }
 
-            public void Initialize(IServiceProvider serviceProvider, Type commandType)
+            public void Initialize(IServiceProvider serviceProvider, Type commandType, CommandOptions commandOptions)
             {
                 var command = ActivatorUtilities.CreateInstance(serviceProvider, commandType) as ICommand;                
                 var cmdMeta = GetCommandMetadata(commandType);
@@ -250,10 +250,13 @@ namespace SuperSocket.Command
                 Command = command as ICommand<TAppSession, TPackageInfo>;
                 AsyncCommand = command as IAsyncCommand<TAppSession, TPackageInfo>;
 
-                Filters = commandType.GetCustomAttributes(false)
-                    .OfType<CommandFilterBaseAttribute>()
-                    .OrderBy(f => f.Order)
-                    .ToArray();
+                var filters = new List<ICommandFilter>();
+
+                if (commandOptions.GlobalCommandFilterTypes.Any())
+                    filters.AddRange(commandOptions.GlobalCommandFilterTypes.Select(t => ActivatorUtilities.CreateInstance(serviceProvider, t) as CommandFilterBaseAttribute));
+
+                filters.AddRange(commandType.GetCustomAttributes(false).OfType<CommandFilterBaseAttribute>());
+                Filters = filters;
             }
 
             public async ValueTask ExecuteAsync(IAppSession session, TPackageInfo package)

@@ -11,11 +11,19 @@ namespace SuperSocket.Command
         public CommandOptions()
         {
             CommandSources = new List<ICommandSource>();
+            _globalCommandFilterTypes = new List<Type>();
         }
 
         public CommandAssemblyConfig[] Assemblies { get; set; }
 
         public List<ICommandSource> CommandSources { get; set; }
+
+        private List<Type> _globalCommandFilterTypes;
+
+        public IReadOnlyList<Type> GlobalCommandFilterTypes
+        {
+            get { return _globalCommandFilterTypes; }
+        }
 
         public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
         {
@@ -35,6 +43,11 @@ namespace SuperSocket.Command
             }
 
             return commandTypes;
+        }
+
+        internal void AddGlobalCommandFilterType(Type commandFilterType)
+        {
+            _globalCommandFilterTypes.Add(commandFilterType);
         }
     }
 
@@ -92,6 +105,20 @@ namespace SuperSocket.Command
         public static void AddCommandAssembly(this CommandOptions commandOptions, Assembly commandAssembly)
         {
             commandOptions.CommandSources.Add(new ActualCommandAssembly { Assembly = commandAssembly });
+        }
+
+        public static void AddGlobalCommandFilter<TCommandFilter>(this CommandOptions commandOptions)
+            where TCommandFilter : CommandFilterBaseAttribute
+        {
+            commandOptions.AddGlobalCommandFilterType(typeof(TCommandFilter));
+        }
+
+        public static void AddGlobalCommandFilter(this CommandOptions commandOptions, Type commandFilterType)
+        {
+            if (!typeof(CommandFilterBaseAttribute).IsAssignableFrom(commandFilterType))
+                throw new Exception("The command filter type must inherit CommandFilterBaseAttribute.");
+
+            commandOptions.AddGlobalCommandFilterType(commandFilterType);
         }
     }
 }

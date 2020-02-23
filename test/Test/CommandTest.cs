@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using SuperSocket.Server;
+using System.Threading;
 
 namespace Tests
 {
@@ -214,6 +215,27 @@ namespace Tests
             }
         }
 
+        class HitCountCommandFilterAttribute : AsyncCommandFilterAttribute
+        {
+            private static int _total;
+
+            public static int Total
+            {
+                get { return _total; }
+            }
+
+            public override ValueTask OnCommandExecutedAsync(CommandExecutingContext commandContext)
+            {
+                Interlocked.Increment(ref _total);
+                return new ValueTask();
+            }
+
+            public override ValueTask<bool> OnCommandExecutingAsync(CommandExecutingContext commandContext)
+            {
+                return new ValueTask<bool>(true);
+            }
+        }
+
         class IncreaseCountCommandFilterAttribute : AsyncCommandFilterAttribute
         {
             public override ValueTask OnCommandExecutedAsync(CommandExecutingContext commandContext)
@@ -294,6 +316,7 @@ namespace Tests
                 {
                     commandOptions.AddCommand<COUNT>();
                     commandOptions.AddCommand<COUNTDOWN>();
+                    commandOptions.AddGlobalCommandFilter<HitCountCommandFilterAttribute>();
                 })
                 .ConfigureSessionHandler((s) =>
                 {
@@ -317,6 +340,8 @@ namespace Tests
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
+                    var currentTotal = HitCountCommandFilterAttribute.Total;
+
                     for (var i = 1; i <= 100; i++)
                     {
                         await streamWriter.WriteAsync("COUNT\r\n");
@@ -326,6 +351,8 @@ namespace Tests
                         Assert.Equal(i, sessionState.ExecutionCount);
                     }
 
+                    Assert.Equal(currentTotal + 100, HitCountCommandFilterAttribute.Total);
+
                     for (var i = 99; i >= 0; i--)
                     {
                         await streamWriter.WriteAsync("COUNTDOWN\r\n");
@@ -334,6 +361,8 @@ namespace Tests
 
                         Assert.Equal(i, sessionState.ExecutionCount);
                     }
+
+                    Assert.Equal(currentTotal + 200, HitCountCommandFilterAttribute.Total);
                 }
 
                 await server.StopAsync();
