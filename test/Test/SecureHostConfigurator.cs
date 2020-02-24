@@ -18,6 +18,10 @@ namespace Tests
     {
         public string WebSocketSchema => "wss";
 
+        public bool IsSecure => true;
+
+        public ListenOptions Listener { get; private set; }
+
         public void Configurate(HostBuilderContext context, IServiceCollection services)
         {
             services.Configure<ServerOptions>((options) =>
@@ -29,6 +33,7 @@ namespace Tests
                         FilePath = "supersocket.pfx",
                         Password = "supersocket"
                     };
+                    Listener = listener;
                 });
         }
 

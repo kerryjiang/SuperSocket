@@ -16,6 +16,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using SuperSocket.Client;
+using Microsoft.Extensions.Logging;
+using System.Net.Security;
+using System.Security.Authentication;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Tests
 {
@@ -28,9 +32,32 @@ namespace Tests
 
         }
 
+        class SecureEasyClient<TReceivePackage> : EasyClient<TReceivePackage>
+            where TReceivePackage : class
+        {
+            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger = null)
+                : base(pipelineFilter, logger)
+            {
+
+            }
+
+            protected override IConnector GetConntector()
+            {
+                var authOptions = new SslClientAuthenticationOptions();
+                authOptions.EnabledSslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12;
+                authOptions.TargetHost = IPAddress.Loopback.ToString();
+                authOptions.RemoteCertificateValidationCallback += (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
+                {
+                    return true;
+                };
+
+                return new SocketConnector(new SslStreamConnector(authOptions));
+            }
+        }
+
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
-        //[InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestEcho(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -44,11 +71,17 @@ namespace Tests
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
-                OutputHelper.WriteLine("Server started.");
+                OutputHelper.WriteLine("Server started.");                
 
-                var client = new EasyClient<TextPackageInfo>(new LinePipelineFilter());
+                EasyClient<TextPackageInfo> client;
+                
+                if (hostConfigurator.IsSecure)
+                    client = new SecureEasyClient<TextPackageInfo>(new LinePipelineFilter());
+                else
+                    client = new EasyClient<TextPackageInfo>(new LinePipelineFilter());
 
-                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                
                 Assert.True(connected);
 
                 for (var i = 0; i < 10; i++)

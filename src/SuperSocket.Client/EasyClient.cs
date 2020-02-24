@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 using Microsoft.Extensions.Logging;
-
+using System.Threading;
 
 namespace SuperSocket.Client
 {
@@ -44,27 +44,60 @@ namespace SuperSocket.Client
             _logger = logger;
         }
 
-        public async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint)
+        protected virtual IConnector GetConntector()
         {
-            var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            return new SocketConnector();
+        }
 
-            try
-            {
-                await socket.ConnectAsync(remoteEndPoint);
-
-                _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, new ChannelOptions
+        protected virtual ChannelOptions GetChannelOptions()
+        {
+            return new ChannelOptions
                 {
                     Logger = _logger
-                });
+                };
+        }
 
-                _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();                
-                return true;
-            }
-            catch (Exception e)
+        public async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint)
+        {
+            return await ConnectAsync(remoteEndPoint, CancellationToken.None);
+        }
+
+        public virtual async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
+        {
+            var connector = GetConntector();
+            var state = await connector.ConnectAsync(remoteEndPoint, null, cancellationToken);
+
+            if (state.Cancelled || cancellationToken.IsCancellationRequested)
             {
-                OnError($"Failed to connect to {remoteEndPoint}", e);
+                OnError($"The connection to {remoteEndPoint} was cancelled.", state.Exception);
                 return false;
             }
+                
+
+            if (!state.Result)
+            {
+                OnError($"Failed to connect to {remoteEndPoint}", state.Exception);
+                return false;
+            }
+
+            var socket = state.Socket;
+
+            if (socket == null)
+                throw new Exception("Socket is null.");
+
+            var channelOptions = GetChannelOptions();
+
+            if (state.Stream != null)
+            {
+                _channel = new StreamPipeChannel<TReceivePackage>(state.Stream , socket.RemoteEndPoint, socket.LocalEndPoint, _pipelineFilter, channelOptions);
+            }
+            else
+            {
+                _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, channelOptions);
+            }                
+
+            _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();                
+            return true;
         }
 
         public async ValueTask<TReceivePackage> ReceiveAsync()

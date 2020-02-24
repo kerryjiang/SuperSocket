@@ -16,5 +16,9 @@ namespace Tests
         ValueTask<Stream> GetClientStream(Socket socket);
 
         string WebSocketSchema { get; }
+
+        bool IsSecure { get; }
+
+        ListenOptions Listener { get; }
     }
 }

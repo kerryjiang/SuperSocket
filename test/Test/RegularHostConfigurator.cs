@@ -16,9 +16,17 @@ namespace Tests
     {
         public string WebSocketSchema => "ws";
 
+        public bool IsSecure => false;
+
+        public ListenOptions Listener { get; private set; }
+
         public void Configurate(HostBuilderContext context, IServiceCollection services)
         {
-            // do nothing
+            services.Configure<ServerOptions>((options) =>
+                {
+                    var listener = options.Listeners[0];
+                    Listener = listener;
+                });
         }
 
         public ValueTask<Stream> GetClientStream(Socket socket)
