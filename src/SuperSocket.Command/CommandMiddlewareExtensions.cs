@@ -11,9 +11,7 @@ namespace SuperSocket
 {
     public static class CommandMiddlewareExtensions
     {
-
-        public static IHostBuilder<TPackageInfo> UseCommand<TPackageInfo>(this IHostBuilder<TPackageInfo> builder)
-            where TPackageInfo : class
+        public static Type GetKeyType<TPackageInfo>()
         {
             var interfaces = typeof(TPackageInfo).GetInterfaces();
             var keyInterface = interfaces.FirstOrDefault(i => 
@@ -22,12 +20,27 @@ namespace SuperSocket
             if (keyInterface == null)
                 throw new Exception($"The package type {nameof(TPackageInfo)} should implement the interface {typeof(IKeyedPackageInfo<>).Name}.");
 
-            var keyType = keyInterface.GetGenericArguments().FirstOrDefault();
+            return keyInterface.GetGenericArguments().FirstOrDefault();
+        }
+
+        private static IHostBuilder ConfigureCommand(this IHostBuilder builder)
+        {
+            return builder.ConfigureServices((hostCxt, services) =>
+                {
+                    services.Configure<CommandOptions>(hostCxt.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
+                }) as IHostBuilder;
+        }
+
+        public static IHostBuilder<TPackageInfo> UseCommand<TPackageInfo>(this IHostBuilder<TPackageInfo> builder)
+            where TPackageInfo : class
+        {
+            var keyType = GetKeyType<TPackageInfo>();
 
             var useCommandMethod = typeof(CommandMiddlewareExtensions).GetMethod("UseCommand",  new Type[] { typeof(IHostBuilder) });
             useCommandMethod = useCommandMethod.MakeGenericMethod(keyType, typeof(TPackageInfo));
 
-            return useCommandMethod.Invoke(null, new object[] { builder }) as IHostBuilder<TPackageInfo>;
+            var hostBuilder = useCommandMethod.Invoke(null, new object[] { builder }) as IHostBuilder;
+            return hostBuilder.ConfigureCommand() as IHostBuilder<TPackageInfo>;
         }
 
         public static IHostBuilder<TPackageInfo> UseCommand<TPackageInfo>(this IHostBuilder<TPackageInfo> builder, Action<CommandOptions> configurator)
@@ -44,10 +57,7 @@ namespace SuperSocket
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
         {
             return builder.UseMiddleware<CommandMiddleware<TKey, TPackageInfo>>()
-                .ConfigureServices((hostCxt, services) =>
-                {
-                    services.Configure<CommandOptions>(hostCxt.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
-                });
+                .ConfigureCommand();
         }
 
         public static IHostBuilder UseCommand<TKey, TPackageInfo>(this IHostBuilder builder, Action<CommandOptions> configurator)

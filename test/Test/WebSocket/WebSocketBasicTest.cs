@@ -176,7 +176,7 @@ namespace Tests.WebSocket
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
                 return builder
-                    .UseCommand<string, StringPackageInfo, StringPackageConverter>(commandOptions =>
+                    .UseCommand<StringPackageInfo, StringPackageConverter>(commandOptions =>
                     {
                         // register commands one by one
                         commandOptions.AddCommand<ADD>();
