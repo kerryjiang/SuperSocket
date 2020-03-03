@@ -50,7 +50,8 @@ namespace SuperSocket.WebSocket
         {
             var head = writer.GetSpan(expectedHeadLength);
 
-            var opCodeFlag = (byte)opCode;            
+            var opCodeFlag = (byte)opCode;
+
             if (isFinal)
                 opCodeFlag = (byte)(opCodeFlag | 0x80);
 
@@ -125,6 +126,7 @@ namespace SuperSocket.WebSocket
             else
             {
                 var isFinal = false;
+                var isContinuation = false;
 
                 while (!isFinal)
                 {
@@ -137,8 +139,11 @@ namespace SuperSocket.WebSocket
                         text = text.Slice(fragmentSize);
                     }
 
-                    total += EncodeFragment(writer, pack.OpCode, headLen, textInFragment, isFinal);
-                }                
+                    total += EncodeFragment(writer, isContinuation ? OpCode.Continuation : pack.OpCode, headLen, textInFragment, isFinal);
+                    
+                    if (!isContinuation)
+                        isContinuation = true;
+                }
             }
 
             return total;

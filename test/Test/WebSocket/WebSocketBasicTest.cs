@@ -76,6 +76,7 @@ namespace Tests.WebSocket
 
 
         [Theory]
+        [Trait("Category", "TestLongMessageFromServer")]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestLongMessageFromServer(Type hostConfiguratorType) 
@@ -88,11 +89,10 @@ namespace Tests.WebSocket
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                builder.ConfigureSessionHandler((s) =>
+                builder.ConfigureSessionHandler(async (s) =>
                 {
                     serverSessionPath = (s as WebSocketSession).Path;
-                    (s as WebSocketSession).SendAsync(longText);
-                    return new ValueTask();
+                    await (s as WebSocketSession).SendAsync(longText);
                 });
 
                 return builder;
@@ -113,15 +113,23 @@ namespace Tests.WebSocket
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
                 var receiveBuffer = new byte[1024 * 1024 * 4];
-                
+
                 var receiveSegment = new ArraySegment<byte>(receiveBuffer, 0, receiveBuffer.Length);
-                var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
+                var response = new StringBuilder();
+                
+                while (true)
+                {
+                    var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
 
-                Assert.Equal(WebSocketMessageType.Text, result.MessageType);
+                    Assert.Equal(WebSocketMessageType.Text, result.MessageType);
 
-                var receivedMessage = _encoding.GetString(receiveSegment.Array, 0, result.Count);
+                    response.Append(_encoding.GetString(receiveSegment.Array, 0, result.Count));
 
-                Assert.Equal(longText, receivedMessage);
+                    if (result.EndOfMessage)
+                        break;
+                }                
+
+                Assert.Equal(longText, response.ToString());
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 await Task.Delay(1 * 1000);
