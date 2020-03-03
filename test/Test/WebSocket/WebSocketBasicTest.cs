@@ -74,6 +74,64 @@ namespace Tests.WebSocket
             }
         }
 
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestLongMessageFromServer(Type hostConfiguratorType) 
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            var serverSessionPath = string.Empty;
+
+            var longText = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                builder.ConfigureSessionHandler((s) =>
+                {
+                    serverSessionPath = (s as WebSocketSession).Path;
+                    (s as WebSocketSession).SendAsync(longText);
+                    return new ValueTask();
+                });
+
+                return builder;
+            }, hostConfigurator: hostConfigurator)
+                .BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var path = "/app/talk";
+
+                var websocket = new ClientWebSocket();
+
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040" + path), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                var receiveBuffer = new byte[1024 * 1024 * 4];
+                
+                var receiveSegment = new ArraySegment<byte>(receiveBuffer, 0, receiveBuffer.Length);
+                var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
+
+                Assert.Equal(WebSocketMessageType.Text, result.MessageType);
+
+                var receivedMessage = _encoding.GetString(receiveSegment.Array, 0, result.Count);
+
+                Assert.Equal(longText, receivedMessage);
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                await Task.Delay(1 * 1000);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
+            }
+        }
+
         
         [Trait("Category", "WebSocketHandshakeTimeOut")]
         [Theory]
