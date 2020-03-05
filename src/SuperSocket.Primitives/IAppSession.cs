@@ -27,9 +27,9 @@ namespace SuperSocket
 
         IServerInfo Server { get; }
 
-        event EventHandler Connected;
+        event AsyncEventHandler Connected;
 
-        event EventHandler Closed;
+        event AsyncEventHandler Closed;
 
         object DataContext { get; set; }
 

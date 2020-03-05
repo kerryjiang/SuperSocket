@@ -267,7 +267,7 @@ namespace SuperSocket.Server
             try
             {
                 Interlocked.Increment(ref _sessionCount);
-                session.OnSessionConnected();
+                await session.FireSessionConnectedAsync();
                 await OnSessionConnectedAsync(session);
             }
             catch (Exception e)
@@ -289,7 +289,7 @@ namespace SuperSocket.Server
             try
             {
                 Interlocked.Decrement(ref _sessionCount);
-                session.OnSessionClosed(EventArgs.Empty);
+                await session.FireSessionClosedAsync(EventArgs.Empty);
                 await OnSessionClosedAsync(session); 
             }
             catch (Exception exc)

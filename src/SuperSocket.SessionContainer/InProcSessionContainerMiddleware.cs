@@ -31,12 +31,14 @@ namespace SuperSocket.SessionContainer
             return new ValueTask<bool>(true);
         }
 
-        private void OnSessionClosed(object sender, EventArgs e)
+        private ValueTask OnSessionClosed(object sender, EventArgs e)
         {
             var session  = (IAppSession)sender;
 
             session.Closed -= OnSessionClosed;
             _sessions.TryRemove(session.SessionID, out IAppSession removedSession);
+            
+            return new ValueTask();
         }
 
         public IAppSession GetSessionByID(string sessionID)

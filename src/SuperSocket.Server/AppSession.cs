@@ -58,9 +58,9 @@ namespace SuperSocket.Server
             get { return _channel?.LastActiveTime ?? DateTimeOffset.MinValue; }
         }
 
-        public event EventHandler Connected;
+        public event AsyncEventHandler Connected;
 
-        public event EventHandler Closed;
+        public event AsyncEventHandler Closed;
         
         private Dictionary<object, object> _items;
 
@@ -95,16 +95,43 @@ namespace SuperSocket.Server
             }
         }
 
-        internal void OnSessionClosed(EventArgs e)
+        protected virtual ValueTask OnSessionClosedAsync(EventArgs e)
         {
-            State = SessionState.Closed;
-            Closed?.Invoke(this, e);
+            return new ValueTask();
         }
 
-        internal void OnSessionConnected()
+        internal async ValueTask FireSessionClosedAsync(EventArgs e)
+        {
+            State = SessionState.Closed;
+
+            await OnSessionClosedAsync(e);
+
+            var closeEventHandler = Closed;
+
+            if (closeEventHandler == null)
+                return;
+
+            await closeEventHandler.Invoke(this, EventArgs.Empty);
+        }
+
+
+        protected virtual ValueTask OnSessionConnectedAsync()
+        {
+            return new ValueTask();
+        }
+
+        internal async ValueTask FireSessionConnectedAsync()
         {
             State = SessionState.Connected;
-            Connected?.Invoke(this, EventArgs.Empty);
+
+            await OnSessionConnectedAsync();            
+
+            var connectedEventHandler = Connected;
+
+            if (connectedEventHandler == null)
+                return;
+
+            await connectedEventHandler.Invoke(this, EventArgs.Empty);
         }
 
         ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data)
