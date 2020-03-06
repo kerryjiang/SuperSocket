@@ -1,7 +1,10 @@
 <Project>
   <Import Project="Dependencies.props" />
   <PropertyGroup>
-    <Version>2.0.0-preview2-04</Version>
+    <VersionPrefix>2.0.0-preview2</VersionPrefix>
+    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
+  </PropertyGroup>
+  <PropertyGroup>
     <LangVersion>8.0</LangVersion>    
     <LibTargetFramework>netstandard2.1</LibTargetFramework>
   </PropertyGroup>
