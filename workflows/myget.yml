@@ -1,0 +1,31 @@
+name: MyGet Package Deploy
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    build:
+        runs-on: unbuntu-latest
+        steps:
+            - uses: actions/checkout@v1
+            - name: Setup .NET Core
+              uses: actions/setup-dotnet@v1
+              with:
+                dotnet-version: 3.1.100
+            - name: Build
+              run: dotnet build -c Release
+            - name: Test
+              run:
+                - cd test/Test
+                - dotnet test
+    deploy:
+        needs: build
+        runs-on: unbuntu-latest
+        setps:
+            - uses: actions/checkout@v1
+            - name: Pack
+              run: dotnet pack -c Release
+            - name: Push
+              run: dotnet nuget push **/*.nupkg --api-key ${{MYGET_API_KEY}} --source https://www.myget.org/F/supersocket/api/v3/index.json
