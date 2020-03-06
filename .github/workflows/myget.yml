@@ -17,9 +17,9 @@ jobs:
             - name: Build
               run: dotnet build -c Release
             - name: Test
-              run:
-                - cd test/Test
-                - dotnet test
+              run: |
+                cd test/Test
+                dotnet test
     deploy:
         needs: build
         runs-on: ubuntu-latest
