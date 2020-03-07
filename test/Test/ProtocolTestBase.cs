@@ -247,5 +247,44 @@ namespace Tests
                 await server.StopAsync();
             }
         }
+
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public virtual async Task TestBreakRequestByteByByte(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateServer(hostConfigurator))
+            {
+                await server.StartAsync();
+
+                using (var socket = CreateClient())
+                {
+                    var socketStream = await hostConfigurator.GetClientStream(socket);
+                    
+                    using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
+                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
+                    {
+                        var msg = Guid.NewGuid().ToString();
+                        var line = CreateRequest(msg);
+
+                        for (var i = 0; i < line.Length; i++)
+                        {
+                            writer.Write(line[i]);
+                            writer.Flush();
+                            await Task.Delay(100);
+                        }
+
+                        var receivedLine = await reader.ReadLineAsync();
+
+                        Assert.Equal(msg, receivedLine);
+                    }
+                }
+
+                await server.StopAsync();
+            }
+        }
     }
 }
