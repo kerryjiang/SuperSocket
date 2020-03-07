@@ -110,5 +110,15 @@ namespace SuperSocket
                 .ConfigureDefaults()
                 .UseSuperSocket<TReceivePackage>(filterFactory) as IHostBuilder<TReceivePackage>;
         }
+        
+        public static IHostBuilder<TReceivePackage> Create<TReceivePackage, TSuperSocketService, TPipelineFilter>()
+           where TReceivePackage : class
+           where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
+            where TSuperSocketService : SuperSocketService<TReceivePackage>
+        {
+            return new SuperSocketHostBuilder<TReceivePackage>()
+                .ConfigureDefaults()
+                .UseSuperSocket<TReceivePackage, TPipelineFilter, TSuperSocketService>() as IHostBuilder<TReceivePackage>;
+        }
     }
 }
