@@ -46,9 +46,11 @@ namespace SuperSocket.ProtoBase
             var completed = false;
             var totalBytes = 0;
 
+            var minSpanSizeHint = encoding.GetMaxByteCount(1);
+
             while (!completed)
             {
-                var span = writer.GetSpan();
+                var span = writer.GetSpan(minSpanSizeHint);
 
                 encoder.Convert(text, span, false, out int charsUsed, out int bytesUsed, out completed);
                 
