@@ -259,7 +259,7 @@ namespace Tests.WebSocket
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
                 var msgBuilder = new StringBuilder();
-                var msgSzie = 1024;
+                var msgSzie = 1024 * 4;
 
                 while (msgBuilder.Length < msgSzie)
                 {
