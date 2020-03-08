@@ -14,6 +14,7 @@ using SuperSocket.Command;
 using SuperSocket.WebSocket.Server;
 using System.Net.WebSockets;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Tests.WebSocket
 {
@@ -233,9 +234,10 @@ namespace Tests.WebSocket
         }
 
         [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
-        public async Task TestDiffentMessageSize(Type hostConfiguratorType) 
+        [Trait("Category", "TestDiffentMessageSize")]
+        [InlineData(typeof(RegularHostConfigurator), 10)]
+        [InlineData(typeof(SecureHostConfigurator), 10)]
+        public async Task TestDiffentMessageSize(Type hostConfiguratorType, int connCount) 
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -244,48 +246,68 @@ namespace Tests.WebSocket
                 return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     await session.SendAsync(message.Message);
-                });
+                }).ConfigureSessionHandler(async (s) =>
+                {
+                    await (s as WebSocketSession).SendAsync(s.SessionID);
+                }).ConfigureSuperSocket((options) =>
+                {
+                    foreach (var l in options.Listeners)
+                    {
+                        l.BackLog = connCount;
+                    }
+                }) as IWebSocketHostBuilder;
             }, hostConfigurator).BuildAsServer())
             {
+                var loggerFactory = server.ServiceProvider.GetService<ILoggerFactory>();
+                var logger = loggerFactory.CreateLogger("Test");
+
                 Assert.True(await server.StartAsync());
-                OutputHelper.WriteLine("Server started.");
+                logger.LogInformation("Server started.");
 
-                var websocket = new ClientWebSocket();
-
-                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
-
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
-
-                Assert.Equal(WebSocketState.Open, websocket.State);
-
-                var msgBuilder = new StringBuilder();
-                var msgSzie = 1024 * 4;
-
-                while (msgBuilder.Length < msgSzie)
+                var tasks = Enumerable.Range(0, connCount).Select((x, y) => 
                 {
-                    msgBuilder.Append(Guid.NewGuid().ToString().Replace("-", string.Empty));
-                }
+                    return Task.Run(async () =>
+                    {
+                        var websocket = new ClientWebSocket();
 
-                var msg = msgBuilder.ToString(0, msgSzie).ToCharArray();
+                        websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                var receiveBuffer = new byte[msgSzie * 2];
-                var sendBuffer = new byte[msgSzie * 2];
+                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
 
-                for (var i = 1; i <= msgSzie; i++)
-                {
-                    var len = _encoding.GetBytes(msg, 0, i, sendBuffer, 0);
-                    var segment = new ArraySegment<byte>(sendBuffer, 0, len);
+                        Assert.Equal(WebSocketState.Open, websocket.State);
 
-                    await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-                    var reply = await GetWebSocketReply(websocket, receiveBuffer);
+                        var msgSzie = 1024 * 4;
+                        var receiveBuffer = new byte[msgSzie * 2];
+                        var sessionID = await GetWebSocketReply(websocket, receiveBuffer);
 
-                    Assert.Equal(new string(msg, 0, i), reply);
-                }
+                        var msgBuilder = new StringBuilder();                        
 
-                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                        while (msgBuilder.Length < msgSzie)
+                        {
+                            msgBuilder.Append(Guid.NewGuid().ToString().Replace("-", string.Empty));
+                        }
 
-                Assert.Equal(WebSocketState.Closed, websocket.State);
+                        var msg = msgBuilder.ToString(0, msgSzie).ToCharArray();
 
+                        var sendBuffer = new byte[msgSzie * 2];
+
+                        for (var i = 1; i <= msgSzie; i++)
+                        {
+                            var len = _encoding.GetBytes(msg, 0, i, sendBuffer, 0);
+                            var segment = new ArraySegment<byte>(sendBuffer, 0, len);
+
+                            await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+                            var reply = await GetWebSocketReply(websocket, receiveBuffer);
+
+                            Assert.Equal(new string(msg, 0, i), reply);
+                        }
+
+                        await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                        Assert.Equal(WebSocketState.Closed, websocket.State);
+                    });
+                });
+
+                await Task.WhenAll(tasks.ToArray());
                 await server.StopAsync();
             }
         }
