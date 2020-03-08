@@ -339,12 +339,22 @@ namespace Tests.WebSocket
 
         private async ValueTask<string> GetWebSocketReply(ClientWebSocket websocket, byte[] receiveBuffer)
         {
-            var receiveSegment = new ArraySegment<byte>(receiveBuffer, 0, receiveBuffer.Length);
-            var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
+            var sb = new StringBuilder();
 
-            Assert.Equal(WebSocketMessageType.Text, result.MessageType);
+            while (true)
+            {
+                var receiveSegment = new ArraySegment<byte>(receiveBuffer, 0, receiveBuffer.Length);
+                var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
 
-            return _encoding.GetString(receiveBuffer, 0, result.Count);
+                Assert.Equal(WebSocketMessageType.Text, result.MessageType);
+
+                sb.Append(_encoding.GetString(receiveBuffer, 0, result.Count));
+
+                if (result.EndOfMessage)
+                    break;
+            }
+
+            return sb.ToString();
         }
 
         private async ValueTask<string> GetWebSocketReply(ClientWebSocket websocket, byte[] receiveBuffer, string request)
