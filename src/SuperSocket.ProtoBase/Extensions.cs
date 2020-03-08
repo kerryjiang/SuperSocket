@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Text;
+using System.Buffers.Text;
 
 namespace SuperSocket.ProtoBase
 {
@@ -14,14 +15,29 @@ namespace SuperSocket.ProtoBase
                 return encoding.GetString(buffer.First.Span);
             }
 
-            return string.Create((int)buffer.Length, buffer, (span, sequence) =>
+            if (encoding.IsSingleByte)
             {
-                foreach (var segment in sequence)
+                return string.Create((int)buffer.Length, buffer, (span, sequence) =>
                 {
-                    var count = encoding.GetChars(segment.Span, span);
-                    span = span.Slice(count);
-                }
-            });
+                    foreach (var segment in sequence)
+                    {
+                        var count = encoding.GetChars(segment.Span, span);
+                        span = span.Slice(count);
+                    }
+                });
+            }
+
+            var sb = new StringBuilder();
+            var decoder = encoding.GetDecoder();
+
+            foreach (var piece in buffer)
+            {                
+                var charBuff = (new char[piece.Length]).AsSpan();
+                var len = decoder.GetChars(piece.Span, charBuff, false);                
+                sb.Append(new string(len == charBuff.Length ? charBuff : charBuff.Slice(0, len)));
+            }
+
+            return sb.ToString();
         }
 
         public static int Write(this IBufferWriter<byte> writer, ReadOnlySpan<char> text, Encoding encoding)
