@@ -61,6 +61,9 @@ namespace SuperSocket.Channel
 
         protected override bool IsIgnorableException(Exception e)
         {
+            if (e is ObjectDisposedException)
+                return true;
+
             if (e.InnerException != null)
                 return IsIgnorableException(e.InnerException);
 
