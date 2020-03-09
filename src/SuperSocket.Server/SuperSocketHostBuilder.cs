@@ -112,8 +112,8 @@ namespace SuperSocket
         }
         
         public static IHostBuilder<TReceivePackage> Create<TReceivePackage, TSuperSocketService, TPipelineFilter>()
-           where TReceivePackage : class
-           where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
+            where TReceivePackage : class
+            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
             where TSuperSocketService : SuperSocketService<TReceivePackage>
         {
             return new SuperSocketHostBuilder<TReceivePackage>()
