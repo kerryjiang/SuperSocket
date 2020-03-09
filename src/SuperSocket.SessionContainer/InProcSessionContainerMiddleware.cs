@@ -60,6 +60,9 @@ namespace SuperSocket.SessionContainer
             {
                 var s = enumerator.Current.Value;
 
+                if (s.State != SessionState.Connected)
+                    continue;
+
                 if(critera == null || critera(s))
                     yield return s;
             }
@@ -73,6 +76,9 @@ namespace SuperSocket.SessionContainer
             {
                 if (enumerator.Current.Value is TAppSession s)
                 {
+                    if (s.State != SessionState.Connected)
+                        continue;
+                        
                     if (critera == null || critera(s))
                         yield return s;
                 }
