@@ -31,10 +31,7 @@ namespace SuperSocket.WebSocket.Server
 
         public virtual ValueTask SendAsync(WebSocketMessage message)
         {
-            lock (Channel)
-            {
-                return this.Channel.SendAsync(_messageEncoder, message);
-            }
+            return this.Channel.SendAsync(_messageEncoder, message);
         }
 
         public virtual ValueTask SendAsync(string message)

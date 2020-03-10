@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO.Pipelines;
 using System.Collections.Generic;
@@ -16,6 +17,8 @@ namespace SuperSocket.Channel
         where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
+
+        private SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
 
         protected Pipe Out { get; }
 
@@ -209,41 +212,59 @@ namespace SuperSocket.Channel
 
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
         {
-            var writer = Out.Writer;
-            WriteBuffer(writer, buffer);
-            await writer.FlushAsync();
+            try
+            {
+                await _sendLock.WaitAsync();
+                var writer = Out.Writer;
+                WriteBuffer(writer, buffer);
+                await writer.FlushAsync();
+            }
+            finally
+            {
+                _sendLock.Release();
+            }            
         }
 
         private void WriteBuffer(PipeWriter writer, ReadOnlyMemory<byte> buffer)
         {
-            lock (writer)
-            {
-                CheckChannelOpen();
-                writer.Write(buffer.Span);
-            }
+            CheckChannelOpen();
+            writer.Write(buffer.Span);
         }
 
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            var writer = Out.Writer;
-            WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
-            await writer.FlushAsync();
+            try
+            {
+                await _sendLock.WaitAsync();
+                var writer = Out.Writer;
+                WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
+                await writer.FlushAsync();
+            }
+            finally
+            {
+                _sendLock.Release();
+            }
         }
 
         public override async ValueTask SendAsync(Action<PipeWriter> write)
         {
-            var writer = Out.Writer;
-            write(writer);
-            await writer.FlushAsync();
+            try
+            {
+                await _sendLock.WaitAsync();
+                var writer = Out.Writer;
+                write(writer);
+                await writer.FlushAsync();
+            }
+            finally
+            {
+                _sendLock.Release();
+            }
         }
 
         private void WritePackageWithEncoder<TPackage>(PipeWriter writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            lock (writer)
-            {
-                CheckChannelOpen();
-                packageEncoder.Encode(writer, package);
-            }
+            CheckChannelOpen();
+            packageEncoder.Encode(writer, package);
         }
 
         protected internal ArraySegment<T> GetArrayByMemory<T>(ReadOnlyMemory<T> memory)

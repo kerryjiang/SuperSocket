@@ -136,18 +136,12 @@ namespace SuperSocket.Server
 
         ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data)
         {
-            lock (_channel)
-            {
-                return _channel.SendAsync(data);
-            }
+            return _channel.SendAsync(data);
         }
 
         ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            lock (_channel)
-            {
-                return _channel.SendAsync(packageEncoder, package);
-            }
+            return _channel.SendAsync(packageEncoder, package);
         }
 
         public void Close()
