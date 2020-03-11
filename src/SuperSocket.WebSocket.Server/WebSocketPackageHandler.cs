@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
@@ -28,7 +29,9 @@ namespace SuperSocket.WebSocket.Server
 
         private ILogger _logger;
 
-        public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory)
+        private readonly HandshakeOptions _handshakeOptions;
+
+        public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IOptions<HandshakeOptions> handshakeOptions)
         {
             _serviceProvider = serviceProvider;
 
@@ -38,6 +41,7 @@ namespace SuperSocket.WebSocket.Server
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
             _subProtocolSelector = serviceProvider.GetService<ISubProtocolSelector>();
             _logger = loggerFactory.CreateLogger<WebSocketPackageHandler>();
+            _handshakeOptions = handshakeOptions.Value;
         }
 
         private CloseStatus GetCloseStatusFromPackage(WebSocketPackage package)
@@ -79,7 +83,10 @@ namespace SuperSocket.WebSocket.Server
 
                 // handshake failure
                 if (!(await HandleHandshake(websocketSession, package)))
+                {
+                    websocketSession.CloseWithoutHandshake();
                     return;
+                }
 
                 websocketSession.Handshaked = true;
 
@@ -188,6 +195,14 @@ namespace SuperSocket.WebSocket.Server
             if (string.IsNullOrEmpty(secWebSocketKey))
             {
                 return false;
+            }
+
+            var handshakeValidator = _handshakeOptions?.HandshakeValidator;
+
+            if (handshakeValidator != null)
+            {
+                if (!await handshakeValidator(p))
+                    return false;
             }
 
             string secKeyAccept = string.Empty;

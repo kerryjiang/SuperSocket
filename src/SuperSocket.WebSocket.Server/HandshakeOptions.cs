@@ -1,3 +1,6 @@
+using System;
+using System.Threading.Tasks;
+
 namespace SuperSocket.WebSocket.Server
 {
     public class HandshakeOptions
@@ -19,5 +22,8 @@ namespace SuperSocket.WebSocket.Server
         /// </summary>
         /// <value>default: 120</value>
         public int CloseHandshakeTimeOut { get; set; } = 120;
+
+
+        public Func<WebSocketPackage, ValueTask<bool>> HandshakeValidator { get; set; }
     }
 }
