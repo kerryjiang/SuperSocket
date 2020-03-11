@@ -181,8 +181,11 @@ namespace SuperSocket.Channel
                     }
                     catch (Exception e)
                     {
-                        Logger.LogError(e, "Exception happened in SendAsync");
                         output.Complete(e);
+                        
+                        if (!IsIgnorableException(e))
+                            Logger.LogError(e, "Exception happened in SendAsync");
+                        
                         return;
                     }
                 }
