@@ -78,7 +78,6 @@ namespace SuperSocket.WebSocket
             foreach (var dataPiece in pack.Data)
             {
                 writer.Write(dataPiece.Span);
-                writer.Advance(dataPiece.Length);
             }
 
             return (int)(pack.Data.Length + headLen);
