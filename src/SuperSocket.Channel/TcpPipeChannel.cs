@@ -91,6 +91,9 @@ namespace SuperSocket.Channel
 
         protected override bool IsIgnorableException(Exception e)
         {
+            if (base.IsIgnorableException(e))
+                return true;
+
             if (e is SocketException se)
             {
                 if (se.IsIgnorableSocketException())

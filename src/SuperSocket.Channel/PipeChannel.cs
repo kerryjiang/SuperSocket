@@ -141,6 +141,12 @@ namespace SuperSocket.Channel
 
         protected virtual bool IsIgnorableException(Exception e)
         {
+            if (e is ObjectDisposedException || e is NullReferenceException)
+                return true;
+
+            if (e.InnerException != null)
+                return IsIgnorableException(e.InnerException);
+
             return false;
         }
 
