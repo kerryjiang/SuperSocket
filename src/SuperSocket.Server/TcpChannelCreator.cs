@@ -80,7 +80,7 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "The listener failed to start.");
+                _logger.LogError(e, $"The listener[{this.ToString()}] failed to start.");
                 return false;
             }
         }
@@ -94,9 +94,24 @@ namespace SuperSocket.Server
                     var client = await listenSocket.AcceptAsync();
                     await OnNewClientAccept(client);
                 }
-                catch (Exception)
+                catch (Exception e)
                 {
-                    break;
+                    if (e is ObjectDisposedException || e is NullReferenceException)
+                        break;
+                    
+                    if (e is SocketException se)
+                    {
+                        var errorCode = se.ErrorCode;
+
+                        //The listen socket was closed
+                        if (errorCode == 89 || errorCode == 995 || errorCode == 10004 || errorCode == 10038)
+                        {
+                            break;
+                        }
+                    }
+                    
+                    _logger.LogError(e, $"Listener[{this.ToString()}] failed to do AcceptAsync");
+                    continue;
                 }
             }
 
