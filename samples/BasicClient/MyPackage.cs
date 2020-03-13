@@ -1,6 +1,6 @@
 using System;
 
-namespace CustomProtocol
+namespace BasicClient
 {
     public enum OpCode : byte
     {
