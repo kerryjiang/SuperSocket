@@ -104,7 +104,7 @@ namespace SuperSocket.Server
                         var errorCode = se.ErrorCode;
 
                         //The listen socket was closed
-                        if (errorCode == 89 || errorCode == 995 || errorCode == 10004 || errorCode == 10038)
+                        if (errorCode == 125 || errorCode == 89 || errorCode == 995 || errorCode == 10004 || errorCode == 10038)
                         {
                             break;
                         }
