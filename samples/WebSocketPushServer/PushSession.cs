@@ -15,6 +15,9 @@ namespace WebSocketPushServer
 {
     public class PushSession : WebSocketSession
     {
-        public int Total { get; set; }
+        protected override async ValueTask OnSessionConnectedAsync()
+        {
+            await this.SendAsync(this.SessionID);
+        }
     }
 }

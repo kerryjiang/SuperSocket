@@ -29,6 +29,8 @@ namespace WebSocketPushServer
 
         private int _interval = 60;
 
+        private int _total;
+
         public override void Start(IServer server)
         {
             _timer = new Timer(OnTimerCallback, null, 1000 * _interval, 1000 * _interval);
@@ -58,14 +60,16 @@ namespace WebSocketPushServer
             foreach (var s in _sessionContainer.GetSessions<PushSession>())
             {
                 await s.SendAsync(line);
-                s.Total = s.Total += line.Length;
             }
+
+            _total += line.Length;
         }
 
         public override void Shutdown(IServer server)
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            _timer.Dispose();
+            _timer.Dispose();            
+            _logger.LogInformation($"Total: {_total}");
         }
     }
 }

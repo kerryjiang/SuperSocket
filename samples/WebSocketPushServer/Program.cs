@@ -25,6 +25,7 @@ namespace WebSocketPushServer
                 })
                 .UseSession<PushSession>()
                 .UseInProcSessionContainer()
+                .UseMiddleware<ServerPushMiddleware>()
                 .Build();
 
             await host.RunAsync();
