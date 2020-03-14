@@ -17,22 +17,25 @@ namespace WebSocketPushServer
     {
         private ISessionContainer _sessionContainer;
 
-        private ILogger<ServerPushMiddleware> _logger;
+        private IServiceProvider _serviceProvider;
+
+        private static ILogger _logger;
 
         public ServerPushMiddleware(IServiceProvider serviceProvider, ILogger<ServerPushMiddleware> logger)
         {
-            _sessionContainer = serviceProvider.GetSessionContainer();
+            _serviceProvider = serviceProvider;
             _logger = logger;
         }
 
         private Timer _timer;
 
-        private int _interval = 60;
+        private int _interval = 1;
 
         private int _total;
 
         public override void Start(IServer server)
         {
+            _sessionContainer = _serviceProvider.GetSessionContainer();
             _timer = new Timer(OnTimerCallback, null, 1000 * _interval, 1000 * _interval);
         }
 
