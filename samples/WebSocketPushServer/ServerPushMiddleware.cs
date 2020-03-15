@@ -35,7 +35,7 @@ namespace WebSocketPushServer
 
         private int _total;
 
-        private long _totalSecondsSpent = 0;
+        private double _totalTimeSpent = 0;
         private long _totalRounds = 0;
         private int _totalClients = 0;
 
@@ -80,7 +80,7 @@ namespace WebSocketPushServer
                 await s.SendAsync(line);
             }
 
-            _totalSecondsSpent += DateTime.Now.Subtract(startTime).Seconds;
+            _totalTimeSpent += DateTime.Now.Subtract(startTime).TotalMilliseconds;
             _totalRounds += 1;
 
             _total += line.Length;
@@ -96,7 +96,7 @@ namespace WebSocketPushServer
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             _timer.Dispose();
-            var v = (float)_totalSecondsSpent/(float)_totalRounds;
+            var v = _totalTimeSpent/(double)_totalRounds;
             _logger.LogInformation($"Sent {_total} bytes to {_totalClients} clients with {_totalRounds} rounds at the speed {v} seconds/round.");
         }
     }
