@@ -96,7 +96,7 @@ namespace WebSocketPushServer
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
             _timer.Dispose();
-            var v = _totalTimeSpent/(double)_totalRounds;
+            var v = _totalTimeSpent/((double)_totalRounds * 1000);
             _logger.LogInformation($"Sent {_total} bytes to {_totalClients} clients with {_totalRounds} rounds at the speed {v} seconds/round.");
         }
     }
