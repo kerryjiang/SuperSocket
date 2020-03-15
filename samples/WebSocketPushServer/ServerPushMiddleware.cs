@@ -95,8 +95,9 @@ namespace WebSocketPushServer
         public override void Shutdown(IServer server)
         {
             _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            _timer.Dispose();            
-            _logger.LogInformation($"Sent {_total} bytes to {_totalClients} clients with {_totalRounds} rounds at the speed {_totalSecondsSpent/_totalRounds} seconds/round.");
+            _timer.Dispose();
+            var v = (float)_totalSecondsSpent/(float)_totalRounds;
+            _logger.LogInformation($"Sent {_total} bytes to {_totalClients} clients with {_totalRounds} rounds at the speed {v} seconds/round.");
         }
     }
 }
