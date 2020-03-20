@@ -1,31 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DDA4741E-097F-40C3-A252-2E1E3476C1A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Primitives", "src\SuperSocket.Primitives\SuperSocket.Primitives.csproj", "{A1317CCC-70F4-4F32-84DE-2AAF68E346D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Primitives", "src\SuperSocket.Primitives\SuperSocket.Primitives.csproj", "{A1317CCC-70F4-4F32-84DE-2AAF68E346D2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Channel", "src\SuperSocket.Channel\SuperSocket.Channel.csproj", "{829C73CC-6166-4DF8-9FAF-18B55E15D5B2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Channel", "src\SuperSocket.Channel\SuperSocket.Channel.csproj", "{829C73CC-6166-4DF8-9FAF-18B55E15D5B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ProtoBase", "src\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj", "{7EE705BE-5645-451B-B5A2-50408F63A222}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.ProtoBase", "src\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj", "{7EE705BE-5645-451B-B5A2-50408F63A222}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Server", "src\SuperSocket.Server\SuperSocket.Server.csproj", "{0A6AD2CC-E14C-43FF-BDA8-0F6DD0290CA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Server", "src\SuperSocket.Server\SuperSocket.Server.csproj", "{0A6AD2CC-E14C-43FF-BDA8-0F6DD0290CA3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{4040EEC4-6FB7-47B1-B487-23E043A0F52F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "test\Test\Test.csproj", "{FF75EEF9-2CB9-4E6F-A5A8-38F2199B4B56}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "test\Test\Test.csproj", "{FF75EEF9-2CB9-4E6F-A5A8-38F2199B4B56}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Client", "src\SuperSocket.Client\SuperSocket.Client.csproj", "{E9B31C8C-EC67-486B-9972-F6B4452BF050}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Client", "src\SuperSocket.Client\SuperSocket.Client.csproj", "{E9B31C8C-EC67-486B-9972-F6B4452BF050}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Command", "src\SuperSocket.Command\SuperSocket.Command.csproj", "{E1C29FC7-8A20-4811-94A5-0B80F1632E9D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Command", "src\SuperSocket.Command\SuperSocket.Command.csproj", "{E1C29FC7-8A20-4811-94A5-0B80F1632E9D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket", "src\SuperSocket.WebSocket\SuperSocket.WebSocket.csproj", "{D648690B-1D08-4B8D-A299-681938B128F2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.WebSocket", "src\SuperSocket.WebSocket\SuperSocket.WebSocket.csproj", "{D648690B-1D08-4B8D-A299-681938B128F2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket.Server", "src\SuperSocket.WebSocket.Server\SuperSocket.WebSocket.Server.csproj", "{4E9A4A13-0F74-4325-803A-351447336859}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.WebSocket.Server", "src\SuperSocket.WebSocket.Server\SuperSocket.WebSocket.Server.csproj", "{4E9A4A13-0F74-4325-803A-351447336859}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SessionContainer", "src\SuperSocket.SessionContainer\SuperSocket.SessionContainer.csproj", "{46618C5F-987D-40B3-B882-1C4895001D61}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.SessionContainer", "src\SuperSocket.SessionContainer\SuperSocket.SessionContainer.csproj", "{46618C5F-987D-40B3-B882-1C4895001D61}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,9 +35,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{A1317CCC-70F4-4F32-84DE-2AAF68E346D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -75,7 +72,6 @@ Global
 		{7EE705BE-5645-451B-B5A2-50408F63A222}.Release|x64.ActiveCfg = Release|Any CPU
 		{7EE705BE-5645-451B-B5A2-50408F63A222}.Release|x64.Build.0 = Release|Any CPU
 		{7EE705BE-5645-451B-B5A2-50408F63A222}.Release|x86.ActiveCfg = Release|Any CPU
-		{7EE705BE-5645-451B-B5A2-50408F63A222}.Release|x86.Build.0 = Release|Any CPU\
 		{0A6AD2CC-E14C-43FF-BDA8-0F6DD0290CA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0A6AD2CC-E14C-43FF-BDA8-0F6DD0290CA3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A6AD2CC-E14C-43FF-BDA8-0F6DD0290CA3}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -161,6 +157,9 @@ Global
 		{46618C5F-987D-40B3-B882-1C4895001D61}.Release|x86.ActiveCfg = Release|Any CPU
 		{46618C5F-987D-40B3-B882-1C4895001D61}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{A1317CCC-70F4-4F32-84DE-2AAF68E346D2} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{829C73CC-6166-4DF8-9FAF-18B55E15D5B2} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
@@ -172,5 +171,8 @@ Global
 		{D648690B-1D08-4B8D-A299-681938B128F2} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{4E9A4A13-0F74-4325-803A-351447336859} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{46618C5F-987D-40B3-B882-1C4895001D61} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6313D73B-503E-468F-8E09-7D63F8D3F5AC}
 	EndGlobalSection
 EndGlobal

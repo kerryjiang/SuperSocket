@@ -450,9 +450,14 @@ namespace SuperSocket.Server
             }
         }
 
-        void IDisposable.Dispose()
+        protected virtual void Dispose(bool disposing)
         {
-            DisposeAsync(true).GetAwaiter().GetResult();
+            DisposeAsync(disposing).GetAwaiter().GetResult();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         #endregion
