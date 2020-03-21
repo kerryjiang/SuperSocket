@@ -144,11 +144,16 @@ namespace SuperSocket.Server
             return _channel.SendAsync(packageEncoder, package);
         }
 
-        public void Close()
+        public virtual async ValueTask CloseAsync()
         {
+            var channel = Channel;
+
+            if (channel == null)
+                return;
+            
             try
             {
-                Channel?.Close();
+                await channel.CloseAsync();
             }
             catch
             {

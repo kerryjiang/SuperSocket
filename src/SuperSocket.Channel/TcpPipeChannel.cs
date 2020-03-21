@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Threading.Tasks;
-using System.IO.Pipelines;
-using System.Net.Sockets;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Net.Sockets;
 using System.Buffers;
 using System.Collections.Generic;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
@@ -24,7 +21,8 @@ namespace SuperSocket.Channel
         {
             _socket = socket;
             RemoteEndPoint = socket.RemoteEndPoint;
-            LocalEndPoint = socket.LocalEndPoint;
+            LocalEndPoint = socket.LocalEndPoint;            
+            StartTasks();
         }
 
         protected override void OnClosed()
@@ -33,21 +31,21 @@ namespace SuperSocket.Channel
             base.OnClosed();
         }
 
-        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory)
+        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            return await ReceiveAsync(_socket, memory, SocketFlags.None);
+            return await ReceiveAsync(_socket, memory, SocketFlags.None, cancellationToken);
         }
 
-        private async Task<int> ReceiveAsync(Socket socket, Memory<byte> memory, SocketFlags socketFlags)
+        private async ValueTask<int> ReceiveAsync(Socket socket, Memory<byte> memory, SocketFlags socketFlags, CancellationToken cancellationToken)
         {
-            return await socket.ReceiveAsync(GetArrayByMemory((ReadOnlyMemory<byte>)memory), socketFlags);
+            return await socket.ReceiveAsync(GetArrayByMemory((ReadOnlyMemory<byte>)memory), socketFlags, cancellationToken);
         }
 
-        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer)
+        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
         {
             if (buffer.IsSingleSegment)
             {
-                return await _socket.SendAsync(GetArrayByMemory(buffer.First), SocketFlags.None);
+                return await _socket.SendAsync(GetArrayByMemory(buffer.First), SocketFlags.None, cancellationToken);
             }
             
             if (_segmentsForSend == null)
@@ -63,13 +61,15 @@ namespace SuperSocket.Channel
 
             foreach (var piece in buffer)
             {
+                cancellationToken.ThrowIfCancellationRequested();
                 _segmentsForSend.Add(GetArrayByMemory(piece));
             }
-            
+
+            cancellationToken.ThrowIfCancellationRequested();
             return await _socket.SendAsync(_segmentsForSend, SocketFlags.None);
         }
 
-        public override void Close()
+        protected override void Close()
         {
             var socket = _socket;
 

@@ -321,7 +321,7 @@ namespace SuperSocket.Server
 
                         if (toClose)
                         {
-                            session.Close();
+                            session.CloseAsync().DoNotAwait();
                         }
                     }                    
                 }

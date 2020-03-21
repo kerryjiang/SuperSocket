@@ -99,25 +99,25 @@ namespace SuperSocket.WebSocket.Server
 
         internal void CloseWithoutHandshake()
         {
-            base.Close();
+            base.CloseAsync().DoNotAwait();
         }
 
-        public new void Close()
+        public override async ValueTask CloseAsync()
         {
             if (CloseStatus != null)
             {
-                base.Close();
+                await base.CloseAsync();
                 return;
             }
 
             try
             {
-                CloseAsync(CloseReason.NormalClosure).GetAwaiter().GetResult();
+                await CloseAsync(CloseReason.NormalClosure);
             }
             catch
             {
 
-            }            
+            }
         }
     }
 }

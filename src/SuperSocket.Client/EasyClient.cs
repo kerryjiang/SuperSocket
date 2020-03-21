@@ -96,7 +96,7 @@ namespace SuperSocket.Client
                 _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, channelOptions);
             }                
 
-            _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();                
+            _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();
             return true;
         }
 
@@ -113,7 +113,15 @@ namespace SuperSocket.Client
 
         private void OnClosed(object sender, EventArgs e)
         {
-            Closed?.Invoke(sender, e);
+            var handler = Closed;
+
+            if (handler != null)
+            {
+                if (Interlocked.CompareExchange(ref Closed, null, handler) == null)
+                {
+                    handler.Invoke(sender, e);
+                }
+            }
         }
 
         protected void OnError(string message, Exception exception)
@@ -133,9 +141,10 @@ namespace SuperSocket.Client
 
         public event EventHandler Closed;
 
-        public void Close()
+        public async ValueTask CloseAsync()
         {
-            _channel?.Close();
+            await _channel.CloseAsync();
+            OnClosed(this, EventArgs.Empty);
         }
     }
 }

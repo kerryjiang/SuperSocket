@@ -47,7 +47,7 @@ namespace SuperSocket.Server
                     {
                         try
                         {
-                            s.Channel.Close();
+                            s.Channel.CloseAsync();
                             _logger.LogWarning($"Close the idle session {s.SessionID}, it's LastActiveTime is {s.LastActiveTime}.");
                         }
                         catch (Exception exc)

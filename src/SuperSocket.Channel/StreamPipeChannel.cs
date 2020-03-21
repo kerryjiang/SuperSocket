@@ -2,10 +2,10 @@ using System;
 using System.Buffers;
 using System.Threading.Tasks;
 using System.IO;
-using System.IO.Pipelines;
-using SuperSocket.ProtoBase;
 using System.Net.Sockets;
 using System.Net;
+using System.Threading;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
 {
@@ -26,9 +26,10 @@ namespace SuperSocket.Channel
             _stream = stream;
             RemoteEndPoint = remoteEndPoint;
             LocalEndPoint = localEndPoint;
+            StartTasks();
         }
 
-        public override void Close()
+        protected override void Close()
         {
             _stream.Close();
         }
@@ -40,18 +41,18 @@ namespace SuperSocket.Channel
             base.OnClosed();
         }
 
-        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory)
+        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            return await _stream.ReadAsync(memory);
+            return await _stream.ReadAsync(memory, cancellationToken);
         }
 
-        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer)
+        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
         {
             var total = 0;
 
             foreach (var data in buffer)
             {
-                await _stream.WriteAsync(data);
+                await _stream.WriteAsync(data, cancellationToken);
                 total += data.Length;
             }
 

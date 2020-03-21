@@ -31,6 +31,8 @@ namespace SuperSocket.Channel
             IsClosed = true;
         }
 
-        public abstract void Close();
+        public abstract ValueTask CloseAsync();
+
+        public abstract ValueTask DetachAsync();
     }
 }

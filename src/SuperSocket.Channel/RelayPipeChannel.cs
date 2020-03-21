@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO.Pipelines;
 using SuperSocket.ProtoBase;
@@ -19,23 +20,23 @@ namespace SuperSocket.Channel
         public RelayPipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, Pipe pipeIn, Pipe pipeOut)
             : base(pipelineFilter, RebuildOptionsWithPipes(options, pipeIn, pipeOut))
         {
-
+            StartTasks();
         }
 
-        public override void Close()
+        protected override void Close()
         {
             In.Writer.Complete();
             Out.Writer.Complete();
         }
 
-        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer)
+        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
         {
             var writer = Out.Writer;
             var total = 0;
 
             foreach (var data in buffer)
             {
-                var result = await writer.WriteAsync(data);
+                var result = await writer.WriteAsync(data, cancellationToken);
 
                 if (result.IsCompleted)
                     total += data.Length;
@@ -46,7 +47,7 @@ namespace SuperSocket.Channel
             return total;
         }
 
-        protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory)
+        protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
         }

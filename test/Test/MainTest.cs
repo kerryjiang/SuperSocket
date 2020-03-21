@@ -21,7 +21,8 @@ namespace Tests
 
         }
 
-        [Fact] 
+        [Fact]
+        [Trait("Category", "TestSessionCount")]
         public async Task TestSessionCount() 
         {
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
@@ -42,7 +43,7 @@ namespace Tests
                 await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
                 OutputHelper.WriteLine("Connected.");
 
-                await Task.Delay(3000);
+                await Task.Delay(1000);
 
                 Assert.Equal(1, server.SessionCount);
                 OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
