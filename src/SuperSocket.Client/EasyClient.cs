@@ -38,6 +38,8 @@ namespace SuperSocket.Client
 
         IAsyncEnumerator<TReceivePackage> _packageEnumerator;
 
+        public event PackageHandler<TReceivePackage> PackageHandler;
+
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger = null)
         {
             _pipelineFilter = pipelineFilter;
@@ -95,11 +97,15 @@ namespace SuperSocket.Client
             {
                 _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, channelOptions);
             }                
-
+            _channel.Closed += OnChannelClosed;
             _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();
             return true;
         }
 
+        /// <summary>
+        /// Try to receive one package
+        /// </summary>
+        /// <returns></returns>
         public async ValueTask<TReceivePackage> ReceiveAsync()
         {
             var enumerator = _packageEnumerator;
@@ -111,13 +117,51 @@ namespace SuperSocket.Client
             return null;
         }
 
+        /// <summary>
+        /// Start receive packages and handle the packages by event handler
+        /// </summary>
+        public void StartReceive()
+        {
+            StartReceiveAsync();
+        }
+
+        private async void StartReceiveAsync()
+        {
+            var enumerator = _packageEnumerator;
+
+            while (await enumerator.MoveNextAsync())
+            {
+                OnPackageReceived(enumerator.Current);
+            }
+        }
+
+        private void OnPackageReceived(TReceivePackage package)
+        {
+            var handler = PackageHandler;
+
+            try
+            {
+                handler.Invoke(this, package);
+            }
+            catch (Exception e)
+            {
+                OnError("Unhandled exception happened in PackageHandler.", e);
+            }
+        }
+
+        private void OnChannelClosed(object sender, EventArgs e)
+        {
+            _channel.Closed -= OnChannelClosed;
+            OnClosed(this, e);
+        }
+
         private void OnClosed(object sender, EventArgs e)
         {
             var handler = Closed;
 
             if (handler != null)
             {
-                if (Interlocked.CompareExchange(ref Closed, null, handler) == null)
+                if (Interlocked.CompareExchange(ref Closed, null, handler) == handler)
                 {
                     handler.Invoke(sender, e);
                 }
