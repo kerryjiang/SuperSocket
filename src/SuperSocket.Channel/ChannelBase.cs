@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 
@@ -29,7 +30,19 @@ namespace SuperSocket.Channel
         protected virtual void OnClosed()
         {
             IsClosed = true;
+
+            var closed = Closed;
+
+            if (closed == null)
+                return;
+
+            if (Interlocked.CompareExchange(ref Closed, null, closed) != closed)
+                return;
+
+            closed.Invoke(this, EventArgs.Empty);
         }
+
+        public event EventHandler Closed;
 
         public abstract ValueTask CloseAsync();
 

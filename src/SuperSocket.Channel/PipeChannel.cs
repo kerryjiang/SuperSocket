@@ -67,6 +67,12 @@ namespace SuperSocket.Channel
         {
             _readsTask = ProcessReads();
             _sendsTask = ProcessSends();
+            WaitHandleClosing();
+        }
+
+        private async void WaitHandleClosing()
+        {
+            await HandleClosing();
         }
 
         public async override IAsyncEnumerable<TPackageInfo> RunAsync()

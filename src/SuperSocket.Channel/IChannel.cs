@@ -17,6 +17,8 @@ namespace SuperSocket.Channel
 
         ValueTask CloseAsync();
 
+        event EventHandler Closed;
+
         bool IsClosed { get; }
 
         EndPoint RemoteEndPoint { get; }
