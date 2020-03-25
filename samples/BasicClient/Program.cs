@@ -13,7 +13,7 @@ namespace BasicClient
     {
         static async Task Main(string[] args)
         {
-            var client = new EasyClient<MyPackage>(new MyPackageFilter());
+            var client = new EasyClient<MyPackage>(new MyPackageFilter()).AsClient();
 
             if (!await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040)))
             {
