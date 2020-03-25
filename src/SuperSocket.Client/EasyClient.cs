@@ -37,7 +37,7 @@ namespace SuperSocket.Client
     {
         private IPipelineFilter<TReceivePackage> _pipelineFilter;
 
-        private IChannel<TReceivePackage> _channel;
+        protected IChannel<TReceivePackage> Channel { get; private set; }
 
         private ILogger _logger;
 
@@ -98,18 +98,26 @@ namespace SuperSocket.Client
 
             var channelOptions = GetChannelOptions();
 
+            IChannel<TReceivePackage> channel;
+
             if (state.Stream != null)
             {
-                _channel = new StreamPipeChannel<TReceivePackage>(state.Stream , socket.RemoteEndPoint, socket.LocalEndPoint, _pipelineFilter, channelOptions);
+                channel = new StreamPipeChannel<TReceivePackage>(state.Stream , socket.RemoteEndPoint, socket.LocalEndPoint, _pipelineFilter, channelOptions);
             }
             else
             {
-                _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, channelOptions);
+                channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, channelOptions);
             }
 
-            _channel.Closed += OnChannelClosed;
-            _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();
+            SetupChannel(channel);
             return true;
+        }
+
+        protected virtual void SetupChannel(IChannel<TReceivePackage> channel)
+        {
+            Channel = channel;
+            channel.Closed += OnChannelClosed;
+            _packageEnumerator = channel.RunAsync().GetAsyncEnumerator();
         }
 
         ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()
@@ -128,7 +136,7 @@ namespace SuperSocket.Client
             if (await enumerator.MoveNextAsync())
                 return enumerator.Current;
 
-            OnClosed(_channel, EventArgs.Empty);
+            OnClosed(Channel, EventArgs.Empty);
             return null;
         }
 
@@ -171,7 +179,7 @@ namespace SuperSocket.Client
 
         private void OnChannelClosed(object sender, EventArgs e)
         {
-            _channel.Closed -= OnChannelClosed;
+            Channel.Closed -= OnChannelClosed;
             OnClosed(this, e);
         }
 
@@ -200,7 +208,7 @@ namespace SuperSocket.Client
 
         protected virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
-            await _channel.SendAsync(data);
+            await Channel.SendAsync(data);
         }
 
         ValueTask IEasyClient<TReceivePackage>.SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
@@ -210,14 +218,14 @@ namespace SuperSocket.Client
 
         protected virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
         {
-            await _channel.SendAsync(packageEncoder, package);
+            await Channel.SendAsync(packageEncoder, package);
         }
 
         public event EventHandler Closed;
 
         public async ValueTask CloseAsync()
         {
-            await _channel.CloseAsync();
+            await Channel.CloseAsync();
             OnClosed(this, EventArgs.Empty);
         }
     }
