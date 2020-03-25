@@ -14,6 +14,12 @@ namespace SuperSocket.Client
         where TPackage : class
     {
         private IPackageEncoder<TSendPackage> _packageEncoder;
+
+        protected EasyClient(IPackageEncoder<TSendPackage> packageEncoder)
+            : base()
+        {
+            _packageEncoder = packageEncoder;
+        }
         
         public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
             : base(pipelineFilter, logger)
@@ -39,16 +45,21 @@ namespace SuperSocket.Client
 
         protected IChannel<TReceivePackage> Channel { get; private set; }
 
-        private ILogger _logger;
+        protected ILogger Logger { get; set; }
 
         IAsyncEnumerator<TReceivePackage> _packageEnumerator;
 
         public event PackageHandler<TReceivePackage> PackageHandler;
 
+        protected EasyClient()
+        {
+
+        }
+
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger = null)
         {
             _pipelineFilter = pipelineFilter;
-            _logger = logger;
+            Logger = logger;
         }
 
         public virtual IEasyClient<TReceivePackage> AsClient()
@@ -65,7 +76,7 @@ namespace SuperSocket.Client
         {
             return new ChannelOptions
                 {
-                    Logger = _logger
+                    Logger = this.Logger
                 };
         }
 
@@ -198,7 +209,7 @@ namespace SuperSocket.Client
 
         protected virtual void OnError(string message, Exception exception)
         {
-            _logger?.LogError(exception, message);
+            Logger?.LogError(exception, message);
         }
 
         ValueTask IEasyClient<TReceivePackage>.SendAsync(ReadOnlyMemory<byte> data)
