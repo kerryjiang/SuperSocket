@@ -6,7 +6,7 @@ namespace SuperSocket.Client
 {
     public interface IConnector
     {
-        ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken);
+        ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken = default);
 
         IConnector NextConnector { get; }
     }
