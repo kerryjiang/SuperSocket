@@ -10,7 +10,7 @@ using System.Threading;
 
 namespace SuperSocket.Client
 {
-    public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>
+    public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>, IEasyClient<TPackage, TSendPackage>
         where TPackage : class
     {
         private IPackageEncoder<TSendPackage> _packageEncoder;
@@ -25,9 +25,14 @@ namespace SuperSocket.Client
         {
             await SendAsync(_packageEncoder, package);
         }
+
+        public new IEasyClient<TPackage, TSendPackage> AsClient()
+        {
+            return this;
+        }
     }
 
-    public class EasyClient<TReceivePackage>
+    public class EasyClient<TReceivePackage> : IEasyClient<TReceivePackage>
         where TReceivePackage : class
     {
         private IPipelineFilter<TReceivePackage> _pipelineFilter;
@@ -46,6 +51,11 @@ namespace SuperSocket.Client
             _logger = logger;
         }
 
+        public virtual IEasyClient<TReceivePackage> AsClient()
+        {
+            return this;
+        }
+
         protected virtual IConnector GetConntector()
         {
             return new SocketConnector();
@@ -59,12 +69,12 @@ namespace SuperSocket.Client
                 };
         }
 
-        public async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint)
+        ValueTask<bool> IEasyClient<TReceivePackage>.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
         {
-            return await ConnectAsync(remoteEndPoint, CancellationToken.None);
+            return ConnectAsync(remoteEndPoint, cancellationToken);
         }
 
-        public virtual async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
+        protected virtual async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
         {
             var connector = GetConntector();
             var state = await connector.ConnectAsync(remoteEndPoint, null, cancellationToken);
@@ -73,8 +83,7 @@ namespace SuperSocket.Client
             {
                 OnError($"The connection to {remoteEndPoint} was cancelled.", state.Exception);
                 return false;
-            }
-                
+            }                
 
             if (!state.Result)
             {
@@ -96,17 +105,23 @@ namespace SuperSocket.Client
             else
             {
                 _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, channelOptions);
-            }                
+            }
+
             _channel.Closed += OnChannelClosed;
             _packageEnumerator = _channel.RunAsync().GetAsyncEnumerator();
             return true;
+        }
+
+        ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()
+        {
+            return ReceiveAsync();
         }
 
         /// <summary>
         /// Try to receive one package
         /// </summary>
         /// <returns></returns>
-        public async ValueTask<TReceivePackage> ReceiveAsync()
+        protected virtual async ValueTask<TReceivePackage> ReceiveAsync()
         {
             var enumerator = _packageEnumerator;
 
@@ -117,10 +132,15 @@ namespace SuperSocket.Client
             return null;
         }
 
+        void IEasyClient<TReceivePackage>.StartReceive()
+        {
+            StartReceive();
+        }
+
         /// <summary>
         /// Start receive packages and handle the packages by event handler
         /// </summary>
-        public void StartReceive()
+        protected virtual void StartReceive()
         {
             StartReceiveAsync();
         }
@@ -168,17 +188,27 @@ namespace SuperSocket.Client
             }
         }
 
-        protected void OnError(string message, Exception exception)
+        protected virtual void OnError(string message, Exception exception)
         {
             _logger?.LogError(exception, message);
         }
 
-        public virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        ValueTask IEasyClient<TReceivePackage>.SendAsync(ReadOnlyMemory<byte> data)
+        {
+            return SendAsync(data);
+        }
+
+        protected virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
             await _channel.SendAsync(data);
         }
 
-        public virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
+        ValueTask IEasyClient<TReceivePackage>.SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
+        {
+            return SendAsync<TSendPackage>(packageEncoder, package);
+        }
+
+        protected virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
         {
             await _channel.SendAsync(packageEncoder, package);
         }

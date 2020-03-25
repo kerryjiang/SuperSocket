@@ -76,7 +76,7 @@ namespace Tests
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");                
 
-                EasyClient<TextPackageInfo> client;
+                IEasyClient<TextPackageInfo> client;
 
                 var services = new ServiceCollection();
                 services.AddLogging();
@@ -91,9 +91,9 @@ namespace Tests
                 var logger = loggerFactory.CreateLogger("Client");
                 
                 if (hostConfigurator.IsSecure)
-                    client = new SecureEasyClient<TextPackageInfo>(new LinePipelineFilter(), logger);
+                    client = (new SecureEasyClient<TextPackageInfo>(new LinePipelineFilter(), logger)).AsClient();
                 else
-                    client = new EasyClient<TextPackageInfo>(new LinePipelineFilter(), logger);
+                    client = new EasyClient<TextPackageInfo>(new LinePipelineFilter(), logger).AsClient();
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 
