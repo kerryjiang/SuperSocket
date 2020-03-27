@@ -29,6 +29,20 @@ namespace Tests.WebSocket
 
         }
 
+        /*
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        [Trait("Category", "WebSocketHandshake")]
+        public async Task TestHandshakeMultipleTimes(Type hostConfiguratorType) 
+        {
+            for (var i = 0; i < 100; i++)
+            {
+                await TestHandshake(hostConfiguratorType);
+            }
+        }
+        */
+
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
@@ -63,6 +77,7 @@ namespace Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
+                await Task.Delay(1 * 1000);
                 // test path
                 Assert.Equal(path, serverSessionPath);
 
