@@ -108,19 +108,7 @@ namespace SuperSocket.Client
                 throw new Exception("Socket is null.");
 
             var channelOptions = GetChannelOptions();
-
-            IChannel<TReceivePackage> channel;
-
-            if (state.Stream != null)
-            {
-                channel = new StreamPipeChannel<TReceivePackage>(state.Stream , socket.RemoteEndPoint, socket.LocalEndPoint, _pipelineFilter, channelOptions);
-            }
-            else
-            {
-                channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, channelOptions);
-            }
-
-            SetupChannel(channel);
+            SetupChannel(state.CreateChannel<TReceivePackage>(_pipelineFilter, channelOptions));
             return true;
         }
 
