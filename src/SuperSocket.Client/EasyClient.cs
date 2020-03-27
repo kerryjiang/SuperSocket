@@ -222,7 +222,7 @@ namespace SuperSocket.Client
 
         public event EventHandler Closed;
 
-        public async ValueTask CloseAsync()
+        public virtual async ValueTask CloseAsync()
         {
             await Channel.CloseAsync();
             OnClosed(this, EventArgs.Empty);
