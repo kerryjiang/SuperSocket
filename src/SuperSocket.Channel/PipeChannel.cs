@@ -102,7 +102,7 @@ namespace SuperSocket.Channel
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "Unhandled exception in the method PipeChannel.Run.");
+                OnError("Unhandled exception in the method PipeChannel.Run.", e);
             }
             finally
             {
@@ -151,7 +151,7 @@ namespace SuperSocket.Channel
                 catch (Exception e)
                 {
                     if (!IsIgnorableException(e))
-                        Logger.LogError(e, "Exception happened in ReceiveAsync");
+                        OnError("Exception happened in ReceiveAsync", e);
                     
                     break;
                 }
@@ -222,7 +222,7 @@ namespace SuperSocket.Channel
                         output.Complete(e);
                         
                         if (!IsIgnorableException(e))
-                            Logger.LogError(e, "Exception happened in SendAsync");
+                            OnError("Exception happened in SendAsync", e);
                         
                         return;
                     }
