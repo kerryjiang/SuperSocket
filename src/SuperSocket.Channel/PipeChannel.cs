@@ -97,6 +97,9 @@ namespace SuperSocket.Channel
             {
                 await Task.WhenAll(_readsTask, _sendsTask);
             }
+            catch (OperationCanceledException)
+            {
+            }
             catch (Exception e)
             {
                 Logger.LogError(e, "Unhandled exception in the method PipeChannel.Run.");
