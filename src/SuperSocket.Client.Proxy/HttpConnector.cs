@@ -11,10 +11,7 @@ namespace SuperSocket.Client.Proxy
     public class HttpConnector : ConnectorBase
     {
         private const string _requestTemplate = "CONNECT {0}:{1} HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Connection: Keep-Alive\r\n";
-        private const string _responsePrefix11 = "HTTP/1.1";
-        private const string _responsePrefix10 = "HTTP/1.0";
         private const string _responsePrefix = "HTTP/1.";
-
         private const char _space = ' ';
         private EndPoint _proxyEndPoint;
         private string _username;
