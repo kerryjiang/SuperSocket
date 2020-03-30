@@ -15,16 +15,15 @@ namespace SuperSocket.Client.Proxy
     /// https://tools.ietf.org/html/rfc1928
     /// https://en.wikipedia.org/wiki/SOCKS
     /// </summary>
-    public class Socks5Connector : ConnectorBase
+    public class Socks5Connector : ProxyConnectorBase
     {
-        private EndPoint _proxyEndPoint;
         private string _username;
         private string _password;
 
         public Socks5Connector(EndPoint proxyEndPoint)
-            : base()
+            : base(proxyEndPoint)
         {
-            _proxyEndPoint = proxyEndPoint;
+
         }
 
         public Socks5Connector(EndPoint proxyEndPoint, string username, string password)
@@ -32,32 +31,11 @@ namespace SuperSocket.Client.Proxy
         {
             _username = username;
             _password = password;
-        }        
+        }
 
-        protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
+        protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
-            var socketConnector = new SocketConnector() as IConnector;
-            var proxyEndPoint = _proxyEndPoint;
-
-            ConnectState result;
-            
-            try
-            {
-                result = await socketConnector.ConnectAsync(proxyEndPoint, null, cancellationToken);
-                
-                if (!result.Result)
-                    return result;
-            }
-            catch (Exception e)
-            {
-                return new ConnectState
-                {
-                    Result = false,
-                    Exception = e
-                };
-            }
-
-            var channel = result.CreateChannel<Socks5Pack>(new Socks5AuthPipelineFilter(), new ChannelOptions());
+            var channel = state.CreateChannel<Socks5Pack>(new Socks5AuthPipelineFilter(), new ChannelOptions());
             var enumerator = channel.RunAsync().GetAsyncEnumerator(cancellationToken);
 
             // send auth request 0
@@ -75,18 +53,10 @@ namespace SuperSocket.Client.Proxy
             // await channel.SendAsync(...);            
             pack = await ReceiveAsync(enumerator);
             // handle response
-            
-            return result;
-        }
 
-        protected virtual async ValueTask<Socks5Pack> ReceiveAsync(IAsyncEnumerator<Socks5Pack> enumerator)
-        {
-            if (await enumerator.MoveNextAsync())
-                return enumerator.Current;
-
-            return null;
+            await channel.DetachAsync();            
+            return state;
         }
-        
 
         public class Socks5Address
         {

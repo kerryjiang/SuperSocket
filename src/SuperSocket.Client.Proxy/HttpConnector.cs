@@ -8,19 +8,18 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client.Proxy
 {
-    public class HttpConnector : ConnectorBase
+    public class HttpConnector : ProxyConnectorBase
     {
         private const string _requestTemplate = "CONNECT {0}:{1} HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Connection: Keep-Alive\r\n";
         private const string _responsePrefix = "HTTP/1.";
         private const char _space = ' ';
-        private EndPoint _proxyEndPoint;
         private string _username;
         private string _password;
 
         public HttpConnector(EndPoint proxyEndPoint)
-            : base()
+            : base(proxyEndPoint)
         {
-            _proxyEndPoint = proxyEndPoint;
+
         }
 
         public HttpConnector(EndPoint proxyEndPoint, string username, string password)
@@ -30,32 +29,11 @@ namespace SuperSocket.Client.Proxy
             _password = password;
         }
 
-        protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
+        protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
-            var socketConnector = new SocketConnector() as IConnector;
-            var proxyEndPoint = _proxyEndPoint;
-
-            ConnectState result;
-            
-            try
-            {
-                result = await socketConnector.ConnectAsync(proxyEndPoint, null, cancellationToken);
-                
-                if (!result.Result)
-                    return result;
-            }
-            catch (Exception e)
-            {
-                return new ConnectState
-                {
-                    Result = false,
-                    Exception = e
-                };
-            }
-
             var encoding = Encoding.ASCII;
             var request = string.Empty;
-            var channel = result.CreateChannel<TextPackageInfo>(new LinePipelineFilter(encoding), new ChannelOptions());
+            var channel = state.CreateChannel<TextPackageInfo>(new LinePipelineFilter(encoding), new ChannelOptions());
 
             if (remoteEndPoint is DnsEndPoint dnsEndPoint)
             {
@@ -125,7 +103,7 @@ namespace SuperSocket.Client.Proxy
             }
 
             await channel.DetachAsync();
-            return result;
+            return state;
         }
     }
 }
