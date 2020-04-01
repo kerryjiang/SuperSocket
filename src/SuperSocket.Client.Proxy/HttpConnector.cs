@@ -60,50 +60,54 @@ namespace SuperSocket.Client.Proxy
                 writer.Write(Convert.ToBase64String(encoding.GetBytes($"{_username}:{_password}")), encoding);
                 writer.Write("\r\n\r\n", encoding);
             });
-            
-            await foreach (var p in channel.RunAsync())
+
+            var packStream = channel.GetPackageStream();
+            var p = await packStream.ReceiveAsync();
+
+            if (!HandleResponse(p, out string errorMessage))
             {
-                var pos = p.Text.IndexOf(_space);
+                await channel.CloseAsync();
 
-                // validating response
-                if (!p.Text.StartsWith(_responsePrefix, StringComparison.OrdinalIgnoreCase) || pos <= 0)
+                return new ConnectState
                 {
-                    await channel.CloseAsync();
-
-                    return new ConnectState
-                    {
-                        Result = false,
-                        Exception = new Exception("Invalid response")
-                    };
-                }
-
-                if (!int.TryParse(p.Text.AsSpan().Slice(pos + 1), out var statusCode))
-                {
-                    await channel.CloseAsync();
-
-                    return new ConnectState
-                    {
-                        Result = false,
-                        Exception = new Exception("Invalid response")
-                    };
-                }
-
-                if (statusCode < 200 || statusCode > 299)
-                {
-                    await channel.CloseAsync();
-
-                    return new ConnectState
-                    {
-                        Result = false,
-                        Exception = new Exception($"Invalid status code {statusCode}")
-                    };
-                }
-
-                break;
+                    Result = false,
+                    Exception = new Exception(errorMessage)
+                };
             }
 
             await channel.DetachAsync();
             return state;
+        }
+
+        private bool HandleResponse(TextPackageInfo p, out string message)
+        {
+            message = string.Empty;
+
+            if (p == null)
+                return false;
+
+            var pos = p.Text.IndexOf(_space);
+
+            // validating response
+            if (!p.Text.StartsWith(_responsePrefix, StringComparison.OrdinalIgnoreCase) || pos <= 0)
+            {
+                message = "Invalid response";
+                return false;
+            }
+
+            if (!int.TryParse(p.Text.AsSpan().Slice(pos + 1), out var statusCode))
+            {
+                message = "Invalid response";
+                return false;
+            }
+
+            if (statusCode < 200 || statusCode > 299)
+            {
+                message = $"Invalid status code {statusCode}";
+                return false;
+            }
+
+            return true;
         }
     }
 }

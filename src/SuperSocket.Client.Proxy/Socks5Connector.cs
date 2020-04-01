@@ -36,22 +36,22 @@ namespace SuperSocket.Client.Proxy
         protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var channel = state.CreateChannel<Socks5Pack>(new Socks5AuthPipelineFilter(), new ChannelOptions());
-            var enumerator = channel.RunAsync().GetAsyncEnumerator(cancellationToken);
+            var packStream = channel.GetPackageStream();
 
             // send auth request 0
             // await channel.SendAsync(...);            
-            var pack = await ReceiveAsync(enumerator);
+            var pack = await packStream.ReceiveAsync();
             // handle response
 
 
             // send auth request 1
             // await channel.SendAsync(...);
-            pack = await ReceiveAsync(enumerator);
+            pack = await packStream.ReceiveAsync();
             // handle response
 
             // send address request
             // await channel.SendAsync(...);            
-            pack = await ReceiveAsync(enumerator);
+            pack = await packStream.ReceiveAsync();
             // handle response
 
             await channel.DetachAsync();            

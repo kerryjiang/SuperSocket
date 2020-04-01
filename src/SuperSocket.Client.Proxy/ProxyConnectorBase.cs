@@ -48,13 +48,5 @@ namespace SuperSocket.Client.Proxy
 
             return await ConnectProxyAsync(remoteEndPoint, state, cancellationToken);
         }
-
-        protected virtual async ValueTask<TPackageInfo> ReceiveAsync<TPackageInfo>(IAsyncEnumerator<TPackageInfo> enumerator)
-        {
-            if (await enumerator.MoveNextAsync())
-                return enumerator.Current;
-
-            return default(TPackageInfo);
-        }
     }
 }

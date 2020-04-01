@@ -47,7 +47,7 @@ namespace SuperSocket.Client
 
         protected ILogger Logger { get; set; }
 
-        IAsyncEnumerator<TReceivePackage> _packageEnumerator;
+        IAsyncEnumerator<TReceivePackage> _packageStream;
 
         public event PackageHandler<TReceivePackage> PackageHandler;
 
@@ -116,7 +116,7 @@ namespace SuperSocket.Client
         {
             Channel = channel;
             channel.Closed += OnChannelClosed;
-            _packageEnumerator = channel.RunAsync().GetAsyncEnumerator();
+            _packageStream = channel.GetPackageStream();
         }
 
         ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()
@@ -130,10 +130,10 @@ namespace SuperSocket.Client
         /// <returns></returns>
         protected virtual async ValueTask<TReceivePackage> ReceiveAsync()
         {
-            var enumerator = _packageEnumerator;
+            var p = await _packageStream.ReceiveAsync();
 
-            if (await enumerator.MoveNextAsync())
-                return enumerator.Current;
+            if (p != null)
+                return p;
 
             OnClosed(Channel, EventArgs.Empty);
             return null;
@@ -154,7 +154,7 @@ namespace SuperSocket.Client
 
         private async void StartReceiveAsync()
         {
-            var enumerator = _packageEnumerator;
+            var enumerator = _packageStream;
 
             while (await enumerator.MoveNextAsync())
             {
