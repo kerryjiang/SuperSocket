@@ -61,6 +61,47 @@ namespace Tests
         }
 
         [Fact]
+        [Trait("Category", "TestSessionHandlers")]
+        public async Task TestSessionHandlers() 
+        {
+            var connected = false;
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .ConfigureSessionHandler(async (s) =>
+                {
+                    connected = true;
+                    await new ValueTask();
+                }, async (s) =>
+                {
+                    connected = false;
+                    await new ValueTask();
+                }).BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Started.");
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                await Task.Delay(1000);
+
+                Assert.True(connected);
+
+                client.Shutdown(SocketShutdown.Both);
+                client.Close();
+
+                await Task.Delay(1000);
+
+                Assert.False(connected);
+
+                await server.StopAsync();
+            }            
+        }
+
+        [Fact]
         public async Task TestConsoleProtocol() 
         {
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
