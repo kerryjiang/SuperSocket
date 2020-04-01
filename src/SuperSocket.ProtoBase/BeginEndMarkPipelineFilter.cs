@@ -24,12 +24,9 @@ namespace SuperSocket.ProtoBase
             {
                 var beginMark = _beginMark.Span;
 
-                for (var i = 0; i < beginMark.Length - 1; i++)
+                if (!reader.IsNext(beginMark, advancePast: true))
                 {
-                    if (!reader.IsNext(beginMark, advancePast: true))
-                    {
-                        throw new ProtocolException("Invalid beginning part of the package.");
-                    }
+                    throw new ProtocolException("Invalid beginning part of the package.");
                 }
 
                 _foundBeginMark = true;
