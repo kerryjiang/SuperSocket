@@ -44,6 +44,7 @@ namespace Tests.WebSocket
         */
 
         [Theory]
+        [Trait("Category", "WebSocketHandshake")]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestHandshake(Type hostConfiguratorType) 
@@ -51,12 +52,19 @@ namespace Tests.WebSocket
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
             var serverSessionPath = string.Empty;
+            var connected = false;
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
                 builder.ConfigureSessionHandler((s) =>
                 {
                     serverSessionPath = (s as WebSocketSession).Path;
+                    connected = true;
+                    return new ValueTask();
+                },
+                (s) =>
+                {
+                    connected = false;
                     return new ValueTask();
                 });
 
@@ -80,11 +88,13 @@ namespace Tests.WebSocket
                 await Task.Delay(1 * 1000);
                 // test path
                 Assert.Equal(path, serverSessionPath);
+                Assert.True(connected);
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 await Task.Delay(1 * 1000);
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
+                Assert.False(connected);
 
                 await server.StopAsync();
             }
