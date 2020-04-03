@@ -31,19 +31,17 @@ namespace SuperSocket.WebSocket.FramePartReader
             }
             else
             {
+                // no body
+                if (package.PayloadLength == 0)
+                {
+                    nextPartReader = null;
+                    return true;
+                }
+
                 if (package.HasMask)
                     nextPartReader = MaskKeyReader;
                 else
-                {
-                    // no body
-                    if (package.PayloadLength == 0)
-                    {
-                        nextPartReader = null;
-                        return true;
-                    }
-
                     nextPartReader = PayloadDataReader;
-                }
             }
 
             return false;

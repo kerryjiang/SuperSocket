@@ -48,8 +48,6 @@ namespace SuperSocket.WebSocket.Server
         {
             if (package.Data.Length < 2)
             {
-                _logger.LogWarning($"This close handshake (data length: {package.Data.Length}) doesn't include any close reason or reason text, so default it to normal closure.");
-
                 return new CloseStatus
                 {
                     Reason = CloseReason.NormalClosure
@@ -148,12 +146,8 @@ namespace SuperSocket.WebSocket.Server
                          // support the case the client close the connection right after it send the close handshake
                     }
                 }  
-                else
-                {
-                    //After both sending and receiving a Close message, the server MUST close the underlying TCP connection immediately
-                    websocketSession.CloseWithoutHandshake();
-                }
-
+                
+                websocketSession.CloseWithoutHandshake();
                 return;
             }
             else if (package.OpCode == OpCode.Ping)
