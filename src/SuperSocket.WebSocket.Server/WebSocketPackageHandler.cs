@@ -145,9 +145,12 @@ namespace SuperSocket.WebSocket.Server
                     {
                          // support the case the client close the connection right after it send the close handshake
                     }
-                }  
+                }
+                else
+                {
+                    websocketSession.CloseWithoutHandshake();
+                }
                 
-                websocketSession.CloseWithoutHandshake();
                 return;
             }
             else if (package.OpCode == OpCode.Ping)
