@@ -59,7 +59,7 @@ namespace SuperSocket.WebSocket
 
             writer.Advance(expectedHeadLength);
             
-            var totalBytes = writer.Write(text, _textEncoding);
+            var totalBytes = text.Length > 0 ? writer.Write(text, _textEncoding) : 0;
 
             WriteLength(ref head, totalBytes);
             return totalBytes + expectedHeadLength;
@@ -87,9 +87,14 @@ namespace SuperSocket.WebSocket
         {
             if (pack.OpCode != OpCode.Text)
                 return EncodeBinaryMessage(writer, pack);
-            
-            var minSzie = pack.Message.Length;
-            var maxSize = _textEncoding.GetMaxByteCount(pack.Message.Length);
+
+            var msgSize = !string.IsNullOrEmpty(pack.Message) ? pack.Message.Length : 0;
+
+            if (msgSize == 0)
+                return EncodeFragment(writer, pack.OpCode, 2, string.Empty, true);
+
+            var minSzie = msgSize;
+            var maxSize = _textEncoding.GetMaxByteCount(msgSize);
 
             var fragmentSize = 0;
             var headLen = 0;
