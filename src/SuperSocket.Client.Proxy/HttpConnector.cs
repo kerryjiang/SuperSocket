@@ -51,14 +51,22 @@ namespace SuperSocket.Client.Proxy
                     Exception = new Exception($"The endpint type {remoteEndPoint.GetType().ToString()} is not supported.")
                 };
             }
-            
+
             // send request
             await channel.SendAsync((writer) =>
             {
                 writer.Write(request, encoding);
-                writer.Write("Proxy-Authorization: Basic ", encoding);
-                writer.Write(Convert.ToBase64String(encoding.GetBytes($"{_username}:{_password}")), encoding);
-                writer.Write("\r\n\r\n", encoding);
+
+                if (!string.IsNullOrEmpty(_username) || !string.IsNullOrEmpty(_password))
+                {
+                    writer.Write("Proxy-Authorization: Basic ", encoding);
+                    writer.Write(Convert.ToBase64String(encoding.GetBytes($"{_username}:{_password}")), encoding);
+                    writer.Write("\r\n\r\n", encoding);
+                }
+                else
+                {
+                    writer.Write("\r\n", encoding);
+                }
             });
 
             var packStream = channel.GetPackageStream();
@@ -95,7 +103,7 @@ namespace SuperSocket.Client.Proxy
                 return false;
             }
 
-            if (!int.TryParse(p.Text.AsSpan().Slice(pos + 1), out var statusCode))
+            if (!int.TryParse(p.Text.AsSpan().Slice(pos + 1, 3), out var statusCode))
             {
                 message = "Invalid response";
                 return false;
