@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
@@ -27,12 +28,12 @@ namespace SuperSocket
         /// <value>
         /// The name of the store.
         /// </value>
-        string StoreName { get; set; }
+        public string StoreName { get; set; }
 
         /// <summary>
         /// Gets the thumbprint.
         /// </summary>
-        string Thumbprint { get; set; }
+        public string Thumbprint { get; set; }
 
 
         /// <summary>
@@ -41,7 +42,7 @@ namespace SuperSocket
         /// <value>
         /// The store location.
         /// </value>
-        StoreLocation StoreLocation { get; set; }
+        public StoreLocation StoreLocation { get; set; }
 
 
         /// <summary>
@@ -50,12 +51,15 @@ namespace SuperSocket
         /// <value>
         /// <c>true</c> if [client certificate required]; otherwise, <c>false</c>.
         /// </value>
-        bool ClientCertificateRequired { get; set; }
+        public bool ClientCertificateRequired { get; set; }
 
         /// <summary>
         /// Gets a value that will be used to instantiate the X509Certificate2 object in the CertificateManager
         /// </summary>
-        X509KeyStorageFlags KeyStorageFlags { get; set; }
+        public X509KeyStorageFlags KeyStorageFlags { get; set; }
+
+
+        public RemoteCertificateValidationCallback RemoteCertificateValidationCallback { get; set; }
 
         public void EnsureCertificate()
         {

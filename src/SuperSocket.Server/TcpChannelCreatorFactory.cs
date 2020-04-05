@@ -95,17 +95,23 @@ namespace SuperSocket.Server
                 return new TcpChannelCreator(options, (s) => 
                 {                    
                     ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);          
-                    return Task.FromResult((new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions)) as IChannel);
+                    return new ValueTask<IChannel>((new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions)) as IChannel);
                 }, channelFactoryLogger);
             }
             else
             {
-                var channelFactory = new Func<Socket, Task<IChannel>>(async (s) =>
+                var channelFactory = new Func<Socket, ValueTask<IChannel>>(async (s) =>
                 {
                     ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);
+
                     var authOptions = new SslServerAuthenticationOptions();
+                    
                     authOptions.EnabledSslProtocols = options.Security;
                     authOptions.ServerCertificate = options.CertificateOptions.Certificate;
+
+                    if (options.CertificateOptions.RemoteCertificateValidationCallback != null)
+                        authOptions.RemoteCertificateValidationCallback = options.CertificateOptions.RemoteCertificateValidationCallback;
+
                     var stream = new SslStream(new NetworkStream(s, true), false);
                     await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None);
                     return new StreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, s.LocalEndPoint, filterFactory.Create(s), channelOptions);
