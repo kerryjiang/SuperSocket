@@ -35,7 +35,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                     nextPartReader = MaskKeyReader;
                 else
                 {
-                    if (CheckIfEmptyMessage(package))
+                    if (TryInitIfEmptyMessage(package))
                     {
                         nextPartReader = null;
                         return true;

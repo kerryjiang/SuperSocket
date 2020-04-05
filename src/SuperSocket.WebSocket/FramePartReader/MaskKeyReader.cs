@@ -23,7 +23,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             package.MaskKey = reader.Sequence.Slice(reader.Consumed, 4).ToArray();
             reader.Advance(4);
 
-            if (CheckIfEmptyMessage(package))
+            if (TryInitIfEmptyMessage(package))
             {
                 nextPartReader = null;
                 return true;

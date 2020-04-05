@@ -30,9 +30,15 @@ namespace SuperSocket.WebSocket.FramePartReader
 
         protected static IPackagePartReader<WebSocketPackage> PayloadDataReader { get; private set; }
 
-        protected bool CheckIfEmptyMessage(WebSocketPackage package)
+        protected bool TryInitIfEmptyMessage(WebSocketPackage package)
         {
-            return package.PayloadLength == 0;
+            if (package.PayloadLength != 0)
+                return false;
+
+            if (package.OpCode == OpCode.Text)
+                package.Message = string.Empty;
+
+            return true;
         }
     }
 }
