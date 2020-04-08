@@ -15,6 +15,7 @@ using SuperSocket.WebSocket.Server;
 using System.Net.WebSockets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using SuperSocket.WebSocket;
 
 namespace Tests.WebSocket
 {
@@ -158,14 +159,15 @@ namespace Tests.WebSocket
 
             var serverSessionPath = string.Empty;
 
-            var longText = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
-
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                builder.ConfigureSessionHandler(async (s) =>
+                builder.ConfigureWebSocketMessageHandler(async (s,  p) =>
+                {
+                    await (s as WebSocketSession).SendAsync(p.Message);
+                }).ConfigureSessionHandler((s) =>
                 {
                     serverSessionPath = (s as WebSocketSession).Path;
-                    await (s as WebSocketSession).SendAsync(longText);
+                    return new ValueTask();
                 });
 
                 return builder;
@@ -179,30 +181,29 @@ namespace Tests.WebSocket
 
                 var websocket = new ClientWebSocket();
 
+                var texts = new string[]
+                {
+                    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本"
+                };
+
                 websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
                 await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040" + path), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                var receiveBuffer = new byte[1024 * 1024 * 4];
-
-                var receiveSegment = new ArraySegment<byte>(receiveBuffer, 0, receiveBuffer.Length);
-                var response = new StringBuilder();
+                var buffer = new byte[1024 * 1024 * 4];
+                var segment = new ArraySegment<byte>(buffer, 0, buffer.Length);
                 
-                while (true)
+                
+                foreach (var t in texts)
                 {
-                    var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
-
-                    Assert.Equal(WebSocketMessageType.Text, result.MessageType);
-
-                    response.Append(_encoding.GetString(receiveSegment.Array, 0, result.Count));
-
-                    if (result.EndOfMessage)
-                        break;
-                }                
-
-                Assert.Equal(longText, response.ToString());
+                    var len = Utf8Encoding.GetBytes(t, 0, t.Length, buffer, 0);
+                    await websocket.SendAsync(new ArraySegment<byte>(buffer, 0, len), WebSocketMessageType.Text, true, CancellationToken.None);
+                    var reply = await this.GetWebSocketReply(websocket, buffer);
+                    Assert.Equal(t, reply);
+                }
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 await Task.Delay(1 * 1000);
