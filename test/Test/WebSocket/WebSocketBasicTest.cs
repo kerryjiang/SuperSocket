@@ -184,7 +184,9 @@ namespace Tests.WebSocket
                 var texts = new string[]
                 {
                     "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                    "这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本"
+                    "这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本",
+                    "这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本这是一段长文本",
+                    "这是一段长aaaaaaaaaaa文本这是一段长文本这是一段长文aaaaaaaaaaa本这是一段长文本这是一段长文本这aaaaaaaaaaa是一段长文本这是aaaaaaaaaaa一段长文本aaaaaaaaaaa这是一段长文本这是一段长aaaaaaaaaaa文本这是一段长文本这是一段长文本这是一段长文本"
                 };
 
                 websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
