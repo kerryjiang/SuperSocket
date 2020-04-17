@@ -16,6 +16,7 @@ using System.Net.WebSockets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SuperSocket.WebSocket;
+using System.Buffers;
 
 namespace Tests.WebSocket
 {
@@ -356,6 +357,57 @@ namespace Tests.WebSocket
         }
 
         [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestBinaryMessageToArray(Type hostConfiguratorType) 
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var serverReceivedText = string.Empty;
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
+                {
+                    serverReceivedText = _encoding.GetString(message.Data.ToArray());
+                    await session.SendAsync("OK");
+                });
+            }, hostConfigurator).BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var websocket = new ClientWebSocket();
+
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                var receiveBuffer = new byte[256];
+
+                for (var i = 0; i < 100; i++)
+                {
+                    var message = Guid.NewGuid().ToString();
+                    var data = _encoding.GetBytes(message);
+                    var segment = new ArraySegment<byte>(data, 0, data.Length);
+
+                    await websocket.SendAsync(new ArraySegment<byte>(data, 0, data.Length), WebSocketMessageType.Binary, true, CancellationToken.None);                    
+                    var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer, WebSocketMessageType.Text);
+                    
+                    Assert.Equal("OK", receivedMessage);
+                    Assert.Equal(message, serverReceivedText);
+                }
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
         [Trait("Category", "TestDiffentMessageSize")]
         [InlineData(typeof(RegularHostConfigurator), 10)]
         [InlineData(typeof(SecureHostConfigurator), 10)]
@@ -496,7 +548,7 @@ namespace Tests.WebSocket
                 var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
 
                 Assert.Equal(messageType, result.MessageType);
-                
+
                 sb.Append(_encoding.GetString(receiveBuffer, 0, result.Count));
 
                 if (result.EndOfMessage)
