@@ -9,9 +9,14 @@ namespace SuperSocket
     {
         public static IHostBuilder UseSuperSocketWebSocket(this IHostBuilder builder)
         {
+            return builder.UseSuperSocketWebSocket<WebSocketService>();
+        }
+
+        public static IHostBuilder UseSuperSocketWebSocket<TWebSocketService>(this IHostBuilder builder)
+            where TWebSocketService : WebSocketService
+        {
             return builder
-                .UseSuperSocket<WebSocketPackage, WebSocketPipelineFilter, WebSocketService>()
-                .UseSession<WebSocketSession>();
+                .UseSuperSocket<WebSocketPackage, WebSocketPipelineFilter, TWebSocketService>();
         }
     }
 }

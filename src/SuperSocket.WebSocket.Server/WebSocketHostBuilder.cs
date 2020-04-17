@@ -6,6 +6,7 @@ using SuperSocket.WebSocket;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using System.Threading.Tasks;
+using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -16,16 +17,30 @@ namespace SuperSocket.WebSocket.Server
 
     class InternalWebSocketHostBuilder : SuperSocketHostBuilder<WebSocketPackage>, IWebSocketHostBuilder
     {
+        public override IHost Build()
+        {
+            this.ConfigureServices((ctx, services) => 
+            {
+                services.TryAdd(new ServiceDescriptor(typeof(ISessionFactory), typeof(GenericSessionFactory<WebSocketSession>), ServiceLifetime.Singleton));
+            });
 
+            return base.Build();
+        }
     }
 
     public static class WebSocketHostBuilder
     {
         public static IWebSocketHostBuilder Create()
         {
+            return Create<WebSocketService>();
+        }
+
+        public static IWebSocketHostBuilder Create<TWebSocketService>()
+            where TWebSocketService : WebSocketService
+        {
             return new InternalWebSocketHostBuilder()
                 .ConfigureDefaults()
-                .UseSuperSocketWebSocket()
+                .UseSuperSocketWebSocket<TWebSocketService>()
                 .UseMiddleware<HandshakeCheckMiddleware>()
                 .ConfigureServices((ctx, services) =>
                 {

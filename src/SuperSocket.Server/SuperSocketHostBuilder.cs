@@ -25,7 +25,7 @@ namespace SuperSocket
 
         public IDictionary<object, object> Properties => _hostBuilder.Properties;
 
-        public IHost Build()
+        public virtual IHost Build()
         {
             return _hostBuilder.ConfigureServices((ctx, services) => 
             {
