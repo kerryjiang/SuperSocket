@@ -8,6 +8,7 @@ using SuperSocket.ProtoBase;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 using SuperSocket;
 
 namespace Tests
@@ -18,7 +19,7 @@ namespace Tests
         public MainTest(ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
-
+            
         }
 
         [Fact]
@@ -126,6 +127,23 @@ namespace Tests
                     Assert.Equal("Hello World", line);
                 }
 
+                await server.StopAsync();
+            }
+        }
+
+        [Fact]
+        public async Task TestServiceProvider()
+        {
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .ConfigureServices((ctx, services) =>
+                {
+                    services.AddSingleton<IHostConfigurator, RegularHostConfigurator>();
+                }).BuildAsServer() as IServer)
+            {            
+                Assert.True(await server.StartAsync()); 
+
+                Assert.IsType<RegularHostConfigurator>(server.ServiceProvider.GetService<IHostConfigurator>());
+                
                 await server.StopAsync();
             }
         }
