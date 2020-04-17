@@ -255,7 +255,7 @@ namespace Tests.WebSocket
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        public async Task TestMessageSendReceive(Type hostConfiguratorType) 
+        public async Task TestTextMessageSendReceive(Type hostConfiguratorType) 
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -289,6 +289,59 @@ namespace Tests.WebSocket
                     await websocket.SendAsync(new ArraySegment<byte>(data, 0, data.Length), WebSocketMessageType.Text, true, CancellationToken.None);
                     
                     var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
+
+                    OutputHelper.WriteLine(receivedMessage);
+                    Assert.Equal(message, receivedMessage);
+                }
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestBinaryMessageSendReceive(Type hostConfiguratorType) 
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                return builder.ConfigureWebSocketMessageHandler(async (session, message) =>
+                {
+                    await session.SendAsync(new WebSocketMessage
+                    {
+                        OpCode = OpCode.Binary,
+                        Data = message.Data
+                    });
+                });
+            }, hostConfigurator).BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var websocket = new ClientWebSocket();
+
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                var receiveBuffer = new byte[256];
+
+                for (var i = 0; i < 100; i++)
+                {
+                    var message = Guid.NewGuid().ToString();
+                    var data = _encoding.GetBytes(message);
+                    var segment = new ArraySegment<byte>(data, 0, data.Length);
+
+                    await websocket.SendAsync(new ArraySegment<byte>(data, 0, data.Length), WebSocketMessageType.Binary, true, CancellationToken.None);                    
+                    var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer, WebSocketMessageType.Binary);
 
                     OutputHelper.WriteLine(receivedMessage);
                     Assert.Equal(message, receivedMessage);
@@ -430,6 +483,11 @@ namespace Tests.WebSocket
 
         private async ValueTask<string> GetWebSocketReply(ClientWebSocket websocket, byte[] receiveBuffer)
         {
+            return await GetWebSocketReply(websocket, receiveBuffer, WebSocketMessageType.Text);
+        }
+
+        private async ValueTask<string> GetWebSocketReply(ClientWebSocket websocket, byte[] receiveBuffer, WebSocketMessageType messageType)
+        {
             var sb = new StringBuilder();
 
             while (true)
@@ -437,8 +495,8 @@ namespace Tests.WebSocket
                 var receiveSegment = new ArraySegment<byte>(receiveBuffer, 0, receiveBuffer.Length);
                 var result = await websocket.ReceiveAsync(receiveSegment, CancellationToken.None);
 
-                Assert.Equal(WebSocketMessageType.Text, result.MessageType);
-
+                Assert.Equal(messageType, result.MessageType);
+                
                 sb.Append(_encoding.GetString(receiveBuffer, 0, result.Count));
 
                 if (result.EndOfMessage)
