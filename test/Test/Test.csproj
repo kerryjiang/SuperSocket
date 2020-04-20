@@ -14,6 +14,7 @@
     <ProjectReference Include="../../src/SuperSocket.Http/SuperSocket.Http.csproj" />
   </ItemGroup>
   <ItemGroup>  
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />  
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(MSExtensionsVersion)" />
@@ -28,5 +29,10 @@
     <Content Include="..\..\assets\supersocket.pfx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
