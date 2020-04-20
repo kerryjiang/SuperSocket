@@ -10,12 +10,6 @@ using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Hosting;
-using System.Collections.Generic;
-using System.Linq;
-using SuperSocket.Server;
-using Microsoft.Extensions.Configuration;
 
 namespace Tests
 {
@@ -145,86 +139,13 @@ namespace Tests
                 {
                     services.AddSingleton<IHostConfigurator, RegularHostConfigurator>();
                 }).BuildAsServer() as IServer)
-            {
-                Assert.True(await server.StartAsync());
+            {            
+                Assert.True(await server.StartAsync()); 
 
                 Assert.IsType<RegularHostConfigurator>(server.ServiceProvider.GetService<IHostConfigurator>());
-
+                
                 await server.StopAsync();
             }
         }
-
-        [Fact]
-        public async Task TestServiceProviderUseIServiceCollection()
-        {
-            using (var host = WebHost.CreateDefaultBuilder()
-                .UseStartup<TestStartup>()
-                .Build())
-            {
-                IServer server= host.Services.GetService<IEnumerable<IHostedService>>().OfType<IServer>().FirstOrDefault();
-
-                Assert.NotNull(server);
-
-                Assert.True(await server.StartAsync());
-
-                ITestInterface testInterface = server.ServiceProvider.GetService<ITestInterface>();
-
-                Assert.NotNull(testInterface);
-
-                Assert.Equal(typeof(TestInterface),testInterface.GetType());
-
-                await server.StopAsync();
-            }
-        }
-
-        #region TestStartup
-
-        class TestStartup
-        {
-            IConfiguration Configuration { get; }
-            public TestStartup()
-            {
-                this.Configuration = new ConfigurationBuilder()
-                      .AddJsonFile("appsettings.json")
-                      .AddEnvironmentVariables()
-                      .Build();
-            }
-
-            public void ConfigureServices(IServiceCollection services)
-            {
-                services.AddSuperSocketBase<StringPackageInfo>(Configuration)
-                    .AddSuperSocket<TextPackageInfo, LinePipelineFilter>()
-                    .ConfigurePackageHandler<TextPackageInfo>((a, p) =>
-                    {
-                        ITestInterface i = (a.Server as IServer).ServiceProvider.GetService<ITestInterface>();
-
-                        Assert.NotNull(i);
-
-                        Assert.Equal(5, i.Test());
-
-                        return Task.CompletedTask;
-                    });
-
-                services.AddSingleton<ITestInterface, TestInterface>();
-            }
-
-            public void Configure()
-            { }
-        }
-
-        interface ITestInterface
-        {
-            int Test();
-        }
-
-        class TestInterface : ITestInterface
-        {
-            public int Test()
-            {
-                return 5;
-            }
-        }
-
-        #endregion
     }
 }
