@@ -30,7 +30,16 @@ namespace SuperSocket.ProtoBase
                     throw new ProtocolException("Failed to get body length from the package header.");
                 
                 if (bodyLength == 0)
-                    return DecodePackage(header);
+                {
+                    try
+                    {
+                        return DecodePackage(header);
+                    }
+                    finally
+                    {
+                        reader.Advance(_headerSize);
+                    }                    
+                }
                 
                 _foundHeader = true;
                 _totalSize = _headerSize + bodyLength;
