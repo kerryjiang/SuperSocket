@@ -21,7 +21,7 @@ namespace SuperSocket
             Encoding = encoding;
         }
 
-        public StringPackageInfo Decode(ReadOnlySequence<byte> buffer, object context)
+        public StringPackageInfo Decode(ref ReadOnlySequence<byte> buffer, object context)
         {
             var text = buffer.GetString(Encoding);
             var parts = text.Split(' ');

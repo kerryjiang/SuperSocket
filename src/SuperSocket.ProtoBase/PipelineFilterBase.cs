@@ -15,7 +15,7 @@ namespace SuperSocket.ProtoBase
 
         protected virtual TPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
         {
-            return Decoder.Decode(buffer, Context);
+            return Decoder.Decode(ref buffer, Context);
         }
 
         public virtual void Reset()
