@@ -29,7 +29,8 @@ namespace SuperSocket
         {
             return _hostBuilder.ConfigureServices((ctx, services) => 
             {
-                services.TryAdd(new ServiceDescriptor(typeof(IPackageEncoder<string>), typeof(DefaultStringEncoderForDI), ServiceLifetime.Singleton));
+                services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
+                services.TryAdd(ServiceDescriptor.Singleton<IPackageEncoder<string>, DefaultStringEncoderForDI>());
             }).Build();
         }
 
