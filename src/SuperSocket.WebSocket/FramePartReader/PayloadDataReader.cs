@@ -78,9 +78,9 @@ namespace SuperSocket.WebSocket.FramePartReader
                 foreach (var segment in first)
                 {                
                     if (head == null)
-                        tail = head = new SequenceSegment(segment);
+                        tail = head = SequenceSegment.CopyFrom(segment);
                     else
-                        tail = tail.SetNext(segment);
+                        tail = tail.SetNext(SequenceSegment.CopyFrom(segment));
                 }
             }
 
@@ -88,7 +88,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             {
                 foreach (var segment in second)
                 {
-                    tail = tail.SetNext(segment);
+                    tail = tail.SetNext(SequenceSegment.CopyFrom(segment));
                 }
             }
 
