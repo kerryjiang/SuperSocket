@@ -117,7 +117,7 @@ namespace SuperSocket.Command
 
         private void RegisterCommandInterfaces(List<CommandTypeInfo> commandInterfaces, Type sessionType, Type packageType, bool wrapRequired = false)
         {
-            var genericTypes = new [] { sessionType, packageType};
+            var genericTypes = new [] { sessionType, packageType };
 
             var commandInterface = typeof(ICommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
             var asyncCommandInterface = typeof(IAsyncCommand<,>).GetTypeInfo().MakeGenericType(genericTypes);

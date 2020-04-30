@@ -26,9 +26,19 @@ namespace SuperSocket
             var text = buffer.GetString(Encoding);
             var parts = text.Split(' ', 2);
 
+            var key = parts[0];
+
+            if (parts.Length <= 1)
+            {
+                return new StringPackageInfo
+                {
+                    Key = key
+                };
+            }
+
             return new StringPackageInfo
             {
-                Key = parts[0],
+                Key = key,
                 Body = parts[1],
                 Parameters = parts[1].Split(' ')
             };
