@@ -24,13 +24,13 @@ namespace SuperSocket
         public StringPackageInfo Decode(ref ReadOnlySequence<byte> buffer, object context)
         {
             var text = buffer.GetString(Encoding);
-            var parts = text.Split(' ');
+            var parts = text.Split(' ', 2);
 
             return new StringPackageInfo
             {
                 Key = parts[0],
-                Body = text,
-                Parameters = parts.Skip(1).ToArray()
+                Body = parts[1],
+                Parameters = parts[1].Split(' ')
             };
         }
     }

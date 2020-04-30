@@ -28,7 +28,7 @@ namespace Tests
 
         }
         
-        class ADD : IAsyncCommand<StringPackageInfo>
+        public class ADD : IAsyncCommand<StringPackageInfo>
         {
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
@@ -40,7 +40,7 @@ namespace Tests
             }
         }
 
-        class MULT : IAsyncCommand<StringPackageInfo>
+        public class MULT : IAsyncCommand<StringPackageInfo>
         {
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
@@ -52,7 +52,7 @@ namespace Tests
             }
         }
 
-        class SUB : IAsyncCommand<StringPackageInfo>
+        public class SUB : IAsyncCommand<StringPackageInfo>
         {
             private IPackageEncoder<string> _encoder;
 
@@ -72,7 +72,7 @@ namespace Tests
             }
         }
 
-        class DIV : IAsyncCommand<MySession, StringPackageInfo>
+        public class DIV : IAsyncCommand<MySession, StringPackageInfo>
         {
             private IPackageEncoder<string> _encoder;
 
@@ -90,9 +90,37 @@ namespace Tests
 
                 var result = values[0] / values[1];
 
-                var socketSession = session as IAppSession;                
+                var socketSession = session as IAppSession;
                 // encode the text message by encoder
                 await socketSession.SendAsync(_encoder, result.ToString() + "\r\n");
+            }
+        }
+
+        public class PowData
+        {
+            public int X { get; set; }
+            public int Y { get; set; }
+        }
+
+        public class POW : JsonAsyncCommand<IAppSession, PowData>
+        {
+            protected override async ValueTask ExecuteJsonAsync(IAppSession session, PowData data)
+            {
+                await session.SendAsync(Encoding.UTF8.GetBytes($"{Math.Pow(data.X, data.Y)}\r\n"));
+            }
+        }
+
+        public class MaxData
+        {
+            public int[] Numbers { get; set; }
+        }
+
+        public class MAX : JsonAsyncCommand<IAppSession, MaxData>
+        {
+            protected override async ValueTask ExecuteJsonAsync(IAppSession session, MaxData data)
+            {
+                var maxValue = data.Numbers.OrderByDescending(i => i).FirstOrDefault();
+                await session.SendAsync(Encoding.UTF8.GetBytes($"{maxValue}\r\n"));
             }
         }
 
@@ -158,6 +186,52 @@ namespace Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [Trait("Category", "JsonCommands")]
+        public async Task TestJsonCommands(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+                .UseCommand(commandOptions =>
+                {
+                    // register commands one by one
+                    commandOptions.AddCommand<POW>();
+                    commandOptions.AddCommand<MAX>();
+
+                }).BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("POW { \"x\": 2, \"y\": 2 }\r\n");
+                    await streamWriter.FlushAsync();
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal("4", line);
+
+                    await streamWriter.WriteAsync("MAX { \"numbers\": [ 45, 77, 6, 88, 46 ] }\r\n");
+                    await streamWriter.FlushAsync();
+                    line = await streamReader.ReadLineAsync();
+                    Assert.Equal("88", line);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestCommandsWithCustomSession(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -165,12 +239,14 @@ namespace Tests
                 .UseCommand(commandOptions =>
                 {
                     // register commands one by one
+                    /*
                     commandOptions.AddCommand<ADD>();
                     commandOptions.AddCommand<MULT>();
                     commandOptions.AddCommand<SUB>();
                     commandOptions.AddCommand<DIV>();
+                    */
                     // register all commands in one aassembly
-                    //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
+                    commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
                 })
                 .UseSession<MySession>()
                 .BuildAsServer())
