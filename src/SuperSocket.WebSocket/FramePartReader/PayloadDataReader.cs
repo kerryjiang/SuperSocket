@@ -30,14 +30,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             {
                 if (package.Data.Length == 0)
                 {
-                    if (package.FIN && package.OpCode == OpCode.Text)
-                    {
-                        package.Message = seq.GetString(Encoding.UTF8);
-                        return true;
-                    }
-
-                    var empty = ReadOnlySequence<byte>.Empty;
-                    package.Data = ConcactSequence(ref seq, ref empty);
+                    package.Data = seq;
                 }
                 else
                 {
@@ -51,6 +44,11 @@ namespace SuperSocket.WebSocket.FramePartReader
                     {
                         package.Message = package.Data.GetString(Encoding.UTF8);
                         package.Data = default;
+                    }
+                    else
+                    {
+                        var data = package.Data;
+                        package.Data = CopySequence(ref data);
                     }
 
                     return true;
@@ -68,6 +66,24 @@ namespace SuperSocket.WebSocket.FramePartReader
             }
         }
 
+        private ReadOnlySequence<byte> CopySequence(ref ReadOnlySequence<byte> seq)
+        {
+            SequenceSegment head = null;
+            SequenceSegment tail = null;
+
+            foreach (var segment in seq)
+            {                
+                var newSegment = SequenceSegment.CopyFrom(segment);
+
+                if (head == null)
+                    tail = head = newSegment;
+                else
+                    tail = tail.SetNext(newSegment);
+            }
+
+            return new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
+        }
+
         private ReadOnlySequence<byte> ConcactSequence(ref ReadOnlySequence<byte> first, ref ReadOnlySequence<byte> second)
         {
             SequenceSegment head = first.Start.GetObject() as SequenceSegment;
@@ -78,9 +94,9 @@ namespace SuperSocket.WebSocket.FramePartReader
                 foreach (var segment in first)
                 {                
                     if (head == null)
-                        tail = head = SequenceSegment.CopyFrom(segment);
+                        tail = head = new SequenceSegment(segment);
                     else
-                        tail = tail.SetNext(SequenceSegment.CopyFrom(segment));
+                        tail = tail.SetNext(new SequenceSegment(segment));
                 }
             }
 
@@ -88,7 +104,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             {
                 foreach (var segment in second)
                 {
-                    tail = tail.SetNext(SequenceSegment.CopyFrom(segment));
+                    tail = tail.SetNext(new SequenceSegment(segment));
                 }
             }
 

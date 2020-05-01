@@ -134,9 +134,6 @@ namespace Tests
         }
 
 
-        [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
         public override async Task TestNormalRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -166,9 +163,6 @@ namespace Tests
             }
         }
 
-        [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
         public override async Task TestMiddleBreak(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -195,9 +189,6 @@ namespace Tests
             }
         }
 
-        [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
         public override async Task TestFragmentRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -225,10 +216,6 @@ namespace Tests
             }
         }
 
-
-        [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
         public override async Task TestBatchRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -268,10 +255,7 @@ namespace Tests
                 await server.StopAsync();
             }
         }
-
-        [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
+        
         public override async Task TestBreakRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);

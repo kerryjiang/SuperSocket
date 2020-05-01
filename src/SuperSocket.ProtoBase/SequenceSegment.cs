@@ -15,6 +15,11 @@ namespace SuperSocket.ProtoBase
             this.Memory = new ArraySegment<byte>(pooledBuffer, 0, length);
         }
 
+        public SequenceSegment(ReadOnlyMemory<byte> memory)
+        {
+            this.Memory = memory;
+        }
+
         public SequenceSegment SetNext(SequenceSegment segment)
         {
             segment.RunningIndex = RunningIndex + Memory.Length;
@@ -35,7 +40,8 @@ namespace SuperSocket.ProtoBase
             {
                 if (disposing)
                 {
-                    ArrayPool<byte>.Shared.Return(_pooledBuffer);
+                    if (_pooledBuffer != null)
+                        ArrayPool<byte>.Shared.Return(_pooledBuffer);
                 }
 
                 disposedValue = true;
