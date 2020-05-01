@@ -1,44 +1,143 @@
 using System;
-using System.Collections.Generic;
+using System.Buffers;
 using System.IO;
-using System.Net;
-using System.Net.Sockets;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using SuperSocket;
+using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Tests
 {
-    public abstract class ProtocolTestBase : TestClassBase
+    [Trait("Category", "Protocol.BeginEndMark")]
+    public class BeginEndMarkProtocolTest : ProtocolTestBase
     {
-        
-        protected ProtocolTestBase(ITestOutputHelper outputHelper) : base(outputHelper)
+        public BeginEndMarkProtocolTest(ITestOutputHelper outputHelper)
+            : base(outputHelper)
         {
-  
+
         }
 
-        protected abstract IServer CreateServer(IHostConfigurator hostConfigurator);
-
-        protected Socket CreateClient()
+        class MyMarkHeaderPipelineFilter : BeginEndMarkPipelineFilter<TextPackageInfo>
         {
-            var serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040);
-            var socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            public MyMarkHeaderPipelineFilter()
+                : base(new byte[] { 0x0B }, new byte[] { 0x1C, 0x0D })
+            {
 
-            socket.Connect(serverAddress);
+            }
 
-            return socket;
+            protected override TextPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
+            {
+                return new TextPackageInfo { Text = buffer.GetString(Utf8Encoding) };
+            }
         }
 
-        protected abstract string CreateRequest(string sourceLine);
+        protected override string CreateRequest(string sourceLine)
+        {
+            return sourceLine.Length.ToString().PadLeft(4) + sourceLine;
+        }
+
+        protected override IServer CreateServer(IHostConfigurator hostConfigurator)
+        {
+            return CreateSocketServerBuilder<TextPackageInfo, MyMarkHeaderPipelineFilter>(hostConfigurator)
+                .ConfigurePackageHandler(async (s, p) =>
+                {
+                    await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
+                }).BuildAsServer() as IServer;
+        }
+
+        private void WritePackage(Stream stream, string line)
+        {
+            var pool = ArrayPool<byte>.Shared;
+            var buffer = pool.Rent(3 + Utf8Encoding.GetMaxByteCount(line.Length));
+            var pack = EncodePackage(line, buffer);
+            stream.Write(pack);
+            pool.Return(buffer);
+        }
+
+        private void WriteHalfPackage(Stream stream, string line)
+        {
+            var pool = ArrayPool<byte>.Shared;
+            var buffer = pool.Rent(3 + Utf8Encoding.GetMaxByteCount(line.Length));
+            var pack = EncodePackage(line, buffer);
+            stream.Write(pack.Slice(0, pack.Length / 2));
+            pool.Return(buffer);
+        }
+
+        private void WriteFragmentPackage(Stream stream, string line)
+        {
+            var pool = ArrayPool<byte>.Shared;
+            var buffer = pool.Rent(3 + Utf8Encoding.GetMaxByteCount(line.Length));
+            var pack = EncodePackage(line, buffer);
+
+            for (var i = 0; i < pack.Length; i++)
+            {
+                stream.Write(buffer, i, 1);
+                stream.Flush();
+                Thread.Sleep(50);
+            }
+
+            pool.Return(buffer);
+        }
+
+        private void WriteMuliplePackages(Stream stream, string[] lines)
+        {
+            var pool = ArrayPool<byte>.Shared;
+            var buffer = pool.Rent(lines.Sum(x => 3 + Utf8Encoding.GetMaxByteCount(x.Length)));
+            
+            Span<byte> span = buffer;
+
+            var total = 0;
+
+            foreach (var line in lines)
+            {
+                var pack = EncodePackage(line, span);
+                span = span.Slice(pack.Length);
+                total += pack.Length;
+            }
+
+            span = new Span<byte>(buffer, 0, total);
+
+            var rd = new Random();
+            var maxRd = total / 2;
+
+            while (span.Length > 0)
+            {
+                var size = rd.Next(1, maxRd);
+                size = Math.Min(size, span.Length);
+
+                stream.Write(span.Slice(0, size));
+                stream.Flush();
+
+                span = span.Slice(size);
+            }
+
+            pool.Return(buffer);
+        }
+
+        private ReadOnlySpan<byte> EncodePackage(string line, Span<byte> span)
+        {
+            span[0] = 0x0B;
+
+            var len = Utf8Encoding.GetBytes(line.AsSpan(), span.Slice(1));
+            var rest = span.Slice(1 + len);
+
+            rest[0] = 0x1C;
+            rest[1] = 0x0D;
+            
+            return span.Slice(0, len + 3);
+        }
+
 
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        public virtual async Task TestNormalRequest(Type hostConfiguratorType)
+        public override async Task TestNormalRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -50,11 +149,12 @@ namespace Tests
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
                         var line = Guid.NewGuid().ToString();
-                        writer.Write(CreateRequest(line));
-                        writer.Flush();
+
+                        WritePackage(socketStream, line);
+
+                        await socketStream.FlushAsync();
 
                         var receivedLine = reader.ReadLine();
 
@@ -69,7 +169,7 @@ namespace Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        public virtual async Task TestMiddleBreak(Type hostConfiguratorType)
+        public override async Task TestMiddleBreak(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -83,12 +183,10 @@ namespace Tests
                     {
                         var socketStream = await hostConfigurator.GetClientStream(socket);
                         using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                        using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                         {
                             var line = Guid.NewGuid().ToString();
-                            var sendingLine = CreateRequest(line);
-                            writer.Write(sendingLine.Substring(0, sendingLine.Length / 2));
-                            writer.Flush();
+                            WriteHalfPackage(socketStream, line);
+                            await socketStream.FlushAsync();
                         }
                     }
                 }
@@ -100,7 +198,7 @@ namespace Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        public virtual async Task TestFragmentRequest(Type hostConfiguratorType)
+        public override async Task TestFragmentRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -113,17 +211,10 @@ namespace Tests
                     var socketStream = await hostConfigurator.GetClientStream(socket);
 
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
                         var line = Guid.NewGuid().ToString();
-                        var request = CreateRequest(line);
 
-                        for (var i = 0; i < request.Length; i++)
-                        {
-                            writer.Write(request[i]);
-                            writer.Flush();
-                            Thread.Sleep(50);
-                        }
+                        WriteFragmentPackage(socketStream, line);
 
                         var receivedLine = reader.ReadLine();
                         Assert.Equal(line, receivedLine);
@@ -134,10 +225,11 @@ namespace Tests
             }
         }
 
+
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        public virtual async Task TestBatchRequest(Type hostConfiguratorType)
+        public override async Task TestBatchRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -148,8 +240,8 @@ namespace Tests
                 using (var socket = CreateClient())
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
+
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
-                    using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
                         int size = 100;
 
@@ -158,12 +250,12 @@ namespace Tests
                         for (var i = 0; i < size; i++)
                         {
                             var line = Guid.NewGuid().ToString();
-                            lines[i] = line;
-                            var request = CreateRequest(line);
-                            writer.Write(request);
+
+                            lines[i] = line;                            
+                            WritePackage(socketStream, line);
                         }
 
-                        writer.Flush();
+                        socketStream.Flush();
 
                         for (var i = 0; i < size; i++)
                         {
@@ -180,7 +272,7 @@ namespace Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        public virtual async Task TestBreakRequest(Type hostConfiguratorType)
+        public override async Task TestBreakRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -191,6 +283,7 @@ namespace Tests
                 using (var socket = CreateClient())
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
+
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
                     using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {
@@ -198,43 +291,13 @@ namespace Tests
 
                         var lines = new string[size];
 
-                        var sb = new StringBuilder();
-
                         for (var i = 0; i < size; i++)
                         {
                             var line = Guid.NewGuid().ToString();
                             lines[i] = line;
-                            sb.Append(CreateRequest(line));
                         }
 
-                        var source = sb.ToString();
-
-                        var rd = new Random();
-
-                        var rounds = new List<KeyValuePair<int, int>>();
-
-                        var rest = source.Length;
-
-                        while (rest > 0)
-                        {
-                            if (rest == 1)
-                            {
-                                rounds.Add(new KeyValuePair<int, int>(source.Length - rest, 1));
-                                rest = 0;
-                                break;
-                            }
-
-                            var thisRound = rd.Next(1, rest);
-                            rounds.Add(new KeyValuePair<int, int>(source.Length - rest, thisRound));
-                            rest -= thisRound;
-                        }
-
-                        for (var i = 0; i < rounds.Count; i++)
-                        {
-                            var r = rounds[i];
-                            writer.Write(source.Substring(r.Key, r.Value));
-                            writer.Flush();
-                        }
+                        WriteMuliplePackages(socketStream, lines);
 
                         for (var i = 0; i < size; i++)
                         {
