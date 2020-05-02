@@ -29,6 +29,12 @@ namespace SuperSocket
         {
             return _hostBuilder.ConfigureServices((ctx, services) => 
             {
+                // if the package type is StringPackageInfo
+                if (typeof(TReceivePackage) == typeof(StringPackageInfo))
+                {
+                    services.TryAdd(ServiceDescriptor.Singleton<IPackageDecoder<StringPackageInfo>, DefaultStringPackageDecoder>());
+                }
+
                 services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
                 services.TryAdd(ServiceDescriptor.Singleton<IPackageEncoder<string>, DefaultStringEncoderForDI>());
             }).Build();
@@ -57,12 +63,6 @@ namespace SuperSocket
 
             return hostBuilder.ConfigureServices((hostCtx, services) =>
                 {
-                    // if the package type is StringPackageInfo
-                    if (typeof(TReceivePackage) == typeof(StringPackageInfo))
-                    {
-                        services.TryAdd(new ServiceDescriptor(typeof(IPackageDecoder<StringPackageInfo>), typeof(DefaultStringPackageDecoder), ServiceLifetime.Singleton));
-                    }
-
                     services.AddOptions();
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
                 }) as IHostBuilder<TReceivePackage>;
