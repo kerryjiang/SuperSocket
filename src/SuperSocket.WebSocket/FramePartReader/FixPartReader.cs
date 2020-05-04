@@ -18,7 +18,14 @@ namespace SuperSocket.WebSocket.FramePartReader
             needMoreData = false;
 
             reader.TryRead(out byte firstByte);
-            package.OpCode = (OpCode)(firstByte & 0x0f);
+
+            var opCode = (OpCode)(firstByte & 0x0f);
+
+            if (opCode != OpCode.Continuation)
+            {
+                package.OpCode = opCode;
+            }
+
             package.OpCodeByte = firstByte;
 
             reader.TryRead(out byte secondByte);

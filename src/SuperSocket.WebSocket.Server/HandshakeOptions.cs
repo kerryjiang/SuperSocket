@@ -24,6 +24,6 @@ namespace SuperSocket.WebSocket.Server
         public int CloseHandshakeTimeOut { get; set; } = 120;
 
 
-        public Func<WebSocketPackage, ValueTask<bool>> HandshakeValidator { get; set; }
+        public Func<WebSocketSession, WebSocketPackage, ValueTask<bool>> HandshakeValidator { get; set; }
     }
 }

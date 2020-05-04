@@ -7,7 +7,7 @@ namespace SuperSocket.WebSocket
     {
         public OpCode OpCode { get; set; }
 
-        internal byte OpCodeByte{ get; set; }
+        internal byte OpCodeByte { get; set; }
 
         public bool FIN
         {
