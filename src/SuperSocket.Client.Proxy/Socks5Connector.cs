@@ -293,7 +293,7 @@ namespace SuperSocket.Client.Proxy
 
             }
 
-            protected override Socks5Pack DecodePackage(ReadOnlySequence<byte> buffer)
+            protected override Socks5Pack DecodePackage(ref ReadOnlySequence<byte> buffer)
             {
                 var reader = new SequenceReader<byte>(buffer);
                 reader.TryRead(out byte version);
@@ -320,7 +320,7 @@ namespace SuperSocket.Client.Proxy
 
             }
 
-            protected override int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer)
+            protected override int GetBodyLengthFromHeader(ref ReadOnlySequence<byte> buffer)
             {
                 var reader = new SequenceReader<byte>(buffer);
                 reader.Advance(3);
@@ -341,7 +341,7 @@ namespace SuperSocket.Client.Proxy
                 throw new Exception($"Unsupported addressType: {addressType}");
             }
 
-            protected override Socks5Pack DecodePackage(ReadOnlySequence<byte> buffer)
+            protected override Socks5Pack DecodePackage(ref ReadOnlySequence<byte> buffer)
             {
                 var reader = new SequenceReader<byte>(buffer);
                 reader.TryRead(out byte version);

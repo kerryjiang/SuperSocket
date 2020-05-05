@@ -26,13 +26,13 @@ namespace Tests
 
             }
 
-            protected override int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer)
+            protected override int GetBodyLengthFromHeader(ref ReadOnlySequence<byte> buffer)
             {
                 var strLen = buffer.GetString(Utf8Encoding);
                 return int.Parse(strLen.TrimStart('0'));
             }
 
-            protected override TextPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
+            protected override TextPackageInfo DecodePackage(ref ReadOnlySequence<byte> buffer)
             {
                 return new TextPackageInfo { Text = buffer.Slice(4).GetString(Utf8Encoding) };
             }

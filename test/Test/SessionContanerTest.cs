@@ -38,7 +38,7 @@ namespace Tests
 
             }
 
-            protected override StringPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
+            protected override StringPackageInfo DecodePackage(ref ReadOnlySequence<byte> buffer)
             {
                 var text = buffer.GetString(Encoding.UTF8);
                 var parts = text.Split(' ');
