@@ -20,7 +20,7 @@ namespace BasicClient
 
         }
 
-        protected override int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer)
+        protected override int GetBodyLengthFromHeader(ref ReadOnlySequence<byte> buffer)
         {
             var reader = new SequenceReader<byte>(buffer);
 
@@ -31,7 +31,7 @@ namespace BasicClient
             return len;
         }
 
-        protected override MyPackage DecodePackage(ReadOnlySequence<byte> buffer)
+        protected override MyPackage DecodePackage(ref ReadOnlySequence<byte> buffer)
         {
             var package = new MyPackage();
 
