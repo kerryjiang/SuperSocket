@@ -12,6 +12,7 @@
     <ProjectReference Include="../../src/SuperSocket.WebSocket.Server/SuperSocket.WebSocket.Server.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Client/SuperSocket.Client.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Http/SuperSocket.Http.csproj" />
+    <ProjectReference Include="../Command/Command.csproj" />
   </ItemGroup>
   <ItemGroup>  
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
