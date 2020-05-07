@@ -31,17 +31,21 @@ namespace Tests
         }
 
 
-        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo>(Func<object, IPipelineFilter<TPackageInfo>> filterFactory, IHostConfigurator configurator = null)
+        protected SuperSocketHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo>(Func<object, IPipelineFilter<TPackageInfo>> filterFactory, IHostConfigurator configurator = null)
             where TPackageInfo : class
         {
-            return Configure(SuperSocketHostBuilder.Create<TPackageInfo>(filterFactory), configurator) as IHostBuilder<TPackageInfo>;
+            var hostBuilder = SuperSocketHostBuilder.Create<TPackageInfo>();
+            hostBuilder.UsePipelineFilterFactory(filterFactory);
+            return Configure(hostBuilder, configurator) as SuperSocketHostBuilder<TPackageInfo>;
         }
 
-        protected IHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>(IHostConfigurator configurator = null)
+        protected SuperSocketHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>(IHostConfigurator configurator = null)
             where TPackageInfo : class
             where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
         {
-            return Configure(SuperSocketHostBuilder.Create<TPackageInfo, TPipelineFilter>(), configurator) as IHostBuilder<TPackageInfo>;
+            var hostBuilder = SuperSocketHostBuilder.Create<TPackageInfo>();
+            hostBuilder.UsePipelineFilter<TPipelineFilter>();
+            return Configure(hostBuilder, configurator) as SuperSocketHostBuilder<TPackageInfo>;
         }
 
         protected T CreateObject<T>(Type type)

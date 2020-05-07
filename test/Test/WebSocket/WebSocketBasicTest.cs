@@ -449,7 +449,7 @@ namespace Tests.WebSocket
                     {
                         l.BackLog = connCount;
                     }
-                }) as IWebSocketHostBuilder;
+                }) as WebSocketHostBuilder;
             }, hostConfigurator).BuildAsServer())
             {
                 var loggerFactory = server.ServiceProvider.GetService<ILoggerFactory>();
