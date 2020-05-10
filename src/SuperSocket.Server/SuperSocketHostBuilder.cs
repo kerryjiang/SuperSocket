@@ -40,7 +40,8 @@ namespace SuperSocket
                 services.TryAdd(ServiceDescriptor.Singleton<IPackageEncoder<string>, DefaultStringEncoderForDI>());
 
                 // if no host service was defined, just use the default one
-                if (!services.Any(sd => sd.ServiceType == typeof(IHostedService)))
+                if (!services.Any(sd => sd.ServiceType == typeof(IHostedService)
+                    && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(sd.ImplementationType)))
                 {
                     RegisterDefaultHostedService(services);
                 }
