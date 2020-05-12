@@ -7,6 +7,10 @@
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MSExtensionsVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="Unclassified.NetRevisionTask" Version="0.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
