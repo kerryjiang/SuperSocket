@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.ProtoBase;
+using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Command
 {
@@ -56,10 +57,14 @@ namespace SuperSocket.Command
     {
         private Dictionary<TKey, ICommandSet> _commands;
 
+        private ILogger _logger;
+
         protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; private set; }    
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
         {
+            _logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger("CommandMiddleware");
+
             var sessionFactory = serviceProvider.GetService<ISessionFactory>();
             var sessionType = sessionFactory == null ? typeof(IAppSession) : sessionFactory.SessionType;
 
@@ -109,10 +114,23 @@ namespace SuperSocket.Command
             var commands = commandSetFactories.Select(t => t.Create(serviceProvider, commandOptions.Value));
             var comparer = serviceProvider.GetService<IEqualityComparer<TKey>>();
 
-            if (comparer == null)
-                _commands = commands.ToDictionary(x => x.Key);
-            else
-                _commands = commands.ToDictionary(x => x.Key, comparer);
+            var commandDict = comparer == null ?
+                new Dictionary<TKey, ICommandSet>() : new Dictionary<TKey, ICommandSet>(comparer);
+
+            foreach (var cmd in commands)
+            {
+                if (commandDict.ContainsKey(cmd.Key))
+                {
+                    var error = $"Duplicated command with Key {cmd.Key} is found: {cmd.ToString()}";
+                    _logger.LogError(error);
+                    throw new Exception(error);
+                }
+
+                commandDict.Add(cmd.Key, cmd);
+                _logger.LogDebug("The command with key {cmd.Key} is registered: {cmd.ToString()}");
+            }
+
+            _commands = commandDict;
 
             PackageMapper = CreatePackageMapper(serviceProvider);
         }
@@ -175,7 +193,7 @@ namespace SuperSocket.Command
             return serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
-        protected virtual async Task HandlePackage(IAppSession session, TPackageInfo package)
+        protected virtual async ValueTask HandlePackage(IAppSession session, TPackageInfo package)
         {
             if (!_commands.TryGetValue(package.Key, out ICommandSet commandSet))
             {
@@ -190,7 +208,7 @@ namespace SuperSocket.Command
             await HandlePackage(session, package);
         }
 
-        Task IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package)
+        ValueTask IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package)
         {
             return HandlePackage(session, PackageMapper.Map(package));
         }
@@ -464,6 +482,16 @@ namespace SuperSocket.Command
                         }
                     }
                 }
+            }
+
+            public override string ToString()
+            {
+                ICommand command = Command;
+                
+                if (command == null)
+                    command = AsyncCommand;
+
+                return command?.GetType().ToString();
             }
         }
     }
