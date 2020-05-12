@@ -14,13 +14,9 @@ namespace EchoServer
         static async Task Main(string[] args)
         {
             var host = SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>()
-                .ConfigurePackageHandler(async (s, p) =>
+                .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
-                })
-                .ConfigureLogging((hostCtx, loggingBuilder) =>
-                {
-                    loggingBuilder.AddConsole();
                 })
                 .ConfigureSuperSocket(options =>
                 {
@@ -32,7 +28,12 @@ namespace EchoServer
                             Port = 4040
                         }
                     };
-                }).Build();
+                })
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                })
+                .Build();
 
             await host.RunAsync();
         }

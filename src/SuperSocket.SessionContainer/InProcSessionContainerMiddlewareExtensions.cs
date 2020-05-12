@@ -8,7 +8,7 @@ namespace SuperSocket
 {
     public static class InProcSessionContainerMiddlewareExtensions
     {
-        public static IHostBuilder UseInProcSessionContainer(this IHostBuilder builder)
+        public static ISuperSocketHostBuilder UseInProcSessionContainer(this ISuperSocketHostBuilder builder)
         {
             return builder.ConfigureServices((ctx, services) =>
             {
@@ -16,7 +16,7 @@ namespace SuperSocket
                 services.AddSingleton<ISessionContainer>((s) => s.GetRequiredService<InProcSessionContainerMiddleware>());
                 services.AddSingleton<IAsyncSessionContainer>((s) => s.GetRequiredService<ISessionContainer>().ToAsyncSessionContainer());
                 services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, InProcSessionContainerMiddleware>(s => s.GetRequiredService<InProcSessionContainerMiddleware>()));
-            });
+            }) as ISuperSocketHostBuilder;
         }
     }
 }

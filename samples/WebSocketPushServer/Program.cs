@@ -15,7 +15,7 @@ namespace WebSocketPushServer
         static async Task Main(string[] args)
         {               
             var host = WebSocketHostBuilder.Create()
-                .ConfigureWebSocketMessageHandler(async (session, message) =>
+                .UseWebSocketMessageHandler(async (session, message) =>
                 {
                     if (message.Message.Equals("StartPush", StringComparison.OrdinalIgnoreCase))
                     {
@@ -31,14 +31,14 @@ namespace WebSocketPushServer
                     // echo message back to the client
                     await session.SendAsync(message.Message);
                 })
+                .UseSession<PushSession>()
+                .UseInProcSessionContainer()
+                .UseMiddleware<ServerPushMiddleware>()
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
                     // register your logging library here
                     loggingBuilder.AddConsole();
-                })
-                .UseSession<PushSession>()
-                .UseInProcSessionContainer()
-                .UseMiddleware<ServerPushMiddleware>()
+                })                
                 .Build();
 
             await host.RunAsync();
