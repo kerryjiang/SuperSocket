@@ -71,7 +71,7 @@ namespace SuperSocket.WebSocket.Server
             return closeStatus;
         }
 
-        public async Task Handle(IAppSession session, WebSocketPackage package)
+        public async ValueTask Handle(IAppSession session, WebSocketPackage package)
         {
             var websocketSession = session as WebSocketSession;
             

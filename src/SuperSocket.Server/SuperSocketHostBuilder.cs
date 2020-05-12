@@ -13,8 +13,7 @@ using SuperSocket.Server;
 
 namespace SuperSocket
 {
-    public class SuperSocketHostBuilder<TReceivePackage> : IHostBuilder<TReceivePackage>
-        where TReceivePackage : class
+    public class SuperSocketHostBuilder<TReceivePackage> : ISuperSocketHostBuilder<TReceivePackage>, IHostBuilder
     {
 
         private HostBuilder _hostBuilder;
@@ -74,11 +73,11 @@ namespace SuperSocket
                           .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
                 });
 
-            return hostBuilder.ConfigureServices((hostCtx, services) =>
+            return this.ConfigureServices((hostCtx, services) =>
                 {
                     services.AddOptions();
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
-                }) as SuperSocketHostBuilder<TReceivePackage>;
+                });
         }
 
         public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
@@ -87,7 +86,12 @@ namespace SuperSocket
             return this;
         }
 
-        public IHostBuilder ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        IHostBuilder IHostBuilder.ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        {
+            return ConfigureServices(configureDelegate);
+        }
+
+        public SuperSocketHostBuilder<TReceivePackage> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
             _hostBuilder.ConfigureServices(configureDelegate);
             return this;
@@ -111,7 +115,7 @@ namespace SuperSocket
             return this.ConfigureServices((ctx, services) =>
             {
                 services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
-            }) as SuperSocketHostBuilder<TReceivePackage>;
+            });
         }
 
         public virtual SuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TPipelineFilterFactory>()
@@ -120,16 +124,52 @@ namespace SuperSocket
             return this.ConfigureServices((ctx, services) =>
             {
                 services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, TPipelineFilterFactory>();
-            }) as SuperSocketHostBuilder<TReceivePackage>;
+            });
         }
 
-        public SuperSocketHostBuilder<TReceivePackage> UseHostedService<THostedService>()
+        public virtual SuperSocketHostBuilder<TReceivePackage> UseHostedService<THostedService>()
             where THostedService : SuperSocketService<TReceivePackage>
         {
             return this.ConfigureServices((ctx, services) =>
             {
                 services.AddHostedService<THostedService>();
-            }) as SuperSocketHostBuilder<TReceivePackage>;
+            });
+        }
+        
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> UsePackageDecoder<TPackageDecoder>()
+            where TPackageDecoder : class, IPackageDecoder<TReceivePackage>
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<IPackageDecoder<TReceivePackage>, TPackageDecoder>();
+                }
+            );
+        }
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> ConfigureErrorHandler(Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler)
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
+        }
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> UsePackageHandler(Func<IAppSession, TReceivePackage, ValueTask> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    if (packageHandler != null)
+                        services.AddSingleton<IPackageHandler<TReceivePackage>>(new DelegatePackageHandler<TReceivePackage>(packageHandler));
+
+                    if (errorHandler != null)
+                        services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
         }
     }
 

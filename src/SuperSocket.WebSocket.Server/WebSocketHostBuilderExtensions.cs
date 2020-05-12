@@ -7,7 +7,13 @@ namespace SuperSocket.WebSocket.Server
 {
     public static class WebSocketServerExtensions
     {
+        [Obsolete("Please use UseWebSocketMessageHandler instead")]
         public static WebSocketHostBuilder ConfigureWebSocketMessageHandler(this WebSocketHostBuilder builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
+        {
+            return builder.UseWebSocketMessageHandler(handler);
+        }
+
+        public static WebSocketHostBuilder UseWebSocketMessageHandler(this WebSocketHostBuilder builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
         {
             return builder.ConfigureServices((ctx, services) => 
             {

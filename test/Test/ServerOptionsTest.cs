@@ -40,7 +40,7 @@ namespace Tests
                 {
                     options.MaxPackageLength = 100;
                 })
-                .ConfigurePackageHandler(async (s, p) =>
+                .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer())

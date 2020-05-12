@@ -469,7 +469,7 @@ namespace Tests
                     commandOptions.AddCommand<COUNTDOWN>();
                     commandOptions.AddGlobalCommandFilter<HitCountCommandFilterAttribute>();
                 })
-                .ConfigureSessionHandler((s) =>
+                .UseSessionHandler((s) =>
                 {
                     s.DataContext = sessionState;
                     return new ValueTask();

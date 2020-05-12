@@ -14,7 +14,6 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Channel
 {
     public abstract partial class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
-        where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
@@ -373,7 +372,7 @@ namespace SuperSocket.Channel
 
         private void WriteEOFPackage()
         {
-            _packagePipe.Write(null);
+            _packagePipe.Write(default);
         }
 
         private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)

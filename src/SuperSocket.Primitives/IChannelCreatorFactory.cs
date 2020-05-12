@@ -5,7 +5,6 @@ namespace SuperSocket
 {
     public interface IChannelCreatorFactory
     {
-        IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
-            where TPackageInfo : class;
+        IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory);
     }
 }
