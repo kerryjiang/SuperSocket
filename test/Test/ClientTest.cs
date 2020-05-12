@@ -23,6 +23,7 @@ using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using SuperSocket.Channel;
+using SuperSocket.Test.Command;
 
 namespace Tests
 {
@@ -107,6 +108,74 @@ namespace Tests
                     Assert.NotNull(package);
                     Assert.Equal(msg, package.Text);
                 }
+
+                await client.CloseAsync();
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommandLine(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+            .UseCommand((options) =>
+            {
+                options.AddCommand<SORT>();
+            }).BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");                
+
+                IEasyClient<StringPackageInfo> client;
+
+                var services = new ServiceCollection();
+                services.AddLogging();
+                services.Configure<ILoggingBuilder>((loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                });
+
+                var sp = services.BuildServiceProvider();
+
+                var loggerFactory = sp.GetService<ILoggerFactory>();
+                var logger = loggerFactory.CreateLogger("Client");
+
+                var pipelineFilter = new CommandLinePipelineFilter
+                {
+                    Decoder = new DefaultStringPackageDecoder()
+                };
+                
+                if (hostConfigurator.IsSecure)
+                    client = (new SecureEasyClient<StringPackageInfo>(pipelineFilter, logger)).AsClient();
+                else
+                    client = new EasyClient<StringPackageInfo>(pipelineFilter, logger).AsClient();
+
+                StringPackageInfo package = null;
+
+                client.PackageHandler += (s, p) =>
+                {
+                    package = p;
+                };
+
+                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                
+                Assert.True(connected);
+
+                client.StartReceive();
+
+                await client.SendAsync(Utf8Encoding.GetBytes("SORT 10 7 3 8 6 43 23\r\n"));
+                await Task.Delay(1000);
+
+                Assert.NotNull(package);
+
+                Assert.Equal("SORT", package.Key);
+                Assert.Equal("3 6 7 8 10 23 43", package.Body);
 
                 await client.CloseAsync();
                 await server.StopAsync();
