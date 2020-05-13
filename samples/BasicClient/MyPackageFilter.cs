@@ -47,7 +47,7 @@ namespace BasicClient
             reader.TryReadBigEndian(out short sequence);
             package.Sequence = sequence;
             // get the rest of the data in the reader and then read it as utf8 string
-            package.Body = reader.Sequence.Slice(reader.Consumed).GetString(Encoding.UTF8);
+            package.Body = reader.ReadString(Encoding.UTF8);
 
             return package;
         }
