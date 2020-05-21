@@ -130,8 +130,8 @@ namespace SuperSocket.Channel
                     var bufferSize = options.ReceiveBufferSize;
                     var maxPackageLength = options.MaxPackageLength;
 
-                    if (maxPackageLength > 0)
-                        bufferSize = Math.Min(bufferSize, maxPackageLength);
+                    if (bufferSize <= 0)
+                        bufferSize = 1024 * 4; //4k
 
                     var memory = writer.GetMemory(bufferSize);
 
