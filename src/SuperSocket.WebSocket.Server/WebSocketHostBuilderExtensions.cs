@@ -23,14 +23,15 @@ namespace SuperSocket.WebSocket.Server
 
         public static WebSocketHostBuilder UseCommand<TPackageInfo, TPackageMapper>(this WebSocketHostBuilder builder)
             where TPackageInfo : class
-            where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
+            where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>
         {
             var keyType = CommandMiddlewareExtensions.GetKeyType<TPackageInfo>();
-            var commandMiddlewareType = typeof(WebSocketCommandMiddleware<,,>).MakeGenericType(keyType, typeof(TPackageInfo), typeof(TPackageMapper));
+            var commandMiddlewareType = typeof(WebSocketCommandMiddleware<,>).MakeGenericType(keyType, typeof(TPackageInfo));
             
             return builder.ConfigureServices((ctx, services) => 
             {
                 services.AddSingleton(typeof(IWebSocketCommandMiddleware), commandMiddlewareType);
+                services.AddSingleton<IPackageMapper<WebSocketPackage, TPackageInfo>, TPackageMapper>();
             }).ConfigureServices((ctx, services) =>
             {
                 services.Configure<CommandOptions>(ctx.Configuration?.GetSection("serverOptions")?.GetSection("commands"));

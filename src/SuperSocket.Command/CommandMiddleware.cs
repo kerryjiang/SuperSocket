@@ -10,22 +10,6 @@ using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Command
 {
-    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo, TPackageMapper> : CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo>
-        where TPackageInfo : class, IKeyedPackageInfo<TKey>
-        where TNetPackageInfo : class
-        where TPackageMapper : IPackageMapper<TNetPackageInfo, TPackageInfo>, new()
-    {
-        public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
-            : base(serviceProvider, commandOptions)
-        {
-     
-        }
-
-        protected override IPackageMapper<TNetPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
-        {
-            return new TPackageMapper();
-        }
-    }
 
     public class CommandMiddleware<TKey, TPackageInfo> : CommandMiddleware<TKey, TPackageInfo, TPackageInfo>
         where TPackageInfo : class, IKeyedPackageInfo<TKey>

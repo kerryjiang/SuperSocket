@@ -14,9 +14,8 @@ namespace SuperSocket.WebSocket.Server
 
     }
 
-    public class WebSocketCommandMiddleware<TKey, TPackageInfo, TPackageMapper> : CommandMiddleware<TKey, WebSocketPackage, TPackageInfo, TPackageMapper>, IWebSocketCommandMiddleware
+    public class WebSocketCommandMiddleware<TKey, TPackageInfo> : CommandMiddleware<TKey, WebSocketPackage, TPackageInfo>, IWebSocketCommandMiddleware
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
-        where TPackageMapper : IPackageMapper<WebSocketPackage, TPackageInfo>, new()
     {
         public WebSocketCommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
