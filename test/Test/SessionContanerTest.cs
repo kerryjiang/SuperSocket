@@ -85,13 +85,17 @@ namespace Tests
 
                 Assert.Equal(1, sessionContainer.GetSessionCount());
 
+                var sessionID = string.Empty;
+
+                var closed = false;
+
                 using (var stream = new NetworkStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("SESS\r\n");
                     await streamWriter.FlushAsync();
-                    var sessionID = await streamReader.ReadLineAsync();
+                    sessionID = await streamReader.ReadLineAsync();
 
                     Assert.False(string.IsNullOrEmpty(sessionID));
                     
@@ -99,8 +103,21 @@ namespace Tests
 
                     Assert.NotNull(session);
                     Assert.Equal(sessionID, session.SessionID);
+
+                    session.Closed +=  (s, e) =>
+                    {
+                        closed = true;
+                        return new ValueTask();
+                    };
+
+                    await session.Channel.CloseAsync();
                 }
 
+                await Task.Delay(1000);
+                Assert.Equal(0, sessionContainer.GetSessionCount());
+                Assert.Null(sessionContainer.GetSessionByID(sessionID));
+                Assert.True(closed);
+                
                 await server.StopAsync();
             }
         }
