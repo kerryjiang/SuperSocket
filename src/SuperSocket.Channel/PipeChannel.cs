@@ -219,6 +219,7 @@ namespace SuperSocket.Channel
                     catch (Exception e)
                     {
                         output.Complete(e);
+                        cts.Cancel(false);
                         
                         if (!IsIgnorableException(e))
                             OnError("Exception happened in SendAsync", e);
