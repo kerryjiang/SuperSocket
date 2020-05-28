@@ -20,13 +20,9 @@ namespace BasicClient
                 Console.WriteLine("Failed to connect the target server.");
                 return;
             }
-            var pack = new RTDEPackage
-            { 
-                RoboCmd = RoboCmd.Connect,
-                Data = "This is a test" 
-            };
+            var pack = new RTDEPackage(RTDECommandEnum.Connect, "This is a test");
             var encoder = new RTDEPackageEncoder();
-            client.SendAsync(encoder, pack);
+            client.SendAsync(encoder, pack).GetAwaiter().GetResult();
             while (true)
             {
                 var p = await client.ReceiveAsync();

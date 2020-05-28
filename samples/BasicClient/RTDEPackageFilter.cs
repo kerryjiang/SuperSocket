@@ -23,20 +23,18 @@ namespace BasicClient
 
             reader.TryReadBigEndian(out short len);
 
-            return len - 2;
+            return len - 3;
         }
 
         protected override RTDEPackage DecodePackage(ref ReadOnlySequence<byte> buffer)
         {
-            var package = new RTDEPackage();
-
             var reader = new SequenceReader<byte>(buffer);
-
+            reader.Advance(2);
             reader.TryRead(out byte cmd);
-            package.RoboCmd = (RoboCmd)cmd;
+            var roboCmd = (RTDECommandEnum)cmd;
+            var dataBytes = reader.Sequence.Slice(3).ToArray();
 
-            package.Data = reader.ReadString(Encoding.UTF8);
-            return package;
+            return new RTDEPackage(roboCmd, dataBytes);
         }
     }
     public class RTDEPackageEncoder : IPackageEncoder<RTDEPackage>
