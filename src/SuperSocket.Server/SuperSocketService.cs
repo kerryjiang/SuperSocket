@@ -41,6 +41,8 @@ namespace SuperSocket.Server
         private List<IChannelCreator> _channelCreators;
         private IPackageHandler<TReceivePackageInfo> _packageHandler;
         private Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>> _errorHandler;
+
+        private IPackageHandlingScheduler<TReceivePackageInfo> _packageHandlingScheduler;
         
         public string Name { get; }
 
@@ -85,15 +87,21 @@ namespace SuperSocket.Server
             {
                 _errorHandler = OnSessionErrorAsync;
             }
+
+            _packageHandlingScheduler = serviceProvider.GetService<IPackageHandlingScheduler<TReceivePackageInfo>>();
             
+            if (_packageHandlingScheduler == null)
+                _packageHandlingScheduler = new SerialPackageHandlingScheduler<TReceivePackageInfo>();
+          
             // initialize session factory
             _sessionFactory = serviceProvider.GetService<ISessionFactory>();
 
             if (_sessionFactory == null)
                 _sessionFactory = new DefaultSessionFactory();
 
-
             InitializeMiddlewares();
+
+            _packageHandlingScheduler.Initialize(_packageHandler, _errorHandler);
         }
 
         private void InitializeMiddlewares()
@@ -306,24 +314,11 @@ namespace SuperSocket.Server
                 await FireSessionConnectedEvent(session);
 
                 var packageChannel = channel as IChannel<TReceivePackageInfo>;
-                var packageHandler = _packageHandler;
+                var packageHandlingScheduler = _packageHandlingScheduler;
 
                 await foreach (var p in packageChannel.RunAsync())
                 {
-                    try
-                    {
-                        if (packageHandler != null)
-                            await packageHandler.Handle(session, p);
-                    }
-                    catch (Exception e)
-                    {
-                        var toClose = await _errorHandler(session, new PackageHandlingException<TReceivePackageInfo>($"Session {session.SessionID} got an error when handle a package.", p, e));
-
-                        if (toClose)
-                        {
-                            session.CloseAsync().DoNotAwait();
-                        }
-                    }                    
+                    await packageHandlingScheduler.HandlePackage(session, p);   
                 }
             }
             catch (Exception e)
