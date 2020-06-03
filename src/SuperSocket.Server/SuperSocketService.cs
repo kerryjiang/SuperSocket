@@ -39,9 +39,6 @@ namespace SuperSocket.Server
         private IPipelineFilterFactory<TReceivePackageInfo> _pipelineFilterFactory;
         private IChannelCreatorFactory _channelCreatorFactory;
         private List<IChannelCreator> _channelCreators;
-        private IPackageHandler<TReceivePackageInfo> _packageHandler;
-        private Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>> _errorHandler;
-
         private IPackageHandlingScheduler<TReceivePackageInfo> _packageHandlingScheduler;
         
         public string Name { get; }
@@ -79,29 +76,25 @@ namespace SuperSocket.Server
             _loggerFactory = loggerFactory;
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _channelCreatorFactory = channelCreatorFactory;
-            _packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>();
-            _errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>();
-            _sessionHandlers = serviceProvider.GetService<SessionHandlers>();
-
-            if (_errorHandler == null)
-            {
-                _errorHandler = OnSessionErrorAsync;
-            }
-
-            _packageHandlingScheduler = serviceProvider.GetService<IPackageHandlingScheduler<TReceivePackageInfo>>();
-            
-            if (_packageHandlingScheduler == null)
-                _packageHandlingScheduler = new SerialPackageHandlingScheduler<TReceivePackageInfo>();
-          
+            _sessionHandlers = serviceProvider.GetService<SessionHandlers>();          
             // initialize session factory
-            _sessionFactory = serviceProvider.GetService<ISessionFactory>();
-
-            if (_sessionFactory == null)
-                _sessionFactory = new DefaultSessionFactory();
+            _sessionFactory = serviceProvider.GetService<ISessionFactory>() ?? new DefaultSessionFactory();
 
             InitializeMiddlewares();
 
-            _packageHandlingScheduler.Initialize(_packageHandler, _errorHandler);
+            var packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>()
+                ?? _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
+
+            if (packageHandler == null)
+                throw new Exception("The PackageHandler cannot be found.");
+            
+            var errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>()
+                ?? OnSessionErrorAsync;
+
+            _packageHandlingScheduler = serviceProvider.GetService<IPackageHandlingScheduler<TReceivePackageInfo>>()
+                ?? new SerialPackageHandlingScheduler<TReceivePackageInfo>();
+
+            _packageHandlingScheduler.Initialize(packageHandler, errorHandler);
         }
 
         private void InitializeMiddlewares()
@@ -114,9 +107,6 @@ namespace SuperSocket.Server
             {
                 m.Start(this);
             }
-
-            if (_packageHandler == null)
-                _packageHandler = _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
         }
 
         private void ShutdownMiddlewares()
