@@ -185,7 +185,6 @@ namespace Tests
 
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
         [Trait("Category", "TestDetachableChannel")]
         public async Task TestDetachableChannel(Type hostConfiguratorType)
         {
