@@ -86,15 +86,18 @@ namespace SuperSocket.Server
                 ?? _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
 
             if (packageHandler == null)
-                throw new Exception("The PackageHandler cannot be found.");
-            
-            var errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>()
+            {
+                Logger.LogWarning("The PackageHandler cannot be found.");
+            }
+            else
+            {
+                var errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>()
                 ?? OnSessionErrorAsync;
 
-            _packageHandlingScheduler = serviceProvider.GetService<IPackageHandlingScheduler<TReceivePackageInfo>>()
-                ?? new SerialPackageHandlingScheduler<TReceivePackageInfo>();
-
-            _packageHandlingScheduler.Initialize(packageHandler, errorHandler);
+                _packageHandlingScheduler = serviceProvider.GetService<IPackageHandlingScheduler<TReceivePackageInfo>>()
+                    ?? new SerialPackageHandlingScheduler<TReceivePackageInfo>();
+                _packageHandlingScheduler.Initialize(packageHandler, errorHandler);
+            }
         }
 
         private void InitializeMiddlewares()
