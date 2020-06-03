@@ -55,7 +55,7 @@ namespace SuperSocket.Channel
                 total += data.Length;
             }
 
-            await _stream.FlushAsync();
+            await _stream.FlushAsync(cancellationToken);
             return total;
         }
 

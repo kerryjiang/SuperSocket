@@ -31,7 +31,7 @@ namespace Tests
 
         public ValueTask<Stream> GetClientStream(Socket socket)
         {
-            return new ValueTask<Stream>(new NetworkStream(socket));
+            return new ValueTask<Stream>(new DerivedNetworkStream(socket, false));
         }
     }
 }

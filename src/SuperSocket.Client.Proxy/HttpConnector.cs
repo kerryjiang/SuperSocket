@@ -33,7 +33,7 @@ namespace SuperSocket.Client.Proxy
         {
             var encoding = Encoding.ASCII;
             var request = string.Empty;
-            var channel = state.CreateChannel<TextPackageInfo>(new LinePipelineFilter(encoding), new ChannelOptions());
+            var channel = state.CreateChannel<TextPackageInfo>(new LinePipelineFilter(encoding), new ChannelOptions { ReadAsDemand = true });
 
             if (remoteEndPoint is DnsEndPoint dnsEndPoint)
             {

@@ -24,6 +24,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using SuperSocket.Channel;
 using SuperSocket.Test.Command;
+using System.Threading;
 
 namespace Tests
 {
@@ -185,13 +186,14 @@ namespace Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [Trait("Category", "TestDetachableChannel")]
         public async Task TestDetachableChannel(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .UsePackageHandler(async (s, p) =>
                 {
-                    await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
+                    await s.SendAsync(Utf8Encoding.GetBytes("PRE-" + p.Text + "\r\n"));
                 }).BuildAsServer())
             {
 
@@ -213,12 +215,13 @@ namespace Tests
                 var logger = loggerFactory.CreateLogger("Client");
 
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await socket.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await socket.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040));
                 var stream = await hostConfigurator.GetClientStream(socket);
 
                 var channel = new StreamPipeChannel<TextPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new LinePipelineFilter(), new ChannelOptions
                 {
-                    Logger = logger
+                    Logger = logger,
+                    ReadAsDemand = true
                 });
 
                 var msg = Guid.NewGuid().ToString();
@@ -229,7 +232,7 @@ namespace Tests
                 await foreach (var package in channel.RunAsync())
                 {
                     Assert.NotNull(package);
-                    Assert.Equal(msg, package.Text);
+                    Assert.Equal("PRE-" + msg, package.Text);
                     round++;
 
                     if (round >= 10)
@@ -240,6 +243,15 @@ namespace Tests
                 }
 
                 await channel.DetachAsync();
+                
+                // the connection is still alive in the server
+                Assert.Equal(1, server.SessionCount);
+
+                // socket.Connected is is still connected
+                Assert.True(socket.Connected);
+
+                var ns = stream as DerivedNetworkStream;
+                Assert.True(ns.Socket.Connected);
 
                 // the stream is still usable
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
@@ -251,7 +263,7 @@ namespace Tests
                         await streamWriter.WriteAsync(txt + "\r\n");
                         await streamWriter.FlushAsync();
                         var line = await streamReader.ReadLineAsync();
-                        Assert.Equal(txt, line);
+                        Assert.Equal("PRE-" + txt, line);
                     }
                 }
 
