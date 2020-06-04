@@ -171,6 +171,17 @@ namespace SuperSocket
                 }
             );
         }
+
+        public SuperSocketHostBuilder<TReceivePackage> UsePackageHandlingScheduler<TPackageHandlingScheduler>()
+            where TPackageHandlingScheduler : class, IPackageHandlingScheduler<TReceivePackage>
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<IPackageHandlingScheduler<TReceivePackage>, TPackageHandlingScheduler>();
+                }
+            );
+        }
     }
 
     public static class SuperSocketHostBuilder
