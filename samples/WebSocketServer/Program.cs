@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SuperSocket.WebSocket;
 using SuperSocket.WebSocket.Server;
 
 namespace WebSocketServer
@@ -9,9 +10,9 @@ namespace WebSocketServer
     class Program
     {
         static async Task Main(string[] args)
-        {               
+        {
             var host = WebSocketHostBuilder.Create()
-                .ConfigureWebSocketMessageHandler(async (session, message) =>
+                .UseWebSocketMessageHandler(async (session, message) =>
                 {
                     // echo message back to the client
                     await session.SendAsync(message.Message);

@@ -6,6 +6,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.WebSocket.Server/SuperSocket.WebSocket.Server.csproj" />
+    <ProjectReference Include="..\..\src\SuperSocket.WebSocket\SuperSocket.WebSocket.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json">

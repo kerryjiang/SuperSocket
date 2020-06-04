@@ -6,6 +6,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Client/SuperSocket.Client.csproj" />
+    <ProjectReference Include="..\..\src\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj" />
+    <ProjectReference Include="..\..\src\SuperSocket.WebSocket\SuperSocket.WebSocket.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="SuperSocket.ProtoBase">
