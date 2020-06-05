@@ -39,7 +39,7 @@ namespace Tests
 
         public async ValueTask<Stream> GetClientStream(Socket socket)
         {
-            var stream = new SslStream(new NetworkStream(socket), false);
+            var stream = new SslStream(new DerivedNetworkStream(socket), false);
             var options = new SslClientAuthenticationOptions();
             options.TargetHost = "supersocket";
             options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;

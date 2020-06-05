@@ -66,7 +66,7 @@ namespace Tests
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<HttpRequest, HttpPipelineFilter>(hostConfigurator)
-                .ConfigurePackageHandler(async (s, p) =>
+                .UsePackageHandler(async (s, p) =>
                 {
                     var response = "HTTP/1.1 200 OK\r\n"
                         + "Date: Sat, 09 Oct 2010 14:28:02 GMT\r\n"

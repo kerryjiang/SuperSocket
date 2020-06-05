@@ -6,25 +6,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.ProtoBase;
+using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Command
 {
-    public class CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo, TPackageMapper> : CommandMiddleware<TKey, TNetPackageInfo, TPackageInfo>
-        where TPackageInfo : class, IKeyedPackageInfo<TKey>
-        where TNetPackageInfo : class
-        where TPackageMapper : IPackageMapper<TNetPackageInfo, TPackageInfo>, new()
-    {
-        public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
-            : base(serviceProvider, commandOptions)
-        {
-     
-        }
-
-        protected override IPackageMapper<TNetPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
-        {
-            return new TPackageMapper();
-        }
-    }
 
     public class CommandMiddleware<TKey, TPackageInfo> : CommandMiddleware<TKey, TPackageInfo, TPackageInfo>
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
@@ -56,20 +41,26 @@ namespace SuperSocket.Command
     {
         private Dictionary<TKey, ICommandSet> _commands;
 
+        private ILogger _logger;
+
         protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; private set; }    
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
         {
+            _logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger("CommandMiddleware");
+
             var sessionFactory = serviceProvider.GetService<ISessionFactory>();
             var sessionType = sessionFactory == null ? typeof(IAppSession) : sessionFactory.SessionType;
 
             var commandInterfaces = new List<CommandTypeInfo>();
+            var commandSetFactories = new List<ICommandSetFactory>();
 
-            RegisterCommandInterfaces(commandInterfaces, sessionType, typeof(TPackageInfo));
+            RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, sessionType, typeof(TPackageInfo));
+
 
             if (sessionType != typeof(IAppSession))
             {
-                RegisterCommandInterfaces(commandInterfaces, typeof(IAppSession), typeof(TPackageInfo));
+                RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, typeof(IAppSession), typeof(TPackageInfo));
             }
 
             var knownInterfaces = new Type[] { typeof(IKeyedPackageInfo<TKey>) };
@@ -79,15 +70,15 @@ namespace SuperSocket.Command
                 if (knownInterfaces.Contains(f))
                     continue;
 
-                RegisterCommandInterfaces(commandInterfaces, sessionType, f, true);
+                RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, sessionType, f, true);
 
                 if (sessionType != typeof(IAppSession))
                 {
-                    RegisterCommandInterfaces(commandInterfaces, typeof(IAppSession), f, true);
+                    RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, typeof(IAppSession), f, true);
                 }
             }
 
-            var commandTypes = commandOptions.Value.GetCommandTypes(t => true).Select((t) => 
+            commandSetFactories.AddRange(commandOptions.Value.GetCommandTypes(t => true).Select((t) => 
             {
                 if (t.IsAbstract)
                     return null;
@@ -97,36 +88,48 @@ namespace SuperSocket.Command
                     var face = commandInterfaces[i];
 
                     if (face.CommandType.IsAssignableFrom(t))
-                        return face.CreateFinalCommandTypeInfo(t);
+                        return face.CreateCommandSetFactory(t);
                 }
 
                 return null;
-            }).Where(t => t != null);            
-            
-            var commands = commandTypes.Select(t => t.CommandSetFactory.Create(serviceProvider, t.CommandType, t.ActualCommandType, commandOptions.Value));
+            }).Where(t => t != null));
 
+            
+            var commands = commandSetFactories.Select(t => t.Create(serviceProvider, commandOptions.Value));
             var comparer = serviceProvider.GetService<IEqualityComparer<TKey>>();
 
-            if (comparer == null)
-                _commands = commands.ToDictionary(x => x.Key);
-            else
-                _commands = commands.ToDictionary(x => x.Key, comparer);
+            var commandDict = comparer == null ?
+                new Dictionary<TKey, ICommandSet>() : new Dictionary<TKey, ICommandSet>(comparer);
+
+            foreach (var cmd in commands)
+            {
+                if (commandDict.ContainsKey(cmd.Key))
+                {
+                    var error = $"Duplicated command with Key {cmd.Key} is found: {cmd.ToString()}";
+                    _logger.LogError(error);
+                    throw new Exception(error);
+                }
+
+                commandDict.Add(cmd.Key, cmd);
+                _logger.LogDebug("The command with key {cmd.Key} is registered: {cmd.ToString()}");
+            }
+
+            _commands = commandDict;
 
             PackageMapper = CreatePackageMapper(serviceProvider);
         }
 
-        private void RegisterCommandInterfaces(List<CommandTypeInfo> commandInterfaces, Type sessionType, Type packageType, bool wrapRequired = false)
+        private void RegisterCommandInterfaces(List<CommandTypeInfo> commandInterfaces, List<ICommandSetFactory> commandSetFactories, IServiceProvider serviceProvider, Type sessionType, Type packageType, bool wrapRequired = false)
         {
             var genericTypes = new [] { sessionType, packageType };
 
             var commandInterface = typeof(ICommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
             var asyncCommandInterface = typeof(IAsyncCommand<,>).GetTypeInfo().MakeGenericType(genericTypes);
 
-            var commandSetFactory = ActivatorUtilities.CreateInstance(null,
-                typeof(CommandSetFactory<>).MakeGenericType(typeof(TKey), typeof(TNetPackageInfo), typeof(TPackageInfo), sessionType)) as ICommandSetFactory;
+            var commandSetFactoryType = typeof(CommandSetFactory<>).MakeGenericType(typeof(TKey), typeof(TNetPackageInfo), typeof(TPackageInfo), sessionType);
 
-            var syncCommandType = new CommandTypeInfo(typeof(ICommand<,>).GetTypeInfo().MakeGenericType(genericTypes), commandSetFactory);
-            var asyncCommandType = new CommandTypeInfo(typeof(IAsyncCommand<,>).GetTypeInfo().MakeGenericType(genericTypes), commandSetFactory);
+            var syncCommandType = new CommandTypeInfo(typeof(ICommand<,>).GetTypeInfo().MakeGenericType(genericTypes), commandSetFactoryType);
+            var asyncCommandType = new CommandTypeInfo(typeof(IAsyncCommand<,>).GetTypeInfo().MakeGenericType(genericTypes), commandSetFactoryType);
 
             commandInterfaces.Add(syncCommandType);
             commandInterfaces.Add(asyncCommandType);
@@ -145,6 +148,28 @@ namespace SuperSocket.Command
                     return typeof(AsyncCommandWrap<,,,>).GetTypeInfo().MakeGenericType(sessionType, typeof(TPackageInfo), packageType, t);
                 };
             }
+
+            RegisterCommandSetFactoriesFromServices(commandSetFactories, serviceProvider, syncCommandType.CommandType, commandSetFactoryType, syncCommandType.WrapFactory);
+            RegisterCommandSetFactoriesFromServices(commandSetFactories, serviceProvider, asyncCommandType.CommandType, commandSetFactoryType, asyncCommandType.WrapFactory);
+        }
+
+        private void RegisterCommandSetFactoriesFromServices(List<ICommandSetFactory> commandSetFactories, IServiceProvider serviceProvider, Type commandType, Type commandSetFactoryType, Func<Type, Type> commandWrapFactory)
+        {
+            foreach (var command in serviceProvider.GetServices(commandType).OfType<ICommand>())
+            {
+                var cmd = command;
+                var actualCommandType = cmd.GetType();
+
+                if (commandWrapFactory != null)
+                {
+                    var commandWrapType = commandWrapFactory(command.GetType());
+                    cmd = ActivatorUtilities.CreateInstance(null, commandWrapType, command) as ICommand;
+                }
+
+                var commandTypeInfo = new CommandTypeInfo(cmd);
+                commandTypeInfo.ActualCommandType = actualCommandType;
+                commandSetFactories.Add(ActivatorUtilities.CreateInstance(null, commandSetFactoryType, commandTypeInfo) as ICommandSetFactory);
+            }
         }
 
         protected virtual IPackageMapper<TNetPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
@@ -152,7 +177,7 @@ namespace SuperSocket.Command
             return serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
-        protected virtual async Task HandlePackage(IAppSession session, TPackageInfo package)
+        protected virtual async ValueTask HandlePackage(IAppSession session, TPackageInfo package)
         {
             if (!_commands.TryGetValue(package.Key, out ICommandSet commandSet))
             {
@@ -167,7 +192,7 @@ namespace SuperSocket.Command
             await HandlePackage(session, package);
         }
 
-        Task IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package)
+        ValueTask IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package)
         {
             return HandlePackage(session, PackageMapper.Map(package));
         }
@@ -183,48 +208,63 @@ namespace SuperSocket.Command
         {
             public Type CommandType { get; private set; }
 
-            public Type ActualCommandType { get; private set; }
+            public Type ActualCommandType { get; set; }
 
-            public ICommandSetFactory CommandSetFactory { get; private set; }
+            public ICommand Command { get; private set; }
+
+            public Type CommandSetFactoryType { get; private set; }
 
             public bool WrapRequired { get; set; }
 
             public Func<Type, Type> WrapFactory { get; set; }
 
-            public CommandTypeInfo(Type commandType, ICommandSetFactory commandSetFactory)
-                : this(commandType, commandSetFactory, false)
+            public CommandTypeInfo(ICommand command)
+            {
+                Command = command;
+                CommandType = command.GetType();
+            }
+
+            public CommandTypeInfo(Type commandType, Type commandSetFactoryType)
+                : this(commandType, commandSetFactoryType, false)
             {
 
             }
 
-            public CommandTypeInfo(Type commandType, ICommandSetFactory commandSetFactory, bool wrapRequired)
+            public CommandTypeInfo(Type commandType, Type commandSetFactoryType, bool wrapRequired)
             {
                 CommandType = commandType;
-                CommandSetFactory = commandSetFactory;
+                CommandSetFactoryType = commandSetFactoryType;
                 WrapRequired = wrapRequired;
             }
 
-            public CommandTypeInfo CreateFinalCommandTypeInfo(Type type)
+            public ICommandSetFactory CreateCommandSetFactory(Type type)
             {
-                var commandTyeInfo = new CommandTypeInfo(WrapRequired ? WrapFactory(type) : type, CommandSetFactory);
-                commandTyeInfo.ActualCommandType = type;
-                return commandTyeInfo;
+                var commandTyeInfo = new CommandTypeInfo(WrapRequired ? WrapFactory(type) : type, null);
+                commandTyeInfo.ActualCommandType = type;                
+                return ActivatorUtilities.CreateInstance(null, this.CommandSetFactoryType, commandTyeInfo) as ICommandSetFactory;
             }
         }
 
         interface ICommandSetFactory
         {
-            ICommandSet Create(IServiceProvider serviceProvider, Type commandType, Type actualCommandType, CommandOptions commandOptions);
+            ICommandSet Create(IServiceProvider serviceProvider, CommandOptions commandOptions);
         }
 
         class CommandSetFactory<TAppSession> : ICommandSetFactory
             where TAppSession : IAppSession
         
         {
-            public ICommandSet Create(IServiceProvider serviceProvider, Type commandType, Type actualCommandType, CommandOptions commandOptions)
+            public CommandTypeInfo CommandType { get; private set; }
+
+            public CommandSetFactory(CommandTypeInfo commandType)
+            {
+                CommandType = commandType;
+            }
+
+            public ICommandSet Create(IServiceProvider serviceProvider, CommandOptions commandOptions)
             {
                 var commandSet = new CommandSet<TAppSession>();
-                commandSet.Initialize(serviceProvider, commandType, actualCommandType, commandOptions);
+                commandSet.Initialize(serviceProvider, CommandType, commandOptions);
                 return commandSet;
             }
         }
@@ -288,29 +328,49 @@ namespace SuperSocket.Command
                 return cmdMeta;
             }
 
-            public void Initialize(IServiceProvider serviceProvider, Type commandType, Type actualCommandType, CommandOptions commandOptions)
+            protected void SetCommand(ICommand command)
             {
-                var command = ActivatorUtilities.CreateInstance(serviceProvider, commandType) as ICommand;                
-                var cmdMeta = GetCommandMetadata(actualCommandType);
+                Command = command as ICommand<TAppSession, TPackageInfo>;
+                AsyncCommand = command as IAsyncCommand<TAppSession, TPackageInfo>;
+            }
+
+            public void Initialize(IServiceProvider serviceProvider, CommandTypeInfo commandTypeInfo, CommandOptions commandOptions)
+            {
+                var command = commandTypeInfo.Command;
+
+                if (command == null)
+                {
+                    if (commandTypeInfo.CommandType != commandTypeInfo.ActualCommandType)
+                    {
+                        var commandFactory = ActivatorUtilities.CreateFactory(commandTypeInfo.CommandType, new [] { typeof(IServiceProvider) });
+                        command = commandFactory.Invoke(serviceProvider, new object[] { serviceProvider }) as ICommand;
+                    }
+                    else
+                    {
+                        command = ActivatorUtilities.CreateInstance(serviceProvider, commandTypeInfo.CommandType) as ICommand;
+                    }                    
+                }
+                
+                SetCommand(command);
+                
+                var cmdMeta = GetCommandMetadata(commandTypeInfo.ActualCommandType);
 
                 try
                 {
                     Key = (TKey)cmdMeta.Key;
+                    Metadata = cmdMeta;
                 }
                 catch (Exception e)
                 {
                     throw new Exception($"The command {cmdMeta.Name}'s Key {cmdMeta.Key} cannot be converted to the desired type '{typeof(TKey).Name}'.", e);
-                }                
-
-                Command = command as ICommand<TAppSession, TPackageInfo>;
-                AsyncCommand = command as IAsyncCommand<TAppSession, TPackageInfo>;
+                }
 
                 var filters = new List<ICommandFilter>();
 
                 if (commandOptions.GlobalCommandFilterTypes.Any())
                     filters.AddRange(commandOptions.GlobalCommandFilterTypes.Select(t => ActivatorUtilities.CreateInstance(serviceProvider, t) as CommandFilterBaseAttribute));
 
-                filters.AddRange(commandType.GetCustomAttributes(false).OfType<CommandFilterBaseAttribute>());
+                filters.AddRange(commandTypeInfo.ActualCommandType.GetCustomAttributes(false).OfType<CommandFilterBaseAttribute>());
                 Filters = filters;
             }
 
@@ -406,6 +466,16 @@ namespace SuperSocket.Command
                         }
                     }
                 }
+            }
+
+            public override string ToString()
+            {
+                ICommand command = Command;
+                
+                if (command == null)
+                    command = AsyncCommand;
+
+                return command?.GetType().ToString();
             }
         }
     }

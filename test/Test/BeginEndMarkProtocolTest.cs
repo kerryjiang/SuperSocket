@@ -31,7 +31,7 @@ namespace Tests
 
             }
 
-            protected override TextPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
+            protected override TextPackageInfo DecodePackage(ref ReadOnlySequence<byte> buffer)
             {
                 return new TextPackageInfo { Text = buffer.GetString(Utf8Encoding) };
             }
@@ -45,7 +45,7 @@ namespace Tests
         protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
             return CreateSocketServerBuilder<TextPackageInfo, MyMarkHeaderPipelineFilter>(hostConfigurator)
-                .ConfigurePackageHandler(async (s, p) =>
+                .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
                 }).BuildAsServer() as IServer;

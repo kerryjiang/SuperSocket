@@ -18,6 +18,11 @@ namespace SuperSocket.Command
     {
         public TCommand InnerCommand { get; }
 
+        public CommandWrap(TCommand command)
+        {
+            InnerCommand = command;
+        }
+
         public CommandWrap(IServiceProvider serviceProvider)
         {
             InnerCommand = (TCommand)ActivatorUtilities.CreateInstance(serviceProvider, typeof(TCommand));
@@ -40,6 +45,11 @@ namespace SuperSocket.Command
         where TAsyncCommand : IAsyncCommand<TAppSession, IPackageInterface>
     {
         public TAsyncCommand InnerCommand { get; }
+
+        public AsyncCommandWrap(TAsyncCommand command)
+        {
+            InnerCommand = command;
+        }
 
         public AsyncCommandWrap(IServiceProvider serviceProvider)
         {

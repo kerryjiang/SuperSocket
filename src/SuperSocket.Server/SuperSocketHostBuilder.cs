@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -12,8 +13,7 @@ using SuperSocket.Server;
 
 namespace SuperSocket
 {
-    public class SuperSocketHostBuilder<TReceivePackage> : IHostBuilder<TReceivePackage>
-        where TReceivePackage : class
+    public class SuperSocketHostBuilder<TReceivePackage> : ISuperSocketHostBuilder<TReceivePackage>, IHostBuilder
     {
 
         private HostBuilder _hostBuilder;
@@ -37,7 +37,19 @@ namespace SuperSocket
 
                 services.TryAdd(ServiceDescriptor.Singleton<IChannelCreatorFactory, TcpChannelCreatorFactory>());
                 services.TryAdd(ServiceDescriptor.Singleton<IPackageEncoder<string>, DefaultStringEncoderForDI>());
+
+                // if no host service was defined, just use the default one
+                if (!services.Any(sd => sd.ServiceType == typeof(IHostedService)
+                    && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(sd.ImplementationType)))
+                {
+                    RegisterDefaultHostedService(services);
+                }
             }).Build();
+        }
+
+        protected virtual void RegisterDefaultHostedService(IServiceCollection services)
+        {
+            services.AddHostedService<SuperSocketService<TReceivePackage>>();
         }
 
         public IHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext, IConfigurationBuilder> configureDelegate)
@@ -52,7 +64,7 @@ namespace SuperSocket
             return this;
         }
 
-        public IHostBuilder<TReceivePackage> ConfigureDefaults()
+        public SuperSocketHostBuilder<TReceivePackage> ConfigureDefaults()
         {
             var hostBuilder = this.ConfigureAppConfiguration((hostingContext, config) =>
                 {
@@ -61,11 +73,11 @@ namespace SuperSocket
                           .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
                 });
 
-            return hostBuilder.ConfigureServices((hostCtx, services) =>
+            return this.ConfigureServices((hostCtx, services) =>
                 {
                     services.AddOptions();
                     services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
-                }) as IHostBuilder<TReceivePackage>;
+                });
         }
 
         public IHostBuilder ConfigureHostConfiguration(Action<IConfigurationBuilder> configureDelegate)
@@ -74,7 +86,12 @@ namespace SuperSocket
             return this;
         }
 
-        public IHostBuilder ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        IHostBuilder IHostBuilder.ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        {
+            return ConfigureServices(configureDelegate);
+        }
+
+        public SuperSocketHostBuilder<TReceivePackage> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
             _hostBuilder.ConfigureServices(configureDelegate);
             return this;
@@ -91,35 +108,98 @@ namespace SuperSocket
             _hostBuilder.UseServiceProviderFactory<TContainerBuilder>(factory);
             return this;
         }
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> UsePipelineFilter<TPipelineFilter>()
+            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
+        {
+            return this.ConfigureServices((ctx, services) =>
+            {
+                services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
+            });
+        }
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TPipelineFilterFactory>()
+            where TPipelineFilterFactory : class, IPipelineFilterFactory<TReceivePackage>
+        {
+            return this.ConfigureServices((ctx, services) =>
+            {
+                services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, TPipelineFilterFactory>();
+            });
+        }
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> UseHostedService<THostedService>()
+            where THostedService : SuperSocketService<TReceivePackage>
+        {
+            return this.ConfigureServices((ctx, services) =>
+            {
+                services.AddHostedService<THostedService>();
+            });
+        }
+        
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> UsePackageDecoder<TPackageDecoder>()
+            where TPackageDecoder : class, IPackageDecoder<TReceivePackage>
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<IPackageDecoder<TReceivePackage>, TPackageDecoder>();
+                }
+            );
+        }
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> ConfigureErrorHandler(Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler)
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
+        }
+
+        public virtual SuperSocketHostBuilder<TReceivePackage> UsePackageHandler(Func<IAppSession, TReceivePackage, ValueTask> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    if (packageHandler != null)
+                        services.AddSingleton<IPackageHandler<TReceivePackage>>(new DelegatePackageHandler<TReceivePackage>(packageHandler));
+
+                    if (errorHandler != null)
+                        services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
+        }
+
+        public SuperSocketHostBuilder<TReceivePackage> UsePackageHandlingScheduler<TPackageHandlingScheduler>()
+            where TPackageHandlingScheduler : class, IPackageHandlingScheduler<TReceivePackage>
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<IPackageHandlingScheduler<TReceivePackage>, TPackageHandlingScheduler>();
+                }
+            );
+        }
     }
 
     public static class SuperSocketHostBuilder
     {
-        public static IHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>()
-            where TReceivePackage : class
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
-        {
-            return new SuperSocketHostBuilder<TReceivePackage>()
-                .ConfigureDefaults()
-                .UseSuperSocket<TReceivePackage, TPipelineFilter>() as IHostBuilder<TReceivePackage>;
-        }
-
-        public static IHostBuilder<TReceivePackage> Create<TReceivePackage>(Func<object, IPipelineFilter<TReceivePackage>> filterFactory)
+        public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage>()
             where TReceivePackage : class
         {
             return new SuperSocketHostBuilder<TReceivePackage>()
-                .ConfigureDefaults()
-                .UseSuperSocket<TReceivePackage>(filterFactory) as IHostBuilder<TReceivePackage>;
+                .ConfigureDefaults();
         }
         
-        public static IHostBuilder<TReceivePackage> Create<TReceivePackage, TSuperSocketService, TPipelineFilter>()
+        public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>()
             where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
-            where TSuperSocketService : SuperSocketService<TReceivePackage>
         {
             return new SuperSocketHostBuilder<TReceivePackage>()
                 .ConfigureDefaults()
-                .UseSuperSocket<TReceivePackage, TPipelineFilter, TSuperSocketService>() as IHostBuilder<TReceivePackage>;
+                .UsePipelineFilter<TPipelineFilter>();
         }
     }
 }

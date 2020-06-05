@@ -1,8 +1,9 @@
 <Project>
   <Import Project="Dependencies.props" />
   <PropertyGroup>
-    <VersionPrefix>2.0.0-preview3</VersionPrefix>
-    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
+    <VersionPrefix>2.0.0-beta1</VersionPrefix>    
+    <VersionSuffix>$(VersionSuffix)</VersionSuffix>   
+    <NrtRevisionFormat>$(VersionPrefix)-$(VersionSuffix)-{chash}</NrtRevisionFormat>
   </PropertyGroup>
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>    
@@ -16,4 +17,10 @@
     <IncludeSource>true</IncludeSource>
     <Authors>Kerry Jiang</Authors>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Unclassified.NetRevisionTask" Version="0.3.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>

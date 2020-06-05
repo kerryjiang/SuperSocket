@@ -33,7 +33,7 @@ namespace Tests
         public async Task TestSessionCount() 
         {
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
-                .ConfigurePackageHandler(async (s, p) =>
+                .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
                 }).BuildAsServer())
@@ -74,14 +74,14 @@ namespace Tests
             var connected = false;
 
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
-                .ConfigureSessionHandler(async (s) =>
+                .UseSessionHandler((s) =>
                 {
                     connected = true;
-                    await new ValueTask();
-                }, async (s) =>
+                    return new ValueTask();
+                }, (s) =>
                 {
                     connected = false;
-                    await new ValueTask();
+                    return new ValueTask();
                 }).BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
@@ -112,7 +112,7 @@ namespace Tests
         public async Task TestConsoleProtocol() 
         {
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
-                .ConfigurePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                .UsePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
                 }).BuildAsServer() as IServer)

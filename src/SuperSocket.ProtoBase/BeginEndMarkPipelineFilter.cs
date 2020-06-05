@@ -40,7 +40,7 @@ namespace SuperSocket.ProtoBase
             }
 
             reader.Advance(endMark.Length);
-            return DecodePackage(pack);
+            return DecodePackage(ref pack);
         }
 
         public override void Reset()

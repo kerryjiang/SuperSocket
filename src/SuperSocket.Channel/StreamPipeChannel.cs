@@ -10,7 +10,6 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Channel
 {
     public class StreamPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
-        where TPackageInfo : class
     {
         private Stream _stream;
 
@@ -56,7 +55,7 @@ namespace SuperSocket.Channel
                 total += data.Length;
             }
 
-            await _stream.FlushAsync();
+            await _stream.FlushAsync(cancellationToken);
             return total;
         }
 

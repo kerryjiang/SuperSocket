@@ -17,6 +17,7 @@ using Xunit;
 using Xunit.Abstractions;
 using SuperSocket.Server;
 using System.Threading;
+using SuperSocket.Test.Command;
 
 namespace Tests
 {
@@ -177,6 +178,80 @@ namespace Tests
                     await streamWriter.FlushAsync();
                     line = await streamReader.ReadLineAsync();
                     Assert.Equal("6", line);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommandsFromAssembly(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+                .UseCommand(commandOptions =>
+                {
+                    // register all commands in one aassembly
+                    commandOptions.AddCommandAssembly(typeof(MIN).GetTypeInfo().Assembly);
+                }).BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("MIN 8 6 3\r\n");
+                    await streamWriter.FlushAsync();
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal("3", line);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommandsFromConfigAssembly(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+                .UseCommand(commandOptions =>
+                {
+                    // register all commands in one aassembly
+                    commandOptions.Assemblies = new [] { new CommandAssemblyConfig { Name = "Command" } };
+                }).BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("MIN 8 6 3\r\n");
+                    await streamWriter.FlushAsync();
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal("3", line);
                 }
 
                 await server.StopAsync();
@@ -394,7 +469,7 @@ namespace Tests
                     commandOptions.AddCommand<COUNTDOWN>();
                     commandOptions.AddGlobalCommandFilter<HitCountCommandFilterAttribute>();
                 })
-                .ConfigureSessionHandler((s) =>
+                .UseSessionHandler((s) =>
                 {
                     s.DataContext = sessionState;
                     return new ValueTask();

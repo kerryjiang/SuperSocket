@@ -5,7 +5,7 @@ using System.Threading.Tasks.Sources;
 
 namespace SuperSocket.Channel
 {
-    internal class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
+    class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
     {
         class BufferSegment
         {
@@ -147,8 +147,16 @@ namespace SuperSocket.Channel
                 _waiting = true;
                 _lastReadIsWait = true;
                 _taskSourceCore.Reset();
+
+                OnWaitTaskStart();
+
                 return new ValueTask<T>(this, _taskSourceCore.Version);
             }            
+        }
+
+        protected virtual void OnWaitTaskStart()
+        {
+
         }
 
         T IValueTaskSource<T>.GetResult(short token)
@@ -200,5 +208,48 @@ namespace SuperSocket.Channel
             Dispose(true);
         }
         #endregion
+    }
+
+    class DefaultObjectPipeWithSupplyControl<T> : DefaultObjectPipe<T>, IValueTaskSource, ISupplyController
+    {
+        private ManualResetValueTaskSourceCore<bool> _taskSourceCore;
+
+        public DefaultObjectPipeWithSupplyControl()
+            : base()
+        {
+            _taskSourceCore = new ManualResetValueTaskSourceCore<bool>();
+        }
+
+        public ValueTask SupplyRequired()
+        {
+            return new ValueTask(this, _taskSourceCore.Version);
+        }
+
+        protected override void OnWaitTaskStart()
+        {
+            _taskSourceCore.SetResult(true);
+            _taskSourceCore.Reset();
+        }
+
+        public void SupplyEnd()
+        {
+            _taskSourceCore.SetResult(false);
+            _taskSourceCore.Reset();
+        }
+
+        void IValueTaskSource.GetResult(short token)
+        {
+            _taskSourceCore.GetResult(token);
+        }
+
+        ValueTaskSourceStatus IValueTaskSource.GetStatus(short token)
+        {
+            return _taskSourceCore.GetStatus(token);
+        }
+
+        void IValueTaskSource.OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+        {
+            _taskSourceCore.OnCompleted(continuation, state, token, flags);
+        }
     }
 }

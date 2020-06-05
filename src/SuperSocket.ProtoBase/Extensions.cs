@@ -8,6 +8,28 @@ namespace SuperSocket.ProtoBase
 
     public static class Extensions
     {
+        public static string ReadString(ref this SequenceReader<byte> reader, long length = 0)
+        {
+            return ReadString(ref reader, Encoding.UTF8, length);
+        }
+        
+        public static string ReadString(ref this SequenceReader<byte> reader, Encoding encoding, long length = 0)
+        {
+            if (length == 0)
+                length = reader.Remaining;
+
+            var seq = reader.Sequence.Slice(reader.Consumed, length);
+            
+            try
+            {                
+                return seq.GetString(encoding);
+            }
+            finally
+            {
+                reader.Advance(length);
+            }
+        }
+        
         public static string GetString(this ReadOnlySequence<byte> buffer, Encoding encoding)
         {
             if (buffer.IsSingleSegment)

@@ -14,7 +14,6 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Channel
 {
     public abstract partial class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
-        where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
@@ -56,7 +55,12 @@ namespace SuperSocket.Channel
         protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
         {
             _pipelineFilter = pipelineFilter;
-            _packagePipe = new DefaultObjectPipe<TPackageInfo>();
+
+            if (!options.ReadAsDemand)
+                _packagePipe = new DefaultObjectPipe<TPackageInfo>();
+            else
+                _packagePipe = new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
+
             Options = options;
             Logger = options.Logger;
             Out = options.Out ?? new Pipe();
@@ -124,15 +128,33 @@ namespace SuperSocket.Channel
             var options = Options;
             var cts = _cts;
 
+            var supplyController = _packagePipe as ISupplyController;
+
+            if (supplyController != null)
+            {
+                cts.Token.Register(() =>
+                {
+                    supplyController.SupplyEnd();
+                });
+            }
+
             while (!cts.IsCancellationRequested)
             {
                 try
-                {
+                {                    
+                    if (supplyController != null)
+                    {
+                        await supplyController.SupplyRequired();
+
+                        if (cts.IsCancellationRequested)
+                            break;
+                    }                        
+
                     var bufferSize = options.ReceiveBufferSize;
                     var maxPackageLength = options.MaxPackageLength;
 
-                    if (maxPackageLength > 0)
-                        bufferSize = Math.Min(bufferSize, maxPackageLength);
+                    if (bufferSize <= 0)
+                        bufferSize = 1024 * 4; //4k
 
                     var memory = writer.GetMemory(bufferSize);
 
@@ -163,6 +185,100 @@ namespace SuperSocket.Channel
                 {
                     break;
                 }
+            }
+
+            // Signal to the reader that we're done writing
+            writer.Complete();
+            Out.Writer.Complete();// TODO: should complete the output right now?
+        }
+
+        protected virtual async Task FillAndReadPipeAsync(PipeWriter writer, PipeReader reader)
+        {
+            var options = Options;
+            var cts = _cts;
+
+            while (!cts.IsCancellationRequested)
+            {
+                try
+                {
+                    var bufferSize = options.ReceiveBufferSize;
+                    var maxPackageLength = options.MaxPackageLength;
+
+                    if (bufferSize <= 0)
+                        bufferSize = 1024 * 4; //4k
+
+                    var memory = writer.GetMemory(bufferSize);
+
+                    var bytesRead = await FillPipeWithDataAsync(memory, cts.Token);         
+
+                    if (bytesRead == 0)
+                    {
+                        break;
+                    }
+
+                    LastActiveTime = DateTimeOffset.Now;
+                    
+                    // Tell the PipeWriter how much was read
+                    writer.Advance(bytesRead);
+                }
+                catch (Exception e)
+                {
+                    if (!IsIgnorableException(e))
+                        OnError("Exception happened in ReceiveAsync", e);
+                    
+                    break;
+                }
+
+                // Make the data available to the PipeReader
+                var fr = await writer.FlushAsync();
+
+                if (fr.IsCompleted)
+                {
+                    break;
+                }
+
+                var result = await reader.ReadAsync(cts.Token);
+
+                var buffer = result.Buffer;
+
+                SequencePosition consumed = buffer.Start;
+                SequencePosition examined = buffer.End;
+
+                try
+                {
+                    if (result.IsCanceled)
+                    {
+                        break;
+                    }
+
+                    var completed = result.IsCompleted;
+
+                    if (buffer.Length > 0)
+                    {
+                        if (!ReaderBuffer(ref buffer, out consumed, out examined))
+                        {
+                            completed = true;
+                            break;
+                        }                        
+                    }
+
+                    if (completed)
+                    {
+                        break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    OnError("Protocol error", e);
+                    // close the connection if get a protocol error
+                    Close();
+                    break;
+                }
+                finally
+                {
+                    reader.AdvanceTo(consumed, examined);
+                }
+
             }
 
             // Signal to the reader that we're done writing
@@ -220,6 +336,7 @@ namespace SuperSocket.Channel
                     catch (Exception e)
                     {
                         output.Complete(e);
+                        cts.Cancel(false);
                         
                         if (!IsIgnorableException(e))
                             OnError("Exception happened in SendAsync", e);
@@ -373,7 +490,7 @@ namespace SuperSocket.Channel
 
         private void WriteEOFPackage()
         {
-            _packagePipe.Write(null);
+            _packagePipe.Write(default);
         }
 
         private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)

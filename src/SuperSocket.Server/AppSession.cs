@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class AppSession : IAppSession
+    public class AppSession : IAppSession, ILogger, ILoggerAccessor
     {
         private IChannel _channel;
 
@@ -159,5 +160,34 @@ namespace SuperSocket.Server
             {
             }
         }
+
+        #region ILogger
+
+        ILogger GetLogger()
+        {
+            return (Server as ILoggerAccessor).Logger;
+        }
+
+        void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            GetLogger().Log<TState>(logLevel, eventId, state, exception, (s, e) =>
+            {
+                return $"Session[{this.SessionID}]: {formatter(s, e)}";
+            });
+        }
+
+        bool ILogger.IsEnabled(LogLevel logLevel)
+        {
+            return GetLogger().IsEnabled(logLevel);
+        }
+
+        IDisposable ILogger.BeginScope<TState>(TState state)
+        {
+            return GetLogger().BeginScope<TState>(state);
+        }
+
+        public ILogger Logger => this as ILogger;
+
+        #endregion
     }
 }

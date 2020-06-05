@@ -20,7 +20,7 @@ namespace BasicClient
 
         }
 
-        protected override int GetBodyLengthFromHeader(ReadOnlySequence<byte> buffer)
+        protected override int GetBodyLengthFromHeader(ref ReadOnlySequence<byte> buffer)
         {
             var reader = new SequenceReader<byte>(buffer);
 
@@ -31,7 +31,7 @@ namespace BasicClient
             return len;
         }
 
-        protected override MyPackage DecodePackage(ReadOnlySequence<byte> buffer)
+        protected override MyPackage DecodePackage(ref ReadOnlySequence<byte> buffer)
         {
             var package = new MyPackage();
 
@@ -47,7 +47,7 @@ namespace BasicClient
             reader.TryReadBigEndian(out short sequence);
             package.Sequence = sequence;
             // get the rest of the data in the reader and then read it as utf8 string
-            package.Body = reader.Sequence.Slice(reader.Consumed).GetString(Encoding.UTF8);
+            package.Body = reader.ReadString(Encoding.UTF8);
 
             return package;
         }
