@@ -193,103 +193,9 @@ namespace SuperSocket.Channel
             Out.Writer.Complete();// TODO: should complete the output right now?
         }
 
-        protected virtual async Task FillAndReadPipeAsync(PipeWriter writer, PipeReader reader)
-        {
-            var options = Options;
-            var cts = _cts;
-
-            while (!cts.IsCancellationRequested)
-            {
-                try
-                {
-                    var bufferSize = options.ReceiveBufferSize;
-                    var maxPackageLength = options.MaxPackageLength;
-
-                    if (bufferSize <= 0)
-                        bufferSize = 1024 * 4; //4k
-
-                    var memory = writer.GetMemory(bufferSize);
-
-                    var bytesRead = await FillPipeWithDataAsync(memory, cts.Token);         
-
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-
-                    LastActiveTime = DateTimeOffset.Now;
-                    
-                    // Tell the PipeWriter how much was read
-                    writer.Advance(bytesRead);
-                }
-                catch (Exception e)
-                {
-                    if (!IsIgnorableException(e))
-                        OnError("Exception happened in ReceiveAsync", e);
-                    
-                    break;
-                }
-
-                // Make the data available to the PipeReader
-                var fr = await writer.FlushAsync();
-
-                if (fr.IsCompleted)
-                {
-                    break;
-                }
-
-                var result = await reader.ReadAsync(cts.Token);
-
-                var buffer = result.Buffer;
-
-                SequencePosition consumed = buffer.Start;
-                SequencePosition examined = buffer.End;
-
-                try
-                {
-                    if (result.IsCanceled)
-                    {
-                        break;
-                    }
-
-                    var completed = result.IsCompleted;
-
-                    if (buffer.Length > 0)
-                    {
-                        if (!ReaderBuffer(ref buffer, out consumed, out examined))
-                        {
-                            completed = true;
-                            break;
-                        }                        
-                    }
-
-                    if (completed)
-                    {
-                        break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    OnError("Protocol error", e);
-                    // close the connection if get a protocol error
-                    Close();
-                    break;
-                }
-                finally
-                {
-                    reader.AdvanceTo(consumed, examined);
-                }
-
-            }
-
-            // Signal to the reader that we're done writing
-            writer.Complete();
-            Out.Writer.Complete();// TODO: should complete the output right now?
-        }
-
         protected virtual bool IsIgnorableException(Exception e)
         {
-            if (e is ObjectDisposedException || e is NullReferenceException)
+            if (e is ObjectDisposedException || e is NullReferenceException || e is OperationCanceledException)
                 return true;
 
             if (e.InnerException != null)
@@ -442,22 +348,34 @@ namespace SuperSocket.Channel
 
             while (!cts.IsCancellationRequested)
             {
-                var result = await reader.ReadAsync(cts.Token);
+                ReadResult result;
+
+                try
+                {
+                    result = await reader.ReadAsync(cts.Token);
+                }
+                catch (Exception e)
+                {
+                    if (!IsIgnorableException(e))
+                        OnError("Failed to read from the pipe", e);
+                    
+                    break;
+                }
 
                 var buffer = result.Buffer;
 
                 SequencePosition consumed = buffer.Start;
                 SequencePosition examined = buffer.End;
 
+                if (result.IsCanceled)
+                {
+                    break;
+                }
+
+                var completed = result.IsCompleted;
+
                 try
                 {
-                    if (result.IsCanceled)
-                    {
-                        break;
-                    }
-
-                    var completed = result.IsCompleted;
-
                     if (buffer.Length > 0)
                     {
                         if (!ReaderBuffer(ref buffer, out consumed, out examined))
