@@ -214,6 +214,8 @@ namespace SuperSocket.Channel
     {
         private ManualResetValueTaskSourceCore<bool> _taskSourceCore;
 
+        private bool _currentInTask;
+
         public DefaultObjectPipeWithSupplyControl()
             : base()
         {
@@ -222,19 +224,28 @@ namespace SuperSocket.Channel
 
         public ValueTask SupplyRequired()
         {
+            _currentInTask = true;
             return new ValueTask(this, _taskSourceCore.Version);
         }
 
         protected override void OnWaitTaskStart()
         {
-            _taskSourceCore.SetResult(true);
-            _taskSourceCore.Reset();
+            SetTaskCompleted(true);
         }
 
         public void SupplyEnd()
         {
-            _taskSourceCore.SetResult(false);
+            SetTaskCompleted(false);
+        }
+
+        private void SetTaskCompleted(bool result)
+        {
+            if (!_currentInTask)
+                return;
+            
+            _taskSourceCore.SetResult(result);
             _taskSourceCore.Reset();
+            _currentInTask = false;
         }
 
         void IValueTaskSource.GetResult(short token)

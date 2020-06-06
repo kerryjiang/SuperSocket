@@ -120,6 +120,7 @@ namespace SuperSocket.Channel
         public override async ValueTask CloseAsync()
         {
             Close();
+            _cts.Cancel();
             await HandleClosing();
         }
 
