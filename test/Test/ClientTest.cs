@@ -40,8 +40,14 @@ namespace Tests
         class SecureEasyClient<TReceivePackage> : EasyClient<TReceivePackage>
             where TReceivePackage : class
         {
-            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger = null)
-                : base(pipelineFilter, logger)
+            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
+                : this(pipelineFilter, new ChannelOptions { Logger = logger })
+            {
+
+            }
+
+            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ChannelOptions options)
+                : base(pipelineFilter, options)
             {
 
             }
@@ -61,9 +67,11 @@ namespace Tests
         }
 
         [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
-        public async Task TestEcho(Type hostConfiguratorType)
+        [Trait("Category", "Client.TestEcho")]
+        [InlineData(typeof(RegularHostConfigurator), false)]
+        [InlineData(typeof(SecureHostConfigurator), false)]
+        [InlineData(typeof(RegularHostConfigurator), true)]
+        public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
@@ -91,11 +99,17 @@ namespace Tests
 
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 var logger = loggerFactory.CreateLogger("Client");
+
+                var options = new ChannelOptions
+                {
+                    Logger = logger,
+                    ReadAsDemand = clientReadAsDemand
+                };
                 
                 if (hostConfigurator.IsSecure)
-                    client = (new SecureEasyClient<TextPackageInfo>(new LinePipelineFilter(), logger)).AsClient();
+                    client = (new SecureEasyClient<TextPackageInfo>(new LinePipelineFilter(), options)).AsClient();
                 else
-                    client = new EasyClient<TextPackageInfo>(new LinePipelineFilter(), logger).AsClient();
+                    client = new EasyClient<TextPackageInfo>(new LinePipelineFilter(), options).AsClient();               
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 

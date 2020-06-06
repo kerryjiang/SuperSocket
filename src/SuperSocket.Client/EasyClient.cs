@@ -21,8 +21,14 @@ namespace SuperSocket.Client
             _packageEncoder = packageEncoder;
         }
         
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
-            : base(pipelineFilter, logger)
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ILogger logger = null)
+            : this(pipelineFilter, packageEncoder, new ChannelOptions { Logger = logger })
+        {
+
+        }
+
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ChannelOptions options)
+            : base(pipelineFilter, options)
         {
             _packageEncoder = packageEncoder;
         }
@@ -47,6 +53,8 @@ namespace SuperSocket.Client
 
         protected ILogger Logger { get; set; }
 
+        protected ChannelOptions Options { get; private set; }
+
         IAsyncEnumerator<TReceivePackage> _packageStream;
 
         public event PackageHandler<TReceivePackage> PackageHandler;
@@ -56,10 +64,29 @@ namespace SuperSocket.Client
 
         }
 
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger = null)
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
+            : this(pipelineFilter, new ChannelOptions())
         {
+            
+        }
+
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
+            : this(pipelineFilter, new ChannelOptions { Logger = logger })
+        {
+
+        }
+
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ChannelOptions options)
+        {
+            if (pipelineFilter == null)
+                throw new ArgumentNullException(nameof(pipelineFilter));
+
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
             _pipelineFilter = pipelineFilter;
-            Logger = logger;
+            Options = options;
+            Logger = options.Logger;
         }
 
         public virtual IEasyClient<TReceivePackage> AsClient()
@@ -70,15 +97,7 @@ namespace SuperSocket.Client
         protected virtual IConnector GetConntector()
         {
             return new SocketConnector();
-        }
-
-        protected virtual ChannelOptions GetChannelOptions()
-        {
-            return new ChannelOptions
-                {
-                    Logger = this.Logger
-                };
-        }
+        }        
 
         ValueTask<bool> IEasyClient<TReceivePackage>.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
         {
@@ -107,7 +126,7 @@ namespace SuperSocket.Client
             if (socket == null)
                 throw new Exception("Socket is null.");
 
-            var channelOptions = GetChannelOptions();
+            var channelOptions = Options;
             SetupChannel(state.CreateChannel<TReceivePackage>(_pipelineFilter, channelOptions));
             return true;
         }
