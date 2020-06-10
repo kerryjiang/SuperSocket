@@ -115,13 +115,14 @@ namespace Tests
                 
                 Assert.True(connected);
 
-                for (var i = 0; i < 10; i++)
+                for (var i = 0; i < 100; i++)
                 {
                     var msg = Guid.NewGuid().ToString();
                     await client.SendAsync(Utf8Encoding.GetBytes(msg + "\r\n"));
+
                     var package = await client.ReceiveAsync();
                     Assert.NotNull(package);
-                    Assert.Equal(msg, package.Text);
+                    Assert.Equal(msg, package.Text); 
                 }
 
                 await client.CloseAsync();

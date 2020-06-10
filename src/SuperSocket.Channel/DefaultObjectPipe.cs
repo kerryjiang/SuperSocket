@@ -141,6 +141,10 @@ namespace SuperSocket.Channel
                     }
                     
                     _length--;
+
+                    if (_length == 0)
+                        OnWaitTaskStart();
+
                     return new ValueTask<T>(value);
                 }                    
 
@@ -207,6 +211,7 @@ namespace SuperSocket.Channel
         {
             Dispose(true);
         }
+
         #endregion
     }
 
@@ -216,6 +221,8 @@ namespace SuperSocket.Channel
 
         private bool _currentInTask;
 
+        private bool _inWaiting = false;
+
         public DefaultObjectPipeWithSupplyControl()
             : base()
         {
@@ -224,8 +231,18 @@ namespace SuperSocket.Channel
 
         public ValueTask SupplyRequired()
         {
-            _currentInTask = true;
-            return new ValueTask(this, _taskSourceCore.Version);
+            lock (this)
+            {
+                if (_inWaiting)
+                {
+                    return new ValueTask();
+                }
+
+                _currentInTask = true;
+                _inWaiting = true;
+                _taskSourceCore.Reset();
+                return new ValueTask(this, _taskSourceCore.Version);
+            }
         }
 
         protected override void OnWaitTaskStart()
@@ -240,12 +257,18 @@ namespace SuperSocket.Channel
 
         private void SetTaskCompleted(bool result)
         {
-            if (!_currentInTask)
-                return;
-            
-            _taskSourceCore.SetResult(result);
-            _taskSourceCore.Reset();
-            _currentInTask = false;
+            lock (this)
+            {
+                if (!_currentInTask)
+                {
+                    _inWaiting = true;
+                    return;
+                }
+                
+                _taskSourceCore.SetResult(result);
+                _inWaiting = false;
+                _currentInTask = false;
+            }
         }
 
         void IValueTaskSource.GetResult(short token)
