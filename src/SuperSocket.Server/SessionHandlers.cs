@@ -6,7 +6,7 @@ using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
-    class SessionHandlers
+    public class SessionHandlers
     {
         public Func<IAppSession, ValueTask> Connected { get; set; }
 
