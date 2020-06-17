@@ -219,28 +219,29 @@ namespace SuperSocket.Channel
     {
         private ManualResetValueTaskSourceCore<bool> _taskSourceCore;
 
-        private bool _currentInTask;
-
-        private bool _inWaiting = false;
+        private short _currentTaskVersion = 0;
 
         public DefaultObjectPipeWithSupplyControl()
             : base()
         {
-            _taskSourceCore = new ManualResetValueTaskSourceCore<bool>();
+            _taskSourceCore = new ManualResetValueTaskSourceCore<bool>
+            {
+                RunContinuationsAsynchronously = true
+            };
         }
 
         public ValueTask SupplyRequired()
         {
             lock (this)
             {
-                if (_inWaiting)
+                if (_currentTaskVersion == -1)
                 {
+                    _currentTaskVersion = 0;
                     return new ValueTask();
                 }
 
-                _currentInTask = true;
-                _inWaiting = true;
                 _taskSourceCore.Reset();
+                _currentTaskVersion = _taskSourceCore.Version;
                 return new ValueTask(this, _taskSourceCore.Version);
             }
         }
@@ -259,15 +260,14 @@ namespace SuperSocket.Channel
         {
             lock (this)
             {
-                if (!_currentInTask)
+                if (_currentTaskVersion == 0)
                 {
-                    _inWaiting = true;
+                    _currentTaskVersion = -1;
                     return;
                 }
                 
                 _taskSourceCore.SetResult(result);
-                _inWaiting = false;
-                _currentInTask = false;
+                _currentTaskVersion = 0;
             }
         }
 
