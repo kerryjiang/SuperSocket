@@ -133,9 +133,10 @@ namespace SuperSocket.Client
 
         protected virtual void SetupChannel(IChannel<TReceivePackage> channel)
         {
-            Channel = channel;
             channel.Closed += OnChannelClosed;
+            channel.Start();
             _packageStream = channel.GetPackageStream();
+            Channel = channel;
         }
 
         ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()

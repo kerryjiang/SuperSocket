@@ -67,7 +67,7 @@ namespace SuperSocket.Channel
             In = options.In ?? new Pipe();
         }
 
-        protected void StartTasks()
+        public override void Start()
         {
             _readsTask = ProcessReads();
             _sendsTask = ProcessSends();
@@ -81,6 +81,9 @@ namespace SuperSocket.Channel
 
         public async override IAsyncEnumerable<TPackageInfo> RunAsync()
         { 
+            if (_readsTask == null || _sendsTask == null)
+                throw new Exception("The channel has not been started yet.");
+
             while (true)
             {
                 var package = await _packagePipe.ReadAsync();

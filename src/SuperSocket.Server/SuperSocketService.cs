@@ -304,6 +304,8 @@ namespace SuperSocket.Server
 
             try
             {
+                channel.Start();
+                
                 await FireSessionConnectedEvent(session);
 
                 var packageChannel = channel as IChannel<TReceivePackageInfo>;

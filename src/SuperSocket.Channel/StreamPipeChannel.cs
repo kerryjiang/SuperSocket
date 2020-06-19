@@ -25,7 +25,6 @@ namespace SuperSocket.Channel
             _stream = stream;
             RemoteEndPoint = remoteEndPoint;
             LocalEndPoint = localEndPoint;
-            StartTasks();
         }
 
         protected override void Close()

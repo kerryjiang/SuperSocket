@@ -41,6 +41,8 @@ namespace SuperSocket.Client.Proxy
         {
             var channel = state.CreateChannel<Socks5Pack>(new Socks5AuthPipelineFilter(), new ChannelOptions { ReadAsDemand = true });
 
+            channel.Start();
+
             var packStream = channel.GetPackageStream();
 
             await channel.SendAsync(_authenHandshakeRequest);

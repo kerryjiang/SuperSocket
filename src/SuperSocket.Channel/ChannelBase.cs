@@ -10,6 +10,8 @@ namespace SuperSocket.Channel
 {
     public abstract class ChannelBase<TPackageInfo> : IChannel<TPackageInfo>, IChannel
     {
+        public abstract void Start();
+        
         public abstract IAsyncEnumerable<TPackageInfo> RunAsync();
 
         public abstract ValueTask SendAsync(ReadOnlyMemory<byte> buffer);

@@ -238,6 +238,8 @@ namespace Tests
                     ReadAsDemand = true
                 });
 
+                channel.Start();
+
                 var msg = Guid.NewGuid().ToString();
                 await channel.SendAsync(Utf8Encoding.GetBytes(msg + "\r\n"));
 
@@ -255,6 +257,9 @@ namespace Tests
                     msg = Guid.NewGuid().ToString();
                     await channel.SendAsync(Utf8Encoding.GetBytes(msg + "\r\n"));
                 }
+
+
+                OutputHelper.WriteLine("Before DetachAsync");
 
                 await channel.DetachAsync();
                 

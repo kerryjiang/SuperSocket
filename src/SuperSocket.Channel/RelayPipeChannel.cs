@@ -20,7 +20,7 @@ namespace SuperSocket.Channel
         public RelayPipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, Pipe pipeIn, Pipe pipeOut)
             : base(pipelineFilter, RebuildOptionsWithPipes(options, pipeIn, pipeOut))
         {
-            StartTasks();
+
         }
 
         protected override void Close()

@@ -9,6 +9,8 @@ namespace SuperSocket.Channel
 {
     public interface IChannel
     {
+        void Start();
+        
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
 
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);

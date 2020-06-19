@@ -35,6 +35,8 @@ namespace SuperSocket.Client.Proxy
             var request = string.Empty;
             var channel = state.CreateChannel<TextPackageInfo>(new LinePipelineFilter(encoding), new ChannelOptions { ReadAsDemand = true });
 
+            channel.Start();
+
             if (remoteEndPoint is DnsEndPoint dnsEndPoint)
             {
                 request = string.Format(_requestTemplate, dnsEndPoint.Host, dnsEndPoint.Port);
