@@ -10,8 +10,8 @@ namespace SuperSocket.WebSocket.Server
     public class WebSocketService : SuperSocketService<WebSocketPackage>
     {
         IMiddleware _sessionContainerMiddleware;
-        public WebSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions, ILoggerFactory loggerFactory, IChannelCreatorFactory channelCreatorFactory)
-            : base(serviceProvider, serverOptions, loggerFactory, channelCreatorFactory)
+        public WebSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions)
+            : base(serviceProvider, serverOptions)
         {
             _sessionContainerMiddleware = Middlewares.FirstOrDefault(m => m is IAsyncSessionContainer || m is ISessionContainer);
         }
