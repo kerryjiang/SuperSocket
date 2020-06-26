@@ -19,21 +19,23 @@ namespace SuperSocket.Server
 
         public AppSession()
         {
-            SessionID = Guid.NewGuid().ToString();
+            
         }
 
         void IAppSession.Initialize(IServerInfo server, IChannel channel)
         {
+            SessionID = Guid.NewGuid().ToString();
             Server = server;
             StartTime = DateTimeOffset.Now;
             _channel = channel;
+            State = SessionState.Initialized;
         }
 
-        public string SessionID { get; }
+        public string SessionID { get; private set; }
 
         public DateTimeOffset StartTime { get; private set; }
 
-        public SessionState State { get; private set; } = SessionState.Initialized;
+        public SessionState State { get; private set; } = SessionState.None;
 
         public IServerInfo Server { get; private set; }
 
@@ -112,7 +114,7 @@ namespace SuperSocket.Server
             if (closeEventHandler == null)
                 return;
 
-            await closeEventHandler.Invoke(this, EventArgs.Empty);
+             await closeEventHandler.Invoke(this, EventArgs.Empty);
         }
 
 
@@ -143,6 +145,36 @@ namespace SuperSocket.Server
         ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             return _channel.SendAsync(packageEncoder, package);
+        }
+
+        void IAppSession.Reset()
+        {
+            ClearEvent(ref Connected);
+            ClearEvent(ref Closed);
+            _items?.Clear();
+            State = SessionState.None;
+            _channel = null;
+            DataContext = null;
+            StartTime = default(DateTimeOffset);
+            Server = null;
+
+            Reset();
+        }
+
+        protected virtual void Reset()
+        {
+
+        }
+
+        private void ClearEvent(ref AsyncEventHandler sessionEvent)
+        {
+            if (sessionEvent == null)
+                return;
+
+            foreach (var handler in sessionEvent.GetInvocationList())
+            {
+                sessionEvent -= (AsyncEventHandler)handler;
+            }
         }
 
         public virtual async ValueTask CloseAsync()

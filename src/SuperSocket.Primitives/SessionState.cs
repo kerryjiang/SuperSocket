@@ -7,10 +7,12 @@ namespace SuperSocket
 {
     public enum SessionState
     {
-        Initialized = 0,
+        None = 0,
 
-        Connected = 1,
+        Initialized = 1,
 
-        Closed = 2
+        Connected = 2,
+
+        Closed = 3
     }
 }
