@@ -25,7 +25,7 @@ namespace SuperSocket.Server
         public override MultipleServerHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext,IConfigurationBuilder> configDelegate)
         {
             _appConfigSet = true;
-            return this.ConfigureAppConfiguration(configDelegate);
+            return base.ConfigureAppConfiguration(configDelegate);
         }
 
         protected virtual void ConfigureServers(HostBuilderContext context, IServiceCollection hostServices)
@@ -40,7 +40,7 @@ namespace SuperSocket.Server
         {
             if (!_appConfigSet)
                 this.ConfigureAppConfiguration(SuperSocketHostBuilder.ConfigureAppConfiguration);
-                
+
             this.ConfigureServices(ConfigureServers);
             return base.Build();
         }

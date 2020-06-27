@@ -20,18 +20,16 @@ namespace SuperSocket.Server
     {
         private IHostBuilder _hostBuilder;
 
-        private IServiceCollection _currentServices;
+        private IServiceCollection _currentServices = new ServiceCollection();
 
         
         private IServiceProvider _serviceProvider;
-
-
-        private List<Action<HostBuilderContext, IServiceCollection>> _configureServicesActions = new List<Action<HostBuilderContext, IServiceCollection>>();
 
         internal ServerHostBuilderAdapter(IHostBuilder hostBuilder)
             : base(hostBuilder)
         {
             _hostBuilder = hostBuilder;
+            
         }
 
         private void CopyGlobalServices(IServiceCollection hostServices, IServiceCollection services)
@@ -65,14 +63,16 @@ namespace SuperSocket.Server
 
         protected void ConfigureServer(HostBuilderContext context, IServiceCollection hostServices)
         {
-            var services = _currentServices = new ServiceCollection();
+            var services = _currentServices;
 
             CopyGlobalServices(hostServices, services);
 
             services.AddOptions();
-            services.AddLogging();      
+            services.AddLogging();
 
-            foreach (var configureServicesAction in _configureServicesActions)
+            RegisterBasicServices(context, hostServices, services);
+
+            foreach (var configureServicesAction in ConfigureServicesActions)
             {
                 configureServicesAction(context, services);
             }
@@ -81,15 +81,13 @@ namespace SuperSocket.Server
 
             var serviceFactory = new DefaultServiceProviderFactory();
             var containerBuilder = serviceFactory.CreateBuilder(services);
-            
+
             _serviceProvider = serviceFactory.CreateServiceProvider(containerBuilder);
         }
 
         private void RegisterHostedService<THostedService>()
             where THostedService : SuperSocketService<TReceivePackage>
         {
-            _currentServices.AddSingleton<THostedService>();
-
             base.HostBuilder.ConfigureServices((context, services) =>
             {
                 RegisterHostedService<THostedService>(services);
@@ -99,6 +97,7 @@ namespace SuperSocket.Server
         private void RegisterHostedService<THostedService>(IServiceCollection servicesInHost)
             where THostedService : SuperSocketService<TReceivePackage>
         {
+            _currentServices.AddSingleton<THostedService>();
             servicesInHost.AddHostedService<THostedService>(s => GetHostedService<THostedService>());
         }
 
@@ -107,10 +106,11 @@ namespace SuperSocket.Server
             RegisterHostedService<SuperSocketService<TReceivePackage>>(servicesInHost);
         }
 
-
         private THostedService GetHostedService<THostedService>()
         {
-            return _serviceProvider.GetService<THostedService>();
+            var service = _serviceProvider.GetService<THostedService>();
+
+            return service;
         }
 
         public override SuperSocketHostBuilder<TReceivePackage> UseHostedService<THostedService>()
@@ -122,13 +122,6 @@ namespace SuperSocket.Server
         public override IHost Build()
         {
             throw new NotSupportedException();
-        }
-
-
-        public override SuperSocketHostBuilder<TReceivePackage> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
-        {
-            _configureServicesActions.Add(configureDelegate);
-            return this;
         }
 
         public override SuperSocketHostBuilder<TReceivePackage> UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)

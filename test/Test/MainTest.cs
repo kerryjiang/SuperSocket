@@ -9,7 +9,11 @@ using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SuperSocket;
+using SuperSocket.Server;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace Tests
 {
@@ -145,6 +149,94 @@ namespace Tests
                 Assert.IsType<RegularHostConfigurator>(server.ServiceProvider.GetService<IHostConfigurator>());
                 
                 await server.StopAsync();
+            }
+        }
+
+        class SuperSocketServiceA : SuperSocketService<TextPackageInfo>
+        {
+            public SuperSocketServiceA(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
+            {
+
+            }
+        }
+
+        class SuperSocketServiceB : SuperSocketService<TextPackageInfo>
+        {
+            public SuperSocketServiceB(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
+            {
+                
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "TestMultipleServerHost")]
+        public async Task TestMultipleServerHost()
+        {
+            var serverName1 = "TestServer1";
+            var serverName2 = "TestServer2";
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
+                })
+                .AddServer<TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseHostedService<SuperSocketServiceA>()
+                    .ConfigureServerOptions((ctx, config) =>
+                    {
+                        return config.GetSection(serverName1);
+                    }).UseSessionHandler(async (s) =>
+                    {
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    });
+                })
+                .AddServer<TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseHostedService<SuperSocketServiceB>()
+                    .ConfigureServerOptions((ctx, config) =>
+                    {
+                        return config.GetSection(serverName2);
+                    }).UseSessionHandler(async (s) =>
+                    {
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    });
+                })
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using(var host = hostBuilder.Build())
+            {
+                await host.StartAsync();
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040));
+                
+                using (var stream = new NetworkStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal(serverName1, line);
+                }
+                
+                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4041));
+                
+                using (var stream = new NetworkStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal(serverName2, line);
+                }
+
+                await host.StopAsync();
             }
         }
     }

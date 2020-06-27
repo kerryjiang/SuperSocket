@@ -19,6 +19,8 @@ namespace SuperSocket
 
         private Func<HostBuilderContext, IConfiguration, IConfiguration> _serverOptionsReader;
 
+        protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureServicesActions { get; private set; } = new List<Action<HostBuilderContext, IServiceCollection>>();
+
         public SuperSocketHostBuilder(IHostBuilder hostBuilder)
             : base(hostBuilder)
         {
@@ -35,11 +37,21 @@ namespace SuperSocket
         {
             return HostBuilder.ConfigureServices((ctx, services) => 
             {
+                RegisterBasicServices(ctx, services, services);
+            }).ConfigureServices((ctx, services) => 
+            {
+                foreach (var action in ConfigureServicesActions)
+                {
+                    action(ctx, services);
+                }
+            }).ConfigureServices((ctx, services) => 
+            {
                 RegisterDefaultServices(ctx, services, services);
             }).Build();
         }
 
-        protected void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
+
+        protected void RegisterBasicServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
         {
             if (!_appConfigSet)
                 this.ConfigureAppConfiguration(SuperSocketHostBuilder.ConfigureAppConfiguration);
@@ -56,7 +68,10 @@ namespace SuperSocket
 
             services.AddOptions();
             services.Configure<ServerOptions>(serverOptionReader(builderContext, builderContext.Configuration.GetSection("serverOptions")));
+        }
 
+        protected void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
+        {
             // if the package type is StringPackageInfo
             if (typeof(TReceivePackage) == typeof(StringPackageInfo))
             {
@@ -93,6 +108,12 @@ namespace SuperSocket
         {
             _appConfigSet = true;
             return base.ConfigureAppConfiguration(configDelegate);
+        }
+
+        public override SuperSocketHostBuilder<TReceivePackage> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        {
+            ConfigureServicesActions.Add(configureDelegate);
+            return this;
         }
         
 

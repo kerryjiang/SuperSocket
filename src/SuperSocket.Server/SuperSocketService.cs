@@ -75,7 +75,7 @@ namespace SuperSocket.Server
             if (serverOptions == null)
                 throw new ArgumentNullException(nameof(serverOptions));
 
-            Name = serverOptions.Value.Name; 
+            Name = serverOptions.Value.Name;
             _serverOptions = serverOptions;                       
             _serviceProvider = serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
