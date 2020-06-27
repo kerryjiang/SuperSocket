@@ -92,7 +92,7 @@ namespace SuperSocket
         public override SuperSocketHostBuilder<TReceivePackage> ConfigureAppConfiguration(Action<HostBuilderContext,IConfigurationBuilder> configDelegate)
         {
             _appConfigSet = true;
-            return this.ConfigureAppConfiguration(configDelegate);
+            return base.ConfigureAppConfiguration(configDelegate);
         }
         
 
