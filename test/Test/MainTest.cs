@@ -168,6 +168,14 @@ namespace Tests
             }
         }
 
+        class MyTestService
+        {
+            public string Name { get; set; }
+
+            public int Version { get; set; } = 0;
+
+        }
+
         [Fact]
         [Trait("Category", "TestMultipleServerHost")]
         public async Task TestMultipleServerHost()
@@ -175,10 +183,17 @@ namespace Tests
             var serverName1 = "TestServer1";
             var serverName2 = "TestServer2";
 
+            var server1 = default(IServer);
+            var server2 = default(IServer);
+
             var hostBuilder = MultipleServerHostBuilder.Create()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
+                })
+                .ConfigureServices((hostingContext, services) =>
+                {
+                    services.AddSingleton<MyTestService>();
                 })
                 .AddServer<TextPackageInfo, LinePipelineFilter>(builder =>
                 {
@@ -189,6 +204,7 @@ namespace Tests
                         return config.GetSection(serverName1);
                     }).UseSessionHandler(async (s) =>
                     {
+                        server1 = s.Server as IServer;
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
                     });
                 })
@@ -201,6 +217,7 @@ namespace Tests
                         return config.GetSection(serverName2);
                     }).UseSessionHandler(async (s) =>
                     {
+                        server2 = s.Server as IServer;
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
                     });
                 })
@@ -235,6 +252,39 @@ namespace Tests
                     var line = await streamReader.ReadLineAsync();
                     Assert.Equal(serverName2, line);
                 }
+
+                var hostEnv = server1.ServiceProvider.GetService<IHostEnvironment>();
+                Assert.NotNull(hostEnv);
+                Assert.Equal(AppContext.BaseDirectory, hostEnv.ContentRootPath);
+
+                var hostAppLifetime = server1.ServiceProvider.GetService<IHostApplicationLifetime>();
+                Assert.NotNull(hostAppLifetime);
+                
+                var hostLifetime = server1.ServiceProvider.GetService<IHostLifetime>();
+                Assert.NotNull(hostLifetime);
+
+                var hostFromServices = server1.ServiceProvider.GetService<IHost>();
+                Assert.NotNull(hostFromServices);
+
+                var loggerFactory0 = host.Services.GetService<ILoggerFactory>();
+                var loggerFactory1 = server1.ServiceProvider.GetService<ILoggerFactory>();
+                var loggerFactory2 = server2.ServiceProvider.GetService<ILoggerFactory>();
+
+                Assert.Equal(loggerFactory0, loggerFactory1);
+                Assert.Equal(loggerFactory1, loggerFactory2);
+
+                var testService0 = host.Services.GetService<MyTestService>();
+                testService0.Name = "SameInstance";
+                testService0.Version = 1;
+
+                var testService1 = server1.ServiceProvider.GetService<MyTestService>();
+                Assert.Equal(testService0.Name, testService1.Name);
+                Assert.Equal(1, testService1.Version);
+                testService1.Version = 2;
+
+                var testService2 = server2.ServiceProvider.GetService<MyTestService>();
+                Assert.Equal(testService0.Name, testService2.Name);
+                Assert.Equal(2, testService2.Version);
 
                 await host.StopAsync();
             }

@@ -76,8 +76,8 @@ namespace SuperSocket.Server
                 throw new ArgumentNullException(nameof(serverOptions));
 
             Name = serverOptions.Value.Name;
-            _serverOptions = serverOptions;                       
-            _serviceProvider = serviceProvider;
+            _serverOptions = serverOptions;
+            _serviceProvider = serviceProvider = serviceProvider.GetService<IServiceProviderAccessor>()?.ServiceProvider ?? serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
             _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
@@ -169,7 +169,6 @@ namespace SuperSocket.Server
 
                     if (!AddChannelCreator(l, serverOptions))
                     {
-                        _logger.LogError($"Failed to listen {l}.");
                         continue;
                     }
                 }

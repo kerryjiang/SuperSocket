@@ -1,27 +1,21 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SuperSocket.Channel;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
     interface IServerHostBuilderAdapter
     {
         void ConfigureServer(HostBuilderContext context, IServiceCollection hostServices);
+
+        void ConfigureServiceProvider(IServiceProvider hostServiceProvider);
     }
 
-    class ServerHostBuilderAdapter<TReceivePackage> : SuperSocketHostBuilder<TReceivePackage>, IServerHostBuilderAdapter
+    class ServerHostBuilderAdapter<TReceivePackage> : SuperSocketHostBuilder<TReceivePackage>, IServerHostBuilderAdapter, IServiceProviderAccessor
     {
         private IHostBuilder _hostBuilder;
 
         private IServiceCollection _currentServices = new ServiceCollection();
-
         
         private IServiceProvider _serviceProvider;
 
@@ -29,31 +23,6 @@ namespace SuperSocket.Server
             : base(hostBuilder)
         {
             _hostBuilder = hostBuilder;
-            
-        }
-
-        private void CopyGlobalServices(IServiceCollection hostServices, IServiceCollection services)
-        {
-            CopyGlobalServiceType<IHostEnvironment>(hostServices, services);
-
-            #pragma warning disable CS0618
-            CopyGlobalServiceType<IHostingEnvironment>(hostServices, services);
-            #pragma warning restore CS0618
-
-            CopyGlobalServiceType<HostBuilderContext>(hostServices, services);
-            CopyGlobalServiceType<IConfiguration>(hostServices, services);
-
-            CopyGlobalServiceType<IHostApplicationLifetime>(hostServices, services);
-            CopyGlobalServiceType<IHostLifetime>(hostServices, services);
-            CopyGlobalServiceType<IHost>(hostServices, services);
-        }
-
-        private void CopyGlobalServiceType<TService>(IServiceCollection hostServices, IServiceCollection services)
-        {
-            var sd = services.FirstOrDefault(t => t.ServiceType == typeof(TService));
-
-            if (sd != null)
-                services.Add(sd);
         }
 
         void IServerHostBuilderAdapter.ConfigureServer(HostBuilderContext context, IServiceCollection hostServices)
@@ -65,10 +34,7 @@ namespace SuperSocket.Server
         {
             var services = _currentServices;
 
-            CopyGlobalServices(hostServices, services);
-
-            services.AddOptions();
-            services.AddLogging();
+            services.AddSingleton<IServiceProviderAccessor>(this);
 
             RegisterBasicServices(context, hostServices, services);
 
@@ -85,6 +51,16 @@ namespace SuperSocket.Server
             _serviceProvider = serviceFactory.CreateServiceProvider(containerBuilder);
         }
 
+        IServiceProvider IServiceProviderAccessor.ServiceProvider
+        {
+            get { return _serviceProvider; }
+        }
+
+        void IServerHostBuilderAdapter.ConfigureServiceProvider(IServiceProvider hostServiceProvider)
+        {
+            _serviceProvider = new MultipleServerHostServiceProvider(_serviceProvider, hostServiceProvider);
+        }
+   
         private void RegisterHostedService<THostedService>()
             where THostedService : SuperSocketService<TReceivePackage>
         {
@@ -97,7 +73,7 @@ namespace SuperSocket.Server
         private void RegisterHostedService<THostedService>(IServiceCollection servicesInHost)
             where THostedService : SuperSocketService<TReceivePackage>
         {
-            _currentServices.AddSingleton<THostedService>();
+            _currentServices.AddSingleton<IHostedService, THostedService>();
             servicesInHost.AddHostedService<THostedService>(s => GetHostedService<THostedService>());
         }
 
@@ -108,9 +84,7 @@ namespace SuperSocket.Server
 
         private THostedService GetHostedService<THostedService>()
         {
-            var service = _serviceProvider.GetService<THostedService>();
-
-            return service;
+            return (THostedService)_serviceProvider.GetService<IHostedService>();
         }
 
         public override SuperSocketHostBuilder<TReceivePackage> UseHostedService<THostedService>()

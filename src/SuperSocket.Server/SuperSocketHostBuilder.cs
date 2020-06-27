@@ -87,7 +87,7 @@ namespace SuperSocket
             }
         }
 
-        protected bool CheckIfExistHostedService(IServiceCollection services)
+        protected virtual bool CheckIfExistHostedService(IServiceCollection services)
         {
             return services.Any(sd => sd.ServiceType == typeof(IHostedService)
                 && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(sd.ImplementationType));

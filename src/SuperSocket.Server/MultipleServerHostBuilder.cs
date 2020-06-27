@@ -42,7 +42,16 @@ namespace SuperSocket.Server
                 this.ConfigureAppConfiguration(SuperSocketHostBuilder.ConfigureAppConfiguration);
 
             this.ConfigureServices(ConfigureServers);
-            return base.Build();
+
+            var host = base.Build();
+            var services = host.Services;
+
+            foreach (var adapter in _hostBuilderAdapters)
+            {
+                adapter.ConfigureServiceProvider(services);
+            }
+            
+            return host;
         }
 
         public static MultipleServerHostBuilder Create()
