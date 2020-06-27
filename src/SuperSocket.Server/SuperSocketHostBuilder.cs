@@ -15,6 +15,10 @@ namespace SuperSocket
 {
     public class SuperSocketHostBuilder<TReceivePackage> : HostBuilderAdapter<SuperSocketHostBuilder<TReceivePackage>>, ISuperSocketHostBuilder<TReceivePackage>, IHostBuilder
     {
+        private bool _appConfigSet = false;
+
+        private Func<HostBuilderContext, IConfiguration, IConfiguration> _serverOptionsReader;
+
         public SuperSocketHostBuilder(IHostBuilder hostBuilder)
             : base(hostBuilder)
         {
@@ -31,12 +35,28 @@ namespace SuperSocket
         {
             return HostBuilder.ConfigureServices((ctx, services) => 
             {
-                RegisterDefaultServices(services, services);
+                RegisterDefaultServices(ctx, services, services);
             }).Build();
         }
 
-        protected void RegisterDefaultServices(IServiceCollection servicesInHost, IServiceCollection services)
+        protected void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
         {
+            if (!_appConfigSet)
+                this.ConfigureAppConfiguration(SuperSocketHostBuilder.ConfigureAppConfiguration);
+
+            var serverOptionReader = _serverOptionsReader;
+
+            if (serverOptionReader == null)
+            {
+                serverOptionReader = (ctx, config) =>
+                {
+                    return config;
+                };
+            }
+
+            services.AddOptions();
+            services.Configure<ServerOptions>(serverOptionReader(builderContext, builderContext.Configuration.GetSection("serverOptions")));
+
             // if the package type is StringPackageInfo
             if (typeof(TReceivePackage) == typeof(StringPackageInfo))
             {
@@ -46,11 +66,16 @@ namespace SuperSocket
             services.TryAdd(ServiceDescriptor.Singleton<IPackageEncoder<string>, DefaultStringEncoderForDI>());
 
             // if no host service was defined, just use the default one
-            if (!services.Any(sd => sd.ServiceType == typeof(IHostedService)
-                && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(sd.ImplementationType)))
+            if (!CheckIfExistHostedService(services))
             {
                 RegisterDefaultHostedService(servicesInHost);
             }
+        }
+
+        protected bool CheckIfExistHostedService(IServiceCollection services)
+        {
+            return services.Any(sd => sd.ServiceType == typeof(IHostedService)
+                && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(sd.ImplementationType));
         }
 
         protected virtual void RegisterDefaultHostedService(IServiceCollection servicesInHost)
@@ -58,20 +83,16 @@ namespace SuperSocket
             servicesInHost.AddHostedService<SuperSocketService<TReceivePackage>>();
         }
 
-        public SuperSocketHostBuilder<TReceivePackage> ConfigureDefaults()
+        public SuperSocketHostBuilder<TReceivePackage> ConfigureServerOptions(Func<HostBuilderContext, IConfiguration, IConfiguration> serverOptionsReader)
         {
-            var hostBuilder = this.ConfigureAppConfiguration((hostingContext, config) =>
-                {
-                    var env = hostingContext.HostingEnvironment;
-                    config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                          .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-                });
+             _serverOptionsReader = serverOptionsReader;
+             return this;
+        }
 
-            return this.ConfigureServices((hostCtx, services) =>
-                {
-                    services.AddOptions();
-                    services.Configure<ServerOptions>(hostCtx.Configuration.GetSection("serverOptions"));
-                });
+        public override SuperSocketHostBuilder<TReceivePackage> ConfigureAppConfiguration(Action<HostBuilderContext,IConfigurationBuilder> configDelegate)
+        {
+            _appConfigSet = true;
+            return this.ConfigureAppConfiguration(configDelegate);
         }
         
 
@@ -155,8 +176,7 @@ namespace SuperSocket
         public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage>()
             where TReceivePackage : class
         {
-            return new SuperSocketHostBuilder<TReceivePackage>()
-                .ConfigureDefaults();
+            return new SuperSocketHostBuilder<TReceivePackage>();
         }
         
         public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>()
@@ -164,8 +184,14 @@ namespace SuperSocket
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
             return new SuperSocketHostBuilder<TReceivePackage>()
-                .ConfigureDefaults()
                 .UsePipelineFilter<TPipelineFilter>();
+        }
+
+        internal static void ConfigureAppConfiguration(HostBuilderContext hostingContext, IConfigurationBuilder config)
+        {
+            var env = hostingContext.HostingEnvironment;
+            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
         }
     }
 }

@@ -13,11 +13,19 @@ namespace SuperSocket.Server
 {
     public class MultipleServerHostBuilder : HostBuilderAdapter<MultipleServerHostBuilder>
     {
+        private bool _appConfigSet = false;
+
         private List<IServerHostBuilderAdapter> _hostBuilderAdapters = new List<IServerHostBuilderAdapter>();
 
         private MultipleServerHostBuilder()
         {
 
+        }
+
+        public override MultipleServerHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext,IConfigurationBuilder> configDelegate)
+        {
+            _appConfigSet = true;
+            return this.ConfigureAppConfiguration(configDelegate);
         }
 
         protected virtual void ConfigureServers(HostBuilderContext context, IServiceCollection hostServices)
@@ -30,6 +38,9 @@ namespace SuperSocket.Server
 
         public override IHost Build()
         {
+            if (!_appConfigSet)
+                this.ConfigureAppConfiguration(SuperSocketHostBuilder.ConfigureAppConfiguration);
+                
             this.ConfigureServices(ConfigureServers);
             return base.Build();
         }
@@ -39,15 +50,23 @@ namespace SuperSocket.Server
             return new MultipleServerHostBuilder();
         }
 
+        public MultipleServerHostBuilder AddServer<TReceivePackage>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
+            where TReceivePackage : class
+        {
+            var hostBuilder = new ServerHostBuilderAdapter<TReceivePackage>(this);            
+            hostBuilderDelegate(hostBuilder);
+            _hostBuilderAdapters.Add(hostBuilder);
+            return this;
+        }
+
         public MultipleServerHostBuilder AddServer<TReceivePackage, TPipelineFilter>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
             where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
             var hostBuilder = new ServerHostBuilderAdapter<TReceivePackage>(this)
-                .ConfigureDefaults()
                 .UsePipelineFilter<TPipelineFilter>();
-
             hostBuilderDelegate(hostBuilder);
+            _hostBuilderAdapters.Add(hostBuilder as IServerHostBuilderAdapter);
             return this;
         }
     }

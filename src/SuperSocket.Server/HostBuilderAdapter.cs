@@ -83,7 +83,7 @@ namespace SuperSocket.Server
             return UseServiceProviderFactory<TContainerBuilder>(factory);
         }
 
-        public THostBuilder UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
+        public virtual THostBuilder UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
         {
             HostBuilder.UseServiceProviderFactory<TContainerBuilder>(factory);
             return this as THostBuilder;
@@ -94,7 +94,7 @@ namespace SuperSocket.Server
             return UseServiceProviderFactory<TContainerBuilder>(factory);
         }
 
-        public THostBuilder UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory)
+        public virtual THostBuilder UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory)
         {
             HostBuilder.UseServiceProviderFactory<TContainerBuilder>(factory);
             return this as THostBuilder;

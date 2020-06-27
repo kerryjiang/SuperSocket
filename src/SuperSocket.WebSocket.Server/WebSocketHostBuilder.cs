@@ -49,8 +49,7 @@ namespace SuperSocket.WebSocket.Server
         public static WebSocketHostBuilder Create()
         {
             return ((new WebSocketHostBuilder() as SuperSocketHostBuilder<WebSocketPackage>)
-                .UsePipelineFilter<WebSocketPipelineFilter>()
-                .ConfigureDefaults() as WebSocketHostBuilder)
+                .UsePipelineFilter<WebSocketPipelineFilter>() as WebSocketHostBuilder)
                 .UseMiddleware<HandshakeCheckMiddleware>()
                 .ConfigureServices((ctx, services) =>
                 {
