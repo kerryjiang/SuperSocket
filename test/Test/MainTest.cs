@@ -195,10 +195,9 @@ namespace Tests
                 {
                     services.AddSingleton<MyTestService>();
                 })
-                .AddServer<TextPackageInfo, LinePipelineFilter>(builder =>
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
                 {
                     builder
-                    .UseHostedService<SuperSocketServiceA>()
                     .ConfigureServerOptions((ctx, config) =>
                     {
                         return config.GetSection(serverName1);
@@ -208,10 +207,9 @@ namespace Tests
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
                     });
                 })
-                .AddServer<TextPackageInfo, LinePipelineFilter>(builder =>
+                .AddServer<SuperSocketServiceB, TextPackageInfo, LinePipelineFilter>(builder =>
                 {
                     builder
-                    .UseHostedService<SuperSocketServiceB>()
                     .ConfigureServerOptions((ctx, config) =>
                     {
                         return config.GetSection(serverName2);

@@ -59,12 +59,19 @@ namespace SuperSocket.Server
             return new MultipleServerHostBuilder();
         }
 
-        public MultipleServerHostBuilder AddServer<TReceivePackage>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
+        private ServerHostBuilderAdapter<TReceivePackage> CreateServerHostBuilder<TReceivePackage>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
             where TReceivePackage : class
         {
             var hostBuilder = new ServerHostBuilderAdapter<TReceivePackage>(this);            
             hostBuilderDelegate(hostBuilder);
             _hostBuilderAdapters.Add(hostBuilder);
+            return hostBuilder;
+        }
+
+        public MultipleServerHostBuilder AddServer<TReceivePackage>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
+            where TReceivePackage : class
+        {
+            CreateServerHostBuilder<TReceivePackage>(hostBuilderDelegate);
             return this;
         }
 
@@ -72,10 +79,19 @@ namespace SuperSocket.Server
             where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
-            var hostBuilder = new ServerHostBuilderAdapter<TReceivePackage>(this)
+            CreateServerHostBuilder<TReceivePackage>(hostBuilderDelegate)
                 .UsePipelineFilter<TPipelineFilter>();
-            hostBuilderDelegate(hostBuilder);
-            _hostBuilderAdapters.Add(hostBuilder as IServerHostBuilderAdapter);
+            return this;
+        }
+
+        public MultipleServerHostBuilder AddServer<TSuperSocketService, TReceivePackage, TPipelineFilter>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
+            where TReceivePackage : class
+            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
+            where TSuperSocketService : SuperSocketService<TReceivePackage>
+        {
+            CreateServerHostBuilder<TReceivePackage>(hostBuilderDelegate)
+                .UsePipelineFilter<TPipelineFilter>()
+                .UseHostedService<TSuperSocketService>();
             return this;
         }
     }
