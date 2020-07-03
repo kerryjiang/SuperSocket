@@ -10,7 +10,7 @@ namespace WebSocketServer
     {
         static async Task Main(string[] args)
         {               
-            var host = WebSocketHostBuilder.Create()
+            var host = WebSocketHostBuilder.Create(args)
                 .ConfigureWebSocketMessageHandler(async (session, message) =>
                 {
                     // echo message back to the client

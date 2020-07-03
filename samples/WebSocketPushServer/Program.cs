@@ -14,7 +14,7 @@ namespace WebSocketPushServer
     {
         static async Task Main(string[] args)
         {               
-            var host = WebSocketHostBuilder.Create()
+            var host = WebSocketHostBuilder.Create(args)
                 .UseWebSocketMessageHandler(async (session, message) =>
                 {
                     if (message.Message.Equals("StartPush", StringComparison.OrdinalIgnoreCase))

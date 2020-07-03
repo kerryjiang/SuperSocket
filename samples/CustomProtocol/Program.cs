@@ -11,7 +11,7 @@ namespace CustomProtocol
     {
         static async Task Main(string[] args)
         {
-            var host = SuperSocketHostBuilder.Create<MyPackage, MyPackageFilter>()
+            var host = SuperSocketHostBuilder.Create<MyPackage, MyPackageFilter>(args)
                 .ConfigurePackageHandler(async (s, p) =>
                 {
                     // handle package
