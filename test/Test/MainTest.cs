@@ -14,6 +14,7 @@ using SuperSocket;
 using SuperSocket.Server;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Hosting.Internal;
 
 namespace Tests
 {
@@ -152,6 +153,45 @@ namespace Tests
             }
         }
 
+        [Fact]
+        [Trait("Category", "TestStartWithDefaultConfig")]
+        public async Task TestStartWithDefaultConfig() 
+        {
+            var server = default(IServer);
+
+            using (var host = SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>()
+                .UseSessionHandler(s =>
+                {
+                    server = s.Server as IServer;
+                    return new ValueTask();
+                })
+                .Build())
+            {
+                await host.StartAsync();
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                await Task.Delay(1000);
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.Equal(1, server.SessionCount);
+                OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
+
+                client.Shutdown(SocketShutdown.Both);
+                client.Close();
+
+                await Task.Delay(1000);
+
+                Assert.Equal(0, server.SessionCount);
+                OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
+
+                await host.StopAsync();
+            }
+        }
+
         class SuperSocketServiceA : SuperSocketService<TextPackageInfo>
         {
             public SuperSocketServiceA(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
@@ -186,9 +226,12 @@ namespace Tests
             var server1 = default(IServer);
             var server2 = default(IServer);
 
+            IHostEnvironment actualHostEvn = null;
+
             var hostBuilder = MultipleServerHostBuilder.Create()
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
+                    actualHostEvn = hostingContext.HostingEnvironment;
                     config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
                 })
                 .ConfigureServices((hostingContext, services) =>
@@ -253,7 +296,7 @@ namespace Tests
 
                 var hostEnv = server1.ServiceProvider.GetService<IHostEnvironment>();
                 Assert.NotNull(hostEnv);
-                Assert.Equal(AppContext.BaseDirectory, hostEnv.ContentRootPath);
+                Assert.Equal(actualHostEvn.ContentRootPath, hostEnv.ContentRootPath);
 
                 var hostAppLifetime = server1.ServiceProvider.GetService<IHostApplicationLifetime>();
                 Assert.NotNull(hostAppLifetime);

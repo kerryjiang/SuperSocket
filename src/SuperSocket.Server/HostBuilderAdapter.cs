@@ -17,7 +17,13 @@ namespace SuperSocket.Server
         protected IHostBuilder HostBuilder { get; private set; }
 
         public HostBuilderAdapter()
-            : this(new HostBuilder())
+            : this(args: null)
+        {
+            
+        }
+
+        public HostBuilderAdapter(string[] args)
+            : this(Host.CreateDefaultBuilder(args))
         {
             
         }

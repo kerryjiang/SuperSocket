@@ -15,8 +15,6 @@ namespace SuperSocket
 {
     public class SuperSocketHostBuilder<TReceivePackage> : HostBuilderAdapter<SuperSocketHostBuilder<TReceivePackage>>, ISuperSocketHostBuilder<TReceivePackage>, IHostBuilder
     {
-        private bool _appConfigSet = false;
-
         private Func<HostBuilderContext, IConfiguration, IConfiguration> _serverOptionsReader;
 
         protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureServicesActions { get; private set; } = new List<Action<HostBuilderContext, IServiceCollection>>();
@@ -28,7 +26,13 @@ namespace SuperSocket
         }
 
         public SuperSocketHostBuilder()
-            : base()
+            : this(args: null)
+        {
+
+        }
+
+        public SuperSocketHostBuilder(string[] args)
+            : base(args)
         {
 
         }
@@ -53,9 +57,6 @@ namespace SuperSocket
 
         protected void RegisterBasicServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
         {
-            if (!_appConfigSet)
-                this.ConfigureAppConfiguration(SuperSocketHostBuilder.ConfigureAppConfiguration);
-
             var serverOptionReader = _serverOptionsReader;
 
             if (serverOptionReader == null)
@@ -104,18 +105,11 @@ namespace SuperSocket
              return this;
         }
 
-        public override SuperSocketHostBuilder<TReceivePackage> ConfigureAppConfiguration(Action<HostBuilderContext,IConfigurationBuilder> configDelegate)
-        {
-            _appConfigSet = true;
-            return base.ConfigureAppConfiguration(configDelegate);
-        }
-
         public override SuperSocketHostBuilder<TReceivePackage> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
             ConfigureServicesActions.Add(configureDelegate);
             return this;
-        }
-        
+        }        
 
         public virtual SuperSocketHostBuilder<TReceivePackage> UsePipelineFilter<TPipelineFilter>()
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
@@ -197,22 +191,28 @@ namespace SuperSocket
         public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage>()
             where TReceivePackage : class
         {
-            return new SuperSocketHostBuilder<TReceivePackage>();
+            return Create<TReceivePackage>(args: null);
         }
-        
+
+        public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage>(string[] args)
+            where TReceivePackage : class
+        {
+            return new SuperSocketHostBuilder<TReceivePackage>(args);
+        }
+
         public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>()
             where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
-            return new SuperSocketHostBuilder<TReceivePackage>()
-                .UsePipelineFilter<TPipelineFilter>();
+            return Create<TReceivePackage, TPipelineFilter>(args: null);
         }
-
-        internal static void ConfigureAppConfiguration(HostBuilderContext hostingContext, IConfigurationBuilder config)
+        
+        public static SuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>(string[] args)
+            where TReceivePackage : class
+            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
-            var env = hostingContext.HostingEnvironment;
-            config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                    .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
+            return new SuperSocketHostBuilder<TReceivePackage>(args)
+                .UsePipelineFilter<TPipelineFilter>();
         }
     }
 }

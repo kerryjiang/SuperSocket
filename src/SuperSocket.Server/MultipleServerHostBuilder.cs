@@ -13,19 +13,18 @@ namespace SuperSocket.Server
 {
     public class MultipleServerHostBuilder : HostBuilderAdapter<MultipleServerHostBuilder>
     {
-        private bool _appConfigSet = false;
-
         private List<IServerHostBuilderAdapter> _hostBuilderAdapters = new List<IServerHostBuilderAdapter>();
 
         private MultipleServerHostBuilder()
+            : this(args: null)
         {
 
         }
 
-        public override MultipleServerHostBuilder ConfigureAppConfiguration(Action<HostBuilderContext,IConfigurationBuilder> configDelegate)
+        private MultipleServerHostBuilder(string[] args)
+            : base(args)
         {
-            _appConfigSet = true;
-            return base.ConfigureAppConfiguration(configDelegate);
+
         }
 
         protected virtual void ConfigureServers(HostBuilderContext context, IServiceCollection hostServices)
@@ -38,9 +37,6 @@ namespace SuperSocket.Server
 
         public override IHost Build()
         {
-            if (!_appConfigSet)
-                this.ConfigureAppConfiguration(SuperSocketHostBuilder.ConfigureAppConfiguration);
-
             this.ConfigureServices(ConfigureServers);
 
             var host = base.Build();
@@ -56,7 +52,12 @@ namespace SuperSocket.Server
 
         public static MultipleServerHostBuilder Create()
         {
-            return new MultipleServerHostBuilder();
+            return Create(args: null);
+        }
+
+        public static MultipleServerHostBuilder Create(string[] args)
+        {
+            return new MultipleServerHostBuilder(args);
         }
 
         private ServerHostBuilderAdapter<TReceivePackage> CreateServerHostBuilder<TReceivePackage>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
