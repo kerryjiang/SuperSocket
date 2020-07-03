@@ -10,9 +10,17 @@ namespace SuperSocket.WebSocket.Server
     public class WebSocketHostBuilder : SuperSocketHostBuilder<WebSocketPackage>
     {
         internal WebSocketHostBuilder()
+            : this(args: null)
         {
 
         }
+
+        internal WebSocketHostBuilder(string[] args)
+            : base(args)
+        {
+
+        }
+
         public override IHost Build()
         {
             this.ConfigureServices((ctx, services) => 
@@ -48,7 +56,12 @@ namespace SuperSocket.WebSocket.Server
 
         public static WebSocketHostBuilder Create()
         {
-            return ((new WebSocketHostBuilder() as SuperSocketHostBuilder<WebSocketPackage>)
+            return Create(args: null);
+        }
+
+        public static WebSocketHostBuilder Create(string[] args)
+        {
+            return ((new WebSocketHostBuilder(args) as SuperSocketHostBuilder<WebSocketPackage>)
                 .UsePipelineFilter<WebSocketPipelineFilter>() as WebSocketHostBuilder)
                 .UseMiddleware<HandshakeCheckMiddleware>()
                 .ConfigureServices((ctx, services) =>
