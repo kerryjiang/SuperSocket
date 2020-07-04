@@ -1,15 +1,10 @@
 <Project>
   <Import Project="Dependencies.props" />
   <PropertyGroup>
-    <VersionPrefix>2.0.0-beta2</VersionPrefix>    
-    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
-    <NrtRevisionFormat>$(VersionPrefix)-$(VersionSuffix)-{chash}</NrtRevisionFormat>
-  </PropertyGroup>
-  <PropertyGroup>
-    <LangVersion>8.0</LangVersion>    
+    <LangVersion>8.0</LangVersion>
     <LibTargetFramework>netstandard2.1</LibTargetFramework>
   </PropertyGroup>
-  <PropertyGroup>    
+  <PropertyGroup>
     <PackageProjectUrl>https://github.com/kerryjiang/supersocket</PackageProjectUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <IncludeSymbols>true</IncludeSymbols>
@@ -18,9 +13,9 @@
     <Authors>Kerry Jiang</Authors>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Unclassified.NetRevisionTask" Version="0.3.0">
+    <PackageReference Include="Nerdbank.GitVersioning">
+      <Version>3.1.91</Version>
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 </Project>
