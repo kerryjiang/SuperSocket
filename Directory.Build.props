@@ -2,7 +2,7 @@
   <Import Project="Dependencies.props" />
   <PropertyGroup>
     <VersionPrefix>2.0.0-beta2</VersionPrefix>    
-    <VersionSuffix>$(VersionSuffix)</VersionSuffix>   
+    <VersionSuffix>$(VersionSuffix)</VersionSuffix>
     <NrtRevisionFormat>$(VersionPrefix)-$(VersionSuffix)-{chash}</NrtRevisionFormat>
   </PropertyGroup>
   <PropertyGroup>
