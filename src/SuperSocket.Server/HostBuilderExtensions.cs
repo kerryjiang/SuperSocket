@@ -72,14 +72,14 @@ namespace SuperSocket
         }
 
         public static ISuperSocketHostBuilder<TReceivePackage> UseSession<TReceivePackage, TSession>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
-            where TSession : AppSession, new()
+            where TSession : AppSession
         {
             return hostBuilder.UseSession<TSession>() as SuperSocketHostBuilder<TReceivePackage>;
         }
 
   
         public static ISuperSocketHostBuilder UseSession<TSession>(this ISuperSocketHostBuilder hostBuilder)
-            where TSession : AppSession, new()
+            where TSession : AppSession
         {
             return hostBuilder.UseSessionFactory<GenericSessionFactory<TSession>>();
         }

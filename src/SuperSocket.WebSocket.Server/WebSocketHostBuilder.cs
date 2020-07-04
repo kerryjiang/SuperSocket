@@ -23,11 +23,11 @@ namespace SuperSocket.WebSocket.Server
 
         public override IHost Build()
         {
-            this.ConfigureServices((ctx, services) => 
+            this.ConfigureServices((ctx, services) =>
             {
-                services.TryAdd(new ServiceDescriptor(typeof(ISessionFactory), typeof(GenericSessionFactory<WebSocketSession>), ServiceLifetime.Singleton));
-            });
-
+                services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
+            })
+            .UseSession<WebSocketSession>();
             return base.Build();
         }
 
