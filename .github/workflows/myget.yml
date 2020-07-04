@@ -29,6 +29,6 @@ jobs:
               id: getCurrentTimestamp
               run: echo "::set-output name=currentTimestamp::$(date +'%y%m%d%H%M')"
             - name: Pack
-              run: dotnet pack -c Release --version-suffix ${{steps.getCurrentTimestamp.outputs.currentTimestamp}}-${{ github.run_number }}
+              run: dotnet pack -c Release --version-suffix ${{ github.run_number }}
             - name: Push
               run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.MYGET_API_KEY }} --source https://www.myget.org/F/supersocket/api/v3/index.json
