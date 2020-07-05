@@ -2,6 +2,8 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Command;
+using SuperSocket.ProtoBase;
+using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -41,6 +43,29 @@ namespace SuperSocket.WebSocket.Server
                 {
                     services.Configure(configurator);
                 }) as WebSocketHostBuilder;
+        }
+
+        public static MultipleServerHostBuilder AddWebSocketServer(this MultipleServerHostBuilder hostBuilder, Action<SuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
+        {
+            return hostBuilder.AddWebSocketServer<WebSocketService>(hostBuilderDelegate);
+        }
+
+        public static MultipleServerHostBuilder AddWebSocketServer<TWebSocketService>(this MultipleServerHostBuilder hostBuilder, Action<SuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
+            where TWebSocketService : WebSocketService
+        {
+            hostBuilder.AddServer<WebSocketPackage, WebSocketPipelineFilter>((hb) =>
+            {
+                hb
+                .UseHostedService<TWebSocketService>()
+                .UseMiddleware<HandshakeCheckMiddleware>()
+                .ConfigureServices((ctx, services) =>
+                {
+                    services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
+                });
+
+                hostBuilderDelegate?.Invoke(hb);
+            });
+            return hostBuilder;
         }
     }
 }
