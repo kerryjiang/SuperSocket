@@ -107,47 +107,10 @@ namespace SuperSocket
             return hostBuilder.UseMiddleware<ClearIdleSessionMiddleware>().AsSuperSocketBuilder<TReceivePackage>();
         }
 
-        [Obsolete("Use the method UsePackageHandler instead.")]
-        public static SuperSocketHostBuilder<TReceivePackage> ConfigurePackageHandler<TReceivePackage>(this SuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, TReceivePackage, ValueTask> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
-            where TReceivePackage : class
-        {
-            return hostBuilder.UsePackageHandler(packageHandler, errorHandler: errorHandler);
-        }
-
         public static SuperSocketHostBuilder<TReceivePackage> UsePackageHandler<TReceivePackage>(this ISuperSocketHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, ValueTask> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
             where TReceivePackage : class
         {
             return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UsePackageHandler(packageHandler, errorHandler: errorHandler);
-        }
-
-        [Obsolete("Use the method UsePackageHandler instead.")]
-        public static SuperSocketHostBuilder<TReceivePackage> ConfigurePackageHandler<TReceivePackage>(this SuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, TReceivePackage, ValueTask> packageHandler)
-            where TReceivePackage : class
-        {
-            return hostBuilder.UsePackageHandler(packageHandler);
-        }
-
-        [Obsolete("Use the method UsePackageDecoder instead.")]
-        public static SuperSocketHostBuilder<TReceivePackage> ConfigurePackageDecoder<TReceivePackage>(this SuperSocketHostBuilder<TReceivePackage> hostBuilder, IPackageDecoder<TReceivePackage> packageDecoder)
-            where TReceivePackage : class
-        {
-            return hostBuilder.UsePackageDecoder(packageDecoder);
-        }
-
-        
-        [Obsolete("Use the method UseSessionHandler instead.")]
-        public static IHostBuilder ConfigureSessionHandler(this IHostBuilder hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, ValueTask> onClosed = null)
-        {
-            return hostBuilder.ConfigureServices(
-                (hostCtx, services) =>
-                {
-                    services.AddSingleton<SessionHandlers>(new SessionHandlers
-                    {
-                        Connected = onConnected,
-                        Closed = onClosed
-                    });
-                }
-            );
         }
 
         public static SuperSocketHostBuilder<TReceivePackage> UseSessionHandler<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, ValueTask> onClosed = null)

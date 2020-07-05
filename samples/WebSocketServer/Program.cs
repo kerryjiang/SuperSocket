@@ -11,7 +11,7 @@ namespace WebSocketServer
         static async Task Main(string[] args)
         {               
             var host = WebSocketHostBuilder.Create(args)
-                .ConfigureWebSocketMessageHandler(async (session, message) =>
+                .UseWebSocketMessageHandler(async (session, message) =>
                 {
                     // echo message back to the client
                     await session.SendAsync(message.Message);

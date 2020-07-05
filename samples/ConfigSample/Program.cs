@@ -14,7 +14,7 @@ namespace ConfigSample
         static async Task Main(string[] args)
         {               
             var host = SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>(args)
-                .ConfigurePackageHandler(async (s, p) =>
+                .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
                 })
