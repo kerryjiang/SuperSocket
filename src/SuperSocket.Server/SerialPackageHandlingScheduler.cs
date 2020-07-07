@@ -8,7 +8,7 @@ namespace SuperSocket.Server
 {
     public class SerialPackageHandlingScheduler<TPackageInfo> : PackageHandlingSchedulerBase<TPackageInfo>
     {
-        public override async ValueTask HandlePackage(AppSession session, TPackageInfo package)
+        public override async ValueTask HandlePackage(IAppSession session, TPackageInfo package)
         {
             await HandlePackageInternal(session, package);
         }

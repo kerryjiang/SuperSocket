@@ -17,6 +17,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SuperSocket.WebSocket;
 using System.Buffers;
+using SuperSocket.Server;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 
 namespace Tests.WebSocket
 {
@@ -550,6 +554,88 @@ namespace Tests.WebSocket
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
                 await server.StopAsync();
+            }
+        }
+
+        class MySocketService : SuperSocketService<TextPackageInfo>
+        {
+            public MySocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
+            {
+            }
+        }
+
+        class MyWebSocketService : WebSocketService
+        {
+            public MyWebSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
+            {
+            }
+        }
+
+        [Fact]
+        [Trait("Category", "TestWebSocketMultipleServerHost")]
+        public async Task TestMultipleServerHost()
+        {
+            var serverName1 = "TestServer1";
+            var serverName2 = "TestServer2";
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.Sources.Clear();
+                    config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
+                })
+                .AddServer<MySocketService, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .ConfigureServerOptions((ctx, config) =>
+                    {
+                        return config.GetSection(serverName1);
+                    }).UseSessionHandler(async (s) =>
+                    {
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    });
+                })
+                .AddWebSocketServer<MyWebSocketService>(builder =>
+                {
+                    builder
+                    .ConfigureServerOptions((ctx, config) =>
+                    {
+                        return config.GetSection(serverName2);
+                    }).UseSessionHandler(async (s) =>
+                    {
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    });
+                })
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using(var host = hostBuilder.Build())
+            {
+                await host.StartAsync();
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040));
+                
+                using (var stream = new NetworkStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal(serverName1, line);
+                }
+                
+                var websocket = new ClientWebSocket();
+
+                await websocket.ConnectAsync(new Uri($"ws://localhost:4041"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                //await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                
+                await host.StopAsync();
             }
         }
 

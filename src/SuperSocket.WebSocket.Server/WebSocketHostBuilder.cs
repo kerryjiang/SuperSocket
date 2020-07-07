@@ -7,6 +7,31 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.Server
 {
+    public class WebSocketHostBuilderAdapter : ServerHostBuilderAdapter<WebSocketPackage>
+    {
+        public WebSocketHostBuilderAdapter(IHostBuilder hostBuilder)
+            : base(hostBuilder)
+        {
+            this.UsePipelineFilter<WebSocketPipelineFilter>();
+            this.UseMiddleware<HandshakeCheckMiddleware>();
+            this.ConfigureServices((ctx, services) =>
+            {
+                services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
+            });
+            this.Validator = WebSocketHostBuilder.ValidateHostBuilder;
+        }
+
+        protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
+        {
+            services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
+        }
+
+        protected override void RegisterDefaultHostedService(IServiceCollection servicesInHost)
+        {
+            servicesInHost.AddHostedService<WebSocketService>();
+        }
+    }
+
     public class WebSocketHostBuilder : SuperSocketHostBuilder<WebSocketPackage>
     {
         internal WebSocketHostBuilder()
@@ -18,16 +43,12 @@ namespace SuperSocket.WebSocket.Server
         internal WebSocketHostBuilder(string[] args)
             : base(args)
         {
-
+            this.Validator = WebSocketHostBuilder.ValidateHostBuilder;
         }
 
         public override IHost Build()
         {
-            this.ConfigureServices((ctx, services) =>
-            {
-                services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
-            })
-            .UseSession<WebSocketSession>();
+            this.UseSession<WebSocketSession>();
             return base.Build();
         }
 
@@ -40,18 +61,6 @@ namespace SuperSocket.WebSocket.Server
             where THostedService : WebSocketService
         {
             return base.UseHostedService<THostedService>() as WebSocketHostBuilder;
-        }
-
-        public new SuperSocketHostBuilder<WebSocketPackage> UsePipelineFilter<TPipelineFilter>()
-            where TPipelineFilter : IPipelineFilter<WebSocketPackage>, new()
-        {
-            throw new NotSupportedException();
-        }
-
-        public new SuperSocketHostBuilder<WebSocketPackage> UsePipelineFilterFactory<TPipelineFilterFactory>()
-            where TPipelineFilterFactory : class, IPipelineFilterFactory<WebSocketPackage>
-        {
-            throw new NotSupportedException();
         }
 
         public static WebSocketHostBuilder Create()
@@ -68,6 +77,11 @@ namespace SuperSocket.WebSocket.Server
                 {
                     services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
                 }) as WebSocketHostBuilder;
+        }
+
+        internal static void ValidateHostBuilder(HostBuilderContext builderCtx, IServiceCollection services)
+        {
+            
         }
     }
 }

@@ -7,7 +7,7 @@ using SuperSocket.Channel;
 namespace SuperSocket.Server
 {
     public class GenericSessionFactory<TSession> : ISessionFactory
-        where TSession : AppSession
+        where TSession : IAppSession
     {
         public Type SessionType => typeof(TSession);
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
@@ -9,7 +10,7 @@ namespace SuperSocket.WebSocket.Server
 {
     public static class WebSocketServerExtensions
     {
-        public static WebSocketHostBuilder UseWebSocketMessageHandler(this WebSocketHostBuilder builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
+        public static WebSocketHostBuilder UseWebSocketMessageHandler(this ISuperSocketHostBuilder<WebSocketPackage> builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
         {
             return builder.ConfigureServices((ctx, services) => 
             {
@@ -17,7 +18,7 @@ namespace SuperSocket.WebSocket.Server
             }) as WebSocketHostBuilder;
         }
 
-        public static WebSocketHostBuilder UseCommand<TPackageInfo, TPackageMapper>(this WebSocketHostBuilder builder)
+        public static WebSocketHostBuilder UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder)
             where TPackageInfo : class
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>
         {
@@ -34,7 +35,7 @@ namespace SuperSocket.WebSocket.Server
             }) as WebSocketHostBuilder;
         }        
 
-        public static WebSocketHostBuilder UseCommand<TPackageInfo, TPackageMapper>(this WebSocketHostBuilder builder, Action<CommandOptions> configurator)
+        public static WebSocketHostBuilder UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder, Action<CommandOptions> configurator)
             where TPackageInfo : class
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
         {
@@ -45,26 +46,22 @@ namespace SuperSocket.WebSocket.Server
                 }) as WebSocketHostBuilder;
         }
 
-        public static MultipleServerHostBuilder AddWebSocketServer(this MultipleServerHostBuilder hostBuilder, Action<SuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
+        public static MultipleServerHostBuilder AddWebSocketServer(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
         {
             return hostBuilder.AddWebSocketServer<WebSocketService>(hostBuilderDelegate);
         }
 
-        public static MultipleServerHostBuilder AddWebSocketServer<TWebSocketService>(this MultipleServerHostBuilder hostBuilder, Action<SuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
+        public static MultipleServerHostBuilder AddWebSocketServer<TWebSocketService>(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
             where TWebSocketService : WebSocketService
         {
-            hostBuilder.AddServer<WebSocketPackage, WebSocketPipelineFilter>((hb) =>
-            {
-                hb
-                .UseHostedService<TWebSocketService>()
-                .UseMiddleware<HandshakeCheckMiddleware>()
-                .ConfigureServices((ctx, services) =>
-                {
-                    services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
-                });
+            var appHostBuilder = new WebSocketHostBuilderAdapter(hostBuilder);
 
-                hostBuilderDelegate?.Invoke(hb);
-            });
+            appHostBuilder
+                .UseHostedService<TWebSocketService>();
+
+            hostBuilderDelegate?.Invoke(appHostBuilder);
+
+            hostBuilder.AddServer(appHostBuilder);
             return hostBuilder;
         }
     }

@@ -14,113 +14,29 @@ namespace SuperSocket
 {
     public static class HostBuilderExtensions
     {
-        public static SuperSocketHostBuilder<TReceivePackage> AsSuperSocketBuilder<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
+        public static ISuperSocketHostBuilder<TReceivePackage> AsSuperSocketBuilder<TReceivePackage>(this IHostBuilder hostBuilder)
         {
-            return hostBuilder as SuperSocketHostBuilder<TReceivePackage>;
+            return hostBuilder as ISuperSocketHostBuilder<TReceivePackage>;
         }
-
-        public static SuperSocketHostBuilder<TReceivePackage> AsSuperSocketBuilder<TReceivePackage>(this IHostBuilder hostBuilder)
-        {
-            return hostBuilder as SuperSocketHostBuilder<TReceivePackage>;
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UsePackageDecoder<TReceivePackage>(this ISuperSocketHostBuilder hostBuilder, IPackageDecoder<TReceivePackage> packageDecoder)
-        {
-            return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UsePackageDecoder(packageDecoder);
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UsePackageDecoder<TReceivePackage, TPackageDecoder>(this ISuperSocketHostBuilder hostBuilder)
-            where TPackageDecoder : class, IPackageDecoder<TReceivePackage>
-        {
-            return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UsePackageDecoder<TPackageDecoder>();
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UsePipelineFilter<TReceivePackage, TPipelineFilter>(this ISuperSocketHostBuilder hostBuilder)
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
-        {
-            return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UsePipelineFilter<TPipelineFilter>();
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TReceivePackage, TPipelineFilterFactory>(this ISuperSocketHostBuilder hostBuilder)
-            where TPipelineFilterFactory : class, IPipelineFilterFactory<TReceivePackage>
-        {
-            return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UsePipelineFilterFactory<TPipelineFilterFactory>();
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<object, IPipelineFilter<TReceivePackage>> filterFactory)
-        {
-            var builder = hostBuilder.ConfigureServices(
-                (hostCtx, services) =>
-                {
-                    services.AddSingleton<Func<object, IPipelineFilter<TReceivePackage>>>(filterFactory);
-                }
-            ) as SuperSocketHostBuilder<TReceivePackage>;
-
-            return builder.UsePipelineFilterFactory<DelegatePipelineFilterFactory<TReceivePackage>>();
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TReceivePackage>(this ISuperSocketHostBuilder hostBuilder, Func<object, IPipelineFilter<TReceivePackage>> filterFactory)
-        {
-            return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UsePipelineFilterFactory(filterFactory);
-        }
-
-
-        public static SuperSocketHostBuilder<TReceivePackage> UseHostedService<TReceivePackage, THostedService>(this ISuperSocketHostBuilder hostBuilder)
-            where THostedService : SuperSocketService<TReceivePackage>
-        {
-            return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UseHostedService<THostedService>();
-        }
-
-        public static ISuperSocketHostBuilder<TReceivePackage> UseSession<TReceivePackage, TSession>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
-            where TSession : AppSession
-        {
-            return hostBuilder.UseSession<TSession>() as SuperSocketHostBuilder<TReceivePackage>;
-        }
-
-  
-        public static ISuperSocketHostBuilder UseSession<TSession>(this ISuperSocketHostBuilder hostBuilder)
-            where TSession : AppSession
-        {
-            return hostBuilder.UseSessionFactory<GenericSessionFactory<TSession>>();
-        }
-
-        public static ISuperSocketHostBuilder UseSessionFactory<TSessionFactory>(this ISuperSocketHostBuilder hostBuilder)
-            where TSessionFactory : class, ISessionFactory
+ 
+        public static ISuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<object, IPipelineFilter<TReceivePackage>> filterFactory)
         {
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.AddSingleton<ISessionFactory, TSessionFactory>();
+                    services.AddSingleton<Func<object, IPipelineFilter<TReceivePackage>>>(filterFactory);
                 }
             );
 
-            return hostBuilder;
+            return hostBuilder.UsePipelineFilterFactory<DelegatePipelineFilterFactory<TReceivePackage>>();
         }
 
-        public static ISuperSocketHostBuilder UseClearIdleSession(this ISuperSocketHostBuilder hostBuilder)
+        public static ISuperSocketHostBuilder<TReceivePackage> UseClearIdleSession<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
         {
             return hostBuilder.UseMiddleware<ClearIdleSessionMiddleware>();
         }
 
-        public static SuperSocketHostBuilder<TReceivePackage> UseClearIdleSession<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
-        {
-            return hostBuilder.UseMiddleware<ClearIdleSessionMiddleware>().AsSuperSocketBuilder<TReceivePackage>();
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UsePackageHandler<TReceivePackage>(this ISuperSocketHostBuilder hostBuilder, Func<IAppSession, TReceivePackage, ValueTask> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
-            where TReceivePackage : class
-        {
-            return hostBuilder.AsSuperSocketBuilder<TReceivePackage>().UsePackageHandler(packageHandler, errorHandler: errorHandler);
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> UseSessionHandler<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, ValueTask> onClosed = null)
-        {
-            return (hostBuilder as ISuperSocketHostBuilder)
-                .UseSessionHandler(onConnected, onClosed)
-                .AsSuperSocketBuilder<TReceivePackage>();
-        }
-
-        public static ISuperSocketHostBuilder UseSessionHandler(this ISuperSocketHostBuilder hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, ValueTask> onClosed = null)
+        public static ISuperSocketHostBuilder<TReceivePackage> UseSessionHandler<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, ValueTask> onClosed = null)
         {
             return hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
@@ -131,47 +47,28 @@ namespace SuperSocket
                         Closed = onClosed
                     });
                 }
-            ) as ISuperSocketHostBuilder;
-        }
+            );
+        }        
 
-        public static SuperSocketHostBuilder<TReceivePackage> ConfigureSuperSocket<TReceivePackage>(this SuperSocketHostBuilder<TReceivePackage> hostBuilder, Action<ServerOptions> configurator)
-        {
-            return (hostBuilder as ISuperSocketHostBuilder)
-                .ConfigureSuperSocket(configurator)
-                .AsSuperSocketBuilder<TReceivePackage>();
-        }
-
-        public static SuperSocketHostBuilder<TReceivePackage> ConfigureSuperSocket<TReceivePackage>(this ISuperSocketHostBuilder hostBuilder, Action<ServerOptions> configurator)
-        {
-            return hostBuilder
-                .ConfigureSuperSocket(configurator)
-                .AsSuperSocketBuilder<TReceivePackage>();
-        }
-
-        public static ISuperSocketHostBuilder ConfigureSuperSocket(this ISuperSocketHostBuilder hostBuilder, Action<ServerOptions> configurator)
+        public static ISuperSocketHostBuilder<TReceivePackage> ConfigureSuperSocket<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Action<ServerOptions> configurator)
         {
             return hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
                     services.Configure<ServerOptions>(configurator);
                 }
-            ) as ISuperSocketHostBuilder;
+            );
         }
 
-        public static SuperSocketHostBuilder<TReceivePackage> ConfigureSocketOptionsSetter<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<Socket> socketOptionsSetter)
+        public static ISuperSocketHostBuilder<TReceivePackage> ConfigureSocketOptionsSetter<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<Socket> socketOptionsSetter)
             where TReceivePackage : class
-        {
-            return (hostBuilder as ISuperSocketHostBuilder).ConfigureSocketOptionsSetter(socketOptionsSetter).AsSuperSocketBuilder<TReceivePackage>();
-        }
-
-        public static ISuperSocketHostBuilder ConfigureSocketOptionsSetter(this ISuperSocketHostBuilder hostBuilder, Func<Socket> socketOptionsSetter)
         {
             return hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
                     services.AddSingleton<Func<Socket>>(socketOptionsSetter);
                 }
-            ) as ISuperSocketHostBuilder;
+            );
         }
 
         public static IServer BuildAsServer(this IHostBuilder hostBuilder)
@@ -183,6 +80,31 @@ namespace SuperSocket
         public static IServer AsServer(this IHost host)
         {
             return host.Services.GetService<IEnumerable<IHostedService>>().OfType<IServer>().FirstOrDefault();
+        }
+
+        public static ISuperSocketHostBuilder<TReceivePackage> ConfigureErrorHandler<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler)
+        {
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
+        }
+
+        // move to extensions
+        public static ISuperSocketHostBuilder<TReceivePackage> UsePackageHandler<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, TReceivePackage, ValueTask> packageHandler, Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>> errorHandler = null)
+        {
+            return hostBuilder.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    if (packageHandler != null)
+                        services.AddSingleton<IPackageHandler<TReceivePackage>>(new DelegatePackageHandler<TReceivePackage>(packageHandler));
+
+                    if (errorHandler != null)
+                        services.AddSingleton<Func<IAppSession, PackageHandlingException<TReceivePackage>, ValueTask<bool>>>(errorHandler);
+                }
+            );
         }
     }
 }

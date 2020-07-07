@@ -15,6 +15,7 @@ using SuperSocket.Server;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting.Internal;
+using System.Linq;
 
 namespace Tests
 {
@@ -232,6 +233,7 @@ namespace Tests
                 .ConfigureAppConfiguration((hostingContext, config) =>
                 {
                     actualHostEvn = hostingContext.HostingEnvironment;
+                    config.Sources.Clear();
                     config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
                 })
                 .ConfigureServices((hostingContext, services) =>

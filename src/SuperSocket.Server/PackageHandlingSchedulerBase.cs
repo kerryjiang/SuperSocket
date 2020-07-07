@@ -12,15 +12,15 @@ namespace SuperSocket.Server
 
         public Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> ErrorHandler { get; private set; }
 
-        public abstract ValueTask HandlePackage(AppSession session, TPackageInfo package);
+        public abstract ValueTask HandlePackage(IAppSession session, TPackageInfo package);
 
-        public void Initialize(IPackageHandler<TPackageInfo> packageHandler, Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> errorHandler)
+        public virtual void Initialize(IPackageHandler<TPackageInfo> packageHandler, Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> errorHandler)
         {
             PackageHandler = packageHandler;
             ErrorHandler = errorHandler;
         }
 
-        protected async ValueTask HandlePackageInternal(AppSession session, TPackageInfo package)
+        protected async ValueTask HandlePackageInternal(IAppSession session, TPackageInfo package)
         {
             var packageHandler = PackageHandler;
             var errorHandler = ErrorHandler;
@@ -37,7 +37,7 @@ namespace SuperSocket.Server
 
                 if (toClose)
                 {
-                    session.CloseAsync().DoNotAwait();
+                    (session as AppSession).CloseAsync().DoNotAwait();
                 }
             }
         }

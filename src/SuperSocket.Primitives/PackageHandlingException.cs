@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
 
-namespace SuperSocket.Server
+namespace SuperSocket
 {
     public class PackageHandlingException<TPackageInfo> : Exception
     {
