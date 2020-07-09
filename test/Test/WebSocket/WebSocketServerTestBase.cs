@@ -10,6 +10,7 @@ using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.WebSocket.Server;
+using SuperSocket.WebSocket;
 
 namespace Tests.WebSocket
 {
@@ -21,14 +22,14 @@ namespace Tests.WebSocket
 
         }
 
-        protected IHostBuilder CreateWebSocketServerBuilder(Func<WebSocketHostBuilder,WebSocketHostBuilder> configurator = null, IHostConfigurator hostConfigurator = null)
+        protected ISuperSocketHostBuilder<WebSocketPackage> CreateWebSocketServerBuilder(Func<ISuperSocketHostBuilder<WebSocketPackage>, ISuperSocketHostBuilder<WebSocketPackage>> configurator = null, IHostConfigurator hostConfigurator = null)
         {
-            var builder = WebSocketHostBuilder.Create();
+            ISuperSocketHostBuilder<WebSocketPackage> builder = WebSocketHostBuilder.Create();
             
             if (configurator != null)
                 builder = configurator(builder);
 
-            return Configure(builder, hostConfigurator);
+            return Configure(builder, hostConfigurator) as ISuperSocketHostBuilder<WebSocketPackage>;
         }
     }
 }

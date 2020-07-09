@@ -10,15 +10,15 @@ namespace SuperSocket.WebSocket.Server
 {
     public static class WebSocketServerExtensions
     {
-        public static WebSocketHostBuilder UseWebSocketMessageHandler(this ISuperSocketHostBuilder<WebSocketPackage> builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
+        public static ISuperSocketHostBuilder<WebSocketPackage> UseWebSocketMessageHandler(this ISuperSocketHostBuilder<WebSocketPackage> builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
         {
             return builder.ConfigureServices((ctx, services) => 
             {
                 services.AddSingleton<Func<WebSocketSession, WebSocketPackage, Task>>(handler);
-            }) as WebSocketHostBuilder;
+            }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }
 
-        public static WebSocketHostBuilder UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder)
+        public static ISuperSocketHostBuilder<WebSocketPackage> UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder)
             where TPackageInfo : class
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>
         {
@@ -32,10 +32,10 @@ namespace SuperSocket.WebSocket.Server
             }).ConfigureServices((ctx, services) =>
             {
                 services.Configure<CommandOptions>(ctx.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
-            }) as WebSocketHostBuilder;
+            }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }        
 
-        public static WebSocketHostBuilder UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder, Action<CommandOptions> configurator)
+        public static ISuperSocketHostBuilder<WebSocketPackage> UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder, Action<CommandOptions> configurator)
             where TPackageInfo : class
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
         {
@@ -43,7 +43,7 @@ namespace SuperSocket.WebSocket.Server
                 .ConfigureServices((ctx, services) =>
                 {
                     services.Configure(configurator);
-                }) as WebSocketHostBuilder;
+                }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }
 
         public static MultipleServerHostBuilder AddWebSocketServer(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)

@@ -5,22 +5,25 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SuperSocket.ProtoBase;
-using Xunit;
-using Xunit.Abstractions;
-using System.Linq;
-using SuperSocket;
-using SuperSocket.Command;
-using SuperSocket.WebSocket.Server;
 using System.Net.WebSockets;
+using System.Buffers;
+using System.Reflection;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using SuperSocket.WebSocket;
-using System.Buffers;
-using SuperSocket.Server;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using SuperSocket;
+using SuperSocket.Command;
+using SuperSocket.WebSocket.Server;
+using SuperSocket.ProtoBase;
+using SuperSocket.WebSocket;
+using SuperSocket.Server;
+using SuperSocket.Test.Command;
+using Xunit;
+using Xunit.Abstractions;
+
 
 namespace Tests.WebSocket
 {
@@ -557,7 +560,7 @@ namespace Tests.WebSocket
             }
         }
 
-        class MySocketService : SuperSocketService<TextPackageInfo>
+        class MySocketService : SuperSocketService<StringPackageInfo>
         {
             public MySocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
             {
@@ -584,7 +587,7 @@ namespace Tests.WebSocket
                     config.Sources.Clear();
                     config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
                 })
-                .AddServer<MySocketService, TextPackageInfo, LinePipelineFilter>(builder =>
+                .AddServer<MySocketService, StringPackageInfo, CommandLinePipelineFilter>(builder =>
                 {
                     builder
                     .ConfigureServerOptions((ctx, config) =>
@@ -593,6 +596,11 @@ namespace Tests.WebSocket
                     }).UseSessionHandler(async (s) =>
                     {
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    })
+                    .UseCommand(commandOptions =>
+                    {
+                        // register all commands in one assembly
+                        commandOptions.AddCommandAssembly(typeof(MIN).GetTypeInfo().Assembly);
                     });
                 })
                 .AddWebSocketServer<MyWebSocketService>(builder =>
@@ -601,9 +609,12 @@ namespace Tests.WebSocket
                     .ConfigureServerOptions((ctx, config) =>
                     {
                         return config.GetSection(serverName2);
-                    }).UseSessionHandler(async (s) =>
+                    })
+                    .UseCommand<StringPackageInfo, StringPackageConverter>(commandOptions =>
                     {
-                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                        commandOptions.AddCommand<ADD>();
+                        commandOptions.AddCommand<MULT>();
+                        commandOptions.AddCommand<SUB>();
                     });
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
@@ -625,16 +636,63 @@ namespace Tests.WebSocket
                 {
                     var line = await streamReader.ReadLineAsync();
                     Assert.Equal(serverName1, line);
+
+                    await streamWriter.WriteAsync("MIN 8 6 3\r\n");
+                    await streamWriter.FlushAsync();
+                    line = await streamReader.ReadLineAsync();
+                    Assert.Equal("3", line);
+
+                    await streamWriter.WriteAsync("SORT 8 6 3\r\n");
+                    await streamWriter.FlushAsync();
+                    line = await streamReader.ReadLineAsync();
+                    Assert.Equal("SORT 3 6 8", line);
                 }
                 
                 var websocket = new ClientWebSocket();
 
                 await websocket.ConnectAsync(new Uri($"ws://localhost:4041"), CancellationToken.None);
+                Assert.Equal(WebSocketState.Open, websocket.State);
+                
+                var receiveBuffer = new byte[256];
+
+                Assert.Equal("11", await GetWebSocketReply(websocket, receiveBuffer, "ADD 5 6"));
+                Assert.Equal("8", await GetWebSocketReply(websocket, receiveBuffer, "SUB 10 2"));
+                Assert.Equal("21", await GetWebSocketReply(websocket, receiveBuffer, "MULT 3 7"));
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await host.StopAsync();
+            }
+        }
+
+
+        [Fact]
+        [Trait("Category", "TestWebSocketStartByHost")]
+        public async Task TestStartByHost()
+        {
+            var hostBuilder = WebSocketHostBuilder.Create()
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using(var host = hostBuilder.Build())
+            {
+                await host.StartAsync();
+               
+                var websocket = new ClientWebSocket();
+
+                await websocket.ConnectAsync(new Uri($"ws://localhost:4040"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                //await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                await Task.Delay(1000 * 5);
                 
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);                
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
                 await host.StopAsync();
             }
         }

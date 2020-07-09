@@ -7,7 +7,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.Server
 {
-    public class WebSocketHostBuilderAdapter : ServerHostBuilderAdapter<WebSocketPackage>
+    class WebSocketHostBuilderAdapter : ServerHostBuilderAdapter<WebSocketPackage>
     {
         public WebSocketHostBuilderAdapter(IHostBuilder hostBuilder)
             : base(hostBuilder)
