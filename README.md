@@ -14,6 +14,23 @@
 - **Documentation**:		[https://docs.supersocket.net/](https://docs.supersocket.net/)
 - **License**: 				[https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
+##### Nuget Packages
+
+| Package | Version | Download |
+| :------|:------------:|:--------:|
+| **SuperSocket.ProtoBase** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.ProtoBase.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.ProtoBase/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.ProtoBase.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.ProtoBase/) |
+| **SuperSocket.Primitives** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Primitives.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Primitives/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Primitives.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Primitives/) |
+| **SuperSocket.Channel** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Channel.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Channel/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Channel.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Channel/) |
+| **SuperSocket.Server** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Server.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Server/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Server.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Server/) |
+| **SuperSocket.Command** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Command.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Command/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Command.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Command/) |
+| **SuperSocket.SessionContainer** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.SessionContainer.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.SessionContainer/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.SessionContainer.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.SessionContainer/) |
+| **SuperSocket.Client** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Client.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Client/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Client.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Client/) |
+| **SuperSocket.Client.Proxy** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Client.Proxy.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Client.Proxy/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Client.Proxy.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Client.Proxy/) |
+| **SuperSocket.WebSocket** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.WebSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.WebSocket/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.WebSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.WebSocket/) |
+| **SuperSocket.WebSocket.Server** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.WebSocket.Server.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.WebSocket.Server/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.WebSocket.Server.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.WebSocket.Server/) |
+| **SuperSocket.SerialIO** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.SerialIO.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.SerialIO/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.SerialIO.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.SerialIO/) |
 
 ---
 
