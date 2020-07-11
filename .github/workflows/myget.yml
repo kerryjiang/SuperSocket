@@ -32,6 +32,6 @@ jobs:
             - name: Pack all-in-one-packages
               run:  |
                 dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}" pkg/SuperSocket.csproj
-                dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}" pkg/SuperSocke.WebSocketServer.csproj 
+                dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}" pkg/SuperSocket.WebSocketServer.csproj 
             - name: Push
               run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.MYGET_API_KEY }} --source https://www.myget.org/F/supersocket/api/v3/index.json
