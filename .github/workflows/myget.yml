@@ -29,13 +29,6 @@ jobs:
               run: dotnet pack -c Release
             - uses: dotnet/nbgv@master
               id: nbgv
-            - name: Print versions
-              run:  |
-                echo 'Version: ${{ steps.nbgv.outputs.Version }}'
-                echo 'NuGetPackageVersion: ${{ steps.nbgv.outputs.NuGetPackageVersion }}'
-                echo 'AssemblyVersion: ${{ steps.nbgv.outputs.AssemblyVersion }}'
-                echo 'AssemblyFileVersion: ${{ steps.nbgv.outputs.AssemblyFileVersion }}'
-                echo 'AssemblyInformationalVersion: ${{ steps.nbgv.outputs.AssemblyInformationalVersion }}'
             - name: Pack all-in-one-packages
               run:  |
                 dotnet pack -c Release -p:PackageVersion="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}" pkg/SuperSocket.csproj
