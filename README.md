@@ -20,6 +20,8 @@
 
 | Package | Version | Download |
 | :------|:------------:|:--------:|
+| **SuperSocket** (all in one) | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket/) |
+| **SuperSocket.WebSocketServer** (all in one for WebSocket server) | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.WebSocketServer.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.WebSocketServer/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.WebSocketServer.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.WebSocketServer/) |
 | **SuperSocket.ProtoBase** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.ProtoBase.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.ProtoBase/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.ProtoBase.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.ProtoBase/) |
 | **SuperSocket.Primitives** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Primitives.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Primitives/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Primitives.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Primitives/) |
 | **SuperSocket.Channel** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Channel.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Channel/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.Channel.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Channel/) |
