@@ -29,9 +29,9 @@ jobs:
               run: dotnet pack -c Release
             - uses: dotnet/nbgv@master
               id: nbgv
-              name: Pack all-in-one-packages
-              run: dotnet pack -c Release -p:PackageVersion=${{ steps.nbgv.outputs.NuGetPackageVersion }} pkg/SuperSocket.nuspec
-              name: Pack all-in-one-packages for WebSocketServer
-              run: dotnet pack -c Release -p:PackageVersion=${{ steps.nbgv.outputs.NuGetPackageVersion }} pkg/SuperSocke.WebSocketServer.nuspec 
+            - name: Pack all-in-one-packages
+              run:  |
+                dotnet pack -c Release -p:PackageVersion=${{ steps.nbgv.outputs.NuGetPackageVersion }} pkg/SuperSocket.nuspec
+                dotnet pack -c Release -p:PackageVersion=${{ steps.nbgv.outputs.NuGetPackageVersion }} pkg/SuperSocke.WebSocketServer.nuspec 
             - name: Push
               run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.MYGET_API_KEY }} --source https://www.myget.org/F/supersocket/api/v3/index.json
