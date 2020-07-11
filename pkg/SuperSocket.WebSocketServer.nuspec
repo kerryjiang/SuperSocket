@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>SuperSocket</id>
-    <title>SuperSocket</title>
+    <id>SuperSocket.WebSocketServer</id>
+    <title>SuperSocket WebSocketServer</title>
     <version>$version$</version>
     <authors>Kerry Jiang</authors>
     <owners>Kerry Jiang and other contributors</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
     <projectUrl>http://www.supersocket.net/</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <description>SuperSocket is a light weight, cross platform and extensible socket server application framework. You can use it to build a server side socket application (like game server, GPS server, industrial control system, data acquisition server etc) easily without thinking about how to use socket, how to maintain the socket connections and how socket works.</description>
+    <description>A WebSocket Server base on SuperSocket.</description>
     <tags>SuperSocket WebSocket Server, SuperSocket, WebSocket Server</tags>
     <dependencies>
       <group targetFramework=".NETStandard2.1">
