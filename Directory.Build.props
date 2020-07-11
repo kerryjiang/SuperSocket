@@ -10,7 +10,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <IncludeSource>true</IncludeSource>
-    <Authors>Kerry Jiang</Authors>
+    <Authors>Kerry Jiang and other contributors</Authors>
+    <Owners>Kerry Jiang</Owners>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning">
