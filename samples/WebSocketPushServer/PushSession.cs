@@ -15,9 +15,35 @@ namespace WebSocketPushServer
 {
     public class PushSession : WebSocketSession
     {
-        protected override async ValueTask OnSessionConnectedAsync()
+        private int _messageSent;
+
+        public int MessageSent
         {
-            await this.SendAsync(this.SessionID);
+            get { return _messageSent; }
+        }
+
+        private int _messageClientReceived;
+
+        public int MessageClientReceived
+        {
+            get { return _messageClientReceived; }
+        }
+
+        public void Ack()
+        {
+            Interlocked.Increment(ref _messageClientReceived);
+        }
+
+        public override async ValueTask SendAsync(string message)
+        {
+            await base.SendAsync(message);
+            Interlocked.Increment(ref _messageSent);
+        }
+
+        public void PrintStats()
+        {
+            var speed = (double)_messageSent / (double)this.LastActiveTime.Subtract(this.StartTime).TotalSeconds;
+            Console.WriteLine($"Sent {_messageSent} messages, received {_messageClientReceived} messages, {speed:F1}.");
         }
     }
 }

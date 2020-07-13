@@ -4,8 +4,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../src/SuperSocket.WebSocket.Server/SuperSocket.WebSocket.Server.csproj" />
-    <ProjectReference Include="../../src/SuperSocket.SessionContainer/SuperSocket.SessionContainer.csproj" />
+    <PackageReference Include="SuperSocket.WebSocketServer" Version="2.0.0-beta3" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json">

@@ -17,19 +17,14 @@ namespace WebSocketPushServer
             var host = WebSocketHostBuilder.Create(args)
                 .UseWebSocketMessageHandler(async (session, message) =>
                 {
-                    if (message.Message.Equals("StartPush", StringComparison.OrdinalIgnoreCase))
+                    var s = session as PushSession;
+
+                    if (message.Message.Equals("ACK", StringComparison.OrdinalIgnoreCase))
                     {
-                        var server = session.Server as IServer;
-                        var sessionCount = server.SessionCount;
-                        var serverPush = server.ServiceProvider.GetServices<IMiddleware>().OfType<ServerPushMiddleware>()
-                            .FirstOrDefault();
-                        serverPush.StartPush(sessionCount);
-                        session.GetDefaultLogger().LogInformation($"Start pushing to {sessionCount} clients...");
-                        return;
+                        s.Ack();
                     }
 
-                    // echo message back to the client
-                    await session.SendAsync(message.Message);
+                    await Task.CompletedTask;
                 })
                 .UseSession<PushSession>()
                 .UseInProcSessionContainer()

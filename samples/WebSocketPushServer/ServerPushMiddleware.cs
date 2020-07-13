@@ -21,7 +21,9 @@ namespace WebSocketPushServer
 
         private static ILogger _logger;
 
-        private TaskCompletionSource<bool> _tcs;
+        private Task _sendTask;
+
+        private bool _stopped = false;
 
         public ServerPushMiddleware(IServiceProvider serviceProvider, ILogger<ServerPushMiddleware> logger)
         {
@@ -29,75 +31,55 @@ namespace WebSocketPushServer
             _logger = logger;
         }
 
-        private Timer _timer;
-
-        private int _interval = 1;
-
-        private int _total;
-
-        private double _totalTimeSpent = 0;
-        private long _totalRounds = 0;
-        private int _totalClients = 0;
-
         public override void Start(IServer server)
         {
             _sessionContainer = _serviceProvider.GetSessionContainer();
-            _tcs = new TaskCompletionSource<bool>();
-            _timer = new Timer(OnTimerCallback, null, 1000 * _interval, 1000 * _interval);
+            _sendTask = RunAsync();
         }
 
-        private void OnTimerCallback(object state)
+        private async Task RunAsync()
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
-
-            try
+            while (!_stopped)
             {
-                Push().GetAwaiter().GetResult();
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Exception happened in Push().");
-            }
+                var sent = await Push();
 
-            _timer.Change(1000 * _interval, 1000 * _interval);
+                if (sent == 0 && !_stopped)
+                {
+                    await Task.Delay(1000 * 5);
+                }
+            }
         }
 
-        private async ValueTask Push()
+        private async ValueTask<int> Push()
         {
-            if (_tcs != null)
-            {
-                await _tcs.Task;
-                _tcs = null;
-            }
-            
             // about 300 characters
             var line = string.Join("-", Enumerable.Range(0, 10).Select(x => Guid.NewGuid().ToString()));
-
             var startTime = DateTime.Now;
+
+            var count = 0;
 
             foreach (var s in _sessionContainer.GetSessions<PushSession>())
             {
                 await s.SendAsync(line);
+                count++;
+
+                if (_stopped)
+                    break;
             }
 
-            _totalTimeSpent += DateTime.Now.Subtract(startTime).TotalMilliseconds;
-            _totalRounds += 1;
-
-            _total += line.Length;
-        }
-
-        public void StartPush(int totalClients)
-        {
-            _totalClients = totalClients;
-            _tcs.SetResult(true);
+            return count;
         }
 
         public override void Shutdown(IServer server)
         {
-            _timer.Change(Timeout.Infinite, Timeout.Infinite);
-            _timer.Dispose();
-            var v = _totalTimeSpent/((double)_totalRounds * 1000);
-            _logger.LogInformation($"Sent {_total} bytes to {_totalClients} clients with {_totalRounds} rounds at the speed {v} seconds/round.");
+            _stopped = true;
+
+            _sendTask.Wait();
+
+            foreach (var s in _sessionContainer.GetSessions<PushSession>())
+            {
+                s.PrintStats();
+            }
         }
     }
 }

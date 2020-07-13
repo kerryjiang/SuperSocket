@@ -16,6 +16,8 @@ jobs:
                 dotnet-version: 3.1.100
             - name: Build
               run: dotnet build -c Release
+            - name: Build Samples
+              run: dotnet build -c Release samples/samples.sln
             - name: Test
               run: |
                 cd test/Test
