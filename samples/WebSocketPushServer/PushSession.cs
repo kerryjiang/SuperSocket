@@ -29,6 +29,11 @@ namespace WebSocketPushServer
             get { return _messageClientReceived; }
         }
 
+        protected override async ValueTask OnSessionConnectedAsync()
+        {
+            await this.SendAsync(this.SessionID);
+        }
+
         public void Ack()
         {
             Interlocked.Increment(ref _messageClientReceived);
