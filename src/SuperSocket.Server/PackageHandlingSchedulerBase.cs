@@ -32,7 +32,6 @@ namespace SuperSocket.Server
             }
             catch (Exception e)
             {
-                await packageHandler.Handle(session, package);
                 var toClose = await errorHandler(session, new PackageHandlingException<TPackageInfo>($"Session {session.SessionID} got an error when handle a package.", package, e));
 
                 if (toClose)
