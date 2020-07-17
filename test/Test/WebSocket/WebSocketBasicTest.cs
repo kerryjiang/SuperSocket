@@ -53,6 +53,48 @@ namespace Tests.WebSocket
         */
 
         [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        public async Task TestCustomWebSocketSession(Type hostConfiguratorType) 
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            var session = default(WebSocketSession);
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                return builder
+                    .UseSession<MyWebSocketSession>()
+                    .UseSessionHandler(async (s) =>
+                    {
+                        session = s as WebSocketSession;
+                        await Task.CompletedTask;
+                    });
+            }, hostConfigurator: hostConfigurator)
+                .BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var websocket = new ClientWebSocket();
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                await Task.Delay(1 * 1000);
+
+                Assert.IsType<MyWebSocketSession>(session);                
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                await Task.Delay(1 * 1000);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
         [Trait("Category", "WebSocketHandshake")]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
@@ -766,6 +808,11 @@ namespace Tests.WebSocket
 
                 await session.SendAsync(result.ToString());
             }
+        }
+
+        public class MyWebSocketSession : WebSocketSession
+        {
+
         }
     }
 }

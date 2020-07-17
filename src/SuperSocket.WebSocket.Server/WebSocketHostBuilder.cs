@@ -46,10 +46,10 @@ namespace SuperSocket.WebSocket.Server
             this.Validator = WebSocketHostBuilder.ValidateHostBuilder;
         }
 
-        public override IHost Build()
+        protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
         {
-            this.UseSession<WebSocketSession>();
-            return base.Build();
+            base.RegisterDefaultServices(builderContext, servicesInHost, services);
+            services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
         }
 
         protected override void RegisterDefaultHostedService(IServiceCollection services)
