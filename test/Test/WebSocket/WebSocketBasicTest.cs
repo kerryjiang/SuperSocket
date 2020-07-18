@@ -556,6 +556,79 @@ namespace Tests.WebSocket
         }
 
         [Theory]
+        [Trait("Category", "TestLongMessageCausesDisconnect")]
+        [InlineData(typeof(RegularHostConfigurator), 65530)]
+        [InlineData(typeof(RegularHostConfigurator), 65526)]
+        [InlineData(typeof(RegularHostConfigurator), 65536)]
+        public async Task TestLongMessageCausesDisconnect(Type hostConfiguratorType, int messageLength)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                return builder.UseWebSocketMessageHandler(async (session, message) =>
+                {
+                    var testString = "a";
+                
+                    for (var i = 0; i < messageLength; i++)
+                    {
+                        testString += "a";
+                    }
+                        
+                    await session.SendAsync(testString);
+                });
+            }, hostConfigurator: hostConfigurator)
+                .BuildAsServer())
+            {
+                await server.StartAsync();
+                OutputHelper.WriteLine("Server started.");
+
+                var websocket = new ClientWebSocket();
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                var data = new byte[0];
+                var segment = new ArraySegment<byte>(data, 0, data.Length);
+
+                await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+
+                await Task.Delay(TimeSpan.FromSeconds(0.5));
+
+                var receiveBuffer = new byte[1024 * 1024 * 4];
+
+                var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
+
+                await Task.Delay(TimeSpan.FromSeconds(0.5));
+
+
+                //second message
+                segment = new ArraySegment<byte>(data, 0, data.Length);
+
+                await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+
+                await Task.Delay(TimeSpan.FromSeconds(0.5));
+
+                receiveBuffer = new byte[1024 * 1024 * 4];
+
+                receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                
+                await Task.Delay(TimeSpan.FromSeconds(1));
+
+                await server.StopAsync();
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+        }
+
+        [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestCommands(Type hostConfiguratorType) 
