@@ -35,11 +35,14 @@ namespace SuperSocket.WebSocket
 
                 for (int i = 9; i > 1; i--)
                 {
+                    if (left == 0)
+                    {
+                        head[i] = 0;
+                        continue;
+                    }
+
                     head[i] = (byte)(left % unit);
                     left = left / unit;
-
-                    if (left == 0)
-                        break;
                 }
 
                 return 10;
