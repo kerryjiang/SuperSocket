@@ -144,7 +144,7 @@ namespace SuperSocket.WebSocket
 
             if (headLen == 0)
             {
-                if (minSize < _size0 || maxSize >= _size0)
+                if (minSize < _size0 && maxSize >= _size0)
                 {
                     headLen =  2;
                     fragmentSize = _size0 - 1;
