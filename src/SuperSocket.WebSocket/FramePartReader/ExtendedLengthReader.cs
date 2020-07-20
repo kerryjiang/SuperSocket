@@ -26,7 +26,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             if (required == 2)
             {
-                reader.TryReadBigEndian(out short len);
+                reader.TryReadBigEndian(out ushort len);
                 package.PayloadLength = len;
             }
             else // required == 8 (long)

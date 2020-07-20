@@ -477,10 +477,10 @@ namespace Tests.WebSocket
         }
 
         [Theory]
-        [Trait("Category", "TestDiffentMessageSize")]
+        [Trait("Category", "TestVariousSizeMessagesConcurrent")]
         [InlineData(typeof(RegularHostConfigurator), 10)]
         [InlineData(typeof(SecureHostConfigurator), 10)]
-        public async Task TestDiffentMessageSize(Type hostConfiguratorType, int connCount) 
+        public async Task TestVariousSizeMessagesConcurrent(Type hostConfiguratorType, int connCount) 
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
@@ -556,26 +556,32 @@ namespace Tests.WebSocket
         }
 
         [Theory]
-        [Trait("Category", "TestLongMessageCausesDisconnect")]
-        [InlineData(typeof(RegularHostConfigurator), 65530)]
-        [InlineData(typeof(RegularHostConfigurator), 65526)]
-        [InlineData(typeof(RegularHostConfigurator), 65536)]
-        public async Task TestLongMessageCausesDisconnect(Type hostConfiguratorType, int messageLength)
+        [Trait("Category", "TestVariousSizeMessages")]
+        [InlineData(typeof(RegularHostConfigurator), 125, 2)]
+        [InlineData(typeof(RegularHostConfigurator), 126, 2)]
+        [InlineData(typeof(RegularHostConfigurator), 127, 2)]
+        [InlineData(typeof(RegularHostConfigurator), 65535, 2)]
+        [InlineData(typeof(RegularHostConfigurator), 65536, 2)]
+        [InlineData(typeof(RegularHostConfigurator), 65537, 2)]
+        public async Task TestVariousSizeMessages(Type hostConfiguratorType, int messageLength, int repeat)
         {
-            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);            
+
+            var sb = new StringBuilder();
+            var rd = new Random();
+
+            for (var i = 0; i < messageLength; i++)
+            {
+                sb.Append((char)('a' + rd.Next(0, 26)));
+            }
+
+            var textToSent = sb.ToString();
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
                 return builder.UseWebSocketMessageHandler(async (session, message) =>
-                {
-                    var testString = "a";
-                
-                    for (var i = 0; i < messageLength; i++)
-                    {
-                        testString += "a";
-                    }
-                        
-                    await session.SendAsync(testString);
+                {                
+                    await session.SendAsync(message.Message);
                 });
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
@@ -589,42 +595,20 @@ namespace Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                var data = new byte[0];
-                var segment = new ArraySegment<byte>(data, 0, data.Length);
-
-                await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-
-                await Task.Delay(TimeSpan.FromSeconds(0.5));
-
                 var receiveBuffer = new byte[1024 * 1024 * 4];
 
-                var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
+                for (var i = 0; i < repeat; i++)
+                {
+                    var data = Encoding.UTF8.GetBytes(textToSent);
+                    var segment = new ArraySegment<byte>(data, 0, data.Length);
+                    await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+                    var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
+                    Assert.Equal(textToSent, receivedMessage);
+                }
 
-                await Task.Delay(TimeSpan.FromSeconds(0.5));
-
-
-                //second message
-                segment = new ArraySegment<byte>(data, 0, data.Length);
-
-                await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
-
-                await Task.Delay(TimeSpan.FromSeconds(0.5));
-
-                receiveBuffer = new byte[1024 * 1024 * 4];
-
-                receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
-
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);                
                 await Task.Delay(TimeSpan.FromSeconds(1));
-
-                Assert.Equal(WebSocketState.Open, websocket.State);
-
-                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                
-                await Task.Delay(TimeSpan.FromSeconds(1));
-
                 await server.StopAsync();
-
-                await Task.Delay(TimeSpan.FromSeconds(1));
             }
         }
 
