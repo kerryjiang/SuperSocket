@@ -14,7 +14,7 @@ namespace SuperSocket.Server
         void ConfigureServiceProvider(IServiceProvider hostServiceProvider);
     }
 
-    public class ServerHostBuilderAdapter<TReceivePackage> : SuperSocketHostBuilder<TReceivePackage>, IServerHostBuilderAdapter, IServiceProviderAccessor
+    public class ServerHostBuilderAdapter<TReceivePackage> : SuperSocketHostBuilder<TReceivePackage>, IServerHostBuilderAdapter
     {
         private IHostBuilder _hostBuilder;
 
@@ -39,8 +39,6 @@ namespace SuperSocket.Server
         {
             var services = _currentServices;
 
-            services.AddSingleton<IServiceProviderAccessor>(this);
-
             CopyGlobalServices(hostServices, services);
 
             RegisterBasicServices(context, hostServices, services);
@@ -60,22 +58,17 @@ namespace SuperSocket.Server
 
         private void CopyGlobalServices(IServiceCollection hostServices, IServiceCollection services)
         {
-            CopyGlobalServiceType<IHostEnvironment>(hostServices, services);
-            CopyGlobalServiceType<HostBuilderContext>(hostServices, services);
-            CopyGlobalServiceType<IConfiguration>(hostServices, services);
-            CopyGlobalServiceType<IHostApplicationLifetime>(hostServices, services);
-            CopyGlobalServiceType<IHostLifetime>(hostServices, services);
-            CopyGlobalServiceType<IHost>(hostServices, services);
-            CopyGlobalServiceType<ILoggerFactory>(hostServices, services);
+            foreach (var sd in hostServices)
+            {
+                if (sd.ServiceType == typeof(IHostedService))
+                    continue;
+                
+                CopyGlobalServiceDescriptor(hostServices, services, sd);
+            }
         }
 
-        private void CopyGlobalServiceType<TService>(IServiceCollection hostServices, IServiceCollection services)
+        private void CopyGlobalServiceDescriptor(IServiceCollection hostServices, IServiceCollection services, ServiceDescriptor sd)
         {
-            var sd = hostServices.FirstOrDefault(t => t.ServiceType == typeof(TService));
-
-            if (sd == null)
-                return;
-
             if (sd.ImplementationInstance != null)
             {
                 services.Add(new ServiceDescriptor(sd.ServiceType, sd.ImplementationInstance));
@@ -86,7 +79,10 @@ namespace SuperSocket.Server
             }
             else if (sd.ImplementationType != null)
             {
-                services.Add(new ServiceDescriptor(sd.ServiceType, (sp) => _hostServiceProvider.GetService(sd.ServiceType), sd.Lifetime));
+                if (!sd.ServiceType.IsGenericTypeDefinition)
+                    services.Add(new ServiceDescriptor(sd.ServiceType, (sp) => _hostServiceProvider.GetService(sd.ServiceType), sd.Lifetime));
+                else
+                    services.Add(sd);
             }            
         }
 
@@ -95,15 +91,9 @@ namespace SuperSocket.Server
             return factory(_hostServiceProvider);
         }
 
-        IServiceProvider IServiceProviderAccessor.ServiceProvider
-        {
-            get { return _serviceProvider; }
-        }
-
         void IServerHostBuilderAdapter.ConfigureServiceProvider(IServiceProvider hostServiceProvider)
         {
             _hostServiceProvider = hostServiceProvider;
-            _serviceProvider = new MultipleServerHostServiceProvider(_serviceProvider, hostServiceProvider);
         }
    
         protected void RegisterHostedService<THostedService>()

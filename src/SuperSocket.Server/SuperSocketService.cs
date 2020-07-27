@@ -77,7 +77,7 @@ namespace SuperSocket.Server
 
             Name = serverOptions.Value.Name;
             _serverOptions = serverOptions;
-            _serviceProvider = serviceProvider = serviceProvider.GetService<IServiceProviderAccessor>()?.ServiceProvider ?? serviceProvider;
+            _serviceProvider = serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
             _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             _logger = _loggerFactory.CreateLogger("SuperSocketService");

@@ -109,6 +109,7 @@ namespace Tests
         }
 
         [Fact]
+        [Trait("Category", "TestConsoleProtocol")]
         public async Task TestConsoleProtocol() 
         {
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
@@ -138,6 +139,7 @@ namespace Tests
         }
 
         [Fact]
+        [Trait("Category", "TestServiceProvider")]
         public async Task TestServiceProvider()
         {
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
