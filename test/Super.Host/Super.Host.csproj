@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Volo.Abp.Autofac" Version="3.0.4" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Serilog" Version="3.0.4" />
+    <PackageReference Include="Volo.Abp.AspNetCore.Mvc" Version="3.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.4" />
+    <PackageReference Include="Serilog.AspNetCore" Version="3.2.0" />
+    <PackageReference Include="Serilog.Sinks.ColoredConsole" Version="3.0.1" />   
+    <ProjectReference Include="..\..\src\SuperSocket.Server\SuperSocket.Server.csproj" />   
+    <ProjectReference Include="..\..\src\SuperSocket.SessionContainer\SuperSocket.SessionContainer.csproj" />    
+    <ProjectReference Include="..\Super.Engine\Super.Engine.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
