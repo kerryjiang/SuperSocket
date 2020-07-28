@@ -17,7 +17,7 @@ namespace SuperSocket.Server
 
         public TcpChannelCreatorFactory(IServiceProvider serviceProvider)
         {
-            _socketOptionsSetter = serviceProvider.GetService<Action<Socket>>();
+            _socketOptionsSetter = serviceProvider.GetService<SocketOptionsSetter>()?.Setter;
         }
 
         protected virtual void ApplySocketOptions(Socket socket, ListenOptions listenOptions, ChannelOptions channelOptions, ILogger logger)

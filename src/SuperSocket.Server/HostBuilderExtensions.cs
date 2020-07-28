@@ -60,13 +60,13 @@ namespace SuperSocket
             );
         }
 
-        public static ISuperSocketHostBuilder<TReceivePackage> ConfigureSocketOptionsSetter<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<Socket> socketOptionsSetter)
+        public static ISuperSocketHostBuilder<TReceivePackage> ConfigureSocketOptions<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Action<Socket> socketOptionsSetter)
             where TReceivePackage : class
         {
             return hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.AddSingleton<Func<Socket>>(socketOptionsSetter);
+                    services.AddSingleton<SocketOptionsSetter>(new SocketOptionsSetter(socketOptionsSetter));
                 }
             );
         }

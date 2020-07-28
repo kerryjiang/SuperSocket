@@ -109,6 +109,60 @@ namespace Tests
         }
 
         [Fact]
+        [Trait("Category", "TestConfigureSocketOptions")]
+        public async Task TestConfigureSocketOptions() 
+        {
+            var connected = false;
+            var s = default(Socket);
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .UseSessionHandler(async (s) =>
+                {
+                    connected = true;
+                    await Task.CompletedTask;
+                }, async (s) =>
+                {
+                    connected = false;                    
+                    await Task.CompletedTask;
+                })
+                .ConfigureSocketOptions(socket =>
+                {
+                    s = socket;
+                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, 10);
+                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, 5);
+                    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, 7);
+                })
+                .BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Started.");
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                OutputHelper.WriteLine("Connected.");
+
+                await Task.Delay(1000);
+
+                Assert.True(connected);
+
+                Assert.Equal(10, (int)s.GetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime));
+                Assert.Equal(5, (int)s.GetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval));
+                Assert.Equal(7, (int)s.GetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount));
+
+                client.Shutdown(SocketShutdown.Both);
+                client.Close();
+
+                await Task.Delay(1000);
+
+                Assert.False(connected);
+
+                await server.StopAsync();
+            }
+        }
+
+        [Fact]
         [Trait("Category", "TestConsoleProtocol")]
         public async Task TestConsoleProtocol() 
         {
