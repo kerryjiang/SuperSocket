@@ -306,7 +306,8 @@ namespace Tests
                     {
                         server1 = s.Server as IServer;
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
-                    });
+                    })
+                    .UseInProcSessionContainer();
                 })
                 .AddServer<SuperSocketServiceB, TextPackageInfo, LinePipelineFilter>(builder =>
                 {
@@ -318,7 +319,8 @@ namespace Tests
                     {
                         server2 = s.Server as IServer;
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
-                    });
+                    })
+                    .UseInProcSessionContainer();
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
@@ -364,6 +366,8 @@ namespace Tests
 
                 var hostFromServices = server1.ServiceProvider.GetService<IHost>();
                 Assert.NotNull(hostFromServices);
+
+                Assert.NotSame(server1.GetSessionContainer(), server2.GetSessionContainer());
 
                 var loggerFactory0 = host.Services.GetService<ILoggerFactory>();
                 var loggerFactory1 = server1.ServiceProvider.GetService<ILoggerFactory>();
