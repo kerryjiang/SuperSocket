@@ -659,6 +659,79 @@ namespace Tests.WebSocket
             }
         }
 
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestProtocols(Type hostConfiguratorType) 
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                return builder
+                    .UseCommand<StringPackageInfo, StringPackageConverter>("test1", commandOptions =>
+                    {
+                        // register commands one by one
+                        commandOptions.AddCommand<ADD>();
+                        commandOptions.AddCommand<MULT>();
+                        commandOptions.AddCommand<SUB>();
+                    })
+                    .UseWebSocketMessageHandler("test2", async (s, p) =>
+                    {
+                        // echo back the message
+                        await s.SendAsync(p.Message);
+                    });
+            }, hostConfigurator).BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var websocket = new ClientWebSocket();
+
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+                websocket.Options.AddSubProtocol("test1");
+                websocket.Options.AddSubProtocol("test2");
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                Assert.Equal("test1", websocket.SubProtocol);
+
+                var receiveBuffer = new byte[256];
+
+                Assert.Equal("11", await GetWebSocketReply(websocket, receiveBuffer, "ADD 5 6"));
+                Assert.Equal("8", await GetWebSocketReply(websocket, receiveBuffer, "SUB 10 2"));
+                Assert.Equal("21", await GetWebSocketReply(websocket, receiveBuffer, "MULT 3 7"));
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                websocket = new ClientWebSocket();
+
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+                websocket.Options.AddSubProtocol("test2");
+                websocket.Options.AddSubProtocol("test1");
+
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                Assert.Equal("test2", websocket.SubProtocol);
+
+                Assert.Equal("ADD 5 6", await GetWebSocketReply(websocket, receiveBuffer, "ADD 5 6"));
+                Assert.Equal("SUB 10 2", await GetWebSocketReply(websocket, receiveBuffer, "SUB 10 2"));
+                Assert.Equal("MULT 3 7", await GetWebSocketReply(websocket, receiveBuffer, "MULT 3 7"));
+                
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+
+                await server.StopAsync();
+            }
+        }
+
         class MySocketService : SuperSocketService<StringPackageInfo>
         {
             public MySocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)

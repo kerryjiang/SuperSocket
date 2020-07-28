@@ -46,6 +46,12 @@ namespace SuperSocket.Command
         protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; private set; }    
 
         public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
+            : this(serviceProvider, commandOptions, null)
+        {
+
+        }
+
+        public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions, IPackageMapper<TNetPackageInfo, TPackageInfo> packageMapper)
         {
             _logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger("CommandMiddleware");
 
@@ -115,8 +121,8 @@ namespace SuperSocket.Command
             }
 
             _commands = commandDict;
-
-            PackageMapper = CreatePackageMapper(serviceProvider);
+            
+            PackageMapper = packageMapper != null ? packageMapper : CreatePackageMapper(serviceProvider);
         }
 
         private void RegisterCommandInterfaces(List<CommandTypeInfo> commandInterfaces, List<ICommandSetFactory> commandSetFactories, IServiceProvider serviceProvider, Type sessionType, Type packageType, bool wrapRequired = false)

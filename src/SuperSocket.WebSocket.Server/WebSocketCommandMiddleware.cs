@@ -17,10 +17,18 @@ namespace SuperSocket.WebSocket.Server
     public class WebSocketCommandMiddleware<TKey, TPackageInfo> : CommandMiddleware<TKey, WebSocketPackage, TPackageInfo>, IWebSocketCommandMiddleware
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
     {
+        private IPackageMapper<WebSocketPackage, TPackageInfo> _definedMapper;
+
         public WebSocketCommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
         {
             
+        }
+
+        public WebSocketCommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions, IPackageMapper<WebSocketPackage, TPackageInfo> mapper)
+            : base(serviceProvider, commandOptions, mapper)
+        {
+
         }
     }
 }

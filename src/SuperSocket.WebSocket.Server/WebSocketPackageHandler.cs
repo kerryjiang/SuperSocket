@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -23,9 +24,9 @@ namespace SuperSocket.WebSocket.Server
 
         private IPackageHandler<WebSocketPackage> _websocketCommandMiddleware;
 
-        private Func<WebSocketSession, WebSocketPackage, Task> _packageHandlerDelegate;
+        private Func<WebSocketSession, WebSocketPackage, ValueTask> _packageHandlerDelegate;
 
-        private ISubProtocolSelector _subProtocolSelector;
+        private Dictionary<string, ISubProtocolHandler> _subProtocolHandlers;
 
         private ILogger _logger;
 
@@ -38,8 +39,8 @@ namespace SuperSocket.WebSocket.Server
             _websocketCommandMiddleware = serviceProvider
                 .GetService<IWebSocketCommandMiddleware>() as IPackageHandler<WebSocketPackage>;
 
-            _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, Task>>();
-            _subProtocolSelector = serviceProvider.GetService<ISubProtocolSelector>();
+            _subProtocolHandlers = serviceProvider.GetServices<ISubProtocolHandler>().ToDictionary(h => h.Name, StringComparer.OrdinalIgnoreCase);
+            _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, ValueTask>>();
             _logger = loggerFactory.CreateLogger<WebSocketPackageHandler>();
             _handshakeOptions = handshakeOptions.Value;
         }
@@ -87,31 +88,6 @@ namespace SuperSocket.WebSocket.Server
                 }
 
                 websocketSession.Handshaked = true;
-
-                var subProtocol = package.HttpHeader.Items["Sec-WebSocket-Protocol"];
-
-                if (!string.IsNullOrEmpty(subProtocol))
-                {
-                    var subProtocols = subProtocol.Split(',');
-
-                    for (var i = 0; i < subProtocols.Length; i++)
-                    {
-                        subProtocols[i] = subProtocols[i].Trim();
-                    }
-
-                    var subProtocolSelector = _subProtocolSelector;
-
-                    if (subProtocolSelector != null)
-                    {
-                        var subProtocolSelected = await subProtocolSelector.Select(subProtocols, package.HttpHeader);
-
-                        if (!string.IsNullOrEmpty(subProtocolSelected))
-                        {
-                            websocketSession.SubProtocol = subProtocolSelected;
-                        }
-                    }
-                }
-
                 await (session.Server as WebSocketService).OnSessionHandshakeCompleted(websocketSession);
                 return;
             }
@@ -164,6 +140,14 @@ namespace SuperSocket.WebSocket.Server
                 return;
             }
 
+            var protocolHandler = websocketSession.SubProtocolHandler;
+
+            if (protocolHandler != null)
+            {
+                await protocolHandler.Handle(session, package);
+                return;
+            }
+
             // application command
             var websocketCommandMiddleware = _websocketCommandMiddleware;
 
@@ -202,6 +186,34 @@ namespace SuperSocket.WebSocket.Server
                     return false;
             }
 
+            var strProtocols = p.HttpHeader.Items["Sec-WebSocket-Protocol"];
+            var selectedProtocol = string.Empty;
+
+            if (!string.IsNullOrEmpty(strProtocols))
+            {
+                var protocols = strProtocols.Split(',');
+
+                for (var i = 0; i < protocols.Length; i++)
+                {
+                    protocols[i] = protocols[i].Trim();
+                }
+
+                if (_subProtocolHandlers.Any())
+                {
+                    foreach (var proto in protocols)
+                    {
+                        if (_subProtocolHandlers.TryGetValue(proto, out ISubProtocolHandler handler))
+                        {
+                            var ws = session as WebSocketSession;
+                            ws.SubProtocol = proto;
+                            ws.SubProtocolHandler = handler;
+                            selectedProtocol = proto;
+                            break;
+                        }
+                    }
+                }
+            }
+
             string secKeyAccept = string.Empty;
 
             try
@@ -221,6 +233,10 @@ namespace SuperSocket.WebSocket.Server
                 writer.Write(WebSocketConstant.ResponseUpgradeLine, encoding);
                 writer.Write(WebSocketConstant.ResponseConnectionLine, encoding);
                 writer.Write(string.Format(WebSocketConstant.ResponseAcceptLine, secKeyAccept), encoding);
+
+                if (!string.IsNullOrEmpty(selectedProtocol))
+                    writer.Write(string.Format(WebSocketConstant.ResponseProtocolLine, selectedProtocol), encoding);
+
                 writer.Write("\r\n", encoding);
                 writer.FlushAsync().GetAwaiter().GetResult();
             });
