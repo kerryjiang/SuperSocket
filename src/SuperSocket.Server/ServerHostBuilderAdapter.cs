@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,10 @@ namespace SuperSocket.Server
         private IServiceProvider _serviceProvider;
 
         private IServiceProvider _hostServiceProvider;
+
+        private Func<HostBuilderContext, IServiceCollection, IServiceProvider> _serviceProviderBuilder = null;
+
+        private List<IConfigureContainerAdapter> _configureContainerActions = new List<IConfigureContainerAdapter>();
 
         public ServerHostBuilderAdapter(IHostBuilder hostBuilder)
             : base(hostBuilder)
@@ -50,10 +55,23 @@ namespace SuperSocket.Server
 
             RegisterDefaultServices(context, hostServices, services);
 
-            var serviceFactory = new DefaultServiceProviderFactory();
-            var containerBuilder = serviceFactory.CreateBuilder(services);
+            if (_serviceProviderBuilder == null)
+            {
+                var serviceFactory = new DefaultServiceProviderFactory();
+                var containerBuilder = serviceFactory.CreateBuilder(services);
+                ConfigureContainerBuilder(context, containerBuilder);
+                _serviceProvider = serviceFactory.CreateServiceProvider(containerBuilder);
+            }
+            else
+            {
+                _serviceProvider = _serviceProviderBuilder(context, services);
+            }
+        }
 
-            _serviceProvider = serviceFactory.CreateServiceProvider(containerBuilder);
+        private void ConfigureContainerBuilder(HostBuilderContext context, object containerBuilder)
+        {
+            foreach (IConfigureContainerAdapter containerAction in _configureContainerActions)
+                containerAction.ConfigureContainer(context, containerBuilder);
         }
 
         private void CopyGlobalServices(IServiceCollection hostServices, IServiceCollection services)
@@ -133,14 +151,33 @@ namespace SuperSocket.Server
             throw new NotSupportedException();
         }
 
+        public override SuperSocketHostBuilder<TReceivePackage> ConfigureContainer<TContainerBuilder>(Action<HostBuilderContext, TContainerBuilder> configureDelegate)
+        {
+            _configureContainerActions.Add(new ConfigureContainerAdapter<TContainerBuilder>(configureDelegate));
+            return this;
+        }
+
         public override SuperSocketHostBuilder<TReceivePackage> UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
         {
-            throw new NotSupportedException();
+            _serviceProviderBuilder = (context, services) =>
+            {
+                var containerBuilder = factory.CreateBuilder(services);
+                ConfigureContainerBuilder(context, containerBuilder);
+                return factory.CreateServiceProvider(containerBuilder);                
+            };
+            return this;
         }
 
         public override SuperSocketHostBuilder<TReceivePackage> UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory)
         {
-            throw new NotSupportedException();
-        }        
+            _serviceProviderBuilder = (context, services) =>
+            {
+                var serviceProviderFactory = factory(context);
+                var containerBuilder = serviceProviderFactory.CreateBuilder(services);
+                ConfigureContainerBuilder(context, containerBuilder);
+                return serviceProviderFactory.CreateServiceProvider(containerBuilder);                
+            };
+            return this;
+        }
     }
 }
