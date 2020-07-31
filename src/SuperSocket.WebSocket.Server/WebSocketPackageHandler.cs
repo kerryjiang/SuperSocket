@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
@@ -9,8 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket;
+using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
+using SuperSocket.WebSocket.Extensions;
+using SuperSocket.WebSocket.Server.Extensions;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -32,6 +37,8 @@ namespace SuperSocket.WebSocket.Server
 
         private readonly HandshakeOptions _handshakeOptions;
 
+        private Dictionary<string, IEnumerable<IWebSocketExtensionFactory>> _extensionFactories;
+
         public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IOptions<HandshakeOptions> handshakeOptions)
         {
             _serviceProvider = serviceProvider;
@@ -40,6 +47,11 @@ namespace SuperSocket.WebSocket.Server
                 .GetService<IWebSocketCommandMiddleware>() as IPackageHandler<WebSocketPackage>;
 
             _subProtocolHandlers = serviceProvider.GetServices<ISubProtocolHandler>().ToDictionary(h => h.Name, StringComparer.OrdinalIgnoreCase);
+            
+            _extensionFactories = serviceProvider.GetServices<IWebSocketExtensionFactory>()
+                .GroupBy(f => f.Name)
+                .ToDictionary(g => g.Key, g => g.AsEnumerable(), StringComparer.OrdinalIgnoreCase);
+
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, ValueTask>>();
             _logger = loggerFactory.CreateLogger<WebSocketPackageHandler>();
             _handshakeOptions = handshakeOptions.Value;
@@ -163,6 +175,89 @@ namespace SuperSocket.WebSocket.Server
                 await packageHandleDelegate(websocketSession, package);
         }
 
+        private bool SelectSubProtocol(string requestedProtocols, out string selectedProtocol, out ISubProtocolHandler selectedProtocolHandler)
+        {
+            var protocols = requestedProtocols.Split(',');
+
+            for (var i = 0; i < protocols.Length; i++)
+            {
+                protocols[i] = protocols[i].Trim();
+            }
+
+            if (_subProtocolHandlers.Any())
+            {
+                foreach (var proto in protocols)
+                {
+                    if (_subProtocolHandlers.TryGetValue(proto, out ISubProtocolHandler handler))
+                    {
+                        selectedProtocol = proto;
+                        selectedProtocolHandler = handler;
+                        return true;
+                    }
+                }
+            }
+
+            selectedProtocol = string.Empty;
+            selectedProtocolHandler = null;
+            return false;
+        }
+
+        private List<string> SelectExtensions(string requestedExtensions, out List<IWebSocketExtension> extensions)
+        {
+            extensions = null;
+
+            if (string.IsNullOrEmpty(requestedExtensions) || _extensionFactories.Count == 0)
+                return null;
+
+            extensions = new List<IWebSocketExtension>();
+
+            var selectedExtensions = new List<string>();            
+            var exts = requestedExtensions.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var e in exts)
+            {
+                var line = e.Trim();
+                var pos = line.IndexOf(';');
+                var extName = pos < 0 ? line : line.Substring(0, pos);
+
+                var options = default(NameValueCollection);
+
+                if (pos >= 0)
+                {
+                    options = new NameValueCollection();
+
+                    foreach (var pair in line.Substring(pos + 1).Split(';'))
+                    {
+                        var eqPos = pair.IndexOf('=');
+                        
+                        if (eqPos < 0)
+                        {
+                            options.Add(pair, string.Empty);
+                            continue;
+                        }
+
+                        options.Add(pair.Substring(0, eqPos), pair.Substring(eqPos + 1));
+                    }
+                }
+
+                if (_extensionFactories.TryGetValue(extName, out IEnumerable<IWebSocketExtensionFactory> extFactories))
+                {
+                    foreach (var f in extFactories)
+                    {
+                        var extension = f.Create(options);
+
+                        if (extension == null)
+                            continue;
+
+                        selectedExtensions.Add(line);
+                        extensions.Add(extension);
+                    }
+                }
+            }
+
+            return selectedExtensions;
+        }
+
         private async ValueTask<bool> HandleHandshake(IAppSession session, WebSocketPackage p)
         {
             const string requiredVersion = "13";
@@ -186,32 +281,29 @@ namespace SuperSocket.WebSocket.Server
                     return false;
             }
 
-            var strProtocols = p.HttpHeader.Items["Sec-WebSocket-Protocol"];
+            var strProtocols = p.HttpHeader.Items[WebSocketConstant.SecWebSocketProtocol];
             var selectedProtocol = string.Empty;
 
             if (!string.IsNullOrEmpty(strProtocols))
             {
-                var protocols = strProtocols.Split(',');
-
-                for (var i = 0; i < protocols.Length; i++)
+                if (SelectSubProtocol(strProtocols, out string proto, out ISubProtocolHandler handler))
                 {
-                    protocols[i] = protocols[i].Trim();
+                    var ws = session as WebSocketSession;
+                    ws.SubProtocol = proto;
+                    ws.SubProtocolHandler = handler;
+                    selectedProtocol = proto;
                 }
+            }
 
-                if (_subProtocolHandlers.Any())
+            var selectedExtensionHeadItems = SelectExtensions(p.HttpHeader.Items[WebSocketConstant.SecWebSocketExtensions], out List<IWebSocketExtension> extensions);
+
+            if (selectedExtensionHeadItems != null && selectedExtensionHeadItems.Count > 0)
+            {
+                var pipeChannel = session.Channel as IPipeChannel;
+                pipeChannel.PipelineFilter.Context = new WebSocketPipelineFilterContext
                 {
-                    foreach (var proto in protocols)
-                    {
-                        if (_subProtocolHandlers.TryGetValue(proto, out ISubProtocolHandler handler))
-                        {
-                            var ws = session as WebSocketSession;
-                            ws.SubProtocol = proto;
-                            ws.SubProtocolHandler = handler;
-                            selectedProtocol = proto;
-                            break;
-                        }
-                    }
-                }
+                    Extensions = extensions
+                };
             }
 
             string secKeyAccept = string.Empty;
@@ -237,11 +329,40 @@ namespace SuperSocket.WebSocket.Server
                 if (!string.IsNullOrEmpty(selectedProtocol))
                     writer.Write(string.Format(WebSocketConstant.ResponseProtocolLine, selectedProtocol), encoding);
 
+                WriteExtensions(writer, encoding, selectedExtensionHeadItems);
+                
                 writer.Write("\r\n", encoding);
                 writer.FlushAsync().GetAwaiter().GetResult();
             });
 
             return true;
+        }
+
+        private void WriteExtensions(PipeWriter writer, Encoding encoding, IReadOnlyList<string> selectedExtensionHeadItems)
+        {
+            if (selectedExtensionHeadItems != null && selectedExtensionHeadItems.Count > 0)
+            {
+                writer.Write(WebSocketConstant.ResponseExtensionsLinePrefix, encoding);
+
+                for (var i = 0; i < selectedExtensionHeadItems.Count; i++)
+                {
+                    var ext = selectedExtensionHeadItems[i];
+
+                    if (i % 3 == 0) // first item in the line
+                    {
+                        if (i != 0) // not first line
+                            writer.Write(",\r\n\t", encoding);
+                    }
+                    else
+                    {
+                        writer.Write(", ", encoding);
+                    }
+
+                    writer.Write(ext, encoding);
+                }
+
+                writer.Write("\r\n", encoding);
+            }
         }
     }
 }

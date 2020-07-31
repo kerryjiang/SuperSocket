@@ -14,6 +14,7 @@ namespace SuperSocket.WebSocket
         public const string SecWebSocketProtocol = "Sec-WebSocket-Protocol";
         public const string SecWebSocketOrigin = "Sec-WebSocket-Origin";
         public const string SecWebSocketExtensions = "Sec-WebSocket-Extensions";
+        public const string ResponseExtensionsLinePrefix = SecWebSocketExtensions + ":";
         public const string Magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         public const string Cookie = "Cookie";
         public const string Upgrade = "Upgrade";
