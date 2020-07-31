@@ -27,6 +27,12 @@ namespace SuperSocket.Server
 
         }
 
+        internal MultipleServerHostBuilder(IHostBuilder hostBuilder)
+            : base(hostBuilder)
+        {
+
+        }
+
         protected virtual void ConfigureServers(HostBuilderContext context, IServiceCollection hostServices)
         {
             foreach (var adapter in _hostBuilderAdapters)

@@ -106,5 +106,10 @@ namespace SuperSocket
                 }
             );
         }
+
+        public static MultipleServerHostBuilder AsMultipleServerHostBuilder(this IHostBuilder hostBulder)
+        {
+            return new MultipleServerHostBuilder(hostBulder);
+        }
     }
 }
