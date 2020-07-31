@@ -117,7 +117,7 @@ namespace SuperSocket.Command
                 }
 
                 commandDict.Add(cmd.Key, cmd);
-                _logger.LogDebug("The command with key {cmd.Key} is registered: {cmd.ToString()}");
+                _logger.LogDebug($"The command with key {cmd.Key} is registered: {cmd.ToString()}");
             }
 
             _commands = commandDict;
