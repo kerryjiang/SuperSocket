@@ -31,7 +31,7 @@ namespace SuperSocket.WebSocket
 
             reader.Advance(terminatorSpan.Length);
 
-            var header = ParseHttpHeaderItems(pack);
+            var header = ParseHttpHeaderItems(ref pack);
 
             var package = new WebSocketPackage
             {
@@ -43,7 +43,7 @@ namespace SuperSocket.WebSocket
             return package;
         }
 
-        private HttpHeader ParseHttpHeaderItems(ReadOnlySequence<byte> header)
+        private HttpHeader ParseHttpHeaderItems(ref ReadOnlySequence<byte> header)
         {
             var headerText = header.GetString(Encoding.UTF8);
             var reader = new StringReader(headerText);

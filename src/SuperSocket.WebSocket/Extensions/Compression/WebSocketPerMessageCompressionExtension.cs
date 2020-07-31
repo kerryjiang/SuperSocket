@@ -1,14 +1,18 @@
 using System;
 using System.Buffers;
 
-namespace SuperSocket.WebSocket
+namespace SuperSocket.WebSocket.Extensions.Compression
 {
     /// <summary>
     /// WebSocket Per-Message Compression Extension
     /// https://tools.ietf.org/html/rfc7692
     /// </summary>
-    public abstract class WebSocketPerMessageCompressionExtension : IWebSocketExtension
+    public class WebSocketPerMessageCompressionExtension : IWebSocketExtension
     {
+        public string Name => PMCE;
+
+        public const string PMCE = "permessage-deflat";
+
         public void Decode(ref ReadOnlySequence<byte> data)
         {
             throw new NotImplementedException();

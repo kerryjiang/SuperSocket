@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SuperSocket.WebSocket
 {
-    public static partial class Extensions
+    public static partial class ExtensionMethods
     {
         private readonly static char[] m_CrCf = new char[] { '\r', '\n' };
 

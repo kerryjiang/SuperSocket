@@ -1,7 +1,7 @@
 using System;
 using System.Buffers;
 
-namespace SuperSocket.WebSocket
+namespace SuperSocket.WebSocket.Extensions
 {
     /// <summary>
     /// WebSocket Extensions
@@ -9,6 +9,8 @@ namespace SuperSocket.WebSocket
     /// </summary>
     public interface IWebSocketExtension
     {
+        string Name { get; }
+
         void Encode(ref ReadOnlySequence<byte> data);
 
         void Decode(ref ReadOnlySequence<byte> data);

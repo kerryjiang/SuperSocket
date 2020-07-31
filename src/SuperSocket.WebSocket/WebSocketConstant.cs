@@ -13,7 +13,7 @@ namespace SuperSocket.WebSocket
         public const string SecWebSocketVersion = "Sec-WebSocket-Version";
         public const string SecWebSocketProtocol = "Sec-WebSocket-Protocol";
         public const string SecWebSocketOrigin = "Sec-WebSocket-Origin";
-        public const string WebSocketProtocol = "WebSocket-Protocol";
+        public const string SecWebSocketExtensions = "Sec-WebSocket-Extensions";
         public const string Magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
         public const string Cookie = "Cookie";
         public const string Upgrade = "Upgrade";
@@ -22,7 +22,7 @@ namespace SuperSocket.WebSocket
         public const string ResponseHeadLine10 = "HTTP/1.1 101 Switching Protocols\r\n";
         public const string ResponseUpgradeLine = Upgrade + ": WebSocket\r\n";
         public const string ResponseConnectionLine = Connection + ": Upgrade\r\n";
-        public const string ResponseOriginLine = "Sec-WebSocket-Origin: {0}\r\n";
+        public const string ResponseOriginLine = SecWebSocketOrigin + ": {0}\r\n";
         public const string ResponseLocationLine = "Sec-WebSocket-Location: {0}://{1}{2}\r\n";
         public const string ResponseProtocolLine = SecWebSocketProtocol + ": {0}\r\n";
         public const string ResponseAcceptLine = "Sec-WebSocket-Accept: {0}\r\n";
