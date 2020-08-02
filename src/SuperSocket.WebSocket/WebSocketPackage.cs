@@ -3,7 +3,7 @@ using System.Buffers;
 
 namespace SuperSocket.WebSocket
 {
-    public class WebSocketPackage
+    public class WebSocketPackage : IWebSocketFrameHeader
     {
         public OpCode OpCode { get; set; }
 

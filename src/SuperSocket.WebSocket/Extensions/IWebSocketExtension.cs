@@ -13,6 +13,6 @@ namespace SuperSocket.WebSocket.Extensions
 
         void Encode(ref ReadOnlySequence<byte> data);
 
-        void Decode(ref ReadOnlySequence<byte> data);
+        void Decode(IWebSocketFrameHeader websocketFrameHeader, ref ReadOnlySequence<byte> data);
     }
 }

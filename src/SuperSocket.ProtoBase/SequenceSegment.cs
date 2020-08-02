@@ -9,10 +9,19 @@ namespace SuperSocket.ProtoBase
 
         private byte[] _pooledBuffer;
 
-        private SequenceSegment(byte[] pooledBuffer, int length)
+        private bool _pooled = false;
+
+        public SequenceSegment(byte[] pooledBuffer, int length, bool pooled)
         {
             _pooledBuffer = pooledBuffer;
+            _pooled = pooled;
             this.Memory = new ArraySegment<byte>(pooledBuffer, 0, length);
+        }
+
+        public SequenceSegment(byte[] pooledBuffer, int length)
+            : this(pooledBuffer, length, true)
+        {
+
         }
 
         public SequenceSegment(ReadOnlyMemory<byte> memory)
@@ -40,7 +49,7 @@ namespace SuperSocket.ProtoBase
             {
                 if (disposing)
                 {
-                    if (_pooledBuffer != null)
+                    if (_pooled && _pooledBuffer != null)
                         ArrayPool<byte>.Shared.Return(_pooledBuffer);
                 }
 
