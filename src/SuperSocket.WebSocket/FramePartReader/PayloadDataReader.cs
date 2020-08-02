@@ -7,7 +7,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class PayloadDataReader : PackagePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
+        public override bool Process(WebSocketPackage package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
         {
             nextPartReader = null;
 
@@ -40,14 +40,32 @@ namespace SuperSocket.WebSocket.FramePartReader
 
                 if (package.FIN)
                 {
+                    var data = package.Data;
+
+                    var websocketFilterContext = filterContext as WebSocketPipelineFilterContext;
+
+                    if (websocketFilterContext != null && websocketFilterContext.Extensions != null && websocketFilterContext.Extensions.Count > 0)
+                    {
+                        foreach (var extension in websocketFilterContext.Extensions)
+                        {
+                            try
+                            {
+                                extension.Decode(ref data);
+                            }
+                            catch (Exception e)
+                            {
+                                throw new Exception($"Problem happened when decode with the extension {extension.Name}.", e);
+                            }
+                        }
+                    }
+
                     if (package.OpCode == OpCode.Text)
                     {
-                        package.Message = package.Data.GetString(Encoding.UTF8);
+                        package.Message = data.GetString(Encoding.UTF8);
                         package.Data = default;
                     }
                     else
                     {
-                        var data = package.Data;
                         package.Data = CopySequence(ref data);
                     }
 

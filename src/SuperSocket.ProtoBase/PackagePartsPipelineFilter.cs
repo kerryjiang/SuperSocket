@@ -25,7 +25,7 @@ namespace SuperSocket.ProtoBase
 
             while (true)
             {
-                if (_currentPartReader.Process(package, ref reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData))
+                if (_currentPartReader.Process(package, Context, ref reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData))
                 {
                     Reset();
                     return package;

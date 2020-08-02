@@ -6,7 +6,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class FixPartReader : PackagePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
+        public override bool Process(WebSocketPackage package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
         {
             if (reader.Length < 2)
             {
