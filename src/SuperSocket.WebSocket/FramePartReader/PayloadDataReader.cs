@@ -50,7 +50,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                         {
                             try
                             {
-                                extension.Decode(package, ref data);
+                                extension.Decode(package);
                             }
                             catch (Exception e)
                             {

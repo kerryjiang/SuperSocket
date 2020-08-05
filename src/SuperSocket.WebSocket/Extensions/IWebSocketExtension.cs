@@ -11,8 +11,8 @@ namespace SuperSocket.WebSocket.Extensions
     {
         string Name { get; }
 
-        void Encode(ref ReadOnlySequence<byte> data);
+        void Encode(WebSocketMessage message);
 
-        void Decode(IWebSocketFrameHeader websocketFrameHeader, ref ReadOnlySequence<byte> data);
+        void Decode(WebSocketPackage package);
     }
 }
