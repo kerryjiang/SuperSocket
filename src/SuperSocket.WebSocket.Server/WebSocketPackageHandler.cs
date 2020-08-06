@@ -39,6 +39,8 @@ namespace SuperSocket.WebSocket.Server
 
         private Dictionary<string, IEnumerable<IWebSocketExtensionFactory>> _extensionFactories;
 
+        private static readonly IPackageEncoder<WebSocketPackage> _defaultMessageEncoder = new WebSocketEncoder();
+
         public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IOptions<HandshakeOptions> handshakeOptions)
         {
             _serviceProvider = serviceProvider;
@@ -272,6 +274,8 @@ namespace SuperSocket.WebSocket.Server
                     return false;
             }
 
+            var ws = session as WebSocketSession;
+
             var strProtocols = p.HttpHeader.Items[WebSocketConstant.SecWebSocketProtocol];
             var selectedProtocol = string.Empty;
 
@@ -279,7 +283,6 @@ namespace SuperSocket.WebSocket.Server
             {
                 if (SelectSubProtocol(strProtocols, out string proto, out ISubProtocolHandler handler))
                 {
-                    var ws = session as WebSocketSession;
                     ws.SubProtocol = proto;
                     ws.SubProtocolHandler = handler;
                     selectedProtocol = proto;
@@ -290,11 +293,20 @@ namespace SuperSocket.WebSocket.Server
 
             if (selectedExtensionHeadItems != null && selectedExtensionHeadItems.Count > 0)
             {
-                var pipeChannel = session.Channel as IPipeChannel;
+                var pipeChannel = session.Channel as IPipeChannel;                
                 pipeChannel.PipelineFilter.Context = new WebSocketPipelineFilterContext
                 {
                     Extensions = extensions
                 };
+
+                ws.MessageEncoder = new WebSocketEncoder
+                {
+                    Extensions = extensions
+                };
+            }
+            else
+            {
+                ws.MessageEncoder = _defaultMessageEncoder;
             }
 
             string secKeyAccept = string.Empty;

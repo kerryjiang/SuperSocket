@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Text;
 using SuperSocket.ProtoBase;
 using SuperSocket.WebSocket.Extensions;
@@ -11,7 +12,7 @@ namespace SuperSocket.WebSocket
         private static readonly Encoding _textEncoding = new UTF8Encoding(false);
         private const int _size0 = 126;
         private const int _size1 = 65536;
-        public IWebSocketExtension[] Extensions { get; set; }
+        public IReadOnlyList<IWebSocketExtension> Extensions { get; set; }
 
         private int WriteHead(ref Span<byte> head, byte opCode, long length)
         {
@@ -116,7 +117,7 @@ namespace SuperSocket.WebSocket
 
             var extensions = Extensions;
 
-            if (extensions != null && extensions.Length > 0)
+            if (extensions != null && extensions.Count > 0)
             {
                 foreach (var ext in extensions)
                 {

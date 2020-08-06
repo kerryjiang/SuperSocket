@@ -27,13 +27,13 @@ namespace SuperSocket.WebSocket.Server
 
         public event EventHandler CloseHandshakeStarted;
 
-        internal CloseStatus CloseStatus { get; set; }
+        internal CloseStatus CloseStatus { get; set; }        
 
-        private static readonly IPackageEncoder<WebSocketPackage> _messageEncoder = new WebSocketEncoder();
+        internal IPackageEncoder<WebSocketPackage> MessageEncoder { get; set; }
 
         public virtual ValueTask SendAsync(WebSocketPackage message)
         {
-            return this.Channel.SendAsync(_messageEncoder, message);
+            return this.Channel.SendAsync(MessageEncoder, message);
         }
 
         public virtual ValueTask SendAsync(string message)
