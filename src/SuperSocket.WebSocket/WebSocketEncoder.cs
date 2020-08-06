@@ -6,7 +6,7 @@ using SuperSocket.WebSocket.Extensions;
 
 namespace SuperSocket.WebSocket
 {
-    public class WebSocketEncoder : IPackageEncoder<WebSocketMessage>
+    public class WebSocketEncoder : IPackageEncoder<WebSocketPackage>
     {
         private static readonly Encoding _textEncoding = new UTF8Encoding(false);
         private const int _size0 = 126;
@@ -94,11 +94,11 @@ namespace SuperSocket.WebSocket
             return totalBytes + expectedHeadLength;
         }
 
-        public int EncodeDataMessage(IBufferWriter<byte> writer, WebSocketMessage pack)
+        public int EncodeDataMessage(IBufferWriter<byte> writer, WebSocketPackage pack)
         {
             var head = writer.GetSpan(10);
 
-            var headLen = WriteHead(ref head, (byte)(pack.GetOpCodeByte() | 0x80), pack.Data.Length);
+            var headLen = WriteHead(ref head, (byte)(pack.OpCodeByte | 0x80), pack.Data.Length);
             
             writer.Advance(headLen);
 
@@ -110,8 +110,10 @@ namespace SuperSocket.WebSocket
             return (int)(pack.Data.Length + headLen);
         }
         
-        public int Encode(IBufferWriter<byte> writer, WebSocketMessage pack)
+        public int Encode(IBufferWriter<byte> writer, WebSocketPackage pack)
         {
+            pack.SaveOpCodeByte();
+
             var extensions = Extensions;
 
             if (extensions != null && extensions.Length > 0)
@@ -128,7 +130,7 @@ namespace SuperSocket.WebSocket
             var msgSize = !string.IsNullOrEmpty(pack.Message) ? pack.Message.Length : 0;
 
             if (msgSize == 0)
-                return EncodeEmptyFragment(writer, pack.GetOpCodeByte(), 2);
+                return EncodeEmptyFragment(writer, pack.OpCodeByte, 2);
 
             var minSize = msgSize;
             var maxSize = _textEncoding.GetMaxByteCount(msgSize);
@@ -162,7 +164,7 @@ namespace SuperSocket.WebSocket
 
             if (fragmentSize == 0)
             {
-                total += EncodeSingleFragment(writer, pack.GetOpCodeByte(), headLen, text);
+                total += EncodeSingleFragment(writer, pack.OpCodeByte, headLen, text);
             }
             else
             {
@@ -171,7 +173,7 @@ namespace SuperSocket.WebSocket
 
                 while (true)
                 {
-                    total += EncodeFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.GetOpCodeByte(), headLen, fragmentSize, text, encoder, out int charsUsed);
+                    total += EncodeFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, headLen, fragmentSize, text, encoder, out int charsUsed);
 
                     if (text.Length <= charsUsed)
                         break;

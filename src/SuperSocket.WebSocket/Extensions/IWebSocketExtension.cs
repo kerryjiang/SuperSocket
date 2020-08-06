@@ -11,7 +11,7 @@ namespace SuperSocket.WebSocket.Extensions
     {
         string Name { get; }
 
-        void Encode(WebSocketMessage message);
+        void Encode(WebSocketPackage package);
 
         void Decode(WebSocketPackage package);
     }

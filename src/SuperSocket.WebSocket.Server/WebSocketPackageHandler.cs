@@ -120,14 +120,9 @@ namespace SuperSocket.WebSocket.Server
 
                     websocketSession.CloseStatus = closeStatus;
 
-                    var message = new WebSocketMessage();
-
-                    message.OpCode = OpCode.Close;
-                    message.Data = package.Data;
-
                     try
                     {
-                        await websocketSession.SendAsync(message);
+                        await websocketSession.SendAsync(package);
                     }
                     catch (InvalidOperationException)
                     {
@@ -143,12 +138,8 @@ namespace SuperSocket.WebSocket.Server
             }
             else if (package.OpCode == OpCode.Ping)
             {
-                var message = new WebSocketMessage();
-
-                message.OpCode = OpCode.Pong;
-                message.Data = package.Data;
-
-                await websocketSession.SendAsync(message);
+                package.OpCode = OpCode.Pong;
+                await websocketSession.SendAsync(package);
                 return;
             }
 

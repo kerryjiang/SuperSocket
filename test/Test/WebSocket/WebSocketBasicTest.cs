@@ -371,11 +371,8 @@ namespace Tests.WebSocket
             {
                 return builder.UseWebSocketMessageHandler(async (session, message) =>
                 {
-                    await session.SendAsync(new WebSocketMessage
-                    {
-                        OpCode = OpCode.Binary,
-                        Data = message.Data
-                    });
+                    message.OpCode = OpCode.Binary;
+                    await session.SendAsync(message);
                 });
             }, hostConfigurator).BuildAsServer())
             {

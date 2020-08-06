@@ -58,20 +58,20 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
-        public void Encode(WebSocketMessage message)
+        public void Encode(WebSocketPackage package)
         {
-            message.RSV1 = true;
+            package.RSV1 = true;
 
-            if (message.Data.IsEmpty)
-                EncodeTextMessage(message);
+            if (package.Data.IsEmpty)
+                EncodeTextMessage(package);
             else
-                EncodeDataMessage(message);            
+                EncodeDataMessage(package);            
         }
 
-        private void EncodeTextMessage(WebSocketMessage message)
+        private void EncodeTextMessage(WebSocketPackage package)
         {
             var encoder = _encoding.GetEncoder();
-            var text = message.Message.AsSpan();
+            var text = package.Message.AsSpan();
             var completed = false;      
 
             SequenceSegment head = null;
@@ -106,7 +106,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 }
             }
 
-            message.Data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
+            package.Data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
         private void RemoveLastFourOctets(ref ReadOnlySequence<byte> data)
@@ -131,9 +131,9 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             data = data.Slice(0, data.Length - octetsLen);
         }
 
-        private void EncodeDataMessage(WebSocketMessage message)
+        private void EncodeDataMessage(WebSocketPackage package)
         {
-            var data = message.Data;
+            var data = package.Data;
 
             RemoveLastFourOctets(ref data);
 
