@@ -237,10 +237,15 @@ namespace SuperSocket.WebSocket.Server
                 {
                     foreach (var f in extFactories)
                     {
-                        var extension = f.Create(options);
+                        var extension = f.Create(options, out var supportedOptions);
 
                         if (extension == null)
                             continue;
+
+                        if (supportedOptions == null || supportedOptions.Count == 0)
+                            line = extension.Name;
+                        else
+                            line = CreateExtensionResponseItem(extension.Name, supportedOptions);
 
                         selectedExtensions.Add(line);
                         extensions.Add(extension);
@@ -249,6 +254,33 @@ namespace SuperSocket.WebSocket.Server
             }
 
             return selectedExtensions;
+        }
+
+        private string CreateExtensionResponseItem(string name, NameValueCollection options)
+        {
+            var sb = new StringBuilder();
+            sb.Append(name);
+
+            foreach (var key in options.AllKeys)
+            {
+                var value = options.Get(key);
+
+                sb.Append("; ");
+
+                if (string.IsNullOrEmpty(value))
+                {
+                    sb.Append(key);
+                }
+                else
+                {
+                    sb.Append("; ");
+                    sb.Append(key);
+                    sb.Append("=");
+                    sb.Append(value);
+                }
+            }
+
+            return sb.ToString();
         }
 
         private async ValueTask<bool> HandleHandshake(IAppSession session, WebSocketPackage p)

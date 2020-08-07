@@ -40,8 +40,6 @@ namespace SuperSocket.WebSocket.FramePartReader
 
                 if (package.FIN)
                 {
-                    var data = package.Data;
-
                     var websocketFilterContext = filterContext as WebSocketPipelineFilterContext;
 
                     if (websocketFilterContext != null && websocketFilterContext.Extensions != null && websocketFilterContext.Extensions.Count > 0)
@@ -58,6 +56,8 @@ namespace SuperSocket.WebSocket.FramePartReader
                             }
                         }
                     }
+
+                    var data = package.Data;
 
                     if (package.OpCode == OpCode.Text)
                     {

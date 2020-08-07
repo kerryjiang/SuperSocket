@@ -10,6 +10,6 @@ namespace SuperSocket.WebSocket.Server.Extensions
     {
         string Name { get; }
 
-        IWebSocketExtension Create(NameValueCollection options);
+        IWebSocketExtension Create(NameValueCollection options, out NameValueCollection supportedOptions);
     }
 }

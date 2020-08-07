@@ -14,10 +14,21 @@ namespace SuperSocket.WebSocket.Server.Extensions.Compression
     {
         public string Name => WebSocketPerMessageCompressionExtension.PMCE;
 
-        public IWebSocketExtension Create(NameValueCollection options)
+        public IWebSocketExtension Create(NameValueCollection options, out NameValueCollection supportedOptions)
         {
+            supportedOptions = null;
+            
             if (options != null && options.Count > 0)
-                return null;
+            {
+                foreach (var key in options.AllKeys)
+                {
+                    if (key.StartsWith("server_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (!string.IsNullOrEmpty(options.Get(key)))
+                            return null;
+                    }
+                }
+            }
 
             return new WebSocketPerMessageCompressionExtension();
         }

@@ -31,6 +31,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 return;
 
             var data = package.Data;
+
             data = data.ConcactSequence(new SequenceSegment(LAST_FOUR_OCTETS_REVERSE, LAST_FOUR_OCTETS_REVERSE.Length, false));
 
             SequenceSegment head = null;
@@ -55,7 +56,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 }
             }
 
-            data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
+            package.Data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
         public void Encode(WebSocketPackage package)
@@ -72,12 +73,12 @@ namespace SuperSocket.WebSocket.Extensions.Compression
         {
             var encoder = _encoding.GetEncoder();
             var text = package.Message.AsSpan();
+
             var completed = false;      
 
-            SequenceSegment head = null;
-            SequenceSegment tail = null; 
+            var outputStream = new WritableSequenceStream();
 
-            using (var stream = new DeflateStream(new MemoryStream(), CompressionMode.Decompress))
+            using (var stream = new DeflateStream(outputStream, CompressionMode.Compress))
             {
                 while (!completed)
                 {
@@ -90,23 +91,12 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                         text = text.Slice(charsUsed);
 
                     stream.Write(buffer, 0, bytesUsed);
-                    stream.Flush();
-
-                    var read = stream.Read(buffer, 0, buffer.Length);
-
-                    if (read == 0)
-                        continue;
-
-                    var segment = new SequenceSegment(buffer, read);
-
-                    if (head == null)
-                        tail = head = segment;
-                    else
-                        tail.SetNext(segment);
                 }
+
+                stream.Flush();
             }
 
-            package.Data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
+            package.Data = outputStream.GetUnderlyingSequqnce();
         }
 
         private void RemoveLastFourOctets(ref ReadOnlySequence<byte> data)
@@ -137,29 +127,19 @@ namespace SuperSocket.WebSocket.Extensions.Compression
 
             RemoveLastFourOctets(ref data);
 
-            SequenceSegment head = null;
-            SequenceSegment tail = null;
+            var outputStream = new WritableSequenceStream();
 
-            using (var stream = new DeflateStream(new ReadOnlySequenceStream(data), CompressionMode.Compress))
+            using (var stream = new DeflateStream(outputStream, CompressionMode.Compress))
             {
-                while (true)
+                foreach (var piece in data)
                 {
-                    var buffer = _arrayPool.Rent(_deflateBufferSize);
-                    var read = stream.Read(buffer, 0, buffer.Length);
-
-                    if (read == 0)
-                        break;
-
-                    var segment = new SequenceSegment(buffer, read);
-
-                    if (head == null)
-                        tail = head = segment;
-                    else
-                        tail.SetNext(segment);
+                    stream.Write(piece.Span);
                 }
+
+                stream.Flush();
             }
 
-            data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
+            package.Data = outputStream.GetUnderlyingSequqnce();
         }
     }
 }

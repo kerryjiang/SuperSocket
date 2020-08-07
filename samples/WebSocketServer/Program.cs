@@ -16,6 +16,7 @@ namespace WebSocketServer
                     // echo message back to the client
                     await session.SendAsync(message.Message);
                 })
+                .UsePerMessageCompression()
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
                     // register your logging library here

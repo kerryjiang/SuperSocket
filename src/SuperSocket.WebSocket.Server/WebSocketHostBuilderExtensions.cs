@@ -6,8 +6,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SuperSocket.Command;
-using SuperSocket.ProtoBase;
 using SuperSocket.Server;
+using SuperSocket.WebSocket.Server.Extensions;
+using SuperSocket.WebSocket.Server.Extensions.Compression;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -75,6 +76,14 @@ namespace SuperSocket.WebSocket.Server
                     return new CommandSubProtocolHandler<TPackageInfo>(protocol, sp, commandOptionsWraper, mapper);
                 }));
             }) as ISuperSocketHostBuilder<WebSocketPackage>;
+        }
+
+        public static ISuperSocketHostBuilder<WebSocketPackage> UsePerMessageCompression(this ISuperSocketHostBuilder<WebSocketPackage> builder)
+        {
+             return builder.ConfigureServices((ctx, services) =>
+             {
+                 services.TryAddEnumerable(ServiceDescriptor.Singleton<IWebSocketExtensionFactory, WebSocketPerMessageCompressionExtensionFactory>());
+             });
         }
 
         public static MultipleServerHostBuilder AddWebSocketServer(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
