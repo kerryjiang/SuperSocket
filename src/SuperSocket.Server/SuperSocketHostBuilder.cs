@@ -214,20 +214,17 @@ namespace SuperSocket
         }
 
         public static ISuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage>(string[] args)
-            where TReceivePackage : class
         {
             return new SuperSocketHostBuilder<TReceivePackage>(args);
         }
 
         public static ISuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>()
-            where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
             return Create<TReceivePackage, TPipelineFilter>(args: null);
         }
         
         public static ISuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>(string[] args)
-            where TReceivePackage : class
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
             return new SuperSocketHostBuilder<TReceivePackage>(args)
