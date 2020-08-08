@@ -27,7 +27,7 @@ namespace Tests
             services.Configure<ServerOptions>((options) =>
                 {
                     var listener = options.Listeners[0];
-                    listener.Security = SslProtocols.Tls13 | SslProtocols.Tls12;
+                    listener.Security = GetServerEnabledSslProtocols();
                     listener.CertificateOptions = new CertificateOptions
                     {
                         FilePath = "supersocket.pfx",
@@ -42,9 +42,33 @@ namespace Tests
             var stream = new SslStream(new DerivedNetworkStream(socket), false);
             var options = new SslClientAuthenticationOptions();
             options.TargetHost = "supersocket";
+            options.EnabledSslProtocols = GetClientEnabledSslProtocols();
             options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
             await stream.AuthenticateAsClientAsync(options);
             return stream;
+        }
+
+        protected virtual SslProtocols GetServerEnabledSslProtocols()
+        {
+            return SslProtocols.Tls13 | SslProtocols.Tls12;
+        }
+
+        protected virtual SslProtocols GetClientEnabledSslProtocols()
+        {
+            return SslProtocols.Tls13 | SslProtocols.Tls12;
+        }
+    }
+
+    public class TLS13OnlySecureHostConfigurator : SecureHostConfigurator
+    {
+        protected override SslProtocols GetServerEnabledSslProtocols()
+        {
+            return SslProtocols.Tls13;
+        }
+
+        protected override SslProtocols GetClientEnabledSslProtocols()
+        {
+            return SslProtocols.Tls13;
         }
     }
 }
