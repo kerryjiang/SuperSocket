@@ -560,7 +560,8 @@ namespace Tests.WebSocket
         [InlineData(typeof(RegularHostConfigurator), 65535, 2)]
         [InlineData(typeof(RegularHostConfigurator), 65536, 2)]
         [InlineData(typeof(RegularHostConfigurator), 65537, 2)]
-        public async Task TestVariousSizeMessages(Type hostConfiguratorType, int messageLength, int repeat)
+        [InlineData(typeof(RegularHostConfigurator), 65537, 2, 1024)]
+        public async Task TestVariousSizeMessages(Type hostConfiguratorType, int messageLength, int repeat, int fragmentSize = 100000)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);            
 
@@ -579,7 +580,7 @@ namespace Tests.WebSocket
                 return builder.UseWebSocketMessageHandler(async (session, message) =>
                 {                
                     await session.SendAsync(message.Message);
-                });
+                }).ConfigureSuperSocket(s => s.MaxPackageLength = 0);
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
@@ -597,8 +598,21 @@ namespace Tests.WebSocket
                 for (var i = 0; i < repeat; i++)
                 {
                     var data = Encoding.UTF8.GetBytes(textToSent);
-                    var segment = new ArraySegment<byte>(data, 0, data.Length);
-                    await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
+                    var rest = data.Length;
+                    var offset = 0;
+
+                    while (rest > 0)
+                    {
+                        var length = Math.Min(rest, fragmentSize);
+                        var segment = new ArraySegment<byte>(data, offset, length);
+                        offset += length;
+                        rest -= length;
+
+                        var endOfMessage = rest == 0;
+
+                        await websocket.SendAsync(segment, WebSocketMessageType.Text, endOfMessage, CancellationToken.None);
+                    }
+                    
                     var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
                     Assert.Equal(textToSent, receivedMessage);
                 }
