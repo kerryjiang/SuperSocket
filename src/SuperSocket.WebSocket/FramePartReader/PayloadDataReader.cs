@@ -28,18 +28,23 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             try
             {
-                if (package.Data.Length == 0)
+                // single fragment
+                if (package.FIN && package.Head == null)
                 {
                     package.Data = seq;
                 }
                 else
                 {
-                    var currentData = package.Data;
-                    package.Data = currentData.ConcactSequence(ref seq);
+                    package.ConcactSequence(ref seq);
                 }
 
                 if (package.FIN)
                 {
+                    if (package.Head != null)
+                    {
+                        package.BuildData();
+                    }
+
                     var websocketFilterContext = filterContext as WebSocketPipelineFilterContext;
 
                     if (websocketFilterContext != null && websocketFilterContext.Extensions != null && websocketFilterContext.Extensions.Count > 0)
@@ -68,7 +73,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                     {
                         package.Data = data.CopySequence();
                     }
-
+                    
                     return true;
                 }
                 else

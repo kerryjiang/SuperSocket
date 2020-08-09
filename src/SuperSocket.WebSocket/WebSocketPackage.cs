@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket
 {
@@ -57,11 +58,6 @@ namespace SuperSocket.WebSocket
             }
         }
 
-        internal void LoadOpCodeByte()
-        {
-            OpCode = (OpCode)(OpCodeByte & 0b_1111_0000);
-        }
-
         internal void SaveOpCodeByte()
         {
             OpCodeByte = (byte)(OpCodeByte | (byte)OpCode);
@@ -78,5 +74,32 @@ namespace SuperSocket.WebSocket
         public HttpHeader HttpHeader { get; set; }
 
         public ReadOnlySequence<byte> Data { get; set; }
+
+        internal SequenceSegment Head { get; set; }
+
+        internal SequenceSegment Tail { get; set; }
+
+        internal void ConcactSequence(ref ReadOnlySequence<byte> second)
+        {
+            if (Head == null)
+            {
+                (Head, Tail) = second.DestructSequence();
+                Console.WriteLine($"Reset Head:{this.GetHashCode()}");
+                return;
+            }
+
+            if (!second.IsEmpty)
+            {
+                foreach (var segment in second)
+                {
+                    Tail = Tail.SetNext(new SequenceSegment(segment));
+                }
+            }
+        }
+
+        internal void BuildData()
+        {
+            Data = new ReadOnlySequence<byte>(Head, 0, Tail, Tail.Memory.Length);
+        }
     }
 }

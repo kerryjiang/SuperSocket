@@ -560,7 +560,7 @@ namespace Tests.WebSocket
         [InlineData(typeof(RegularHostConfigurator), 65535, 2)]
         [InlineData(typeof(RegularHostConfigurator), 65536, 2)]
         [InlineData(typeof(RegularHostConfigurator), 65537, 2)]
-        [InlineData(typeof(RegularHostConfigurator), 65537, 2, 1024)]
+        [InlineData(typeof(RegularHostConfigurator), 8192, 1, 1024)]
         public async Task TestVariousSizeMessages(Type hostConfiguratorType, int messageLength, int repeat, int fragmentSize = 100000)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);            
@@ -580,7 +580,11 @@ namespace Tests.WebSocket
                 return builder.UseWebSocketMessageHandler(async (session, message) =>
                 {                
                     await session.SendAsync(message.Message);
-                }).ConfigureSuperSocket(s => s.MaxPackageLength = 0);
+                }).ConfigureSuperSocket(s =>
+                {
+                    s.MaxPackageLength = 0;
+                    s.ReceiveBufferSize = 2048;
+                });
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
@@ -611,6 +615,7 @@ namespace Tests.WebSocket
                         var endOfMessage = rest == 0;
 
                         await websocket.SendAsync(segment, WebSocketMessageType.Text, endOfMessage, CancellationToken.None);
+                        await Task.Delay(500);
                     }
                     
                     var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
