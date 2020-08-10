@@ -107,6 +107,7 @@ namespace SuperSocket.Server
                     
                     authOptions.EnabledSslProtocols = options.Security;
                     authOptions.ServerCertificate = options.CertificateOptions.Certificate;
+                    authOptions.ClientCertificateRequired = options.CertificateOptions.ClientCertificateRequired;
 
                     if (options.CertificateOptions.RemoteCertificateValidationCallback != null)
                         authOptions.RemoteCertificateValidationCallback = options.CertificateOptions.RemoteCertificateValidationCallback;
