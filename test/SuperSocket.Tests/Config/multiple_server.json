@@ -1,0 +1,22 @@
+{
+    "serverOptions": {
+        "TestServer1": {
+            "name": "TestServer1",
+            "listeners": [
+                {
+                    "ip": "Any",
+                    "port": 4040
+                }
+            ]
+        },
+        "TestServer2": {
+            "name": "TestServer2",
+            "listeners": [                
+                {
+                    "ip": "Any",
+                    "port": 4041
+                }
+            ]
+        }
+    }
+}
