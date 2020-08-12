@@ -516,22 +516,22 @@ namespace SuperSocket.Tests.WebSocket
 
                         Assert.Equal(WebSocketState.Open, websocket.State);
 
-                        var msgSzie = 1024 * 4;
-                        var receiveBuffer = new byte[msgSzie * 2];
+                        var msgSize = 1024 * 4;
+                        var receiveBuffer = new byte[msgSize * 2];
                         var sessionID = await GetWebSocketReply(websocket, receiveBuffer);
 
                         var msgBuilder = new StringBuilder();                        
 
-                        while (msgBuilder.Length < msgSzie)
+                        while (msgBuilder.Length < msgSize)
                         {
                             msgBuilder.Append(Guid.NewGuid().ToString().Replace("-", string.Empty));
                         }
 
-                        var msg = msgBuilder.ToString(0, msgSzie).ToCharArray();
+                        var msg = msgBuilder.ToString(0, msgSize).ToCharArray();
 
-                        var sendBuffer = new byte[msgSzie * 2];
+                        var sendBuffer = new byte[msgSize * 2];
 
-                        for (var i = 1; i <= msgSzie; i++)
+                        for (var i = 1; i <= msgSize; i++)
                         {
                             var len = _encoding.GetBytes(msg, 0, i, sendBuffer, 0);
                             var segment = new ArraySegment<byte>(sendBuffer, 0, len);

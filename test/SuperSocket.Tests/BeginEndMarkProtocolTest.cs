@@ -85,7 +85,7 @@ namespace SuperSocket.Tests
             pool.Return(buffer);
         }
 
-        private void WriteMuliplePackages(Stream stream, string[] lines)
+        private void WriteMultiplePackages(Stream stream, string[] lines)
         {
             var pool = ArrayPool<byte>.Shared;
             var buffer = pool.Rent(lines.Sum(x => 3 + Utf8Encoding.GetMaxByteCount(x.Length)));
@@ -281,7 +281,7 @@ namespace SuperSocket.Tests
                             lines[i] = line;
                         }
 
-                        WriteMuliplePackages(socketStream, lines);
+                        WriteMultiplePackages(socketStream, lines);
 
                         for (var i = 0; i < size; i++)
                         {

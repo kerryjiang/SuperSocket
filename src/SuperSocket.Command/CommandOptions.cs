@@ -25,7 +25,7 @@ namespace SuperSocket.Command
             get { return _globalCommandFilterTypes; }
         }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
             var commandSources = CommandSources;
             var configuredAssemblies = Assemblies;
@@ -39,7 +39,7 @@ namespace SuperSocket.Command
 
             foreach (var source in commandSources)
             {
-                commandTypes.AddRange(source.GetCommandTypes(critera));
+                commandTypes.AddRange(source.GetCommandTypes(criteria));
             }
 
             return commandTypes;
@@ -55,9 +55,9 @@ namespace SuperSocket.Command
     {
         public string Name { get; set; }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
-            return GetCommandTypesFromAssembly(Assembly.Load(Name)).Where(t => critera(t));
+            return GetCommandTypesFromAssembly(Assembly.Load(Name)).Where(t => criteria(t));
         }
     }
 
@@ -65,9 +65,9 @@ namespace SuperSocket.Command
     {
         public Assembly Assembly { get; set; }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
-            return GetCommandTypesFromAssembly(Assembly).Where(t => critera(t));
+            return GetCommandTypesFromAssembly(Assembly).Where(t => criteria(t));
         }
     }
 
@@ -83,9 +83,9 @@ namespace SuperSocket.Command
     {
         public Type CommandType { get; set; }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
-            if (critera(CommandType))
+            if (criteria(CommandType))
                 yield return CommandType;
         }
     }

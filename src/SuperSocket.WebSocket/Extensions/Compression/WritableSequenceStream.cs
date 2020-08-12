@@ -58,7 +58,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 _tail.SetNext(segment);
         }
 
-        public ReadOnlySequence<byte> GetUnderlyingSequqnce()
+        public ReadOnlySequence<byte> GetUnderlyingSequence()
         {
             return new ReadOnlySequence<byte>(_head, 0, _tail, _tail.Memory.Length);
         }

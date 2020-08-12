@@ -260,9 +260,9 @@ namespace SuperSocket.Server
 
         protected virtual async ValueTask FireSessionConnectedEvent(AppSession session)
         {
-            if (session is IHandshakeRequiredSession hanshakeSession)
+            if (session is IHandshakeRequiredSession handshakeSession)
             {
-                if (!hanshakeSession.Handshaked)
+                if (!handshakeSession.Handshaked)
                     return;
             }
 
@@ -282,9 +282,9 @@ namespace SuperSocket.Server
 
         protected virtual async ValueTask FireSessionClosedEvent(AppSession session)
         {
-            if (session is IHandshakeRequiredSession hanshakeSession)
+            if (session is IHandshakeRequiredSession handshakeSession)
             {
-                if (!hanshakeSession.Handshaked)
+                if (!handshakeSession.Handshaked)
                     return;
             }
 

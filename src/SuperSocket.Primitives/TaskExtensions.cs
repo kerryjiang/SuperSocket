@@ -11,7 +11,7 @@ namespace SuperSocket
 
         public static void DoNotAwait(this ValueTask task)
         {
-            
+
         }
     }
 }

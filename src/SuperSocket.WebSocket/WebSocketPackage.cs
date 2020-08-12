@@ -79,7 +79,7 @@ namespace SuperSocket.WebSocket
 
         internal SequenceSegment Tail { get; set; }
 
-        internal void ConcactSequence(ref ReadOnlySequence<byte> second)
+        internal void ConcatSequence(ref ReadOnlySequence<byte> second)
         {
             if (Head == null)
             {

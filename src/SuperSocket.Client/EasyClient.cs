@@ -94,7 +94,7 @@ namespace SuperSocket.Client
             return this;
         }
 
-        protected virtual IConnector GetConntector()
+        protected virtual IConnector GetConnector()
         {
             return new SocketConnector();
         }        
@@ -106,7 +106,7 @@ namespace SuperSocket.Client
 
         protected virtual async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
         {
-            var connector = GetConntector();
+            var connector = GetConnector();
             var state = await connector.ConnectAsync(remoteEndPoint, null, cancellationToken);
 
             if (state.Cancelled || cancellationToken.IsCancellationRequested)

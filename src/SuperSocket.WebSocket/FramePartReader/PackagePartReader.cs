@@ -10,7 +10,7 @@ namespace SuperSocket.WebSocket.FramePartReader
         static PackagePartReader()
         {
             FixPartReader = new FixPartReader();
-            ExtendedLenghtReader = new ExtendedLengthReader();
+            ExtendedLengthReader = new ExtendedLengthReader();
             MaskKeyReader = new MaskKeyReader();
             PayloadDataReader = new PayloadDataReader();
         }
@@ -24,7 +24,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 
         protected static IPackagePartReader<WebSocketPackage> FixPartReader { get; private set; }
 
-        protected static IPackagePartReader<WebSocketPackage> ExtendedLenghtReader { get; private set; }
+        protected static IPackagePartReader<WebSocketPackage> ExtendedLengthReader { get; private set; }
 
         protected static IPackagePartReader<WebSocketPackage> MaskKeyReader { get; private set; }
 
