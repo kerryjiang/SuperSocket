@@ -24,9 +24,9 @@ namespace SuperSocket
             return _asyncSessionContainer.GetSessionCountAsync().Result;
         }
 
-        public IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera)
+        public IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> criteria)
         {
-            return _asyncSessionContainer.GetSessionsAsync(critera).Result;
+            return _asyncSessionContainer.GetSessionsAsync(criteria).Result;
         }
 
         public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera) where TAppSession : IAppSession

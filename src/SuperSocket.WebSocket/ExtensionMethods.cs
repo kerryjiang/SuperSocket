@@ -90,7 +90,7 @@ namespace SuperSocket.WebSocket
             return (head, tail);
         }
 
-        internal static ReadOnlySequence<byte> ConcactSequence(ref this ReadOnlySequence<byte> first, ref ReadOnlySequence<byte> second)
+        internal static ReadOnlySequence<byte> ConcatSequence(ref this ReadOnlySequence<byte> first, ref ReadOnlySequence<byte> second)
         {
             var (head, tail) = first.DestructSequence();
 
@@ -105,7 +105,7 @@ namespace SuperSocket.WebSocket
             return new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
-        internal static ReadOnlySequence<byte> ConcactSequence(ref this ReadOnlySequence<byte> first, SequenceSegment segment)
+        internal static ReadOnlySequence<byte> ConcatSequence(ref this ReadOnlySequence<byte> first, SequenceSegment segment)
         {
             var (head, tail) = first.DestructSequence();
             tail = tail.SetNext(segment);

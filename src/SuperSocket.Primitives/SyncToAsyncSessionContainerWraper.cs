@@ -24,14 +24,14 @@ namespace SuperSocket
             return new ValueTask<int>(_syncSessionContainer.GetSessionCount());
         }
 
-        public ValueTask<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> critera = null)
+        public ValueTask<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> criteria = null)
         {
-            return new ValueTask<IEnumerable<IAppSession>>(_syncSessionContainer.GetSessions(critera));
+            return new ValueTask<IEnumerable<IAppSession>>(_syncSessionContainer.GetSessions(criteria));
         }
 
-        public ValueTask<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> critera = null) where TAppSession : IAppSession
+        public ValueTask<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> criteria = null) where TAppSession : IAppSession
         {
-            return new ValueTask<IEnumerable<TAppSession>>(_syncSessionContainer.GetSessions<TAppSession>(critera));
+            return new ValueTask<IEnumerable<TAppSession>>(_syncSessionContainer.GetSessions<TAppSession>(criteria));
         }
     }
 }

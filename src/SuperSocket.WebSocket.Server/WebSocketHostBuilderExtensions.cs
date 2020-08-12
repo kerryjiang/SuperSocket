@@ -68,12 +68,12 @@ namespace SuperSocket.WebSocket.Server
                 var commandOptions = new CommandOptions();                
                 ctx.Configuration?.GetSection("serverOptions")?.GetSection("commands")?.GetSection(protocol)?.Bind(commandOptions);                
                 commandOptionsAction?.Invoke(commandOptions);
-                var commandOptionsWraper = new OptionsWrapper<CommandOptions>(commandOptions);
+                var commandOptionsWrapper = new OptionsWrapper<CommandOptions>(commandOptions);
 
                 services.TryAddEnumerable(ServiceDescriptor.Singleton<ISubProtocolHandler, CommandSubProtocolHandler<TPackageInfo>>((sp) =>
                 {
                     var mapper = ActivatorUtilities.CreateInstance<TPackageMapper>(sp);
-                    return new CommandSubProtocolHandler<TPackageInfo>(protocol, sp, commandOptionsWraper, mapper);
+                    return new CommandSubProtocolHandler<TPackageInfo>(protocol, sp, commandOptionsWrapper, mapper);
                 }));
             }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }

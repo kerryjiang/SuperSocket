@@ -124,9 +124,9 @@ namespace SuperSocket
             );
         }
 
-        public static MultipleServerHostBuilder AsMultipleServerHostBuilder(this IHostBuilder hostBulder)
+        public static MultipleServerHostBuilder AsMultipleServerHostBuilder(this IHostBuilder hostBuilder)
         {
-            return new MultipleServerHostBuilder(hostBulder);
+            return new MultipleServerHostBuilder(hostBuilder);
         }
     }
 }

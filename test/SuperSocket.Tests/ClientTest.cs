@@ -52,7 +52,7 @@ namespace SuperSocket.Tests
 
             }
 
-            protected override IConnector GetConntector()
+            protected override IConnector GetConnector()
             {
                 var authOptions = new SslClientAuthenticationOptions();
                 authOptions.EnabledSslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12;
