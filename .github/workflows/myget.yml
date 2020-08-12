@@ -20,7 +20,7 @@ jobs:
               run: dotnet build -c Release samples/samples.sln
             - name: Test
               run: |
-                cd test/Test
+                cd test/SuperSocket.Tests
                 dotnet test
     deploy:
         needs: build

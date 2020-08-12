@@ -19,4 +19,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\InternalsVisibleTo.cs" />
+  </ItemGroup>
 </Project>
