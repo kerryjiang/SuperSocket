@@ -130,7 +130,7 @@ namespace SuperSocket.Tests
                 .UseCommand(commandOptions =>
                 {
                     // register all commands in one aassembly
-                    commandOptions.Assemblies = new [] { new CommandAssemblyConfig { Name = "Command" } };
+                    commandOptions.Assemblies = new [] { new CommandAssemblyConfig { Name = "SuperSocket.Tests.Command" } };
                 }).BuildAsServer())
             {
 
