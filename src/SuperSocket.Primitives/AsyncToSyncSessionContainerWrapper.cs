@@ -5,11 +5,11 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public class AsyncToSyncSessionContainerWraper : ISessionContainer
+    public class AsyncToSyncSessionContainerWrapper : ISessionContainer
     {
         IAsyncSessionContainer _asyncSessionContainer;
 
-        public AsyncToSyncSessionContainerWraper(IAsyncSessionContainer asyncSessionContainer)
+        public AsyncToSyncSessionContainerWrapper(IAsyncSessionContainer asyncSessionContainer)
         {
             _asyncSessionContainer = asyncSessionContainer;
         }
@@ -29,9 +29,9 @@ namespace SuperSocket
             return _asyncSessionContainer.GetSessionsAsync(criteria).Result;
         }
 
-        public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera) where TAppSession : IAppSession
+        public IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> criteria) where TAppSession : IAppSession
         {
-            return _asyncSessionContainer.GetSessionsAsync<TAppSession>(critera).Result;
+            return _asyncSessionContainer.GetSessionsAsync<TAppSession>(criteria).Result;
         }
     }
 }

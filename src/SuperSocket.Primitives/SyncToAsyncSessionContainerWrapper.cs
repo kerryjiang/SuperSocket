@@ -5,11 +5,11 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public class SyncToAsyncSessionContainerWraper : IAsyncSessionContainer
+    public class SyncToAsyncSessionContainerWrapper : IAsyncSessionContainer
     {
         ISessionContainer _syncSessionContainer;
 
-        public SyncToAsyncSessionContainerWraper(ISessionContainer syncSessionContainer)
+        public SyncToAsyncSessionContainerWrapper(ISessionContainer syncSessionContainer)
         {
             _syncSessionContainer = syncSessionContainer;
         }

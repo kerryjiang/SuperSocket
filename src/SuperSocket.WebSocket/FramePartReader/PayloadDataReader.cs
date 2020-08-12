@@ -35,7 +35,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                 }
                 else
                 {
-                    package.ConcactSequence(ref seq);
+                    package.ConcatSequence(ref seq);
                 }
 
                 if (package.FIN)

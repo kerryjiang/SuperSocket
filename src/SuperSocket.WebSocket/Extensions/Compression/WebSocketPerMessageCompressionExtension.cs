@@ -32,7 +32,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
 
             var data = package.Data;
 
-            data = data.ConcactSequence(new SequenceSegment(LAST_FOUR_OCTETS_REVERSE, LAST_FOUR_OCTETS_REVERSE.Length, false));
+            data = data.ConcatSequence(new SequenceSegment(LAST_FOUR_OCTETS_REVERSE, LAST_FOUR_OCTETS_REVERSE.Length, false));
 
             SequenceSegment head = null;
             SequenceSegment tail = null;
@@ -96,7 +96,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 stream.Flush();
             }
 
-            package.Data = outputStream.GetUnderlyingSequqnce();
+            package.Data = outputStream.GetUnderlyingSequence();
         }
 
         private void RemoveLastFourOctets(ref ReadOnlySequence<byte> data)
@@ -139,7 +139,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 stream.Flush();
             }
 
-            package.Data = outputStream.GetUnderlyingSequqnce();
+            package.Data = outputStream.GetUnderlyingSequence();
         }
     }
 }
