@@ -19,8 +19,8 @@ using System.Threading;
 
 namespace SuperSocket.Tests
 {
-    [Trait("Category", "SessionContaner")]
-    public class SessionContanerTest : TestClassBase
+    [Trait("Category", "SessionContainer")]
+    public class SessionContainerTest : TestClassBase
     {
         class SESS : IAsyncCommand<StringPackageInfo>
         {
@@ -51,7 +51,7 @@ namespace SuperSocket.Tests
             }
         }
 
-        public SessionContanerTest(ITestOutputHelper outputHelper)
+        public SessionContainerTest(ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
 

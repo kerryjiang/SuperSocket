@@ -10,12 +10,12 @@ namespace SuperSocket
     {
         public static ISessionContainer ToSyncSessionContainer(this IAsyncSessionContainer asyncSessionContainer)
         {
-            return new AsyncToSyncSessionContainerWraper(asyncSessionContainer);
+            return new AsyncToSyncSessionContainerWrapper(asyncSessionContainer);
         }
 
         public static IAsyncSessionContainer ToAsyncSessionContainer(this ISessionContainer syncSessionContainer)
         {
-            return new SyncToAsyncSessionContainerWraper(syncSessionContainer);
+            return new SyncToAsyncSessionContainerWrapper(syncSessionContainer);
         }
 
         public static ISessionContainer GetSessionContainer(this IServiceProvider serviceProvider)

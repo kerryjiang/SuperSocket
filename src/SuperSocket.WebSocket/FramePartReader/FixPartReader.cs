@@ -34,7 +34,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             if (package.PayloadLength >= 126)
             {
-                nextPartReader = ExtendedLenghtReader;
+                nextPartReader = ExtendedLengthReader;
             }
             else
             {
