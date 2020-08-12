@@ -78,7 +78,7 @@ namespace SuperSocket.Tests
             {
                 builder = builder.ConfigureServices((ctx, services) =>
                 {
-                    configurator.Configurate(ctx, services);
+                    configurator.Configure(ctx, services);
                 });
             }
 

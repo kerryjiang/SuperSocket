@@ -11,7 +11,7 @@ namespace SuperSocket.Tests
 {
     public interface IHostConfigurator
     {
-        void Configurate(HostBuilderContext context, IServiceCollection services);
+        void Configure(HostBuilderContext context, IServiceCollection services);
 
         ValueTask<Stream> GetClientStream(Socket socket);
 

@@ -20,7 +20,7 @@ namespace SuperSocket.Tests
 
         public ListenOptions Listener { get; private set; }
 
-        public void Configurate(HostBuilderContext context, IServiceCollection services)
+        public void Configure(HostBuilderContext context, IServiceCollection services)
         {
             services.Configure<ServerOptions>((options) =>
                 {
