@@ -26,26 +26,6 @@ namespace SuperSocket.Server
             _logger = logger;
         }
 
-        private IPEndPoint GetListenEndPoint(string ip, int port)
-        {
-            IPAddress ipAddress;
-
-            if ("any".Equals(ip, StringComparison.OrdinalIgnoreCase))
-            {
-                ipAddress = IPAddress.Any;
-            }
-            else if ("IpV6Any".Equals(ip, StringComparison.OrdinalIgnoreCase))
-            {
-                ipAddress = IPAddress.IPv6Any;
-            }
-            else
-            {
-                ipAddress = IPAddress.Parse(ip);
-            }
-
-            return new IPEndPoint(ipAddress, port);
-        }
-
         public bool IsRunning { get; private set; }
 
         public bool Start()
@@ -59,7 +39,7 @@ namespace SuperSocket.Server
                     options.CertificateOptions.EnsureCertificate();
                 }
 
-                var listenEndpoint = GetListenEndPoint(options.Ip, options.Port);
+                var listenEndpoint = options.GetListenEndPoint();
                 var listenSocket = _listenSocket = new Socket(listenEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 
                 listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, true);
