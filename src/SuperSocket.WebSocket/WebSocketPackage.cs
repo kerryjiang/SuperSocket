@@ -84,7 +84,6 @@ namespace SuperSocket.WebSocket
             if (Head == null)
             {
                 (Head, Tail) = second.DestructSequence();
-                Console.WriteLine($"Reset Head:{this.GetHashCode()}");
                 return;
             }
 
