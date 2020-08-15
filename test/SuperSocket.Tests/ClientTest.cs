@@ -25,6 +25,7 @@ using System.Security.Cryptography.X509Certificates;
 using SuperSocket.Channel;
 using SuperSocket.Tests.Command;
 using System.Threading;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace SuperSocket.Tests
 {
@@ -40,8 +41,14 @@ namespace SuperSocket.Tests
         class SecureEasyClient<TReceivePackage> : EasyClient<TReceivePackage>
             where TReceivePackage : class
         {
+            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
+                : base(pipelineFilter)
+            {
+
+            }
+
             public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
-                : this(pipelineFilter, new ChannelOptions { Logger = logger })
+                : base(pipelineFilter, logger)
             {
 
             }
@@ -62,7 +69,7 @@ namespace SuperSocket.Tests
                     return true;
                 };
 
-                return new SocketConnector(new SslStreamConnector(authOptions));
+                return new SocketConnector(LocalEndPoint, new SslStreamConnector(authOptions));
             }
         }
 
@@ -124,6 +131,58 @@ namespace SuperSocket.Tests
                     Assert.NotNull(package);
                     Assert.Equal(msg, package.Text); 
                 }
+
+                await client.CloseAsync();
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestBindLocalEndPoint(Type hostConfiguratorType)
+        {
+            IAppSession session = default;
+
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+            .UseSessionHandler(async s =>
+            {
+                session = s;
+                await Task.CompletedTask;
+            })
+            .BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");                
+
+                IEasyClient<StringPackageInfo> client;
+
+                var pipelineFilter = new CommandLinePipelineFilter
+                {
+                    Decoder = new DefaultStringPackageDecoder()
+                };
+                
+                if (hostConfigurator.IsSecure)
+                    client = (new SecureEasyClient<StringPackageInfo>(pipelineFilter)).AsClient();
+                else
+                    client = new EasyClient<StringPackageInfo>(pipelineFilter).AsClient();
+                
+                var localPort = 8080;
+
+                client.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, localPort);
+
+                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                
+                Assert.True(connected);
+
+                await Task.Delay(500);
+
+                Assert.NotNull(session);
+                Assert.Equal(localPort, (session.RemoteEndPoint as IPEndPoint).Port);
 
                 await client.CloseAsync();
                 await server.StopAsync();

@@ -8,6 +8,8 @@ namespace SuperSocket.Client
 {
     public class SocketConnector : ConnectorBase
     {
+        public IPEndPoint LocalEndPoint { get; private set; }
+
         public SocketConnector()
             : base()
         {
@@ -20,12 +22,32 @@ namespace SuperSocket.Client
 
         }
 
+        public SocketConnector(IPEndPoint localEndPoint)
+            : base()
+        {
+            LocalEndPoint = localEndPoint;
+        }
+
+        public SocketConnector(IPEndPoint localEndPoint, IConnector nextConnector)
+            : base(nextConnector)
+        {
+            LocalEndPoint = localEndPoint;
+        }
+
         protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
             
             try
             {
+                var localEndPoint = LocalEndPoint;
+
+                if (localEndPoint != null)
+                {
+                    socket.ExclusiveAddressUse = false;
+                    socket.Bind(localEndPoint);
+                }
+                
                 await socket.ConnectAsync(remoteEndPoint);
             }
             catch (Exception e)

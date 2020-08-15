@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net;
@@ -6,7 +7,7 @@ using System.Net.Sockets;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 using Microsoft.Extensions.Logging;
-using System.Threading;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace SuperSocket.Client
 {
@@ -59,13 +60,15 @@ namespace SuperSocket.Client
 
         public event PackageHandler<TReceivePackage> PackageHandler;
 
+        public IPEndPoint LocalEndPoint { get; set; }
+
         protected EasyClient()
         {
 
         }
 
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
-            : this(pipelineFilter, new ChannelOptions())
+            : this(pipelineFilter, NullLogger.Instance)
         {
             
         }
@@ -96,8 +99,8 @@ namespace SuperSocket.Client
 
         protected virtual IConnector GetConnector()
         {
-            return new SocketConnector();
-        }        
+            return new SocketConnector(LocalEndPoint);
+        }
 
         ValueTask<bool> IEasyClient<TReceivePackage>.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
         {
