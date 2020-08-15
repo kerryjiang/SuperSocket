@@ -9,6 +9,11 @@ namespace SuperSocket
     {
         ISessionContainer _syncSessionContainer;
 
+        public ISessionContainer SessionContainer
+        {
+            get { return _syncSessionContainer; }
+        }
+
         public SyncToAsyncSessionContainerWrapper(ISessionContainer syncSessionContainer)
         {
             _syncSessionContainer = syncSessionContainer;

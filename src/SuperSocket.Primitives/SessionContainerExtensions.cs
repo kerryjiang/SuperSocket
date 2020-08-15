@@ -18,6 +18,7 @@ namespace SuperSocket
             return new SyncToAsyncSessionContainerWrapper(syncSessionContainer);
         }
 
+        [Obsolete("Please use the method server.GetSessionContainer() instead.")]
         public static ISessionContainer GetSessionContainer(this IServiceProvider serviceProvider)
         {
             var sessionContainer = serviceProvider.GetServices<IMiddleware>()
@@ -34,6 +35,7 @@ namespace SuperSocket
             return asyncSessionContainer?.ToSyncSessionContainer();
         }
 
+        [Obsolete("Please use the method server.GetSessionContainer() instead.")]
         public static IAsyncSessionContainer GetAsyncSessionContainer(this IServiceProvider serviceProvider)
         {
             var asyncSessionContainer = serviceProvider.GetServices<IMiddleware>()
@@ -50,14 +52,18 @@ namespace SuperSocket
             return sessionContainer?.ToAsyncSessionContainer(); 
         }
 
-        public static ISessionContainer GetSessionContainer(this IServer server)
+        public static ISessionContainer GetSessionContainer(this IServerInfo server)
         {
+            #pragma warning disable CS0618
             return server.ServiceProvider.GetSessionContainer();
+            #pragma warning restore CS0618
         }
 
-        public static IAsyncSessionContainer GetAsyncSessionContainer(this IServer server)
+        public static IAsyncSessionContainer GetAsyncSessionContainer(this IServerInfo server)
         {
+            #pragma warning disable CS0618
             return server.ServiceProvider.GetAsyncSessionContainer();
+            #pragma warning restore CS0618
         }
     }
 }
