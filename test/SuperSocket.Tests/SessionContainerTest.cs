@@ -57,6 +57,17 @@ namespace SuperSocket.Tests
 
         }
 
+        public class SessionContainerDependentService
+        {
+            public IAsyncSessionContainer AsyncSessionContainer { get; private set; }
+            public ISessionContainer SessionContainer { get; private set; }            
+            public SessionContainerDependentService(ISessionContainer sessionContainer, IAsyncSessionContainer asyncSessionContainer)
+            {
+                SessionContainer = sessionContainer;
+                AsyncSessionContainer = asyncSessionContainer;
+            }
+        }
+
         [Fact] 
         public async Task TestInProcSessionContainer()
         {
@@ -66,13 +77,23 @@ namespace SuperSocket.Tests
                     commandOptions.AddCommand<SESS>();
                 })
                 .UseInProcSessionContainer()
+                .ConfigureServices((ctx, services) =>
+                    services.AddSingleton<SessionContainerDependentService>()                
+                )
                 .BuildAsServer())
             {
-
                 Assert.Equal("TestServer", server.Name);
 
-                var sessionContainer = server.ServiceProvider.GetSessionContainer();
+                var sessionContainer = server.GetSessionContainer();
                 Assert.NotNull(sessionContainer);
+
+                var sessionContainerDependentService = server.ServiceProvider.GetService<SessionContainerDependentService>();
+                Assert.NotNull(sessionContainerDependentService);
+                Assert.NotNull(sessionContainerDependentService.SessionContainer);
+                var asyncSessionContainer = sessionContainerDependentService.AsyncSessionContainer as SyncToAsyncSessionContainerWrapper;
+                Assert.NotNull(asyncSessionContainer);
+                Assert.Same(sessionContainerDependentService.SessionContainer, asyncSessionContainer.SessionContainer);
+                Assert.Same(sessionContainer, sessionContainerDependentService.SessionContainer);
 
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");
