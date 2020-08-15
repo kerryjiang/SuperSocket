@@ -253,7 +253,8 @@ namespace SuperSocket.Tests
 
         class SuperSocketServiceA : SuperSocketService<TextPackageInfo>
         {
-            public SuperSocketServiceA(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
+            public SuperSocketServiceA(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions)
+                : base(serviceProvider, serverOptions)
             {
 
             }
@@ -261,7 +262,8 @@ namespace SuperSocket.Tests
 
         class SuperSocketServiceB : SuperSocketService<TextPackageInfo>
         {
-            public SuperSocketServiceB(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
+            public SuperSocketServiceB(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions)
+                : base(serviceProvider, serverOptions)
             {
                 
             }
@@ -273,6 +275,20 @@ namespace SuperSocket.Tests
 
             public int Version { get; set; } = 0;
 
+            public MyTestService()
+            {
+
+            }
+        }
+
+        class MyLocalTestService
+        {
+            public IServerInfo Server { get; private set; }
+
+            public MyLocalTestService(IServerInfo server)
+            {
+                Server = server;
+            }
         }
 
         [Fact]
@@ -309,7 +325,8 @@ namespace SuperSocket.Tests
                         server1 = s.Server as IServer;
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
                     })
-                    .UseInProcSessionContainer();
+                    .UseInProcSessionContainer()
+                    .ConfigureServices((ctx, services) => services.AddSingleton<MyLocalTestService>());
                 })
                 .AddServer<SuperSocketServiceB, TextPackageInfo, LinePipelineFilter>(builder =>
                 {
@@ -322,7 +339,8 @@ namespace SuperSocket.Tests
                         server2 = s.Server as IServer;
                         await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
                     })
-                    .UseInProcSessionContainer();
+                    .UseInProcSessionContainer()
+                    .ConfigureServices((ctx, services) => services.AddSingleton<MyLocalTestService>());
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
@@ -386,10 +404,14 @@ namespace SuperSocket.Tests
                 Assert.Equal(testService0.Name, testService1.Name);
                 Assert.Equal(1, testService1.Version);
                 testService1.Version = 2;
+                Assert.Same(server1, server1.ServiceProvider.GetService<IServerInfo>());
+                Assert.Same(server1, server1.ServiceProvider.GetService<MyLocalTestService>().Server);
 
                 var testService2 = server2.ServiceProvider.GetService<MyTestService>();
                 Assert.Equal(testService0.Name, testService2.Name);
                 Assert.Equal(2, testService2.Version);
+                Assert.Same(server2, server2.ServiceProvider.GetService<IServerInfo>());
+                Assert.Same(server2, server2.ServiceProvider.GetService<MyLocalTestService>().Server);
 
                 await host.StopAsync();
             }

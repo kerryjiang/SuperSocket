@@ -103,7 +103,15 @@ namespace SuperSocket
 
         protected virtual void RegisterDefaultHostedService(IServiceCollection servicesInHost)
         {
-            servicesInHost.AddHostedService<SuperSocketService<TReceivePackage>>();
+            RegisterHostedService<SuperSocketService<TReceivePackage>>(servicesInHost);
+        }
+
+        protected virtual void RegisterHostedService<THostedService>(IServiceCollection servicesInHost)
+            where THostedService : class, IHostedService
+        {
+            servicesInHost.AddSingleton<THostedService, THostedService>();
+            servicesInHost.AddSingleton<IServerInfo>(s => s.GetService<THostedService>() as IServerInfo);
+            servicesInHost.AddHostedService<THostedService>(s => s.GetService<THostedService>());
         }
 
         public ISuperSocketHostBuilder<TReceivePackage> ConfigureServerOptions(Func<HostBuilderContext, IConfiguration, IConfiguration> serverOptionsReader)
@@ -168,7 +176,7 @@ namespace SuperSocket
 
             return this.ConfigureServices((ctx, services) =>
             {
-                services.AddHostedService<THostedService>();
+                RegisterHostedService<THostedService>(services);
             });
         }
         

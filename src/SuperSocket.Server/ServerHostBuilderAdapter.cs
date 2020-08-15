@@ -123,10 +123,10 @@ namespace SuperSocket.Server
             });
         }
 
-        private void RegisterHostedService<THostedService>(IServiceCollection servicesInHost)
-            where THostedService : class, IHostedService
+        protected override void RegisterHostedService<THostedService>(IServiceCollection servicesInHost)
         {
             _currentServices.AddSingleton<IHostedService, THostedService>();
+            _currentServices.AddSingleton<IServerInfo>(s => s.GetService<IHostedService>() as IServerInfo);
             servicesInHost.AddHostedService<THostedService>(s => GetHostedService<THostedService>());
         }
 
