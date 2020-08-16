@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
+using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
@@ -27,6 +28,11 @@ namespace SuperSocket.Tests
                     var listener = options.Listeners[0];
                     Listener = listener;
                 });
+        }
+
+        public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class
+        {
+            return client;
         }
 
         public ValueTask<Stream> GetClientStream(Socket socket)

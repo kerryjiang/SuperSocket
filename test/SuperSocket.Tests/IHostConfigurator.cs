@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
+using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
@@ -20,5 +21,8 @@ namespace SuperSocket.Tests
         bool IsSecure { get; }
 
         ListenOptions Listener { get; }
+
+        IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client)
+            where TPackageInfo : class;
     }
 }

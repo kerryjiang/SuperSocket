@@ -38,41 +38,6 @@ namespace SuperSocket.Tests
 
         }
 
-        class SecureEasyClient<TReceivePackage> : EasyClient<TReceivePackage>
-            where TReceivePackage : class
-        {
-            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
-                : base(pipelineFilter)
-            {
-
-            }
-
-            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
-                : base(pipelineFilter, logger)
-            {
-
-            }
-
-            public SecureEasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ChannelOptions options)
-                : base(pipelineFilter, options)
-            {
-
-            }
-
-            protected override IConnector GetConnector()
-            {
-                var authOptions = new SslClientAuthenticationOptions();
-                authOptions.EnabledSslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12;
-                authOptions.TargetHost = IPAddress.Loopback.ToString();
-                authOptions.RemoteCertificateValidationCallback += (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
-                {
-                    return true;
-                };
-
-                return new SocketConnector(LocalEndPoint, new SslStreamConnector(authOptions));
-            }
-        }
-
         [Theory]
         [Trait("Category", "Client.TestEcho")]
         [InlineData(typeof(RegularHostConfigurator), false)]
@@ -91,32 +56,15 @@ namespace SuperSocket.Tests
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
-                OutputHelper.WriteLine("Server started.");                
-
-                IEasyClient<TextPackageInfo> client;
-
-                var services = new ServiceCollection();
-                services.AddLogging();
-                services.Configure<ILoggingBuilder>((loggingBuilder) =>
-                {
-                    loggingBuilder.AddConsole();
-                });
-
-                var sp = services.BuildServiceProvider();
-
-                var loggerFactory = sp.GetService<ILoggerFactory>();
-                var logger = loggerFactory.CreateLogger("Client");
+                OutputHelper.WriteLine("Server started.");
 
                 var options = new ChannelOptions
                 {
-                    Logger = logger,
+                    Logger = NullLogger.Instance,
                     ReadAsDemand = clientReadAsDemand
                 };
                 
-                if (hostConfigurator.IsSecure)
-                    client = (new SecureEasyClient<TextPackageInfo>(new LinePipelineFilter(), options)).AsClient();
-                else
-                    client = new EasyClient<TextPackageInfo>(new LinePipelineFilter(), options).AsClient();               
+                var client = hostConfigurator.ConfigureEasyClient(new EasyClient<TextPackageInfo>(new LinePipelineFilter(), options));
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 
@@ -140,6 +88,7 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [Trait("Category", "Client.TestBindLocalEndPoint")]
         public async Task TestBindLocalEndPoint(Type hostConfiguratorType)
         {
             IAppSession session = default;
@@ -159,17 +108,17 @@ namespace SuperSocket.Tests
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");                
 
-                IEasyClient<StringPackageInfo> client;
-
                 var pipelineFilter = new CommandLinePipelineFilter
                 {
                     Decoder = new DefaultStringPackageDecoder()
                 };
+
+                var options = new ChannelOptions
+                {
+                    Logger = DefaultLoggerFactory.CreateLogger(nameof(TestBindLocalEndPoint))
+                };
                 
-                if (hostConfigurator.IsSecure)
-                    client = (new SecureEasyClient<StringPackageInfo>(pipelineFilter)).AsClient();
-                else
-                    client = new EasyClient<StringPackageInfo>(pipelineFilter).AsClient();
+                var client = hostConfigurator.ConfigureEasyClient(new EasyClient<StringPackageInfo>(pipelineFilter, options));
                 
                 var localPort = 8080;
 
@@ -201,35 +150,17 @@ namespace SuperSocket.Tests
                 options.AddCommand<SORT>();
             }).BuildAsServer())
             {
-
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
-                OutputHelper.WriteLine("Server started.");                
-
-                IEasyClient<StringPackageInfo> client;
-
-                var services = new ServiceCollection();
-                services.AddLogging();
-                services.Configure<ILoggingBuilder>((loggingBuilder) =>
-                {
-                    loggingBuilder.AddConsole();
-                });
-
-                var sp = services.BuildServiceProvider();
-
-                var loggerFactory = sp.GetService<ILoggerFactory>();
-                var logger = loggerFactory.CreateLogger("Client");
+                OutputHelper.WriteLine("Server started.");
 
                 var pipelineFilter = new CommandLinePipelineFilter
                 {
                     Decoder = new DefaultStringPackageDecoder()
                 };
                 
-                if (hostConfigurator.IsSecure)
-                    client = (new SecureEasyClient<StringPackageInfo>(pipelineFilter, logger)).AsClient();
-                else
-                    client = new EasyClient<StringPackageInfo>(pipelineFilter, logger).AsClient();
+                var client = hostConfigurator.ConfigureEasyClient(new EasyClient<StringPackageInfo>(pipelineFilter));
 
                 StringPackageInfo package = null;
 
@@ -275,25 +206,13 @@ namespace SuperSocket.Tests
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");
 
-                var services = new ServiceCollection();
-                services.AddLogging();
-                services.Configure<ILoggingBuilder>((loggingBuilder) =>
-                {
-                    loggingBuilder.AddConsole();
-                });
-
-                var sp = services.BuildServiceProvider();
-
-                var loggerFactory = sp.GetService<ILoggerFactory>();
-                var logger = loggerFactory.CreateLogger("Client");
-
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 await socket.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040));
                 var stream = await hostConfigurator.GetClientStream(socket);
 
                 var channel = new StreamPipeChannel<TextPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new LinePipelineFilter(), new ChannelOptions
                 {
-                    Logger = logger,
+                    Logger = NullLogger.Instance,
                     ReadAsDemand = true
                 });
 

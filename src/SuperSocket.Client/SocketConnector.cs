@@ -45,9 +45,10 @@ namespace SuperSocket.Client
                 if (localEndPoint != null)
                 {
                     socket.ExclusiveAddressUse = false;
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);             
                     socket.Bind(localEndPoint);
                 }
-                
+
                 await socket.ConnectAsync(remoteEndPoint);
             }
             catch (Exception e)

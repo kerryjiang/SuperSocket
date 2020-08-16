@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
+using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
@@ -56,6 +57,18 @@ namespace SuperSocket.Tests
         protected virtual SslProtocols GetClientEnabledSslProtocols()
         {
             return SslProtocols.Tls13 | SslProtocols.Tls12;
+        }
+
+        public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class
+        {
+            client.Security = new SecurityOptions
+            {
+                TargetHost = "supersocket",
+                EnabledSslProtocols = GetClientEnabledSslProtocols(),
+                RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true
+            };
+            
+            return client;
         }
     }
 

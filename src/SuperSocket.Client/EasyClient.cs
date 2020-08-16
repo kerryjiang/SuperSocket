@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Security.Authentication;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 using Microsoft.Extensions.Logging;
@@ -62,6 +63,8 @@ namespace SuperSocket.Client
 
         public IPEndPoint LocalEndPoint { get; set; }
 
+        public SecurityOptions Security { get; set; }
+
         protected EasyClient()
         {
 
@@ -99,6 +102,14 @@ namespace SuperSocket.Client
 
         protected virtual IConnector GetConnector()
         {
+            var security = Security;
+
+            if (security != null)
+            {
+                if (security.EnabledSslProtocols != SslProtocols.None)
+                    return new SocketConnector(LocalEndPoint, new SslStreamConnector(security));
+            }
+            
             return new SocketConnector(LocalEndPoint);
         }
 

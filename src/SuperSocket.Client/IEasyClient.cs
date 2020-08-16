@@ -22,6 +22,8 @@ namespace SuperSocket.Client
 
         IPEndPoint LocalEndPoint { get; set; }
 
+        SecurityOptions Security { get; set; }
+
         void StartReceive();
 
         ValueTask SendAsync(ReadOnlyMemory<byte> data);

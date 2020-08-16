@@ -27,6 +27,18 @@ namespace SuperSocket.Client
 
         protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
+            var targetHost = Options.TargetHost;
+
+            if (string.IsNullOrEmpty(targetHost))
+            {
+                if (remoteEndPoint is DnsEndPoint remoteDnsEndPoint)
+                    targetHost = remoteDnsEndPoint.Host;
+                else if (remoteEndPoint is IPEndPoint remoteIPEndPoint)
+                    targetHost = remoteIPEndPoint.Address.ToString();
+
+                Options.TargetHost = targetHost;
+            }
+
             var socket = state.Socket;
 
             if (socket == null)

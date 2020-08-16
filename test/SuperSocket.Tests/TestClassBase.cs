@@ -20,6 +20,11 @@ namespace SuperSocket.Tests
 
         protected static readonly Encoding Utf8Encoding = new UTF8Encoding();
 
+        protected static ILoggerFactory DefaultLoggerFactory { get; } = LoggerFactory.Create(builder =>
+                {
+                    builder.AddConsole();
+                });
+
         protected TestClassBase(ITestOutputHelper outputHelper)
         {
             OutputHelper = outputHelper;
