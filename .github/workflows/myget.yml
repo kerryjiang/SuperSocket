@@ -1,4 +1,4 @@
-name: MyGet Package Deploy
+name: Push Packages to MyGet
 
 on:
     push:
@@ -6,23 +6,7 @@ on:
             - master
 
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v1
-            - name: Setup .NET Core
-              uses: actions/setup-dotnet@v1
-              with:
-                dotnet-version: 3.1.100
-            - name: Build
-              run: dotnet build -c Release
-            - name: Build Samples
-              run: dotnet build -c Release samples/samples.sln
-            - name: Test
-              run: |
-                cd test/SuperSocket.Tests
-                dotnet test
-    deploy:
+    push:
         needs: build
         runs-on: ubuntu-latest
         steps:
