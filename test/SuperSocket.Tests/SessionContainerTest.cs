@@ -71,7 +71,8 @@ namespace SuperSocket.Tests
         [Fact] 
         public async Task TestInProcSessionContainer()
         {
-            using (var server = CreateSocketServerBuilder<StringPackageInfo, MyPipelineFilter>()
+            var hostConfigurator = new RegularHostConfigurator();
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, MyPipelineFilter>(hostConfigurator)
                 .UseCommand<string, StringPackageInfo>(commandOptions =>
                 {
                     commandOptions.AddCommand<SESS>();
@@ -99,7 +100,7 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Server started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
                 Thread.Sleep(1000);
@@ -110,7 +111,7 @@ namespace SuperSocket.Tests
 
                 var closed = false;
 
-                using (var stream = new NetworkStream(client))
+                using (var stream = await hostConfigurator.GetClientStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {

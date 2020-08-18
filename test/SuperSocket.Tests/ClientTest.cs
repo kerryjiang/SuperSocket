@@ -206,7 +206,7 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Server started.");
 
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await socket.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040));
+                await socket.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 var stream = await hostConfigurator.GetClientStream(socket);
 
                 var channel = new StreamPipeChannel<TextPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new LinePipelineFilter(), new ChannelOptions

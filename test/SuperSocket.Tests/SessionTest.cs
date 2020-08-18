@@ -28,10 +28,11 @@ namespace SuperSocket.Tests
         [Trait("Category", "TestSessionEvents")]
         public async Task TestSessionEvents() 
         {
+            var hostConfigurator = new RegularHostConfigurator();
             var connected = false;
             IAppSession session = null;
 
-            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .UseSessionHandler((s) =>
                 {
                     connected = true;
@@ -46,7 +47,7 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 OutputHelper.WriteLine("Connected.");                
 
                 await Task.Delay(1000);
@@ -107,7 +108,8 @@ namespace SuperSocket.Tests
         [Fact]
         public async Task TestConsoleProtocol() 
         {
-            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+            var hostConfigurator = new RegularHostConfigurator();
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .UsePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
@@ -117,9 +119,9 @@ namespace SuperSocket.Tests
                 Assert.Equal(0, server.SessionCount);
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 
-                using (var stream = new NetworkStream(client))
+                using (var stream = await hostConfigurator.GetClientStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {

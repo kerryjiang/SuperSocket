@@ -77,7 +77,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 var websocket = new ClientWebSocket();
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -132,7 +132,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040" + path), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}" + path), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -175,7 +175,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -241,7 +241,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040" + path), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}" + path), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -292,7 +292,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.NoDelay = true;
-                var endPoint = new IPEndPoint(IPAddress.Loopback, 4040);
+                var endPoint = hostConfigurator.GetServerEndPoint();
                 await socket.ConnectAsync(endPoint);                
                 Assert.True(socket.Connected);
                 await Task.Delay(1000 * 5);
@@ -329,7 +329,7 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                         Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -387,7 +387,7 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                         Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -444,7 +444,7 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                         Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -512,7 +512,7 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                         Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -593,7 +593,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 var websocket = new ClientWebSocket();
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -657,7 +657,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -708,7 +708,7 @@ namespace SuperSocket.Tests.WebSocket
                 websocket.Options.AddSubProtocol("test1");
                 websocket.Options.AddSubProtocol("test2");
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -730,7 +730,7 @@ namespace SuperSocket.Tests.WebSocket
                 websocket.Options.AddSubProtocol("test2");
                 websocket.Options.AddSubProtocol("test1");
 
-                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -816,7 +816,7 @@ namespace SuperSocket.Tests.WebSocket
                 await host.StartAsync();
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040));
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, DefaultServerPort));
                 
                 using (var stream = new NetworkStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
@@ -838,7 +838,7 @@ namespace SuperSocket.Tests.WebSocket
                 
                 var websocket = new ClientWebSocket();
 
-                await websocket.ConnectAsync(new Uri($"ws://localhost:4041"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"ws://localhost:{AlternativeServerPort}"), CancellationToken.None);
                 Assert.Equal(WebSocketState.Open, websocket.State);
                 
                 var receiveBuffer = new byte[256];
@@ -872,7 +872,7 @@ namespace SuperSocket.Tests.WebSocket
                
                 var websocket = new ClientWebSocket();
 
-                await websocket.ConnectAsync(new Uri($"ws://localhost:4040"), CancellationToken.None);
+                await websocket.ConnectAsync(new Uri($"ws://localhost:{DefaultServerPort}"), CancellationToken.None);
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 

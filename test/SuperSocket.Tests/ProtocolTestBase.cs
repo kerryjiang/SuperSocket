@@ -23,13 +23,11 @@ namespace SuperSocket.Tests
 
         protected abstract IServer CreateServer(IHostConfigurator hostConfigurator);
 
-        protected Socket CreateClient()
+        protected Socket CreateClient(IHostConfigurator hostConfigurator)
         {
-            var serverAddress = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040);
+            var serverAddress = hostConfigurator.GetServerEndPoint();
             var socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-
             socket.Connect(serverAddress);
-
             return socket;
         }
 
@@ -46,7 +44,7 @@ namespace SuperSocket.Tests
             {
                 await server.StartAsync();
 
-                using (var socket = CreateClient())
+                using (var socket = CreateClient(hostConfigurator))
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
@@ -79,7 +77,7 @@ namespace SuperSocket.Tests
 
                 for (var i = 0; i < 100; i++)
                 {
-                    using (var socket = CreateClient())
+                    using (var socket = CreateClient(hostConfigurator))
                     {
                         var socketStream = await hostConfigurator.GetClientStream(socket);
                         using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
@@ -108,7 +106,7 @@ namespace SuperSocket.Tests
             {
                 await server.StartAsync();
 
-                using (var socket = CreateClient())
+                using (var socket = CreateClient(hostConfigurator))
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
 
@@ -145,7 +143,7 @@ namespace SuperSocket.Tests
             {
                 await server.StartAsync();
 
-                using (var socket = CreateClient())
+                using (var socket = CreateClient(hostConfigurator))
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))
@@ -188,7 +186,7 @@ namespace SuperSocket.Tests
             {
                 await server.StartAsync();
 
-                using (var socket = CreateClient())
+                using (var socket = CreateClient(hostConfigurator))
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
                     using (var reader = new StreamReader(socketStream, Utf8Encoding, true))

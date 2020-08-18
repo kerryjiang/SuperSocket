@@ -47,7 +47,7 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(GetDefaultServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
                 await Task.Delay(1000);
@@ -90,7 +90,7 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(GetDefaultServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
                 await Task.Delay(1000);
@@ -140,7 +140,7 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(GetDefaultServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
                 await Task.Delay(1000);
@@ -179,7 +179,7 @@ namespace SuperSocket.Tests
                 Assert.Equal(0, server.SessionCount);
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));                
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());                
                 using (var stream = await hostConfigurator.GetClientStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
@@ -229,7 +229,7 @@ namespace SuperSocket.Tests
                 await host.StartAsync();
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(GetDefaultServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
                 await Task.Delay(1000);
@@ -353,7 +353,7 @@ namespace SuperSocket.Tests
                 await host.StartAsync();
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4040));
+                await client.ConnectAsync(GetDefaultServerEndPoint());
                 
                 using (var stream = new NetworkStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
@@ -364,7 +364,7 @@ namespace SuperSocket.Tests
                 }
                 
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, 4041));
+                await client.ConnectAsync(GetAlternativeServerEndPoint());
                 
                 using (var stream = new NetworkStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))

@@ -53,7 +53,7 @@ namespace SuperSocket.Tests
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))

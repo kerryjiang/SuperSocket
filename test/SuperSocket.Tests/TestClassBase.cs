@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -17,8 +18,19 @@ namespace SuperSocket.Tests
     public abstract class TestClassBase
     {
         protected readonly ITestOutputHelper OutputHelper;
-
         protected static readonly Encoding Utf8Encoding = new UTF8Encoding();
+        protected readonly static int DefaultServerPort = 4040;
+        protected readonly static int AlternativeServerPort = 4041;
+
+        protected IPEndPoint GetDefaultServerEndPoint()
+        {
+            return new IPEndPoint(IPAddress.Loopback, DefaultServerPort);
+        }
+
+        protected IPEndPoint GetAlternativeServerEndPoint()
+        {
+            return new IPEndPoint(IPAddress.Loopback, AlternativeServerPort);
+        }
 
         protected static ILoggerFactory DefaultLoggerFactory { get; } = LoggerFactory.Create(builder =>
                 {
@@ -66,7 +78,7 @@ namespace SuperSocket.Tests
                     {
                         { "serverOptions:name", "TestServer" },
                         { "serverOptions:listeners:0:ip", "Any" },
-                        { "serverOptions:listeners:0:port", "4040" }
+                        { "serverOptions:listeners:0:port", DefaultServerPort.ToString() }
                     });
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>

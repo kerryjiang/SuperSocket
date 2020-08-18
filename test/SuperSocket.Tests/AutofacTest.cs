@@ -59,7 +59,7 @@ namespace SuperSocket.Tests
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -114,7 +114,7 @@ namespace SuperSocket.Tests
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -151,7 +151,6 @@ namespace SuperSocket.Tests
         [Trait("Category", "Autofac.MultipleServerHost")]
         public async Task TestCommandsWithCustomSessionMultipleServerHost(Type hostConfiguratorType)
         {
-            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = MultipleServerHostBuilder.Create()
                 .ConfigureAppConfiguration((hostCtx, configApp) =>
                 {
@@ -160,7 +159,7 @@ namespace SuperSocket.Tests
                     {
                         { "serverOptions:name", "TestServer" },
                         { "serverOptions:listeners:0:ip", "Any" },
-                        { "serverOptions:listeners:0:port", "4040" }
+                        { "serverOptions:listeners:0:port", DefaultServerPort.ToString() }
                     });
                 })
                 .AddServer<StringPackageInfo, CommandLinePipelineFilter>(builder =>
@@ -185,10 +184,10 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Server started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Parse("127.0.0.1"), 4040));
+                await client.ConnectAsync(GetDefaultServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
-                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var stream = new NetworkStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
