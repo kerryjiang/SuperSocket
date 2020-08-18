@@ -6,9 +6,9 @@ namespace SuperSocket.Benchmarks
 {
     class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            BenchmarkRunner.Run(typeof(Program).Assembly, new BenchmarkConfig());
+            BenchmarkRunner.Run(typeof(Program).Assembly);
         }
     }
 }

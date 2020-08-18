@@ -19,7 +19,7 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="$(IsPackable) != False AND '$(OutputType)' != 'Exe'">
     <Compile Include="..\..\InternalsVisibleTo.cs" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-name: Push Packages to MyGet
+name: myget
 
 on:
     push:

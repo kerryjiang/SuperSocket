@@ -1,9 +1,4 @@
-name: build
-
-on:
-    push:
-        branches:
-            - master
+name: benchmark
 
 jobs:
     build:
@@ -20,11 +15,7 @@ jobs:
               uses: actions/setup-dotnet@v1
               with:
                 dotnet-version: 3.1.100
-            - name: Build
-              run: dotnet build -c Release
-            - name: Build Samples
-              run: dotnet build -c Release samples/samples.sln
-            - name: Test
+            - name: Run benchmark
               run: |
-                cd test/SuperSocket.Tests
-                dotnet test
+                cd test/SuperSocket.Benchmarks
+                dotnet run -c Release
