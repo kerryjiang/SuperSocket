@@ -78,6 +78,7 @@ namespace SuperSocket.Tests
                     {
                         { "serverOptions:name", "TestServer" },
                         { "serverOptions:listeners:0:ip", "Any" },
+                        { "serverOptions:listeners:0:backLog", "100" },
                         { "serverOptions:listeners:0:port", DefaultServerPort.ToString() }
                     });
                 })

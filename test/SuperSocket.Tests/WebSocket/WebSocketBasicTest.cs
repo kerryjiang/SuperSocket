@@ -389,7 +389,14 @@ namespace SuperSocket.Tests.WebSocket
 
                         await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
-                        Assert.Equal(WebSocketState.Open, websocket.State);
+                        if (websocket.State != WebSocketState.Open)
+                        {
+                            return new TaskTestResult
+                            {
+                                Result = false,
+                                Message = "WebSocket is not opened."
+                            };
+                        }
 
                         var receiveBuffer = new byte[256];
 
@@ -402,18 +409,38 @@ namespace SuperSocket.Tests.WebSocket
                             await websocket.SendAsync(new ArraySegment<byte>(data, 0, data.Length), WebSocketMessageType.Binary, true, CancellationToken.None);                    
                             var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer, WebSocketMessageType.Binary);
 
-                            OutputHelper.WriteLine(receivedMessage);
-                            Assert.Equal(message, receivedMessage);
+                            if (!receivedMessage.Equals(message))
+                            {
+                                return new TaskTestResult
+                                {
+                                    Result = false,
+                                    Message = "The received message is not correct."
+                                };
+                            }
                         }
 
                         await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
 
-                        Assert.Equal(WebSocketState.Closed, websocket.State);
+                        if (websocket.State != WebSocketState.Closed)
+                        {
+                            return new TaskTestResult
+                            {
+                                Result = false,
+                                Message = "WebSocket is not closed."
+                            };
+                        }
 
+                        return new TaskTestResult { Result = true };
                     });
                 });
 
-                await Task.WhenAll(tasks.ToArray());
+                var taskResults = await Task.WhenAll(tasks.ToArray());
+
+                foreach (var r in taskResults)
+                {
+                    Assert.True(r.Result, r.Message);
+                }
+                
                 await server.StopAsync();
             }
         }
@@ -446,7 +473,14 @@ namespace SuperSocket.Tests.WebSocket
 
                         await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
 
-                        Assert.Equal(WebSocketState.Open, websocket.State);
+                        if (websocket.State != WebSocketState.Open)
+                        {
+                            return new TaskTestResult
+                            {
+                                Result = false,
+                                Message = "WebSocket is not opened."
+                            };
+                        }
 
                         var receiveBuffer = new byte[256];
 
@@ -459,16 +493,38 @@ namespace SuperSocket.Tests.WebSocket
                             await websocket.SendAsync(new ArraySegment<byte>(data, 0, data.Length), WebSocketMessageType.Binary, true, CancellationToken.None);                    
                             var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer, WebSocketMessageType.Text);
 
-                            Assert.Equal(message, receivedMessage);
+                            if (!receivedMessage.Equals(message))
+                            {
+                                return new TaskTestResult
+                                {
+                                    Result = false,
+                                    Message = "The received message is not correct."
+                                };
+                            }
                         }
 
                         await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
 
-                        Assert.Equal(WebSocketState.Closed, websocket.State);
+                        if (websocket.State != WebSocketState.Closed)
+                        {
+                            return new TaskTestResult
+                            {
+                                Result = false,
+                                Message = "WebSocket is not closed."
+                            };
+                        }
+
+                        return new TaskTestResult { Result = true };
                     });
                 });                
 
-                await Task.WhenAll(tasks.ToArray());
+                var taskResults = await Task.WhenAll(tasks.ToArray());
+
+                foreach (var r in taskResults)
+                {
+                    Assert.True(r.Result, r.Message);
+                }
+
                 await server.StopAsync();
             }
         }
