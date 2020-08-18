@@ -146,10 +146,9 @@ namespace SuperSocket.Tests
             }
         }
 
-        [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
+        [Fact]
         [Trait("Category", "Autofac.MultipleServerHost")]
-        public async Task TestCommandsWithCustomSessionMultipleServerHost(Type hostConfiguratorType)
+        public async Task TestCommandsWithCustomSessionMultipleServerHost()
         {
             using (var server = MultipleServerHostBuilder.Create()
                 .ConfigureAppConfiguration((hostCtx, configApp) =>
