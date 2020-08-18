@@ -1,5 +1,5 @@
 name: benchmark
-
+on: [workflow_dispatch]
 jobs:
     build:
         strategy:
