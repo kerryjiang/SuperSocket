@@ -60,7 +60,7 @@ namespace SuperSocket.WebSocket
 
         internal void SaveOpCodeByte()
         {
-            OpCodeByte = (byte)(OpCodeByte | (byte)OpCode);
+            OpCodeByte = (byte)((OpCodeByte & 0xF0) | (byte)OpCode);
         }
 
         internal bool HasMask { get; set; }
