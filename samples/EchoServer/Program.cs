@@ -21,13 +21,12 @@ namespace EchoServer
                 .ConfigureSuperSocket(options =>
                 {
                     options.Name = "Echo Server";
-                    options.Listeners = new [] {
-                        new ListenOptions
+                    options.AddListener(new ListenOptions
                         {
                             Ip = "Any",
                             Port = 4040
                         }
-                    };
+                    );
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
