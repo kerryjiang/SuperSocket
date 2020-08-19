@@ -42,5 +42,16 @@ namespace SuperSocket
         {
             return (session.Server as ILoggerAccessor)?.Logger;
         }
+
+        public static ServerOptions AddListener(this ServerOptions serverOptions, ListenOptions listener)
+        {
+            var listeners = serverOptions.Listeners;
+
+            if (listeners == null)
+                listeners = serverOptions.Listeners = new List<ListenOptions>();
+
+            listeners.Add(listener);
+            return serverOptions;
+        }
     }
 }
