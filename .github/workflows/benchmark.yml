@@ -9,6 +9,8 @@ jobs:
               - windows-latest
               - macos-latest
         runs-on: ${{matrix.os}}
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
         steps:
             - uses: actions/checkout@v1
             - name: Setup .NET Core

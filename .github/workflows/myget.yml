@@ -8,6 +8,8 @@ on:
 jobs:
     push:
         runs-on: ubuntu-latest
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1
         steps:
             - uses: actions/checkout@v1
             - name: Pack
