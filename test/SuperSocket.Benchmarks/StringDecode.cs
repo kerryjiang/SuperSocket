@@ -7,12 +7,13 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Benchmarks
 {
+    [MemoryDiagnoser]
     public class StringDecode
     {
         [Params(10, 100, 1000)]
         public int N;
 
-        [Params(1, 3, 5)]
+        [Params(1, 3, 5, 10, 50)]
         public int S;
 
         private Encoding _encoding = Encoding.ASCII;
