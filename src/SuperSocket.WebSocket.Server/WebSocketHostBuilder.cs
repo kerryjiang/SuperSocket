@@ -40,6 +40,12 @@ namespace SuperSocket.WebSocket.Server
 
         }
 
+        internal WebSocketHostBuilder(IHostBuilder hostBuilder)
+            : base(hostBuilder)
+        {
+            
+        }
+
         internal WebSocketHostBuilder(string[] args)
             : base(args)
         {
@@ -70,13 +76,22 @@ namespace SuperSocket.WebSocket.Server
 
         public static WebSocketHostBuilder Create(string[] args)
         {
-            return ((new WebSocketHostBuilder(args) as SuperSocketHostBuilder<WebSocketPackage>)
-                .UsePipelineFilter<WebSocketPipelineFilter>() as WebSocketHostBuilder)
+            return Create(new WebSocketHostBuilder(args));
+        }
+
+        public static WebSocketHostBuilder Create(SuperSocketHostBuilder<WebSocketPackage> hostBuilder)
+        {
+            return hostBuilder.UsePipelineFilter<WebSocketPipelineFilter>()
                 .UseMiddleware<HandshakeCheckMiddleware>()
                 .ConfigureServices((ctx, services) =>
                 {
                     services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
                 }) as WebSocketHostBuilder;
+        }
+
+        public static WebSocketHostBuilder Create(IHostBuilder hostBuilder)
+        {
+            return Create(new WebSocketHostBuilder(hostBuilder));
         }
 
         internal static void ValidateHostBuilder(HostBuilderContext builderCtx, IServiceCollection services)

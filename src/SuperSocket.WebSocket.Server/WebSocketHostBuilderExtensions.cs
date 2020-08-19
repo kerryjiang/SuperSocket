@@ -104,5 +104,10 @@ namespace SuperSocket.WebSocket.Server
             hostBuilder.AddServer(appHostBuilder);
             return hostBuilder;
         }
+
+        public static WebSocketHostBuilder AsWebSocketHostBuilder(this IHostBuilder hostBuilder)
+        {
+            return WebSocketHostBuilder.Create(hostBuilder);
+        }
     }
 }
