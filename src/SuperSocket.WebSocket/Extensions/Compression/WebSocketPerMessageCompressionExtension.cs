@@ -22,7 +22,6 @@ namespace SuperSocket.WebSocket.Extensions.Compression
         private static readonly Encoding _encoding = new UTF8Encoding(false);
 
         private static readonly byte[] LAST_FOUR_OCTETS = new byte[] { 0x00, 0x00, 0xFF, 0xFF };
-        private static readonly byte[] LAST_FOUR_OCTETS_REVERSE = new byte[] { 0xFF, 0xFF, 0x00, 0x00 };
         private static readonly ArrayPool<byte> _arrayPool = ArrayPool<byte>.Shared;
 
         public void Decode(WebSocketPackage package)
@@ -32,7 +31,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
 
             var data = package.Data;
 
-            data = data.ConcatSequence(new SequenceSegment(LAST_FOUR_OCTETS_REVERSE, LAST_FOUR_OCTETS_REVERSE.Length, false));
+            data = data.ConcatSequence(new SequenceSegment(LAST_FOUR_OCTETS, LAST_FOUR_OCTETS.Length, false));
 
             SequenceSegment head = null;
             SequenceSegment tail = null;
@@ -96,12 +95,14 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 stream.Flush();
             }
 
-            package.Data = outputStream.GetUnderlyingSequence();
+            var data = outputStream.GetUnderlyingSequence();
+            RemoveLastFourOctets(ref data);
+            package.Data = data;
         }
 
         private void RemoveLastFourOctets(ref ReadOnlySequence<byte> data)
         {
-            var octetsLen = LAST_FOUR_OCTETS_REVERSE.Length;
+            var octetsLen = LAST_FOUR_OCTETS.Length;
 
             if (data.Length < octetsLen)
                 return;
@@ -113,7 +114,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             {
                 for (var i = 0; i < piece.Length; i++)
                 {
-                    if (piece.Span[i] != LAST_FOUR_OCTETS_REVERSE[pos++])
+                    if (piece.Span[i] != LAST_FOUR_OCTETS[pos++])
                         return;
                 }
             }
@@ -124,8 +125,6 @@ namespace SuperSocket.WebSocket.Extensions.Compression
         private void EncodeDataMessage(WebSocketPackage package)
         {
             var data = package.Data;
-
-            RemoveLastFourOctets(ref data);
 
             var outputStream = new WritableSequenceStream();
 
@@ -139,7 +138,9 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 stream.Flush();
             }
 
-            package.Data = outputStream.GetUnderlyingSequence();
+            data = outputStream.GetUnderlyingSequence();
+            RemoveLastFourOctets(ref data);
+            package.Data = data;
         }
     }
 }

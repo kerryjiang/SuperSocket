@@ -14,9 +14,17 @@ namespace SuperSocket.WebSocket.Server.Extensions.Compression
     {
         public string Name => WebSocketPerMessageCompressionExtension.PMCE;
 
+        private static readonly NameValueCollection _supportedOptions;
+
+        static WebSocketPerMessageCompressionExtensionFactory()
+        {
+            _supportedOptions = new NameValueCollection();
+            _supportedOptions.Add("client_no_context_takeover", string.Empty);          
+        }
+
         public IWebSocketExtension Create(NameValueCollection options, out NameValueCollection supportedOptions)
         {
-            supportedOptions = null;
+            supportedOptions = _supportedOptions;
             
             if (options != null && options.Count > 0)
             {
