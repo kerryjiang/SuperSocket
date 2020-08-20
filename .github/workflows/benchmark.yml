@@ -20,4 +20,4 @@ jobs:
             - name: Run benchmark
               run: |
                 cd test/SuperSocket.Benchmarks
-                dotnet run -c Release -f '*'
+                dotnet run -c Release --filter '*'
