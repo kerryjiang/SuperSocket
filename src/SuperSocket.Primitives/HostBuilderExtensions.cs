@@ -22,5 +22,14 @@ namespace SuperSocket
                 services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, TMiddleware>());
             }).AsSuperSocketBuilder();
         }
+
+        public static ISuperSocketHostBuilder UseMiddleware<TMiddleware>(this ISuperSocketHostBuilder builder, Func<IServiceProvider, TMiddleware> implementationFactory)
+            where TMiddleware : class, IMiddleware
+        {
+            return builder.ConfigureServices((ctx, services) => 
+            {
+                services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, TMiddleware>(implementationFactory));
+            }).AsSuperSocketBuilder();
+        }
     }
 }
