@@ -16,7 +16,7 @@ jobs:
             - name: Setup .NET Core
               uses: actions/setup-dotnet@v1
               with:
-                dotnet-version: 3.1.100
+                dotnet-version: 3.1.401
             - name: Run benchmark
               run: |
                 cd test/SuperSocket.Benchmarks
