@@ -1,4 +1,4 @@
-name: myget
+name: myget-release
 on: [workflow_dispatch]
 jobs:
     push:
