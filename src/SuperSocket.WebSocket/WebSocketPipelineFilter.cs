@@ -38,7 +38,7 @@ namespace SuperSocket.WebSocket
             return package;
         }
 
-        protected virtual WebSocketPackage ParseHandshake(ref ReadOnlySequence<byte> pack)
+        private WebSocketPackage ParseHandshake(ref ReadOnlySequence<byte> pack)
         {
             var header = ParseHttpHeaderItems(ref pack);
 
@@ -49,7 +49,7 @@ namespace SuperSocket.WebSocket
             };
         }
 
-        protected bool TryParseHttpHeaderItems(ref ReadOnlySequence<byte> header, out string firstLine, out NameValueCollection items)
+        private bool TryParseHttpHeaderItems(ref ReadOnlySequence<byte> header, out string firstLine, out NameValueCollection items)
         {
             var headerText = header.GetString(Encoding.UTF8);
             var reader = new StringReader(headerText);
@@ -115,20 +115,25 @@ namespace SuperSocket.WebSocket
             return true;
         }
 
+        protected virtual HttpHeader CreateHttpHeader(string verbItem1, string verbItem2, string verbItem3, NameValueCollection items)
+        {
+            return HttpHeader.CreateForRequest(verbItem1, verbItem2, verbItem3, items);
+        }
+
         private HttpHeader ParseHttpHeaderItems(ref ReadOnlySequence<byte> header)
         {
             if (!TryParseHttpHeaderItems(ref header, out var firstLine, out var items))
                 return null;
 
-            var metaInfo = firstLine.Split(' ');
+            var verbItems = firstLine.Split(' ', 3);
 
-            if (metaInfo.Length != 3)
+            if (verbItems.Length < 3)
             {
                 // invalid first line
                 return null;
             }
 
-            return new HttpHeader(metaInfo[0], metaInfo[1], metaInfo[2], items);
+            return CreateHttpHeader(verbItems[0], verbItems[1], verbItems[2], items);
         }
 
         public void Reset()
