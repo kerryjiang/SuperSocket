@@ -1,10 +1,5 @@
 name: myget
-
-on:
-    push:
-        branches:
-            - master
-
+on: [workflow_dispatch]
 jobs:
     push:
         runs-on: ubuntu-latest
@@ -17,7 +12,7 @@ jobs:
               with:
                 dotnet-version: 3.1.401
             - name: Pack
-              run: dotnet pack -c Release /p:PublicRelease=false
+              run: dotnet pack -c Release
             - uses: dotnet/nbgv@master
               id: nbgv
             - name: Pack all-in-one-packages
