@@ -31,28 +31,37 @@ namespace SuperSocket.WebSocket
 
             reader.Advance(terminatorSpan.Length);
 
+            var package = ParseHandshake(ref pack);
+
+            NextFilter = new WebSocketDataPipelineFilter(package.HttpHeader);
+            
+            return package;
+        }
+
+        protected virtual WebSocketPackage ParseHandshake(ref ReadOnlySequence<byte> pack)
+        {
             var header = ParseHttpHeaderItems(ref pack);
 
-            var package = new WebSocketPackage
+            return new WebSocketPackage
             {
                 HttpHeader = header,
                 OpCode = OpCode.Handshake
             };
-
-            NextFilter = new WebSocketDataPipelineFilter(header);
-            return package;
         }
 
-        private HttpHeader ParseHttpHeaderItems(ref ReadOnlySequence<byte> header)
+        protected bool TryParseHttpHeaderItems(ref ReadOnlySequence<byte> header, out string firstLine, out NameValueCollection items)
         {
             var headerText = header.GetString(Encoding.UTF8);
             var reader = new StringReader(headerText);
-            var firstLine = reader.ReadLine();
+            firstLine = reader.ReadLine();
 
             if (string.IsNullOrEmpty(firstLine))
-                return null;
+            {
+                items = null;
+                return false;
+            }
 
-            var items = new NameValueCollection();
+            items = new NameValueCollection();
 
             var prevKey = string.Empty;
             var line = string.Empty;
@@ -102,6 +111,14 @@ namespace SuperSocket.WebSocket
 
                 prevKey = key;
             }
+
+            return true;
+        }
+
+        private HttpHeader ParseHttpHeaderItems(ref ReadOnlySequence<byte> header)
+        {
+            if (!TryParseHttpHeaderItems(ref header, out var firstLine, out var items))
+                return null;
 
             var metaInfo = firstLine.Split(' ');
 
