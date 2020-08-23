@@ -234,6 +234,11 @@ namespace SuperSocket.Client
             Logger?.LogError(exception, message);
         }
 
+        protected virtual void OnError(string message)
+        {
+            Logger?.LogError(message);
+        }
+
         ValueTask IEasyClient<TReceivePackage>.SendAsync(ReadOnlyMemory<byte> data)
         {
             return SendAsync(data);
