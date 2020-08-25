@@ -109,6 +109,51 @@ namespace SuperSocket.Tests
         }
 
         [Fact]
+        [Trait("Category", "TestUseHostedService")]
+        public async Task TestUseHostedService() 
+        {
+            var connected = false;
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>()
+                .UseSessionHandler((s) =>
+                {
+                    connected = true;
+                    return new ValueTask();
+                }, (s) =>
+                {
+                    connected = false;
+                    return new ValueTask();
+                })
+                .UseHostedService<SuperSocketServiceA>()
+                .BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Started.");
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(GetDefaultServerEndPoint());
+                OutputHelper.WriteLine("Connected.");
+
+                await Task.Delay(1000);
+
+                Assert.True(connected);
+
+                Assert.IsType<SuperSocketServiceA>(server);
+
+                client.Shutdown(SocketShutdown.Both);
+                client.Close();
+
+                await Task.Delay(1000);
+
+                Assert.False(connected);
+
+                await server.StopAsync();
+            }            
+        }
+
+        [Fact]
         [Trait("Category", "TestConfigureSocketOptions")]
         public async Task TestConfigureSocketOptions() 
         {

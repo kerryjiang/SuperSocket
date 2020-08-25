@@ -97,8 +97,27 @@ namespace SuperSocket
 
         protected virtual bool CheckIfExistHostedService(IServiceCollection services)
         {
-            return services.Any(sd => sd.ServiceType == typeof(IHostedService)
-                && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(sd.ImplementationType));
+            return services.Any(s => s.ServiceType == typeof(IHostedService)
+                && typeof(SuperSocketService<TReceivePackage>).IsAssignableFrom(GetImplementationType(s)));
+        }
+
+        private Type GetImplementationType(ServiceDescriptor serviceDescriptor)
+        {
+            if (serviceDescriptor.ImplementationType != null)
+                return serviceDescriptor.ImplementationType;
+            
+            if (serviceDescriptor.ImplementationInstance != null)
+                return serviceDescriptor.ImplementationInstance.GetType();
+            
+            if (serviceDescriptor.ImplementationFactory != null)
+            {
+                var typeArguments = serviceDescriptor.ImplementationFactory.GetType().GenericTypeArguments;
+
+                if (typeArguments.Length == 2)
+                    return typeArguments[1];
+            }
+
+            return null;
         }
 
         protected virtual void RegisterDefaultHostedService(IServiceCollection servicesInHost)
