@@ -163,9 +163,10 @@ namespace SuperSocket.Tests
 
                 StringPackageInfo package = null;
 
-                client.PackageHandler += (s, p) =>
+                client.PackageHandler += async (s, p) =>
                 {
                     package = p;
+                    await Task.CompletedTask;
                 };
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));

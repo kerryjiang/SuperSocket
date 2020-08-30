@@ -192,17 +192,17 @@ namespace SuperSocket.Client
 
             while (await enumerator.MoveNextAsync())
             {
-                OnPackageReceived(enumerator.Current);
+                await OnPackageReceived(enumerator.Current);
             }
         }
 
-        private void OnPackageReceived(TReceivePackage package)
+        protected virtual async ValueTask OnPackageReceived(TReceivePackage package)
         {
             var handler = PackageHandler;
 
             try
             {
-                handler.Invoke(this, package);
+                await handler.Invoke(this, package);
             }
             catch (Exception e)
             {
