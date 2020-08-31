@@ -71,7 +71,7 @@ namespace SuperSocket.Server
             {
                 try
                 {
-                    var client = await listenSocket.AcceptAsync();
+                    var client = await listenSocket.AcceptAsync().ConfigureAwait(false);
                     OnNewClientAccept(client);
                 }
                 catch (Exception e)

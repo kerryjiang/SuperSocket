@@ -41,7 +41,7 @@ namespace SuperSocket.Channel
 
         protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            return await _stream.ReadAsync(memory, cancellationToken);
+            return await _stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
         }
 
         protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
@@ -50,11 +50,11 @@ namespace SuperSocket.Channel
 
             foreach (var data in buffer)
             {
-                await _stream.WriteAsync(data, cancellationToken);
+                await _stream.WriteAsync(data, cancellationToken).ConfigureAwait(false);
                 total += data.Length;
             }
 
-            await _stream.FlushAsync(cancellationToken);
+            await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
             return total;
         }
 

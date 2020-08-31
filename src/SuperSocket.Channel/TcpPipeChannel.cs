@@ -36,14 +36,18 @@ namespace SuperSocket.Channel
 
         private async ValueTask<int> ReceiveAsync(Socket socket, Memory<byte> memory, SocketFlags socketFlags, CancellationToken cancellationToken)
         {
-            return await socket.ReceiveAsync(GetArrayByMemory((ReadOnlyMemory<byte>)memory), socketFlags, cancellationToken);
+            return await socket
+                .ReceiveAsync(GetArrayByMemory((ReadOnlyMemory<byte>)memory), socketFlags, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
         {
             if (buffer.IsSingleSegment)
             {
-                return await _socket.SendAsync(GetArrayByMemory(buffer.First), SocketFlags.None, cancellationToken);
+                return await _socket
+                    .SendAsync(GetArrayByMemory(buffer.First), SocketFlags.None, cancellationToken)
+                    .ConfigureAwait(false);
             }
             
             if (_segmentsForSend == null)
@@ -64,7 +68,10 @@ namespace SuperSocket.Channel
             }
 
             cancellationToken.ThrowIfCancellationRequested();
-            return await _socket.SendAsync(_segmentsForSend, SocketFlags.None);
+            
+            return await _socket
+                .SendAsync(_segmentsForSend, SocketFlags.None)
+                .ConfigureAwait(false);
         }
 
         protected override void Close()
