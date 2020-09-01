@@ -374,7 +374,7 @@ namespace SuperSocket.Server
 
         private async Task StopListener(IChannelCreator listener)
         {
-            await listener.StopAsync();
+            await listener.StopAsync().ConfigureAwait(false);
             _logger.LogInformation($"The listener [{listener}] has been stopped.");
         }
 
@@ -392,7 +392,7 @@ namespace SuperSocket.Server
             var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => StopListener(l))
                 .Union(new Task[] { Task.Run(ShutdownMiddlewares) });
 
-            await Task.WhenAll(tasks);
+            await Task.WhenAll(tasks).ConfigureAwait(false);
 
             try
             {

@@ -86,7 +86,7 @@ namespace SuperSocket.Channel
 
             while (true)
             {
-                var package = await _packagePipe.ReadAsync();
+                var package = await _packagePipe.ReadAsync().ConfigureAwait(false);
 
                 if (package == null)
                 {
