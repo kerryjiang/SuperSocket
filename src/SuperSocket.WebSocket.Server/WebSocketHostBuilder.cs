@@ -13,7 +13,7 @@ namespace SuperSocket.WebSocket.Server
             : base(hostBuilder)
         {
             this.UsePipelineFilter<WebSocketPipelineFilter>();
-            this.UseMiddleware<HandshakeCheckMiddleware>();
+            this.UseWebSocketMiddleware();
             this.ConfigureServices((ctx, services) =>
             {
                 services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
@@ -24,11 +24,6 @@ namespace SuperSocket.WebSocket.Server
         protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
         {
             services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
-        }
-
-        protected override void RegisterDefaultHostedService(IServiceCollection servicesInHost)
-        {
-            servicesInHost.AddHostedService<WebSocketService>();
         }
     }
 
@@ -56,18 +51,7 @@ namespace SuperSocket.WebSocket.Server
         {
             base.RegisterDefaultServices(builderContext, servicesInHost, services);
             services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
-        }
-
-        protected override void RegisterDefaultHostedService(IServiceCollection services)
-        {
-            services.AddHostedService<WebSocketService>();
-        }
-
-        public new WebSocketHostBuilder UseHostedService<THostedService>()
-            where THostedService : WebSocketService
-        {
-            return base.UseHostedService<THostedService>() as WebSocketHostBuilder;
-        }
+        }        
 
         public static WebSocketHostBuilder Create()
         {
@@ -82,7 +66,7 @@ namespace SuperSocket.WebSocket.Server
         public static WebSocketHostBuilder Create(SuperSocketHostBuilder<WebSocketPackage> hostBuilder)
         {
             return hostBuilder.UsePipelineFilter<WebSocketPipelineFilter>()
-                .UseMiddleware<HandshakeCheckMiddleware>()
+                .UseWebSocketMiddleware()
                 .ConfigureServices((ctx, services) =>
                 {
                     services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();

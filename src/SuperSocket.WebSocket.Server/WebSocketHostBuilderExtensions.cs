@@ -14,6 +14,17 @@ namespace SuperSocket.WebSocket.Server
 {
     public static class WebSocketServerExtensions
     {
+        internal static ISuperSocketHostBuilder<WebSocketPackage> UseWebSocketMiddleware(this ISuperSocketHostBuilder<WebSocketPackage> builder)
+        {
+            return builder
+                .ConfigureServices((ctx, services) =>
+                {
+                    services.AddSingleton<IWebSocketServerMiddleware, WebSocketServerMiddleware>();
+                })
+                .UseMiddleware<WebSocketServerMiddleware>(s => s.GetService<IWebSocketServerMiddleware>() as WebSocketServerMiddleware)
+                as ISuperSocketHostBuilder<WebSocketPackage>;
+        }
+
         public static ISuperSocketHostBuilder<WebSocketPackage> UseWebSocketMessageHandler(this ISuperSocketHostBuilder<WebSocketPackage> builder, Func<WebSocketSession, WebSocketPackage, ValueTask> handler)
         {
             return builder.ConfigureServices((ctx, services) => 
@@ -88,11 +99,11 @@ namespace SuperSocket.WebSocket.Server
 
         public static MultipleServerHostBuilder AddWebSocketServer(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
         {
-            return hostBuilder.AddWebSocketServer<WebSocketService>(hostBuilderDelegate);
+            return hostBuilder.AddWebSocketServer<SuperSocketService<WebSocketPackage>>(hostBuilderDelegate);
         }
 
         public static MultipleServerHostBuilder AddWebSocketServer<TWebSocketService>(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
-            where TWebSocketService : WebSocketService
+            where TWebSocketService : SuperSocketService<WebSocketPackage>
         {
             var appHostBuilder = new WebSocketHostBuilderAdapter(hostBuilder);
 

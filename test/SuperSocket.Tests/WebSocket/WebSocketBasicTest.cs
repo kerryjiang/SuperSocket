@@ -811,7 +811,7 @@ namespace SuperSocket.Tests.WebSocket
             }
         }
 
-        class MyWebSocketService : WebSocketService
+        class MyWebSocketService : SuperSocketService<WebSocketPackage>
         {
             public MyWebSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions) : base(serviceProvider, serverOptions)
             {

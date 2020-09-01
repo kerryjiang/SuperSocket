@@ -13,7 +13,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister, ILoggerAccessor
+    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister, ILoggerAccessor, ISessionEventHost
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -300,6 +300,16 @@ namespace SuperSocket.Server
             {
                 _logger.LogError(exc, "There is one exception thrown from the event of OnSessionClosed.");
             }
+        }
+
+        ValueTask ISessionEventHost.HandleSessionConnectedEvent(AppSession session)
+        {
+            return FireSessionConnectedEvent(session);
+        }
+
+        ValueTask ISessionEventHost.HandleSessionClosedEvent(AppSession session)
+        {
+            return FireSessionClosedEvent(session);
         }
 
         private async ValueTask HandleSession(AppSession session, IChannel channel)

@@ -37,6 +37,8 @@ namespace SuperSocket.WebSocket.Server
 
         private readonly HandshakeOptions _handshakeOptions;
 
+        private readonly IWebSocketServerMiddleware _websocketServerMiddleware;
+
         private Dictionary<string, IEnumerable<IWebSocketExtensionFactory>> _extensionFactories;
 
         private static readonly IPackageEncoder<WebSocketPackage> _defaultMessageEncoder = new WebSocketEncoder();
@@ -44,6 +46,8 @@ namespace SuperSocket.WebSocket.Server
         public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IOptions<HandshakeOptions> handshakeOptions)
         {
             _serviceProvider = serviceProvider;
+
+            _websocketServerMiddleware = serviceProvider.GetService<IWebSocketServerMiddleware>();
 
             _websocketCommandMiddleware = serviceProvider
                 .GetService<IWebSocketCommandMiddleware>() as IPackageHandler<WebSocketPackage>;
@@ -102,7 +106,7 @@ namespace SuperSocket.WebSocket.Server
                 }
 
                 websocketSession.Handshaked = true;
-                await (session.Server as WebSocketService).OnSessionHandshakeCompleted(websocketSession);
+                await _websocketServerMiddleware.HandleSessionHandshakeCompleted(websocketSession);
                 return;
             }
 

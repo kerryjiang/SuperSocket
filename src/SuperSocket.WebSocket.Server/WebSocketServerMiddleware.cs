@@ -3,10 +3,16 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
+using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {
-    class HandshakeCheckMiddleware : MiddlewareBase
+    interface IWebSocketServerMiddleware
+    {
+        ValueTask HandleSessionHandshakeCompleted(WebSocketSession session);
+    }
+
+    class WebSocketServerMiddleware : MiddlewareBase, IWebSocketServerMiddleware
     {
         private ConcurrentQueue<WebSocketSession> _openHandshakePendingQueue = new ConcurrentQueue<WebSocketSession>();
 
@@ -18,7 +24,9 @@ namespace SuperSocket.WebSocket.Server
 
         private IMiddleware _sessionContainerMiddleware;
 
-        public HandshakeCheckMiddleware(IOptions<HandshakeOptions> handshakeOptions)
+        private ISessionEventHost _sessionEventHost;
+
+        public WebSocketServerMiddleware(IOptions<HandshakeOptions> handshakeOptions)
         {
             var options = handshakeOptions.Value;
 
@@ -31,6 +39,7 @@ namespace SuperSocket.WebSocket.Server
         public override void Start(IServer server)
         {
             _sessionContainerMiddleware = server.GetSessionContainer() as IMiddleware;
+            _sessionEventHost = server as ISessionEventHost;
             _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _options.CheckingInterval * 1000, _options.CheckingInterval * 1000); // hardcode to 1 minute for now
         }
 
@@ -107,6 +116,12 @@ namespace SuperSocket.WebSocket.Server
             }
 
             _checkingTimer.Change(_options.CheckingInterval * 1000, _options.CheckingInterval * 1000);
-        }        
+        }
+
+        public ValueTask HandleSessionHandshakeCompleted(WebSocketSession session)
+        {
+            _sessionContainerMiddleware?.RegisterSession(session);
+            return _sessionEventHost.HandleSessionConnectedEvent(session);
+        }
     }
 }
