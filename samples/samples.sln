@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BasicClient", "BasicClient\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebSocketPushServer", "WebSocketPushServer\WebSocketPushServer.csproj", "{52FFF004-FDA6-4005-99ED-957CC0554F3E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetSample", "AspNetSample\AspNetSample.csproj", "{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,5 +102,17 @@ Global
 		{52FFF004-FDA6-4005-99ED-957CC0554F3E}.Release|x64.Build.0 = Release|Any CPU
 		{52FFF004-FDA6-4005-99ED-957CC0554F3E}.Release|x86.ActiveCfg = Release|Any CPU
 		{52FFF004-FDA6-4005-99ED-957CC0554F3E}.Release|x86.Build.0 = Release|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Debug|x64.Build.0 = Debug|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Debug|x86.Build.0 = Debug|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Release|x64.ActiveCfg = Release|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Release|x64.Build.0 = Release|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Release|x86.ActiveCfg = Release|Any CPU
+		{DBE37248-5550-4EC0-AD5C-F157EA2BD0C7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
