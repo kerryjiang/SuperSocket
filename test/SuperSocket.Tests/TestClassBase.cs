@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
@@ -68,6 +69,14 @@ namespace SuperSocket.Tests
         protected T CreateObject<T>(Type type)
         {
             return (T)ActivatorUtilities.CreateFactory(type, new Type[0]).Invoke(null, null);
+        }
+
+        protected Socket CreateClient(IHostConfigurator hostConfigurator)
+        {
+            var serverAddress = hostConfigurator.GetServerEndPoint();
+            var socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            socket.Connect(serverAddress);
+            return socket;
         }
 
         protected IHostBuilder Configure(IHostBuilder hostBuilder, IHostConfigurator configurator = null)

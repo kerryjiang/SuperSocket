@@ -28,7 +28,10 @@ namespace SuperSocket.Tests
             services.Configure<ServerOptions>((options) =>
                 {
                     var listener = options.Listeners[0];
-                    listener.Security = GetServerEnabledSslProtocols();
+
+                    if (listener.Security == SslProtocols.None)
+                        listener.Security = GetServerEnabledSslProtocols();
+                    
                     listener.CertificateOptions = new CertificateOptions
                     {
                         FilePath = "supersocket.pfx",
@@ -51,12 +54,12 @@ namespace SuperSocket.Tests
 
         protected virtual SslProtocols GetServerEnabledSslProtocols()
         {
-            return SslProtocols.Tls13 | SslProtocols.Tls12;
+            return SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11;
         }
 
         protected virtual SslProtocols GetClientEnabledSslProtocols()
         {
-            return SslProtocols.Tls13 | SslProtocols.Tls12;
+            return SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11;
         }
 
         public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class

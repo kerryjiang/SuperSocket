@@ -22,15 +22,7 @@ namespace SuperSocket.Tests
         }
 
         protected abstract IServer CreateServer(IHostConfigurator hostConfigurator);
-
-        protected Socket CreateClient(IHostConfigurator hostConfigurator)
-        {
-            var serverAddress = hostConfigurator.GetServerEndPoint();
-            var socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(serverAddress);
-            return socket;
-        }
-
+        
         protected abstract string CreateRequest(string sourceLine);
 
         [Theory]
