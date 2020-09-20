@@ -174,7 +174,7 @@ namespace SuperSocket.Server
 
             foreach (var handler in sessionEvent.GetInvocationList())
             {
-                Delegate.Remove(sessionEvent, handler);
+                sessionEvent = Delegate.Remove(sessionEvent, handler) as TEventHandler;
             }
         }
 

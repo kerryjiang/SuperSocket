@@ -25,7 +25,6 @@ namespace SuperSocket.Tests
         }
 
         [Fact]
-        [Trait("Category", "TestSessionEvents")]
         public async Task TestSessionEvents() 
         {
             var hostConfigurator = new RegularHostConfigurator();
@@ -59,6 +58,12 @@ namespace SuperSocket.Tests
                     return new ValueTask();
                 };
 
+                session.Connected += async (s, e) =>
+                {
+                    OutputHelper.WriteLine("Session.Connected event was triggered");
+                    await Task.CompletedTask;
+                };
+
                 var itemKey = "GirlFriend";
                 var itemValue = "Who?";
 
@@ -77,6 +82,7 @@ namespace SuperSocket.Tests
                 Assert.Equal(itemValue, session[itemKey]);
 
                 Assert.Equal(1, GetEventInvocationCount(session, nameof(session.Closed)));
+                Assert.Equal(1, GetEventInvocationCount(session, nameof(session.Connected)));
 
                 session.Reset();
 
@@ -85,6 +91,7 @@ namespace SuperSocket.Tests
                 Assert.Equal(SessionState.None, session.State);
                 Assert.Null(session[itemKey]);
                 Assert.Equal(0, GetEventInvocationCount(session, nameof(session.Closed)));
+                Assert.Equal(0, GetEventInvocationCount(session, nameof(session.Connected)));
 
                 await server.StopAsync();
             }            
