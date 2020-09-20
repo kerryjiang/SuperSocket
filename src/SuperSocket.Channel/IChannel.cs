@@ -17,9 +17,9 @@ namespace SuperSocket.Channel
 
         ValueTask SendAsync(Action<PipeWriter> write);
 
-        ValueTask CloseAsync();
+        ValueTask CloseAsync(CloseReason closeReason);
 
-        event EventHandler Closed;
+        event EventHandler<CloseEventArgs> Closed;
 
         bool IsClosed { get; }
 
@@ -30,6 +30,8 @@ namespace SuperSocket.Channel
         DateTimeOffset LastActiveTime { get; }
 
         ValueTask DetachAsync();
+
+        CloseReason? CloseReason { get; }
     }
 
     public interface IChannel<TPackageInfo> : IChannel

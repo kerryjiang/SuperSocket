@@ -36,7 +36,7 @@ namespace SuperSocket.Server
 
                 if (toClose)
                 {
-                    (session as AppSession).CloseAsync().DoNotAwait();
+                    session.CloseAsync(CloseReason.ApplicationError).DoNotAwait();
                 }
             }
         }

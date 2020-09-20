@@ -4,6 +4,7 @@ using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
@@ -47,7 +48,7 @@ namespace SuperSocket.Server
                     {
                         try
                         {
-                            s.Channel.CloseAsync();
+                            s.Channel.CloseAsync(CloseReason.TimeOut);
                             _logger.LogWarning($"Close the idle session {s.SessionID}, it's LastActiveTime is {s.LastActiveTime}.");
                         }
                         catch (Exception exc)

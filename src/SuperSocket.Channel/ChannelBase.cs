@@ -26,6 +26,8 @@ namespace SuperSocket.Channel
 
         public EndPoint LocalEndPoint { get; protected set; }
 
+        public CloseReason? CloseReason { get; protected set; }
+
         public DateTimeOffset LastActiveTime { get; protected set; } = DateTimeOffset.Now;
 
         protected virtual void OnClosed()
@@ -40,12 +42,14 @@ namespace SuperSocket.Channel
             if (Interlocked.CompareExchange(ref Closed, null, closed) != closed)
                 return;
 
-            closed.Invoke(this, EventArgs.Empty);
+            var closeReason = CloseReason.HasValue ? CloseReason.Value : Channel.CloseReason.Unknown;
+
+            closed.Invoke(this, new CloseEventArgs(closeReason));
         }
 
-        public event EventHandler Closed;
+        public event EventHandler<CloseEventArgs> Closed;
 
-        public abstract ValueTask CloseAsync();
+        public abstract ValueTask CloseAsync(CloseReason closeReason);
 
         public abstract ValueTask DetachAsync();
     }

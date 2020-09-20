@@ -8,5 +8,7 @@ namespace SuperSocket.WebSocket
         public CloseReason Reason { get; set; }
 
         public string ReasonText { get; set; }
+
+        public bool RemoteInitiated{ get; set; }
     }
 }

@@ -150,7 +150,7 @@ namespace SuperSocket.Tests
                 {
                     connected = true;
                     return new ValueTask();
-                }, (s) =>
+                }, (s, e) =>
                 {
                     connected = false;
                     return new ValueTask();
@@ -190,7 +190,7 @@ namespace SuperSocket.Tests
                 {
                     connected = true;
                     return new ValueTask();
-                }, (s) =>
+                }, (s, e) =>
                 {
                     connected = false;
                     return new ValueTask();
@@ -235,7 +235,7 @@ namespace SuperSocket.Tests
                 {
                     connected = true;
                     await Task.CompletedTask;
-                }, async (s) =>
+                }, async (s, e) =>
                 {
                     connected = false;                    
                     await Task.CompletedTask;

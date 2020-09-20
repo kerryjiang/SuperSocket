@@ -76,7 +76,7 @@ namespace SuperSocket.Client.Proxy
 
             if (!HandleResponse(p, out string errorMessage))
             {
-                await channel.CloseAsync();
+                await channel.CloseAsync(CloseReason.ProtocolError);
 
                 return new ConnectState
                 {

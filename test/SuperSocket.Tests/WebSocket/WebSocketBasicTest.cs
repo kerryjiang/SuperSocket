@@ -113,7 +113,7 @@ namespace SuperSocket.Tests.WebSocket
                     connected = true;
                     return new ValueTask();
                 },
-                (s) =>
+                (s, e) =>
                 {
                     connected = false;
                     return new ValueTask();

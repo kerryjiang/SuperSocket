@@ -248,12 +248,12 @@ namespace SuperSocket.Server
             return new ValueTask();
         }
 
-        protected virtual ValueTask OnSessionClosedAsync(IAppSession session)
+        protected virtual ValueTask OnSessionClosedAsync(IAppSession session, CloseEventArgs e)
         {
             var closedHandler = _sessionHandlers?.Closed;
 
             if (closedHandler != null)
-                return closedHandler.Invoke(session);
+                return closedHandler.Invoke(session, e);
 
             return new ValueTask();
         }
@@ -280,7 +280,7 @@ namespace SuperSocket.Server
             }
         }
 
-        protected virtual async ValueTask FireSessionClosedEvent(AppSession session)
+        protected virtual async ValueTask FireSessionClosedEvent(AppSession session, CloseReason reason)
         {
             if (session is IHandshakeRequiredSession handshakeSession)
             {
@@ -293,8 +293,10 @@ namespace SuperSocket.Server
             try
             {
                 Interlocked.Decrement(ref _sessionCount);
-                await session.FireSessionClosedAsync(EventArgs.Empty);
-                await OnSessionClosedAsync(session); 
+
+                var closeEventArgs = new CloseEventArgs(reason);
+                await session.FireSessionClosedAsync(closeEventArgs);
+                await OnSessionClosedAsync(session, closeEventArgs);
             }
             catch (Exception exc)
             {
@@ -307,9 +309,9 @@ namespace SuperSocket.Server
             return FireSessionConnectedEvent(session);
         }
 
-        ValueTask ISessionEventHost.HandleSessionClosedEvent(AppSession session)
+        ValueTask ISessionEventHost.HandleSessionClosedEvent(AppSession session, CloseReason reason)
         {
-            return FireSessionClosedEvent(session);
+            return FireSessionClosedEvent(session, reason);
         }
 
         private async ValueTask HandleSession(AppSession session, IChannel channel)
@@ -337,7 +339,8 @@ namespace SuperSocket.Server
             }
             finally
             {
-                await FireSessionClosedEvent(session);
+                var closeReason = channel.CloseReason.HasValue ? channel.CloseReason.Value : CloseReason.Unknown;
+                await FireSessionClosedEvent(session, closeReason);
             }
         }
 

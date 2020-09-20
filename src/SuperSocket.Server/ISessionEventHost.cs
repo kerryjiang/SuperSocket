@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
@@ -9,6 +10,6 @@ namespace SuperSocket.Server
     {
         ValueTask HandleSessionConnectedEvent(AppSession session);
 
-        ValueTask HandleSessionClosedEvent(AppSession session);
+        ValueTask HandleSessionClosedEvent(AppSession session, CloseReason reason);
     }
 }

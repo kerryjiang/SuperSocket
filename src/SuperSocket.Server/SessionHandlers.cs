@@ -10,6 +10,6 @@ namespace SuperSocket.Server
     {
         public Func<IAppSession, ValueTask> Connected { get; set; }
 
-        public Func<IAppSession, ValueTask> Closed { get; set; }
+        public Func<IAppSession, CloseEventArgs, ValueTask> Closed { get; set; }
     }
 }

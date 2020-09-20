@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
+using ChannelCloseReason = SuperSocket.Channel.CloseReason;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -101,14 +102,17 @@ namespace SuperSocket.WebSocket.Server
 
         internal void CloseWithoutHandshake()
         {
-            base.CloseAsync().DoNotAwait();
+            base.CloseAsync(ChannelCloseReason.LocalClosing).DoNotAwait();
         }
 
-        public override async ValueTask CloseAsync()
+        public override async ValueTask CloseAsync(ChannelCloseReason closeReason)
         {
-            if (CloseStatus != null)
+            var closeStatus = CloseStatus;
+
+            if (closeStatus != null)
             {
-                await base.CloseAsync();
+                var clientInitiated = closeStatus.RemoteInitiated;
+                await base.CloseAsync(clientInitiated ? ChannelCloseReason.RemoteClosing : ChannelCloseReason.LocalClosing);
                 return;
             }
 

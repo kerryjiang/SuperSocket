@@ -25,11 +25,13 @@ namespace SuperSocket
 
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
+        ValueTask CloseAsync(CloseReason reason);
+
         IServerInfo Server { get; }
 
         event AsyncEventHandler Connected;
 
-        event AsyncEventHandler Closed;
+        event AsyncEventHandler<CloseEventArgs> Closed;
 
         object DataContext { get; set; }
 

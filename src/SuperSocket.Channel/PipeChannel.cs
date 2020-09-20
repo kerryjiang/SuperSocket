@@ -120,9 +120,10 @@ namespace SuperSocket.Channel
 
         protected abstract void Close();
 
-        public override async ValueTask CloseAsync()
+        public override async ValueTask CloseAsync(CloseReason closeReason)
         {
             Close();
+            CloseReason = closeReason;
             _cts.Cancel();
             await HandleClosing();
         }
@@ -166,6 +167,9 @@ namespace SuperSocket.Channel
 
                     if (bytesRead == 0)
                     {
+                        if (!CloseReason.HasValue)
+                            CloseReason = Channel.CloseReason.RemoteClosing;
+                        
                         break;
                     }
 
@@ -178,6 +182,9 @@ namespace SuperSocket.Channel
                 {
                     if (!IsIgnorableException(e))
                         OnError("Exception happened in ReceiveAsync", e);
+
+                    if (!CloseReason.HasValue)
+                        CloseReason = Channel.CloseReason.SocketError;
                     
                     break;
                 }

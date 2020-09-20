@@ -51,7 +51,7 @@ namespace SuperSocket.Client.Proxy
 
             if (!HandleResponse(response, Socket5ResponseType.Handshake, out string errorMessage))
             {
-                await channel.CloseAsync();
+                await channel.CloseAsync(CloseReason.ProtocolError);
 
                 return new ConnectState
                 {
@@ -70,7 +70,7 @@ namespace SuperSocket.Client.Proxy
 
                 if (!HandleResponse(response, Socket5ResponseType.AuthUserName, out errorMessage))
                 {
-                    await channel.CloseAsync();
+                    await channel.CloseAsync(CloseReason.ProtocolError);
 
                     return new ConnectState
                     {
@@ -88,7 +88,7 @@ namespace SuperSocket.Client.Proxy
 
             if (!HandleResponse(response, Socket5ResponseType.AuthEndPoint, out errorMessage))
             {
-                await channel.CloseAsync();
+                await channel.CloseAsync(CloseReason.ProtocolError);
 
                 return new ConnectState
                 {

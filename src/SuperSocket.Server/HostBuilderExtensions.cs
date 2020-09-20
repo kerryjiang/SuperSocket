@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
-
+using SuperSocket.Channel;
 
 namespace SuperSocket
 {
@@ -53,7 +53,7 @@ namespace SuperSocket
             return hostBuilder.UseMiddleware<ClearIdleSessionMiddleware>();
         }
 
-        public static ISuperSocketHostBuilder<TReceivePackage> UseSessionHandler<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, ValueTask> onClosed = null)
+        public static ISuperSocketHostBuilder<TReceivePackage> UseSessionHandler<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IAppSession, ValueTask> onConnected = null, Func<IAppSession, CloseEventArgs, ValueTask> onClosed = null)
         {
             return hostBuilder.ConfigureServices(
                 (hostCtx, services) =>

@@ -263,7 +263,7 @@ namespace SuperSocket.Client
 
         public virtual async ValueTask CloseAsync()
         {
-            await Channel.CloseAsync();
+            await Channel.CloseAsync(CloseReason.LocalClosing);
             OnClosed(this, EventArgs.Empty);
         }
     }

@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using System.Threading;
+using SuperSocket.Channel;
 
 namespace SuperSocket.Tests
 {
@@ -132,7 +133,7 @@ namespace SuperSocket.Tests
                         return new ValueTask();
                     };
 
-                    await session.Channel.CloseAsync();
+                    await session.Channel.CloseAsync(CloseReason.LocalClosing);
                 }
 
                 await Task.Delay(1000);
