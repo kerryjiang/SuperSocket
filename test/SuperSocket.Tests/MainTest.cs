@@ -19,6 +19,11 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Security.Authentication;
 
+/// <summary>
+/// Run selected test case by command
+/// dotnet test --filter 'FullyQualifiedName=SuperSocket.Tests.SessionTest.TestCloseReason'
+/// </summary>
+
 namespace SuperSocket.Tests
 {
     [Trait("Category", "Basic")]
