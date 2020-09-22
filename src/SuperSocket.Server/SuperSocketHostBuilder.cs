@@ -18,9 +18,9 @@ namespace SuperSocket
         private Func<HostBuilderContext, IConfiguration, IConfiguration> _serverOptionsReader;
 
         protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureServicesActions { get; private set; } = new List<Action<HostBuilderContext, IServiceCollection>>();
-        
+
         protected Action<HostBuilderContext, IServiceCollection> Validator { get; set; }
-        
+
         public SuperSocketHostBuilder(IHostBuilder hostBuilder)
             : base(hostBuilder)
         {
@@ -41,18 +41,18 @@ namespace SuperSocket
 
         public override IHost Build()
         {
-            return HostBuilder.ConfigureServices((ctx, services) => 
+            return HostBuilder.ConfigureServices((ctx, services) =>
             {
                 RegisterBasicServices(ctx, services, services);
-            }).ConfigureServices((ctx, services) => 
+            }).ConfigureServices((ctx, services) =>
             {
                 foreach (var action in ConfigureServicesActions)
                 {
                     action(ctx, services);
                 }
 
-                Validator?.Invoke(ctx, services);                
-            }).ConfigureServices((ctx, services) => 
+                Validator?.Invoke(ctx, services);
+            }).ConfigureServices((ctx, services) =>
             {
                 RegisterDefaultServices(ctx, services, services);
             }).Build();
@@ -74,7 +74,7 @@ namespace SuperSocket
 
             var config = builderContext.Configuration.GetSection("serverOptions");
             var serverConfig = serverOptionReader(builderContext, config);
-                                                
+
             services.Configure<ServerOptions>(serverConfig);
         }
 
@@ -105,10 +105,10 @@ namespace SuperSocket
         {
             if (serviceDescriptor.ImplementationType != null)
                 return serviceDescriptor.ImplementationType;
-            
+
             if (serviceDescriptor.ImplementationInstance != null)
                 return serviceDescriptor.ImplementationInstance.GetType();
-            
+
             if (serviceDescriptor.ImplementationFactory != null)
             {
                 var typeArguments = serviceDescriptor.ImplementationFactory.GetType().GenericTypeArguments;
@@ -135,8 +135,8 @@ namespace SuperSocket
 
         public ISuperSocketHostBuilder<TReceivePackage> ConfigureServerOptions(Func<HostBuilderContext, IConfiguration, IConfiguration> serverOptionsReader)
         {
-             _serverOptionsReader = serverOptionsReader;
-             return this;
+            _serverOptionsReader = serverOptionsReader;
+            return this;
         }
 
         ISuperSocketHostBuilder<TReceivePackage> ISuperSocketHostBuilder<TReceivePackage>.ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
@@ -148,7 +148,7 @@ namespace SuperSocket
         {
             ConfigureServicesActions.Add(configureDelegate);
             return this;
-        }        
+        }
 
         public virtual ISuperSocketHostBuilder<TReceivePackage> UsePipelineFilter<TPipelineFilter>()
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
@@ -198,7 +198,7 @@ namespace SuperSocket
                 RegisterHostedService<THostedService>(services);
             });
         }
-        
+
 
         public virtual ISuperSocketHostBuilder<TReceivePackage> UsePackageDecoder<TPackageDecoder>()
             where TPackageDecoder : class, IPackageDecoder<TReceivePackage>
@@ -214,7 +214,7 @@ namespace SuperSocket
         public virtual ISuperSocketHostBuilder<TReceivePackage> UseMiddleware<TMiddleware>()
             where TMiddleware : class, IMiddleware
         {
-            return this.ConfigureServices((ctx, services) => 
+            return this.ConfigureServices((ctx, services) =>
             {
                 services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, TMiddleware>());
             });
@@ -229,6 +229,16 @@ namespace SuperSocket
                     services.AddSingleton<IPackageHandlingScheduler<TReceivePackage>, TPackageHandlingScheduler>();
                 }
             );
+        }
+
+        public ISuperSocketHostBuilder<TReceivePackage> UsePackageHandlingContextAccessor()
+        {
+            return this.ConfigureServices(
+                 (hostCtx, services) =>
+                 {
+                     services.AddSingleton<IPackageHandlingContextAccessor<TReceivePackage>, PackageHandlingContextAccessor<TReceivePackage>>();
+                 }
+             );
         }
     }
 
@@ -250,7 +260,7 @@ namespace SuperSocket
         {
             return Create<TReceivePackage, TPipelineFilter>(args: null);
         }
-        
+
         public static ISuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>(string[] args)
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
