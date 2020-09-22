@@ -40,5 +40,7 @@ namespace SuperSocket
 
         ISuperSocketHostBuilder<TReceivePackage> UseSession<TSession>()
             where TSession : IAppSession;
+
+        ISuperSocketHostBuilder<TReceivePackage> UsePackageHandlingContextAccessor();
     }
 }

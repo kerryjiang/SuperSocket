@@ -40,7 +40,8 @@ namespace SuperSocket.Server
         private IChannelCreatorFactory _channelCreatorFactory;
         private List<IChannelCreator> _channelCreators;
         private IPackageHandlingScheduler<TReceivePackageInfo> _packageHandlingScheduler;
-        
+        private IPackageHandlingContextAccessor<TReceivePackageInfo> _packageHandlingContextAccessor;
+
         public string Name { get; }
 
         private int _sessionCount;
@@ -82,10 +83,10 @@ namespace SuperSocket.Server
             _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _channelCreatorFactory = serviceProvider.GetService<IChannelCreatorFactory>() ?? new TcpChannelCreatorFactory(serviceProvider);
-            _sessionHandlers = serviceProvider.GetService<SessionHandlers>();          
+            _sessionHandlers = serviceProvider.GetService<SessionHandlers>();
             // initialize session factory
             _sessionFactory = serviceProvider.GetService<ISessionFactory>() ?? new DefaultSessionFactory();
-
+            _packageHandlingContextAccessor = serviceProvider.GetService<IPackageHandlingContextAccessor<TReceivePackageInfo>>();
             InitializeMiddlewares();
 
             var packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>()
@@ -126,10 +127,10 @@ namespace SuperSocket.Server
                 {
                     m.Shutdown(this);
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     _logger.LogError(e, $"The exception was thrown from the middleware {m.GetType().Name} when it is being shutdown.");
-                }                
+                }
             }
         }
 
@@ -322,7 +323,7 @@ namespace SuperSocket.Server
             try
             {
                 channel.Start();
-                
+
                 await FireSessionConnectedEvent(session);
 
                 var packageChannel = channel as IChannel<TReceivePackageInfo>;
@@ -330,7 +331,11 @@ namespace SuperSocket.Server
 
                 await foreach (var p in packageChannel.RunAsync())
                 {
-                    await packageHandlingScheduler.HandlePackage(session, p);   
+                    if(_packageHandlingContextAccessor!=null)
+                    {
+                        _packageHandlingContextAccessor.PackageHandlingContext = new PackageHandlingContext<IAppSession, TReceivePackageInfo>(session, p);
+                    }
+                    await packageHandlingScheduler.HandlePackage(session, p);
                 }
             }
             catch (Exception e)
@@ -369,7 +374,7 @@ namespace SuperSocket.Server
             {
                 await OnStartedAsync();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 _logger.LogError(e, "There is one exception thrown from the method OnStartedAsync().");
             }
