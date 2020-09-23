@@ -30,10 +30,6 @@ namespace SuperSocket.Tests
                             {
                                 commandOptions.AddCommand<TestCommand>();
                             })
-                            .ConfigureServices((htx, services) =>
-                            {
-                                services.AddSingleton<ITestOutputHelper>(OutputHelper);
-                            })
                             .UsePackageHandlingContextAccessor();
             using (var server = superSocketHostBuilder.BuildAsServer())
             {
@@ -75,26 +71,19 @@ namespace SuperSocket.Tests
         {
             private readonly IPackageHandlingContextAccessor<StringPackageInfo> _packageHandlingContextAccessor;
 
-            public TestCommand(ITestOutputHelper outputHelper, IPackageHandlingContextAccessor<StringPackageInfo> packageHandlingContextAccessor)
+            public TestCommand(IPackageHandlingContextAccessor<StringPackageInfo> packageHandlingContextAccessor)
             {
-                OutputHelper = outputHelper;
                 _packageHandlingContextAccessor = packageHandlingContextAccessor;
             }
-            private readonly Random _random = new Random();
 
-            public ITestOutputHelper OutputHelper { get; }
 
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
                 Assert.NotNull(_packageHandlingContextAccessor.PackageHandlingContext.AppSession);
                 Assert.NotNull(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo);
-                OutputHelper.WriteLine($"package.Body: {package.Body} || packageinfo from packageHandlingContextAccessor: {_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Body}");
                 Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Body, package.Body);
-
                 Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1], package.Parameters[1]);
-                OutputHelper.WriteLine($"Before reassigning Parameters[1]    Parameters[1]: {package.Parameters[1]} || Parameters[1] from packageHandlingContextAccessor: {_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1]}");
                 _packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1] += "%";
-                OutputHelper.WriteLine($"After reassigning Parameters[1]    Parameters[1]: {package.Parameters[1]} || Parameters[1] from packageHandlingContextAccessor: {_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1]}");
                 Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1], package.Parameters[1]);
                 await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"));
             }
