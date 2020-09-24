@@ -30,13 +30,11 @@ namespace SuperSocket.Tests
                             {
                                 commandOptions.AddCommand<TestCommand>();
                             })
-                            .ConfigureServices((htx, services) =>
-                            {
-                                services.AddSingleton<ITestOutputHelper>(OutputHelper);
-                            })
                             .UsePackageHandlingContextAccessor();
             using (var server = superSocketHostBuilder.BuildAsServer())
             {
+                var packageHandlingContextAccessor = server.ServiceProvider.GetService<IPackageHandlingContextAccessor<StringPackageInfo>>();
+                Assert.NotNull(packageHandlingContextAccessor);
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
@@ -73,30 +71,26 @@ namespace SuperSocket.Tests
 
         public class TestCommand : IAsyncCommand<StringPackageInfo>
         {
-            private readonly IPackageHandlingContextAccessor<StringPackageInfo> _packageHandlingContextAccessor;
+            private readonly IServiceProvider serviceProvider;
 
-            public TestCommand(ITestOutputHelper outputHelper, IPackageHandlingContextAccessor<StringPackageInfo> packageHandlingContextAccessor)
+            public TestCommand(IServiceProvider serviceProvider)
             {
-                OutputHelper = outputHelper;
-                _packageHandlingContextAccessor = packageHandlingContextAccessor;
+                this.serviceProvider = serviceProvider;
             }
-            private readonly Random _random = new Random();
 
-            public ITestOutputHelper OutputHelper { get; }
 
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
-                Assert.NotNull(_packageHandlingContextAccessor.PackageHandlingContext.AppSession);
-                Assert.NotNull(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo);
-                OutputHelper.WriteLine($"package.Body: {package.Body} || packageinfo from packageHandlingContextAccessor: {_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Body}");
-                Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Body, package.Body);
+                var packageHandlingContextAccessor = serviceProvider.GetService<IPackageHandlingContextAccessor<StringPackageInfo>>();
+                if (packageHandlingContextAccessor != null)
+                {
+                    Assert.NotNull(packageHandlingContextAccessor.PackageHandlingContext.AppSession);
+                    Assert.NotNull(packageHandlingContextAccessor.PackageHandlingContext.PackageInfo);
 
-                Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1], package.Parameters[1]);
-                OutputHelper.WriteLine($"Before reassigning Parameters[1]    Parameters[1]: {package.Parameters[1]} || Parameters[1] from packageHandlingContextAccessor: {_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1]}");
-                _packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1] += "%";
-                OutputHelper.WriteLine($"After reassigning Parameters[1]    Parameters[1]: {package.Parameters[1]} || Parameters[1] from packageHandlingContextAccessor: {_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1]}");
-                Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1], package.Parameters[1]);
-                await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"));
+                    Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.AppSession, session);
+                    Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.PackageInfo, package);
+                    await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"));
+                }
             }
         }
     }
