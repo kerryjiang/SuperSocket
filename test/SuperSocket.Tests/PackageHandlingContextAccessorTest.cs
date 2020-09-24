@@ -33,6 +33,8 @@ namespace SuperSocket.Tests
                             .UsePackageHandlingContextAccessor();
             using (var server = superSocketHostBuilder.BuildAsServer())
             {
+                var packageHandlingContextAccessor = server.ServiceProvider.GetService<IPackageHandlingContextAccessor<StringPackageInfo>>();
+                Assert.NotNull(packageHandlingContextAccessor);
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
@@ -69,23 +71,26 @@ namespace SuperSocket.Tests
 
         public class TestCommand : IAsyncCommand<StringPackageInfo>
         {
-            private readonly IPackageHandlingContextAccessor<StringPackageInfo> _packageHandlingContextAccessor;
+            private readonly IServiceProvider serviceProvider;
 
-            public TestCommand(IPackageHandlingContextAccessor<StringPackageInfo> packageHandlingContextAccessor)
+            public TestCommand(IServiceProvider serviceProvider)
             {
-                _packageHandlingContextAccessor = packageHandlingContextAccessor;
+                this.serviceProvider = serviceProvider;
             }
 
 
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
             {
-                Assert.NotNull(_packageHandlingContextAccessor.PackageHandlingContext.AppSession);
-                Assert.NotNull(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo);
-                Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Body, package.Body);
-                Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1], package.Parameters[1]);
-                _packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1] += "%";
-                Assert.Equal(_packageHandlingContextAccessor.PackageHandlingContext.PackageInfo.Parameters[1], package.Parameters[1]);
-                await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"));
+                var packageHandlingContextAccessor = serviceProvider.GetService<IPackageHandlingContextAccessor<StringPackageInfo>>();
+                if (packageHandlingContextAccessor != null)
+                {
+                    Assert.NotNull(packageHandlingContextAccessor.PackageHandlingContext.AppSession);
+                    Assert.NotNull(packageHandlingContextAccessor.PackageHandlingContext.PackageInfo);
+
+                    Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.AppSession, session);
+                    Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.PackageInfo, package);
+                    await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"));
+                }
             }
         }
     }
