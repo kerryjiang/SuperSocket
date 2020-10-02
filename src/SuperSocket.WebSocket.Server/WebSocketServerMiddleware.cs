@@ -115,7 +115,7 @@ namespace SuperSocket.WebSocket.Server
                 session.CloseWithoutHandshake();
             }
 
-            _checkingTimer.Change(_options.CheckingInterval * 1000, _options.CheckingInterval * 1000);
+            _checkingTimer?.Change(_options.CheckingInterval * 1000, _options.CheckingInterval * 1000);
         }
 
         public ValueTask HandleSessionHandshakeCompleted(WebSocketSession session)
