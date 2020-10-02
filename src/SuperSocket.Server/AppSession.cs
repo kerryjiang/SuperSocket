@@ -24,7 +24,11 @@ namespace SuperSocket.Server
 
         void IAppSession.Initialize(IServerInfo server, IChannel channel)
         {
-            SessionID = Guid.NewGuid().ToString();
+            if (channel is IChannelWithSessionIdentifier channelWithSessionIdentifier)
+                SessionID = channelWithSessionIdentifier.SessionIdentifier;
+            else                
+                SessionID = Guid.NewGuid().ToString();
+            
             Server = server;
             StartTime = DateTimeOffset.Now;
             _channel = channel;

@@ -2,51 +2,37 @@
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
 {
-    public abstract class VirtualChannel : IVirtualChannel
+    public abstract class VirtualChannel<TPackageInfo> : PipeChannel<TPackageInfo>, IVirtualChannel
     {
-        public IChannel Channel { get; private set; }
-
-        public bool IsClosed => Channel.IsClosed;
-
-        public virtual EndPoint RemoteEndPoint => Channel.RemoteEndPoint;
-
-        public virtual EndPoint LocalEndPoint => Channel.LocalEndPoint;
-
-        public DateTimeOffset LastActiveTime { get; protected set; }
-
-        public CloseReason? CloseReason { get; protected set; }
-
-        public VirtualChannel(IChannel channel)
+        public VirtualChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
+            : base(pipelineFilter, options)
         {
-            Channel = channel;
+ 
         }
 
-        public event EventHandler<CloseEventArgs> Closed;
-
-        public virtual void Start()
+        protected override Task FillPipeAsync(PipeWriter writer)
         {
-            
+            return Task.CompletedTask;
         }
 
-        public abstract ValueTask SendAsync(ReadOnlyMemory<byte> data);
-
-        public abstract ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
-
-        public abstract ValueTask SendAsync(Action<PipeWriter> write);
-
-        public virtual ValueTask CloseAsync(CloseReason closeReason)
+        public async ValueTask<FlushResult> WritePipeDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            return new ValueTask();
-        }
+            var writer = In.Writer;
 
-        public virtual ValueTask DetachAsync()
-        {
-            return new ValueTask();
+            try
+            {
+                return await In.Writer.WriteAsync(memory, cancellationToken);
+            }
+            finally
+            {
+                writer.Advance(memory.Length);
+            }
         }
     }
 }

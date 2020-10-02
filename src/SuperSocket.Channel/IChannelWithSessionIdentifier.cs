@@ -8,8 +8,8 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
 {
-    public interface IVirtualChannel : IChannel
+    public interface IChannelWithSessionIdentifier
     {
-        ValueTask<FlushResult> WritePipeDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
+        string SessionIdentifier { get; }
     }
 }
