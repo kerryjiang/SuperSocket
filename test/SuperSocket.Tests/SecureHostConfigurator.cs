@@ -23,9 +23,11 @@ namespace SuperSocket.Tests
 
         public ListenOptions Listener { get; private set; }
 
-        public void Configure(HostBuilderContext context, IServiceCollection services)
+        public void Configure(ISuperSocketHostBuilder hostBuilder)
         {
-            services.Configure<ServerOptions>((options) =>
+            hostBuilder.ConfigureServices((ctx, services) =>
+            {
+                services.Configure<ServerOptions>((options) =>
                 {
                     var listener = options.Listeners[0];
 
@@ -39,6 +41,7 @@ namespace SuperSocket.Tests
                     };
                     Listener = listener;
                 });
+            });
         }
 
         public async ValueTask<Stream> GetClientStream(Socket socket)

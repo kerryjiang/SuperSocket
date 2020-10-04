@@ -79,7 +79,7 @@ namespace SuperSocket.Tests
             return socket;
         }
 
-        protected IHostBuilder Configure(IHostBuilder hostBuilder, IHostConfigurator configurator = null)
+        protected ISuperSocketHostBuilder Configure(ISuperSocketHostBuilder hostBuilder, IHostConfigurator configurator = null)
         {
             var builder = hostBuilder.ConfigureAppConfiguration((hostCtx, configApp) =>
                 {
@@ -99,16 +99,10 @@ namespace SuperSocket.Tests
                 .ConfigureServices((hostCtx, services) =>
                 {
                     ConfigureServices(hostCtx, services);
-                });
+                }) as ISuperSocketHostBuilder;
             
-            if (configurator != null)
-            {
-                builder = builder.ConfigureServices((ctx, services) =>
-                {
-                    configurator.Configure(ctx, services);
-                });
-            }
-
+            configurator?.Configure(builder);
+            
             return builder;
         }
     }

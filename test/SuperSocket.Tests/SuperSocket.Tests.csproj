@@ -10,6 +10,7 @@
     <ProjectReference Include="../../src/SuperSocket.SessionContainer/SuperSocket.SessionContainer.csproj" />
     <ProjectReference Include="../../src/SuperSocket.WebSocket.Server/SuperSocket.WebSocket.Server.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Client/SuperSocket.Client.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Udp/SuperSocket.Udp.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Http/SuperSocket.Http.csproj" />
     <ProjectReference Include="../SuperSocket.Tests.Command/SuperSocket.Tests.Command.csproj" />
   </ItemGroup>

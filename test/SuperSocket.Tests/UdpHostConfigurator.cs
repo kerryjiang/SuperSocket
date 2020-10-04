@@ -10,10 +10,11 @@ using Microsoft.Extensions.Logging;
 using SuperSocket;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
+using SuperSocket.Udp;
 
 namespace SuperSocket.Tests
 {
-    public class RegularHostConfigurator : IHostConfigurator
+    public class UdpHostConfigurator : IHostConfigurator
     {
         public string WebSocketSchema => "ws";
 
@@ -23,6 +24,7 @@ namespace SuperSocket.Tests
 
         public void Configure(ISuperSocketHostBuilder hostBuilder)
         {
+            hostBuilder.UseUdp();
             hostBuilder.ConfigureServices((ctx, services) =>
             {
                 services.Configure<ServerOptions>((options) =>
