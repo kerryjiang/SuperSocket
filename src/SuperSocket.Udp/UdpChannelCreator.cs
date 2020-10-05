@@ -89,10 +89,12 @@ namespace SuperSocket.Udp
         {
             while (!_cancellationTokenSource.IsCancellationRequested)
             {
+                var buffer = default(byte[]);
+
                 try
                 {
                     var bufferSize = ChannelOptions.MaxPackageLength;
-                    var buffer = _bufferPool.Rent(bufferSize);
+                    buffer = _bufferPool.Rent(bufferSize);
                     var result = await listenSocket.ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, _acceptRemoteEndPoint);  
                     var packageData = new ArraySegment<byte>(buffer, 0, result.ReceivedBytes);
                     var remoteEndPoint = result.RemoteEndPoint as IPEndPoint;
@@ -136,7 +138,10 @@ namespace SuperSocket.Udp
                     }
                     
                     _logger.LogError(e, $"Listener[{this.ToString()}] failed to receive udp data");
-                    continue;
+                }
+                finally
+                {
+                    _bufferPool.Return(buffer);
                 }
             }
 

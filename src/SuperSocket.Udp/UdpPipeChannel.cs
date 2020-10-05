@@ -9,11 +9,17 @@ using System.Net;
 
 namespace SuperSocket.Udp
 {
-    class UdpPipeChannel<TPackageInfo> : VirtualChannel<TPackageInfo>, IChannelWithSessionIdentifier
+    public class UdpPipeChannel<TPackageInfo> : VirtualChannel<TPackageInfo>, IChannelWithSessionIdentifier
     {
         private Socket _socket;
 
         private IPEndPoint _remoteEndPoint;
+
+        public UdpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, IPEndPoint remoteEndPoint)
+            : this(socket, pipelineFilter, options, remoteEndPoint, $"{remoteEndPoint.Address}:{remoteEndPoint.Port}")
+        {
+
+        }
 
         public UdpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, IPEndPoint remoteEndPoint, string sessionIndentifier)
             : base(pipelineFilter, options)
@@ -27,7 +33,7 @@ namespace SuperSocket.Udp
 
         protected override void Close()
         {
-            
+
         }
 
         protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)

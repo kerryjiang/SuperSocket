@@ -13,32 +13,19 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
 {
-    public class RegularHostConfigurator : IHostConfigurator
+    public class RegularHostConfigurator : TcpHostConfigurator
     {
-        public string WebSocketSchema => "ws";
-
-        public bool IsSecure => false;
-
-        public ListenOptions Listener { get; private set; }
-
-        public void Configure(ISuperSocketHostBuilder hostBuilder)
+        public RegularHostConfigurator()
         {
-            hostBuilder.ConfigureServices((ctx, services) =>
-            {
-                services.Configure<ServerOptions>((options) =>
-                {
-                    var listener = options.Listeners[0];
-                    Listener = listener;
-                });
-            });
+            WebSocketSchema = "ws";
         }
 
-        public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class
+        public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class
         {
             return client;
         }
 
-        public ValueTask<Stream> GetClientStream(Socket socket)
+        public override ValueTask<Stream> GetClientStream(Socket socket)
         {
             return new ValueTask<Stream>(new DerivedNetworkStream(socket, false));
         }

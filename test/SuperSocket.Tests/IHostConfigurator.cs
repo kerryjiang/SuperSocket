@@ -14,7 +14,11 @@ namespace SuperSocket.Tests
     {
         void Configure(ISuperSocketHostBuilder hostBuilder);
 
+        Socket CreateClient();
+
         ValueTask<Stream> GetClientStream(Socket socket);
+
+        TextReader GetStreamReader(Stream stream, Encoding encoding);
 
         string WebSocketSchema { get; }
 
