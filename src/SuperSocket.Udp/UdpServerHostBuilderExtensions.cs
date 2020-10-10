@@ -14,11 +14,16 @@ namespace SuperSocket.Udp
     {
         public static ISuperSocketHostBuilder<TReceivePackage> UseUdp<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
         {
+            return hostBuilder.UseUdp() as ISuperSocketHostBuilder<TReceivePackage>;
+        }
+
+        public static ISuperSocketHostBuilder UseUdp(this ISuperSocketHostBuilder hostBuilder)
+        {
             return hostBuilder.ConfigureServices((context, services) =>
             {
                 services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();
                 services.AddSingleton<IUdpSessionIdentifierProvider, IPAddressUdpSessionIdentifierProvider>();
-            }) as ISuperSocketHostBuilder<TReceivePackage>;
+            }) as ISuperSocketHostBuilder;
         }
     }
 }
