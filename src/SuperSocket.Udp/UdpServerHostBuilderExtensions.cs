@@ -14,10 +14,7 @@ namespace SuperSocket.Udp
     {
         public static ISuperSocketHostBuilder UseUdp(this ISuperSocketHostBuilder hostBuilder)
         {
-            return hostBuilder.ConfigureServices((context, services) => 
-            {
-                services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();
-            }) as ISuperSocketHostBuilder;
+            return hostBuilder.UseUdp<IPAddressUdpSessionIdentifierProvider>();
         }
 
         public static ISuperSocketHostBuilder UseUdp<TUdpSessionIdentifierProvider>(this ISuperSocketHostBuilder hostBuilder)
@@ -25,6 +22,7 @@ namespace SuperSocket.Udp
         {
             return hostBuilder.UseUdp().ConfigureServices((context, services) =>
             {
+                services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();
                 services.AddSingleton<IUdpSessionIdentifierProvider, TUdpSessionIdentifierProvider>();
             }) as ISuperSocketHostBuilder;
         }
