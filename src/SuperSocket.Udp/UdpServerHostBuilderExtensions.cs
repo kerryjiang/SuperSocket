@@ -20,7 +20,7 @@ namespace SuperSocket.Udp
         public static ISuperSocketHostBuilder UseUdp<TUdpSessionIdentifierProvider>(this ISuperSocketHostBuilder hostBuilder)
             where TUdpSessionIdentifierProvider : class, IUdpSessionIdentifierProvider
         {
-            return hostBuilder.UseUdp().ConfigureServices((context, services) =>
+            return hostBuilder.ConfigureServices((context, services) =>
             {
                 services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();
                 services.AddSingleton<IUdpSessionIdentifierProvider, TUdpSessionIdentifierProvider>();
