@@ -29,10 +29,11 @@ namespace SuperSocket.Udp
 
             var channelFactory = new Func<Socket, IPEndPoint, string, ValueTask<IVirtualChannel>>((s, re, id) =>
             {
-                return new ValueTask<IVirtualChannel>(new UdpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions, re, id));
+                var filter = filterFactory.Create(s);
+                return new ValueTask<IVirtualChannel>(new UdpPipeChannel<TPackageInfo>(s, filter, channelOptions, re, id));
             });
 
-            return new UdpChannelCreator(options, channelOptions, null, channelFactoryLogger, _udpSessionIdentifierProvider, _sessionContainer);
+            return new UdpChannelCreator(options, channelOptions, channelFactory, channelFactoryLogger, _udpSessionIdentifierProvider, _sessionContainer);
         }
     }
 }

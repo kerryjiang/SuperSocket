@@ -19,7 +19,7 @@ namespace SuperSocket
 
         protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureServicesActions { get; private set; } = new List<Action<HostBuilderContext, IServiceCollection>>();
 
-        protected Action<HostBuilderContext, IServiceCollection> Validator { get; set; }
+        private List<Action<HostBuilderContext, IServiceCollection>> _configureSupplementServicesActions = new List<Action<HostBuilderContext, IServiceCollection>>();
 
         public SuperSocketHostBuilder(IHostBuilder hostBuilder)
             : base(hostBuilder)
@@ -51,11 +51,25 @@ namespace SuperSocket
                     action(ctx, services);
                 }
 
-                Validator?.Invoke(ctx, services);
+                foreach (var action in _configureSupplementServicesActions)
+                {
+                    action(ctx, services);
+                }
             }).ConfigureServices((ctx, services) =>
             {
                 RegisterDefaultServices(ctx, services, services);
             }).Build();
+        }
+
+        public ISuperSocketHostBuilder<TReceivePackage> ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        {
+            _configureSupplementServicesActions.Add(configureDelegate);
+            return this;
+        }
+
+        ISuperSocketHostBuilder ISuperSocketHostBuilder.ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
+        {
+            return ConfigureSupplementServices(configureDelegate);
         }
 
         protected virtual void RegisterBasicServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)

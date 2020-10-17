@@ -73,10 +73,7 @@ namespace SuperSocket.Tests
 
         protected Socket CreateClient(IHostConfigurator hostConfigurator)
         {
-            var serverAddress = hostConfigurator.GetServerEndPoint();
-            var socket = new Socket(serverAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(serverAddress);
-            return socket;
+            return hostConfigurator.CreateClient();
         }
 
         protected ISuperSocketHostBuilder Configure(ISuperSocketHostBuilder hostBuilder, IHostConfigurator configurator = null)

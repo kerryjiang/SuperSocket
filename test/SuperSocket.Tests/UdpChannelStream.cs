@@ -58,7 +58,7 @@ namespace SuperSocket.Tests
         public override void Write(byte[] buffer, int offset, int count)
         {
             Channel
-                .WritePipeDataAsync((new ArraySegment<byte>(buffer, offset, count)).AsMemory(), CancellationToken.None)
+                .SendAsync((new ArraySegment<byte>(buffer, offset, count)).AsMemory())
                 .GetAwaiter()
                 .GetResult();
         }

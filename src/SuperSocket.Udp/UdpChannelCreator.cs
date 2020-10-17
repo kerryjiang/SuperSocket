@@ -69,7 +69,15 @@ namespace SuperSocket.Udp
 
                 byte[] optionInValue = { Convert.ToByte(false) };
                 byte[] optionOutValue = new byte[4];
-                listenSocket.IOControl((int)SIO_UDP_CONNRESET, optionInValue, optionOutValue);
+
+                try
+                {
+                    listenSocket.IOControl((int)SIO_UDP_CONNRESET, optionInValue, optionOutValue);
+                }
+                catch (PlatformNotSupportedException)
+                {
+                    _logger.LogWarning("Failed to set socket option SIO_UDP_CONNRESET because the platform doesn't support it.");
+                }                
 
                 IsRunning = true;
 
@@ -95,7 +103,11 @@ namespace SuperSocket.Udp
                 {
                     var bufferSize = ChannelOptions.MaxPackageLength;
                     buffer = _bufferPool.Rent(bufferSize);
-                    var result = await listenSocket.ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, _acceptRemoteEndPoint);  
+
+                    var result = await listenSocket
+                        .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, _acceptRemoteEndPoint)
+                        .ConfigureAwait(false);
+
                     var packageData = new ArraySegment<byte>(buffer, 0, result.ReceivedBytes);
                     var remoteEndPoint = result.RemoteEndPoint as IPEndPoint;
                     

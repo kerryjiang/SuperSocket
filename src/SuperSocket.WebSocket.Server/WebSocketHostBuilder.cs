@@ -18,7 +18,7 @@ namespace SuperSocket.WebSocket.Server
             {
                 services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
             });
-            this.Validator = WebSocketHostBuilder.ValidateHostBuilder;
+            this.ConfigureSupplementServices(WebSocketHostBuilder.ValidateHostBuilder);
         }
 
         protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
@@ -44,7 +44,7 @@ namespace SuperSocket.WebSocket.Server
         internal WebSocketHostBuilder(string[] args)
             : base(args)
         {
-            this.Validator = WebSocketHostBuilder.ValidateHostBuilder;
+            this.ConfigureSupplementServices(WebSocketHostBuilder.ValidateHostBuilder);
         }
 
         protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)

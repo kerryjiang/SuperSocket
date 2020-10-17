@@ -26,17 +26,21 @@ namespace SuperSocket.Tests
 
         public ListenOptions Listener { get; private set; }
 
+        private static Random _rd = new Random();
+
         public void Configure(ISuperSocketHostBuilder hostBuilder)
         {
-            hostBuilder.UseUdp();
-            hostBuilder.ConfigureServices((ctx, services) =>
-            {
-                services.Configure<ServerOptions>((options) =>
-                {
-                    var listener = options.Listeners[0];
-                    Listener = listener;
-                });
-            });
+            hostBuilder
+                .UseUdp()
+                .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>((options) =>
+                        {
+                            var listener = options.Listeners[0];
+                            Listener = listener;
+                        });
+                    }
+                );
         }
 
         public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class
@@ -46,12 +50,15 @@ namespace SuperSocket.Tests
 
         public Socket CreateClient()
         {
-            return new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            var port = _rd.Next(4040, 5050);
+            socket.Bind(IPEndPoint.Parse($"0.0.0.0:{port}"));
+            return socket;
         }
 
         private async Task UdpReceive(Socket socket, IVirtualChannel channel)
         {
-            var remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+            var remoteEndPoint = new IPEndPoint(IPAddress.Any, 4040);
 
             while (true)
             {
@@ -63,9 +70,13 @@ namespace SuperSocket.Tests
                         .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, remoteEndPoint)
                         .ConfigureAwait(false);
 
-                    await channel.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, buffer.Length)).AsMemory(), CancellationToken.None).ConfigureAwait(false);
+                    await channel.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
                 }
-                catch (Exception)
+                catch (NullReferenceException)
+                {
+                    break;
+                }
+                catch (ObjectDisposedException)
                 {
                     break;
                 }
@@ -78,7 +89,10 @@ namespace SuperSocket.Tests
 
         public ValueTask<Stream> GetClientStream(Socket socket)
         {
-            var channel = new UdpPipeChannel<TextPackageInfo>(socket, new TerminatorPipelineFilter<TextPackageInfo>(new[] { (byte)'\r', (byte)'\n'}),
+            var channel = new UdpPipeChannel<TextPackageInfo>(socket, new TerminatorPipelineFilter<TextPackageInfo>(new[] { (byte)'\r', (byte)'\n'})
+                {
+                    Decoder = new UdpPackageDecoder()
+                },
                 new ChannelOptions(), Listener.GetListenEndPoint());
 
             UdpReceive(socket, channel).DoNotAwait();
@@ -90,6 +104,14 @@ namespace SuperSocket.Tests
         {
             var channel = (stream as UdpChannelStream).Channel;
             return new UdpTextReader(channel);
+        }
+
+        class UdpPackageDecoder : IPackageDecoder<TextPackageInfo>
+        {
+            public TextPackageInfo Decode(ref ReadOnlySequence<byte> buffer, object context)
+            {
+                return new TextPackageInfo { Text = buffer.GetString(Encoding.UTF8) };
+            }
         }
     }
 }

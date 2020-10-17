@@ -49,7 +49,6 @@ namespace SuperSocket.Tests
                         writer.Flush();
 
                         var receivedLine = reader.ReadLine();
-
                         Assert.Equal(line, receivedLine);
                     }
                 }

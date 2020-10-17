@@ -8,7 +8,7 @@ namespace SuperSocket
 {
     public interface ISuperSocketHostBuilder : IHostBuilder
     {
-        
+        ISuperSocketHostBuilder ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate);
     }
 
     public interface ISuperSocketHostBuilder<TReceivePackage> : ISuperSocketHostBuilder
@@ -16,6 +16,8 @@ namespace SuperSocket
         ISuperSocketHostBuilder<TReceivePackage> ConfigureServerOptions(Func<HostBuilderContext, IConfiguration, IConfiguration> serverOptionsReader);
 
         new ISuperSocketHostBuilder<TReceivePackage> ConfigureServices(Action<HostBuilderContext, IServiceCollection> configureDelegate);
+
+        new ISuperSocketHostBuilder<TReceivePackage> ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate);
 
         ISuperSocketHostBuilder<TReceivePackage> UseMiddleware<TMiddleware>()
             where TMiddleware : class, IMiddleware;
