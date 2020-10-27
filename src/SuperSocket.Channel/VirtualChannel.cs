@@ -23,16 +23,7 @@ namespace SuperSocket.Channel
 
         public async ValueTask<FlushResult> WritePipeDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            var writer = In.Writer;
-
-            try
-            {
-                return await In.Writer.WriteAsync(memory, cancellationToken);
-            }
-            finally
-            {
-                writer.Advance(memory.Length);
-            }
+            return await In.Writer.WriteAsync(memory, cancellationToken);
         }
     }
 }
