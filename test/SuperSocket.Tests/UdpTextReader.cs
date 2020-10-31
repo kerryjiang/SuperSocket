@@ -16,7 +16,6 @@ namespace SuperSocket.Tests
         public UdpTextReader(UdpPipeChannel<TextPackageInfo> channel)
         {
             Channel = channel;
-            channel.Start();
             _packageEnumerator = channel.RunAsync().GetAsyncEnumerator();
         }
 

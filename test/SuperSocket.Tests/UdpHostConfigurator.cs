@@ -95,6 +95,8 @@ namespace SuperSocket.Tests
                 },
                 new ChannelOptions(), Listener.GetListenEndPoint());
 
+            channel.Start();
+
             UdpReceive(socket, channel).DoNotAwait();
 
             return new ValueTask<Stream>(new UdpChannelStream(channel));

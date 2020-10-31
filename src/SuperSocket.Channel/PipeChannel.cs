@@ -113,7 +113,7 @@ namespace SuperSocket.Channel
             }
             finally
             {
-                if (!_isDetaching)
+                if (!_isDetaching && !IsClosed)
                     OnClosed();
             }
         }
@@ -417,7 +417,7 @@ namespace SuperSocket.Channel
             WriteEOFPackage();
         }
 
-        private void WriteEOFPackage()
+        protected void WriteEOFPackage()
         {
             _packagePipe.Write(default);
         }

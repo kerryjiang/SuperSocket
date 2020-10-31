@@ -33,7 +33,7 @@ namespace SuperSocket.Udp
 
         protected override void Close()
         {
-
+            WriteEOFPackage();
         }
 
         protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
