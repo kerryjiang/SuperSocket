@@ -144,8 +144,7 @@ namespace SuperSocket.Tests
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
-                    var socketStream = await hostConfigurator.GetClientStream(socket);
-
+                    using (var socketStream = await hostConfigurator.GetClientStream(socket))
                     using (var reader = hostConfigurator.GetStreamReader(socketStream, Utf8Encoding))
                     {
                         var line = Guid.NewGuid().ToString();
@@ -176,8 +175,7 @@ namespace SuperSocket.Tests
                 {
                     using (var socket = CreateClient(hostConfigurator))
                     {
-                        var socketStream = await hostConfigurator.GetClientStream(socket);
-
+                        using (var socketStream = await hostConfigurator.GetClientStream(socket))
                         using (var reader = hostConfigurator.GetStreamReader(socketStream, Utf8Encoding))
                         {
                             var line = Guid.NewGuid().ToString();
@@ -201,8 +199,7 @@ namespace SuperSocket.Tests
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
-                    var socketStream = await hostConfigurator.GetClientStream(socket);
-
+                    using (var socketStream = await hostConfigurator.GetClientStream(socket))
                     using (var reader = hostConfigurator.GetStreamReader(socketStream, Utf8Encoding))
                     {
                         var line = Guid.NewGuid().ToString();
@@ -228,8 +225,7 @@ namespace SuperSocket.Tests
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
-                    var socketStream = await hostConfigurator.GetClientStream(socket);
-
+                    using (var socketStream = await hostConfigurator.GetClientStream(socket))
                     using (var reader = hostConfigurator.GetStreamReader(socketStream, Utf8Encoding))
                     {
                         int size = 100;
@@ -268,8 +264,7 @@ namespace SuperSocket.Tests
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
-                    var socketStream = await hostConfigurator.GetClientStream(socket);
-
+                    using (var socketStream = await hostConfigurator.GetClientStream(socket))
                     using (var reader = hostConfigurator.GetStreamReader(socketStream, Utf8Encoding))
                     using (var writer = new ConsoleWriter(socketStream, Utf8Encoding, 1024 * 8))
                     {

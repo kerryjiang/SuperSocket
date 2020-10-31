@@ -30,9 +30,12 @@ namespace SuperSocket.Tests
 
         public override long Position { get => throw new System.NotSupportedException(); set => throw new System.NotSupportedException(); }
 
-        public UdpChannelStream(UdpPipeChannel<TextPackageInfo> channel)
+        public Socket Socket { get; }
+
+        public UdpChannelStream(UdpPipeChannel<TextPackageInfo> channel, Socket socket)
         {
             Channel = channel;
+            Socket = socket;
         }
 
         public override void Flush()
@@ -61,6 +64,12 @@ namespace SuperSocket.Tests
                 .SendAsync((new ArraySegment<byte>(buffer, offset, count)).AsMemory())
                 .GetAwaiter()
                 .GetResult();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            Socket?.Close();
+            base.Dispose(disposing);
         }
     }
 }

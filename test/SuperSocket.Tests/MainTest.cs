@@ -205,6 +205,11 @@ namespace SuperSocket.Tests
 
                 await Task.Delay(1000);
 
+                if (outputStream != null)
+                {
+                    client.Close();
+                }
+
                 Assert.False(connected);
 
                 await server.StopAsync();

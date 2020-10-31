@@ -51,7 +51,7 @@ namespace SuperSocket.Tests
         public Socket CreateClient()
         {
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            var port = _rd.Next(4040, 5050);
+            var port = _rd.Next(5000, 8000);
             socket.Bind(IPEndPoint.Parse($"0.0.0.0:{port}"));
             return socket;
         }
@@ -99,7 +99,7 @@ namespace SuperSocket.Tests
 
             UdpReceive(socket, channel).DoNotAwait();
 
-            return new ValueTask<Stream>(new UdpChannelStream(channel));
+            return new ValueTask<Stream>(new UdpChannelStream(channel, socket));
         }
 
         public TextReader GetStreamReader(Stream stream, Encoding encoding)
