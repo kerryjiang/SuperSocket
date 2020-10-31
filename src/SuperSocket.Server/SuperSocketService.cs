@@ -289,7 +289,7 @@ namespace SuperSocket.Server
                     return;
             }
 
-            _logger.LogInformation($"The session disconnected: {session.SessionID}");
+            _logger.LogInformation($"The session disconnected: {session.SessionID} ({reason})");
 
             try
             {
