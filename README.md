@@ -35,14 +35,14 @@
 | **SuperSocket.SerialIO** | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.SerialIO.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.SerialIO/)| [![NuGet Download](https://img.shields.io/nuget/dt/SuperSocket.SerialIO.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.SerialIO/) |
 
 
-Nightly build packages:  https://www.myget.org/feed/Packages/supersocket
+Nightly build packages:  https://www.myget.org/F/supersocket/api/v3/index.json
 
 ---
 
 ## SuperSocket 2.0 Roadmap:
 
 
-- 2020 H1:
+- 2020:
     - Documentation
     - Performance test/tuning
     - SuperSocket.Client
