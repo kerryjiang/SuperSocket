@@ -184,8 +184,13 @@ namespace SuperSocket.Channel
                     {
                         OnError("Exception happened in ReceiveAsync", e);
 
-                        if (!cts.IsCancellationRequested && !CloseReason.HasValue)
-                            CloseReason = Channel.CloseReason.SocketError;
+                        if (!CloseReason.HasValue)
+                            CloseReason = Channel.CloseReason.RemoteClosing;
+                    }
+                    else if (!CloseReason.HasValue)
+                    {
+                        CloseReason = cts.IsCancellationRequested
+                            ? Channel.CloseReason.LocalClosing : Channel.CloseReason.SocketError;
                     }
                     
                     break;
