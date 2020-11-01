@@ -50,7 +50,11 @@ namespace SuperSocket.Tests
 
         public Socket CreateClient()
         {
-            return new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            var localPort = _rd.Next(40000, 50000);
+            var localEndPoint = new IPEndPoint(IPAddress.Loopback, localPort);
+            socket.Bind(localEndPoint);
+            return socket;
         }
 
         private async Task UdpReceive(Socket socket, IVirtualChannel channel)
