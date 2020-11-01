@@ -50,10 +50,7 @@ namespace SuperSocket.Tests
 
         public Socket CreateClient()
         {
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-            var port = _rd.Next(5000, 8000);
-            socket.Bind(IPEndPoint.Parse($"0.0.0.0:{port}"));
-            return socket;
+            return new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
         }
 
         private async Task UdpReceive(Socket socket, IVirtualChannel channel)
@@ -93,7 +90,7 @@ namespace SuperSocket.Tests
                 {
                     Decoder = new UdpPackageDecoder()
                 },
-                new ChannelOptions(), Listener.GetListenEndPoint());
+                new ChannelOptions(), new IPEndPoint(IPAddress.Loopback, Listener.GetListenEndPoint().Port));
 
             channel.Start();
 
