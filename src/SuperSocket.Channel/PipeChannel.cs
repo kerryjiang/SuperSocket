@@ -185,12 +185,14 @@ namespace SuperSocket.Channel
                         OnError("Exception happened in ReceiveAsync", e);
 
                         if (!CloseReason.HasValue)
-                            CloseReason = Channel.CloseReason.RemoteClosing;
+                        {
+                            CloseReason = cts.IsCancellationRequested
+                                ? Channel.CloseReason.LocalClosing : Channel.CloseReason.SocketError; 
+                        }
                     }
                     else if (!CloseReason.HasValue)
                     {
-                        CloseReason = cts.IsCancellationRequested
-                            ? Channel.CloseReason.LocalClosing : Channel.CloseReason.SocketError;
+                        CloseReason = Channel.CloseReason.RemoteClosing;
                     }
                     
                     break;
