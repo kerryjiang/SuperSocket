@@ -7,10 +7,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SuperSocket.Command;
 using SuperSocket.Server;
+using SuperSocket.WebSocket;
+using SuperSocket.WebSocket.Server;
 using SuperSocket.WebSocket.Server.Extensions;
 using SuperSocket.WebSocket.Server.Extensions.Compression;
 
-namespace SuperSocket.WebSocket.Server
+namespace SuperSocket
 {
     public static class WebSocketServerExtensions
     {

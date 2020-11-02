@@ -1,17 +1,12 @@
 using System;
-using System.Buffers;
-using System.Net;
-using System.Net.Sockets;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
-using SuperSocket.Channel;
-using SuperSocket.ProtoBase;
 using System.Linq;
-using SuperSocket.SessionContainer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using SuperSocket.SessionContainer;
+using SuperSocket.Udp;
 
-namespace SuperSocket.Udp
+
+namespace SuperSocket
 {
     public static class UdpServerHostBuilderExtensions
     {
