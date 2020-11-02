@@ -19,17 +19,22 @@ namespace SuperSocket
         {
             return (hostBuilder.ConfigureServices((context, services) =>
             {
-                services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();
-                services.AddSingleton<IUdpSessionIdentifierProvider, IPAddressUdpSessionIdentifierProvider>();
-            }) as ISuperSocketHostBuilder).ConfigureSupplementServices((context, services) =>
+                services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();                
+            }) as ISuperSocketHostBuilder)
+            .ConfigureSupplementServices((context, services) =>
             {
-                if (services.Any(s => s.ServiceType == typeof(IAsyncSessionContainer)))
-                    return;
+                if (!services.Any(s => s.ServiceType == typeof(IUdpSessionIdentifierProvider)))
+                {
+                    services.AddSingleton<IUdpSessionIdentifierProvider, IPAddressUdpSessionIdentifierProvider>();
+                }
 
-                services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, InProcSessionContainerMiddleware>(s => s.GetRequiredService<InProcSessionContainerMiddleware>()));
-                services.AddSingleton<InProcSessionContainerMiddleware>();
-                services.AddSingleton<ISessionContainer>((s) => s.GetRequiredService<InProcSessionContainerMiddleware>());
-                services.AddSingleton<IAsyncSessionContainer>((s) => s.GetRequiredService<ISessionContainer>().ToAsyncSessionContainer());
+                if (!services.Any(s => s.ServiceType == typeof(IAsyncSessionContainer)))
+                {
+                    services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, InProcSessionContainerMiddleware>(s => s.GetRequiredService<InProcSessionContainerMiddleware>()));
+                    services.AddSingleton<InProcSessionContainerMiddleware>();
+                    services.AddSingleton<ISessionContainer>((s) => s.GetRequiredService<InProcSessionContainerMiddleware>());
+                    services.AddSingleton<IAsyncSessionContainer>((s) => s.GetRequiredService<ISessionContainer>().ToAsyncSessionContainer());
+                }
             });
         }
     }
