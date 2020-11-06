@@ -21,12 +21,12 @@ namespace SuperSocket.Udp
 
         }
 
-        public UdpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, IPEndPoint remoteEndPoint, string sessionIndentifier)
+        public UdpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, IPEndPoint remoteEndPoint, string sessionIdentifier)
             : base(pipelineFilter, options)
         {
             _socket = socket;
             _remoteEndPoint = remoteEndPoint;
-            SessionIdentifier = sessionIndentifier;
+            SessionIdentifier = sessionIdentifier;
         }
 
         public string SessionIdentifier { get; }
