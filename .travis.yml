@@ -6,7 +6,7 @@ script:
     - dotnet build
     - cd samples
     - dotnet build
-    - cd ../test/Test
+    - cd ../test/SuperSocket.Tests
     - dotnet test
 global:
     - DOTNET_SKIP_FIRST_TIME_EXPERIENCE=true
