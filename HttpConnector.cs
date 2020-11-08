@@ -1,114 +1,126 @@
 using System;
-using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
-using SuperSocket.Client;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client.Proxy
 {
-    public class HttpConnector : ProxyConnectorBase<ProxyDataPackageInfo>
+    public class HttpConnector : ProxyConnectorBase
     {
-        private string _userNameAuthenRequest;
-
+        private const string _requestTemplate = "CONNECT {0}:{1} HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Connection: Keep-Alive\r\n";
         private const string _responsePrefix = "HTTP/1.";
-
         private const char _space = ' ';
+        private string _username;
+        private string _password;
 
-        private const string _requestTemplate = "CONNECT {0}:{1} HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Connection: Keep-Alive\r\n\r\n";
-
-        private const string _requestAuthenTemplate = "CONNECT {0}:{1} HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Authorization: Basic {2}\r\nProxy-Connection: Keep-Alive\r\n\r\n";
-
-        public HttpConnector(EndPoint proxyEndPoint) : this(proxyEndPoint, null)
+        public HttpConnector(EndPoint proxyEndPoint)
+            : base(proxyEndPoint)
         {
         }
 
-        public HttpConnector(EndPoint proxyEndPoint, string targetHostName) : base(proxyEndPoint, targetHostName)
+        public HttpConnector(EndPoint proxyEndPoint, string username, string password)
+            : this(proxyEndPoint, username, password, null)
         {
         }
 
-        public HttpConnector(EndPoint proxyEndPoint, string userName, string passWord, string targetHostName) : this(proxyEndPoint, targetHostName)
+        public HttpConnector(EndPoint proxyEndPoint, string username, string password, IConnector nextConnector) : base(proxyEndPoint, nextConnector)
         {
-            if (string.IsNullOrEmpty(userName))
-                throw new ArgumentNullException("账号不能为空");
-
-            if (string.IsNullOrEmpty(passWord))
-                throw new ArgumentNullException("密码不能为空");
-
-            _userNameAuthenRequest = Convert.ToBase64String(ASCIIEncoding.GetBytes(string.Join(":", userName, passWord)));
+            _username = username;
+            _password = password;
         }
 
-        protected override IChannel<ProxyDataPackageInfo> GetPipeChannel(ConnectState state)
+        protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
-            return state.CreateChannel(new HttpPipeLineFilter(), new ChannelOptions());
-        }
+            var encoding = Encoding.ASCII;
+            var request = string.Empty;
+            var channel = state.CreateChannel<TextPackageInfo>(new LinePipelineFilter(encoding), new ChannelOptions { ReadAsDemand = true });
 
-        protected async override ValueTask<bool> ProcessConnect(IChannel channel)
-        {
-            var handshakeBuffer = GetEndPointBytes();
+            channel.Start();
 
-            await channel.SendAsync(handshakeBuffer);
-
-            var responsePackageInfo = await base.ReceiveAsync();
-
-            if (responsePackageInfo == null)
-                throw new Exception("protocol error: invalid response");
-
-            var lineReader = new StringReader(ASCIIEncoding.GetString(responsePackageInfo.Data));
-
-            var line = lineReader.ReadLine();
-
-            if (string.IsNullOrEmpty(line))
-                throw new Exception("protocol error: invalid response");
-
-            //HTTP/1.1 2** OK
-            var pos = line.IndexOf(_space);
-
-            if (pos <= 0 || line.Length <= (pos + 2))
-                throw new Exception("protocol error: invalid response");
-
-            var httpProtocol = line.Substring(0, pos);
-
-            if (!httpProtocol.Contains(_responsePrefix))
-                throw new Exception("protocol error: invalid protocol");
-
-            var statusPos = line.IndexOf(_space, pos + 1);
-
-            if (statusPos < 0)
-                throw new Exception("protocol error: invalid response");
-
-            //Status code should be 2**
-            if (!int.TryParse(line.Substring(pos + 1, statusPos - pos - 1), out int statusCode) || (statusCode > 299 || statusCode < 200))
-                throw new Exception("the proxy server refused the connection");
-
-            return true;
-        }
-
-        private byte[] GetEndPointBytes()
-        {
-            string request;
-
-            if (base.TargetEndPoint is DnsEndPoint)
+            if (remoteEndPoint is DnsEndPoint dnsEndPoint)
             {
-                var targetDnsEndPoint = (DnsEndPoint)base.TargetEndPoint;
-
-                if (string.IsNullOrEmpty(_userNameAuthenRequest))
-                    request = string.Format(_requestTemplate, targetDnsEndPoint.Host, targetDnsEndPoint.Port);
-                else
-                    request = string.Format(_requestAuthenTemplate, targetDnsEndPoint.Host, targetDnsEndPoint.Port, _userNameAuthenRequest);
+                request = string.Format(_requestTemplate, dnsEndPoint.Host, dnsEndPoint.Port);
+            }
+            else if (remoteEndPoint is IPEndPoint ipEndPoint)
+            {
+                request = string.Format(_requestTemplate, ipEndPoint.Address, ipEndPoint.Port);
             }
             else
             {
-                var targetIPEndPoint = (IPEndPoint)base.TargetEndPoint;
-
-                if (string.IsNullOrEmpty(_userNameAuthenRequest))
-                    request = string.Format(_requestTemplate, targetIPEndPoint.Address, targetIPEndPoint.Port);
-                else
-                    request = string.Format(_requestAuthenTemplate, targetIPEndPoint.Address, targetIPEndPoint.Port, _userNameAuthenRequest);
+                return new ConnectState
+                {
+                    Result = false,
+                    Exception = new Exception($"The endpint type {remoteEndPoint.GetType().ToString()} is not supported.")
+                };
             }
 
-            return ASCIIEncoding.GetBytes(request);
+            // send request
+            await channel.SendAsync((writer) =>
+            {
+                writer.Write(request, encoding);
+
+                if (!string.IsNullOrEmpty(_username) || !string.IsNullOrEmpty(_password))
+                {
+                    writer.Write("Proxy-Authorization: Basic ", encoding);
+                    writer.Write(Convert.ToBase64String(encoding.GetBytes($"{_username}:{_password}")), encoding);
+                    writer.Write("\r\n\r\n", encoding);
+                }
+                else
+                {
+                    writer.Write("\r\n", encoding);
+                }
+            });
+
+            var packStream = channel.GetPackageStream();
+            var p = await packStream.ReceiveAsync();
+
+            if (!HandleResponse(p, out string errorMessage))
+            {
+                await channel.CloseAsync(CloseReason.ProtocolError);
+
+                return new ConnectState
+                {
+                    Result = false,
+                    Exception = new Exception(errorMessage)
+                };
+            }
+
+            await channel.DetachAsync();
+            return state;
+        }
+
+        private bool HandleResponse(TextPackageInfo p, out string message)
+        {
+            message = string.Empty;
+
+            if (p == null)
+                return false;
+
+            var pos = p.Text.IndexOf(_space);
+
+            // validating response
+            if (!p.Text.StartsWith(_responsePrefix, StringComparison.OrdinalIgnoreCase) || pos <= 0)
+            {
+                message = "Invalid response";
+                return false;
+            }
+
+            if (!int.TryParse(p.Text.AsSpan().Slice(pos + 1, 3), out var statusCode))
+            {
+                message = "Invalid response";
+                return false;
+            }
+
+            if (statusCode < 200 || statusCode > 299)
+            {
+                message = $"Invalid status code {statusCode}";
+                return false;
+            }
+
+            return true;
         }
     }
 }

@@ -1,47 +1,192 @@
 using System;
+using System.Buffers;
+using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
 using SuperSocket.Client;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client.Proxy
 {
-    public class Socks5Connector : ProxyConnectorBase<ProxyDataPackageInfo>
+    /// <summary>
+    /// https://tools.ietf.org/html/rfc1928
+    /// https://en.wikipedia.org/wiki/SOCKS
+    /// </summary>
+    public class Socks5Connector : ProxyConnectorBase
     {
-        private ArraySegment<byte> _userNameAuthenRequest;
+        private string _username;
 
-        readonly static byte[] _authenHandshake = new byte[] { 0x05, 0x02, 0x00, 0x02 };
+        private string _password;
 
-        public Socks5Connector(EndPoint proxyEndPoint) : base(proxyEndPoint)
+        readonly static byte[] _authenHandshakeRequest = new byte[] { 0x05, 0x02, 0x00, 0x02 };
+
+        public Socks5Connector(EndPoint proxyEndPoint)
+            : base(proxyEndPoint)
         {
         }
 
         public Socks5Connector(EndPoint proxyEndPoint, string username, string password)
-         : base(proxyEndPoint)
+            : this(proxyEndPoint, username, password, null)
         {
-            if (string.IsNullOrEmpty(username))
-                throw new ArgumentNullException("账号不能为空");
+        }
 
-            var buffer = new byte[3 + ASCIIEncoding.GetMaxByteCount(username.Length) + (string.IsNullOrEmpty(password) ? 0 : ASCIIEncoding.GetMaxByteCount(password.Length))];
+        public Socks5Connector(EndPoint proxyEndPoint, string username, string password, IConnector nextConnector) : base(proxyEndPoint, nextConnector)
+        {
+            _username = username;
+            _password = password;
+        }
+
+        protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
+        {
+            var channel = state.CreateChannel<Socks5Pack>(new Socks5AuthPipelineFilter(), new ChannelOptions { ReadAsDemand = true });
+
+            channel.Start();
+
+            var packStream = channel.GetPackageStream();
+
+            await channel.SendAsync(_authenHandshakeRequest);
+
+            var response = await packStream.ReceiveAsync();
+
+            if (!HandleResponse(response, Socket5ResponseType.Handshake, out string errorMessage))
+            {
+                await channel.CloseAsync(CloseReason.ProtocolError);
+
+                return new ConnectState
+                {
+                    Result = false,
+                    Exception = new Exception(errorMessage)
+                };
+            }
+
+            if (response.Status == 0x02)// need pass auth
+            {
+                var passAuthenRequest = GetPassAuthenBytes();
+
+                await channel.SendAsync(passAuthenRequest);
+
+                response = await packStream.ReceiveAsync();
+
+                if (!HandleResponse(response, Socket5ResponseType.AuthUserName, out errorMessage))
+                {
+                    await channel.CloseAsync(CloseReason.ProtocolError);
+
+                    return new ConnectState
+                    {
+                        Result = false,
+                        Exception = new Exception(errorMessage)
+                    };
+                }
+            }
+
+            var endPointRequest = GetEndPointBytes(remoteEndPoint);
+
+            await channel.SendAsync(endPointRequest);
+
+            response = await packStream.ReceiveAsync();
+
+            if (!HandleResponse(response, Socket5ResponseType.AuthEndPoint, out errorMessage))
+            {
+                await channel.CloseAsync(CloseReason.ProtocolError);
+
+                return new ConnectState
+                {
+                    Result = false,
+                    Exception = new Exception(errorMessage)
+                };
+            }
+
+            await channel.DetachAsync();
+
+            return state;
+        }
+
+        private bool HandleResponse(Socks5Pack response, Socket5ResponseType responseType, out string errorMessage)
+        {
+            errorMessage = null;
+
+            if (responseType == Socket5ResponseType.Handshake)
+            {
+                if (response.Status != 0x00 && response.Status != 0x02)
+                {
+                    errorMessage = $"failed to connect to proxy , protocol violation";
+                    return false;
+                }
+            }
+            else if (responseType == Socket5ResponseType.AuthUserName)
+            {
+                if (response.Status != 0x00)
+                {
+                    errorMessage = $"failed to connect to proxy ,  username/password combination rejected";
+                    return false;
+                }
+            }
+            else
+            {
+                if (response.Status != 0x00)
+                {
+                    switch (response.Status)
+                    {
+                        case (0x02):
+                            errorMessage = "connection not allowed by ruleset";
+                            break;
+
+                        case (0x03):
+                            errorMessage = "network unreachable";
+                            break;
+
+                        case (0x04):
+                            errorMessage = "host unreachable";
+                            break;
+
+                        case (0x05):
+                            errorMessage = "connection refused by destination host";
+                            break;
+
+                        case (0x06):
+                            errorMessage = "TTL expired";
+                            break;
+
+                        case (0x07):
+                            errorMessage = "command not supported / protocol error";
+                            break;
+
+                        case (0x08):
+                            errorMessage = "address type not supported";
+                            break;
+
+                        default:
+                            errorMessage = "general failure";
+                            break;
+                    }
+
+                    errorMessage = $"failed to connect to proxy ,  { errorMessage }";
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private ArraySegment<byte> GetPassAuthenBytes()
+        {
+            var buffer = new byte[3 + Encoding.ASCII.GetMaxByteCount(_username.Length) + (string.IsNullOrEmpty(_password) ? 0 : Encoding.ASCII.GetMaxByteCount(_password.Length))];
             var actualLength = 0;
 
             buffer[0] = 0x01;
-            var len = ASCIIEncoding.GetBytes(username, 0, username.Length, buffer, 2);
-
-            if (len > 255)
-                throw new ArgumentException("账号长度不能超过255", "username");
+            var len = Encoding.ASCII.GetBytes(_username, 0, _username.Length, buffer, 2);
 
             buffer[1] = (byte)len;
 
             actualLength = len + 2;
 
-            if (!string.IsNullOrEmpty(password))
+            if (!string.IsNullOrEmpty(_password))
             {
-                len = ASCIIEncoding.GetBytes(password, 0, password.Length, buffer, actualLength + 1);
-
-                if (len > 255)
-                    throw new ArgumentException("密码长度不能超过255", "password");
+                len = Encoding.ASCII.GetBytes(_password, 0, _password.Length, buffer, actualLength + 1);
 
                 buffer[actualLength] = (byte)len;
                 actualLength += len + 1;
@@ -52,129 +197,201 @@ namespace SuperSocket.Client.Proxy
                 actualLength++;
             }
 
-            _userNameAuthenRequest = new ArraySegment<byte>(buffer, 0, actualLength);
+            return new ArraySegment<byte>(buffer, 0, actualLength);
         }
 
-        protected override IChannel<ProxyDataPackageInfo> GetPipeChannel(ConnectState state)
+        private byte[] GetEndPointBytes(EndPoint remoteEndPoint)
         {
-            return state.CreateChannel(new Socket5AuthenticateHandshakePipeFilter(), new ChannelOptions());
-        }
+            var targetEndPoint = remoteEndPoint;
 
-        protected async override ValueTask<bool> ProcessConnect(IChannel channel)
-        {
-            if (await AuthenticateHandshake(channel))
+            byte[] buffer;
+            int actualLength;
+            int port = 0;
+
+            if (targetEndPoint is IPEndPoint)
             {
-                if (!await AuthenticateUserName(channel))
-                    return false;
+                var endPoint = targetEndPoint as IPEndPoint;
+                port = endPoint.Port;
+
+                if (endPoint.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    buffer = new byte[10];
+                    buffer[3] = 0x01;
+                    Buffer.BlockCopy(endPoint.Address.GetAddressBytes(), 0, buffer, 4, 4);
+                }
+                else if (endPoint.AddressFamily == AddressFamily.InterNetworkV6)
+                {
+                    buffer = new byte[22];
+                    buffer[3] = 0x04;
+
+                    Buffer.BlockCopy(endPoint.Address.GetAddressBytes(), 0, buffer, 4, 16);
+                }
+                else
+                {
+                    throw new Exception("unknown address family");
+                }
+
+                actualLength = buffer.Length;
+            }
+            else
+            {
+                var endPoint = targetEndPoint as DnsEndPoint;
+
+                port = endPoint.Port;
+
+                var maxLen = 7 + endPoint.Host.Length;
+                buffer = new byte[maxLen];
+
+                buffer[3] = 0x03;
+                buffer[4] = (byte)endPoint.Host.Length;//原锟斤拷为0 锟斤拷锟斤拷为锟剿口的筹拷锟斤拷
+                actualLength = 5;
+                actualLength += Encoding.ASCII.GetBytes(endPoint.Host, 0, endPoint.Host.Length, buffer, actualLength);
+                actualLength += 2;
             }
 
-            return await AuthenticateEndPoint(channel);
+            buffer[0] = 0x05;
+            buffer[1] = 0x01;
+            buffer[2] = 0x00;
+
+            buffer[actualLength - 2] = (byte)(port / 256);
+            buffer[actualLength - 1] = (byte)(port % 256);
+
+            return buffer;
         }
 
-        /// <summary>
-        /// 验证握手
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <returns></returns>
-        private async ValueTask<bool> AuthenticateHandshake(IChannel channel)
+        enum Socket5ResponseType
         {
-            await channel.SendAsync(_authenHandshake);
+            Handshake,
 
-            var packageInfo = await base.ReceiveAsync();
+            AuthUserName,
 
-            if (packageInfo == null || packageInfo.Data[1] == 255)
-                throw new Exception($"连接代理失败,没有找到这个类型  { packageInfo.Data[1]} ");
+            AuthEndPoint,
+        }
 
-            switch (packageInfo.Data[1])
+        public class Socks5Address
+        {
+            public IPAddress IPAddress { get; set; }
+
+            public string DomainName { get; set; }
+        }
+
+        public class Socks5Pack
+        {
+            public byte Version { get; set; }
+
+            public byte Status { get; set; }
+
+            public byte Reserve { get; set; }
+
+            public Socks5Address DestAddr { get; set; }
+
+            public short DestPort { get; set; }
+        }
+
+        public class Socks5AuthPipelineFilter : FixedSizePipelineFilter<Socks5Pack>
+        {
+            public int AuthStep { get; set; }
+
+            public Socks5AuthPipelineFilter()
+                : base(2)
             {
-                case 0:
-                    return false;  //无需密码
-                case 2:
-                    return true; //需要密码
-                default:
-                    throw new Exception($"连接代理失败,验证错误  { packageInfo.Data[1]} ");
+
+            }
+
+            protected override Socks5Pack DecodePackage(ref ReadOnlySequence<byte> buffer)
+            {
+                var reader = new SequenceReader<byte>(buffer);
+                reader.TryRead(out byte version);
+                reader.TryRead(out byte status);
+
+                if (AuthStep == 0)
+                    NextFilter = new Socks5AuthPipelineFilter { AuthStep = 1 };
+                else
+                    NextFilter = new Socks5AddressPipelineFilter();
+
+                return new Socks5Pack
+                {
+                    Version = version,
+                    Status = status
+                };
             }
         }
 
-        /// <summary>
-        /// 验证账号密码
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <returns></returns>
-        private async ValueTask<bool> AuthenticateUserName(IChannel channel)
+        public class Socks5AddressPipelineFilter : FixedHeaderPipelineFilter<Socks5Pack>
         {
-            await channel.SendAsync(_userNameAuthenRequest);
-
-            var packageInfo = await base.ReceiveAsync();
-
-            if (packageInfo == null || packageInfo.Data[1] == 255)
-                throw new Exception($"连接代理失败,没有找到这个类型 { packageInfo.Data[1]} ");
-
-            if (packageInfo.Data[1] != 0x00)
-                throw new Exception($"连接代理失败,账号或密码错误  { packageInfo.Data[1]} ");
-
-            return true;
-        }
-
-        /// <summary>
-        /// 验证ip
-        /// </summary>
-        /// <param name="channel"></param>
-        /// <returns></returns>
-        private async ValueTask<bool> AuthenticateEndPoint(IChannel channel)
-        {
-            var handshakeBuffer = GetEndPointBytes(base.TargetEndPoint);
-
-            await channel.SendAsync(handshakeBuffer);
-
-            var packageInfo = await base.ReceiveAsync();
-
-            if (packageInfo.Data[0] != 0x05)
-                throw new Exception($"连接代理失败,协议版本不正确 { packageInfo.Data[0]} ");
-
-            var status = packageInfo.Data[1];
-
-            if (status == 0x00)
-                return true;
-
-            var errorMessage = string.Empty;
-
-            switch (status)
+            public Socks5AddressPipelineFilter()
+                : base(5)
             {
-                case (0x02):
-                    errorMessage = "connection not allowed by ruleset";
-                    break;
 
-                case (0x03):
-                    errorMessage = "network unreachable";
-                    break;
-
-                case (0x04):
-                    errorMessage = "host unreachable";
-                    break;
-
-                case (0x05):
-                    errorMessage = "connection refused by destination host";
-                    break;
-
-                case (0x06):
-                    errorMessage = "TTL expired";
-                    break;
-
-                case (0x07):
-                    errorMessage = "command not supported / protocol error";
-                    break;
-
-                case (0x08):
-                    errorMessage = "address type not supported";
-                    break;
-
-                default:
-                    errorMessage = "general failure";
-                    break;
             }
 
-            throw new Exception($"连接代理失败,{ errorMessage } , { packageInfo.Data[0]} ");
+            protected override int GetBodyLengthFromHeader(ref ReadOnlySequence<byte> buffer)
+            {
+                var reader = new SequenceReader<byte>(buffer);
+                reader.Advance(3);
+                reader.TryRead(out byte addressType);
+
+                if (addressType == 0x01)
+                    return 6 - 1;
+
+                if (addressType == 0x04)
+                    return 18 - 1;
+
+                if (addressType == 0x03)
+                {
+                    reader.TryRead(out byte domainLen);
+                    return domainLen + 2;
+                }
+
+                throw new Exception($"Unsupported addressType: {addressType}");
+            }
+
+            protected override Socks5Pack DecodePackage(ref ReadOnlySequence<byte> buffer)
+            {
+                var reader = new SequenceReader<byte>(buffer);
+                reader.TryRead(out byte version);
+                reader.TryRead(out byte status);
+                reader.TryRead(out byte reserve);
+
+                reader.TryRead(out byte addressType);
+
+                var address = new Socks5Address();
+
+                if (addressType == 0x01)
+                {
+                    var addrLen = 4;
+                    address.IPAddress = new IPAddress(reader.Sequence.Slice(reader.Consumed, addrLen).ToArray());
+                    reader.Advance(addrLen);
+                }
+                else if (addressType == 0x04)
+                {
+                    var addrLen = 16;
+                    address.IPAddress = new IPAddress(reader.Sequence.Slice(reader.Consumed, addrLen).ToArray());
+                    reader.Advance(addrLen);
+                }
+                else if (addressType == 0x03)
+                {
+                    reader.TryRead(out byte addrLen);
+                    var seq = reader.Sequence.Slice(reader.Consumed, addrLen);
+                    address.DomainName = seq.GetString(Encoding.ASCII);
+                    reader.Advance(addrLen);
+                }
+                else
+                {
+                    throw new Exception($"Unsupported addressType: {addressType}");
+                }
+
+                reader.TryReadBigEndian(out short port);
+
+                return new Socks5Pack
+                {
+                    Version = version,
+                    Status = status,
+                    Reserve = reserve,
+                    DestAddr = address,
+                    DestPort = port
+                };
+            }
         }
     }
 }
