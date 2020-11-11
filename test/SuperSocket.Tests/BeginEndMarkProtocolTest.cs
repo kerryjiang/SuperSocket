@@ -85,7 +85,7 @@ namespace SuperSocket.Tests
             pool.Return(buffer);
         }
 
-        private void WriteMultiplePackages(Stream stream, string[] lines)
+        private void WriteMultiplePackages(IHostConfigurator hostConfigurator, Stream stream, string[] lines)
         {
             var pool = ArrayPool<byte>.Shared;
             var buffer = pool.Rent(lines.Sum(x => 3 + Utf8Encoding.GetMaxByteCount(x.Length)));
@@ -113,6 +113,7 @@ namespace SuperSocket.Tests
 
                 stream.Write(span.Slice(0, size));
                 stream.Flush();
+                hostConfigurator.KeepSequence().GetAwaiter().GetResult();
 
                 span = span.Slice(size);
             }
@@ -238,9 +239,11 @@ namespace SuperSocket.Tests
 
                             lines[i] = line;                            
                             WritePackage(socketStream, line);
+                            await hostConfigurator.KeepSequence();
                         }
 
                         socketStream.Flush();
+                        await hostConfigurator.KeepSequence();
 
                         for (var i = 0; i < size; i++)
                         {
@@ -278,7 +281,7 @@ namespace SuperSocket.Tests
                             lines[i] = line;
                         }
 
-                        WriteMultiplePackages(socketStream, lines);
+                        WriteMultiplePackages(hostConfigurator, socketStream, lines);
 
                         for (var i = 0; i < size; i++)
                         {

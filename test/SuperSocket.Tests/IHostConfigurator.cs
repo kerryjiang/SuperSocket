@@ -14,6 +14,8 @@ namespace SuperSocket.Tests
     {
         void Configure(ISuperSocketHostBuilder hostBuilder);
 
+        ValueTask KeepSequence();
+
         Socket CreateClient();
 
         ValueTask<Stream> GetClientStream(Socket socket);

@@ -116,5 +116,10 @@ namespace SuperSocket.Tests
                 return new TextPackageInfo { Text = buffer.GetString(Encoding.UTF8) };
             }
         }
+
+        public async ValueTask KeepSequence()
+        {
+            await Task.Delay(200);
+        }
     }
 }

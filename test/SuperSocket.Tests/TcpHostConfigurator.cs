@@ -51,5 +51,10 @@ namespace SuperSocket.Tests
             where TPackageInfo : class;
 
         public abstract ValueTask<Stream> GetClientStream(Socket socket);
+
+        public ValueTask KeepSequence()
+        {
+            return new ValueTask();
+        }
     }
 }
