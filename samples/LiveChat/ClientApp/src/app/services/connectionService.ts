@@ -14,11 +14,15 @@ export class ConnectionService {
     chatWebsocket: WebSocketSubject<any>;
 
     async connect(name: string) {        
-        this.chatWebsocket = webSocket('ws://localhost:4040');
+        this.chatWebsocket = webSocket({
+            url: 'ws://localhost:4040',
+            serializer: msg => msg,
+            deserializer: msg => msg
+        });
         this.loginName = name;
         this.isConnected = true;
         this.chatWebsocket.asObservable().subscribe(
-            msg => console.log('message received: ' + msg),
+            msg => console.log('message received: ' + msg.data),
             err => console.log(err), 
             () => console.log('closed')
         );
