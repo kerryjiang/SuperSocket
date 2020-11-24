@@ -27,9 +27,9 @@ import { MatFormFieldModule, MatCardModule, MatButtonModule, MatInputModule } fr
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot([
-      { path: '', component: LoginComponent, pathMatch: 'full' },
-      { path: 'room', component: RoomComponent }
-    ]),
+    { path: '', component: LoginComponent, pathMatch: 'full' },
+    { path: 'room', component: RoomComponent }
+], { relativeLinkResolution: 'legacy' }),
     NoopAnimationsModule,
     MatFormFieldModule,
     MatButtonModule,
