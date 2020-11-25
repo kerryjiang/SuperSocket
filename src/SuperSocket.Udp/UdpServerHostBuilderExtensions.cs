@@ -12,7 +12,7 @@ namespace SuperSocket
     {
         public static ISuperSocketHostBuilder<TReceivePackage> UseUdp<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
         {
-            return hostBuilder.UseUdp() as ISuperSocketHostBuilder<TReceivePackage>;
+            return (hostBuilder as ISuperSocketHostBuilder).UseUdp() as ISuperSocketHostBuilder<TReceivePackage>;
         }
 
         public static ISuperSocketHostBuilder UseUdp(this ISuperSocketHostBuilder hostBuilder)
