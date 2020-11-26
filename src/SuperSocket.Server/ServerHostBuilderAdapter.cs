@@ -53,6 +53,11 @@ namespace SuperSocket.Server
                 configureServicesAction(context, services);
             }
 
+            foreach (var configureServicesAction in ConfigureSupplementServicesActions)
+            {
+                configureServicesAction(context, services);
+            }
+
             RegisterDefaultServices(context, hostServices, services);
 
             if (_serviceProviderBuilder == null)

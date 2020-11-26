@@ -344,6 +344,42 @@ namespace SuperSocket.Tests
             }
         }
 
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(UdpHostConfigurator))]
+        public async Task TestMultipleHostStartup(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.Sources.Clear();
+                    config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
+                })
+                .AddServer<TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    hostConfigurator.Configure(builder);
+
+                    builder
+                        .ConfigureServerOptions((ctx, config) =>
+                        {
+                            return config.GetSection("TestServer1");
+                        })
+                        .UsePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                        {
+                            await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
+                        });
+                });
+
+            using(var host = hostBuilder.Build())
+            {
+                await host.StartAsync();
+                await host.StopAsync();
+            }
+        }
+
         [Fact]
         [Trait("Category", "TestServiceProvider")]
         public async Task TestServiceProvider()

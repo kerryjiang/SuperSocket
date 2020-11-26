@@ -19,7 +19,7 @@ namespace SuperSocket
 
         protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureServicesActions { get; private set; } = new List<Action<HostBuilderContext, IServiceCollection>>();
 
-        private List<Action<HostBuilderContext, IServiceCollection>> _configureSupplementServicesActions = new List<Action<HostBuilderContext, IServiceCollection>>();
+        protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureSupplementServicesActions = new List<Action<HostBuilderContext, IServiceCollection>>();
 
         public SuperSocketHostBuilder(IHostBuilder hostBuilder)
             : base(hostBuilder)
@@ -51,7 +51,7 @@ namespace SuperSocket
                     action(ctx, services);
                 }
 
-                foreach (var action in _configureSupplementServicesActions)
+                foreach (var action in ConfigureSupplementServicesActions)
                 {
                     action(ctx, services);
                 }
@@ -63,7 +63,7 @@ namespace SuperSocket
 
         public ISuperSocketHostBuilder<TReceivePackage> ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
-            _configureSupplementServicesActions.Add(configureDelegate);
+            ConfigureSupplementServicesActions.Add(configureDelegate);
             return this;
         }
 
