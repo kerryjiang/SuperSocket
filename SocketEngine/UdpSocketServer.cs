@@ -94,7 +94,10 @@ namespace SuperSocket.SocketEngine
                 return null;
 
             if (!AppServer.RegisterSession(appSession))
+            {
+                socketSession.Close(CloseReason.InternalError);
                 return null;
+            } 
 
             Interlocked.Increment(ref m_ConnectionCount);
 
