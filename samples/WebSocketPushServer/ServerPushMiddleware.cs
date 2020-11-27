@@ -17,23 +17,20 @@ namespace WebSocketPushServer
     {
         private ISessionContainer _sessionContainer;
 
-        private IServiceProvider _serviceProvider;
-
         private static ILogger _logger;
 
         private Task _sendTask;
 
         private bool _stopped = false;
 
-        public ServerPushMiddleware(IServiceProvider serviceProvider, ILogger<ServerPushMiddleware> logger)
+        public ServerPushMiddleware(ILogger<ServerPushMiddleware> logger)
         {
-            _serviceProvider = serviceProvider;
             _logger = logger;
         }
 
         public override void Start(IServer server)
         {
-            _sessionContainer = _serviceProvider.GetSessionContainer();
+            _sessionContainer = server.GetSessionContainer();
             _sendTask = RunAsync();
         }
 
