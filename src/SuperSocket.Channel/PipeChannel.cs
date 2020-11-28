@@ -445,6 +445,7 @@ namespace SuperSocket.Channel
             while (true)
             {
                 var currentPipelineFilter = _pipelineFilter;
+                var filterSwitched = false;
 
                 var packageInfo = currentPipelineFilter.Filter(ref seqReader);
 
@@ -454,6 +455,7 @@ namespace SuperSocket.Channel
                 {
                     nextFilter.Context = currentPipelineFilter.Context; // pass through the context
                     _pipelineFilter = nextFilter;
+                    filterSwitched = true;
                 }
 
                 var bytesConsumed = seqReader.Consumed;
@@ -471,18 +473,27 @@ namespace SuperSocket.Channel
                     // close the the connection directly
                     Close();
                     return false;
-                }
-            
-                // continue receive...
+                }            
+                
                 if (packageInfo == null)
                 {
-                    consumed = buffer.GetPosition(bytesConsumedTotal);
-                    return true;
+                    // the current pipeline filter needs more data to process
+                    if (!filterSwitched)
+                    {
+                        // set consumed position and then continue to receive...
+                        consumed = buffer.GetPosition(bytesConsumedTotal);
+                        return true;
+                    }
+                    
+                    // we should reset the previous pipeline filter after switch
+                    currentPipelineFilter.Reset();
                 }
-
-                currentPipelineFilter.Reset();
-
-                _packagePipe.Write(packageInfo);
+                else
+                {
+                    // reset the pipeline filter after we parse one full package
+                    currentPipelineFilter.Reset();
+                    _packagePipe.Write(packageInfo);
+                }
 
                 if (seqReader.End) // no more data
                 {
@@ -490,7 +501,8 @@ namespace SuperSocket.Channel
                     return true;
                 }
                 
-                seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
+                if (bytesConsumed > 0)
+                    seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
             }
         }
     
