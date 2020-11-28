@@ -20,7 +20,8 @@ namespace SuperSocket.ProtoBase
 
         public virtual void Reset()
         {
-
+            if (NextFilter != null)
+                NextFilter = null;
         }
     }
 }

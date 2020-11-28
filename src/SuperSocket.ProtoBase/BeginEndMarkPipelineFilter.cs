@@ -45,6 +45,7 @@ namespace SuperSocket.ProtoBase
 
         public override void Reset()
         {
+            base.Reset();            
             _foundBeginMark = false;
         }
     }

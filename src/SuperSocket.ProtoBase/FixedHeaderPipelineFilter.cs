@@ -66,6 +66,8 @@ namespace SuperSocket.ProtoBase
 
         public override void Reset()
         {
+            base.Reset();
+            
             _foundHeader = false;
             _totalSize = 0;
         }
