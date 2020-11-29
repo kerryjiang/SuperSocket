@@ -1,14 +1,16 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Security.Authentication;
-using SuperSocket.Channel;
-using SuperSocket.ProtoBase;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using SuperSocket.Channel;
+using SuperSocket.ProtoBase;
+
 
 namespace SuperSocket.Client
 {
@@ -143,6 +145,63 @@ namespace SuperSocket.Client
             var channelOptions = Options;
             SetupChannel(state.CreateChannel<TReceivePackage>(_pipelineFilter, channelOptions));
             return true;
+        }
+
+        public void AsUdp(IPEndPoint remoteEndPoint, ArrayPool<byte> bufferPool = null, int bufferSize = 4096)
+        { 
+            var localEndPoint = LocalEndPoint;
+
+            if (localEndPoint == null)
+            {
+                localEndPoint = new IPEndPoint(remoteEndPoint.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any, 0);
+            }
+
+            var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            
+            // bind the local endpoint
+            socket.Bind(localEndPoint);
+
+            var channel = new UdpPipeChannel<TReceivePackage>(socket, _pipelineFilter, this.Options, remoteEndPoint);
+
+            SetupChannel(channel);
+
+            UdpReceive(socket, channel, bufferPool, bufferSize);
+        }
+
+        private async void UdpReceive(Socket socket, UdpPipeChannel<TReceivePackage> channel, ArrayPool<byte> bufferPool, int bufferSize)
+        {
+            if (bufferPool == null)
+                bufferPool = ArrayPool<byte>.Shared;
+
+            while (true)
+            {
+                var buffer = bufferPool.Rent(bufferSize);
+
+                try
+                {
+                    var result = await socket
+                        .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, channel.RemoteEndPoint)
+                        .ConfigureAwait(false);
+
+                    await channel.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
+                }
+                catch (NullReferenceException)
+                {
+                    break;
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+                catch (Exception e)
+                {
+                    OnError($"Failed to receive UDP data.", e);
+                }
+                finally
+                {
+                    bufferPool.Return(buffer);
+                }
+            }
         }
 
         protected virtual void SetupChannel(IChannel<TReceivePackage> channel)

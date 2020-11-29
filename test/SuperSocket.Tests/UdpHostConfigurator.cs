@@ -1,6 +1,5 @@
 using System;
 using System.Buffers;
-using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -8,11 +7,9 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using SuperSocket;
 using SuperSocket.Channel;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
-using SuperSocket.Udp;
 
 namespace SuperSocket.Tests
 {

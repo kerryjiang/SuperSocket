@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
-using SuperSocket.Udp;
 
 namespace SuperSocket.Tests
 {
