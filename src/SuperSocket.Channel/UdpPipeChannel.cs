@@ -1,13 +1,12 @@
 using System;
 using System.Buffers;
-using System.Threading.Tasks;
-using System.Net.Sockets;
-using SuperSocket.Channel;
-using SuperSocket.ProtoBase;
-using System.Threading;
 using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using SuperSocket.ProtoBase;
 
-namespace SuperSocket.Udp
+namespace SuperSocket.Channel
 {
     public class UdpPipeChannel<TPackageInfo> : VirtualChannel<TPackageInfo>, IChannelWithSessionIdentifier
     {
