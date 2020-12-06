@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Text.Json;
 using SuperSocket.ProtoBase;
-
 
 namespace SuperSocket.Command
 {
@@ -34,7 +32,7 @@ namespace SuperSocket.Command
 
         protected virtual TJsonObject Deserialize(string content)
         {
-            return JsonSerializer.Deserialize<TJsonObject>(content);
+            return JsonSerializer.Deserialize<TJsonObject>(content, JsonSerializerOptions);
         }
     }
 
