@@ -12,8 +12,6 @@ namespace SuperSocket.Channel
     {
         private Socket _socket;
 
-        private IPEndPoint _remoteEndPoint;
-
         public UdpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, IPEndPoint remoteEndPoint)
             : this(socket, pipelineFilter, options, remoteEndPoint, $"{remoteEndPoint.Address}:{remoteEndPoint.Port}")
         {
@@ -24,7 +22,7 @@ namespace SuperSocket.Channel
             : base(pipelineFilter, options)
         {
             _socket = socket;
-            _remoteEndPoint = remoteEndPoint;
+            RemoteEndPoint = remoteEndPoint;
             SessionIdentifier = sessionIdentifier;
         }
 
@@ -46,7 +44,7 @@ namespace SuperSocket.Channel
 
             foreach (var piece in buffer)
             {
-                total += await _socket.SendToAsync(GetArrayByMemory<byte>(piece), SocketFlags.None, _remoteEndPoint);
+                total += await _socket.SendToAsync(GetArrayByMemory<byte>(piece), SocketFlags.None, RemoteEndPoint);
             }
 
             return total;
