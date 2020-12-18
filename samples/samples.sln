@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwitchPipelineFilter", "Swi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveChat", "LiveChat\LiveChat.csproj", "{369187DE-BDBF-4CFA-A722-70E96CBB64EE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomProtocol", "CustomProtocol\CustomProtocol.csproj", "{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -142,5 +144,17 @@ Global
 		{369187DE-BDBF-4CFA-A722-70E96CBB64EE}.Release|x64.Build.0 = Release|Any CPU
 		{369187DE-BDBF-4CFA-A722-70E96CBB64EE}.Release|x86.ActiveCfg = Release|Any CPU
 		{369187DE-BDBF-4CFA-A722-70E96CBB64EE}.Release|x86.Build.0 = Release|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Debug|x64.Build.0 = Debug|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Debug|x86.Build.0 = Debug|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|x64.ActiveCfg = Release|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|x64.Build.0 = Release|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|x86.ActiveCfg = Release|Any CPU
+		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
