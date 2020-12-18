@@ -5,6 +5,6 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SuperSocket.Server" Version="2.0.0-*" />
+    <ProjectReference Include="..\..\src\SuperSocket.Server\SuperSocket.Server.csproj" />
   </ItemGroup>
 </Project>
