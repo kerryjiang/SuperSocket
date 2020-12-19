@@ -77,14 +77,15 @@ namespace SuperSocket.ProtoBase
                 return false;
             
             var v = 0L;
+            var unit = (long)Math.Pow(256, 7);
 
-            for (var i = 8; i >= 0; i--)
+            for (var i = 0; i < 8; i++)
             {
                 if (!reader.TryRead(out byte b))
                     return false;
                 
-                var unit = 2 ^ i;
                 v += unit * b;
+                unit = unit / 256;
             }
 
             value = (ulong)v;

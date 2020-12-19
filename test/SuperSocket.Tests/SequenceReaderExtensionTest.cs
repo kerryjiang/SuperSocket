@@ -51,5 +51,27 @@ namespace SuperSocket.Tests
             Assert.True(reader.TryReadBigEndian(out uint result2));
             Assert.Equal(value2, result2);
         }
+
+        [Fact]
+        public void TestReadBigEndianULong()
+        {
+            var arr = new byte[16];
+            Span<byte> span = arr;
+
+            ulong value1 = ulong.MaxValue;
+            ulong value2 = ulong.MinValue;
+            
+            BinaryPrimitives.WriteUInt64BigEndian(span, value1);
+            BinaryPrimitives.WriteUInt64BigEndian(span.Slice(8), value2);
+
+            var sequence = new ReadOnlySequence<byte>(arr);            
+            var reader = new SequenceReader<byte>(sequence);
+
+            Assert.True(reader.TryReadBigEndian(out ulong result1));
+            Assert.Equal(value1, result1);
+
+            Assert.True(reader.TryReadBigEndian(out ulong result2));
+            Assert.Equal(value2, result2);
+        }
     }
 }
