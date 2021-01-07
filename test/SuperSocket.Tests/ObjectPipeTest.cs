@@ -24,7 +24,7 @@ namespace SuperSocket.Tests
         }
         
 
-        [Fact] 
+        [Fact]
         public async Task TestOneWriteOneRead()
         {
             var pipe = CreatePipe<int>();

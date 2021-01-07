@@ -256,8 +256,16 @@ namespace SuperSocket.Tests
                 await server.StopAsync();
             }
         }
+
+        public override Task TestBreakRequest(Type hostConfiguratorType)
+        {
+            return Task.CompletedTask;
+        }
         
-        public override async Task TestBreakRequest(Type hostConfiguratorType)
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestBreakRequest2(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 

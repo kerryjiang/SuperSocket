@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SuperSocket.Channel
@@ -19,6 +19,14 @@ namespace SuperSocket.Channel
                 return packageStream.Current;
 
             return default(TPackageInfo);
+        }
+
+        internal static CancellationToken GetToken(this CancellationTokenSource cts)
+        {
+            if (cts == null)
+                return CancellationToken.None;
+
+            return cts.Token;
         }
     }
 }

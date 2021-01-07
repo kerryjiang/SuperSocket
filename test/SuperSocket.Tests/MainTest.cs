@@ -73,6 +73,26 @@ namespace SuperSocket.Tests
             }
         }
 
+        [Fact]
+        public void TestCustomConfigOptions() 
+        {
+            var hostConfigurator = new RegularHostConfigurator();
+            var propName = "testPropName";
+            var propValue = "testPropValue";
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                .ConfigureAppConfiguration((HostBuilder, configBuilder) =>
+                    {
+                        configBuilder.AddInMemoryCollection(new Dictionary<string, string>
+                        {
+                            { $"serverOptions:values:{propName}", propValue }
+                        });
+                    }).BuildAsServer())
+            {
+                Assert.Equal(propValue, server.Options.Values[propName]);
+            }
+        }
+
         [Theory]
         [InlineData("Tls11", SslProtocols.Tls11, false)]
         [InlineData("Tls12", SslProtocols.Tls12, false)]
@@ -213,7 +233,7 @@ namespace SuperSocket.Tests
                 Assert.False(connected);
 
                 await server.StopAsync();
-            }            
+            }
         }
 
         [Fact]

@@ -6,6 +6,8 @@ namespace SuperSocket
     {
         string Name { get; }
 
+        ServerOptions Options { get; }
+
         object DataContext { get; set; }
 
         int SessionCount { get; }

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
+﻿
 using System.IO.Pipelines;
-using SuperSocket.ProtoBase;
+using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
+using System.Collections.Specialized;
 
 namespace SuperSocket.Channel
 {
@@ -37,5 +37,7 @@ namespace SuperSocket.Channel
         public Pipe In { get; set; }
 
         public Pipe Out { get; set; }
+
+        public Dictionary<string, string> Values { get; set; }
     }
 }

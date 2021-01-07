@@ -22,7 +22,7 @@ namespace SuperSocket.Server
             get { return _serviceProvider; }
         }
 
-        private readonly IOptions<ServerOptions> _serverOptions;
+        public ServerOptions Options { get; }
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
 
@@ -77,7 +77,7 @@ namespace SuperSocket.Server
                 throw new ArgumentNullException(nameof(serverOptions));
 
             Name = serverOptions.Value.Name;
-            _serverOptions = serverOptions;
+            Options = serverOptions.Value;
             _serviceProvider = serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
             _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
@@ -159,7 +159,7 @@ namespace SuperSocket.Server
         {
             _channelCreators = new List<IChannelCreator>();
 
-            var serverOptions = _serverOptions.Value;
+            var serverOptions = Options;
 
             if (serverOptions.Listeners != null && serverOptions.Listeners.Any())
             {

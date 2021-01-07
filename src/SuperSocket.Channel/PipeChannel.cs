@@ -19,7 +19,7 @@ namespace SuperSocket.Channel
 
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
-        private SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1);
+        protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
         protected Pipe Out { get; }
 
@@ -235,43 +235,48 @@ namespace SuperSocket.Channel
             await Task.WhenAll(reading, writing);
         }
 
-        protected async Task ProcessSends()
+        protected async ValueTask<bool> ProcessOutputRead(PipeReader reader, CancellationTokenSource cts)
+        {
+            var result = await reader.ReadAsync(cts.GetToken());
+
+            if (result.IsCanceled)
+                return true;
+
+            var completed = result.IsCompleted;
+
+            var buffer = result.Buffer;
+            var end = buffer.End;
+            
+            if (!buffer.IsEmpty)
+            {
+                try
+                {
+                    await SendOverIOAsync(buffer, cts.GetToken());
+                    LastActiveTime = DateTimeOffset.Now;
+                }
+                catch (Exception e)
+                {
+                    cts.Cancel(false);
+                    
+                    if (!IsIgnorableException(e))
+                        OnError("Exception happened in SendAsync", e);
+                    
+                    return true;
+                }
+            }
+
+            reader.AdvanceTo(end);
+            return completed;
+        }
+
+        protected virtual async Task ProcessSends()
         {
             var output = Out.Reader;
             var cts = _cts;
 
             while (!cts.IsCancellationRequested)
             {
-                var result = await output.ReadAsync(cts.Token);
-
-                if (result.IsCanceled)
-                    break;
-
-                var completed = result.IsCompleted;
-
-                var buffer = result.Buffer;
-                var end = buffer.End;
-                
-                if (!buffer.IsEmpty)
-                {
-                    try
-                    {
-                        await SendOverIOAsync(buffer, cts.Token);
-                        LastActiveTime = DateTimeOffset.Now;
-                    }
-                    catch (Exception e)
-                    {
-                        output.Complete(e);
-                        cts.Cancel(false);
-                        
-                        if (!IsIgnorableException(e))
-                            OnError("Exception happened in SendAsync", e);
-                        
-                        return;
-                    }
-                }
-
-                output.AdvanceTo(end);
+                var completed = await ProcessOutputRead(output, cts);
 
                 if (completed)
                 {
@@ -298,14 +303,14 @@ namespace SuperSocket.Channel
         {
             try
             {
-                await _sendLock.WaitAsync();
+                await SendLock.WaitAsync();
                 var writer = Out.Writer;
                 WriteBuffer(writer, buffer);
                 await writer.FlushAsync();
             }
             finally
             {
-                _sendLock.Release();
+                SendLock.Release();
             }            
         }
 
@@ -319,14 +324,14 @@ namespace SuperSocket.Channel
         {
             try
             {
-                await _sendLock.WaitAsync();
+                await SendLock.WaitAsync();
                 var writer = Out.Writer;
                 WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
                 await writer.FlushAsync();
             }
             finally
             {
-                _sendLock.Release();
+                SendLock.Release();
             }
         }
 
@@ -334,18 +339,18 @@ namespace SuperSocket.Channel
         {
             try
             {
-                await _sendLock.WaitAsync();
+                await SendLock.WaitAsync();
                 var writer = Out.Writer;
                 write(writer);
                 await writer.FlushAsync();
             }
             finally
             {
-                _sendLock.Release();
+                SendLock.Release();
             }
         }
 
-        private void WritePackageWithEncoder<TPackage>(PipeWriter writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        protected void WritePackageWithEncoder<TPackage>(IBufferWriter<byte> writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             CheckChannelOpen();
             packageEncoder.Encode(writer, package);
