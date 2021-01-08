@@ -1,6 +1,8 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.ProtoBase;
@@ -45,10 +47,17 @@ namespace SuperSocket.Tests
 
         protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
-            return CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>(hostConfigurator)
+            return CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>(hostConfigurator)                
                 .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
+                })
+                .ConfigureAppConfiguration((HostBuilder, configBuilder) =>
+                {
+                    configBuilder.AddInMemoryCollection(new Dictionary<string, string>
+                    {
+                        { "serverOptions:values:enableSendingPipe", "true" }
+                    });
                 }).BuildAsServer() as IServer;
         }
     }
