@@ -367,6 +367,38 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCloseAfterSend(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                .UsePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                {
+                    await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
+                    await s.CloseAsync(Channel.CloseReason.LocalClosing);
+                }).BuildAsServer() as IServer)
+            {            
+                Assert.True(await server.StartAsync());
+                Assert.Equal(0, server.SessionCount);
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());                
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("Hello World\r\n");
+                    await streamWriter.FlushAsync();
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal("Hello World", line);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
         public async Task TestMultipleHostStartup(Type hostConfiguratorType)
         {

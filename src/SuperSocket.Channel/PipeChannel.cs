@@ -114,7 +114,10 @@ namespace SuperSocket.Channel
             finally
             {
                 if (!_isDetaching && !IsClosed)
+                {
+                    Close();
                     OnClosed();
+                }
             }
         }
 
@@ -122,8 +125,7 @@ namespace SuperSocket.Channel
 
         public override async ValueTask CloseAsync(CloseReason closeReason)
         {
-            CloseReason = closeReason;
-            Close();            
+            CloseReason = closeReason;   
             _cts.Cancel();
             await HandleClosing();
         }
@@ -208,8 +210,9 @@ namespace SuperSocket.Channel
             }
 
             // Signal to the reader that we're done writing
-            writer.Complete();
-            Out.Writer.Complete();// TODO: should complete the output right now?
+            await writer.CompleteAsync().ConfigureAwait(false);
+            // And don't allow writing data to outgoing pipeline
+            await Out.Writer.CompleteAsync().ConfigureAwait(false);
         }
 
         protected virtual bool IsIgnorableException(Exception e)
@@ -237,10 +240,7 @@ namespace SuperSocket.Channel
 
         protected async ValueTask<bool> ProcessOutputRead(PipeReader reader, CancellationTokenSource cts)
         {
-            var result = await reader.ReadAsync(cts.GetToken());
-
-            if (result.IsCanceled)
-                return true;
+            var result = await reader.ReadAsync(CancellationToken.None);
 
             var completed = result.IsCompleted;
 
@@ -251,12 +251,12 @@ namespace SuperSocket.Channel
             {
                 try
                 {
-                    await SendOverIOAsync(buffer, cts.GetToken());
+                    await SendOverIOAsync(buffer, CancellationToken.None);
                     LastActiveTime = DateTimeOffset.Now;
                 }
                 catch (Exception e)
                 {
-                    cts.Cancel(false);
+                    cts?.Cancel(false);
                     
                     if (!IsIgnorableException(e))
                         OnError("Exception happened in SendAsync", e);
@@ -274,7 +274,7 @@ namespace SuperSocket.Channel
             var output = Out.Reader;
             var cts = _cts;
 
-            while (!cts.IsCancellationRequested)
+            while (true)
             {
                 var completed = await ProcessOutputRead(output, cts);
 

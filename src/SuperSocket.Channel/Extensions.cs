@@ -20,13 +20,5 @@ namespace SuperSocket.Channel
 
             return default(TPackageInfo);
         }
-
-        internal static CancellationToken GetToken(this CancellationTokenSource cts)
-        {
-            if (cts == null)
-                return CancellationToken.None;
-
-            return cts.Token;
-        }
     }
 }
