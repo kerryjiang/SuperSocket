@@ -80,6 +80,7 @@ namespace SuperSocket.Tests
                             var sendingLine = CreateRequest(line);
                             writer.Write(sendingLine.Substring(0, sendingLine.Length / 2));
                             writer.Flush();
+                            await hostConfigurator.KeepSequence();
                         }
                     }
                 }
