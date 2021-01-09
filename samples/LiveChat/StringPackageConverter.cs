@@ -11,7 +11,7 @@ namespace LiveChat
         public StringPackageInfo Map(WebSocketPackage package)
         {
             var pack = new StringPackageInfo();
-            var arr = package.Message.Trim('"').Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+            var arr = package.Message.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
             pack.Key = arr[0];
             pack.Body = arr[1];
             return pack;

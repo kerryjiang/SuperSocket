@@ -1,0 +1,15 @@
+<div fxLayout="column" class="layoutGrid">
+    <div fxFlex="calc(100%-50px)" class="messageBoard">
+        <li class="message" *ngFor="let message of messages">
+            {{ message }}
+        </li>
+    </div>
+    <div fxFlex="50px">
+        <div fxFlex="calc(100%-100px)">
+            <textarea fxFlexFill noresize="noresize" [(ngModel)]="messageToSend"></textarea>
+        </div>
+        <div>
+            <button fxFlexFill type="button" (click)="onSubmit()">Enter</button>
+        </div>
+    </div>
+ </div>

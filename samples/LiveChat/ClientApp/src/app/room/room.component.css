@@ -1,0 +1,13 @@
+.layoutGrid {
+    height: calc(100% - 250px);
+    min-height: 600px;
+}
+
+.messageBoard {
+    padding: 2px;
+    background-color: silver;
+}
+
+textarea {
+    resize: none;
+}

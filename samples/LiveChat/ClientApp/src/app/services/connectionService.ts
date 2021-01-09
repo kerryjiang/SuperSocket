@@ -1,5 +1,6 @@
 import { webSocket, WebSocketSubject } from 'rxjs/webSocket';
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -13,16 +14,20 @@ export class ConnectionService {
 
     chatWebsocket: WebSocketSubject<any>;
 
+    msgSubject = new Subject<string>();
+
     async connect(name: string) {        
         this.chatWebsocket = webSocket({
             url: 'ws://localhost:4040',
-            serializer: msg => msg,
-            deserializer: msg => msg
+            deserializer: msg => msg,
+            serializer: msg => msg
         });
         this.loginName = name;
         this.isConnected = true;
         this.chatWebsocket.asObservable().subscribe(
-            msg => console.log('message received: ' + msg.data),
+            msg => {
+                this.msgSubject.next(msg.data);
+            },
             err => console.log(err), 
             () => console.log('closed')
         );
@@ -33,7 +38,7 @@ export class ConnectionService {
         if (!this.isConnected)
             return;
         
-        this.chatWebsocket.next(message);
+        this.chatWebsocket.next("MSG " + message);
     }
 
     disconnect() {
