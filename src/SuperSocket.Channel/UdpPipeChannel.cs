@@ -95,7 +95,10 @@ namespace SuperSocket.Channel
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
         {
             if (_enableSendingPipe)
+            {
                 await base.SendAsync(buffer);
+                return;
+            }
 
             await SendOverIOAsync(new ReadOnlySequence<byte>(buffer), CancellationToken.None);
         }
@@ -103,7 +106,10 @@ namespace SuperSocket.Channel
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             if (_enableSendingPipe)
+            {
                 await base.SendAsync(packageEncoder, package);
+                return;
+            }
 
             try
             {
@@ -122,7 +128,10 @@ namespace SuperSocket.Channel
         public override async ValueTask SendAsync(Action<PipeWriter> write)
         {
             if (_enableSendingPipe)
+            {
                 await base.SendAsync(write);
+                return;
+            }
 
             throw new NotSupportedException($"The method SendAsync(Action<PipeWriter> write) cannot be used when noSendingPipe is true.");
         }
