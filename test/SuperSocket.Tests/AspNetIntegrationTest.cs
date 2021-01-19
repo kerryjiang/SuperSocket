@@ -71,9 +71,12 @@ namespace SuperSocket.Tests
         public async ValueTask TestSingleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
+                
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder
+                        .UseStartup<Startup>()
+                        .UseUrls("http://*:5050");
                 })
                 .AsSuperSocketHostBuilder<TextPackageInfo, LinePipelineFilter>();
 
@@ -95,7 +98,9 @@ namespace SuperSocket.Tests
             var builder = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder
+                        .UseStartup<Startup>()
+                        .UseUrls("http://*:5050");
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
@@ -141,7 +146,9 @@ namespace SuperSocket.Tests
             var builder = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder
+                        .UseStartup<Startup>()
+                        .UseUrls("http://*:5050");
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
