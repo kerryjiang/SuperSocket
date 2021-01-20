@@ -67,16 +67,16 @@ namespace SuperSocket.Tests
             
         }
 
+        private const int _defaultWebPort = 5050;
+
         [Fact]
         public async ValueTask TestSingleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
-                
+                .ConfigureWebHost(webBuilder => webBuilder.UseUrls($"http://*:{_defaultWebPort}"))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder
-                        .UseStartup<Startup>()
-                        .UseUrls("http://*:5050");
+                    webBuilder.UseStartup<Startup>();
                 })
                 .AsSuperSocketHostBuilder<TextPackageInfo, LinePipelineFilter>();
 
@@ -96,11 +96,10 @@ namespace SuperSocket.Tests
         public async ValueTask TestMultipleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
+                .ConfigureWebHost(webBuilder => webBuilder.UseUrls($"http://*:{_defaultWebPort}"))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder
-                        .UseStartup<Startup>()
-                        .UseUrls("http://*:5050");
+                    webBuilder.UseStartup<Startup>();
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
@@ -144,11 +143,10 @@ namespace SuperSocket.Tests
             TestSession session = default;
 
             var builder = Host.CreateDefaultBuilder()
+                .ConfigureWebHost(webBuilder => webBuilder.UseUrls($"http://*:{_defaultWebPort}"))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder
-                        .UseStartup<Startup>()
-                        .UseUrls("http://*:5050");
+                    webBuilder.UseStartup<Startup>();
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
