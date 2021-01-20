@@ -1,21 +1,12 @@
 using System;
-using System.Linq;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Buffers;
 using System.Threading.Tasks;
-using System.Reflection;
-using System.Collections.Generic;
-using SuperSocket;
-using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
-using System.Threading;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -67,7 +58,8 @@ namespace SuperSocket.Tests
             
         }
 
-        private const int _defaultWebPort = 5050;
+        private const int _defaultPort = 5050;
+
 
         [Fact]
         public async ValueTask TestSingleHostServiceAccess()
@@ -76,7 +68,10 @@ namespace SuperSocket.Tests
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls($"http://*:{_defaultWebPort}");
+                    webBuilder.ConfigureKestrel(config =>
+                    {
+                        config.Listen(IPAddress.Any, _defaultPort);
+                    });
                 })
                 .AsSuperSocketHostBuilder<TextPackageInfo, LinePipelineFilter>();
 
@@ -96,10 +91,13 @@ namespace SuperSocket.Tests
         public async ValueTask TestMultipleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
-                .ConfigureWebHostDefaults(webBuilder =>
+                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls($"http://*:{_defaultWebPort}");
+                    webBuilder.ConfigureKestrel(config =>
+                    {
+                        config.Listen(IPAddress.Any, _defaultPort);
+                    });
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
@@ -146,7 +144,10 @@ namespace SuperSocket.Tests
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls($"http://*:{_defaultWebPort}");
+                    webBuilder.ConfigureKestrel(config =>
+                    {
+                        config.Listen(IPAddress.Any, _defaultPort);
+                    });
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
