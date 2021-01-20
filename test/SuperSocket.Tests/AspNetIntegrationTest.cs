@@ -87,7 +87,7 @@ namespace SuperSocket.Tests
 
                 Assert.IsType<TestService>(server.ServiceProvider.GetService<ITestService>());
                 
-                await server.StopAsync();
+                await host.StopAsync();
             }
         }
 
@@ -123,7 +123,7 @@ namespace SuperSocket.Tests
 
                 Assert.IsType<RegularHostConfigurator>(server.ServiceProvider.GetService<IHostConfigurator>());
                 
-                await server.StopAsync();
+                await host.StopAsync();
             }
         }
 
@@ -187,7 +187,7 @@ namespace SuperSocket.Tests
                     client.Close();
                 }                
 
-                await server.StopAsync();
+                await host.StopAsync();
             }
         }
     }
