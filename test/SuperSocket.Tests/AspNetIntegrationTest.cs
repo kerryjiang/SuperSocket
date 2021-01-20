@@ -73,10 +73,10 @@ namespace SuperSocket.Tests
         public async ValueTask TestSingleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
-                .ConfigureWebHost(webBuilder => webBuilder.UseUrls($"http://*:{_defaultWebPort}"))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls($"http://*:{_defaultWebPort}");
                 })
                 .AsSuperSocketHostBuilder<TextPackageInfo, LinePipelineFilter>();
 
@@ -96,10 +96,10 @@ namespace SuperSocket.Tests
         public async ValueTask TestMultipleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
-                .ConfigureWebHost(webBuilder => webBuilder.UseUrls($"http://*:{_defaultWebPort}"))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls($"http://*:{_defaultWebPort}");
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
@@ -143,10 +143,10 @@ namespace SuperSocket.Tests
             TestSession session = default;
 
             var builder = Host.CreateDefaultBuilder()
-                .ConfigureWebHost(webBuilder => webBuilder.UseUrls($"http://*:{_defaultWebPort}"))
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls($"http://*:{_defaultWebPort}");
                 })
                 .AsMultipleServerHostBuilder()
                 .ConfigureAppConfiguration((hostingContext, config) =>
