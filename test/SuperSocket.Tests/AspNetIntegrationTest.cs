@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using Microsoft.Extensions.Hosting;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using SuperSocket.Server;
+using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Tests
 {
@@ -76,7 +78,7 @@ namespace SuperSocket.Tests
 
 
         [Fact]
-        public async ValueTask TestSingleHostServiceAccess()
+        public async Task TestSingleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -107,7 +109,7 @@ namespace SuperSocket.Tests
 
 
         [Fact]
-        public async ValueTask TestMultipleHostServiceAccess()
+        public async Task TestMultipleHostServiceAccess()
         {
             var builder = Host.CreateDefaultBuilder()
                  .ConfigureWebHostDefaults(webBuilder =>
@@ -171,7 +173,7 @@ namespace SuperSocket.Tests
         }
 
         [Fact]
-        public async ValueTask TestMultipleHostServiceAccess2()
+        public async Task TestMultipleHostServiceAccess2()
         {
             TestSession session = default;
 
@@ -208,21 +210,20 @@ namespace SuperSocket.Tests
             using (var host = builder.Build())
             { 
                 await host.StartAsync();
+
                 var server = host.AsServer();
                 
                 using(var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                 {
                     await client.ConnectAsync(GetDefaultServerEndPoint());
-                    OutputHelper.WriteLine("Connected.");
                     await Task.Delay(1000);
 
                     Assert.NotNull(session);
                     Assert.NotNull(session.TestService as TestService);
                     Assert.NotNull(session.ScopedTestService as ScopedTestService);
-
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
-                }                
+                }
 
                 await host.StopAsync();
             }
