@@ -140,7 +140,7 @@ namespace SuperSocket.Tests
                 await host.StartAsync();
                 var server = host.AsServer();
 
-                Assert.IsType<RegularHostConfigurator>(server.ServiceProvider.GetService<IHostConfigurator>());
+                Assert.IsType<TestService>(server.ServiceProvider.GetService<ITestService>());
                 
                 using (var scope = server.ServiceProvider.CreateScope())
                 {
