@@ -72,7 +72,7 @@ namespace SuperSocket.Tests
             
         }
 
-        private const int _defaultPort = 5050;
+        private const int _defaultPort = 0;
 
 
         [Fact]
@@ -102,7 +102,6 @@ namespace SuperSocket.Tests
                 }
                 
                 await host.StopAsync();
-                await Task.Delay(1000);
             }
         }
 
@@ -147,7 +146,6 @@ namespace SuperSocket.Tests
                 }
 
                 await host.StopAsync();
-                await Task.Delay(1000);
             }
         }
 
@@ -227,7 +225,6 @@ namespace SuperSocket.Tests
                 }                
 
                 await host.StopAsync();
-                await Task.Delay(1000);
             }
         }
     }
