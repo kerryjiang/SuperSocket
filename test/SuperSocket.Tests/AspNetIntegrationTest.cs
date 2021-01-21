@@ -22,7 +22,20 @@ namespace SuperSocket.Tests
             void Test();
         }
 
+        public interface IScopedTestService
+        {
+            void Test();
+        }
+
         public class TestService : ITestService
+        {
+            public void Test()
+            {
+
+            }
+        }
+
+        public class ScopedTestService : IScopedTestService
         {
             public void Test()
             {
@@ -43,6 +56,7 @@ namespace SuperSocket.Tests
             public void ConfigureServices(IServiceCollection services)
             {
                 services.AddSingleton<ITestService, TestService>();
+                services.AddScoped<IScopedTestService, ScopedTestService>();
             }
 
             // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -84,7 +98,7 @@ namespace SuperSocket.Tests
 
                 using (var scope = server.ServiceProvider.CreateScope())
                 {
-                    Assert.IsType<TestService>(scope.ServiceProvider.GetService<ITestService>());
+                    Assert.IsType<ScopedTestService>(scope.ServiceProvider.GetService<IScopedTestService>());
                 }
                 
                 await host.StopAsync();
@@ -129,7 +143,7 @@ namespace SuperSocket.Tests
                 
                 using (var scope = server.ServiceProvider.CreateScope())
                 {
-                    Assert.IsType<TestService>(scope.ServiceProvider.GetService<ITestService>());
+                    Assert.IsType<ScopedTestService>(scope.ServiceProvider.GetService<IScopedTestService>());
                 }
 
                 await host.StopAsync();
@@ -141,7 +155,7 @@ namespace SuperSocket.Tests
         {
             public ITestService TestService { get; private set; }
 
-            public ITestService ScopedTestService { get; private set; }
+            public IScopedTestService ScopedTestService { get; private set; }
 
             private IServiceScope _serviceScope;
 
@@ -149,7 +163,7 @@ namespace SuperSocket.Tests
             {
                 _serviceScope = serviceProvider.CreateScope();
                 TestService = serviceProvider.GetRequiredService<ITestService>();
-                ScopedTestService = _serviceScope.ServiceProvider.GetRequiredService<ITestService>();
+                ScopedTestService = _serviceScope.ServiceProvider.GetRequiredService<IScopedTestService>();
             }
 
             public void Dispose()
@@ -206,7 +220,7 @@ namespace SuperSocket.Tests
 
                     Assert.NotNull(session);
                     Assert.NotNull(session.TestService as TestService);
-                    Assert.NotNull(session.ScopedTestService as TestService);
+                    Assert.NotNull(session.ScopedTestService as ScopedTestService);
 
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
