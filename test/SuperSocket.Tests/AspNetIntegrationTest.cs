@@ -81,8 +81,14 @@ namespace SuperSocket.Tests
                 var server = host.AsServer();
 
                 Assert.IsType<TestService>(server.ServiceProvider.GetService<ITestService>());
+
+                using (var scope = server.ServiceProvider.CreateScope())
+                {
+                    Assert.IsType<TestService>(scope.ServiceProvider.GetService<ITestService>());
+                }
                 
                 await host.StopAsync();
+                await Task.Delay(1000);
             }
         }
 
@@ -121,17 +127,34 @@ namespace SuperSocket.Tests
 
                 Assert.IsType<RegularHostConfigurator>(server.ServiceProvider.GetService<IHostConfigurator>());
                 
+                using (var scope = server.ServiceProvider.CreateScope())
+                {
+                    Assert.IsType<TestService>(scope.ServiceProvider.GetService<ITestService>());
+                }
+
                 await host.StopAsync();
+                await Task.Delay(1000);
             }
         }
 
-        public class TestSession : AppSession
+        public class TestSession : AppSession, IDisposable
         {
             public ITestService TestService { get; private set; }
 
+            public ITestService ScopedTestService { get; private set; }
+
+            private IServiceScope _serviceScope;
+
             public TestSession(IServiceProvider serviceProvider)
             {
+                _serviceScope = serviceProvider.CreateScope();
                 TestService = serviceProvider.GetRequiredService<ITestService>();
+                ScopedTestService = _serviceScope.ServiceProvider.GetRequiredService<ITestService>();
+            }
+
+            public void Dispose()
+            {
+                _serviceScope.Dispose();
             }
         }
 
@@ -183,12 +206,14 @@ namespace SuperSocket.Tests
 
                     Assert.NotNull(session);
                     Assert.NotNull(session.TestService as TestService);
+                    Assert.NotNull(session.ScopedTestService as TestService);
 
                     client.Shutdown(SocketShutdown.Both);
                     client.Close();
                 }                
 
                 await host.StopAsync();
+                await Task.Delay(1000);
             }
         }
     }
