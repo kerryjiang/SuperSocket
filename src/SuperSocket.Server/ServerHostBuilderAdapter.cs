@@ -102,11 +102,11 @@ namespace SuperSocket.Server
             }
             else if (sd.ImplementationType != null)
             {
-                if (!sd.ServiceType.IsGenericTypeDefinition)
-                    services.Add(new ServiceDescriptor(sd.ServiceType, (sp) => _hostServiceProvider.GetService(sd.ServiceType), sd.Lifetime));
+                if (!sd.ServiceType.IsGenericTypeDefinition && sd.Lifetime == ServiceLifetime.Singleton)
+                    services.Add(new ServiceDescriptor(sd.ServiceType, (sp) => _hostServiceProvider.GetService(sd.ServiceType), ServiceLifetime.Singleton));
                 else
                     services.Add(sd);
-            }            
+            }
         }
 
         private object GetServiceFromHost(Func<IServiceProvider, object> factory)
