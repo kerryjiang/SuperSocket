@@ -68,7 +68,13 @@ namespace SuperSocket.Tests.WebSocket
                     {
                         session = s as WebSocketSession;
                         await Task.CompletedTask;
-                    });
+                    })
+                    .ConfigureServices(
+                        (hostCtx, services) =>
+                        {
+                            services.AddSingleton<ITestService, TestService>();
+                        }
+                    );
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
@@ -83,7 +89,8 @@ namespace SuperSocket.Tests.WebSocket
 
                 await Task.Delay(1 * 1000);
 
-                Assert.IsType<MyWebSocketSession>(session);                
+                Assert.IsType<MyWebSocketSession>(session);
+                Assert.IsType<TestService>((session as MyWebSocketSession).TestService);
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 await Task.Delay(1 * 1000);
@@ -1012,9 +1019,27 @@ namespace SuperSocket.Tests.WebSocket
             }
         }
 
+        public interface ITestService
+        {
+            void Test();
+        }
+
+        public class TestService : ITestService
+        {
+            public void Test()
+            {
+
+            }
+        }
+
         public class MyWebSocketSession : WebSocketSession
         {
+            public ITestService TestService { get; private set; }
 
+            public MyWebSocketSession(ITestService testService)
+            {
+                TestService = testService;
+            }
         }
     }
 }
