@@ -11,21 +11,21 @@ namespace SuperSocket
 
         int GetSessionCount();
 
-        IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> critera = null);
+        IEnumerable<IAppSession> GetSessions(Predicate<IAppSession> criteria = null);
 
-        IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> critera = null)
+        IEnumerable<TAppSession> GetSessions<TAppSession>(Predicate<TAppSession> criteria = null)
             where TAppSession : IAppSession;
     }
 
     public interface IAsyncSessionContainer
     {
-        Task<IAppSession> GetSessionByIDAsync(string sessionID);
+        ValueTask<IAppSession> GetSessionByIDAsync(string sessionID);
 
-        Task<int> GetSessionCountAsync();
+        ValueTask<int> GetSessionCountAsync();
 
-        Task<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> critera = null);
+        ValueTask<IEnumerable<IAppSession>> GetSessionsAsync(Predicate<IAppSession> criteria = null);
 
-        Task<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> critera = null)
+        ValueTask<IEnumerable<TAppSession>> GetSessionsAsync<TAppSession>(Predicate<TAppSession> criteria = null)
             where TAppSession : IAppSession;
     }
 }

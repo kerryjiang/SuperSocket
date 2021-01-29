@@ -10,12 +10,13 @@ namespace WebSocketServer
     {
         static async Task Main(string[] args)
         {               
-            var host = WebSocketHostBuilder.Create()
-                .ConfigureWebSocketMessageHandler(async (session, message) =>
+            var host = WebSocketHostBuilder.Create(args)
+                .UseWebSocketMessageHandler(async (session, message) =>
                 {
                     // echo message back to the client
                     await session.SendAsync(message.Message);
                 })
+                .UsePerMessageCompression()
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
                     // register your logging library here

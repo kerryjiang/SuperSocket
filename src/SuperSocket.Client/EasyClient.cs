@@ -1,20 +1,38 @@
 ﻿using System;
-using System.Threading.Tasks;
+using System.Buffers;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Security.Authentication;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
-using Microsoft.Extensions.Logging;
+
 
 namespace SuperSocket.Client
 {
-    public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>
+    public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>, IEasyClient<TPackage, TSendPackage>
         where TPackage : class
     {
         private IPackageEncoder<TSendPackage> _packageEncoder;
+
+        protected EasyClient(IPackageEncoder<TSendPackage> packageEncoder)
+            : base()
+        {
+            _packageEncoder = packageEncoder;
+        }
         
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, Func<TPackage, Task> handler, IPackageEncoder<TSendPackage> packageEncoder = null, ILogger logger = null)
-            : base(pipelineFilter, handler, logger)
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ILogger logger = null)
+            : this(pipelineFilter, packageEncoder, new ChannelOptions { Logger = logger })
+        {
+
+        }
+
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ChannelOptions options)
+            : base(pipelineFilter, options)
         {
             _packageEncoder = packageEncoder;
         }
@@ -23,86 +41,289 @@ namespace SuperSocket.Client
         {
             await SendAsync(_packageEncoder, package);
         }
+
+        public new IEasyClient<TPackage, TSendPackage> AsClient()
+        {
+            return this;
+        }
     }
 
-    public class EasyClient<TReceivePackage>
+    public class EasyClient<TReceivePackage> : IEasyClient<TReceivePackage>
         where TReceivePackage : class
     {
         private IPipelineFilter<TReceivePackage> _pipelineFilter;
 
-        private IChannel<TReceivePackage> _channel;
+        protected IChannel<TReceivePackage> Channel { get; private set; }
 
-        private ILogger _logger;
+        protected ILogger Logger { get; set; }
 
-        private Func<TReceivePackage, Task> _handler;
+        protected ChannelOptions Options { get; private set; }
 
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, Func<TReceivePackage, Task> handler, ILogger logger = null)
+        IAsyncEnumerator<TReceivePackage> _packageStream;
+
+        public event PackageHandler<TReceivePackage> PackageHandler;
+
+        public IPEndPoint LocalEndPoint { get; set; }
+
+        public SecurityOptions Security { get; set; }
+
+        protected EasyClient()
         {
-            _pipelineFilter = pipelineFilter;
-            _handler = handler;
-            _logger = logger;
+
         }
 
-        public async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint)
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
+            : this(pipelineFilter, NullLogger.Instance)
         {
-            var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            
+        }
+
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
+            : this(pipelineFilter, new ChannelOptions { Logger = logger })
+        {
+
+        }
+
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ChannelOptions options)
+        {
+            if (pipelineFilter == null)
+                throw new ArgumentNullException(nameof(pipelineFilter));
+
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            _pipelineFilter = pipelineFilter;
+            Options = options;
+            Logger = options.Logger;
+        }
+
+        public virtual IEasyClient<TReceivePackage> AsClient()
+        {
+            return this;
+        }
+
+        protected virtual IConnector GetConnector()
+        {
+            var security = Security;
+
+            if (security != null)
+            {
+                if (security.EnabledSslProtocols != SslProtocols.None)
+                    return new SocketConnector(LocalEndPoint, new SslStreamConnector(security));
+            }
+            
+            return new SocketConnector(LocalEndPoint);
+        }
+
+        ValueTask<bool> IEasyClient<TReceivePackage>.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
+        {
+            return ConnectAsync(remoteEndPoint, cancellationToken);
+        }
+
+        protected virtual async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
+        {
+            var connector = GetConnector();
+            var state = await connector.ConnectAsync(remoteEndPoint, null, cancellationToken);
+
+            if (state.Cancelled || cancellationToken.IsCancellationRequested)
+            {
+                OnError($"The connection to {remoteEndPoint} was cancelled.", state.Exception);
+                return false;
+            }                
+
+            if (!state.Result)
+            {
+                OnError($"Failed to connect to {remoteEndPoint}", state.Exception);
+                return false;
+            }
+
+            var socket = state.Socket;
+
+            if (socket == null)
+                throw new Exception("Socket is null.");
+
+            var channelOptions = Options;
+            SetupChannel(state.CreateChannel<TReceivePackage>(_pipelineFilter, channelOptions));
+            return true;
+        }
+
+        public void AsUdp(IPEndPoint remoteEndPoint, ArrayPool<byte> bufferPool = null, int bufferSize = 4096)
+        { 
+            var localEndPoint = LocalEndPoint;
+
+            if (localEndPoint == null)
+            {
+                localEndPoint = new IPEndPoint(remoteEndPoint.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any, 0);
+            }
+
+            var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
+            
+            // bind the local endpoint
+            socket.Bind(localEndPoint);
+
+            var channel = new UdpPipeChannel<TReceivePackage>(socket, _pipelineFilter, this.Options, remoteEndPoint);
+
+            SetupChannel(channel);
+
+            UdpReceive(socket, channel, bufferPool, bufferSize);
+        }
+
+        private async void UdpReceive(Socket socket, UdpPipeChannel<TReceivePackage> channel, ArrayPool<byte> bufferPool, int bufferSize)
+        {
+            if (bufferPool == null)
+                bufferPool = ArrayPool<byte>.Shared;
+
+            while (true)
+            {
+                var buffer = bufferPool.Rent(bufferSize);
+
+                try
+                {
+                    var result = await socket
+                        .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, channel.RemoteEndPoint)
+                        .ConfigureAwait(false);
+
+                    await channel.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
+                }
+                catch (NullReferenceException)
+                {
+                    break;
+                }
+                catch (ObjectDisposedException)
+                {
+                    break;
+                }
+                catch (Exception e)
+                {
+                    OnError($"Failed to receive UDP data.", e);
+                }
+                finally
+                {
+                    bufferPool.Return(buffer);
+                }
+            }
+        }
+
+        protected virtual void SetupChannel(IChannel<TReceivePackage> channel)
+        {
+            channel.Closed += OnChannelClosed;
+            channel.Start();
+            _packageStream = channel.GetPackageStream();
+            Channel = channel;
+        }
+
+        ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()
+        {
+            return ReceiveAsync();
+        }
+
+        /// <summary>
+        /// Try to receive one package
+        /// </summary>
+        /// <returns></returns>
+        protected virtual async ValueTask<TReceivePackage> ReceiveAsync()
+        {
+            var p = await _packageStream.ReceiveAsync();
+
+            if (p != null)
+                return p;
+
+            OnClosed(Channel, EventArgs.Empty);
+            return null;
+        }
+
+        void IEasyClient<TReceivePackage>.StartReceive()
+        {
+            StartReceive();
+        }
+
+        /// <summary>
+        /// Start receive packages and handle the packages by event handler
+        /// </summary>
+        protected virtual void StartReceive()
+        {
+            StartReceiveAsync();
+        }
+
+        private async void StartReceiveAsync()
+        {
+            var enumerator = _packageStream;
+
+            while (await enumerator.MoveNextAsync())
+            {
+                await OnPackageReceived(enumerator.Current);
+            }
+        }
+
+        protected virtual async ValueTask OnPackageReceived(TReceivePackage package)
+        {
+            var handler = PackageHandler;
 
             try
             {
-                await socket.ConnectAsync(remoteEndPoint);
-                _channel = new TcpPipeChannel<TReceivePackage>(socket, _pipelineFilter, new ChannelOptions
-                {
-                    Logger = _logger
-                });
-                return true;
+                await handler.Invoke(this, package);
             }
             catch (Exception e)
             {
-                OnError($"Failed to connect to {remoteEndPoint}", e);
-                return false;
+                OnError("Unhandled exception happened in PackageHandler.", e);
             }
         }
 
-        private async Task HandleSokcet(IChannel<TReceivePackage> channel)
+        private void OnChannelClosed(object sender, EventArgs e)
         {
-            await foreach (var p in channel.RunAsync())
-            {
-                await OnPackageReceived(channel as IChannel, p);
-            }
-
-            OnClosed(channel, EventArgs.Empty);
+            Channel.Closed -= OnChannelClosed;
+            OnClosed(this, e);
         }
 
         private void OnClosed(object sender, EventArgs e)
         {
-            Closed?.Invoke(sender, e);
+            var handler = Closed;
+
+            if (handler != null)
+            {
+                if (Interlocked.CompareExchange(ref Closed, null, handler) == handler)
+                {
+                    handler.Invoke(sender, e);
+                }
+            }
         }
 
-        protected async Task OnPackageReceived(IChannel channel, TReceivePackage package)
+        protected virtual void OnError(string message, Exception exception)
         {
-            await _handler?.Invoke(package);
+            Logger?.LogError(exception, message);
         }
 
-        protected void OnError(string message, Exception exception)
+        protected virtual void OnError(string message)
         {
-            _logger?.LogError(exception, message);
+            Logger?.LogError(message);
         }
 
-        public virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        ValueTask IEasyClient<TReceivePackage>.SendAsync(ReadOnlyMemory<byte> data)
         {
-            await _channel.SendAsync(data);
+            return SendAsync(data);
         }
 
-        public virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
+        protected virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
-            await _channel.SendAsync(packageEncoder, package);
+            await Channel.SendAsync(data);
+        }
+
+        ValueTask IEasyClient<TReceivePackage>.SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
+        {
+            return SendAsync<TSendPackage>(packageEncoder, package);
+        }
+
+        protected virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
+        {
+            await Channel.SendAsync(packageEncoder, package);
         }
 
         public event EventHandler Closed;
 
-        public void Close()
+        public virtual async ValueTask CloseAsync()
         {
-            _channel?.Close();
+            await Channel.CloseAsync(CloseReason.LocalClosing);
+            OnClosed(this, EventArgs.Empty);
         }
     }
 }

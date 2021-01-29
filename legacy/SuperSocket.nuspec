@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>SuperSocket</id>
+    <title>SuperSocket</title>
+    <version>$version$</version>
+    <authors>Kerry Jiang</authors>
+    <owners>Kerry Jiang</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://www.supersocket.net/</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>SuperSocket is a light weight, cross platform and extensible socket server application framework. You can use it to build a server side socket application (like game server, GPS server, industrial control system, data acquisition server etc) easily without thinking about how to use socket, how to maintain the socket connections and how socket works.</description>
+    <tags>SuperSocket, Socket Server, .Net Socket Server Framework</tags>
+    <dependencies>
+      <dependency id="log4net" version="2.0.3" />
+    </dependencies>
+    <references>      
+      <reference file="SuperSocket.Common.dll" />
+      <reference file="SuperSocket.SocketBase.dll" />
+      <reference file="SuperSocket.Facility.dll" />
+    </references>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Configuration"  />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="bin\net35\$configuration$\SuperSocket.Common.dll" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.Common.XML" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.SocketBase.dll" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.SocketBase.XML" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.Facility.dll" target="lib/net35" />
+	<file src="bin\net35\$configuration$\SuperSocket.Facility.XML" target="lib/net35" />
+	<file src="bin\net40\$configuration$\SuperSocket.Common.dll" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.Common.XML" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.SocketBase.dll" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.SocketBase.XML" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.Facility.dll" target="lib/net40" />
+	<file src="bin\net40\$configuration$\SuperSocket.Facility.XML" target="lib/net40" />
+	<file src="bin\net45\$configuration$\SuperSocket.Common.dll" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.Common.XML" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.SocketBase.dll" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.SocketBase.XML" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.Facility.dll" target="lib/net45" />
+	<file src="bin\net45\$configuration$\SuperSocket.Facility.XML" target="lib/net45" />
+  </files>
+</package>

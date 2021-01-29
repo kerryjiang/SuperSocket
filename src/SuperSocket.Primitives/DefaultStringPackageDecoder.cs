@@ -8,16 +8,39 @@ namespace SuperSocket
 {
     public class DefaultStringPackageDecoder : IPackageDecoder<StringPackageInfo>
     {
-        public StringPackageInfo Decode(ReadOnlySequence<byte> buffer, object context)
+        public Encoding Encoding { get; private set; }
+
+        public DefaultStringPackageDecoder()
+            : this(new UTF8Encoding(false))
         {
-            var text = buffer.GetString(Encoding.UTF8);
-            var parts = text.Split(' ');
+
+        }
+
+        public DefaultStringPackageDecoder(Encoding encoding)
+        {
+            Encoding = encoding;
+        }
+
+        public StringPackageInfo Decode(ref ReadOnlySequence<byte> buffer, object context)
+        {
+            var text = buffer.GetString(Encoding);
+            var parts = text.Split(' ', 2);
+
+            var key = parts[0];
+
+            if (parts.Length <= 1)
+            {
+                return new StringPackageInfo
+                {
+                    Key = key
+                };
+            }
 
             return new StringPackageInfo
             {
-                Key = parts[0],
-                Body = text,
-                Parameters = parts.Skip(1).ToArray()
+                Key = key,
+                Body = parts[1],
+                Parameters = parts[1].Split(' ')
             };
         }
     }

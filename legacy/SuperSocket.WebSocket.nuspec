@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>SuperSocket.WebSocket</id>
+    <title>SuperSocket.WebSocket</title>
+    <version>$version$</version>
+    <authors>Kerry Jiang</authors>
+    <owners>Kerry Jiang</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <projectUrl>http://www.supersocket.net/</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <description>WebSocket server implementation base on SuperSocket. It is just the same codebase with SuperWebSocket but has different assembly name and namespace.</description>
+    <tags>SuperSocket, WebSocket, SuperWebSocket</tags>
+    <dependencies>
+      <dependency id="log4net" version="2.0.3" />
+	  <dependency id="SuperSocket" version="$version$" />
+    </dependencies>
+    <references>      
+      <reference file="SuperSocket.WebSocket.dll" />
+    </references>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.Configuration"  />
+    </frameworkAssemblies>
+  </metadata>
+  <files>
+    <file src="bin\net35\$configuration$\SuperSocket.WebSocket.dll" target="lib/net35" />
+	<file src="bin\net40\$configuration$\SuperSocket.WebSocket.dll" target="lib/net40" />
+	<file src="bin\net45\$configuration$\SuperSocket.WebSocket.dll" target="lib/net45" />
+  </files>
+</package>

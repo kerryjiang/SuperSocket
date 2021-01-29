@@ -1,17 +1,26 @@
 using System;
+using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
 
 namespace SuperSocket.Server
 {
     public class GenericSessionFactory<TSession> : ISessionFactory
-        where TSession : AppSession, new()
+        where TSession : IAppSession
     {
         public Type SessionType => typeof(TSession);
 
+        public IServiceProvider ServiceProvider { get; private set; }
+
+        public GenericSessionFactory(IServiceProvider serviceProvider)
+        {
+            ServiceProvider = serviceProvider;
+        }
+
         public IAppSession Create()
         {
-            return new TSession();
+            return ActivatorUtilities.CreateInstance<TSession>(ServiceProvider);
         }
     }
 }

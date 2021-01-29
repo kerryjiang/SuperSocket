@@ -1,8 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Text.Json;
 using SuperSocket.ProtoBase;
-
 
 namespace SuperSocket.Command
 {
@@ -14,6 +12,16 @@ namespace SuperSocket.Command
     public abstract class JsonCommand<TAppSession, TJsonObject> : ICommand<TAppSession, IStringPackage>
         where TAppSession : IAppSession
     {
+        public JsonSerializerOptions JsonSerializerOptions { get; }
+
+        public JsonCommand()
+        {
+            JsonSerializerOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+        }
+
         public virtual void Execute(TAppSession session, IStringPackage package)
         {
             var content = package.Body;            
@@ -24,7 +32,7 @@ namespace SuperSocket.Command
 
         protected virtual TJsonObject Deserialize(string content)
         {
-            return JsonSerializer.Deserialize<TJsonObject>(content);
+            return JsonSerializer.Deserialize<TJsonObject>(content, JsonSerializerOptions);
         }
     }
 
@@ -36,6 +44,16 @@ namespace SuperSocket.Command
     public abstract class JsonAsyncCommand<TAppSession, TJsonObject> : IAsyncCommand<TAppSession, IStringPackage>
         where TAppSession : IAppSession
     {
+        public JsonSerializerOptions JsonSerializerOptions { get; }
+
+        public JsonAsyncCommand()
+        {
+            JsonSerializerOptions = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+        }
+
         public virtual async ValueTask ExecuteAsync(TAppSession session, IStringPackage package)
         {
             var content = package.Body;
@@ -44,7 +62,7 @@ namespace SuperSocket.Command
 
         protected virtual TJsonObject Deserialize(string content)
         {
-            return JsonSerializer.Deserialize<TJsonObject>(content);
+            return JsonSerializer.Deserialize<TJsonObject>(content, JsonSerializerOptions);
         }
 
         protected abstract ValueTask ExecuteJsonAsync(TAppSession session, TJsonObject jsonObject);

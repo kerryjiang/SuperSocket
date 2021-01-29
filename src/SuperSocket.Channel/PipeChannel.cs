@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers;
+using System.Threading;
 using System.Threading.Tasks;
 using System.IO.Pipelines;
 using System.Collections.Generic;
@@ -13,9 +14,12 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Channel
 {
     public abstract partial class PipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>, IChannel<TPackageInfo>, IChannel, IPipeChannel
-        where TPackageInfo : class
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
+
+        private CancellationTokenSource _cts = new CancellationTokenSource();
+
+        protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
         protected Pipe Out { get; }
 
@@ -42,28 +46,51 @@ namespace SuperSocket.Channel
 
         protected ChannelOptions Options { get; }
 
+        private Task _readsTask;
+
+        private Task _sendsTask;
+
+        private bool _isDetaching = false;
+
         protected PipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
         {
             _pipelineFilter = pipelineFilter;
-            _packagePipe = new DefaultObjectPipe<TPackageInfo>();
+
+            if (!options.ReadAsDemand)
+                _packagePipe = new DefaultObjectPipe<TPackageInfo>();
+            else
+                _packagePipe = new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
+
             Options = options;
             Logger = options.Logger;
             Out = options.Out ?? new Pipe();
             In = options.In ?? new Pipe();
         }
 
-        public async override IAsyncEnumerable<TPackageInfo> RunAsync()
+        public override void Start()
         {
-            var readsTask = ProcessReads();
-            var sendsTask = ProcessSends();
-            
+            _readsTask = ProcessReads();
+            _sendsTask = ProcessSends();
+            WaitHandleClosing();
+        }
+
+        private async void WaitHandleClosing()
+        {
+            await HandleClosing();
+        }
+
+        public async override IAsyncEnumerable<TPackageInfo> RunAsync()
+        { 
+            if (_readsTask == null || _sendsTask == null)
+                throw new Exception("The channel has not been started yet.");
+
             while (true)
             {
-                var package = await _packagePipe.ReadAsync();
+                var package = await _packagePipe.ReadAsync().ConfigureAwait(false);
 
                 if (package == null)
                 {
-                    await HandleClosing(readsTask, sendsTask);
+                    await HandleClosing();
                     yield break;
                 }
 
@@ -71,41 +98,80 @@ namespace SuperSocket.Channel
             }
         }
 
-        private async Task HandleClosing(Task readsTask, Task sendsTask)
+        private async ValueTask HandleClosing()
         {
             try
             {
-                await Task.WhenAll(readsTask, sendsTask);
+                await Task.WhenAll(_readsTask, _sendsTask);
+            }
+            catch (OperationCanceledException)
+            {
             }
             catch (Exception e)
             {
-                Logger.LogError(e, "Unhandled exception in the method PipeChannel.Run.");
+                OnError("Unhandled exception in the method PipeChannel.Run.", e);
             }
             finally
             {
-                OnClosed();
+                if (!_isDetaching && !IsClosed)
+                {
+                    Close();
+                    OnClosed();
+                }
             }
         }
+
+        protected abstract void Close();
+
+        public override async ValueTask CloseAsync(CloseReason closeReason)
+        {
+            CloseReason = closeReason;   
+            _cts.Cancel();
+            await HandleClosing();
+        }
+
         protected virtual async Task FillPipeAsync(PipeWriter writer)
         {
             var options = Options;
+            var cts = _cts;
 
-            while (true)
+            var supplyController = _packagePipe as ISupplyController;
+
+            if (supplyController != null)
+            {
+                cts.Token.Register(() =>
+                {
+                    supplyController.SupplyEnd();
+                });
+            }
+
+            while (!cts.IsCancellationRequested)
             {
                 try
-                {
+                {                    
+                    if (supplyController != null)
+                    {
+                        await supplyController.SupplyRequired();
+
+                        if (cts.IsCancellationRequested)
+                            break;
+                    }                        
+
                     var bufferSize = options.ReceiveBufferSize;
                     var maxPackageLength = options.MaxPackageLength;
 
-                    if (maxPackageLength > 0)
-                        bufferSize = Math.Min(bufferSize, maxPackageLength);
+                    if (bufferSize <= 0)
+                        bufferSize = 1024 * 4; //4k
 
                     var memory = writer.GetMemory(bufferSize);
 
-                    var bytesRead = await FillPipeWithDataAsync(memory);         
+                    var bytesRead = await FillPipeWithDataAsync(memory, cts.Token);         
 
                     if (bytesRead == 0)
                     {
+                        if (!CloseReason.HasValue)
+                            CloseReason = Channel.CloseReason.RemoteClosing;
+                        
                         break;
                     }
 
@@ -117,7 +183,19 @@ namespace SuperSocket.Channel
                 catch (Exception e)
                 {
                     if (!IsIgnorableException(e))
-                        Logger.LogError(e, "Exception happened in ReceiveAsync");
+                    {
+                        OnError("Exception happened in ReceiveAsync", e);
+
+                        if (!CloseReason.HasValue)
+                        {
+                            CloseReason = cts.IsCancellationRequested
+                                ? Channel.CloseReason.LocalClosing : Channel.CloseReason.SocketError; 
+                        }
+                    }
+                    else if (!CloseReason.HasValue)
+                    {
+                        CloseReason = Channel.CloseReason.RemoteClosing;
+                    }
                     
                     break;
                 }
@@ -132,16 +210,23 @@ namespace SuperSocket.Channel
             }
 
             // Signal to the reader that we're done writing
-            writer.Complete();
-            Out.Writer.Complete();// TODO: should complete the output right now?
+            await writer.CompleteAsync().ConfigureAwait(false);
+            // And don't allow writing data to outgoing pipeline
+            await Out.Writer.CompleteAsync().ConfigureAwait(false);
         }
 
         protected virtual bool IsIgnorableException(Exception e)
         {
+            if (e is ObjectDisposedException || e is NullReferenceException || e is OperationCanceledException)
+                return true;
+
+            if (e.InnerException != null)
+                return IsIgnorableException(e.InnerException);
+
             return false;
         }
 
-        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory);
+        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
 
         protected virtual async Task ProcessReads()
         {
@@ -153,38 +238,45 @@ namespace SuperSocket.Channel
             await Task.WhenAll(reading, writing);
         }
 
-        protected async Task ProcessSends()
+        protected async ValueTask<bool> ProcessOutputRead(PipeReader reader, CancellationTokenSource cts)
+        {
+            var result = await reader.ReadAsync(CancellationToken.None);
+
+            var completed = result.IsCompleted;
+
+            var buffer = result.Buffer;
+            var end = buffer.End;
+            
+            if (!buffer.IsEmpty)
+            {
+                try
+                {
+                    await SendOverIOAsync(buffer, CancellationToken.None);
+                    LastActiveTime = DateTimeOffset.Now;
+                }
+                catch (Exception e)
+                {
+                    cts?.Cancel(false);
+                    
+                    if (!IsIgnorableException(e))
+                        OnError("Exception happened in SendAsync", e);
+                    
+                    return true;
+                }
+            }
+
+            reader.AdvanceTo(end);
+            return completed;
+        }
+
+        protected virtual async Task ProcessSends()
         {
             var output = Out.Reader;
+            var cts = _cts;
 
             while (true)
             {
-                var result = await output.ReadAsync();
-
-                if (result.IsCanceled)
-                    break;
-
-                var completed = result.IsCompleted;
-
-                var buffer = result.Buffer;
-                var end = buffer.End;
-                
-                if (!buffer.IsEmpty)
-                {
-                    try
-                    {
-                        await SendOverIOAsync(buffer);
-                        LastActiveTime = DateTimeOffset.Now;
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogError(e, "Exception happened in SendAsync");
-                        output.Complete(e);
-                        return;
-                    }
-                }
-
-                output.AdvanceTo(end);
+                var completed = await ProcessOutputRead(output, cts);
 
                 if (completed)
                 {
@@ -204,46 +296,64 @@ namespace SuperSocket.Channel
             }
         }
 
-        protected abstract ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer);
+        protected abstract ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken);
 
 
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
         {
-            var writer = Out.Writer;
-            WriteBuffer(writer, buffer);
-            await writer.FlushAsync();
+            try
+            {
+                await SendLock.WaitAsync();
+                var writer = Out.Writer;
+                WriteBuffer(writer, buffer);
+                await writer.FlushAsync();
+            }
+            finally
+            {
+                SendLock.Release();
+            }            
         }
 
         private void WriteBuffer(PipeWriter writer, ReadOnlyMemory<byte> buffer)
         {
-            lock (writer)
-            {
-                CheckChannelOpen();
-                writer.Write(buffer.Span);
-            }
+            CheckChannelOpen();
+            writer.Write(buffer.Span);
         }
 
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            var writer = Out.Writer;
-            WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
-            await writer.FlushAsync();
+            try
+            {
+                await SendLock.WaitAsync();
+                var writer = Out.Writer;
+                WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
+                await writer.FlushAsync();
+            }
+            finally
+            {
+                SendLock.Release();
+            }
         }
 
         public override async ValueTask SendAsync(Action<PipeWriter> write)
         {
-            var writer = Out.Writer;
-            write(writer);
-            await writer.FlushAsync();
+            try
+            {
+                await SendLock.WaitAsync();
+                var writer = Out.Writer;
+                write(writer);
+                await writer.FlushAsync();
+            }
+            finally
+            {
+                SendLock.Release();
+            }
         }
 
-        private void WritePackageWithEncoder<TPackage>(PipeWriter writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        protected void WritePackageWithEncoder<TPackage>(IBufferWriter<byte> writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            lock (writer)
-            {
-                CheckChannelOpen();
-                packageEncoder.Encode(writer, package);
-            }
+            CheckChannelOpen();
+            packageEncoder.Encode(writer, package);
         }
 
         protected internal ArraySegment<T> GetArrayByMemory<T>(ReadOnlyMemory<T> memory)
@@ -258,25 +368,38 @@ namespace SuperSocket.Channel
 
         protected async Task ReadPipeAsync(PipeReader reader)
         {
-            while (true)
+            var cts = _cts;
+
+            while (!cts.IsCancellationRequested)
             {
-                var result = await reader.ReadAsync();
+                ReadResult result;
+
+                try
+                {
+                    result = await reader.ReadAsync(cts.Token);
+                }
+                catch (Exception e)
+                {
+                    if (!IsIgnorableException(e))
+                        OnError("Failed to read from the pipe", e);
+                    
+                    break;
+                }
 
                 var buffer = result.Buffer;
 
                 SequencePosition consumed = buffer.Start;
                 SequencePosition examined = buffer.End;
 
+                if (result.IsCanceled)
+                {
+                    break;
+                }
+
+                var completed = result.IsCompleted;
+
                 try
                 {
-                    if (result.IsCanceled)
-                    {
-                        WriteEOFPackage();
-                        break;
-                    }
-
-                    var completed = result.IsCompleted;
-
                     if (buffer.Length > 0)
                     {
                         if (!ReaderBuffer(ref buffer, out consumed, out examined))
@@ -288,16 +411,14 @@ namespace SuperSocket.Channel
 
                     if (completed)
                     {
-                        WriteEOFPackage();
                         break;
                     }
                 }
                 catch (Exception e)
                 {
-                    Logger.LogCritical(e, "Protocol error");
+                    OnError("Protocol error", e);
                     // close the connection if get a protocol error
                     Close();
-                    WriteEOFPackage();
                     break;
                 }
                 finally
@@ -307,11 +428,12 @@ namespace SuperSocket.Channel
             }
 
             reader.Complete();
+            WriteEOFPackage();
         }
 
-        private void WriteEOFPackage()
+        protected void WriteEOFPackage()
         {
-            _packagePipe.Write(null);
+            _packagePipe.Write(default);
         }
 
         private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
@@ -328,6 +450,7 @@ namespace SuperSocket.Channel
             while (true)
             {
                 var currentPipelineFilter = _pipelineFilter;
+                var filterSwitched = false;
 
                 var packageInfo = currentPipelineFilter.Filter(ref seqReader);
 
@@ -337,6 +460,7 @@ namespace SuperSocket.Channel
                 {
                     nextFilter.Context = currentPipelineFilter.Context; // pass through the context
                     _pipelineFilter = nextFilter;
+                    filterSwitched = true;
                 }
 
                 var bytesConsumed = seqReader.Consumed;
@@ -350,22 +474,31 @@ namespace SuperSocket.Channel
 
                 if (maxPackageLength > 0 && len > maxPackageLength)
                 {
-                    Logger.LogError($"Package cannot be larger than {maxPackageLength}.");
+                    OnError($"Package cannot be larger than {maxPackageLength}.");
                     // close the the connection directly
                     Close();
                     return false;
-                }
-            
-                // continue receive...
+                }            
+                
                 if (packageInfo == null)
                 {
-                    consumed = buffer.GetPosition(bytesConsumedTotal);
-                    return true;
+                    // the current pipeline filter needs more data to process
+                    if (!filterSwitched)
+                    {
+                        // set consumed position and then continue to receive...
+                        consumed = buffer.GetPosition(bytesConsumedTotal);
+                        return true;
+                    }
+                    
+                    // we should reset the previous pipeline filter after switch
+                    currentPipelineFilter.Reset();
                 }
-
-                currentPipelineFilter.Reset();
-
-                _packagePipe.Write(packageInfo);
+                else
+                {
+                    // reset the pipeline filter after we parse one full package
+                    currentPipelineFilter.Reset();
+                    _packagePipe.Write(packageInfo);
+                }
 
                 if (seqReader.End) // no more data
                 {
@@ -373,8 +506,25 @@ namespace SuperSocket.Channel
                     return true;
                 }
                 
-                seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
+                if (bytesConsumed > 0)
+                    seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
             }
+        }
+    
+        public override async ValueTask DetachAsync()
+        {
+            _isDetaching = true;
+            _cts.Cancel();
+            await HandleClosing();
+            _isDetaching = false;
+        }
+
+        protected void OnError(string message, Exception e = null)
+        {
+            if (e != null)
+                Logger?.LogError(e, message);
+            else
+                Logger?.LogError(message);
         }
     }
 }

@@ -12,9 +12,9 @@ namespace CommandServer
 {
     class Program
     {
-        static IHostBuilder CreateSocketServerBuilder()
+        static IHostBuilder CreateSocketServerBuilder(string[] args)
         {
-            return SuperSocketHostBuilder.Create<StringPackageInfo, CommandLinePipelineFilter>()
+            return SuperSocketHostBuilder.Create<StringPackageInfo, CommandLinePipelineFilter>(args)
                 .UseCommand((commandOptions) =>
                 {
                     // register commands one by one
@@ -42,7 +42,7 @@ namespace CommandServer
 
         static async Task Main(string[] args)
         {
-            var host = CreateSocketServerBuilder().Build();        
+            var host = CreateSocketServerBuilder(args).Build();        
             await host.RunAsync();
         }
     }

@@ -25,11 +25,13 @@ namespace SuperSocket
 
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
+        ValueTask CloseAsync(CloseReason reason);
+
         IServerInfo Server { get; }
 
-        event EventHandler Connected;
+        event AsyncEventHandler Connected;
 
-        event EventHandler Closed;
+        event AsyncEventHandler<CloseEventArgs> Closed;
 
         object DataContext { get; set; }
 
@@ -38,5 +40,7 @@ namespace SuperSocket
         object this[object name] { get; set; }
 
         SessionState State { get; }
+
+        void Reset();
     }
 }

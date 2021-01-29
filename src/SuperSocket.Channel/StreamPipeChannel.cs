@@ -2,15 +2,14 @@ using System;
 using System.Buffers;
 using System.Threading.Tasks;
 using System.IO;
-using System.IO.Pipelines;
-using SuperSocket.ProtoBase;
 using System.Net.Sockets;
 using System.Net;
+using System.Threading;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Channel
 {
     public class StreamPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
-        where TPackageInfo : class
     {
         private Stream _stream;
 
@@ -28,7 +27,7 @@ namespace SuperSocket.Channel
             LocalEndPoint = localEndPoint;
         }
 
-        public override void Close()
+        protected override void Close()
         {
             _stream.Close();
         }
@@ -40,29 +39,29 @@ namespace SuperSocket.Channel
             base.OnClosed();
         }
 
-        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory)
+        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            return await _stream.ReadAsync(memory);
+            return await _stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
         }
 
-        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer)
+        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
         {
             var total = 0;
 
             foreach (var data in buffer)
             {
-                await _stream.WriteAsync(data);
+                await _stream.WriteAsync(data, cancellationToken).ConfigureAwait(false);
                 total += data.Length;
             }
 
-            await _stream.FlushAsync();
+            await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
             return total;
         }
 
         protected override bool IsIgnorableException(Exception e)
         {
-            if (e.InnerException != null)
-                return IsIgnorableException(e.InnerException);
+            if (base.IsIgnorableException(e))
+                return true;
 
             if (e is SocketException se)
             {

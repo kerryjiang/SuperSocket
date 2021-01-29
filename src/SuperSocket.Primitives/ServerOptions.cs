@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Text;
 using SuperSocket.Channel;
 
@@ -7,7 +8,7 @@ namespace SuperSocket
     {
         public string Name { get; set; }
 
-        public ListenOptions[] Listeners { get; set; }
+        public List<ListenOptions> Listeners { get; set; }
 
         public Encoding DefaultTextEncoding { get; set; }
 

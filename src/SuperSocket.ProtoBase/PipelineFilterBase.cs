@@ -13,14 +13,15 @@ namespace SuperSocket.ProtoBase
 
         public abstract TPackageInfo Filter(ref SequenceReader<byte>  reader);
 
-        protected virtual TPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
+        protected virtual TPackageInfo DecodePackage(ref ReadOnlySequence<byte> buffer)
         {
-            return Decoder.Decode(buffer, Context);
+            return Decoder.Decode(ref buffer, Context);
         }
 
         public virtual void Reset()
         {
-
+            if (NextFilter != null)
+                NextFilter = null;
         }
     }
 }

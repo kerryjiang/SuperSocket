@@ -6,7 +6,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class ExtendedLengthReader : PackagePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
+        public override bool Process(WebSocketPackage package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
         {
             int required;
 
@@ -26,7 +26,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             if (required == 2)
             {
-                reader.TryReadBigEndian(out short len);
+                reader.TryReadBigEndian(out ushort len);
                 package.PayloadLength = len;
             }
             else // required == 8 (long)

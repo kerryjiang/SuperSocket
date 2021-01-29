@@ -12,14 +12,37 @@ namespace SuperSocket.WebSocket
 
         public string HttpVersion { get; private set; }
 
+        public string StatusCode { get; private set; }
+
+        public string StatusDescription { get; private set; }
+
         public NameValueCollection Items { get; private set; }
 
-        public HttpHeader(string method, string path, string httpVersion, NameValueCollection items)
+        private HttpHeader()
         {
-            Method = method;
-            Path = path;
-            HttpVersion = httpVersion;
-            Items = items;
+            
+        }
+
+        public static HttpHeader CreateForRequest(string method, string path, string httpVersion, NameValueCollection items)
+        {
+            return new HttpHeader
+            {
+                Method = method,
+                Path = path,
+                HttpVersion = httpVersion,
+                Items = items
+            };
+        }
+
+        public static HttpHeader CreateForResponse(string httpVersion, string statusCode, string statusDescription, NameValueCollection items)
+        {
+            return new HttpHeader
+            {
+                HttpVersion = httpVersion,
+                StatusCode = statusCode,
+                StatusDescription = statusDescription,
+                Items = items
+            };
         }
     }
 }

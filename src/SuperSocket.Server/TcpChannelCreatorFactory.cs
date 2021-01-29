@@ -17,7 +17,7 @@ namespace SuperSocket.Server
 
         public TcpChannelCreatorFactory(IServiceProvider serviceProvider)
         {
-            _socketOptionsSetter = serviceProvider.GetService<Action<Socket>>();
+            _socketOptionsSetter = serviceProvider.GetService<SocketOptionsSetter>()?.Setter;
         }
 
         protected virtual void ApplySocketOptions(Socket socket, ListenOptions listenOptions, ChannelOptions channelOptions, ILogger logger)
@@ -83,7 +83,6 @@ namespace SuperSocket.Server
         }
 
         public IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
-            where TPackageInfo : class
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
             channelOptions.Logger = loggerFactory.CreateLogger(nameof(IChannel));
@@ -95,19 +94,26 @@ namespace SuperSocket.Server
                 return new TcpChannelCreator(options, (s) => 
                 {                    
                     ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);          
-                    return Task.FromResult((new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions)) as IChannel);
+                    return new ValueTask<IChannel>((new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions)) as IChannel);
                 }, channelFactoryLogger);
             }
             else
             {
-                var channelFactory = new Func<Socket, Task<IChannel>>(async (s) =>
+                var channelFactory = new Func<Socket, ValueTask<IChannel>>(async (s) =>
                 {
                     ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);
+
                     var authOptions = new SslServerAuthenticationOptions();
+                    
                     authOptions.EnabledSslProtocols = options.Security;
                     authOptions.ServerCertificate = options.CertificateOptions.Certificate;
+                    authOptions.ClientCertificateRequired = options.CertificateOptions.ClientCertificateRequired;
+
+                    if (options.CertificateOptions.RemoteCertificateValidationCallback != null)
+                        authOptions.RemoteCertificateValidationCallback = options.CertificateOptions.RemoteCertificateValidationCallback;
+
                     var stream = new SslStream(new NetworkStream(s, true), false);
-                    await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None);
+                    await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None).ConfigureAwait(false);
                     return new StreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, s.LocalEndPoint, filterFactory.Create(s), channelOptions);
                 });
 

@@ -2,67 +2,85 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SuperSocket.WebSocket;
-using SuperSocket.Command;
+using SuperSocket.Server;
 using SuperSocket.ProtoBase;
-using System.Threading.Tasks;
 
 namespace SuperSocket.WebSocket.Server
 {
-    public interface IWebSocketHostBuilder : IHostBuilder<WebSocketPackage>
+    class WebSocketHostBuilderAdapter : ServerHostBuilderAdapter<WebSocketPackage>
     {
-        
-    }
-
-    class InternalWebSocketHostBuilder : SuperSocketHostBuilder<WebSocketPackage>, IWebSocketHostBuilder
-    {
-
-    }
-
-    public static class WebSocketHostBuilder
-    {
-        public static IWebSocketHostBuilder Create()
+        public WebSocketHostBuilderAdapter(IHostBuilder hostBuilder)
+            : base(hostBuilder)
         {
-            return new InternalWebSocketHostBuilder()
-                .ConfigureDefaults()
-                .UseSuperSocketWebSocket()
-                .UseMiddleware<HandshakeCheckMiddleware>()
+            this.UsePipelineFilter<WebSocketPipelineFilter>();
+            this.UseWebSocketMiddleware();
+            this.ConfigureServices((ctx, services) =>
+            {
+                services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
+            });
+            this.ConfigureSupplementServices(WebSocketHostBuilder.ValidateHostBuilder);
+        }
+
+        protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
+        {
+            services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
+        }
+    }
+
+    public class WebSocketHostBuilder : SuperSocketHostBuilder<WebSocketPackage>
+    {
+        internal WebSocketHostBuilder()
+            : this(args: null)
+        {
+
+        }
+
+        internal WebSocketHostBuilder(IHostBuilder hostBuilder)
+            : base(hostBuilder)
+        {
+            
+        }
+
+        internal WebSocketHostBuilder(string[] args)
+            : base(args)
+        {
+            this.ConfigureSupplementServices(WebSocketHostBuilder.ValidateHostBuilder);
+        }
+
+        protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
+        {
+            base.RegisterDefaultServices(builderContext, servicesInHost, services);
+            services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
+        }        
+
+        public static WebSocketHostBuilder Create()
+        {
+            return Create(args: null);
+        }
+
+        public static WebSocketHostBuilder Create(string[] args)
+        {
+            return Create(new WebSocketHostBuilder(args));
+        }
+
+        public static WebSocketHostBuilder Create(SuperSocketHostBuilder<WebSocketPackage> hostBuilder)
+        {
+            return hostBuilder.UsePipelineFilter<WebSocketPipelineFilter>()
+                .UseWebSocketMiddleware()
                 .ConfigureServices((ctx, services) =>
                 {
                     services.AddSingleton<IPackageHandler<WebSocketPackage>, WebSocketPackageHandler>();
-                }) as IWebSocketHostBuilder;
+                }) as WebSocketHostBuilder;
         }
 
-        public static IWebSocketHostBuilder ConfigureWebSocketMessageHandler(this IWebSocketHostBuilder builder, Func<WebSocketSession, WebSocketPackage, Task> handler)
+        public static WebSocketHostBuilder Create(IHostBuilder hostBuilder)
         {
-            return builder.ConfigureServices((ctx, services) => 
-            {
-                services.AddSingleton<Func<WebSocketSession, WebSocketPackage, Task>>(handler);
-            }) as IWebSocketHostBuilder;
+            return Create(new WebSocketHostBuilder(hostBuilder));
         }
 
-        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder)
-            where TPackageInfo : class, IKeyedPackageInfo<TKey>
-            where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
+        internal static void ValidateHostBuilder(HostBuilderContext builderCtx, IServiceCollection services)
         {
-            return builder.ConfigureServices((ctx, services) => 
-            {
-                services.AddSingleton<IWebSocketCommandMiddleware, WebSocketCommandMiddleware<TKey, TPackageInfo, TPackageMapper>>();
-            }).ConfigureServices((ctx, services) =>
-            {
-                services.Configure<CommandOptions>(ctx.Configuration?.GetSection("serverOptions")?.GetSection("commands"));
-            }) as IWebSocketHostBuilder;
-        }        
-
-        public static IWebSocketHostBuilder UseCommand<TKey, TPackageInfo, TPackageMapper>(this IWebSocketHostBuilder builder, Action<CommandOptions> configurator)
-            where TPackageInfo : class, IKeyedPackageInfo<TKey>
-            where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
-        {
-             return builder.UseCommand<TKey, TPackageInfo, TPackageMapper>()
-                .ConfigureServices((ctx, services) =>
-                {
-                    services.Configure(configurator);
-                }) as IWebSocketHostBuilder;
+            
         }
     }
 }

@@ -5,16 +5,23 @@ namespace SuperSocket.ProtoBase
 {
     public class LinePipelineFilter : TerminatorPipelineFilter<TextPackageInfo>
     {
+        protected Encoding Encoding { get; private set; }
 
         public LinePipelineFilter()
-            : base(new[] { (byte)'\r', (byte)'\n' })
+            : this(Encoding.UTF8)
         {
 
         }
 
-        protected override TextPackageInfo DecodePackage(ReadOnlySequence<byte> buffer)
+        public LinePipelineFilter(Encoding encoding)
+            : base(new[] { (byte)'\r', (byte)'\n' })
         {
-            return new TextPackageInfo { Text = buffer.GetString(Encoding.UTF8) };
+            Encoding = encoding;
+        }
+
+        protected override TextPackageInfo DecodePackage(ref ReadOnlySequence<byte> buffer)
+        {
+            return new TextPackageInfo { Text = buffer.GetString(Encoding) };
         }
     }
 }

@@ -2,12 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class AppSession : IAppSession
+    public class AppSession : IAppSession, ILogger, ILoggerAccessor
     {
         private IChannel _channel;
 
@@ -18,21 +19,27 @@ namespace SuperSocket.Server
 
         public AppSession()
         {
-            SessionID = Guid.NewGuid().ToString();
+            
         }
 
         void IAppSession.Initialize(IServerInfo server, IChannel channel)
         {
+            if (channel is IChannelWithSessionIdentifier channelWithSessionIdentifier)
+                SessionID = channelWithSessionIdentifier.SessionIdentifier;
+            else                
+                SessionID = Guid.NewGuid().ToString();
+            
             Server = server;
             StartTime = DateTimeOffset.Now;
             _channel = channel;
+            State = SessionState.Initialized;
         }
 
-        public string SessionID { get; }
+        public string SessionID { get; private set; }
 
         public DateTimeOffset StartTime { get; private set; }
 
-        public SessionState State { get; private set; } = SessionState.Initialized;
+        public SessionState State { get; private set; } = SessionState.None;
 
         public IServerInfo Server { get; private set; }
 
@@ -58,9 +65,9 @@ namespace SuperSocket.Server
             get { return _channel?.LastActiveTime ?? DateTimeOffset.MinValue; }
         }
 
-        public event EventHandler Connected;
+        public event AsyncEventHandler Connected;
 
-        public event EventHandler Closed;
+        public event AsyncEventHandler<CloseEventArgs> Closed;
         
         private Dictionary<object, object> _items;
 
@@ -95,43 +102,134 @@ namespace SuperSocket.Server
             }
         }
 
-        internal void OnSessionClosed(EventArgs e)
+        protected virtual ValueTask OnSessionClosedAsync(CloseEventArgs e)
         {
-            State = SessionState.Closed;
-            Closed?.Invoke(this, e);
+            return new ValueTask();
         }
 
-        internal void OnSessionConnected()
+        internal async ValueTask FireSessionClosedAsync(CloseEventArgs e)
+        {
+            State = SessionState.Closed;
+
+            await OnSessionClosedAsync(e);
+
+            var closeEventHandler = Closed;
+
+            if (closeEventHandler == null)
+                return;
+
+             await closeEventHandler.Invoke(this, e);
+        }
+
+
+        protected virtual ValueTask OnSessionConnectedAsync()
+        {
+            return new ValueTask();
+        }
+
+        internal async ValueTask FireSessionConnectedAsync()
         {
             State = SessionState.Connected;
-            Connected?.Invoke(this, EventArgs.Empty);
+
+            await OnSessionConnectedAsync();            
+
+            var connectedEventHandler = Connected;
+
+            if (connectedEventHandler == null)
+                return;
+
+            await connectedEventHandler.Invoke(this, EventArgs.Empty);
         }
 
         ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data)
         {
-            lock (_channel)
-            {
-                return _channel.SendAsync(data);
-            }
+            return _channel.SendAsync(data);
         }
 
         ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            lock (_channel)
+            return _channel.SendAsync(packageEncoder, package);
+        }
+
+        void IAppSession.Reset()
+        {
+            ClearEvent(ref Connected);
+            ClearEvent(ref Closed);
+            _items?.Clear();
+            State = SessionState.None;
+            _channel = null;
+            DataContext = null;
+            StartTime = default(DateTimeOffset);
+            Server = null;
+
+            Reset();
+        }
+
+        protected virtual void Reset()
+        {
+
+        }
+
+        private void ClearEvent<TEventHandler>(ref TEventHandler sessionEvent)
+            where TEventHandler : Delegate
+        {
+            if (sessionEvent == null)
+                return;
+
+            foreach (var handler in sessionEvent.GetInvocationList())
             {
-                return _channel.SendAsync(packageEncoder, package);
+                sessionEvent = Delegate.Remove(sessionEvent, handler) as TEventHandler;
             }
         }
 
-        public void Close()
+        public virtual async ValueTask CloseAsync()
         {
+            await CloseAsync(CloseReason.LocalClosing);
+        }
+
+        public virtual async ValueTask CloseAsync(CloseReason reason)
+        {
+            var channel = Channel;
+
+            if (channel == null)
+                return;
+            
             try
             {
-                Channel?.Close();
+                await channel.CloseAsync(reason);
             }
             catch
             {
             }
         }
+
+        #region ILogger
+
+        ILogger GetLogger()
+        {
+            return (Server as ILoggerAccessor).Logger;
+        }
+
+        void ILogger.Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            GetLogger().Log<TState>(logLevel, eventId, state, exception, (s, e) =>
+            {
+                return $"Session[{this.SessionID}]: {formatter(s, e)}";
+            });
+        }
+
+        bool ILogger.IsEnabled(LogLevel logLevel)
+        {
+            return GetLogger().IsEnabled(logLevel);
+        }
+
+        IDisposable ILogger.BeginScope<TState>(TState state)
+        {
+            return GetLogger().BeginScope<TState>(state);
+        }
+
+        public ILogger Logger => this as ILogger;
+
+        #endregion
     }
 }

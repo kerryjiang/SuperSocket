@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <DebugType>portable</DebugType>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Command/SuperSocket.Command.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.SessionContainer/SuperSocket.SessionContainer.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.WebSocket.Server/SuperSocket.WebSocket.Server.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Client/SuperSocket.Client.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Udp/SuperSocket.Udp.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Http/SuperSocket.Http.csproj" />
+    <ProjectReference Include="../SuperSocket.Tests.Command/SuperSocket.Tests.Command.csproj" />
+  </ItemGroup>
+  <ItemGroup>  
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />  
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.0.1" />
+    <PackageReference Include="xunit" Version="2.4.0" />    
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="xunit.runner.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\..\assets\supersocket.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Config\multiple_server.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

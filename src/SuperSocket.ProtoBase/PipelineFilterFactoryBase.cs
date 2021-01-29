@@ -3,7 +3,6 @@ using System;
 namespace SuperSocket.ProtoBase
 {
     public abstract class PipelineFilterFactoryBase<TPackageInfo> : IPipelineFilterFactory<TPackageInfo>
-        where TPackageInfo : class
     {
         protected IPackageDecoder<TPackageInfo> PackageDecoder { get; private set; }
         

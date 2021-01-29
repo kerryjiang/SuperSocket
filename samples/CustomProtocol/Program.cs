@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
@@ -11,26 +12,27 @@ namespace CustomProtocol
     {
         static async Task Main(string[] args)
         {
-            var host = SuperSocketHostBuilder.Create<MyPackage, MyPackageFilter>()
-                .ConfigurePackageHandler(async (s, p) =>
+            var host = SuperSocketHostBuilder.Create<MyPackage, MyPackageFilter>(args)
+                .UsePackageHandler(async (s, p) =>
                 {
                     // handle package
                     await Task.Delay(0);
                 })
-                .ConfigureLogging((hostCtx, loggingBuilder) =>
-                {
-                    loggingBuilder.AddConsole();
-                })
                 .ConfigureSuperSocket(options =>
                 {
                     options.Name = "CustomProtocol Server";
-                    options.Listeners = new [] {
+                    options.Listeners = new List<ListenOptions>
+                    {
                         new ListenOptions
                         {
                             Ip = "Any",
                             Port = 4040
                         }
                     };
+                })
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
                 }).Build();
 
             await host.RunAsync();

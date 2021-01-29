@@ -8,14 +8,16 @@ namespace SuperSocket
 {
     public static class InProcSessionContainerMiddlewareExtensions
     {
-        public static IHostBuilder UseInProcSessionContainer(this IHostBuilder builder)
+        public static ISuperSocketHostBuilder UseInProcSessionContainer(this ISuperSocketHostBuilder builder)
         {
-            return builder.ConfigureServices((ctx, services) =>
-            {
-                services.AddSingleton<InProcSessionContainerMiddleware>();
-                services.AddSingleton<ISessionContainer>((s) => s.GetRequiredService<InProcSessionContainerMiddleware>());
-                services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, InProcSessionContainerMiddleware>(s => s.GetRequiredService<InProcSessionContainerMiddleware>()));
-            });
+            return builder
+                .UseMiddleware<InProcSessionContainerMiddleware>(s => s.GetRequiredService<InProcSessionContainerMiddleware>())
+                .ConfigureServices((ctx, services) =>
+                {
+                    services.AddSingleton<InProcSessionContainerMiddleware>();
+                    services.AddSingleton<ISessionContainer>((s) => s.GetRequiredService<InProcSessionContainerMiddleware>());
+                    services.AddSingleton<IAsyncSessionContainer>((s) => s.GetRequiredService<ISessionContainer>().ToAsyncSessionContainer());
+                }) as ISuperSocketHostBuilder;
         }
     }
 }

@@ -7,24 +7,18 @@ namespace SuperSocket.Channel
 {
     public static class SocketExtensions
     {
-        internal static bool IsIgnorableSocketException(this SocketException se)
+        public static bool IsIgnorableSocketException(this SocketException se)
         {
-            if (se.ErrorCode == 89)
-                return true;
-
-            if (se.ErrorCode == 125)
-                return true;
-
-            if (se.ErrorCode == 104)
-                return true;
-
-            if (se.ErrorCode == 54)
-                return true;
-
-            if (se.ErrorCode == 995)
-                return true;
-
-            return false;
+            switch (se.SocketErrorCode)
+            {
+                case (SocketError.OperationAborted):
+                case (SocketError.ConnectionReset):
+                case (SocketError.TimedOut):
+                case (SocketError.NetworkReset):
+                    return true;
+                default:
+                    return false;
+            }
         }
     }
 }

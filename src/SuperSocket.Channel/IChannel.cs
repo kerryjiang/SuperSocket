@@ -9,13 +9,17 @@ namespace SuperSocket.Channel
 {
     public interface IChannel
     {
+        void Start();
+        
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
 
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
 
         ValueTask SendAsync(Action<PipeWriter> write);
 
-        void Close();
+        ValueTask CloseAsync(CloseReason closeReason);
+
+        event EventHandler<CloseEventArgs> Closed;
 
         bool IsClosed { get; }
 
@@ -24,6 +28,10 @@ namespace SuperSocket.Channel
         EndPoint LocalEndPoint { get; }
 
         DateTimeOffset LastActiveTime { get; }
+
+        ValueTask DetachAsync();
+
+        CloseReason? CloseReason { get; }
     }
 
     public interface IChannel<TPackageInfo> : IChannel

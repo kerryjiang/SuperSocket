@@ -23,7 +23,7 @@ namespace SuperSocket.ProtoBase
 
             try
             {
-                return DecodePackage(pack);
+                return DecodePackage(ref pack);
             }
             finally
             {

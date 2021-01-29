@@ -7,7 +7,7 @@ namespace SuperSocket.ProtoBase
     {
         private IPackagePartReader<TPackageInfo> _currentPartReader;
 
-        private TPackageInfo _currentPackage;
+        protected TPackageInfo CurrentPackage { get; private set; }
 
         protected abstract TPackageInfo CreatePackage();
 
@@ -15,33 +15,43 @@ namespace SuperSocket.ProtoBase
 
         public virtual TPackageInfo Filter(ref SequenceReader<byte> reader)
         {
-            var package = _currentPackage;
+            var package = CurrentPackage;
+            var currentPartReader = _currentPartReader;
 
             if (package == null)
             {
-                package = _currentPackage = CreatePackage();
-                _currentPartReader = GetFirstPartReader();
+                package = CurrentPackage = CreatePackage();
+                currentPartReader = _currentPartReader = GetFirstPartReader();
             }
 
             while (true)
             {
-                if (_currentPartReader.Process(package, ref reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData))
+                if (currentPartReader.Process(package, Context, ref reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData))
                 {
                     Reset();
                     return package;
                 }
 
                 if (nextPartReader != null)
+                {
                     _currentPartReader = nextPartReader;
+                    OnPartReaderSwitched(currentPartReader, nextPartReader);
+                    currentPartReader = nextPartReader;
+                }
 
                 if (needMoreData || reader.Remaining <= 0)
                     return null;
             }
         }
 
+        protected virtual void OnPartReaderSwitched(IPackagePartReader<TPackageInfo> currentPartReader, IPackagePartReader<TPackageInfo> nextPartReader)
+        {
+
+        }
+
         public virtual void Reset()
         {
-            _currentPackage = null;
+            CurrentPackage = null;
             _currentPartReader = null;
         }
 

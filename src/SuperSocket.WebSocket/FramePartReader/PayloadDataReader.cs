@@ -7,7 +7,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class PayloadDataReader : PackagePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
+        public override bool Process(WebSocketPackage package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
         {
             nextPartReader = null;
 
@@ -24,23 +24,56 @@ namespace SuperSocket.WebSocket.FramePartReader
             var seq = reader.Sequence.Slice(reader.Consumed, required);
 
             if (package.HasMask)
-                DecodeMask(seq, package.MaskKey);
-
-            if (package.Data.Length == 0)
-                package.Data = seq;
-            else
-                package.Data = ConcactSequence(package.Data, seq);
+                DecodeMask(ref seq, package.MaskKey);
 
             try
             {
+                // single fragment
+                if (package.FIN && package.Head == null)
+                {
+                    package.Data = seq;
+                }
+                else
+                {
+                    package.ConcatSequence(ref seq);
+                }
+
                 if (package.FIN)
                 {
-                    if (package.OpCode == OpCode.Text)
+                    if (package.Head != null)
                     {
-                        package.Message = package.Data.GetString(Encoding.UTF8);
-                        package.Data = default;
+                        package.BuildData();
                     }
 
+                    var websocketFilterContext = filterContext as WebSocketPipelineFilterContext;
+
+                    if (websocketFilterContext != null && websocketFilterContext.Extensions != null && websocketFilterContext.Extensions.Count > 0)
+                    {
+                        foreach (var extension in websocketFilterContext.Extensions)
+                        {
+                            try
+                            {
+                                extension.Decode(package);
+                            }
+                            catch (Exception e)
+                            {
+                                throw new Exception($"Problem happened when decode with the extension {extension.Name}.", e);
+                            }
+                        }
+                    }
+
+                    var data = package.Data;
+
+                    if (package.OpCode == OpCode.Text)
+                    {
+                        package.Message = data.GetString(Encoding.UTF8);
+                        package.Data = default;
+                    }
+                    else
+                    {
+                        package.Data = data.CopySequence();
+                    }
+                    
                     return true;
                 }
                 else
@@ -56,31 +89,7 @@ namespace SuperSocket.WebSocket.FramePartReader
             }
         }
 
-        private ReadOnlySequence<byte> ConcactSequence(ReadOnlySequence<byte> first, ReadOnlySequence<byte> second)
-        {
-            SequenceSegment head = first.Start.GetObject() as SequenceSegment;
-            SequenceSegment tail = first.End.GetObject() as SequenceSegment;
-            
-            if (head == null)
-            {
-                foreach (var segment in first)
-                {                
-                    if (head == null)
-                        tail = head = new SequenceSegment(segment);
-                    else
-                        tail = tail.SetNext(segment);
-                }
-            }
-
-            foreach (var segment in second)
-            {
-                tail = tail.SetNext(segment);
-            }
-
-            return new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
-        }
-
-        internal unsafe void DecodeMask(ReadOnlySequence<byte> sequence, byte[] mask)
+        internal unsafe void DecodeMask(ref ReadOnlySequence<byte> sequence, byte[] mask)
         {
             var index = 0;
             var maskLen = mask.Length;

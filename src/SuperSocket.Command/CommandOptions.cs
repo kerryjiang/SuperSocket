@@ -11,13 +11,21 @@ namespace SuperSocket.Command
         public CommandOptions()
         {
             CommandSources = new List<ICommandSource>();
+            _globalCommandFilterTypes = new List<Type>();
         }
 
         public CommandAssemblyConfig[] Assemblies { get; set; }
 
         public List<ICommandSource> CommandSources { get; set; }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        private List<Type> _globalCommandFilterTypes;
+
+        public IReadOnlyList<Type> GlobalCommandFilterTypes
+        {
+            get { return _globalCommandFilterTypes; }
+        }
+
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
             var commandSources = CommandSources;
             var configuredAssemblies = Assemblies;
@@ -31,10 +39,15 @@ namespace SuperSocket.Command
 
             foreach (var source in commandSources)
             {
-                commandTypes.AddRange(source.GetCommandTypes(critera));
+                commandTypes.AddRange(source.GetCommandTypes(criteria));
             }
 
             return commandTypes;
+        }
+
+        internal void AddGlobalCommandFilterType(Type commandFilterType)
+        {
+            _globalCommandFilterTypes.Add(commandFilterType);
         }
     }
 
@@ -42,9 +55,9 @@ namespace SuperSocket.Command
     {
         public string Name { get; set; }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
-            return GetCommandTypesFromAssembly(Assembly.Load(Name)).Where(t => critera(t));
+            return GetCommandTypesFromAssembly(Assembly.Load(Name)).Where(t => criteria(t));
         }
     }
 
@@ -52,9 +65,9 @@ namespace SuperSocket.Command
     {
         public Assembly Assembly { get; set; }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
-            return GetCommandTypesFromAssembly(Assembly).Where(t => critera(t));
+            return GetCommandTypesFromAssembly(Assembly).Where(t => criteria(t));
         }
     }
 
@@ -70,9 +83,9 @@ namespace SuperSocket.Command
     {
         public Type CommandType { get; set; }
 
-        public IEnumerable<Type> GetCommandTypes(Predicate<Type> critera)
+        public IEnumerable<Type> GetCommandTypes(Predicate<Type> criteria)
         {
-            if (critera(CommandType))
+            if (criteria(CommandType))
                 yield return CommandType;
         }
     }
@@ -92,6 +105,20 @@ namespace SuperSocket.Command
         public static void AddCommandAssembly(this CommandOptions commandOptions, Assembly commandAssembly)
         {
             commandOptions.CommandSources.Add(new ActualCommandAssembly { Assembly = commandAssembly });
+        }
+
+        public static void AddGlobalCommandFilter<TCommandFilter>(this CommandOptions commandOptions)
+            where TCommandFilter : CommandFilterBaseAttribute
+        {
+            commandOptions.AddGlobalCommandFilterType(typeof(TCommandFilter));
+        }
+
+        public static void AddGlobalCommandFilter(this CommandOptions commandOptions, Type commandFilterType)
+        {
+            if (!typeof(CommandFilterBaseAttribute).IsAssignableFrom(commandFilterType))
+                throw new Exception("The command filter type must inherit CommandFilterBaseAttribute.");
+
+            commandOptions.AddGlobalCommandFilterType(commandFilterType);
         }
     }
 }

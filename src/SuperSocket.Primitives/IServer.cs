@@ -8,11 +8,5 @@ namespace SuperSocket
         Task<bool> StartAsync();
 
         Task StopAsync();
-
-        int SessionCount { get; }
-
-        IServiceProvider ServiceProvider { get; }
-
-        ServerState State { get; }
     }
 }

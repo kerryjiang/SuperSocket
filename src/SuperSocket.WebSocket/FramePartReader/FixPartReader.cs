@@ -6,7 +6,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 {
     class FixPartReader : PackagePartReader
     {
-        public override bool Process(WebSocketPackage package, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
+        public override bool Process(WebSocketPackage package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
         {
             if (reader.Length < 2)
             {
@@ -18,7 +18,14 @@ namespace SuperSocket.WebSocket.FramePartReader
             needMoreData = false;
 
             reader.TryRead(out byte firstByte);
-            package.OpCode = (OpCode)(firstByte & 0x0f);
+
+            var opCode = (OpCode)(firstByte & 0x0f);
+
+            if (opCode != OpCode.Continuation)
+            {
+                package.OpCode = opCode;
+            }
+
             package.OpCodeByte = firstByte;
 
             reader.TryRead(out byte secondByte);
@@ -27,7 +34,7 @@ namespace SuperSocket.WebSocket.FramePartReader
 
             if (package.PayloadLength >= 126)
             {
-                nextPartReader = ExtendedLenghtReader;
+                nextPartReader = ExtendedLengthReader;
             }
             else
             {
@@ -35,8 +42,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                     nextPartReader = MaskKeyReader;
                 else
                 {
-                    // no body
-                    if (package.PayloadLength == 0)
+                    if (TryInitIfEmptyMessage(package))
                     {
                         nextPartReader = null;
                         return true;

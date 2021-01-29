@@ -13,26 +13,26 @@ namespace EchoServer
     {
         static async Task Main(string[] args)
         {
-            var host = SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>()
-                .ConfigurePackageHandler(async (s, p) =>
+            var host = SuperSocketHostBuilder.Create<TextPackageInfo, LinePipelineFilter>(args)
+                .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
+                })
+                .ConfigureSuperSocket(options =>
+                {
+                    options.Name = "Echo Server";
+                    options.AddListener(new ListenOptions
+                        {
+                            Ip = "Any",
+                            Port = 4040
+                        }
+                    );
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
                     loggingBuilder.AddConsole();
                 })
-                .ConfigureSuperSocket(options =>
-                {
-                    options.Name = "Echo Server";
-                    options.Listeners = new [] {
-                        new ListenOptions
-                        {
-                            Ip = "Any",
-                            Port = 4040
-                        }
-                    };
-                }).Build();
+                .Build();
 
             await host.RunAsync();
         }
