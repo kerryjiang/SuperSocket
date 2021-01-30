@@ -43,10 +43,9 @@ Nightly build packages:  https://www.myget.org/F/supersocket/api/v3/index.json
 ## SuperSocket 2.0 Roadmap:
 
 
-- 2020:
-    - Documentation
+- 2021:
+    - More documents
     - Performance test/tuning
-    - SuperSocket.Client
     - Fix issues of the existing features
     - Other features requested by users
     - Stable release
