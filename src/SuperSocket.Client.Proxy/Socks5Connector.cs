@@ -208,20 +208,19 @@ namespace SuperSocket.Client.Proxy
             if (targetEndPoint is IPEndPoint)
             {
                 var endPoint = targetEndPoint as IPEndPoint;
-                port = endPoint.Port;
+                port = endPoint.Port;                
 
                 if (endPoint.AddressFamily == AddressFamily.InterNetwork)
                 {
                     buffer = new byte[10];
                     buffer[3] = 0x01;
-                    Buffer.BlockCopy(endPoint.Address.GetAddressBytes(), 0, buffer, 4, 4);
+                    endPoint.Address.TryWriteBytes(buffer.AsSpan().Slice(4), out var bytesWritten);
                 }
                 else if (endPoint.AddressFamily == AddressFamily.InterNetworkV6)
                 {
                     buffer = new byte[22];
                     buffer[3] = 0x04;
-
-                    Buffer.BlockCopy(endPoint.Address.GetAddressBytes(), 0, buffer, 4, 16);
+                    endPoint.Address.TryWriteBytes(buffer.AsSpan().Slice(4), out var bytesWritten);
                 }
                 else
                 {
@@ -240,7 +239,7 @@ namespace SuperSocket.Client.Proxy
                 buffer = new byte[maxLen];
 
                 buffer[3] = 0x03;
-                buffer[4] = (byte)endPoint.Host.Length;//ԭ��Ϊ0 ����Ϊ�˿ڵĳ���
+                buffer[4] = (byte)endPoint.Host.Length;
                 actualLength = 5;
                 actualLength += Encoding.ASCII.GetBytes(endPoint.Host, 0, endPoint.Host.Length, buffer, actualLength);
                 actualLength += 2;
