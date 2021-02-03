@@ -89,10 +89,10 @@ namespace SuperSocket.Server
             _packageHandlingContextAccessor = serviceProvider.GetService<IPackageHandlingContextAccessor<TReceivePackageInfo>>();
             InitializeMiddlewares();
 
-            var packageHandler = serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>()
-                ?? _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().FirstOrDefault();
+            var packageHandlers = new List<IPackageHandler<TReceivePackageInfo>> { serviceProvider.GetService<IPackageHandler<TReceivePackageInfo>>() };
+            _middlewares.OfType<IPackageHandler<TReceivePackageInfo>>().ToList().ForEach(x => packageHandlers.Add(x));
 
-            if (packageHandler == null)
+            if (packageHandlers.Count == 0)
             {
                 Logger.LogWarning("The PackageHandler cannot be found.");
             }
@@ -103,7 +103,11 @@ namespace SuperSocket.Server
 
                 _packageHandlingScheduler = serviceProvider.GetService<IPackageHandlingScheduler<TReceivePackageInfo>>()
                     ?? new SerialPackageHandlingScheduler<TReceivePackageInfo>();
-                _packageHandlingScheduler.Initialize(packageHandler, errorHandler);
+                
+                packageHandlers.Distinct().ToList().ForEach(x =>// TODO consider whether async is required
+                {
+                    _packageHandlingScheduler.Initialize(x, errorHandler);
+                });
             }
         }
 
@@ -331,7 +335,7 @@ namespace SuperSocket.Server
 
                 await foreach (var p in packageChannel.RunAsync())
                 {
-                    if(_packageHandlingContextAccessor!=null)
+                    if (_packageHandlingContextAccessor != null)
                     {
                         _packageHandlingContextAccessor.PackageHandlingContext = new PackageHandlingContext<IAppSession, TReceivePackageInfo>(session, p);
                     }

@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Net;
+using System.Linq;
 using System.Threading.Tasks;
 using SuperSocket.Channel;
 
@@ -8,7 +8,7 @@ namespace SuperSocket.Server
 {
     public abstract class PackageHandlingSchedulerBase<TPackageInfo> : IPackageHandlingScheduler<TPackageInfo>
     {
-        public IPackageHandler<TPackageInfo> PackageHandler { get; private set; }
+        public List<IPackageHandler<TPackageInfo>> PackageHandlers { get; private set; } = new List<IPackageHandler<TPackageInfo>>();
 
         public Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> ErrorHandler { get; private set; }
 
@@ -16,19 +16,23 @@ namespace SuperSocket.Server
 
         public virtual void Initialize(IPackageHandler<TPackageInfo> packageHandler, Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> errorHandler)
         {
-            PackageHandler = packageHandler;
+            PackageHandlers.Add(packageHandler);
+            PackageHandlers.Distinct();
             ErrorHandler = errorHandler;
         }
 
         protected async ValueTask HandlePackageInternal(IAppSession session, TPackageInfo package)
         {
-            var packageHandler = PackageHandler;
+            var packageHandlers = PackageHandlers;
             var errorHandler = ErrorHandler;
 
             try
             {
-                if (packageHandler != null)
-                    await packageHandler.Handle(session, package);
+                if (packageHandlers.Count > 0)
+                    foreach (var item in packageHandlers)// TODO consider whether async is required
+                    {
+                        await item.Handle(session, package);
+                    }
             }
             catch (Exception e)
             {

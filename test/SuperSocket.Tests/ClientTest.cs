@@ -63,11 +63,11 @@ namespace SuperSocket.Tests
                     Logger = NullLogger.Instance,
                     ReadAsDemand = clientReadAsDemand
                 };
-                
+
                 var client = hostConfigurator.ConfigureEasyClient(new EasyClient<TextPackageInfo>(new LinePipelineFilter(), options));
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
-                
+
                 Assert.True(connected);
 
                 for (var i = 0; i < 100; i++)
@@ -77,7 +77,7 @@ namespace SuperSocket.Tests
 
                     var package = await client.ReceiveAsync();
                     Assert.NotNull(package);
-                    Assert.Equal(msg, package.Text); 
+                    Assert.Equal(msg, package.Text);
                 }
 
                 await client.CloseAsync();
@@ -105,7 +105,7 @@ namespace SuperSocket.Tests
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
-                OutputHelper.WriteLine("Server started.");                
+                OutputHelper.WriteLine("Server started.");
 
                 var pipelineFilter = new CommandLinePipelineFilter
                 {
@@ -116,15 +116,15 @@ namespace SuperSocket.Tests
                 {
                     Logger = DefaultLoggerFactory.CreateLogger(nameof(TestBindLocalEndPoint))
                 };
-                
+
                 var client = hostConfigurator.ConfigureEasyClient(new EasyClient<StringPackageInfo>(pipelineFilter, options));
-                
+
                 var localPort = 8080;
 
                 client.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, localPort);
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
-                
+
                 Assert.True(connected);
 
                 await Task.Delay(500);
@@ -142,8 +142,10 @@ namespace SuperSocket.Tests
         [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestCommandLine(Type hostConfiguratorType)
         {
+            var handlerTag = false;
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+            .UsePackageHandler((s, p) => new ValueTask(Task.Run(() => { handlerTag = true; })))
             .UseCommand((options) =>
             {
                 options.AddCommand<SORT>();
@@ -158,7 +160,7 @@ namespace SuperSocket.Tests
                 {
                     Decoder = new DefaultStringPackageDecoder()
                 };
-                
+
                 var client = hostConfigurator.ConfigureEasyClient(new EasyClient<StringPackageInfo>(pipelineFilter));
 
                 StringPackageInfo package = null;
@@ -170,7 +172,7 @@ namespace SuperSocket.Tests
                 };
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
-                
+
                 Assert.True(connected);
 
                 client.StartReceive();
@@ -183,6 +185,7 @@ namespace SuperSocket.Tests
                 Assert.Equal("SORT", package.Key);
                 Assert.Equal("3 6 7 8 10 23 43", package.Body);
 
+                Assert.True(handlerTag);
                 await client.CloseAsync();
                 await server.StopAsync();
             }
@@ -240,7 +243,7 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Before DetachAsync");
 
                 await channel.DetachAsync();
-                
+
                 // the connection is still alive in the server
                 Assert.Equal(1, server.SessionCount);
 
