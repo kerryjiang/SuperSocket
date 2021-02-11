@@ -224,6 +224,11 @@ namespace SuperSocket.WebSocket
 
         string IWebSocketSession.GetAvailableSubProtocol(string protocol)
         {
+            return GetAvailableSubProtocol(protocol);
+        }
+            
+        protected virtual string GetAvailableSubProtocol(string protocol)
+        {
             if (string.IsNullOrEmpty(protocol))
             {
                 SubProtocol = AppServer.DefaultSubProtocol;
