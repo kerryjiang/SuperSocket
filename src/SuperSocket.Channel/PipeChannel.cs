@@ -115,8 +115,16 @@ namespace SuperSocket.Channel
             {
                 if (!_isDetaching && !IsClosed)
                 {
-                    Close();
-                    OnClosed();
+                    try
+                    {
+                        Close();
+                        OnClosed();
+                    }
+                    catch (Exception exc)
+                    {
+                        if (!IsIgnorableException(exc))
+                            OnError("Unhandled exception in the method PipeChannel.Close.", exc);
+                    }                    
                 }
             }
         }
