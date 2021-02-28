@@ -20,8 +20,6 @@ jobs:
               id: nbgv
             - name: Pack
               run: dotnet pack -c Release /p:PublicRelease=false -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.csproj
-            - uses: dotnet/nbgv@master
-              id: nbgv
             - name: Pack all-in-one-packages
               run:  |
                 dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.csproj
