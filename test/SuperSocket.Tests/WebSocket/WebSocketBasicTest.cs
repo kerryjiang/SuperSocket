@@ -303,7 +303,7 @@ namespace SuperSocket.Tests.WebSocket
                 await socket.ConnectAsync(endPoint);                
                 Assert.True(socket.Connected);
                 await Task.Delay(1000 * 5);
-                //Assert.False(socket.Connected);
+                Assert.False(socket.Connected);
                 await server.StopAsync();
             }
         }
@@ -336,7 +336,9 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
+                        var startConnectTime = DateTime.Now;
                         await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
+                        OutputHelper.WriteLine($"Took {DateTime.Now.Subtract(startConnectTime)} to establish the connection from client side.");
 
                         Assert.Equal(WebSocketState.Open, websocket.State);
 
@@ -394,7 +396,9 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
+                        var startConnectTime = DateTime.Now;
                         await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
+                        OutputHelper.WriteLine($"Took {DateTime.Now.Subtract(startConnectTime)} to establish the connection from client side.");
 
                         if (websocket.State != WebSocketState.Open)
                         {
@@ -478,7 +482,9 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
+                        var startConnectTime = DateTime.Now;
                         await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
+                        OutputHelper.WriteLine($"Took {DateTime.Now.Subtract(startConnectTime)} to establish the connection from client side.");
 
                         if (websocket.State != WebSocketState.Open)
                         {
@@ -575,7 +581,9 @@ namespace SuperSocket.Tests.WebSocket
 
                         websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
 
+                        var startConnectTime = DateTime.Now;
                         await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
+                        OutputHelper.WriteLine($"Took {DateTime.Now.Subtract(startConnectTime)} to establish the connection from client side.");
 
                         Assert.Equal(WebSocketState.Open, websocket.State);
 
