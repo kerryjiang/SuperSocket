@@ -18,11 +18,13 @@ jobs:
               run: echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
             - uses: dotnet/nbgv@master
               id: nbgv
+            - name: Build
+              run: dotnet build -c Release -p:Version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }} -p:AssemblyVersion=${{ steps.nbgv.outputs.AssemblyVersion }} -p:AssemblyFileVersion=${{ steps.nbgv.outputs.AssemblyFileVersion }} -p:AssemblyInformationalVersion=${{ steps.nbgv.outputs.AssemblyInformationalVersion }}
             - name: Pack
-              run: dotnet pack -c Release /p:PublicRelease=false -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.csproj
+              run: dotnet pack -c Release -p:PackageVersion=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }} /p:NoPackageAnalysis=true
             - name: Pack all-in-one-packages
               run:  |
-                dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.csproj
-                dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.WebSocketServer.csproj 
+                dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.csproj /p:NoPackageAnalysis=true
+                dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.WebSocketServer.csproj /p:NoPackageAnalysis=true
             - name: Push
               run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.MYGET_API_KEY }} --source https://www.myget.org/F/supersocket/api/v3/index.json
