@@ -148,6 +148,11 @@ namespace SuperSocket.WebSocket.Server
                 await websocketSession.SendAsync(package);
                 return;
             }
+            else if (package.OpCode == OpCode.Pong)
+            {
+                // don't do anything for Pong for now
+                return;
+            }
 
             var protocolHandler = websocketSession.SubProtocolHandler;
 
