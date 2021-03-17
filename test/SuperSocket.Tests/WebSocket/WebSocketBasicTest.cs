@@ -716,7 +716,7 @@ namespace SuperSocket.Tests.WebSocket
                         commandOptions.AddCommand<MULT>();
                         commandOptions.AddCommand<SUB>();
 
-                        // register all commands in one aassembly
+                        // register all commands in one assembly
                         //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
                     });
             }, hostConfigurator).BuildAsServer())
