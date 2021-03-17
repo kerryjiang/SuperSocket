@@ -20,12 +20,12 @@ namespace SuperSocket.Channel
         ServerShutdown = 1,
 
         /// <summary>
-        /// The close behavior is initiated from the remote endpoing
+        /// The close behavior is initiated from the remote endpoint
         /// </summary>
         RemoteClosing = 2,
 
         /// <summary>
-        /// The close behavior is initiated from the local endpoing
+        /// The close behavior is initiated from the local endpoint
         /// </summary>
         LocalClosing = 3,
 

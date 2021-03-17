@@ -44,7 +44,7 @@ namespace SuperSocket.Tests
                     commandOptions.AddCommand<MULT>();
                     commandOptions.AddCommand<SUB>();
 
-                    // register all commands in one aassembly
+                    // register all commands in one assembly
                     //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
                 }).BuildAsServer())
             {
@@ -92,7 +92,7 @@ namespace SuperSocket.Tests
             using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
                 .UseCommand(commandOptions =>
                 {
-                    // register all commands in one aassembly
+                    // register all commands in one assembly
                     commandOptions.AddCommandAssembly(typeof(MIN).GetTypeInfo().Assembly);
                 }).BuildAsServer())
             {
@@ -129,7 +129,7 @@ namespace SuperSocket.Tests
             using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
                 .UseCommand(commandOptions =>
                 {
-                    // register all commands in one aassembly
+                    // register all commands in one assembly
                     commandOptions.Assemblies = new [] { new CommandAssemblyConfig { Name = "SuperSocket.Tests.Command" } };
                 }).BuildAsServer())
             {
@@ -219,7 +219,7 @@ namespace SuperSocket.Tests
                     commandOptions.AddCommand<SUB>();
                     commandOptions.AddCommand<DIV>();
                     */
-                    // register all commands in one aassembly
+                    // register all commands in one assembly
                     commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
                 })
                 .UseSession<MySession>()
