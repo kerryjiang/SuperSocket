@@ -300,10 +300,20 @@ namespace SuperSocket.Tests.WebSocket
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.NoDelay = true;
                 var endPoint = hostConfigurator.GetServerEndPoint();
-                await socket.ConnectAsync(endPoint);                
+                await socket.ConnectAsync(endPoint);
                 Assert.True(socket.Connected);
+                Assert.False(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+
+                /* enable tcp keep alive
+                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveTime, 1);
+                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveInterval, 1);
+                socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, 1);
+                */
+
                 await Task.Delay(1000 * 5);
-                Assert.False(socket.Connected);
+                //Assert.False(socket.Connected);
+                Assert.True(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
+
                 await server.StopAsync();
             }
         }
