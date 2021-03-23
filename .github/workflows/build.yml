@@ -31,6 +31,10 @@ jobs:
               run: dotnet build -c Release
             - name: Build Samples
               run: dotnet build -c Release samples/samples.sln
+            - name: Reset max inotify limit
+              if: matrix.os == 'ubuntu-latest'
+              run: |
+                echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
             - name: Test
               run: |
                 cd test/SuperSocket.Tests
