@@ -94,7 +94,6 @@ namespace SuperSocket.Tests
         }
 
         [Theory]
-        [InlineData("Tls11", SslProtocols.Tls11, false)]
         [InlineData("Tls12", SslProtocols.Tls12, false)]
         [InlineData("Tls15", SslProtocols.None, true)]
         [InlineData("Tls11, Tls12", SslProtocols.Tls11 | SslProtocols.Tls12, false)]
