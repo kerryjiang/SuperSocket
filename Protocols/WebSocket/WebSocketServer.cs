@@ -127,7 +127,7 @@ namespace SuperSocket.WebSocket
         public WebSocketServer(ISubProtocol<TWebSocketSession> subProtocol)
             : this(new List<ISubProtocol<TWebSocketSession>> { subProtocol })
         {
-            
+
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace SuperSocket.WebSocket
                 {
                     string originalProtocolName = protocolConfig.Name;
                     string protocolName;
-                    
+
                     ISubProtocol<TWebSocketSession> subProtocolInstance;
 
                     if (!string.IsNullOrEmpty(originalProtocolName))
@@ -328,7 +328,7 @@ namespace SuperSocket.WebSocket
                     return false;
                 }
             }
-            
+
             return true;
         }
 
@@ -652,7 +652,7 @@ namespace SuperSocket.WebSocket
             var commands = new List<ICommand<TWebSocketSession, IWebSocketFragment>>
                 {
                     new HandShake<TWebSocketSession>(),
-                    new Text<TWebSocketSession>(),  
+                    new Text<TWebSocketSession>(),
                     new Binary<TWebSocketSession>(),
                     new Close<TWebSocketSession>(),
                     new Ping<TWebSocketSession>(),
@@ -772,7 +772,8 @@ namespace SuperSocket.WebSocket
 
             try
             {
-                sendOk = session.TrySendRawData(param.Data);
+                session.SendRawData(param.Data);
+                sendOk = true;
             }
             catch (Exception e)
             {

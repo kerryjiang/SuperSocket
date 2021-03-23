@@ -480,6 +480,15 @@ namespace SuperSocket.WebSocket
         }
 
         /// <summary>
+        /// Sends raw data segments.
+        /// </summary>
+        /// <param name="segments">The segments.</param>
+        internal void SendRawData(IList<ArraySegment<byte>> segments)
+        {
+            base.Send(segments);
+        }
+
+        /// <summary>
         /// Tries the send raw data segments.
         /// </summary>
         /// <param name="segments">The segments.</param>
