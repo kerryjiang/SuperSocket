@@ -130,7 +130,7 @@ namespace SuperSocket.Tests
 
         public async ValueTask KeepSequence()
         {
-            await Task.Delay(200);
+            await Task.Delay(500);
         }
     }
 }
