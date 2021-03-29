@@ -21,7 +21,9 @@ jobs:
               with:
                 dotnet-version: 5.0.100
             - name: Set env
-              run: echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
+              run: |
+                echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
+                echo "DOTNET_USE_POLLING_FILE_WATCHER=true" >> $GITHUB_ENV
             - name: Clean
               run: |
                 dotnet clean ./SuperSocket.sln --configuration Release
