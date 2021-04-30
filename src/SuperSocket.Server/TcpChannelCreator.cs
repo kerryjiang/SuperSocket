@@ -46,7 +46,7 @@ namespace SuperSocket.Server
                 listenSocket.LingerState = new LingerOption(false, 0);
 
                 if (options.NoDelay)
-                    listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
+                    listenSocket.NoDelay = true;
                 
                 listenSocket.Bind(listenEndpoint);
                 listenSocket.Listen(options.BackLog);
