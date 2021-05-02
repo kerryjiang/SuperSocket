@@ -84,8 +84,7 @@ namespace SuperSocket.Server
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
             _channelCreatorFactory = serviceProvider.GetService<IChannelCreatorFactory>() ?? new TcpChannelCreatorFactory(serviceProvider);
             _sessionHandlers = serviceProvider.GetService<SessionHandlers>();
-            // initialize session factory
-            _sessionFactory = serviceProvider.GetService<ISessionFactory>() ?? new DefaultSessionFactory();
+            _sessionFactory = serviceProvider.GetService<ISessionFactory>();
             _packageHandlingContextAccessor = serviceProvider.GetService<IPackageHandlingContextAccessor<TReceivePackageInfo>>();
             InitializeMiddlewares();
 

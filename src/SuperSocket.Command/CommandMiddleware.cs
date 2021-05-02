@@ -61,14 +61,6 @@ namespace SuperSocket.Command
             var commandInterfaces = new List<CommandTypeInfo>();
             var commandSetFactories = new List<ICommandSetFactory>();
 
-            RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, sessionType, typeof(TPackageInfo));
-
-
-            if (sessionType != typeof(IAppSession))
-            {
-                RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, typeof(IAppSession), typeof(TPackageInfo));
-            }
-
             var ignorePackageInterfaces = new Type[] { typeof(IKeyedPackageInfo<TKey>) };
             var availablePackageTypes = typeof(TPackageInfo).GetTypeInfo()
                 .GetInterfaces()

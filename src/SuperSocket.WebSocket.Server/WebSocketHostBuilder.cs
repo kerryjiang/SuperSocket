@@ -46,11 +46,11 @@ namespace SuperSocket.WebSocket.Server
         {
             this.ConfigureSupplementServices(WebSocketHostBuilder.ValidateHostBuilder);
         }
-
+        
         protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
         {
-            base.RegisterDefaultServices(builderContext, servicesInHost, services);
             services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
+            base.RegisterDefaultServices(builderContext, servicesInHost, services);
         }        
 
         public static WebSocketHostBuilder Create()
