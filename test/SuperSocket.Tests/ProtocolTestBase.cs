@@ -176,7 +176,7 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        [InlineData(typeof(UdpHostConfigurator))]
+        //[InlineData(typeof(UdpHostConfigurator))]
         public virtual async Task TestBreakRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
