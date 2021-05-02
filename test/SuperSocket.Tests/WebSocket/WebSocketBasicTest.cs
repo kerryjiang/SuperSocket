@@ -712,13 +712,13 @@ namespace SuperSocket.Tests.WebSocket
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
-        public async Task TestCommands(Type hostConfiguratorType) 
+        public async Task TestCommands(Type hostConfiguratorType, Func<ISuperSocketHostBuilder<WebSocketPackage>, ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderAdapter = null) 
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
             using (var server = CreateWebSocketServerBuilder(builder =>
             {
-                return builder
+                var hostBuilder = builder
                     .UseCommand<StringPackageInfo, StringPackageConverter>(commandOptions =>
                     {
                         // register commands one by one
@@ -729,6 +729,11 @@ namespace SuperSocket.Tests.WebSocket
                         // register all commands in one assembly
                         //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
                     });
+
+                if (hostBuilderAdapter != null)
+                    hostBuilder = hostBuilderAdapter(hostBuilder);
+
+                return hostBuilder;
             }, hostConfigurator).BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
@@ -754,6 +759,24 @@ namespace SuperSocket.Tests.WebSocket
 
                 await server.StopAsync();
             }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommandsWithCustomSession(Type hostConfiguratorType) 
+        {
+            await TestCommands(hostConfiguratorType, builder => 
+            {
+                return builder
+                    .UseSession<MyWebSocketSession>()
+                    .ConfigureServices(
+                        (hostCtx, services) =>
+                        {
+                            services.AddSingleton<ITestService, TestService>();
+                        }
+                    );
+            });
         }
 
         [Theory]

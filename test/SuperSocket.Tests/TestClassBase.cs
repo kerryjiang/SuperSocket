@@ -91,6 +91,7 @@ namespace SuperSocket.Tests
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
                     loggingBuilder.AddConsole();
+                    loggingBuilder.SetMinimumLevel(LogLevel.Debug);
                     loggingBuilder.AddDebug();
                 })
                 .ConfigureServices((hostCtx, services) =>
