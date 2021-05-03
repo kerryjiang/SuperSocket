@@ -1,10 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
-    <Description>SuperSocket built-in session containers.</Description>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SuperSocket.Channel\SuperSocket.Channel.csproj" />
+    <ProjectReference Include="..\SuperSocket.Primitives\SuperSocket.Primitives.csproj" />
+  </ItemGroup>
+
 </Project>

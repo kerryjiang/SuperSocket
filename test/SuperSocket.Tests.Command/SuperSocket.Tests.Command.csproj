@@ -1,9 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <IsPackable>false</IsPackable>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
-    <ProjectReference Include="../../src/SuperSocket.Command/SuperSocket.Command.csproj" />
+    <ProjectReference Include="..\..\src\SuperSocket.Command\SuperSocket.Command.csproj" />
+    <ProjectReference Include="..\..\src\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
+
 </Project>

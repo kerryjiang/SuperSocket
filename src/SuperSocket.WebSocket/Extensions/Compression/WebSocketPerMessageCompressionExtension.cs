@@ -1,9 +1,9 @@
+using SuperSocket.ProtoBase;
 using System;
 using System.Buffers;
 using System.IO;
 using System.IO.Compression;
 using System.Text;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.Extensions.Compression
 {
@@ -65,7 +65,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             if (package.Data.IsEmpty)
                 EncodeTextMessage(package);
             else
-                EncodeDataMessage(package);            
+                EncodeDataMessage(package);
         }
 
         private void EncodeTextMessage(WebSocketPackage package)
@@ -73,7 +73,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             var encoder = _encoding.GetEncoder();
             var text = package.Message.AsSpan();
 
-            var completed = false;      
+            var completed = false;
 
             var outputStream = new WritableSequenceStream();
 
@@ -85,7 +85,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                     Span<byte> span = buffer;
 
                     encoder.Convert(text, span, false, out int charsUsed, out int bytesUsed, out completed);
-                
+
                     if (charsUsed > 0)
                         text = text.Slice(charsUsed);
 

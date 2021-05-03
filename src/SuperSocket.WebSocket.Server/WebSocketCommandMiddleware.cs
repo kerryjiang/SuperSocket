@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Specialized;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using SuperSocket.Channel;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
+using System;
+using System.Collections.Specialized;
+using System.Threading.Tasks;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -20,7 +20,7 @@ namespace SuperSocket.WebSocket.Server
         public WebSocketCommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
             : base(serviceProvider, commandOptions)
         {
-            
+
         }
 
         public WebSocketCommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions, IPackageMapper<WebSocketPackage, TPackageInfo> mapper)

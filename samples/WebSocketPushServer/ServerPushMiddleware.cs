@@ -50,14 +50,14 @@ namespace WebSocketPushServer
         private async ValueTask<int> Push()
         {
             // about 300 characters
-            var line = string.Join("-", Enumerable.Range(0, 10).Select(x => Guid.NewGuid().ToString()));
+            var line = string.Join("-", Enumerable.Range(0, 1).Select(x => Guid.NewGuid().ToString()));
             var startTime = DateTime.Now;
 
             var count = 0;
 
             foreach (var s in _sessionContainer.GetSessions<PushSession>())
             {
-                await s.SendAsync(line);
+                await s.SendAsync(line);                
                 count++;
 
                 if (_stopped)

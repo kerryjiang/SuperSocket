@@ -1,11 +1,11 @@
+using Microsoft.Extensions.Logging;
+using SuperSocket.Channel;
+using SuperSocket.ProtoBase;
 using System;
 using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using SuperSocket.Channel;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Udp
 {
@@ -20,7 +20,7 @@ namespace SuperSocket.Udp
             _udpSessionIdentifierProvider = udpSessionIdentifierProvider;
             _sessionContainer = sessionContainer;
         }
-        
+
         public IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options, ChannelOptions channelOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
         {
             var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;

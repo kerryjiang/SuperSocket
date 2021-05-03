@@ -9,6 +9,6 @@ namespace SuperSocket.WebSocket
 
         public string ReasonText { get; set; }
 
-        public bool RemoteInitiated{ get; set; }
+        public bool RemoteInitiated { get; set; }
     }
 }

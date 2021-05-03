@@ -1,8 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
+
   <ItemGroup>
+    <ProjectReference Include="..\SuperSocket.Channel\SuperSocket.Channel.csproj" />
     <ProjectReference Include="..\SuperSocket.Client\SuperSocket.Client.csproj" />
+    <ProjectReference Include="..\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
+
 </Project>

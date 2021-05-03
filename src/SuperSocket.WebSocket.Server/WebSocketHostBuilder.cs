@@ -1,9 +1,9 @@
-﻿using System;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SuperSocket.Server;
+using Microsoft.Extensions.Hosting;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server;
+using System;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -38,7 +38,7 @@ namespace SuperSocket.WebSocket.Server
         internal WebSocketHostBuilder(IHostBuilder hostBuilder)
             : base(hostBuilder)
         {
-            
+
         }
 
         internal WebSocketHostBuilder(string[] args)
@@ -51,7 +51,7 @@ namespace SuperSocket.WebSocket.Server
         {
             base.RegisterDefaultServices(builderContext, servicesInHost, services);
             services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
-        }        
+        }
 
         public static WebSocketHostBuilder Create()
         {
@@ -80,7 +80,7 @@ namespace SuperSocket.WebSocket.Server
 
         internal static void ValidateHostBuilder(HostBuilderContext builderCtx, IServiceCollection services)
         {
-            
+
         }
     }
 }

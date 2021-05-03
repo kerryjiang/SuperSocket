@@ -1,9 +1,9 @@
+using Microsoft.Extensions.Options;
+using SuperSocket.Server;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -17,7 +17,7 @@ namespace SuperSocket.WebSocket.Server
         private ConcurrentQueue<WebSocketSession> _openHandshakePendingQueue = new ConcurrentQueue<WebSocketSession>();
 
         private ConcurrentQueue<WebSocketSession> _closeHandshakePendingQueue = new ConcurrentQueue<WebSocketSession>();
-        
+
         private Timer _checkingTimer;
 
         private readonly HandshakeOptions _options;
@@ -33,7 +33,7 @@ namespace SuperSocket.WebSocket.Server
             if (options == null)
                 options = new HandshakeOptions();
 
-            _options = options;        
+            _options = options;
         }
 
         public override void Start(IServer server)
@@ -55,7 +55,7 @@ namespace SuperSocket.WebSocket.Server
         {
             var websocketSession = session as WebSocketSession;
             _openHandshakePendingQueue.Enqueue(websocketSession);
-            websocketSession.CloseHandshakeStarted += OnCloseHandshakeStarted;            
+            websocketSession.CloseHandshakeStarted += OnCloseHandshakeStarted;
             return new ValueTask<bool>(true);
         }
 

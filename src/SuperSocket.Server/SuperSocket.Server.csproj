@@ -1,28 +1,17 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
-    <DebugType>portable</DebugType>
-    <AssemblyName>SuperSocket.Server</AssemblyName>
-    <PackageId>SuperSocket.Server</PackageId>
-    <Description>SuperSocket server hosting library.</Description>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
-    <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />
-    <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="5.0.0" />
   </ItemGroup>
-  
+
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="$(MSExtensionsVersion)" />
+    <ProjectReference Include="..\SuperSocket.Channel\SuperSocket.Channel.csproj" />
+    <ProjectReference Include="..\SuperSocket.Primitives\SuperSocket.Primitives.csproj" />
   </ItemGroup>
 
 </Project>

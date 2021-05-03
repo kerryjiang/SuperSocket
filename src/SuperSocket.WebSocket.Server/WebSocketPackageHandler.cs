@@ -1,13 +1,4 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket;
@@ -16,6 +7,15 @@ using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using SuperSocket.WebSocket.Extensions;
 using SuperSocket.WebSocket.Server.Extensions;
+using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.IO.Pipelines;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -24,7 +24,7 @@ namespace SuperSocket.WebSocket.Server
         private const string _magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 
         private static Encoding _textEncoding = new UTF8Encoding(false);
-        
+
         private IServiceProvider _serviceProvider;
 
         private IPackageHandler<WebSocketPackage> _websocketCommandMiddleware;
@@ -53,7 +53,7 @@ namespace SuperSocket.WebSocket.Server
                 .GetService<IWebSocketCommandMiddleware>() as IPackageHandler<WebSocketPackage>;
 
             _subProtocolHandlers = serviceProvider.GetServices<ISubProtocolHandler>().ToDictionary(h => h.Name, StringComparer.OrdinalIgnoreCase);
-            
+
             _extensionFactories = serviceProvider.GetServices<IWebSocketExtensionFactory>()
                 .GroupBy(f => f.Name)
                 .ToDictionary(g => g.Key, g => g.AsEnumerable(), StringComparer.OrdinalIgnoreCase);
@@ -93,7 +93,7 @@ namespace SuperSocket.WebSocket.Server
         public async ValueTask Handle(IAppSession session, WebSocketPackage package)
         {
             var websocketSession = session as WebSocketSession;
-            
+
             if (package.OpCode == OpCode.Handshake)
             {
                 websocketSession.HttpHeader = package.HttpHeader;
@@ -132,14 +132,14 @@ namespace SuperSocket.WebSocket.Server
                     }
                     catch (InvalidOperationException)
                     {
-                         // support the case the client close the connection right after it send the close handshake
+                        // support the case the client close the connection right after it send the close handshake
                     }
                 }
                 else
                 {
                     websocketSession.CloseWithoutHandshake();
                 }
-                
+
                 return;
             }
             else if (package.OpCode == OpCode.Ping)
@@ -172,7 +172,7 @@ namespace SuperSocket.WebSocket.Server
             }
 
             var packageHandleDelegate = _packageHandlerDelegate;
-            
+
             if (packageHandleDelegate != null)
                 await packageHandleDelegate(websocketSession, package);
         }
@@ -213,7 +213,7 @@ namespace SuperSocket.WebSocket.Server
 
             extensions = new List<IWebSocketExtension>();
 
-            var selectedExtensions = new List<string>();            
+            var selectedExtensions = new List<string>();
             var exts = requestedExtensions.Split(',', StringSplitOptions.RemoveEmptyEntries);
 
             foreach (var e in exts)
@@ -231,7 +231,7 @@ namespace SuperSocket.WebSocket.Server
                     foreach (var pair in line.Substring(pos + 1).Split(';'))
                     {
                         var eqPos = pair.IndexOf('=');
-                        
+
                         if (eqPos < 0)
                         {
                             options.Add(pair, string.Empty);
@@ -334,7 +334,7 @@ namespace SuperSocket.WebSocket.Server
 
             if (selectedExtensionHeadItems != null && selectedExtensionHeadItems.Count > 0)
             {
-                var pipeChannel = session.Channel as IPipeChannel;                
+                var pipeChannel = session.Channel as IPipeChannel;
                 pipeChannel.PipelineFilter.Context = new WebSocketPipelineFilterContext
                 {
                     Extensions = extensions
@@ -374,7 +374,7 @@ namespace SuperSocket.WebSocket.Server
                     writer.Write(string.Format(WebSocketConstant.ResponseProtocolLine, selectedProtocol), encoding);
 
                 WriteExtensions(writer, encoding, selectedExtensionHeadItems);
-                
+
                 writer.Write("\r\n", encoding);
                 writer.FlushAsync().GetAwaiter().GetResult();
             });

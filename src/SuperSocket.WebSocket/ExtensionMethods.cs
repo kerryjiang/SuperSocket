@@ -1,7 +1,7 @@
+using SuperSocket.ProtoBase;
 using System;
 using System.Buffers;
 using System.Text;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket
 {
@@ -59,7 +59,7 @@ namespace SuperSocket.WebSocket
             SequenceSegment tail = null;
 
             foreach (var segment in seq)
-            {                
+            {
                 var newSegment = SequenceSegment.CopyFrom(segment);
 
                 if (head == null)
@@ -75,11 +75,11 @@ namespace SuperSocket.WebSocket
         {
             SequenceSegment head = first.Start.GetObject() as SequenceSegment;
             SequenceSegment tail = first.End.GetObject() as SequenceSegment;
-            
+
             if (head == null)
             {
                 foreach (var segment in first)
-                {                
+                {
                     if (head == null)
                         tail = head = new SequenceSegment(segment);
                     else

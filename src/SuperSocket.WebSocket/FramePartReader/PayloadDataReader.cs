@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SuperSocket.ProtoBase;
+using System;
 using System.Buffers;
 using System.Text;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.FramePartReader
 {
@@ -73,7 +73,7 @@ namespace SuperSocket.WebSocket.FramePartReader
                     {
                         package.Data = data.CopySequence();
                     }
-                    
+
                     return true;
                 }
                 else

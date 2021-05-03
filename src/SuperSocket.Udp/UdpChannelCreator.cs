@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using SuperSocket.Channel;
+using System;
 using System.Buffers;
-using System.Threading.Tasks;
-using System.Threading;
 using System.Net;
 using System.Net.Sockets;
-using Microsoft.Extensions.Logging;
-using SuperSocket.Channel;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SuperSocket.Udp
 {
@@ -18,8 +18,8 @@ namespace SuperSocket.Udp
         private IPEndPoint _acceptRemoteEndPoint;
 
         private readonly Func<Socket, IPEndPoint, string, ValueTask<IVirtualChannel>> _channelFactory;
-        
-        public ListenOptions Options { get;  }
+
+        public ListenOptions Options { get; }
 
         public ChannelOptions ChannelOptions { get; }
 
@@ -52,13 +52,13 @@ namespace SuperSocket.Udp
             var options = Options;
 
             try
-            {                
-                var listenEndpoint = options.GetListenEndPoint();                
+            {
+                var listenEndpoint = options.GetListenEndPoint();
                 var listenSocket = _listenSocket = new Socket(listenEndpoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-                
+
                 if (options.NoDelay)
                     listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
-                
+
                 listenSocket.Bind(listenEndpoint);
 
                 _acceptRemoteEndPoint = listenEndpoint.AddressFamily == AddressFamily.InterNetworkV6 ? new IPEndPoint(IPAddress.IPv6Any, 0) : new IPEndPoint(IPAddress.Any, 0);
@@ -77,7 +77,7 @@ namespace SuperSocket.Udp
                 catch (PlatformNotSupportedException)
                 {
                     _logger.LogWarning("Failed to set socket option SIO_UDP_CONNRESET because the platform doesn't support it.");
-                }                
+                }
 
                 IsRunning = true;
 
@@ -110,7 +110,7 @@ namespace SuperSocket.Udp
 
                     var packageData = new ArraySegment<byte>(buffer, 0, result.ReceivedBytes);
                     var remoteEndPoint = result.RemoteEndPoint as IPEndPoint;
-                    
+
                     var sessionID = _udpSessionIdentifierProvider.GetSessionIdentifier(remoteEndPoint, packageData);
 
                     var session = await _sessionContainer.GetSessionByIDAsync(sessionID);
@@ -137,7 +137,7 @@ namespace SuperSocket.Udp
                 {
                     if (e is ObjectDisposedException || e is NullReferenceException)
                         break;
-                    
+
                     if (e is SocketException se)
                     {
                         var errorCode = se.ErrorCode;
@@ -148,7 +148,7 @@ namespace SuperSocket.Udp
                             break;
                         }
                     }
-                    
+
                     _logger.LogError(e, $"Listener[{this.ToString()}] failed to receive udp data");
                 }
                 finally
@@ -180,7 +180,7 @@ namespace SuperSocket.Udp
             {
                 _logger.LogError(e, $"Failed to create channel for {socket.RemoteEndPoint}.");
                 return null;
-            }   
+            }
         }
 
         public async Task<IChannel> CreateChannel(object connection)
@@ -201,7 +201,7 @@ namespace SuperSocket.Udp
 
             _cancellationTokenSource.Cancel();
             listenSocket.Close();
-            
+
             return _stopTaskCompletionSource.Task;
         }
 

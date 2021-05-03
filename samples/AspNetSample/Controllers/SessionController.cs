@@ -18,7 +18,7 @@ namespace AspNetSample.Controllers
         public IActionResult IndexAsync()
         {
             return Ok(sessionContainer.GetSessions());
-        }
+        }        
         public IActionResult BroadcastMessage(string message)
         {
             try

@@ -1,9 +1,9 @@
+using SuperSocket.ProtoBase;
+using SuperSocket.WebSocket.Extensions;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
-using SuperSocket.ProtoBase;
-using SuperSocket.WebSocket.Extensions;
 
 namespace SuperSocket.WebSocket
 {
@@ -67,7 +67,7 @@ namespace SuperSocket.WebSocket
             writer.Advance(expectedHeadLength);
 
             var buffer = writer.GetSpan(fragmentSize).Slice(0, fragmentSize);
-            
+
             encoder.Convert(text, buffer, false, out charsUsed, out int bytesUsed, out bool completed);
             writer.Advance(bytesUsed);
 
@@ -100,7 +100,7 @@ namespace SuperSocket.WebSocket
             var head = writer.GetSpan(10);
 
             var headLen = WriteHead(ref head, (byte)(pack.OpCodeByte | 0x80), pack.Data.Length);
-            
+
             writer.Advance(headLen);
 
             foreach (var dataPiece in pack.Data)
@@ -110,7 +110,7 @@ namespace SuperSocket.WebSocket
 
             return (int)(pack.Data.Length + headLen);
         }
-        
+
         public int Encode(IBufferWriter<byte> writer, WebSocketPackage pack)
         {
             pack.SaveOpCodeByte();
@@ -140,7 +140,7 @@ namespace SuperSocket.WebSocket
             var headLen = 0;
 
             if (maxSize < _size0)
-                headLen =  2;
+                headLen = 2;
             else if (minSize >= _size0 && maxSize < _size1)
                 headLen = 4;
             else if (minSize >= _size1)
@@ -150,12 +150,12 @@ namespace SuperSocket.WebSocket
             {
                 if (minSize < _size0 && maxSize >= _size0)
                 {
-                    headLen =  2;
+                    headLen = 2;
                     fragmentSize = _size0 - 1;
                 }
                 else
                 {
-                    headLen =  4;
+                    headLen = 4;
                     fragmentSize = _size1 - 1;
                 }
             }
@@ -180,7 +180,7 @@ namespace SuperSocket.WebSocket
                         break;
 
                     text = text.Slice(charsUsed);
-                    
+
                     if (!isContinuation)
                         isContinuation = true;
                 }

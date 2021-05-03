@@ -1,7 +1,7 @@
-﻿using System;
+﻿using SuperSocket.ProtoBase;
+using System;
 using System.Buffers;
 using System.Linq;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.FramePartReader
 {

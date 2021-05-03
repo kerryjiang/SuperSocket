@@ -1,7 +1,7 @@
+using SuperSocket.WebSocket.Extensions;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using SuperSocket.WebSocket.Extensions;
 
 namespace SuperSocket.WebSocket
 {

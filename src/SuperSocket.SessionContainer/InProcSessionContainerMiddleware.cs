@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.DependencyInjection;
+using SuperSocket.Channel;
+using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using SuperSocket.Channel;
 
 namespace SuperSocket.SessionContainer
 {
@@ -25,7 +25,7 @@ namespace SuperSocket.SessionContainer
                 if (!handshakeSession.Handshaked)
                     return new ValueTask<bool>(true);
             }
-            
+
             session.Closed += OnSessionClosed;
             _sessions.TryAdd(session.SessionID, session);
             return new ValueTask<bool>(true);
@@ -33,11 +33,11 @@ namespace SuperSocket.SessionContainer
 
         private ValueTask OnSessionClosed(object sender, EventArgs e)
         {
-            var session  = (IAppSession)sender;
+            var session = (IAppSession)sender;
 
             session.Closed -= OnSessionClosed;
             _sessions.TryRemove(session.SessionID, out IAppSession removedSession);
-            
+
             return new ValueTask();
         }
 
@@ -63,7 +63,7 @@ namespace SuperSocket.SessionContainer
                 if (s.State != SessionState.Connected)
                     continue;
 
-                if(criteria == null || criteria(s))
+                if (criteria == null || criteria(s))
                     yield return s;
             }
         }
@@ -78,7 +78,7 @@ namespace SuperSocket.SessionContainer
                 {
                     if (s.State != SessionState.Connected)
                         continue;
-                        
+
                     if (criteria == null || criteria(s))
                         yield return s;
                 }

@@ -1,8 +1,8 @@
+using SuperSocket.ProtoBase;
 using System;
 using System.Buffers;
 using System.IO;
 using System.IO.Compression;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.Extensions.Compression
 {
@@ -19,7 +19,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
         public override long Position { get => throw new NotSupportedException(); set => throw new NotSupportedException(); }
 
         private SequenceSegment _head;
-        
+
         private SequenceSegment _tail;
 
         private static readonly ArrayPool<byte> _arrayPool = ArrayPool<byte>.Shared;

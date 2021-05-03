@@ -1,9 +1,9 @@
-using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket.SessionContainer;
 using SuperSocket.Udp;
+using System;
+using System.Linq;
 
 
 namespace SuperSocket
@@ -19,7 +19,7 @@ namespace SuperSocket
         {
             return (hostBuilder.ConfigureServices((context, services) =>
             {
-                services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();                
+                services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();
             }) as ISuperSocketHostBuilder)
             .ConfigureSupplementServices((context, services) =>
             {

@@ -1,23 +1,23 @@
-﻿using System;
+﻿using SuperSocket.ProtoBase;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Text;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket
 {
     public class WebSocketPipelineFilter : IPipelineFilter<WebSocketPackage>
     {
         private static ReadOnlySpan<byte> _CRLF => new byte[] { (byte)'\r', (byte)'\n' };
-        
+
         private static readonly char _TAB = '\t';
 
         private static readonly char _COLON = ':';
 
         private static readonly ReadOnlyMemory<byte> _headerTerminator = new byte[] { (byte)'\r', (byte)'\n', (byte)'\r', (byte)'\n' };
-        
+
         public IPackageDecoder<WebSocketPackage> Decoder { get; set; }
 
         public IPipelineFilter<WebSocketPackage> NextFilter { get; internal set; }
@@ -34,7 +34,7 @@ namespace SuperSocket.WebSocket
             var package = ParseHandshake(ref pack);
 
             NextFilter = new WebSocketDataPipelineFilter(package.HttpHeader);
-            
+
             return package;
         }
 
@@ -65,7 +65,7 @@ namespace SuperSocket.WebSocket
 
             var prevKey = string.Empty;
             var line = string.Empty;
-            
+
             while (!string.IsNullOrEmpty(line = reader.ReadLine()))
             {
                 if (line.StartsWith(_TAB) && !string.IsNullOrEmpty(prevKey))
@@ -138,7 +138,7 @@ namespace SuperSocket.WebSocket
 
         public void Reset()
         {
-            
+
         }
 
         public object Context { get; set; }

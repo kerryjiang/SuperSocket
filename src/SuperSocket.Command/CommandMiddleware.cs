@@ -56,31 +56,40 @@ namespace SuperSocket.Command
             _logger = serviceProvider.GetService<ILoggerFactory>().CreateLogger("CommandMiddleware");
 
             var sessionFactory = serviceProvider.GetService<ISessionFactory>();
-            var sessionType = sessionFactory == null ? typeof(IAppSession) : sessionFactory.SessionType;
+            var sessionType = sessionFactory.SessionType;
 
             var commandInterfaces = new List<CommandTypeInfo>();
             var commandSetFactories = new List<ICommandSetFactory>();
 
-            RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, sessionType, typeof(TPackageInfo));
+            var ignorePackageInterfaces = new Type[] { typeof(IKeyedPackageInfo<TKey>) };
+            var availablePackageTypes = typeof(TPackageInfo).GetTypeInfo()
+                .GetInterfaces()
+                .Where(f => !ignorePackageInterfaces.Contains(f))
+                .ToList();                
+            availablePackageTypes.Add(typeof(TPackageInfo));
 
+            var availableSessionTypes = new List<Type> { typeof(IAppSession),  sessionType };
 
-            if (sessionType != typeof(IAppSession))
+            var currentSessionType = sessionType;
+
+            while (true)
             {
-                RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, typeof(IAppSession), typeof(TPackageInfo));
+                var baseSessionType = currentSessionType.BaseType;
+
+                if (baseSessionType == null || baseSessionType == typeof(object))
+                    break;
+
+                availableSessionTypes.Add(baseSessionType);
+                currentSessionType = baseSessionType;
             }
 
             var knownInterfaces = new Type[] { typeof(IKeyedPackageInfo<TKey>) };
 
-            foreach (var f in typeof(TPackageInfo).GetTypeInfo().GetInterfaces())
+            foreach (var pt in availablePackageTypes)
             {
-                if (knownInterfaces.Contains(f))
-                    continue;
-
-                RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, sessionType, f, true);
-
-                if (sessionType != typeof(IAppSession))
+                foreach (var st in availableSessionTypes)
                 {
-                    RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, typeof(IAppSession), f, true);
+                    RegisterCommandInterfaces(commandInterfaces, commandSetFactories, serviceProvider, st, pt, true);
                 }
             }
 
@@ -94,9 +103,10 @@ namespace SuperSocket.Command
                     var face = commandInterfaces[i];
 
                     if (face.CommandType.IsAssignableFrom(t))
-                        return face.CreateCommandSetFactory(t);
+                        return face.CreateCommandSetFactory(t);                        
                 }
 
+                _logger.LogWarning($"{t} cannot be registered because it doesn't implement any applicable command interface.");
                 return null;
             }).Where(t => t != null));
 

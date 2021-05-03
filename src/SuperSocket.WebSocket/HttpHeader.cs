@@ -20,7 +20,7 @@ namespace SuperSocket.WebSocket
 
         private HttpHeader()
         {
-            
+
         }
 
         public static HttpHeader CreateForRequest(string method, string path, string httpVersion, NameValueCollection items)

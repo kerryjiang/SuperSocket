@@ -1,8 +1,8 @@
-﻿using System;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.DependencyInjection;
-using SuperSocket.SessionContainer;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
+using SuperSocket.SessionContainer;
+using System;
 
 namespace SuperSocket
 {

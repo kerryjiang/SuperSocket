@@ -1,8 +1,8 @@
+using SuperSocket.WebSocket.Extensions;
+using SuperSocket.WebSocket.Extensions.Compression;
 using System;
 using System.Buffers;
 using System.Collections.Specialized;
-using SuperSocket.WebSocket.Extensions;
-using SuperSocket.WebSocket.Extensions.Compression;
 
 namespace SuperSocket.WebSocket.Server.Extensions.Compression
 {
@@ -19,13 +19,13 @@ namespace SuperSocket.WebSocket.Server.Extensions.Compression
         static WebSocketPerMessageCompressionExtensionFactory()
         {
             _supportedOptions = new NameValueCollection();
-            _supportedOptions.Add("client_no_context_takeover", string.Empty);          
+            _supportedOptions.Add("client_no_context_takeover", string.Empty);
         }
 
         public IWebSocketExtension Create(NameValueCollection options, out NameValueCollection supportedOptions)
         {
             supportedOptions = _supportedOptions;
-            
+
             if (options != null && options.Count > 0)
             {
                 foreach (var key in options.AllKeys)

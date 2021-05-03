@@ -35,7 +35,7 @@ namespace SuperSocket.WebSocket.Extensions.Compression
         public override int Read(byte[] buffer, int offset, int count)
         {
             var firstSpan = _sequence.FirstSpan;
-            
+
             if (firstSpan.IsEmpty)
                 return 0;
 

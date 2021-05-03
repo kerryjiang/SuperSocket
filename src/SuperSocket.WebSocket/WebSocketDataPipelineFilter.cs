@@ -1,7 +1,7 @@
-using System;
-using System.Buffers;
 using SuperSocket.ProtoBase;
 using SuperSocket.WebSocket.FramePartReader;
+using System;
+using System.Buffers;
 
 namespace SuperSocket.WebSocket
 {
@@ -15,7 +15,7 @@ namespace SuperSocket.WebSocket
         /// N: the bytes we preserved
         /// </summary>
         private long _consumed = -1;
-        
+
         public WebSocketDataPipelineFilter(HttpHeader httpHeader)
         {
             _httpHeader = httpHeader;
@@ -51,13 +51,13 @@ namespace SuperSocket.WebSocket
                     reader.Rewind(consumed);
                 }
             }
-            
+
             if (consumed > 0)
             {
                 if (_consumed < 0) // cleared
                     reader.Advance(consumed);
                 else
-                    _consumed = consumed;            
+                    _consumed = consumed;
             }
 
             return package;
@@ -81,7 +81,7 @@ namespace SuperSocket.WebSocket
 
         public override void Reset()
         {
-            _consumed = -1;            
+            _consumed = -1;
             base.Reset();
         }
     }

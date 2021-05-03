@@ -1,6 +1,6 @@
-﻿using System;
+﻿using SuperSocket.ProtoBase;
+using System;
 using System.Buffers;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket
 {

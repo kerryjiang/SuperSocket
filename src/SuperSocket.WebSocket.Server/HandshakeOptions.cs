@@ -16,7 +16,7 @@ namespace SuperSocket.WebSocket.Server
         /// </summary>
         /// <value>default: 120</value>
         public int OpenHandshakeTimeOut { get; set; } = 120;
-        
+
         /// <summary>
         /// Close handshake timeout, in seconds
         /// </summary>
