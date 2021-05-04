@@ -47,7 +47,7 @@ namespace SuperSocket.Server
 
                 if (options.NoDelay)
                     listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
-                
+
                 listenSocket.Bind(listenEndpoint);
                 listenSocket.Listen(options.BackLog);
 
