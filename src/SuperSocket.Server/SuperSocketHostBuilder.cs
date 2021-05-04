@@ -101,7 +101,7 @@ namespace SuperSocket
             }
 
             services.TryAdd(ServiceDescriptor.Singleton<IPackageEncoder<string>, DefaultStringEncoderForDI>());            
-            //services.TryAdd(ServiceDescriptor.Singleton<ISessionFactory, DefaultSessionFactory>());
+            services.TryAdd(ServiceDescriptor.Singleton<ISessionFactory, DefaultSessionFactory>());
 
             // if no host service was defined, just use the default one
             if (!CheckIfExistHostedService(services))

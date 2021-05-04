@@ -31,9 +31,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Channel", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Client", "src\SuperSocket.Client\SuperSocket.Client.csproj", "{89B5EB21-CA54-4DAE-8896-1C8208EABD97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Http", "src\SuperSocket.Http\SuperSocket.Http.csproj", "{18D6577A-B82D-4254-9E9D-54CE71A60AD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Http", "src\SuperSocket.Http\SuperSocket.Http.csproj", "{18D6577A-B82D-4254-9E9D-54CE71A60AD3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.ProtoBase", "src\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj", "{560B1048-3022-4A4B-AAB2-310B4576A3B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.ProtoBase", "src\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj", "{560B1048-3022-4A4B-AAB2-310B4576A3B3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Client.Proxy", "src\SuperSocket.Client.Proxy\SuperSocket.Client.Proxy.csproj", "{CF78511E-3D9D-434C-A366-2D83E24D4100}"
 EndProject
@@ -41,19 +41,23 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Primitives", "s
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Server", "src\SuperSocket.Server\SuperSocket.Server.csproj", "{87056181-4404-466B-807A-C93087CE44F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.SessionContainer", "src\SuperSocket.SessionContainer\SuperSocket.SessionContainer.csproj", "{2E16011D-B8F3-45EA-B9F5-0B64FAC11A21}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.SessionContainer", "src\SuperSocket.SessionContainer\SuperSocket.SessionContainer.csproj", "{2E16011D-B8F3-45EA-B9F5-0B64FAC11A21}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Udp", "src\SuperSocket.Udp\SuperSocket.Udp.csproj", "{97F659C5-201B-4F6C-BAD4-D3998F73CDFB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Udp", "src\SuperSocket.Udp\SuperSocket.Udp.csproj", "{97F659C5-201B-4F6C-BAD4-D3998F73CDFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket", "src\SuperSocket.WebSocket\SuperSocket.WebSocket.csproj", "{500748DF-93C9-4FC5-B815-BCFC08771BC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.WebSocket", "src\SuperSocket.WebSocket\SuperSocket.WebSocket.csproj", "{500748DF-93C9-4FC5-B815-BCFC08771BC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.WebSocket.Server", "src\SuperSocket.WebSocket.Server\SuperSocket.WebSocket.Server.csproj", "{D949A5F0-36D7-40BA-BD76-768D06A33D5C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.WebSocket.Server", "src\SuperSocket.WebSocket.Server\SuperSocket.WebSocket.Server.csproj", "{D949A5F0-36D7-40BA-BD76-768D06A33D5C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Command", "src\SuperSocket.Command\SuperSocket.Command.csproj", "{47186EC1-EA18-4A1B-93DB-EAC9029ACC0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Command", "src\SuperSocket.Command\SuperSocket.Command.csproj", "{47186EC1-EA18-4A1B-93DB-EAC9029ACC0C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebSocketPushServer", "samples\WebSocketPushServer\WebSocketPushServer.csproj", "{9DA82449-19C3-4CAC-835A-00F1F08C3E36}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Tests.Command", "test\SuperSocket.Tests.Command\SuperSocket.Tests.Command.csproj", "{CD3AB558-2E72-4976-ABD2-81C81791B535}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Tests.Command", "test\SuperSocket.Tests.Command\SuperSocket.Tests.Command.csproj", "{CD3AB558-2E72-4976-ABD2-81C81791B535}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EchoServer", "samples\EchoServer\EchoServer.csproj", "{111A909B-248B-4543-8EDF-AE780DA3E534}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LiveChat", "samples\LiveChat\LiveChat.csproj", "{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -341,6 +345,30 @@ Global
 		{CD3AB558-2E72-4976-ABD2-81C81791B535}.Release|x64.Build.0 = Release|Any CPU
 		{CD3AB558-2E72-4976-ABD2-81C81791B535}.Release|x86.ActiveCfg = Release|Any CPU
 		{CD3AB558-2E72-4976-ABD2-81C81791B535}.Release|x86.Build.0 = Release|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Debug|x64.Build.0 = Debug|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Debug|x86.Build.0 = Debug|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Release|Any CPU.Build.0 = Release|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Release|x64.ActiveCfg = Release|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Release|x64.Build.0 = Release|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Release|x86.ActiveCfg = Release|Any CPU
+		{111A909B-248B-4543-8EDF-AE780DA3E534}.Release|x86.Build.0 = Release|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Debug|x64.Build.0 = Debug|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Debug|x86.Build.0 = Debug|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Release|x64.ActiveCfg = Release|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Release|x64.Build.0 = Release|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Release|x86.ActiveCfg = Release|Any CPU
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -369,6 +397,8 @@ Global
 		{47186EC1-EA18-4A1B-93DB-EAC9029ACC0C} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{9DA82449-19C3-4CAC-835A-00F1F08C3E36} = {59F58C72-676D-49C5-9377-58043D9A1013}
 		{CD3AB558-2E72-4976-ABD2-81C81791B535} = {4040EEC4-6FB7-47B1-B487-23E043A0F52F}
+		{111A909B-248B-4543-8EDF-AE780DA3E534} = {59F58C72-676D-49C5-9377-58043D9A1013}
+		{49A3DBE8-5421-4E2C-AAD3-6D9011D65CE9} = {59F58C72-676D-49C5-9377-58043D9A1013}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94EDE6B7-87F0-48B6-83A0-82C5AB44A40B}
