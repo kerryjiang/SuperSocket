@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SuperSocket.WebSocketServer" Version="2.0.0-beta7" />
+    <PackageReference Include="SuperSocket.WebSocketServer" Version="2.0.0-beta.8" />
   </ItemGroup>
 
   <ItemGroup>
