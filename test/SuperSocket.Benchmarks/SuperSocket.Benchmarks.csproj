@@ -1,11 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.1" />
+    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
     <ProjectReference Include="../../src/SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Channel/SuperSocket.Channel.csproj" />
   </ItemGroup>
 </Project>
