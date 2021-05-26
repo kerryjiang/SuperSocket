@@ -8,7 +8,7 @@ jobs:
             - name: Setup .NET Core
               uses: actions/setup-dotnet@v1
               with:
-                dotnet-version: 3.1.401
+                dotnet-version: 5.0.100
             - name: Set env
               run: echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
             - uses: dotnet/nbgv@master
