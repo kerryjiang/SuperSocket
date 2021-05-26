@@ -106,7 +106,6 @@ namespace SuperSocket.Command
                         return face.CreateCommandSetFactory(t);                        
                 }
 
-                _logger.LogWarning($"{t} cannot be registered because it doesn't implement any applicable command interface.");
                 return null;
             }).Where(t => t != null));
 
