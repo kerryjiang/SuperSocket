@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
+    <Description>SuperSocket client proxy library</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SuperSocket.Client\SuperSocket.Client.csproj" />

@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <DebugType>portable</DebugType>
     <AssemblyName>SuperSocket.Primitives</AssemblyName>
     <PackageId>SuperSocket.Primitives</PackageId>

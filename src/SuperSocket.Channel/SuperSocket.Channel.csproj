@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket library to abstract underlying communications as channel with pipeline.</Description>
   </PropertyGroup>
   <ItemGroup>

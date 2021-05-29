@@ -2,7 +2,7 @@
   <Import Project="Dependencies.props" />
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
-    <LibTargetFramework>netstandard2.1</LibTargetFramework>
+    <TargetFrameworks>net5.0;netstandard2.1</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PackageProjectUrl>https://github.com/kerryjiang/supersocket</PackageProjectUrl>

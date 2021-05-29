@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket built-in session containers.</Description>
   </PropertyGroup>
   <ItemGroup>

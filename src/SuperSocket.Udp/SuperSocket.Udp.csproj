@@ -1,10 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
+    <Description>SuperSocket UDP support library</Description>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
-    
+    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />    
     <ProjectReference Include="../SuperSocket.SessionContainer/SuperSocket.SessionContainer.csproj" />
   </ItemGroup>
 </Project>

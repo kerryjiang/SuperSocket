@@ -1,6 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(LibTargetFramework)</TargetFramework>
     <Description>SuperSocket command pattern library which allow you to handle requests with commands.</Description>
   </PropertyGroup>
   <ItemGroup>
