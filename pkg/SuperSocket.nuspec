@@ -17,6 +17,11 @@
         <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />
         <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />        
       </group>
+      <group targetFramework="net5.0">
+        <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />        
+      </group>
     </dependencies>
   </metadata>
 </package>

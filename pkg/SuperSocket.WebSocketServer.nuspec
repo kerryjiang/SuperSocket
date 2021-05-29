@@ -16,6 +16,10 @@
         <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />
         <dependency id="SuperSocket.WebSocket.Server" version="$version$" exclude="Build,Analyzers" />
       </group>
+      <group targetFramework="net5.0">
+        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="SuperSocket.WebSocket.Server" version="$version$" exclude="Build,Analyzers" />
+      </group>
     </dependencies>
   </metadata>
 </package>
