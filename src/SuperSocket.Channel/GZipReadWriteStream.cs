@@ -36,10 +36,12 @@ namespace SuperSocket.Channel
             writeStream.Flush();
         }
 
-        [Obsolete("please don't use this method to avoid blocking.use ReadAsync instead.")]
         public override int Read(byte[] buffer, int offset, int count)
         {
-            return readStream.Read(buffer, offset, count);
+            var task = readStream.ReadAsync(buffer, offset, count, CancellationToken.None) ;
+            task.ConfigureAwait(false);
+            task.Wait();
+            return task.Result;
         }
 
         public override long Seek(long offset, SeekOrigin origin)
