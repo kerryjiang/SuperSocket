@@ -13,6 +13,7 @@ namespace SuperSocket
         public int BackLog { get; set; }
 
         public bool NoDelay { get; set; }
+        public bool GZipEnable { get; set; }
 
         public SslProtocols Security { get; set; }
 

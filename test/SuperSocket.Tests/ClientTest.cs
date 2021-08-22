@@ -42,6 +42,8 @@ namespace SuperSocket.Tests
         [Trait("Category", "Client.TestEcho")]
         [InlineData(typeof(RegularHostConfigurator), false)]
         [InlineData(typeof(SecureHostConfigurator), false)]
+        [InlineData(typeof(GzipHostConfigurator), false)]
+        [InlineData(typeof(GzipSecureHostConfigurator), false)]
         [InlineData(typeof(RegularHostConfigurator), true)]
         public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {
@@ -140,6 +142,8 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
         public async Task TestCommandLine(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);

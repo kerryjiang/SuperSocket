@@ -39,20 +39,20 @@ namespace SuperSocket.Client
                 Options.TargetHost = targetHost;
             }
 
-            var socket = state.Socket;
+            var stream = state.Stream;
 
-            if (socket == null)
+            if (stream == null)
                 throw new Exception("Socket from previous connector is null.");
-            
+
             try
             {
-                var stream = new SslStream(new NetworkStream(socket, true), false);
-                await stream.AuthenticateAsClientAsync(Options, cancellationToken);
+                var sslStream = new SslStream(stream, false);
+                await sslStream.AuthenticateAsClientAsync(Options, cancellationToken);
 
                 if (cancellationToken.IsCancellationRequested)
                     return ConnectState.CancelledState;
 
-                state.Stream = stream;
+                state.Stream = sslStream;
                 return state;
             }
             catch (Exception e)

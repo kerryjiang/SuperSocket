@@ -38,11 +38,11 @@ namespace SuperSocket.Client
 
             if (stream != null)
             {
-                return new StreamPipeChannel<TReceivePackage>(stream , socket.RemoteEndPoint, socket.LocalEndPoint, pipelineFilter, channelOptions);
+                return new StreamPipeChannel<TReceivePackage>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, pipelineFilter, channelOptions);
             }
             else
             {
-                return new TcpPipeChannel<TReceivePackage>(socket, pipelineFilter, channelOptions);
+                return new StreamPipeChannel<TReceivePackage>(new NetworkStream(socket, true), socket.RemoteEndPoint, socket.LocalEndPoint, pipelineFilter, channelOptions);
             }
         }
     }

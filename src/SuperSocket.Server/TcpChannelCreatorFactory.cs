@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
+using System.IO.Compression;
+using System.IO;
 
 namespace SuperSocket.Server
 {
@@ -89,22 +91,14 @@ namespace SuperSocket.Server
 
             var channelFactoryLogger = loggerFactory.CreateLogger(nameof(TcpChannelCreator));
 
-            if (options.Security == SslProtocols.None)
+            var channelFactory = new Func<Socket, ValueTask<IChannel>>(async (s) =>
             {
-                return new TcpChannelCreator(options, (s) => 
-                {                    
-                    ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);          
-                    return new ValueTask<IChannel>((new TcpPipeChannel<TPackageInfo>(s, filterFactory.Create(s), channelOptions)) as IChannel);
-                }, channelFactoryLogger);
-            }
-            else
-            {
-                var channelFactory = new Func<Socket, ValueTask<IChannel>>(async (s) =>
+                ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);
+                Stream stream = new NetworkStream(s, true);
+                if (options.Security != SslProtocols.None)
                 {
-                    ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);
-
                     var authOptions = new SslServerAuthenticationOptions();
-                    
+
                     authOptions.EnabledSslProtocols = options.Security;
                     authOptions.ServerCertificate = options.CertificateOptions.Certificate;
                     authOptions.ClientCertificateRequired = options.CertificateOptions.ClientCertificateRequired;
@@ -112,13 +106,17 @@ namespace SuperSocket.Server
                     if (options.CertificateOptions.RemoteCertificateValidationCallback != null)
                         authOptions.RemoteCertificateValidationCallback = options.CertificateOptions.RemoteCertificateValidationCallback;
 
-                    var stream = new SslStream(new NetworkStream(s, true), false);
-                    await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None).ConfigureAwait(false);
-                    return new StreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, s.LocalEndPoint, filterFactory.Create(s), channelOptions);
-                });
-
-                return new TcpChannelCreator(options, channelFactory, channelFactoryLogger);
-            }
+                    var sslStream = new SslStream(stream, true);
+                    await sslStream.AuthenticateAsServerAsync(authOptions, CancellationToken.None).ConfigureAwait(false);
+                    stream = sslStream;
+                }
+                if (options.GZipEnable)
+                {
+                    stream = new GZipReadWriteStream(stream, true);
+                }
+                return new StreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, s.LocalEndPoint, filterFactory.Create(s), channelOptions);
+            });
+            return new TcpChannelCreator(options, channelFactory, channelFactoryLogger);
         }
     }
 }

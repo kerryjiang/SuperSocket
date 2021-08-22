@@ -24,6 +24,8 @@ namespace SuperSocket.Client
 
         SecurityOptions Security { get; set; }
 
+        bool GZipEnable { get; set; }
+
         void StartReceive();
 
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
