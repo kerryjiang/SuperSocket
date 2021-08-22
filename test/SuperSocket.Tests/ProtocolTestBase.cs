@@ -251,7 +251,7 @@ namespace SuperSocket.Tests
 
                         for (var i = 0; i < size; i++)
                         {
-                            var receivedLine = reader.ReadLine();
+                            var receivedLine = await reader.ReadLineAsync();
                             Assert.Equal(lines[i], receivedLine);
                         }
                     }
