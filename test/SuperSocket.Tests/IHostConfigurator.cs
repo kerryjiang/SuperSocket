@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
+using SuperSocket.Channel;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
@@ -28,7 +29,7 @@ namespace SuperSocket.Tests
 
         ListenOptions Listener { get; }
 
-        IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client)
+        IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
             where TPackageInfo : class;
     }
 }

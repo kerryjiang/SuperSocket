@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SuperSocket.Client\SuperSocket.Client.csproj" />
+    <ProjectReference Include="..\SuperSocket.Server\SuperSocket.Server.csproj" />
+  </ItemGroup>
+
+</Project>

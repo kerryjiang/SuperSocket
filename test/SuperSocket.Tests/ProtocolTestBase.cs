@@ -15,19 +15,21 @@ namespace SuperSocket.Tests
 {
     public abstract class ProtocolTestBase : TestClassBase
     {
-        
+
         protected ProtocolTestBase(ITestOutputHelper outputHelper) : base(outputHelper)
         {
-  
+
         }
 
         protected abstract IServer CreateServer(IHostConfigurator hostConfigurator);
-        
+
         protected abstract string CreateRequest(string sourceLine);
 
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
         public virtual async Task TestNormalRequest(Type hostConfiguratorType)
         {
@@ -47,7 +49,7 @@ namespace SuperSocket.Tests
                         writer.Write(CreateRequest(line));
                         writer.Flush();
 
-                        var receivedLine = reader.ReadLine();
+                        var receivedLine = await reader.ReadLineAsync();
                         Assert.Equal(line, receivedLine);
                     }
                 }
@@ -60,6 +62,8 @@ namespace SuperSocket.Tests
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         public virtual async Task TestMiddleBreak(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -93,6 +97,8 @@ namespace SuperSocket.Tests
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         public virtual async Task TestFragmentRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -118,7 +124,7 @@ namespace SuperSocket.Tests
                             await hostConfigurator.KeepSequence();
                         }
 
-                        var receivedLine = reader.ReadLine();
+                        var receivedLine = await reader.ReadLineAsync();
                         Assert.Equal(line, receivedLine);
                     }
                 }
@@ -131,6 +137,8 @@ namespace SuperSocket.Tests
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         public virtual async Task TestBatchRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -163,7 +171,7 @@ namespace SuperSocket.Tests
 
                         for (var i = 0; i < size; i++)
                         {
-                            var receivedLine = reader.ReadLine();
+                            var receivedLine = await reader.ReadLineAsync();
                             Assert.Equal(lines[i], receivedLine);
                         }
                     }
@@ -176,6 +184,8 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         //[InlineData(typeof(UdpHostConfigurator))]
         public virtual async Task TestBreakRequest(Type hostConfiguratorType)
         {
@@ -236,7 +246,7 @@ namespace SuperSocket.Tests
 
                         for (var i = 0; i < size; i++)
                         {
-                            var receivedLine = reader.ReadLine();
+                            var receivedLine = await reader.ReadLineAsync();
                             Assert.Equal(lines[i], receivedLine);
                         }
                     }
