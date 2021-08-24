@@ -12,13 +12,14 @@ using Microsoft.Extensions.Logging;
 using SuperSocket;
 using SuperSocket.Channel;
 using SuperSocket.Client;
+using SuperSocket.GZip;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
 {
-    public class SecureHostConfigurator : TcpHostConfigurator
+    public class GzipSecureHostConfigurator : TcpHostConfigurator
     {
-        public SecureHostConfigurator()
+        public GzipSecureHostConfigurator()
         {
             WebSocketSchema = "wss";
             IsSecure = true;
@@ -34,7 +35,7 @@ namespace SuperSocket.Tests
 
                     if (listener.Security == SslProtocols.None)
                         listener.Security = GetServerEnabledSslProtocols();
-                    
+
                     listener.CertificateOptions = new CertificateOptions
                     {
                         FilePath = "supersocket.pfx",
@@ -43,6 +44,7 @@ namespace SuperSocket.Tests
                 });
             });
 
+            hostBuilder.UseGZip();
             base.Configure(hostBuilder);
         }
         public override async ValueTask<Stream> GetClientStream(Socket socket)
@@ -53,7 +55,8 @@ namespace SuperSocket.Tests
             options.EnabledSslProtocols = GetClientEnabledSslProtocols();
             options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
             await stream.AuthenticateAsClientAsync(options);
-            return stream;
+            var zipStream = new GZipReadWriteStream(stream, true);
+            return zipStream;
         }
 
         protected virtual SslProtocols GetServerEnabledSslProtocols()
@@ -68,7 +71,7 @@ namespace SuperSocket.Tests
 
         public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options) where TPackageInfo : class
         {
-            var client =  new EasyClient<TPackageInfo>(pipelineFilter, options);
+            var client = new GZipEasyClient<TPackageInfo>(pipelineFilter, options);
             client.Security = new SecurityOptions
             {
                 TargetHost = "supersocket",
@@ -79,16 +82,4 @@ namespace SuperSocket.Tests
         }
     }
 
-    public class TLS13OnlySecureHostConfigurator : SecureHostConfigurator
-    {
-        protected override SslProtocols GetServerEnabledSslProtocols()
-        {
-            return SslProtocols.Tls13;
-        }
-
-        protected override SslProtocols GetClientEnabledSslProtocols()
-        {
-            return SslProtocols.Tls13;
-        }
-    }
 }

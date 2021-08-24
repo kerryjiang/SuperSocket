@@ -13,6 +13,7 @@
     <ProjectReference Include="../../src/SuperSocket.Udp/SuperSocket.Udp.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Http/SuperSocket.Http.csproj" />
     <ProjectReference Include="../SuperSocket.Tests.Command/SuperSocket.Tests.Command.csproj" />
+    <ProjectReference Include="..\..\src\SuperSocket.GZip\SuperSocket.GZip.csproj" />
   </ItemGroup>
   <ItemGroup>  
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />  

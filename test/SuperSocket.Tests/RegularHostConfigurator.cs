@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
+using SuperSocket.Channel;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
@@ -20,9 +21,9 @@ namespace SuperSocket.Tests
             WebSocketSchema = "ws";
         }
 
-        public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class
+        public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options) where TPackageInfo : class
         {
-            return client;
+            return  new EasyClient<TPackageInfo>(pipelineFilter, options);
         }
 
         public override ValueTask<Stream> GetClientStream(Socket socket)

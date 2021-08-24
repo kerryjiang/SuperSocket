@@ -42,6 +42,8 @@ namespace SuperSocket.Tests
         [Trait("Category", "Client.TestEcho")]
         [InlineData(typeof(RegularHostConfigurator), false)]
         [InlineData(typeof(SecureHostConfigurator), false)]
+        [InlineData(typeof(GzipHostConfigurator), false)]
+        [InlineData(typeof(GzipSecureHostConfigurator), false)]
         [InlineData(typeof(RegularHostConfigurator), true)]
         public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {
@@ -64,7 +66,7 @@ namespace SuperSocket.Tests
                     ReadAsDemand = clientReadAsDemand
                 };
                 
-                var client = hostConfigurator.ConfigureEasyClient(new EasyClient<TextPackageInfo>(new LinePipelineFilter(), options));
+                var client = hostConfigurator.ConfigureEasyClient(new LinePipelineFilter(), options);
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 
@@ -87,6 +89,7 @@ namespace SuperSocket.Tests
 
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         [Trait("Category", "Client.TestBindLocalEndPoint")]
         public async Task TestBindLocalEndPoint(Type hostConfiguratorType)
         {
@@ -117,7 +120,7 @@ namespace SuperSocket.Tests
                     Logger = DefaultLoggerFactory.CreateLogger(nameof(TestBindLocalEndPoint))
                 };
                 
-                var client = hostConfigurator.ConfigureEasyClient(new EasyClient<StringPackageInfo>(pipelineFilter, options));
+                var client = hostConfigurator.ConfigureEasyClient(pipelineFilter, options);
                 
                 var localPort = 8080;
 
@@ -140,6 +143,8 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         public async Task TestCommandLine(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -158,8 +163,12 @@ namespace SuperSocket.Tests
                 {
                     Decoder = new DefaultStringPackageDecoder()
                 };
-                
-                var client = hostConfigurator.ConfigureEasyClient(new EasyClient<StringPackageInfo>(pipelineFilter));
+
+                var options = new ChannelOptions
+                {
+                    Logger = DefaultLoggerFactory.CreateLogger(nameof(TestCommandLine))
+                };
+                var client = hostConfigurator.ConfigureEasyClient(pipelineFilter, options);
 
                 StringPackageInfo package = null;
 

@@ -31,5 +31,13 @@ namespace SuperSocket
                 services.TryAddEnumerable(ServiceDescriptor.Singleton<IMiddleware, TMiddleware>(implementationFactory));
             }).AsSuperSocketBuilder();
         }
+        public static ISuperSocketHostBuilder UseChannelCreatorFactory<TChannelCreatorFactory>(this ISuperSocketHostBuilder builder)
+            where TChannelCreatorFactory : class, IChannelCreatorFactory
+        {
+            return builder.ConfigureServices((ctx, services) =>
+            {
+                services.AddSingleton<IChannelCreatorFactory, TChannelCreatorFactory>();
+            }).AsSuperSocketBuilder();
+        }
     }
 }

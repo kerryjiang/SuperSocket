@@ -40,9 +40,9 @@ namespace SuperSocket.Tests
                 );
         }
 
-        public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client) where TPackageInfo : class
+        public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options) where TPackageInfo : class
         {
-            return client;
+            return new EasyClient<TPackageInfo>(pipelineFilter, options);
         }
 
         public Socket CreateClient()
@@ -132,5 +132,6 @@ namespace SuperSocket.Tests
         {
             await Task.Delay(200);
         }
+
     }
 }

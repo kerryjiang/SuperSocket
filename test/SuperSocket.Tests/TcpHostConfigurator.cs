@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
+using SuperSocket.Channel;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
@@ -47,7 +48,7 @@ namespace SuperSocket.Tests
             return new StreamReader(stream, encoding, true);
         }
 
-        public abstract IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IEasyClient<TPackageInfo> client)
+        public abstract IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
             where TPackageInfo : class;
 
         public abstract ValueTask<Stream> GetClientStream(Socket socket);
