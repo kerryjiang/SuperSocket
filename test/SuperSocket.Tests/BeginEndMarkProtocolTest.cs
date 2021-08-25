@@ -89,7 +89,7 @@ namespace SuperSocket.Tests
         {
             var pool = ArrayPool<byte>.Shared;
             var buffer = pool.Rent(lines.Sum(x => 3 + Utf8Encoding.GetMaxByteCount(x.Length)));
-            
+
             Span<byte> span = buffer;
 
             var total = 0;
@@ -130,7 +130,7 @@ namespace SuperSocket.Tests
 
             rest[0] = 0x1C;
             rest[1] = 0x0D;
-            
+
             return span.Slice(0, len + 3);
         }
 
@@ -154,7 +154,7 @@ namespace SuperSocket.Tests
 
                         await socketStream.FlushAsync();
 
-                        var receivedLine = reader.ReadLine();
+                        var receivedLine = await reader.ReadLineAsync();
 
                         Assert.Equal(line, receivedLine);
                     }
@@ -207,7 +207,7 @@ namespace SuperSocket.Tests
 
                         WriteFragmentPackage(socketStream, line);
 
-                        var receivedLine = reader.ReadLine();
+                        var receivedLine = await reader.ReadLineAsync();
                         Assert.Equal(line, receivedLine);
                     }
                 }
@@ -237,7 +237,7 @@ namespace SuperSocket.Tests
                         {
                             var line = Guid.NewGuid().ToString();
 
-                            lines[i] = line;                            
+                            lines[i] = line;
                             WritePackage(socketStream, line);
                             await hostConfigurator.KeepSequence();
                         }
@@ -247,7 +247,7 @@ namespace SuperSocket.Tests
 
                         for (var i = 0; i < size; i++)
                         {
-                            var receivedLine = reader.ReadLine();
+                            var receivedLine = await reader.ReadLineAsync();
                             Assert.Equal(lines[i], receivedLine);
                         }
                     }
@@ -261,10 +261,12 @@ namespace SuperSocket.Tests
         {
             return Task.CompletedTask;
         }
-        
+
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(GzipSecureHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         public async Task TestBreakRequest2(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -293,7 +295,7 @@ namespace SuperSocket.Tests
 
                         for (var i = 0; i < size; i++)
                         {
-                            var receivedLine = reader.ReadLine();
+                            var receivedLine = await reader.ReadLineAsync();
                             Assert.Equal(lines[i], receivedLine);
                         }
                     }

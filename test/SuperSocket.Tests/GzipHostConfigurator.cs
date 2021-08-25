@@ -39,10 +39,10 @@ namespace SuperSocket.Tests
 
             base.Configure(hostBuilder);
         }
-        public override async ValueTask<Stream> GetClientStream(Socket socket)
+        public override ValueTask<Stream> GetClientStream(Socket socket)
         {
             Stream stream = new GZipReadWriteStream(new NetworkStream(socket, false), true);
-            return stream;
+            return new ValueTask<Stream>(stream);
         }
 
         protected virtual SslProtocols GetServerEnabledSslProtocols()

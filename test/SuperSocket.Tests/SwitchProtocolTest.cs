@@ -138,7 +138,7 @@ namespace SuperSocket.Tests
                         writer.Write(CreateRequest(line));
                         writer.Flush();
 
-                        var receivedLine = reader.ReadLine();
+                        var receivedLine = await reader.ReadLineAsync();
                         Assert.Equal(line, receivedLine);
                     }
                 }
