@@ -32,6 +32,8 @@ namespace SuperSocket.Tests
     [Trait("Category", "Client")]
     public class ClientTest : TestClassBase
     {
+        private static Random _rd = new Random();
+        
         public ClientTest(ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
@@ -122,7 +124,7 @@ namespace SuperSocket.Tests
                 
                 var client = hostConfigurator.ConfigureEasyClient(pipelineFilter, options);
                 
-                var localPort = 8080;
+                var localPort = _rd.Next(40000, 50000);
 
                 client.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, localPort);
 
