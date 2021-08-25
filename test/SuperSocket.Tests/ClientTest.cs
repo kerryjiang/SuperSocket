@@ -123,12 +123,28 @@ namespace SuperSocket.Tests
                 };
                 
                 var client = hostConfigurator.ConfigureEasyClient(pipelineFilter, options);
+                var connected = false;
+                var localPort = 0;
                 
-                var localPort = _rd.Next(40000, 50000);
+                for (var i = 0; i < 3; i++)
+                {
+                    localPort = _rd.Next(40000, 50000);
+                    client.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, localPort);
 
-                client.LocalEndPoint = new IPEndPoint(IPAddress.Loopback, localPort);
+                    try
+                    {
+                        connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                    }
+                    catch (SocketException e)
+                    {
+                        if (e.SocketErrorCode == SocketError.AccessDenied || e.SocketErrorCode == SocketError.AddressAlreadyInUse)
+                            continue;
+                        
+                        throw e;
+                    }
 
-                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                    break;                    
+                }                
                 
                 Assert.True(connected);
 
