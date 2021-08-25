@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Description>SuperSocket GZip library which allow you to use gzip compress in secure/normal Tcp channel.</Description>
+	</PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\SuperSocket.Client\SuperSocket.Client.csproj" />
