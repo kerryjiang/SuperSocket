@@ -16,7 +16,7 @@ namespace SuperSocket.Command
 
         public CommandAttribute(string name)
         {
-
+            Name = name;
         }
 
         public CommandAttribute(string name, object key)
