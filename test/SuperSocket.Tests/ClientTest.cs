@@ -289,6 +289,7 @@ namespace SuperSocket.Tests
                         OutputHelper.WriteLine($"Sent {(i + 1)} message over the detached network stream");
                         var line = await streamReader.ReadLineAsync();
                         Assert.Equal("PRE-" + txt, line);
+                        OutputHelper.WriteLine($"Received {(i + 1)} message over the detached network stream");
                     }
                 }
 
