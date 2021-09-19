@@ -286,6 +286,7 @@ namespace SuperSocket.Tests
                         var txt = Guid.NewGuid().ToString();
                         await streamWriter.WriteAsync(txt + "\r\n");
                         await streamWriter.FlushAsync();
+                        OutputHelper.WriteLine($"Sent {(i + 1)} message over the detached network stream");
                         var line = await streamReader.ReadLineAsync();
                         Assert.Equal("PRE-" + txt, line);
                     }

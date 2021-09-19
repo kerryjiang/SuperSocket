@@ -18,7 +18,8 @@ export class ConnectionService {
 
     async connect(name: string) {        
         this.chatWebsocket = webSocket({
-            url: 'ws://localhost:4040',
+            //url: 'ws://localhost:4040',
+            url: 'wss://localhost:4041',
             deserializer: msg => msg,
             serializer: msg => msg
         });
