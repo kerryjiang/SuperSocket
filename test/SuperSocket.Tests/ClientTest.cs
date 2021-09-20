@@ -239,9 +239,9 @@ namespace SuperSocket.Tests
 
                 var channel = new StreamPipeChannel<TextPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new LinePipelineFilter(), new ChannelOptions
                 {
-                    Logger = NullLogger.Instance,
+                    Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableChannel)),
                     ReadAsDemand = true
-                });
+                });                
 
                 channel.Start();
 
