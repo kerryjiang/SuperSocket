@@ -27,7 +27,7 @@ namespace SuperSocket
         /// <value>
         /// The name of the store.
         /// </value>
-        public string StoreName { get; set; }
+        public string StoreName { get; set; } = "My";//The X.509 certificate store for personal certificates.
 
         /// <summary>
         /// Gets the thumbprint.
@@ -41,7 +41,7 @@ namespace SuperSocket
         /// <value>
         /// The store location.
         /// </value>
-        public StoreLocation StoreLocation { get; set; }
+        public StoreLocation StoreLocation { get; set; } = StoreLocation.CurrentUser;//The X.509 certificate store used by the current user.
 
 
         /// <summary>
@@ -80,11 +80,7 @@ namespace SuperSocket
             }
             else if (!string.IsNullOrEmpty(Thumbprint)) // load certificate from certificate store
             {
-                var storeName = StoreName;
-                if (string.IsNullOrEmpty(storeName))
-                    storeName = "Root";
-
-                var store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), storeName), StoreLocation);
+                var store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), StoreName), StoreLocation);
 
                 store.Open(OpenFlags.ReadOnly);
 
