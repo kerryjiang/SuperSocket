@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Net.Security;
-using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 
 namespace SuperSocket
@@ -89,9 +88,8 @@ namespace SuperSocket
 
                 store.Open(OpenFlags.ReadOnly);
 
-                Certificate = store.Certificates.OfType<X509Certificate2>().Where(c =>
-                        c.Thumbprint.Equals(Thumbprint, StringComparison.OrdinalIgnoreCase))
-                    .FirstOrDefault();
+                Certificate = store.Certificates.OfType<X509Certificate2>()
+                    .FirstOrDefault(c => c.Thumbprint.Equals(Thumbprint, StringComparison.OrdinalIgnoreCase));
 
                 store.Close();
             }
