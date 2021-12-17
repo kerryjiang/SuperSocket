@@ -114,7 +114,7 @@ namespace SuperSocket.Server
 
                     var stream = new SslStream(new NetworkStream(s, true), false);
                     await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None).ConfigureAwait(false);
-                    return new StreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, s.LocalEndPoint, filterFactory.Create(s), channelOptions);
+                    return new SslStreamPipeChannel<TPackageInfo>(stream, s.RemoteEndPoint, s.LocalEndPoint, filterFactory.Create(s), channelOptions);
                 });
 
                 return new TcpChannelCreator(options, channelFactory, channelFactoryLogger);
