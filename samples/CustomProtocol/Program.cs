@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
 using SuperSocket.ProtoBase;
+using System.Text;
 
 namespace CustomProtocol
 {
@@ -11,11 +12,13 @@ namespace CustomProtocol
     {
         static async Task Main(string[] args)
         {
+            var encoder = new MyPackageEncoder();
             var host = SuperSocketHostBuilder.Create<MyPackage, MyPackageFilter>()
                 .ConfigurePackageHandler(async (s, p) =>
                 {
                     // handle package
-                    await Task.Delay(0);
+                    await s.SendAsync(encoder, p);
+                    //await Task.Delay(0);
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
