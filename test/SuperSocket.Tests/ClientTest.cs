@@ -185,6 +185,7 @@ namespace SuperSocket.Tests
 
             Assert.False(hasWaitedLongerThanTheCancellationToken);
         }
+
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
