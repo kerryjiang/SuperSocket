@@ -48,8 +48,11 @@ namespace SuperSocket.Client
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);             
                     socket.Bind(localEndPoint);
                 }
-
+#if NET5_0
+                await socket.ConnectAsync(remoteEndPoint, cancellationToken);
+#else
                 await socket.ConnectAsync(remoteEndPoint);
+#endif
             }
             catch (Exception e)
             {

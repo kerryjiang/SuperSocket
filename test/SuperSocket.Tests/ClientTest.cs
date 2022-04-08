@@ -26,6 +26,7 @@ using SuperSocket.Channel;
 using SuperSocket.Tests.Command;
 using System.Threading;
 using Microsoft.Extensions.Logging.Abstractions;
+using SuperSocket.WebSocket;
 
 namespace SuperSocket.Tests
 {
@@ -158,6 +159,32 @@ namespace SuperSocket.Tests
             }
         }
 
+        [Fact]
+        public void TestCancellationTokenIsBeingUsedWhenConnecting()
+        {
+            var pipelineFilter = new CommandLinePipelineFilter
+            {
+                Decoder = new DefaultStringPackageDecoder()
+            };
+
+            var options = new ChannelOptions
+            {
+                Logger = DefaultLoggerFactory.CreateLogger(nameof(TestBindLocalEndPoint))
+            };
+            var ea = new EasyClient<WebSocketPackage>(new WebSocketPipelineFilter());
+            var client = ea.AsClient();
+            var localPort = 0;
+
+            localPort = _rd.Next(40000, 50000);
+
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(1));
+            var result = client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, localPort), cts.Token).AsTask();
+            int index = Task.WaitAny(new[] { result }, TimeSpan.FromSeconds(2));
+            var hasWaitedLongerThanTheCancellationToken = index == -1;
+
+            Assert.False(hasWaitedLongerThanTheCancellationToken);
+        }
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
