@@ -48,7 +48,7 @@ namespace SuperSocket.Client
                     socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
                     socket.Bind(localEndPoint);
                 }
-#if NET5_0
+#if NET5_0_OR_GREATER
                 await socket.ConnectAsync(remoteEndPoint, cancellationToken);
 #else
                 Task result = socket.ConnectAsync(remoteEndPoint);               
