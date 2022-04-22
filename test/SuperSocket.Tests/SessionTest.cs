@@ -13,6 +13,8 @@ using SuperSocket;
 using System.Linq;
 using System.Reflection;
 using SuperSocket.Channel;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace SuperSocket.Tests
 {
@@ -119,11 +121,27 @@ namespace SuperSocket.Tests
             var hostConfigurator = new RegularHostConfigurator();
             IAppSession session = null;
 
+            CloseReason closeReason = CloseReason.Unknown;
+
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                .ConfigureAppConfiguration((HostBuilder, configBuilder) =>
+                    {
+                        configBuilder.AddInMemoryCollection(new Dictionary<string, string>
+                        {
+                            { "serverOptions:maxPackageLength", "8" }
+                        });
+                    })
                 .UseSessionHandler((s) =>
                 {
                     session = s;
-                    return new ValueTask();
+
+                    s.Closed += (xs, e) =>
+                    {
+                        closeReason = e.Reason;
+                        return ValueTask.CompletedTask;
+                    };
+
+                    return ValueTask.CompletedTask;
                 })
                 .BuildAsServer())
             {
@@ -132,19 +150,13 @@ namespace SuperSocket.Tests
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Started.");
 
-                CloseReason closeReason = CloseReason.Unknown;
+                // RemoteClosing
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
                 await Task.Delay(1000);
-
-                session.Closed += (s, e) =>
-                {
-                    closeReason = e.Reason;
-                    return new ValueTask();
-                };
 
                 client.Shutdown(SocketShutdown.Both);
                 client.Close();
@@ -154,6 +166,9 @@ namespace SuperSocket.Tests
                 Assert.Equal(SessionState.Closed, session.State);
                 Assert.Equal(CloseReason.RemoteClosing, closeReason);
 
+
+
+                // LocalClosing
                 closeReason = CloseReason.Unknown;
 
                 client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -162,16 +177,31 @@ namespace SuperSocket.Tests
 
                 await Task.Delay(1000);
 
-                session.Closed += (s, e) =>
-                {
-                    closeReason = e.Reason;
-                    return new ValueTask();
-                };
-
                 await session.CloseAsync(CloseReason.LocalClosing);
                 await Task.Delay(1000);
                 Assert.Equal(SessionState.Closed, session.State);
                 Assert.Equal(CloseReason.LocalClosing, closeReason);
+
+
+                // ProtocolError
+                closeReason = CloseReason.Unknown;
+
+                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                OutputHelper.WriteLine("Connected.");
+
+                await Task.Delay(1000);
+
+                var outputStream = await hostConfigurator.GetClientStream(client);
+
+                var buffer = Encoding.ASCII.GetBytes("123456789\r\n"); // package size exceeds maxPackageSize(8)
+                outputStream.Write(buffer, 0, buffer.Length);
+                outputStream.Flush();
+
+                await Task.Delay(1000);
+
+                Assert.Equal(SessionState.Closed, session.State);
+                Assert.Equal(CloseReason.ProtocolError, closeReason);
 
                 await server.StopAsync();
             }

@@ -426,6 +426,7 @@ namespace SuperSocket.Channel
                 {
                     OnError("Protocol error", e);
                     // close the connection if get a protocol error
+                    CloseReason = Channel.CloseReason.ProtocolError;
                     Close();
                     break;
                 }
@@ -483,10 +484,11 @@ namespace SuperSocket.Channel
                 if (maxPackageLength > 0 && len > maxPackageLength)
                 {
                     OnError($"Package cannot be larger than {maxPackageLength}.");
+                    CloseReason = Channel.CloseReason.ProtocolError;
                     // close the the connection directly
                     Close();
                     return false;
-                }            
+                }
                 
                 if (packageInfo == null)
                 {
