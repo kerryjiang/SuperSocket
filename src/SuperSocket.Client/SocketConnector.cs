@@ -37,7 +37,7 @@ namespace SuperSocket.Client
         protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-            
+
             try
             {
                 var localEndPoint = LocalEndPoint;
@@ -45,11 +45,25 @@ namespace SuperSocket.Client
                 if (localEndPoint != null)
                 {
                     socket.ExclusiveAddressUse = false;
-                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);             
+                    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, 1);
                     socket.Bind(localEndPoint);
                 }
+#if NET5_0_OR_GREATER
+                await socket.ConnectAsync(remoteEndPoint, cancellationToken);
+#else
+                Task result = socket.ConnectAsync(remoteEndPoint);               
+                int index = Task.WaitAny(new[] { result }, cancellationToken);
+                var connected = socket.Connected;
+                if (!connected)
+                {
+                    socket.Close();
 
-                await socket.ConnectAsync(remoteEndPoint);
+                    return new ConnectState
+                    {
+                        Result = false,
+                    };
+                }
+#endif
             }
             catch (Exception e)
             {
