@@ -45,9 +45,11 @@ namespace SuperSocket.WebSocket.Server
 
         public override void Shutdown(IServer server)
         {
-            _checkingTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            _checkingTimer.Dispose();
+            var checkTimer = _checkingTimer;
             _checkingTimer = null;
+            checkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+            checkTimer.Dispose();
+
             _sessionContainerMiddleware = null;
         }
 
