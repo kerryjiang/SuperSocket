@@ -43,7 +43,7 @@ namespace SuperSocket.SocketEngine
                 m_HostDomain.SetData(typeof(IsolationMode).Name, IsolationMode.AppDomain);
 
                 var marshalServerType = typeof(MarshalAppServer);
-
+#if !NETSTANDARD2_0
                 appServer = (IWorkItem)m_HostDomain.CreateInstanceAndUnwrap(marshalServerType.Assembly.FullName,
                         marshalServerType.FullName,
                         true,
@@ -52,6 +52,10 @@ namespace SuperSocket.SocketEngine
                         new object[] { ServerTypeName },
                         null,
                         new object[0]);
+#else
+                //TODO
+                appServer = (IWorkItem)m_HostDomain.InitializeLifetimeService();
+#endif
 
                 if (!appServer.Setup(Bootstrap, Config, Factories))
                 {

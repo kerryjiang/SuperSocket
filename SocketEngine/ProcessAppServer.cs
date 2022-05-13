@@ -253,9 +253,13 @@ namespace SuperSocket.SocketEngine
         {
             try
             {
+#if !NETSTANDARD2_0
                 return (IRemoteWorkItem)Activator.GetObject(typeof(IRemoteWorkItem), remoteUri);
+#else
+                return (IRemoteWorkItem)Activator.CreateInstance(typeof(IRemoteWorkItem), remoteUri);
+#endif
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 ShutdownProcess();
                 OnExceptionThrown(new Exception("Failed to get server instance of a remote process!", e));

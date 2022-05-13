@@ -33,10 +33,16 @@ namespace SuperSocket.SocketEngine
 
         private void InitliazeValidationAppDomain()
         {
+#if !NETSTANDARD2_0
             m_ValidationAppDomain = AppDomain.CreateDomain("ValidationDomain", AppDomain.CurrentDomain.Evidence, AppDomain.CurrentDomain.BaseDirectory, string.Empty, false);
 
             var validatorType = typeof(TypeValidator);
             m_Validator = (TypeValidator)m_ValidationAppDomain.CreateInstanceAndUnwrap(validatorType.Assembly.FullName, validatorType.FullName);
+#else
+            m_ValidationAppDomain = AppDomain.CreateDomain("ValidationDomain");
+            var validatorType = typeof(TypeValidator);
+            m_Validator = (TypeValidator)m_ValidationAppDomain.InitializeLifetimeService();
+#endif
         }
 
         protected override string ValidateProviderType(string typeName)

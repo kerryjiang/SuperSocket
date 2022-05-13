@@ -4,9 +4,11 @@ using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
+#if !NETSTANDARD2_0
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
+#endif
 using System.Runtime.Serialization.Formatters;
 using System.Text;
 using System.Threading;
@@ -448,7 +450,9 @@ namespace SuperSocket.SocketEngine
 
             try
             {
+#if !NETSTANDARD2_0
                 RegisterRemotingService();
+#endif
             }
             catch (Exception e)
             {
@@ -594,7 +598,7 @@ namespace SuperSocket.SocketEngine
                     m_GlobalLog.Debug("The PerformanceMonitor has been stoppped!");
             }
         }
-
+#if !NETSTANDARD2_0
         /// <summary>
         /// Registers the bootstrap remoting access service.
         /// </summary>
@@ -619,6 +623,7 @@ namespace SuperSocket.SocketEngine
             if (!RemotingConfiguration.GetRegisteredWellKnownServiceTypes().Any(s => s.ObjectType == bootstrapProxyType))
                 RemotingConfiguration.RegisterWellKnownServiceType(bootstrapProxyType, "Bootstrap.rem", WellKnownObjectMode.Singleton);
         }
+#endif
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.
