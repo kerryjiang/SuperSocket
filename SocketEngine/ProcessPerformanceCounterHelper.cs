@@ -12,9 +12,11 @@ namespace SuperSocket.SocketEngine
 {
     class ProcessPerformanceCounterHelper : IDisposable
     {
+#if !NETSTANDARD2_0
         private PerformanceCounter m_CpuUsagePC;
         private PerformanceCounter m_ThreadCountPC;
         private PerformanceCounter m_WorkingSetPC;
+#endif
         private int m_CpuCores = 1;
 
         private Process m_Process;
@@ -67,15 +69,18 @@ namespace SuperSocket.SocketEngine
 
         private void SetupPerformanceCounters(string instanceName)
         {
+#if !NETSTANDARD2_0
             m_CpuUsagePC = new PerformanceCounter("Process", "% Processor Time", instanceName);
             m_ThreadCountPC = new PerformanceCounter("Process", "Thread Count", instanceName);
             m_WorkingSetPC = new PerformanceCounter("Process", "Working Set", instanceName);
+#endif
         }
 
         //This method is only used in windows
         private static string GetPerformanceCounterInstanceName(Process process)
         {
             var processId = process.Id;
+#if !NETSTANDARD2_0
             var processCategory = new PerformanceCounterCategory("Process");
             var runnedInstances = processCategory.GetInstanceNames();
 
@@ -106,7 +111,7 @@ namespace SuperSocket.SocketEngine
                     }
                 }
             }
-
+#endif
             return process.ProcessName;
         }
 
@@ -129,10 +134,16 @@ namespace SuperSocket.SocketEngine
                     statusCollection[StatusInfoKeys.AvailableCompletionPortThreads] = availableCompletionPortThreads;
                     statusCollection[StatusInfoKeys.MaxCompletionPortThreads] = maxCompletionPortThreads;
                     statusCollection[StatusInfoKeys.MaxWorkingThreads] = maxWorkingThreads;
+#if !NETSTANDARD2_0
                     statusCollection[StatusInfoKeys.TotalThreadCount] = (int)m_ThreadCountPC.NextValue();
                     statusCollection[StatusInfoKeys.CpuUsage] = m_CpuUsagePC.NextValue() / m_CpuCores;
                     statusCollection[StatusInfoKeys.MemoryUsage] = (long)m_WorkingSetPC.NextValue();
-
+#else
+                    var proc = Process.GetCurrentProcess();
+                    statusCollection[StatusInfoKeys.TotalThreadCount] = proc.Threads.Count;
+                    statusCollection[StatusInfoKeys.CpuUsage] = proc.TotalProcessorTime.TotalMilliseconds / 1000;
+                    statusCollection[StatusInfoKeys.MemoryUsage] = proc.WorkingSet64 / 1024;
+#endif
                     break;
                 }
                 catch (InvalidOperationException e)
@@ -160,6 +171,7 @@ namespace SuperSocket.SocketEngine
 
         public void Dispose()
         {
+#if !NETSTANDARD2_0
             if (m_CpuUsagePC != null)
             {
                 m_CpuUsagePC.Close();
@@ -177,6 +189,7 @@ namespace SuperSocket.SocketEngine
                 m_WorkingSetPC.Close();
                 m_WorkingSetPC = null;
             }
+#endif
         }
     }
 }

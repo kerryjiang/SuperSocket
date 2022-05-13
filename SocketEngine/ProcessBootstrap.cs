@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if !NETSTANDARD2_0
 using System.Runtime.Remoting;
 using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Channels.Ipc;
+#endif
 using System.Text;
 using SuperSocket.SocketBase;
 using SuperSocket.SocketBase.Config;
@@ -36,6 +38,7 @@ namespace SuperSocket.SocketEngine
         public ProcessBootstrap(IConfigurationSource config)
             : base(config)
         {
+#if !NETSTANDARD2_0
             var clientChannel = ChannelServices.RegisteredChannels.FirstOrDefault(c => c is IpcClientChannel);
 
             if(clientChannel == null)
@@ -45,6 +48,7 @@ namespace SuperSocket.SocketEngine
                 // Register the channel.
                 ChannelServices.RegisterChannel(clientChannel, false);
             }
+#endif
         }
 
         protected override IBootstrap CreateBootstrapWrap(IBootstrap bootstrap, IConfigurationSource config, string startupConfigFile)

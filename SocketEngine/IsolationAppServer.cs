@@ -84,16 +84,19 @@ namespace SuperSocket.SocketEngine
                 if (!Path.IsPathRooted(startupConfigFile))
                     startupConfigFile = Path.Combine(currentDomain.BaseDirectory, startupConfigFile);
             }
-
+#if !NETSTANDARD2_0
             var hostAppDomain = AppDomain.CreateDomain(Name, currentDomain.Evidence, new AppDomainSetup
             {
                 ApplicationName = Name,
                 ApplicationBase = workingDir,
                 ConfigurationFile = startupConfigFile
             });
-
+#else
+            var hostAppDomain = AppDomain.CreateDomain(Name);
+#endif
             var assemblyImportType = typeof(AssemblyImport);
 
+#if !NETSTANDARD2_0
             hostAppDomain.CreateInstanceFrom(assemblyImportType.Assembly.CodeBase,
                     assemblyImportType.FullName,
                     true,
@@ -102,7 +105,9 @@ namespace SuperSocket.SocketEngine
                     new object[] { currentDomain.BaseDirectory },
                     null,
                     new object[0]);
-
+#else
+            //TODO
+#endif
             return hostAppDomain;
         }
 
