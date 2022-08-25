@@ -4,6 +4,5 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
   </ItemGroup>
 </Project>
