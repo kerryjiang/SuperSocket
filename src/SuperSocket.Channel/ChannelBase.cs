@@ -20,6 +20,10 @@ namespace SuperSocket.Channel
         
         public abstract ValueTask SendAsync(Action<PipeWriter> write);
 
+        public abstract ValueTask<int> Send(ReadOnlyMemory<byte> buffer); 
+
+        public abstract ValueTask<int> Send<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
+
         public bool IsClosed { get; private set; }
 
         public EndPoint RemoteEndPoint { get; protected set; }
