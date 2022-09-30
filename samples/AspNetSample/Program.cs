@@ -1,30 +1,51 @@
-using System.Text;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.ProtoBase;
+using System.Text;
 
-namespace AspNetSample
-{
-    public class Program
+var builder = WebApplication.CreateBuilder(args);
+new SuperSocketHostBuilder<TextPackageInfo>(builder.Host)
+    .UsePipelineFilter<LinePipelineFilter>()
+    .UsePackageHandler(async (s, p) =>
     {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+        // echo message back to client
+        await s.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
+    })
+    .UseInProcSessionContainer()
+    .Build();
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder =>
+var app = builder.Build();
+
+app.MapGet("api/session", ([FromServices]ISessionContainer sessions) =>Microsoft.AspNetCore.Http.Results.Json(sessions.GetSessions()));
+
+await app.RunAsync();
+
+
+public class SuperSocketHostBuilder<T> : SuperSocket.SuperSocketHostBuilder<T>
+{
+    public SuperSocketHostBuilder(IHostBuilder hostBuilder) : base(hostBuilder) { }
+    public override IHost Build()
+    {
+        HostBuilder.ConfigureServices((ctx, services) =>
             {
-                webBuilder.UseStartup<Startup>();
-            })
-            .AsSuperSocketHostBuilder<TextPackageInfo, LinePipelineFilter>()
-            .UsePackageHandler(async (s, p) =>
+                RegisterBasicServices(ctx, services, services);
+            }).ConfigureServices((ctx, services) =>
             {
-                // echo message back to client
-                await s.SendAsync(Encoding.UTF8.GetBytes(p.Text + "\r\n"));
-            })
-            .UseInProcSessionContainer();
+                foreach (var action in ConfigureServicesActions)
+                {
+                    action(ctx, services);
+                }
+
+                foreach (var action in ConfigureSupplementServicesActions)
+                {
+                    action(ctx, services);
+                }
+            }).ConfigureServices((ctx, services) =>
+            {
+                RegisterDefaultServices(ctx, services, services);
+            });
+        return null;
     }
 }

@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
 		<TargetFrameworks>net6.0</TargetFrameworks>
+		<LangVersion>10</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\SuperSocket.Server\SuperSocket.Server.csproj" />
