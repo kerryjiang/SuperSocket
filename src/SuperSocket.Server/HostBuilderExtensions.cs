@@ -128,5 +128,10 @@ namespace SuperSocket
         {
             return new MultipleServerHostBuilder(hostBuilder);
         }
+
+        public static IMinimalApiHostBuilder AsMinimalApiHostBuilder(this ISuperSocketHostBuilder hostBuilder)
+        {
+            return hostBuilder;
+        }
     }
 }

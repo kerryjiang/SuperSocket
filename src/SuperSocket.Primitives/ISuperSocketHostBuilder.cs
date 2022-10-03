@@ -6,7 +6,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket
 {
-    public interface ISuperSocketHostBuilder : IHostBuilder
+    public interface ISuperSocketHostBuilder : IHostBuilder, IMinimalApiHostBuilder
     {
         ISuperSocketHostBuilder ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate);
     }

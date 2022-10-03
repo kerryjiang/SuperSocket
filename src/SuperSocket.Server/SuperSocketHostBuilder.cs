@@ -39,9 +39,9 @@ namespace SuperSocket
 
         }
 
-        public override IHost Build()
+        private void ConfigureHostBuilder()
         {
-            return HostBuilder.ConfigureServices((ctx, services) =>
+            HostBuilder.ConfigureServices((ctx, services) =>
             {
                 RegisterBasicServices(ctx, services, services);
             }).ConfigureServices((ctx, services) =>
@@ -58,7 +58,18 @@ namespace SuperSocket
             }).ConfigureServices((ctx, services) =>
             {
                 RegisterDefaultServices(ctx, services, services);
-            }).Build();
+            });
+        }
+
+        void IMinimalApiHostBuilder.ConfigureHostBuilder()
+        {
+            ConfigureHostBuilder();
+        }
+
+        public override IHost Build()
+        {
+            ConfigureHostBuilder();
+            return HostBuilder.Build();
         }
 
         public ISuperSocketHostBuilder<TReceivePackage> ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
