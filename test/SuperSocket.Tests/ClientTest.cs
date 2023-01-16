@@ -50,7 +50,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(RegularHostConfigurator), true)]
         public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {
-            var serverSessionEvent = new ManualResetEvent(false);
+            var serverSessionEvent = new AutoResetEvent(false);
 
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
@@ -210,12 +210,27 @@ namespace SuperSocket.Tests
         [InlineData(typeof(GzipHostConfigurator))]
         public async Task TestCommandLine(Type hostConfiguratorType)
         {
+            var packageEvent = new AutoResetEvent(false);
+            var serverSessionEvent = new AutoResetEvent(false);
+
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
             .UseCommand((options) =>
             {
                 options.AddCommand<SORT>();
-            }).BuildAsServer())
+            })
+            .UseSessionHandler(
+                onConnected: (s) =>
+                {
+                    serverSessionEvent.Set();
+                    return ValueTask.CompletedTask;
+                },
+                onClosed: (s, e) =>
+                {
+                    serverSessionEvent.Set();
+                    return ValueTask.CompletedTask;
+                })
+            .BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
 
@@ -238,24 +253,31 @@ namespace SuperSocket.Tests
                 client.PackageHandler += async (s, p) =>
                 {
                     package = p;
+                    packageEvent.Set();
                     await Task.CompletedTask;
                 };
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 
                 Assert.True(connected);
+                Assert.True(serverSessionEvent.WaitOne(1000));
 
                 client.StartReceive();
 
-                await client.SendAsync(Utf8Encoding.GetBytes("SORT 10 7 3 8 6 43 23\r\n"));
-                await Task.Delay(1000);
+                for (var i = 0; i < 5; i++)
+                {
+                    await client.SendAsync(Utf8Encoding.GetBytes("SORT 10 7 3 8 6 43 23\r\n"));
 
-                Assert.NotNull(package);
+                    Assert.True(packageEvent.WaitOne(1000));
+                    Assert.NotNull(package);
 
-                Assert.Equal("SORT", package.Key);
-                Assert.Equal("3 6 7 8 10 23 43", package.Body);
+                    Assert.Equal("SORT", package.Key);
+                    Assert.Equal("3 6 7 8 10 23 43", package.Body);
+                }
 
                 await client.CloseAsync();
+                Assert.True(serverSessionEvent.WaitOne(1000));
+
                 await server.StopAsync();
             }
         }
