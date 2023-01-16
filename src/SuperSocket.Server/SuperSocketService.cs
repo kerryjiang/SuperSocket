@@ -184,7 +184,7 @@ namespace SuperSocket.Server
                 }
             }
 
-            return Task.FromResult(true);
+            return Task.FromResult(_channelCreators.Any());
         }
 
         protected virtual void OnNewClientAccept(IChannelCreator listener, IChannel channel)
@@ -365,7 +365,12 @@ namespace SuperSocket.Server
 
             _state = ServerState.Starting;
 
-            await StartListenAsync(cancellationToken);
+            if (!await StartListenAsync(cancellationToken))
+            {
+                _state = ServerState.Failed;
+                _logger.LogError("Failed to start any listener.");
+                return;
+            }
 
             _state = ServerState.Started;
 
