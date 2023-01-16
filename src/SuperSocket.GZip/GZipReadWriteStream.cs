@@ -75,8 +75,6 @@ namespace SuperSocket.GZip
         public override void Close()
         {
             BaseStream.Close();
-            readStream.Close();
-            writeStream.Close();
         }
 
         public override void CopyTo(Stream destination, int bufferSize)
