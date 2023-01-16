@@ -139,8 +139,10 @@ namespace SuperSocket.Tests
                     Assert.Equal(sessionID, session.SessionID);
 
                     await session.CloseAsync(CloseReason.LocalClosing);
-                    
-                    Assert.True(sessionStateEvent.WaitOne(1000));
+
+                    await Task.Yield();
+
+                    Assert.True(sessionStateEvent.WaitOne(500));
                     Assert.Equal(0, sessionContainer.GetSessionCount());
                     Assert.Null(sessionContainer.GetSessionByID(sessionID));
                 }
