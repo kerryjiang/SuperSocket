@@ -72,12 +72,25 @@ namespace SuperSocket.Tests
         [Fact] 
         public async Task TestInProcSessionContainer()
         {
+            var sessionStateEvent = new AutoResetEvent(false);
             var hostConfigurator = new RegularHostConfigurator();
             using (var server = CreateSocketServerBuilder<StringPackageInfo, MyPipelineFilter>(hostConfigurator)
                 .UseCommand<string, StringPackageInfo>(commandOptions =>
                 {
                     commandOptions.AddCommand<SESS>();
                 })
+                .UseSessionHandler(
+                    onConnected: (s) =>
+                    {
+                        sessionStateEvent.Set();
+                        return ValueTask.CompletedTask;
+                    },
+                    onClosed: (s, e) =>
+                    {
+                        sessionStateEvent.Set();
+                        return ValueTask.CompletedTask;
+                    }
+                )
                 .UseInProcSessionContainer()
                 .ConfigureServices((ctx, services) =>
                     services.AddSingleton<SessionContainerDependentService>()                
@@ -104,13 +117,11 @@ namespace SuperSocket.Tests
                 await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 OutputHelper.WriteLine("Connected.");
 
-                Thread.Sleep(1000);
+                Assert.True(sessionStateEvent.WaitOne(1000));
 
                 Assert.Equal(1, sessionContainer.GetSessionCount());
 
                 var sessionID = string.Empty;
-
-                var closed = false;
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
@@ -127,19 +138,12 @@ namespace SuperSocket.Tests
                     Assert.NotNull(session);
                     Assert.Equal(sessionID, session.SessionID);
 
-                    session.Closed +=  (s, e) =>
-                    {
-                        closed = true;
-                        return new ValueTask();
-                    };
-
-                    await session.Channel.CloseAsync(CloseReason.LocalClosing);
+                    await session.CloseAsync(CloseReason.LocalClosing);
+                    
+                    Assert.True(sessionStateEvent.WaitOne(1000));
+                    Assert.Equal(0, sessionContainer.GetSessionCount());
+                    Assert.Null(sessionContainer.GetSessionByID(sessionID));
                 }
-
-                await Task.Delay(1000);
-                Assert.Equal(0, sessionContainer.GetSessionCount());
-                Assert.Null(sessionContainer.GetSessionByID(sessionID));
-                Assert.True(closed);
                 
                 await server.StopAsync();
             }
