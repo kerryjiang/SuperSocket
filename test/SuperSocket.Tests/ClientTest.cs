@@ -50,12 +50,26 @@ namespace SuperSocket.Tests
         [InlineData(typeof(RegularHostConfigurator), true)]
         public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {
+            var serverSessionEvent = new ManualResetEvent(false);
+
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
-                }).BuildAsServer())
+                })
+                .UseSessionHandler(
+                    onConnected: (s) =>
+                    {
+                        serverSessionEvent.Set();
+                        return ValueTask.CompletedTask;
+                    },
+                    onClosed: (s, e) =>
+                    {
+                        serverSessionEvent.Set();
+                        return ValueTask.CompletedTask;
+                    })
+                .BuildAsServer())
             {
 
                 Assert.Equal("TestServer", server.Name);
@@ -75,6 +89,8 @@ namespace SuperSocket.Tests
                 
                 Assert.True(connected);
 
+                Assert.True(serverSessionEvent.WaitOne(1000));
+
                 for (var i = 0; i < 100; i++)
                 {
                     var msg = Guid.NewGuid().ToString();
@@ -86,6 +102,7 @@ namespace SuperSocket.Tests
                 }
 
                 await client.CloseAsync();
+                Assert.True(serverSessionEvent.WaitOne(1000));
                 await server.StopAsync();
             }
         }
