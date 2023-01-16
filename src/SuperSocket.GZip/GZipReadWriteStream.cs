@@ -16,9 +16,9 @@ namespace SuperSocket.GZip
         GZipStream writeStream = null;
         public GZipReadWriteStream(Stream stream, bool leaveOpen)
         {
-            BaseStream = stream;
             readStream = new GZipStream(stream, CompressionMode.Decompress, leaveOpen);
             writeStream = new GZipStream(stream, CompressionMode.Compress, leaveOpen);
+            BaseStream = stream;
         }
         public override bool CanRead => true;
 
@@ -74,6 +74,7 @@ namespace SuperSocket.GZip
 
         public override void Close()
         {
+            BaseStream.Close();
             readStream.Close();
             writeStream.Close();
         }

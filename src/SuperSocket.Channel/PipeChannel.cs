@@ -192,7 +192,8 @@ namespace SuperSocket.Channel
                 {
                     if (!IsIgnorableException(e))
                     {
-                        OnError("Exception happened in ReceiveAsync", e);
+                        if (!(e is OperationCanceledException))
+                            OnError("Exception happened in ReceiveAsync", e);
 
                         if (!CloseReason.HasValue)
                         {
@@ -225,7 +226,7 @@ namespace SuperSocket.Channel
 
         protected virtual bool IsIgnorableException(Exception e)
         {
-            if (e is ObjectDisposedException || e is NullReferenceException || e is OperationCanceledException)
+            if (e is ObjectDisposedException || e is NullReferenceException)
                 return true;
 
             if (e.InnerException != null)

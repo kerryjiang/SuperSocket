@@ -41,7 +41,7 @@ namespace SuperSocket.Tests
         }
         public override ValueTask<Stream> GetClientStream(Socket socket)
         {
-            Stream stream = new GZipReadWriteStream(new NetworkStream(socket, false), true);
+            Stream stream = new GZipReadWriteStream(new NetworkStream(socket, false), false);
             return new ValueTask<Stream>(stream);
         }
 

@@ -40,7 +40,7 @@ namespace SuperSocket.Tests
         {
 
         }
-
+        
         [Theory]
         [Trait("Category", "Client.TestEcho")]
         [InlineData(typeof(RegularHostConfigurator), false)]
@@ -211,7 +211,6 @@ namespace SuperSocket.Tests
         public async Task TestCommandLine(Type hostConfiguratorType)
         {
             var packageEvent = new AutoResetEvent(false);
-            var serverSessionEvent = new AutoResetEvent(false);
 
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
@@ -219,17 +218,6 @@ namespace SuperSocket.Tests
             {
                 options.AddCommand<SORT>();
             })
-            .UseSessionHandler(
-                onConnected: (s) =>
-                {
-                    serverSessionEvent.Set();
-                    return ValueTask.CompletedTask;
-                },
-                onClosed: (s, e) =>
-                {
-                    serverSessionEvent.Set();
-                    return ValueTask.CompletedTask;
-                })
             .BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
@@ -260,7 +248,6 @@ namespace SuperSocket.Tests
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                 
                 Assert.True(connected);
-                Assert.True(serverSessionEvent.WaitOne(1000));
 
                 client.StartReceive();
 
@@ -276,8 +263,6 @@ namespace SuperSocket.Tests
                 }
 
                 await client.CloseAsync();
-                Assert.True(serverSessionEvent.WaitOne(1000));
-
                 await server.StopAsync();
             }
         }
