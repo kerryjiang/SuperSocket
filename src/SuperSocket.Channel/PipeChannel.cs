@@ -76,7 +76,7 @@ namespace SuperSocket.Channel
 
         private async void WaitHandleClosing()
         {
-            await HandleClosing();
+            await HandleClosing().ConfigureAwait(false);
         }
 
         public async override IAsyncEnumerable<TPackageInfo> RunAsync()
@@ -90,7 +90,7 @@ namespace SuperSocket.Channel
 
                 if (package == null)
                 {
-                    await HandleClosing();
+                    await HandleClosing().ConfigureAwait(false);
                     yield break;
                 }
 
@@ -102,7 +102,7 @@ namespace SuperSocket.Channel
         {
             try
             {
-                await Task.WhenAll(_readsTask, _sendsTask);
+                await Task.WhenAll(_readsTask, _sendsTask).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
@@ -133,9 +133,9 @@ namespace SuperSocket.Channel
 
         public override async ValueTask CloseAsync(CloseReason closeReason)
         {
-            CloseReason = closeReason;   
+            CloseReason = closeReason;
             _cts.Cancel();
-            await HandleClosing();
+            await HandleClosing().ConfigureAwait(false);
         }
 
         protected virtual async Task FillPipeAsync(PipeWriter writer)
@@ -159,11 +159,11 @@ namespace SuperSocket.Channel
                 {                    
                     if (supplyController != null)
                     {
-                        await supplyController.SupplyRequired();
+                        await supplyController.SupplyRequired().ConfigureAwait(false);
 
                         if (cts.IsCancellationRequested)
                             break;
-                    }                        
+                    }
 
                     var bufferSize = options.ReceiveBufferSize;
                     var maxPackageLength = options.MaxPackageLength;
@@ -173,7 +173,7 @@ namespace SuperSocket.Channel
 
                     var memory = writer.GetMemory(bufferSize);
 
-                    var bytesRead = await FillPipeWithDataAsync(memory, cts.Token);         
+                    var bytesRead = await FillPipeWithDataAsync(memory, cts.Token).ConfigureAwait(false);       
 
                     if (bytesRead == 0)
                     {
@@ -210,7 +210,7 @@ namespace SuperSocket.Channel
                 }
 
                 // Make the data available to the PipeReader
-                var result = await writer.FlushAsync();
+                var result = await writer.FlushAsync().ConfigureAwait(false);
 
                 if (result.IsCompleted)
                 {
@@ -244,12 +244,12 @@ namespace SuperSocket.Channel
             Task writing = FillPipeAsync(pipe.Writer);
             Task reading = ReadPipeAsync(pipe.Reader);
 
-            await Task.WhenAll(reading, writing);
+            await Task.WhenAll(reading, writing).ConfigureAwait(false);
         }
 
         protected async ValueTask<bool> ProcessOutputRead(PipeReader reader, CancellationTokenSource cts)
         {
-            var result = await reader.ReadAsync(CancellationToken.None);
+            var result = await reader.ReadAsync(CancellationToken.None).ConfigureAwait(false);
 
             var completed = result.IsCompleted;
 
@@ -260,7 +260,7 @@ namespace SuperSocket.Channel
             {
                 try
                 {
-                    await SendOverIOAsync(buffer, CancellationToken.None);
+                    await SendOverIOAsync(buffer, CancellationToken.None).ConfigureAwait(false);;
                     LastActiveTime = DateTimeOffset.Now;
                 }
                 catch (Exception e)
@@ -285,7 +285,7 @@ namespace SuperSocket.Channel
 
             while (true)
             {
-                var completed = await ProcessOutputRead(output, cts);
+                var completed = await ProcessOutputRead(output, cts).ConfigureAwait(false);
 
                 if (completed)
                 {
@@ -312,10 +312,10 @@ namespace SuperSocket.Channel
         {
             try
             {
-                await SendLock.WaitAsync();
+                await SendLock.WaitAsync().ConfigureAwait(false);
                 var writer = Out.Writer;
                 WriteBuffer(writer, buffer);
-                await writer.FlushAsync();
+                await writer.FlushAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -333,10 +333,10 @@ namespace SuperSocket.Channel
         {
             try
             {
-                await SendLock.WaitAsync();
+                await SendLock.WaitAsync().ConfigureAwait(false);
                 var writer = Out.Writer;
                 WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
-                await writer.FlushAsync();
+                await writer.FlushAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -348,10 +348,10 @@ namespace SuperSocket.Channel
         {
             try
             {
-                await SendLock.WaitAsync();
+                await SendLock.WaitAsync().ConfigureAwait(false);
                 var writer = Out.Writer;
                 write(writer);
-                await writer.FlushAsync();
+                await writer.FlushAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -385,11 +385,11 @@ namespace SuperSocket.Channel
 
                 try
                 {
-                    result = await reader.ReadAsync(cts.Token);
+                    result = await reader.ReadAsync(cts.Token).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
-                    if (!IsIgnorableException(e))
+                    if (!IsIgnorableException(e) && !(e is OperationCanceledException))
                         OnError("Failed to read from the pipe", e);
                     
                     break;
@@ -526,7 +526,7 @@ namespace SuperSocket.Channel
         {
             _isDetaching = true;
             _cts.Cancel();
-            await HandleClosing();
+            await HandleClosing().ConfigureAwait(false);
             _isDetaching = false;
         }
 
