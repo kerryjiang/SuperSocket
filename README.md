@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/supersocket/community](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/supersocket/community)
 [![Build](https://github.com/kerryjiang/SuperSocket/workflows/build/badge.svg)](https://github.com/kerryjiang/SuperSocket/actions?query=workflow%3Abuild)
-[![NuGet Version](https://img.shields.io/nuget/v/SuperSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket/)
+[![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.svg?style=flat)](https://www.nuget.org/packages/SuperSocket/)
 [![NuGet](https://img.shields.io/nuget/dt/SuperSocket.svg)](https://www.nuget.org/packages/SuperSocket)
 [![Badge](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu/#/en_US)
 
@@ -44,7 +44,7 @@ Nightly build packages:  https://www.myget.org/F/supersocket/api/v3/index.json
 ## SuperSocket 2.0 Roadmap:
 
 
-- 2022:
+- 2023:
     - More documents
     - Performance test/tuning
     - Fix issues of the existing features
