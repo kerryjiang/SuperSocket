@@ -21,5 +21,10 @@ namespace SuperSocket
         {
             return new ValueTask<bool>(true);
         }
+
+        public virtual ValueTask<bool> UnRegisterSession(IAppSession session)
+        {
+            return new ValueTask<bool>(true);
+        }
     }
 }

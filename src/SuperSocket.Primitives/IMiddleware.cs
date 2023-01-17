@@ -12,5 +12,7 @@ namespace SuperSocket
         void Shutdown(IServer server);
 
         ValueTask<bool> RegisterSession(IAppSession session);
+
+        ValueTask<bool> UnRegisterSession(IAppSession session);
     }
 }

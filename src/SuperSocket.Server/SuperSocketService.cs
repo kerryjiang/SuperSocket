@@ -106,33 +106,6 @@ namespace SuperSocket.Server
             }
         }
 
-        private void InitializeMiddlewares()
-        {
-            _middlewares = _serviceProvider.GetServices<IMiddleware>()
-                .OrderBy(m => m.Order)
-                .ToArray();
-
-            foreach (var m in _middlewares)
-            {
-                m.Start(this);
-            }
-        }
-
-        private void ShutdownMiddlewares()
-        {
-            foreach (var m in _middlewares)
-            {
-                try
-                {
-                    m.Shutdown(this);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e, $"The exception was thrown from the middleware {m.GetType().Name} when it is being shutdown.");
-                }
-            }
-        }
-
         protected virtual IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
         {
             return _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
@@ -209,15 +182,37 @@ namespace SuperSocket.Server
             return session;
         }
 
-        private async ValueTask<bool> InitializeSession(IAppSession session, IChannel channel)
+        #region Middlewares
+
+        private void InitializeMiddlewares()
         {
-            session.Initialize(this, channel);
+            _middlewares = _serviceProvider.GetServices<IMiddleware>()
+                .OrderBy(m => m.Order)
+                .ToArray();
 
-            if (channel is IPipeChannel pipeChannel)
+            foreach (var m in _middlewares)
             {
-                pipeChannel.PipelineFilter.Context = CreatePipelineContext(session);
+                m.Start(this);
             }
+        }
 
+        private void ShutdownMiddlewares()
+        {
+            foreach (var m in _middlewares)
+            {
+                try
+                {
+                    m.Shutdown(this);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"The exception was thrown from the middleware {m.GetType().Name} when it is being shutdown.");
+                }
+            }
+        }
+
+        private async ValueTask<bool> RegisterSessionInMiddlewares(IAppSession session)
+        {
             var middlewares = _middlewares;
 
             if (middlewares != null && middlewares.Length > 0)
@@ -237,6 +232,59 @@ namespace SuperSocket.Server
             return true;
         }
 
+        private async ValueTask UnRegisterSessionFromMiddlewares(IAppSession session)
+        {
+            var middlewares = _middlewares;
+
+            if (middlewares != null && middlewares.Length > 0)
+            {
+                for (var i = 0; i < middlewares.Length; i++)
+                {
+                    var middleware = middlewares[i];
+
+                    try
+                    {
+                        if (!await middleware.UnRegisterSession(session))
+                        {
+                            _logger.LogWarning($"The session from {session.RemoteEndPoint} was failed to be unregistered from the middleware {middleware.GetType().Name}.");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e, $"An unhandled exception occured when the session from {session.RemoteEndPoint} was being unregistered from the middleware {nameof(RegisterSessionInMiddlewares)}.");
+                    }
+                }
+            }
+        }
+
+        #endregion
+
+        private async ValueTask<bool> InitializeSession(IAppSession session, IChannel channel)
+        {
+            session.Initialize(this, channel);
+
+            if (channel is IPipeChannel pipeChannel)
+            {
+                pipeChannel.PipelineFilter.Context = CreatePipelineContext(session);
+            }
+
+            var middlewares = _middlewares;
+
+            try
+            {
+                if (!await RegisterSessionInMiddlewares(session))
+                    return false;
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"An unhandled exception occured in {nameof(RegisterSessionInMiddlewares)}.");
+                return false;
+            }
+
+            channel.Closed += (s, e) => OnChannelClosed(session, e);
+            return true;
+        }
+
 
         protected virtual ValueTask OnSessionConnectedAsync(IAppSession session)
         {
@@ -248,6 +296,11 @@ namespace SuperSocket.Server
             return new ValueTask();
         }
 
+        private void OnChannelClosed(IAppSession session, CloseEventArgs e)
+        {
+            FireSessionClosedEvent(session as AppSession, e.Reason).DoNotAwait();
+        }
+
         protected virtual ValueTask OnSessionClosedAsync(IAppSession session, CloseEventArgs e)
         {
             var closedHandler = _sessionHandlers?.Closed;
@@ -255,7 +308,7 @@ namespace SuperSocket.Server
             if (closedHandler != null)
                 return closedHandler.Invoke(session, e);
 
-            return new ValueTask();
+            return ValueTask.CompletedTask;
         }
 
         protected virtual async ValueTask FireSessionConnectedEvent(AppSession session)
@@ -287,6 +340,8 @@ namespace SuperSocket.Server
                 if (!handshakeSession.Handshaked)
                     return;
             }
+            
+            await UnRegisterSessionFromMiddlewares(session);
 
             _logger.LogInformation($"The session disconnected: {session.SessionID} ({reason})");
 
@@ -330,7 +385,7 @@ namespace SuperSocket.Server
 
                 await foreach (var p in packageChannel.RunAsync())
                 {
-                    if(_packageHandlingContextAccessor!=null)
+                    if(_packageHandlingContextAccessor != null)
                     {
                         _packageHandlingContextAccessor.PackageHandlingContext = new PackageHandlingContext<IAppSession, TReceivePackageInfo>(session, p);
                     }
@@ -340,11 +395,6 @@ namespace SuperSocket.Server
             catch (Exception e)
             {
                 _logger.LogError(e, $"Failed to handle the session {session.SessionID}.");
-            }
-            finally
-            {
-                var closeReason = channel.CloseReason.HasValue ? channel.CloseReason.Value : CloseReason.Unknown;
-                await FireSessionClosedEvent(session, closeReason);
             }
         }
 
@@ -386,12 +436,12 @@ namespace SuperSocket.Server
 
         protected virtual ValueTask OnStartedAsync()
         {
-            return new ValueTask();
+            return ValueTask.CompletedTask;
         }
 
         protected virtual ValueTask OnStopAsync()
         {
-            return new ValueTask();
+            return ValueTask.CompletedTask;
         }
 
         private async Task StopListener(IChannelCreator listener)

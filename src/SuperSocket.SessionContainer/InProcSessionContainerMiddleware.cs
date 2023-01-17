@@ -26,19 +26,14 @@ namespace SuperSocket.SessionContainer
                     return new ValueTask<bool>(true);
             }
             
-            session.Closed += OnSessionClosed;
             _sessions.TryAdd(session.SessionID, session);
             return new ValueTask<bool>(true);
         }
 
-        private ValueTask OnSessionClosed(object sender, EventArgs e)
+        public override ValueTask<bool> UnRegisterSession(IAppSession session)
         {
-            var session  = (IAppSession)sender;
-
-            session.Closed -= OnSessionClosed;
             _sessions.TryRemove(session.SessionID, out IAppSession removedSession);
-            
-            return new ValueTask();
+            return new ValueTask<bool>(true);
         }
 
         public IAppSession GetSessionByID(string sessionID)

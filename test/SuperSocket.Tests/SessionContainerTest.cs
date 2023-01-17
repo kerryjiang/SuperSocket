@@ -140,8 +140,6 @@ namespace SuperSocket.Tests
 
                     await session.CloseAsync(CloseReason.LocalClosing);
 
-                    await Task.Yield();
-
                     Assert.True(sessionStateEvent.WaitOne(500));
                     Assert.Equal(0, sessionContainer.GetSessionCount());
                     Assert.Null(sessionContainer.GetSessionByID(sessionID));
