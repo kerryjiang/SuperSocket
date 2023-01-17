@@ -90,7 +90,6 @@ namespace SuperSocket.Channel
 
                 if (package == null)
                 {
-                    await HandleClosing().ConfigureAwait(false);
                     yield break;
                 }
 
