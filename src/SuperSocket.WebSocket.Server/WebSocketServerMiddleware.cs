@@ -7,9 +7,13 @@ using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {
-    interface IWebSocketServerMiddleware
+    internal interface IWebSocketServerMiddleware
     {
         ValueTask HandleSessionHandshakeCompleted(WebSocketSession session);
+
+        int OpenHandshakePendingQueueLength { get; }
+
+        int CloseHandshakePendingQueueLength { get; }
     }
 
     class WebSocketServerMiddleware : MiddlewareBase, IWebSocketServerMiddleware
@@ -25,6 +29,16 @@ namespace SuperSocket.WebSocket.Server
         private IMiddleware _sessionContainerMiddleware;
 
         private ISessionEventHost _sessionEventHost;
+
+        public int OpenHandshakePendingQueueLength
+        {
+            get { return _openHandshakePendingQueue.Count;  }
+        }
+
+        public int CloseHandshakePendingQueueLength
+        {
+            get { return _closeHandshakePendingQueue.Count;  }
+        }
 
         public WebSocketServerMiddleware(IOptions<HandshakeOptions> handshakeOptions)
         {
@@ -57,7 +71,6 @@ namespace SuperSocket.WebSocket.Server
         {
             var websocketSession = session as WebSocketSession;
             _openHandshakePendingQueue.Enqueue(websocketSession);
-            websocketSession.CloseHandshakeStarted += OnCloseHandshakeStarted;            
             return new ValueTask<bool>(true);
         }
 
@@ -79,7 +92,7 @@ namespace SuperSocket.WebSocket.Server
                 if (!_openHandshakePendingQueue.TryPeek(out session))
                     break;
 
-                if (session.Handshaked || session.State == SessionState.Closed)
+                if (session.Handshaked || session.State == SessionState.Closed || (session is IAppSession appSession && appSession.Channel.IsClosed))
                 {
                     //Handshaked or not connected
                     _openHandshakePendingQueue.TryDequeue(out session);
@@ -122,6 +135,7 @@ namespace SuperSocket.WebSocket.Server
 
         public ValueTask HandleSessionHandshakeCompleted(WebSocketSession session)
         {
+            session.CloseHandshakeStarted += OnCloseHandshakeStarted;
             _sessionContainerMiddleware?.RegisterSession(session);
             return _sessionEventHost.HandleSessionConnectedEvent(session);
         }
