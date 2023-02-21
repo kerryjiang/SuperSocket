@@ -38,20 +38,6 @@ namespace SuperSocket.Tests.WebSocket
 
         }
 
-        /*
-        [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(SecureHostConfigurator))]
-        [Trait("Category", "WebSocketHandshake")]
-        public async Task TestHandshakeMultipleTimes(Type hostConfiguratorType) 
-        {
-            for (var i = 0; i < 100; i++)
-            {
-                await TestHandshake(hostConfiguratorType);
-            }
-        }
-        */
-
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         public async Task TestCustomWebSocketSession(Type hostConfiguratorType) 
@@ -153,6 +139,65 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
                 Assert.False(connected);
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        [Trait("Category", "WebSocketHandshake")]
+        public async Task TestFalseHandshake(Type hostConfiguratorType) 
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateWebSocketServerBuilder(
+                hostConfigurator: hostConfigurator)
+                .ConfigureServices((hostCtx, services) =>
+                {
+                    services.Configure<HandshakeOptions>(options =>
+                    {
+                        options.CheckingInterval = 1;
+                        options.OpenHandshakeTimeOut = 60;
+                        options.HandshakeValidator = (session, package) => new ValueTask<bool>(false);
+                    });
+                })
+                .UseInProcSessionContainer()
+                .BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var sessionContainer = server.GetSessionContainer();
+
+                Assert.NotNull(sessionContainer);
+
+                var websocketMiddleware = server.ServiceProvider.GetRequiredService<IWebSocketServerMiddleware>();
+                
+                await Parallel.ForEachAsync(Enumerable.Range(0, 100), async (index, ct) =>
+                {
+                    var websocket = new ClientWebSocket();
+                    websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                    try
+                    {
+                        await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}/test"), CancellationToken.None);
+                    }
+                    catch (WebSocketException)
+                    {
+                    }
+
+                    Assert.Equal(WebSocketState.Closed, websocket.State);
+                });
+                
+                Assert.Equal(0, server.SessionCount);
+                Assert.Equal(0, sessionContainer.GetSessionCount());
+
+                await Task.Delay(1000);
+
+                Assert.Equal(0, websocketMiddleware.OpenHandshakePendingQueueLength);
+                Assert.Equal(0, websocketMiddleware.CloseHandshakePendingQueueLength);
 
                 await server.StopAsync();
             }
