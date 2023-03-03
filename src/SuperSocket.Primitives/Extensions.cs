@@ -16,6 +16,15 @@ namespace SuperSocket
 
         }
 
+#if NETSTANDARD2_1
+        private static readonly ValueTask _completedTask = new ValueTask();
+
+        public static ValueTask GetCompletedTask()
+        {
+            return _completedTask;
+        }
+#endif
+
         public static IPEndPoint GetListenEndPoint(this ListenOptions listenOptions)
         {
             var ip = listenOptions.Ip;

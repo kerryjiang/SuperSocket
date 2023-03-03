@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SuperSocket;
+using static SuperSocket.Extensions;
 using SuperSocket.Channel;
 using SuperSocket.ProtoBase;
 
@@ -308,7 +308,11 @@ namespace SuperSocket.Server
             if (closedHandler != null)
                 return closedHandler.Invoke(session, e);
 
-            return ValueTask.CompletedTask;
+            #if NETSTANDARD2_1
+                return GetCompletedTask();
+            #else
+                return ValueTask.CompletedTask;
+            #endif
         }
 
         protected virtual async ValueTask FireSessionConnectedEvent(AppSession session)
@@ -436,12 +440,20 @@ namespace SuperSocket.Server
 
         protected virtual ValueTask OnStartedAsync()
         {
-            return ValueTask.CompletedTask;
+            #if NETSTANDARD2_1
+                return GetCompletedTask();
+            #else
+                return ValueTask.CompletedTask;
+            #endif
         }
 
         protected virtual ValueTask OnStopAsync()
         {
-            return ValueTask.CompletedTask;
+            #if NETSTANDARD2_1
+                return GetCompletedTask();
+            #else
+                return ValueTask.CompletedTask;
+            #endif
         }
 
         private async Task StopListener(IChannelCreator listener)
