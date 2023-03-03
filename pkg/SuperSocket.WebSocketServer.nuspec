@@ -20,6 +20,14 @@
         <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />
         <dependency id="SuperSocket.WebSocket.Server" version="$version$" exclude="Build,Analyzers" />
       </group>
+      <group targetFramework="net6.0">
+        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="SuperSocket.WebSocket.Server" version="$version$" exclude="Build,Analyzers" />
+      </group>
+      <group targetFramework="net7.0">
+        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="SuperSocket.WebSocket.Server" version="$version$" exclude="Build,Analyzers" />
+      </group>
     </dependencies>
   </metadata>
 </package>
