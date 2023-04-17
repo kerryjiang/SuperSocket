@@ -160,21 +160,21 @@ namespace SuperSocket.Server
             return Task.FromResult(_channelCreators.Any());
         }
 
-        protected virtual void OnNewClientAccept(IChannelCreator listener, IChannel channel)
+        protected virtual ValueTask OnNewClientAccept(IChannelCreator listener, IChannel channel)
         {
-            AcceptNewChannel(channel);
+            return AcceptNewChannel(channel);
         }
 
-        private void AcceptNewChannel(IChannel channel)
+        private ValueTask AcceptNewChannel(IChannel channel)
         {
             var session = _sessionFactory.Create() as AppSession;
-            HandleSession(session, channel).DoNotAwait();
+            return HandleSession(session, channel);
         }
 
         async Task IChannelRegister.RegisterChannel(object connection)
         {
             var channel = await _channelCreators.FirstOrDefault().CreateChannel(connection);
-            AcceptNewChannel(channel);
+            await AcceptNewChannel(channel);
         }
 
         protected virtual object CreatePipelineContext(IAppSession session)

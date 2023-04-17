@@ -119,7 +119,7 @@ namespace SuperSocket.Server
                 return;
             }            
 
-            handler.Invoke(this, channel);
+            await handler.Invoke(this, channel);
         }
 
         public async Task<IChannel> CreateChannel(object connection)

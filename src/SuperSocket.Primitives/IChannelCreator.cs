@@ -3,7 +3,7 @@ using SuperSocket.Channel;
 
 namespace SuperSocket
 {
-    public delegate void NewClientAcceptHandler(IChannelCreator listener, IChannel channel);
+    public delegate ValueTask NewClientAcceptHandler(IChannelCreator listener, IChannel channel);
 
     public interface IChannelCreator
     {
