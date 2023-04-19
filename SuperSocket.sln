@@ -47,6 +47,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Kestrel", "src\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.IOCPTcpChannel", "src\SuperSocket.IOCPTcpChannel\SuperSocket.IOCPTcpChannel.csproj", "{4C7E136F-E82D-46B5-9E5B-FE07861AC9F0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.IOCPTcpChannelCreatorFactory", "src\SuperSocket.IOCPTcpChannelCreatorFactory\SuperSocket.IOCPTcpChannelCreatorFactory.csproj", "{A09CAF22-27F9-4926-8609-5DA3D0B4481B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -297,6 +299,18 @@ Global
 		{4C7E136F-E82D-46B5-9E5B-FE07861AC9F0}.Release|x64.Build.0 = Release|Any CPU
 		{4C7E136F-E82D-46B5-9E5B-FE07861AC9F0}.Release|x86.ActiveCfg = Release|Any CPU
 		{4C7E136F-E82D-46B5-9E5B-FE07861AC9F0}.Release|x86.Build.0 = Release|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Debug|x64.Build.0 = Debug|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Debug|x86.Build.0 = Debug|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Release|x64.ActiveCfg = Release|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Release|x64.Build.0 = Release|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Release|x86.ActiveCfg = Release|Any CPU
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -322,6 +336,7 @@ Global
 		{FC18C0EB-0147-4913-896B-D5D186646EE7} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{9FC18701-C098-42CE-9494-D306E42FE689} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{4C7E136F-E82D-46B5-9E5B-FE07861AC9F0} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
+		{A09CAF22-27F9-4926-8609-5DA3D0B4481B} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ADB30AA2-A848-4CB3-8A20-488C80F1BA9E}
