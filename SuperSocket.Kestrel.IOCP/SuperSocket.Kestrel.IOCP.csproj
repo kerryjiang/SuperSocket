@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<Description>SuperSocket library to abstract underlying communications as channel with pipeline.</Description>
-	</PropertyGroup>
-	<ItemGroup>
-		<PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
-	</ItemGroup>
-</Project>
