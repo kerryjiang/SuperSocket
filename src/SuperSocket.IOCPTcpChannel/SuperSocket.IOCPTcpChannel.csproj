@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<LangVersion>11.0</LangVersion>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<Description>SuperSocket library to abstract underlying communications as channel with pipeline.</Description>
+		<Nullable>enable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SuperSocket.Channel\SuperSocket.Channel.csproj" />
+	  <ProjectReference Include="..\SuperSocket.Kestrel.IOCP\SuperSocket.Kestrel.IOCP.csproj" />
+	  <ProjectReference Include="..\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj" />
+	</ItemGroup>
+
+</Project>
