@@ -107,7 +107,6 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
         _socket = null;
         _sender?.Dispose();
         _receiver.Dispose();
-        _socketSenderPool.Dispose();
         base.OnClosed();
     }
 
