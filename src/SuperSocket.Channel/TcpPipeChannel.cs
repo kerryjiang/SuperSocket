@@ -59,8 +59,6 @@ namespace SuperSocket.Channel
                 _segmentsForSend.Clear();
             }
 
-            var segments = _segmentsForSend;
-
             foreach (var piece in buffer)
             {
                 cancellationToken.ThrowIfCancellationRequested();

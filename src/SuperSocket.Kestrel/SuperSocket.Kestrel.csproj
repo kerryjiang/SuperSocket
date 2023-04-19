@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<LangVersion>11.0</LangVersion>
+		<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+		<Description>SuperSocket library to abstract underlying communications as channel with pipeline.</Description>
+		<Nullable>disable</Nullable>
+		<AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="7.0.5" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\SuperSocket.Kestrel.Channel\SuperSocket.Kestrel.Channel.csproj" />
+	  <ProjectReference Include="..\SuperSocket.Server\SuperSocket.Server.csproj" />
+	</ItemGroup>
+
+</Project>
