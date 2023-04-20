@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Connections;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
-using SuperSocket.Kestrel.Internal;
 using SuperSocket.ProtoBase;
 using System;
 using System.Buffers;
@@ -26,7 +25,7 @@ public sealed class KestrelPipeChannel<TPackageInfo> : ChannelBase<TPackageInfo>
     private readonly ConnectionContext _connection;
     private readonly SemaphoreSlim _sendLock = new(1, 1);
     private readonly CancellationToken _connectionToken;
-    private readonly KestrelObjectPipe<TPackageInfo> _packagePipe = new();
+    private readonly DefaultObjectPipe<TPackageInfo> _packagePipe = new();
 
     public KestrelPipeChannel(ConnectionContext context,
                               IPipelineFilter<TPackageInfo> pipelineFilter,
