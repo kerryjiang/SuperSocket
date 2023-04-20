@@ -101,7 +101,8 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
 
     /// <summary>
     /// 从pipeline中读取数据然后发送至socket
-    /// 必须重写 如果直接重写 SendOverIOAsync 否则内存占用是封装的两倍
+    /// 必须重写
+    /// 如果不重写直接使用重写后的SendOverIOAsync 否则内存占用是不重写的两倍
     /// </summary>
     /// <returns></returns>
     protected override async Task ProcessSends()
