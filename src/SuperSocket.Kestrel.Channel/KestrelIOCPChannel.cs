@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
-using SuperSocket.Kestrel.Internal;
 using SuperSocket.Kestrel.IOCP;
 using SuperSocket.ProtoBase;
 using System;
@@ -34,7 +33,7 @@ public sealed class KestrelIOCPChannel<TPackageInfo> :
     private readonly CancellationTokenSource _cts = new();
     private readonly SocketReceiver _receiver;
     private readonly SocketSenderPool _socketSenderPool;
-    private readonly KestrelObjectPipe<TPackageInfo> _packagePipe = new();
+    private readonly DefaultObjectPipe<TPackageInfo> _packagePipe = new();
 
     Pipe IPipeChannel.Out => _out;
 
