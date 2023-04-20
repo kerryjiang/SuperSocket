@@ -382,5 +382,6 @@ public sealed class KestrelPipeChannel<TPackageInfo> :
             _logger?.LogError(message);
     }
 
+    
     #endregion
 }
