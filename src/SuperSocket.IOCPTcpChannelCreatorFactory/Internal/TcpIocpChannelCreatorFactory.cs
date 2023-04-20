@@ -12,7 +12,7 @@ using SuperSocket.Server;
 
 namespace SuperSocket.IOCPTcpChannelCreatorFactory;
 
-internal sealed class TcpIocpChannelCreatorFactory : TcpChannelCreatorFactory, IChannelCreatorFactory
+public class TcpIocpChannelCreatorFactory : TcpChannelCreatorFactory, IChannelCreatorFactory
 {
     private int _settingsIndex;
     private readonly QueueSettings[] _settings;
@@ -21,58 +21,13 @@ internal sealed class TcpIocpChannelCreatorFactory : TcpChannelCreatorFactory, I
     public TcpIocpChannelCreatorFactory(IServiceProvider serviceProvider)
         : base(serviceProvider)
     {
-        const int maxReadBufferSize = 1048576;
-        const int maxWriteBufferSize = 65536;
+        _settings = LoadQueueSettings(serviceProvider);
+        _settingsCount = _settings.Length;
+    }
 
-        var applicationScheduler = PipeScheduler.ThreadPool;
-
-        // Socket callbacks run on the threads polling for IO if we're using the old Windows thread pool
-        var dispatchSocketCallbacks = OperatingSystem.IsWindows() &&
-                                      (Environment.GetEnvironmentVariable("DOTNET_ThreadPool_UsePortableThreadPoolForIO") == "0" ||
-                                      Environment.GetEnvironmentVariable("COMPlus_ThreadPool_UsePortableThreadPoolForIO") == "0");
-
-        PipeScheduler SelectSocketsScheduler(PipeScheduler dispatchingScheduler) =>
-    dispatchSocketCallbacks ? dispatchingScheduler : PipeScheduler.Inline;
-
-        if (_settingsCount > 0)
-        {
-            _settings = new QueueSettings[_settingsCount];
-
-            for (var i = 0; i < _settingsCount; i++)
-            {
-                var memoryPool = new PinnedBlockMemoryPool();
-                var transportScheduler = new IOQueue();
-                var socketsScheduler = SelectSocketsScheduler(transportScheduler);
-
-                _settings[i] = new QueueSettings()
-                {
-                    Scheduler = transportScheduler,
-                    InputOptions = new PipeOptions(memoryPool, applicationScheduler, transportScheduler, maxReadBufferSize, maxReadBufferSize / 2, useSynchronizationContext: false),
-                    OutputOptions = new PipeOptions(memoryPool, transportScheduler, applicationScheduler, maxWriteBufferSize, maxWriteBufferSize / 2, useSynchronizationContext: false),
-                    SocketSenderPool = new SocketSenderPool(socketsScheduler),
-                    MemoryPool = memoryPool,
-                };
-            }
-        }
-        else
-        {
-            var memoryPool = new PinnedBlockMemoryPool();
-            var transportScheduler = PipeScheduler.ThreadPool;
-            var socketsScheduler = SelectSocketsScheduler(transportScheduler);
-
-            _settings = new QueueSettings[]
-            {
-                new QueueSettings()
-                {
-                    Scheduler = transportScheduler,
-                    InputOptions = new PipeOptions(memoryPool, applicationScheduler, transportScheduler, maxReadBufferSize, maxReadBufferSize / 2, useSynchronizationContext: false),
-                    OutputOptions = new PipeOptions(memoryPool, transportScheduler, applicationScheduler, maxWriteBufferSize, maxWriteBufferSize / 2, useSynchronizationContext: false),
-                    SocketSenderPool = new SocketSenderPool(socketsScheduler),
-                    MemoryPool = memoryPool,
-                }
-            };
-            _settingsCount = 1;
-        }
+    protected virtual QueueSettings[] LoadQueueSettings(IServiceProvider serviceProvider)
+    {
+        return QueueSettings.Default;
     }
 
     public new IChannelCreator CreateChannelCreator<TPackageInfo>(ListenOptions options,
@@ -84,11 +39,11 @@ internal sealed class TcpIocpChannelCreatorFactory : TcpChannelCreatorFactory, I
 
         ArgumentNullException.ThrowIfNull(filterFactory);
 
-        channelOptions.Logger = loggerFactory.CreateLogger(nameof(IChannel));
+        channelOptions.Logger = loggerFactory.CreateLogger<IOCPTcpPipeChannel<TPackageInfo>>();
 
         var channelFactoryLogger = loggerFactory.CreateLogger(nameof(TcpChannelCreator));
 
-        return new TcpChannelCreator(options, (s) =>
+        return new TcpChannelCreator(options, (System.Net.Sockets.Socket socket) =>
         {
             QueueSettings setting = _settings[Interlocked.Increment(ref _settingsIndex) % (long)_settingsCount];
 
@@ -97,7 +52,7 @@ internal sealed class TcpIocpChannelCreatorFactory : TcpChannelCreatorFactory, I
                 SendBufferSize = channelOptions.SendBufferSize,
                 SendTimeout = channelOptions.SendTimeout,
                 ReceiveBufferSize = channelOptions.ReceiveBufferSize,
-                Logger = loggerFactory.CreateLogger(nameof(IOCPTcpPipeChannel<TPackageInfo>)),
+                Logger = channelOptions.Logger,
                 MaxPackageLength = channelOptions.MaxPackageLength,
                 ReadAsDemand = channelOptions.ReadAsDemand,
                 ReceiveTimeout = channelOptions.ReceiveTimeout,
@@ -106,11 +61,11 @@ internal sealed class TcpIocpChannelCreatorFactory : TcpChannelCreatorFactory, I
                 Out = new Pipe(setting.OutputOptions),
             };
 
-            ApplySocketOptions(s, options, channelOptions, channelFactoryLogger);
+            ApplySocketOptions(socket, options, channelOptions, channelFactoryLogger);
 
-            var pipelineFilter = filterFactory.Create(s);
+            var pipelineFilter = filterFactory.Create(socket);
 
-            var channel = new IOCPTcpPipeChannel<TPackageInfo>(socket: s,
+            var channel = new IOCPTcpPipeChannel<TPackageInfo>(socket: socket,
                                                                pipelineFilter: pipelineFilter,
                                                                options: newChannelOptions,
                                                                socketSenderPool: setting.SocketSenderPool,

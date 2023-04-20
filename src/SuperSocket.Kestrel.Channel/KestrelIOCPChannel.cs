@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Connections;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using SuperSocket.Channel;
 using SuperSocket.Kestrel.Internal;
 using SuperSocket.Kestrel.IOCP;

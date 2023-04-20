@@ -11,13 +11,14 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.IOCPTcpChannel;
 
-public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
+public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageInfo>
 {
     private Socket? _socket;
     private SocketSender? _sender;
     private readonly bool _waitForData;
     private readonly SocketReceiver _receiver;
     private readonly SocketSenderPool _socketSenderPool;
+    private readonly CancellationTokenSource _cts;
 
     public IOCPTcpPipeChannel(Socket socket,
                               IPipelineFilter<TPackageInfo> pipelineFilter,
@@ -25,20 +26,42 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
                               SocketSenderPool socketSenderPool,
                               PipeScheduler? socketScheduler = default,
                               bool waitForData = true) :
-        base(pipelineFilter, options)
+        base(socket, pipelineFilter, options)
     {
         socketScheduler ??= PipeScheduler.ThreadPool;
 
         _socket = socket;
+        _waitForData = waitForData;
         _receiver = new SocketReceiver(socketScheduler);
         _socketSenderPool = socketSenderPool;
 
-        _waitForData = waitForData;
+        const string fieldName = "_cts";
+
+        var field = GetType().BaseType!.BaseType!.GetField(fieldName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+
+        _cts = (CancellationTokenSource)field!.GetValue(this)!;
     }
 
-    public override ValueTask CloseAsync(CloseReason closeReason)
+    public override async ValueTask CloseAsync(CloseReason closeReason)
     {
-        return base.CloseAsync(closeReason);
+        var socket = _socket;
+
+        if (socket == null)
+            return;
+
+        if (Interlocked.CompareExchange(ref _socket, null, socket) != socket)
+            return;
+
+        try
+        {
+            socket.Shutdown(SocketShutdown.Both);
+        }
+        finally
+        {
+            socket.Close();
+        }
+
+        await base.CloseAsync(closeReason);
     }
 
     /// <summary>
@@ -102,8 +125,9 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
     /// <returns></returns>
     protected override async Task ProcessSends()
     {
-        var cts = Cts;
+        var cts = _cts;
         var output = Out.Reader;
+        var socket = _socket!;
 
         bool completed;
         ReadResult result;
@@ -123,13 +147,28 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
             {
                 try
                 {
-                    await SendOverIOAsync(buffer, cts.Token).ConfigureAwait(false);
+                    _sender = _socketSenderPool.Rent();
+
+                    var transferResult = await _sender.SendAsync(socket, buffer).ConfigureAwait(false);
+
+                    if (transferResult.HasError)
+                    {
+                        if (IsConnectionResetError(transferResult.SocketError.SocketErrorCode))
+                            throw transferResult.SocketError;
+
+                        if (IsConnectionAbortError(transferResult.SocketError.SocketErrorCode))
+                            throw transferResult.SocketError;
+                    }
+
+                    _socketSenderPool.Return(_sender);
+
+                    _sender = null;
 
                     LastActiveTime = DateTimeOffset.Now;
                 }
                 catch (Exception e)
                 {
-                    cts?.Cancel(false);
+                    cts.Cancel(false);
 
                     if (!IsIgnorableException(e))
                         OnError("Exception happened in SendAsync", e);
@@ -154,8 +193,9 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
     /// <returns></returns>
     protected override async Task FillPipeAsync(PipeWriter writer)
     {
+        var cts = _cts;
         var options = Options;
-        var cts = Cts;
+        var socket = _socket!;
 
         Memory<byte> memory;
         FlushResult result;
@@ -177,20 +217,20 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
                 if (_waitForData)
                 {
                     // Wait for data before allocating a buffer.
-                    var waitForDataResult = await _receiver.WaitForDataAsync(_socket!).ConfigureAwait(false);
+                    var waitForDataResult = await _receiver.WaitForDataAsync(socket).ConfigureAwait(false);
 
                     if (waitForDataResult.HasError)
                         throw waitForDataResult.SocketError;
                 }
 
-                receiveResult = await _receiver.ReceiveAsync(_socket!, memory).ConfigureAwait(false);
+                receiveResult = await _receiver.ReceiveAsync(socket, memory).ConfigureAwait(false);
 
                 if (receiveResult.HasError)
                     throw receiveResult.SocketError;
 
                 bytesRead = receiveResult.BytesTransferred;
 
-                //bytesRead = await FillPipeWithDataAsync(memory, _cts.Token);//不能使用这个封装方法 否则内存占用是封装的两倍
+                //bytesRead = await FillPipeWithDataAsync(memory, _cts.Token).ConfigureAwait(false);//不能使用这个封装方法 否则内存占用是封装的两倍
 
                 if (bytesRead == 0)
                 {
@@ -245,40 +285,6 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
         _sender?.Dispose();
         _receiver.Dispose();
         base.OnClosed();
-    }
-
-    protected override void Close()
-    {
-        var socket = _socket;
-
-        if (socket == null)
-            return;
-
-        if (Interlocked.CompareExchange(ref _socket, null, socket) != socket)
-            return;
-
-        try
-        {
-            socket.Shutdown(SocketShutdown.Both);
-        }
-        finally
-        {
-            socket.Close();
-        }
-    }
-
-    protected override bool IsIgnorableException(Exception e)
-    {
-        if (base.IsIgnorableException(e))
-            return true;
-
-        if (e is SocketException se)
-        {
-            if (se.IsIgnorableSocketException())
-                return true;
-        }
-
-        return false;
     }
 
     private static bool IsConnectionResetError(SocketError errorCode)
