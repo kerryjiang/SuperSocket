@@ -18,7 +18,6 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
     private readonly bool _waitForData;
     private readonly SocketReceiver _receiver;
     private readonly SocketSenderPool _socketSenderPool;
-    private readonly CancellationTokenSource _cts;
 
     public IOCPTcpPipeChannel(Socket socket,
                               IPipelineFilter<TPackageInfo> pipelineFilter,
@@ -35,12 +34,6 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
         _socketSenderPool = socketSenderPool;
 
         _waitForData = waitForData;
-
-        const string fieldName = "_cts";
-
-        var field = GetType().BaseType!.BaseType!.GetField(fieldName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
-
-        _cts = (CancellationTokenSource)field!.GetValue(this)!;
     }
 
     /// <summary>
@@ -108,6 +101,7 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
     protected override async Task ProcessSends()
     {
         var output = Out.Reader;
+        var token = Cts.Token;
 
         bool completed;
         ReadResult result;
@@ -127,13 +121,13 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
             {
                 try
                 {
-                    await SendOverIOAsync(buffer, _cts.Token).ConfigureAwait(false);
+                    await SendOverIOAsync(buffer, token).ConfigureAwait(false);
 
                     LastActiveTime = DateTimeOffset.Now;
                 }
                 catch (Exception e)
                 {
-                    _cts?.Cancel(false);
+                    Cts?.Cancel(false);
 
                     if (!IsIgnorableException(e))
                         OnError("Exception happened in SendAsync", e);
@@ -159,7 +153,7 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
     protected override async Task FillPipeAsync(PipeWriter writer)
     {
         var options = Options;
-        var cts = _cts;
+        var cts = Cts;
 
         Memory<byte> memory;
         FlushResult result;
