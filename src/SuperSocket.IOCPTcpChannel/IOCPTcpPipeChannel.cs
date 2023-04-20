@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.IOCPTcpChannel;
 
-public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageInfo>
+public sealed class IOCPTcpPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
 {
     private Socket? _socket;
     private SocketSender? _sender;
@@ -24,8 +24,8 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
                               ChannelOptions options,
                               SocketSenderPool socketSenderPool,
                               PipeScheduler? socketScheduler = default,
-                              bool waitForData = false) :
-        base(socket, pipelineFilter, options)
+                              bool waitForData = true) :
+        base(pipelineFilter, options)
     {
         socketScheduler ??= PipeScheduler.ThreadPool;
 
@@ -36,9 +36,13 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
         _waitForData = waitForData;
     }
 
+    public override ValueTask CloseAsync(CloseReason closeReason)
+    {
+        return base.CloseAsync(closeReason);
+    }
+
     /// <summary>
     /// 从socket中接受数据流然后写入memory
-    /// 重写FillPipeAsync 该方法不会被调用
     /// </summary>
     /// <param name="memory"></param>
     /// <param name="cancellationToken"></param>
@@ -94,14 +98,12 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
 
     /// <summary>
     /// 从pipeline中读取数据然后发送至socket
-    /// 必须重写
-    /// 如果不重写直接使用重写后的SendOverIOAsync 否则内存占用是不重写的两倍
     /// </summary>
     /// <returns></returns>
     protected override async Task ProcessSends()
     {
+        var cts = Cts;
         var output = Out.Reader;
-        var token = Cts.Token;
 
         bool completed;
         ReadResult result;
@@ -121,13 +123,13 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
             {
                 try
                 {
-                    await SendOverIOAsync(buffer, token).ConfigureAwait(false);
+                    await SendOverIOAsync(buffer, cts.Token).ConfigureAwait(false);
 
                     LastActiveTime = DateTimeOffset.Now;
                 }
                 catch (Exception e)
                 {
-                    Cts?.Cancel(false);
+                    cts?.Cancel(false);
 
                     if (!IsIgnorableException(e))
                         OnError("Exception happened in SendAsync", e);
@@ -239,9 +241,44 @@ public sealed class IOCPTcpPipeChannel<TPackageInfo> : TcpPipeChannel<TPackageIn
 
     protected override void OnClosed()
     {
+        _socket = null;
         _sender?.Dispose();
         _receiver.Dispose();
         base.OnClosed();
+    }
+
+    protected override void Close()
+    {
+        var socket = _socket;
+
+        if (socket == null)
+            return;
+
+        if (Interlocked.CompareExchange(ref _socket, null, socket) != socket)
+            return;
+
+        try
+        {
+            socket.Shutdown(SocketShutdown.Both);
+        }
+        finally
+        {
+            socket.Close();
+        }
+    }
+
+    protected override bool IsIgnorableException(Exception e)
+    {
+        if (base.IsIgnorableException(e))
+            return true;
+
+        if (e is SocketException se)
+        {
+            if (se.IsIgnorableSocketException())
+                return true;
+        }
+
+        return false;
     }
 
     private static bool IsConnectionResetError(SocketError errorCode)
