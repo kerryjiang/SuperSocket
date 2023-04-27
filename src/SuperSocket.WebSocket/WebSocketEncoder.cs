@@ -174,6 +174,9 @@ namespace SuperSocket.WebSocket
 
                 while (true)
                 {
+                    if (text.Length < _size0)
+                        headLen = 2;
+                    
                     total += EncodeFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, headLen, fragmentSize, text, encoder, out int charsUsed);
 
                     if (text.Length <= charsUsed)
