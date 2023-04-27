@@ -17,7 +17,7 @@ namespace SuperSocket.Channel
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
-        protected CancellationTokenSource Cts = new CancellationTokenSource();
+        protected CancellationTokenSource Cts { get; } = new CancellationTokenSource();
 
         protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
@@ -133,14 +133,14 @@ namespace SuperSocket.Channel
         public override async ValueTask CloseAsync(CloseReason closeReason)
         {
             CloseReason = closeReason;
-            _cts.Cancel();
+            Cts.Cancel();
             await HandleClosing().ConfigureAwait(false);
         }
 
         protected virtual async Task FillPipeAsync(PipeWriter writer)
         {
             var options = Options;
-            var cts = _cts;
+            var cts = Cts;
 
             var supplyController = _packagePipe as ISupplyController;
 
@@ -280,7 +280,7 @@ namespace SuperSocket.Channel
         protected virtual async Task ProcessSends()
         {
             var output = Out.Reader;
-            var cts = _cts;
+            var cts = Cts;
 
             while (true)
             {
@@ -376,7 +376,7 @@ namespace SuperSocket.Channel
 
         protected async Task ReadPipeAsync(PipeReader reader)
         {
-            var cts = _cts;
+            var cts = Cts;
 
             while (!cts.IsCancellationRequested)
             {
@@ -524,7 +524,7 @@ namespace SuperSocket.Channel
         public override async ValueTask DetachAsync()
         {
             _isDetaching = true;
-            _cts.Cancel();
+            Cts.Cancel();
             await HandleClosing().ConfigureAwait(false);
             _isDetaching = false;
         }
