@@ -17,7 +17,7 @@ namespace SuperSocket.Channel
     {
         private IPipelineFilter<TPackageInfo> _pipelineFilter;
 
-        private CancellationTokenSource _cts = new CancellationTokenSource();
+        protected CancellationTokenSource Cts = new CancellationTokenSource();
 
         protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
