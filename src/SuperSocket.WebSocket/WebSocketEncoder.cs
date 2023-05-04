@@ -82,7 +82,7 @@ namespace SuperSocket.WebSocket
             return totalBytes + expectedHeadLength;
         }
 
-        private int EncodeFragmentWithBuffer(IBufferWriter<byte> writer, byte opCode, int expectedHeadLength, int fragmentSize, ReadOnlySpan<char> text, Encoder encoder, out int charsUsed)
+        private int EncodeFragmentWithBuffer(IBufferWriter<byte> writer, byte opCode, int fragmentSize, ReadOnlySpan<char> text, Encoder encoder, out int charsUsed)
         {
             charsUsed = 0;
 
@@ -108,9 +108,11 @@ namespace SuperSocket.WebSocket
                 WriteHead(ref head, opCode, totalBytes);
                 writer.Advance(headLen);
 
-                var pipelineBuffer = writer.GetSpan(fragmentSize).Slice(0, fragmentSize);
+                var pipelineBuffer = writer.GetSpan(totalBytes).Slice(0, totalBytes);
 
                 bufferSpan.Slice(0, totalBytes).CopyTo(pipelineBuffer);
+                writer.Advance(totalBytes);
+
                 return totalBytes + headLen;
             }
             finally
@@ -229,7 +231,7 @@ namespace SuperSocket.WebSocket
                 if (!bufferWrite)
                     total += EncodeFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, headLen, fragmentSize, text, encoder, out charsUsed);
                 else
-                    total += EncodeFragmentWithBuffer(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, headLen, fragmentSize, text, encoder, out charsUsed);
+                    total += EncodeFragmentWithBuffer(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, fragmentSize, text, encoder, out charsUsed);
 
                 if (text.Length <= charsUsed)
                     break;
@@ -239,7 +241,6 @@ namespace SuperSocket.WebSocket
                 if (!isContinuation)
                     isContinuation = true;
             }
-
             
             return total;
         }
