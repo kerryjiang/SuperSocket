@@ -41,4 +41,17 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="json.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>json.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="json.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>json.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
 </Project>
