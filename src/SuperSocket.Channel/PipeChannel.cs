@@ -19,6 +19,8 @@ namespace SuperSocket.Channel
 
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
+        protected CancellationTokenSource Cts => _cts;
+        
         protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
         protected Pipe Out { get; }
