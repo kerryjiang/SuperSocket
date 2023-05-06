@@ -4,13 +4,14 @@
    // For further information visit https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md
    "version": "0.2.0",
    "configurations": [
+    
         {
             "name": ".NET Core Launch (console)",
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceRoot}/test/Test/bin/Debug/net6.0/Test.dll",
+            "program": "${workspaceRoot}/test/Test/bin/Debug/net7.0/Test.dll",
             "args": [],
             "cwd": "${workspaceRoot}/test/Test",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window

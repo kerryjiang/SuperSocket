@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 	<PropertyGroup>
-		<TargetFrameworks>net6.0</TargetFrameworks>
+		<TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
 		<LangVersion>10</LangVersion>
 	</PropertyGroup>
 	<ItemGroup>
