@@ -117,7 +117,7 @@ namespace SuperSocket.Channel
                 var writer = Out.Writer;
                 WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
                 await writer.FlushAsync();
-                await ProcessOutputRead(Out.Reader, null);
+                await ProcessOutputRead(Out.Reader);
             }
             finally
             {

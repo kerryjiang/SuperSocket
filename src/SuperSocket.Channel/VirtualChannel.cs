@@ -16,7 +16,7 @@ namespace SuperSocket.Channel
  
         }
 
-        protected override Task FillPipeAsync(PipeWriter writer)
+        protected override Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }
