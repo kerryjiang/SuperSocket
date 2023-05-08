@@ -69,7 +69,7 @@ namespace SuperSocket.Channel
 
         public override void Start()
         {
-            _readsTask = ProcessReads();
+            _readsTask = ProcessReads(_cts.Token);
             _sendsTask = ProcessSends();
             WaitHandleClosing();
         }
@@ -133,26 +133,29 @@ namespace SuperSocket.Channel
         public override async ValueTask CloseAsync(CloseReason closeReason)
         {
             CloseReason = closeReason;
-            _cts.Cancel();
+            Cancel();
             await HandleClosing().ConfigureAwait(false);
         }
 
-        protected virtual async Task FillPipeAsync(PipeWriter writer)
+        protected void Cancel()
+        {
+            _cts.Cancel();
+        }
+
+        protected virtual async Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
         {
             var options = Options;
-            var cts = _cts;
-
             var supplyController = _packagePipe as ISupplyController;
 
             if (supplyController != null)
             {
-                cts.Token.Register(() =>
+                cancellationToken.Register(() =>
                 {
                     supplyController.SupplyEnd();
                 });
             }
 
-            while (!cts.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {                    
@@ -160,7 +163,7 @@ namespace SuperSocket.Channel
                     {
                         await supplyController.SupplyRequired().ConfigureAwait(false);
 
-                        if (cts.IsCancellationRequested)
+                        if (cancellationToken.IsCancellationRequested)
                             break;
                     }
 
@@ -172,7 +175,7 @@ namespace SuperSocket.Channel
 
                     var memory = writer.GetMemory(bufferSize);
 
-                    var bytesRead = await FillPipeWithDataAsync(memory, cts.Token).ConfigureAwait(false);       
+                    var bytesRead = await FillPipeWithDataAsync(memory, cancellationToken).ConfigureAwait(false);       
 
                     if (bytesRead == 0)
                     {
@@ -196,7 +199,7 @@ namespace SuperSocket.Channel
 
                         if (!CloseReason.HasValue)
                         {
-                            CloseReason = cts.IsCancellationRequested
+                            CloseReason = cancellationToken.IsCancellationRequested
                                 ? Channel.CloseReason.LocalClosing : Channel.CloseReason.SocketError; 
                         }
                     }
@@ -236,17 +239,17 @@ namespace SuperSocket.Channel
 
         protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
 
-        protected virtual async Task ProcessReads()
+        protected virtual async Task ProcessReads(CancellationToken cancellationToken)
         {
             var pipe = In;
 
-            Task writing = FillPipeAsync(pipe.Writer);
-            Task reading = ReadPipeAsync(pipe.Reader);
+            Task writing = FillPipeAsync(pipe.Writer, cancellationToken);
+            Task reading = ReadPipeAsync(pipe.Reader, cancellationToken);
 
             await Task.WhenAll(reading, writing).ConfigureAwait(false);
         }
 
-        protected async ValueTask<bool> ProcessOutputRead(PipeReader reader, CancellationTokenSource cts)
+        protected async ValueTask<bool> ProcessOutputRead(PipeReader reader)
         {
             var result = await reader.ReadAsync(CancellationToken.None).ConfigureAwait(false);
 
@@ -264,7 +267,8 @@ namespace SuperSocket.Channel
                 }
                 catch (Exception e)
                 {
-                    cts?.Cancel(false);
+                    // Cancel all the work in the channel if encounter an error during sending
+                    Cancel();
                     
                     if (!IsIgnorableException(e))
                         OnError("Exception happened in SendAsync", e);
@@ -280,11 +284,10 @@ namespace SuperSocket.Channel
         protected virtual async Task ProcessSends()
         {
             var output = Out.Reader;
-            var cts = _cts;
 
             while (true)
             {
-                var completed = await ProcessOutputRead(output, cts).ConfigureAwait(false);
+                var completed = await ProcessOutputRead(output).ConfigureAwait(false);
 
                 if (completed)
                 {
@@ -374,17 +377,15 @@ namespace SuperSocket.Channel
             return result;
         }
 
-        protected async Task ReadPipeAsync(PipeReader reader)
+        protected async Task ReadPipeAsync(PipeReader reader, CancellationToken cancellationToken)
         {
-            var cts = _cts;
-
-            while (!cts.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 ReadResult result;
 
                 try
                 {
-                    result = await reader.ReadAsync(cts.Token).ConfigureAwait(false);
+                    result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -524,7 +525,7 @@ namespace SuperSocket.Channel
         public override async ValueTask DetachAsync()
         {
             _isDetaching = true;
-            _cts.Cancel();
+            Cancel();
             await HandleClosing().ConfigureAwait(false);
             _isDetaching = false;
         }
