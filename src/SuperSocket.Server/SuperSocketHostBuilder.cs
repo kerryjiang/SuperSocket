@@ -237,6 +237,17 @@ namespace SuperSocket
             );
         }
 
+        public virtual ISuperSocketHostBuilder<TReceivePackage> UsePackageEncoder<TPackageEncoder>()
+            where TPackageEncoder : class, IPackageEncoder<TReceivePackage>
+        {
+            return this.ConfigureServices(
+                (hostCtx, services) =>
+                {
+                    services.AddSingleton<IPackageEncoder<TReceivePackage>, TPackageEncoder>();
+                }
+            );
+        }
+        
         public virtual ISuperSocketHostBuilder<TReceivePackage> UseMiddleware<TMiddleware>()
             where TMiddleware : class, IMiddleware
         {
