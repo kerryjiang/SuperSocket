@@ -84,7 +84,7 @@ namespace SuperSocket.Channel
             if (_readsTask == null || _sendsTask == null)
                 throw new Exception("The channel has not been started yet.");
 
-            while (true)
+            while (!_cts.IsCancellationRequested)
             {
                 var package = await _packagePipe.ReadAsync().ConfigureAwait(false);
 
@@ -95,6 +95,8 @@ namespace SuperSocket.Channel
 
                 yield return package;
             }
+            
+            //How do empty a pipe?
         }
 
         private async ValueTask HandleClosing()
