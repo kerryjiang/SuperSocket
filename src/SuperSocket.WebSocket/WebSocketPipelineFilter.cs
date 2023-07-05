@@ -138,7 +138,9 @@ namespace SuperSocket.WebSocket
 
         public void Reset()
         {
-            
+            NextFilter = null;
+            Context = null;
+            GC.Collect();
         }
 
         public object Context { get; set; }
