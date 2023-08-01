@@ -13,6 +13,7 @@ namespace SuperSocket.Channel
             {
                 case (SocketError.OperationAborted):
                 case (SocketError.ConnectionReset):
+                case (SocketError.ConnectionAborted):
                 case (SocketError.TimedOut):
                 case (SocketError.NetworkReset):
                     return true;

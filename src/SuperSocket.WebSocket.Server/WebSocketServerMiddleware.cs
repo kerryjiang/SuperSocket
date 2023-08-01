@@ -85,50 +85,58 @@ namespace SuperSocket.WebSocket.Server
         {
             _checkingTimer.Change(Timeout.Infinite, Timeout.Infinite);
 
-            while (true)
+            var openHandshakeTimeTask = Task.Run(() =>
             {
-                WebSocketSession session;
-
-                if (!_openHandshakePendingQueue.TryPeek(out session))
-                    break;
-
-                if (session.Handshaked || session.State == SessionState.Closed || (session is IAppSession appSession && appSession.Channel.IsClosed))
+                while (true)
                 {
-                    //Handshaked or not connected
+                    WebSocketSession session;
+
+                    if (!_openHandshakePendingQueue.TryPeek(out session))
+                        break;
+
+                    if (session.Handshaked || session.State == SessionState.Closed || (session is IAppSession appSession && appSession.Channel.IsClosed))
+                    {
+                        //Handshaked or not connected
+                        _openHandshakePendingQueue.TryDequeue(out session);
+                        continue;
+                    }
+
+                    if (DateTime.Now < session.StartTime.AddSeconds(_options.OpenHandshakeTimeOut))
+                        break;
+
+                    //Timeout, dequeue and then close
                     _openHandshakePendingQueue.TryDequeue(out session);
-                    continue;
+                    session.CloseWithoutHandshake();
                 }
+            });
 
-                if (DateTime.Now < session.StartTime.AddSeconds(_options.OpenHandshakeTimeOut))
-                    break;
-
-                //Timeout, dequeue and then close
-                _openHandshakePendingQueue.TryDequeue(out session);
-                session.CloseWithoutHandshake();
-            }
-
-            while (true)
+            var closeHandshakeTimeTask = Task.Run(() =>
             {
-                WebSocketSession session;
-
-                if (!_closeHandshakePendingQueue.TryPeek(out session))
-                    break;
-
-                if (session.State == SessionState.Closed)
+                while (true)
                 {
-                    //the session has been closed
+                    WebSocketSession session;
+
+                    if (!_closeHandshakePendingQueue.TryPeek(out session))
+                        break;
+
+                    if (session.State == SessionState.Closed)
+                    {
+                        //the session has been closed
+                        _closeHandshakePendingQueue.TryDequeue(out session);
+                        continue;
+                    }
+
+                    if (DateTime.Now < session.CloseHandshakeStartTime.AddSeconds(_options.CloseHandshakeTimeOut))
+                        break;
+
+                    //Timeout, dequeue and then close
                     _closeHandshakePendingQueue.TryDequeue(out session);
-                    continue;
+                    //Needn't send closing handshake again
+                    session.CloseWithoutHandshake();
                 }
+            });
 
-                if (DateTime.Now < session.CloseHandshakeStartTime.AddSeconds(_options.CloseHandshakeTimeOut))
-                    break;
-
-                //Timeout, dequeue and then close
-                _closeHandshakePendingQueue.TryDequeue(out session);
-                //Needn't send closing handshake again
-                session.CloseWithoutHandshake();
-            }
+            Task.WhenAll(openHandshakeTimeTask, closeHandshakeTimeTask);
 
             _checkingTimer?.Change(_options.CheckingInterval * 1000, _options.CheckingInterval * 1000);
         }
