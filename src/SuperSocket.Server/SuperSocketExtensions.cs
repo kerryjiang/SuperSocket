@@ -53,5 +53,11 @@ namespace SuperSocket
             listeners.Add(listener);
             return serverOptions;
         }
+
+        public static void AdaptMultipleServerHost(this IHost host)
+        {
+            var services = host.Services;
+            services.GetService<MultipleServerHostBuilder>()?.AdaptMultipleServerHost(services);
+        }
     }
 }

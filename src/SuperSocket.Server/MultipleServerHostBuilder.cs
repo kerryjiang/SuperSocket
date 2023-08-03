@@ -11,7 +11,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server
 {
-    public class MultipleServerHostBuilder : HostBuilderAdapter<MultipleServerHostBuilder>
+    public class MultipleServerHostBuilder : HostBuilderAdapter<MultipleServerHostBuilder>, IMinimalApiHostBuilder
     {
         private List<IServerHostBuilderAdapter> _hostBuilderAdapters = new List<IServerHostBuilderAdapter>();
 
@@ -48,12 +48,17 @@ namespace SuperSocket.Server
             var host = base.Build();
             var services = host.Services;
 
+            AdaptMultipleServerHost(services);
+            
+            return host;
+        }
+
+        internal void AdaptMultipleServerHost(IServiceProvider services)
+        {
             foreach (var adapter in _hostBuilderAdapters)
             {
                 adapter.ConfigureServiceProvider(services);
             }
-            
-            return host;
         }
 
         public static MultipleServerHostBuilder Create()
@@ -111,6 +116,12 @@ namespace SuperSocket.Server
                 .UsePipelineFilter<TPipelineFilter>()
                 .UseHostedService<TSuperSocketService>();
             return this;
+        }
+
+        void IMinimalApiHostBuilder.ConfigureHostBuilder()
+        {
+            this.ConfigureServices(ConfigureServers);
+            HostBuilder.ConfigureServices((_, services) => services.AddSingleton<MultipleServerHostBuilder>(this));
         }
     }
 }
