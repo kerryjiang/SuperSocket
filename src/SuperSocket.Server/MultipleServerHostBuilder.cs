@@ -118,6 +118,11 @@ namespace SuperSocket.Server
             return this;
         }
 
+        public IMinimalApiHostBuilder AsMinimalApiHostBuilder()
+        {
+            return this as IMinimalApiHostBuilder;
+        }
+
         void IMinimalApiHostBuilder.ConfigureHostBuilder()
         {
             this.ConfigureServices(ConfigureServers);
