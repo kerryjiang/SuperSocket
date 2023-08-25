@@ -34,6 +34,9 @@ namespace SuperSocket
         ISuperSocketHostBuilder<TReceivePackage> UsePackageDecoder<TPackageDecoder>()
             where TPackageDecoder : class, IPackageDecoder<TReceivePackage>;
 
+        ISuperSocketHostBuilder<TReceivePackage> UsePackageEncoder<TPackageEncoder>()
+            where TPackageEncoder : class, IPackageEncoder<TReceivePackage>;
+        
         ISuperSocketHostBuilder<TReceivePackage> UsePackageHandlingScheduler<TPackageHandlingScheduler>()
             where TPackageHandlingScheduler : class, IPackageHandlingScheduler<TReceivePackage>;
 
