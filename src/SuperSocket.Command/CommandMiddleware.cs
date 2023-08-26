@@ -178,12 +178,12 @@ namespace SuperSocket.Command
                 if (commandWrapFactory != null)
                 {
                     var commandWrapType = commandWrapFactory(command.GetType());
-                    cmd = ActivatorUtilities.CreateInstance(null, commandWrapType, command) as ICommand;
+                    cmd = Activator.CreateInstance(commandWrapType, command) as ICommand;
                 }
 
                 var commandTypeInfo = new CommandTypeInfo(cmd);
                 commandTypeInfo.ActualCommandType = actualCommandType;
-                commandSetFactories.Add(ActivatorUtilities.CreateInstance(null, commandSetFactoryType, commandTypeInfo) as ICommandSetFactory);
+                commandSetFactories.Add(Activator.CreateInstance(commandSetFactoryType, commandTypeInfo) as ICommandSetFactory);
             }
         }
 
@@ -256,7 +256,7 @@ namespace SuperSocket.Command
             {
                 var commandTyeInfo = new CommandTypeInfo(WrapRequired ? WrapFactory(type) : type, null);
                 commandTyeInfo.ActualCommandType = type;                
-                return ActivatorUtilities.CreateInstance(null, this.CommandSetFactoryType, commandTyeInfo) as ICommandSetFactory;
+                return Activator.CreateInstance(this.CommandSetFactoryType, commandTyeInfo) as ICommandSetFactory;
             }
         }
 
