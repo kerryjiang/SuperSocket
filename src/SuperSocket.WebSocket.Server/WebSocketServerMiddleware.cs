@@ -18,14 +18,14 @@ namespace SuperSocket.WebSocket.Server
 
     class WebSocketServerMiddleware : MiddlewareBase, IWebSocketServerMiddleware
     {
-        private ConcurrentQueue<WebSocketSession> _openHandshakePendingQueue = new ConcurrentQueue<WebSocketSession>();
+        private ConcurrentQueue<string> _openHandshakePendingQueue = new ConcurrentQueue<string>();
 
-        private ConcurrentQueue<WebSocketSession> _closeHandshakePendingQueue = new ConcurrentQueue<WebSocketSession>();
+        private ConcurrentQueue<string> _closeHandshakePendingQueue = new ConcurrentQueue<string>();
         
         private Timer _checkingTimer;
 
         private readonly HandshakeOptions _options;
-
+        private ISessionContainer _sessionContainer;
         private IMiddleware _sessionContainerMiddleware;
 
         private ISessionEventHost _sessionEventHost;
@@ -52,6 +52,7 @@ namespace SuperSocket.WebSocket.Server
 
         public override void Start(IServer server)
         {
+            _sessionContainer = server.GetSessionContainer();
             _sessionContainerMiddleware = server.GetSessionContainer() as IMiddleware;
             _sessionEventHost = server as ISessionEventHost;
             _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _options.CheckingInterval * 1000, _options.CheckingInterval * 1000); // hardcode to 1 minute for now
@@ -70,7 +71,7 @@ namespace SuperSocket.WebSocket.Server
         public override ValueTask<bool> RegisterSession(IAppSession session)
         {
             var websocketSession = session as WebSocketSession;
-            _openHandshakePendingQueue.Enqueue(websocketSession);
+            _openHandshakePendingQueue.Enqueue(websocketSession.SessionID);
             return new ValueTask<bool>(true);
         }
 
@@ -78,7 +79,7 @@ namespace SuperSocket.WebSocket.Server
         {
             var session = sender as WebSocketSession;
             session.CloseHandshakeStarted -= OnCloseHandshakeStarted;
-            _closeHandshakePendingQueue.Enqueue(session);
+            _closeHandshakePendingQueue.Enqueue(session.SessionID);
         }
 
         private void HandshakePendingQueueCheckingCallback(object state)
@@ -90,14 +91,22 @@ namespace SuperSocket.WebSocket.Server
                 while (true)
                 {
                     WebSocketSession session;
+                    string sessionId;
 
-                    if (!_openHandshakePendingQueue.TryPeek(out session))
+                    if (!_openHandshakePendingQueue.TryPeek(out sessionId))
                         break;
+
+                    session = _sessionContainer.GetSessionByID(sessionId) as WebSocketSession;
+                    if (session == null)
+                    {
+                        _openHandshakePendingQueue.TryDequeue(out sessionId);
+                        continue;
+                    }
 
                     if (session.Handshaked || session.State == SessionState.Closed || (session is IAppSession appSession && appSession.Channel.IsClosed))
                     {
                         //Handshaked or not connected
-                        _openHandshakePendingQueue.TryDequeue(out session);
+                        _openHandshakePendingQueue.TryDequeue(out sessionId);
                         continue;
                     }
 
@@ -105,7 +114,7 @@ namespace SuperSocket.WebSocket.Server
                         break;
 
                     //Timeout, dequeue and then close
-                    _openHandshakePendingQueue.TryDequeue(out session);
+                    _openHandshakePendingQueue.TryDequeue(out sessionId);
                     session.CloseWithoutHandshake();
                 }
             });
@@ -115,14 +124,22 @@ namespace SuperSocket.WebSocket.Server
                 while (true)
                 {
                     WebSocketSession session;
+                    string sessionId;
 
-                    if (!_closeHandshakePendingQueue.TryPeek(out session))
+                    if (!_closeHandshakePendingQueue.TryPeek(out sessionId))
                         break;
+
+                    session = _sessionContainer.GetSessionByID(sessionId) as WebSocketSession;
+                    if(session == null)
+                    {
+                        _closeHandshakePendingQueue.TryDequeue(out sessionId);
+                        continue;
+                    }
 
                     if (session.State == SessionState.Closed)
                     {
                         //the session has been closed
-                        _closeHandshakePendingQueue.TryDequeue(out session);
+                        _closeHandshakePendingQueue.TryDequeue(out sessionId);
                         continue;
                     }
 
@@ -130,7 +147,7 @@ namespace SuperSocket.WebSocket.Server
                         break;
 
                     //Timeout, dequeue and then close
-                    _closeHandshakePendingQueue.TryDequeue(out session);
+                    _closeHandshakePendingQueue.TryDequeue(out sessionId);
                     //Needn't send closing handshake again
                     session.CloseWithoutHandshake();
                 }
