@@ -14,10 +14,10 @@ jobs:
             - name: Setup .NET Core
               uses: actions/setup-dotnet@v1
               with:
-                dotnet-version: 7.0.201
+                dotnet-version: '8.0.x'
             - name: Set env
               run: echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
             - name: Run benchmark
               run: |
                 cd test/SuperSocket.Benchmarks
-                dotnet run -c Release --filter '*' -f net7.0
+                dotnet run -c Release --filter '*' -f net8.0
