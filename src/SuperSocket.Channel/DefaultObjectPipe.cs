@@ -5,7 +5,7 @@ using System.Threading.Tasks.Sources;
 
 namespace SuperSocket.Channel
 {
-    class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
+    public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
     {
         class BufferSegment
         {
@@ -33,7 +33,7 @@ namespace SuperSocket.Channel
             }
         }
 
-        private const int _segmentSize =  5;
+        private const int _segmentSize = 5;
         private BufferSegment _first;
         private BufferSegment _current;
         private object _syncRoot = new object();
@@ -74,7 +74,7 @@ namespace SuperSocket.Channel
                 if (_waiting)
                 {
                     _waiting = false;
-                    _taskSourceCore.SetResult(target);                    
+                    _taskSourceCore.SetResult(target);
                     return _length;
                 }
 
@@ -89,7 +89,7 @@ namespace SuperSocket.Channel
                 current.Write(target);
                 _length++;
                 return _length;
-            }            
+            }
         }
 
         private bool TryRead(out T value)
@@ -139,14 +139,14 @@ namespace SuperSocket.Channel
                         _taskSourceCore.Reset();
                         _lastReadIsWait = false;
                     }
-                    
+
                     _length--;
 
                     if (_length == 0)
                         OnWaitTaskStart();
 
                     return new ValueTask<T>(value);
-                }                    
+                }
 
                 _waiting = true;
                 _lastReadIsWait = true;
@@ -155,12 +155,11 @@ namespace SuperSocket.Channel
                 OnWaitTaskStart();
 
                 return new ValueTask<T>(this, _taskSourceCore.Version);
-            }            
+            }
         }
 
         protected virtual void OnWaitTaskStart()
         {
-
         }
 
         T IValueTaskSource<T>.GetResult(short token)
@@ -173,12 +172,14 @@ namespace SuperSocket.Channel
             return _taskSourceCore.GetStatus(token);
         }
 
-        void IValueTaskSource<T>.OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+        void IValueTaskSource<T>.OnCompleted(Action<object> continuation, object state, short token,
+            ValueTaskSourceOnCompletedFlags flags)
         {
             _taskSourceCore.OnCompleted(continuation, state, token, flags);
         }
 
         #region IDisposable Support
+
         private bool disposedValue = false; // To detect redundant calls
 
         protected virtual void Dispose(bool disposing)
@@ -215,7 +216,7 @@ namespace SuperSocket.Channel
         #endregion
     }
 
-    class DefaultObjectPipeWithSupplyControl<T> : DefaultObjectPipe<T>, IValueTaskSource, ISupplyController
+    public class DefaultObjectPipeWithSupplyControl<T> : DefaultObjectPipe<T>, IValueTaskSource, ISupplyController
     {
         private ManualResetValueTaskSourceCore<bool> _taskSourceCore;
 
@@ -265,7 +266,7 @@ namespace SuperSocket.Channel
                     _currentTaskVersion = -1;
                     return;
                 }
-                
+
                 _taskSourceCore.SetResult(result);
                 _currentTaskVersion = 0;
             }
@@ -281,7 +282,8 @@ namespace SuperSocket.Channel
             return _taskSourceCore.GetStatus(token);
         }
 
-        void IValueTaskSource.OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+        void IValueTaskSource.OnCompleted(Action<object> continuation, object state, short token,
+            ValueTaskSourceOnCompletedFlags flags)
         {
             _taskSourceCore.OnCompleted(continuation, state, token, flags);
         }
