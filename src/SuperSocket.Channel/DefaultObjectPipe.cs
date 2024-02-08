@@ -5,7 +5,7 @@ using System.Threading.Tasks.Sources;
 
 namespace SuperSocket.Channel
 {
-    class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
+    public class DefaultObjectPipe<T> : IObjectPipe<T>, IValueTaskSource<T>, IDisposable
     {
         class BufferSegment
         {
@@ -215,7 +215,7 @@ namespace SuperSocket.Channel
         #endregion
     }
 
-    class DefaultObjectPipeWithSupplyControl<T> : DefaultObjectPipe<T>, IValueTaskSource, ISupplyController
+    public class DefaultObjectPipeWithSupplyControl<T> : DefaultObjectPipe<T>, IValueTaskSource, ISupplyController
     {
         private ManualResetValueTaskSourceCore<bool> _taskSourceCore;
 

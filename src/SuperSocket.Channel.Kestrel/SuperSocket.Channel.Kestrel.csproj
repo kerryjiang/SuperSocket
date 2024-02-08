@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <Description>SuperSocket library to abstract underlying communications as channel with pipeline.</Description>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>SwatchSocket.Channel.Kestrel</PackageId>
+        <Version>2.0-preview18</Version>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\SuperSocket.Channel\SuperSocket.Channel.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Connections.Abstractions" Version="$(MSExtensionsVersion)" />
+    </ItemGroup>
+</Project>

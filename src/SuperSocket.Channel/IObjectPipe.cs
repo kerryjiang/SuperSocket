@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.Channel
 {
-    interface IObjectPipe<T>
+    public interface IObjectPipe<T>
     {
         /// <summary>
         /// Write an object into the pipe
@@ -15,7 +15,7 @@ namespace SuperSocket.Channel
         ValueTask<T> ReadAsync();
     }
 
-    interface ISupplyController
+    public interface ISupplyController
     {
         ValueTask SupplyRequired();
 
