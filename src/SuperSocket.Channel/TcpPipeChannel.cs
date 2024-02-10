@@ -76,6 +76,11 @@ namespace SuperSocket.Channel
 
         protected override void Close()
         {
+            if (this is IPipeChannel channel)
+            {
+                channel.PipelineFilter?.Reset();
+            }
+
             var socket = _socket;
 
             if (socket == null)

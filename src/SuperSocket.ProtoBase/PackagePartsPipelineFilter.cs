@@ -53,6 +53,8 @@ namespace SuperSocket.ProtoBase
         {
             CurrentPackage = null;
             _currentPartReader = null;
+            Context = null;
+            NextFilter = null;
         }
 
         public object Context { get; set; }
