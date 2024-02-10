@@ -86,14 +86,8 @@ namespace SuperSocket.Client
 
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ChannelOptions options)
         {
-            if (pipelineFilter == null)
-                throw new ArgumentNullException(nameof(pipelineFilter));
-
-            if (options == null)
-                throw new ArgumentNullException(nameof(options));
-
-            _pipelineFilter = pipelineFilter;
-            Options = options;
+            _pipelineFilter = pipelineFilter ?? throw new ArgumentNullException(nameof(pipelineFilter));
+            Options = options ?? throw new ArgumentNullException(nameof(options));
             Logger = options.Logger;
         }
 
@@ -316,6 +310,16 @@ namespace SuperSocket.Client
         protected virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
         {
             await Channel.SendAsync(packageEncoder, package);
+        }
+
+        public ValueTask<int> Send(ReadOnlyMemory<byte> data)
+        {
+            return Channel.Send(data);
+        }
+
+        public ValueTask<int> Send<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
+        {
+            return Channel.Send<TSendPackage>(packageEncoder, package);
         }
 
         public event EventHandler Closed;

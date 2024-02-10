@@ -11,9 +11,9 @@ namespace SuperSocket.Channel
 {
     public class UdpPipeChannel<TPackageInfo> : VirtualChannel<TPackageInfo>, IChannelWithSessionIdentifier
     {
-        private Socket _socket;
+        private readonly Socket _socket;
 
-        private bool _enableSendingPipe;
+        private readonly bool _enableSendingPipe;
 
         public UdpPipeChannel(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options, IPEndPoint remoteEndPoint)
             : this(socket, pipelineFilter, options, remoteEndPoint, $"{remoteEndPoint.Address}:{remoteEndPoint.Port}")
@@ -60,8 +60,8 @@ namespace SuperSocket.Channel
             var destBuffer = pool.Rent((int)buffer.Length);
 
             try
-            {                
-                MergeBuffer(ref buffer, destBuffer);
+            {
+                UdpPipeChannel<TPackageInfo>.MergeBuffer(ref buffer, destBuffer);
                 return await _socket.SendToAsync(new ArraySegment<byte>(destBuffer, 0, (int)buffer.Length), SocketFlags.None, RemoteEndPoint);       
             }
             finally
@@ -78,7 +78,7 @@ namespace SuperSocket.Channel
             return Task.CompletedTask;
         }
 
-        private void MergeBuffer(ref ReadOnlySequence<byte> buffer, byte[] destBuffer)
+        private static void MergeBuffer(ref ReadOnlySequence<byte> buffer, byte[] destBuffer)
         {
             Span<byte> destSpan = destBuffer;
 
@@ -88,7 +88,7 @@ namespace SuperSocket.Channel
             {
                 piece.Span.CopyTo(destSpan);
                 total += piece.Length;
-                destSpan = destSpan.Slice(piece.Length);                
+                destSpan = destSpan[piece.Length..];                
             }
         }
 

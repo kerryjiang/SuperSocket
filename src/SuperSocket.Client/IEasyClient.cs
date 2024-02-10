@@ -30,6 +30,10 @@ namespace SuperSocket.Client
 
         ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package);
 
+        ValueTask<int> Send(ReadOnlyMemory<byte> data);
+
+        ValueTask<int> Send<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package);
+
         event EventHandler Closed;
 
         event PackageHandler<TReceivePackage> PackageHandler;

@@ -17,6 +17,11 @@ namespace SuperSocket.Channel
 
         ValueTask SendAsync(Action<PipeWriter> write);
 
+        ValueTask<int> Send(ReadOnlyMemory<byte> data);
+
+        ValueTask<int> Send<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
+
+
         ValueTask CloseAsync(CloseReason closeReason);
 
         event EventHandler<CloseEventArgs> Closed;

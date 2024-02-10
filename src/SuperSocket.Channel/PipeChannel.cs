@@ -363,6 +363,20 @@ namespace SuperSocket.Channel
             }
         }
 
+        public override async ValueTask<int> Send(ReadOnlyMemory<byte> buffer)
+        {
+           return await SendOverIOAsync(new ReadOnlySequence<byte>(buffer), CancellationToken.None);
+        }
+
+        public override async ValueTask<int> Send<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        {
+            ArrayBufferWriter<byte> arrayBufferWriter = new ArrayBufferWriter<byte>();
+
+            WritePackageWithEncoder(arrayBufferWriter, packageEncoder, package);
+
+            return await SendOverIOAsync(new  ReadOnlySequence<byte>(arrayBufferWriter.WrittenMemory), CancellationToken.None);
+        }
+
         protected void WritePackageWithEncoder<TPackage>(IBufferWriter<byte> writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             CheckChannelOpen();
