@@ -51,10 +51,14 @@ namespace SuperSocket.Client
 #if NET5_0_OR_GREATER
                 await socket.ConnectAsync(remoteEndPoint, cancellationToken);
 #else
-                Task result = socket.ConnectAsync(remoteEndPoint);               
-                int index = Task.WaitAny(new[] { result }, cancellationToken);
-                var connected = socket.Connected;
-                if (!connected)
+                Task connectTask = socket.ConnectAsync(remoteEndPoint);
+
+                var tcs = new TaskCompletionSource<bool>();
+                cancellationToken.Register(() => tcs.SetResult(false));
+
+                await Task.WhenAny(new[] { connectTask, tcs.Task });
+
+                if (!socket.Connected)
                 {
                     socket.Close();
 
