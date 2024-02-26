@@ -6,7 +6,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />
+    <ProjectReference Include="../SuperSocket.Connection/SuperSocket.Connection.csproj" />
     <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
 </Project>

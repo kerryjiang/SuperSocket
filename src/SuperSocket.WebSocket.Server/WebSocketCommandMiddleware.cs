@@ -1,11 +1,8 @@
 using System;
-using System.Collections.Specialized;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using SuperSocket.Channel;
+using SuperSocket.Server.Abstractions.Middleware;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
-using SuperSocket.Server;
 
 namespace SuperSocket.WebSocket.Server
 {

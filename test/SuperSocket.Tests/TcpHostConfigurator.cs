@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 

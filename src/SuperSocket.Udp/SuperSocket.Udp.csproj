@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />    
-    <ProjectReference Include="../SuperSocket.SessionContainer/SuperSocket.SessionContainer.csproj" />
+    <ProjectReference Include="../SuperSocket.Connection/SuperSocket.Connection.csproj" />
+    <ProjectReference Include="../SuperSocket.Server.Abstractions/SuperSocket.Server.Abstractions.csproj" />
   </ItemGroup>
 </Project>

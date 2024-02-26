@@ -1,8 +1,7 @@
 using System;
 using System.Threading.Tasks;
-using System.Text.Json;
-using SuperSocket.ProtoBase;
 using Microsoft.Extensions.DependencyInjection;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Command
 {

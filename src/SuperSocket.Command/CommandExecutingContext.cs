@@ -1,4 +1,5 @@
 ﻿using System;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Command
 {

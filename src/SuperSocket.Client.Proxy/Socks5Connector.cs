@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
@@ -39,19 +39,19 @@ namespace SuperSocket.Client.Proxy
 
         protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
-            var channel = state.CreateChannel<Socks5Pack>(new Socks5AuthPipelineFilter(), new ChannelOptions { ReadAsDemand = true });
+            var connection = state.CreateConnection<Socks5Pack>(new Socks5AuthPipelineFilter(), new ConnectionOptions { ReadAsDemand = true });
 
-            channel.Start();
+            connection.Start();
 
-            var packStream = channel.GetPackageStream();
+            var packStream = connection.GetPackageStream();
 
-            await channel.SendAsync(_authenHandshakeRequest);
+            await connection.SendAsync(_authenHandshakeRequest);
 
             var response = await packStream.ReceiveAsync();
 
             if (!HandleResponse(response, Socket5ResponseType.Handshake, out string errorMessage))
             {
-                await channel.CloseAsync(CloseReason.ProtocolError);
+                await connection.CloseAsync(CloseReason.ProtocolError);
 
                 return new ConnectState
                 {
@@ -64,13 +64,13 @@ namespace SuperSocket.Client.Proxy
             {
                 var passAuthenRequest = GetPassAuthenBytes();
 
-                await channel.SendAsync(passAuthenRequest);
+                await connection.SendAsync(passAuthenRequest);
 
                 response = await packStream.ReceiveAsync();
 
                 if (!HandleResponse(response, Socket5ResponseType.AuthUserName, out errorMessage))
                 {
-                    await channel.CloseAsync(CloseReason.ProtocolError);
+                    await connection.CloseAsync(CloseReason.ProtocolError);
 
                     return new ConnectState
                     {
@@ -82,13 +82,13 @@ namespace SuperSocket.Client.Proxy
 
             var endPointRequest = GetEndPointBytes(remoteEndPoint);
 
-            await channel.SendAsync(endPointRequest);
+            await connection.SendAsync(endPointRequest);
 
             response = await packStream.ReceiveAsync();
 
             if (!HandleResponse(response, Socket5ResponseType.AuthEndPoint, out errorMessage))
             {
-                await channel.CloseAsync(CloseReason.ProtocolError);
+                await connection.CloseAsync(CloseReason.ProtocolError);
 
                 return new ConnectState
                 {
@@ -97,7 +97,7 @@ namespace SuperSocket.Client.Proxy
                 };
             }
 
-            await channel.DetachAsync();
+            await connection.DetachAsync();
 
             return state;
         }

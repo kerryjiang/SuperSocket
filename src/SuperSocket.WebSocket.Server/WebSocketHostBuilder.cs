@@ -3,7 +3,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket.Server;
-using SuperSocket.ProtoBase;
+using SuperSocket.Server.Host;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.WebSocket.Server
 {

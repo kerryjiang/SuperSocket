@@ -12,6 +12,10 @@ using SuperSocket.Server;
 using System.Net;
 using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
+using SuperSocket.Server.Abstractions.Session;
+using SuperSocket.Server.Host;
 
 namespace SuperSocket
 {
@@ -24,7 +28,7 @@ namespace SuperSocket
             try
             {
                 await socket.ConnectAsync(remoteEndpoint);
-                await (server as IChannelRegister).RegisterChannel(socket);
+                await (server as IConnectionRegister).RegisterConnection(socket);
                 return true;
             }
             catch (Exception e)

@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace SuperSocket.Server
 {
-    class SocketOptionsSetter
+    public class SocketOptionsSetter
     {
         public Action<Socket> Setter { get; private set; }
 

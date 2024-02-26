@@ -1,0 +1,10 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
+    <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
+    <ProjectReference Include="../SuperSocket.Connection/SuperSocket.Connection.csproj" />
+  </ItemGroup>
+</Project>

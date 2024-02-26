@@ -8,6 +8,6 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
     <ProjectReference Include="../../src/SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
-    <ProjectReference Include="../../src/SuperSocket.Channel/SuperSocket.Channel.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Connection/SuperSocket.Connection.csproj" />
   </ItemGroup>
 </Project>

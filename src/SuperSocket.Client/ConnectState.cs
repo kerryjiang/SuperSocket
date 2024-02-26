@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client
@@ -30,7 +30,7 @@ namespace SuperSocket.Client
 
         public static readonly ConnectState CancelledState = new ConnectState(false);
 
-        public IChannel<TReceivePackage> CreateChannel<TReceivePackage>(IPipelineFilter<TReceivePackage> pipelineFilter, ChannelOptions channelOptions)
+        public IConnection<TReceivePackage> CreateConnection<TReceivePackage>(IPipelineFilter<TReceivePackage> pipelineFilter, ConnectionOptions connectionOptions)
             where TReceivePackage : class
         {
             var stream = this.Stream;
@@ -38,11 +38,11 @@ namespace SuperSocket.Client
 
             if (stream != null)
             {
-                return new StreamPipeChannel<TReceivePackage>(stream , socket.RemoteEndPoint, socket.LocalEndPoint, pipelineFilter, channelOptions);
+                return new StreamPipeConnection<TReceivePackage>(stream , socket.RemoteEndPoint, socket.LocalEndPoint, pipelineFilter, connectionOptions);
             }
             else
             {
-                return new TcpPipeChannel<TReceivePackage>(socket, pipelineFilter, channelOptions);
+                return new TcpPipeConnection<TReceivePackage>(socket, pipelineFilter, connectionOptions);
             }
         }
     }

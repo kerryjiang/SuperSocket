@@ -1,16 +1,14 @@
-﻿using SuperSocket.Channel;
-using SuperSocket.ProtoBase;
+﻿using SuperSocket.ProtoBase;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Server
 {
-
-
     public class PackageHandlingContextAccessor<TPackageInfo> : IPackageHandlingContextAccessor<TPackageInfo>
     {
         private static AsyncLocal<PackageHandlingContextHolder> AppSessionCurrent { get; set; } = new AsyncLocal<PackageHandlingContextHolder>();

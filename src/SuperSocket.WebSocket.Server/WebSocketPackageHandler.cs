@@ -10,10 +10,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SuperSocket;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
-using SuperSocket.Server;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.WebSocket.Extensions;
 using SuperSocket.WebSocket.Server.Extensions;
 
@@ -334,7 +334,7 @@ namespace SuperSocket.WebSocket.Server
 
             if (selectedExtensionHeadItems != null && selectedExtensionHeadItems.Count > 0)
             {
-                var pipeChannel = session.Channel as IPipeChannel;                
+                var pipeChannel = session.Connection as IPipeConnection;                
                 pipeChannel.PipelineFilter.Context = new WebSocketPipelineFilterContext
                 {
                     Extensions = extensions
@@ -363,7 +363,7 @@ namespace SuperSocket.WebSocket.Server
 
             var encoding = _textEncoding;
 
-            await session.Channel.SendAsync((writer) =>
+            await session.Connection.SendAsync((writer) =>
             {
                 writer.Write(WebSocketConstant.ResponseHeadLine10, encoding);
                 writer.Write(WebSocketConstant.ResponseUpgradeLine, encoding);

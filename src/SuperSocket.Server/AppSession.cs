@@ -3,18 +3,20 @@ using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Server
 {
     public class AppSession : IAppSession, ILogger, ILoggerAccessor
     {
-        private IChannel _channel;
+        private IConnection _connection;
 
-        protected internal IChannel Channel
+        protected internal IConnection Connection
         {
-            get { return _channel; }
+            get { return _connection; }
         }
 
         public AppSession()
@@ -22,16 +24,16 @@ namespace SuperSocket.Server
             
         }
 
-        void IAppSession.Initialize(IServerInfo server, IChannel channel)
+        void IAppSession.Initialize(IServerInfo server, IConnection connection)
         {
-            if (channel is IChannelWithSessionIdentifier channelWithSessionIdentifier)
-                SessionID = channelWithSessionIdentifier.SessionIdentifier;
+            if (connection is IConnectionWithSessionIdentifier connectionWithSessionIdentifier)
+                SessionID = connectionWithSessionIdentifier.SessionIdentifier;
             else                
                 SessionID = Guid.NewGuid().ToString();
             
             Server = server;
             StartTime = DateTimeOffset.Now;
-            _channel = channel;
+            _connection = connection;
             State = SessionState.Initialized;
         }
 
@@ -43,26 +45,26 @@ namespace SuperSocket.Server
 
         public IServerInfo Server { get; private set; }
 
-        IChannel IAppSession.Channel
+        IConnection IAppSession.Connection
         {
-            get { return _channel; }
+            get { return _connection; }
         }
 
         public object DataContext { get; set; }
 
         public EndPoint RemoteEndPoint
         {
-            get { return _channel?.RemoteEndPoint; }
+            get { return _connection?.RemoteEndPoint; }
         }
 
         public EndPoint LocalEndPoint
         {
-            get { return _channel?.LocalEndPoint; }
+            get { return _connection?.LocalEndPoint; }
         }
 
         public DateTimeOffset LastActiveTime
         {
-            get { return _channel?.LastActiveTime ?? DateTimeOffset.MinValue; }
+            get { return _connection?.LastActiveTime ?? DateTimeOffset.MinValue; }
         }
 
         public event AsyncEventHandler Connected;
@@ -143,12 +145,12 @@ namespace SuperSocket.Server
 
         ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data)
         {
-            return _channel.SendAsync(data);
+            return _connection.SendAsync(data);
         }
 
         ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
-            return _channel.SendAsync(packageEncoder, package);
+            return _connection.SendAsync(packageEncoder, package);
         }
 
         void IAppSession.Reset()
@@ -157,7 +159,7 @@ namespace SuperSocket.Server
             ClearEvent(ref Closed);
             _items?.Clear();
             State = SessionState.None;
-            _channel = null;
+            _connection = null;
             DataContext = null;
             StartTime = default(DateTimeOffset);
             Server = null;
@@ -189,14 +191,14 @@ namespace SuperSocket.Server
 
         public virtual async ValueTask CloseAsync(CloseReason reason)
         {
-            var channel = Channel;
+            var connection = Connection;
 
-            if (channel == null)
+            if (connection == null)
                 return;
             
             try
             {
-                await channel.CloseAsync(reason);
+                await connection.CloseAsync(reason);
             }
             catch
             {

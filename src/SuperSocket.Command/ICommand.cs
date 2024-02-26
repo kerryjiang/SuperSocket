@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Command
 {

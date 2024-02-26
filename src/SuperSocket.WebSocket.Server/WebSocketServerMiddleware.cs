@@ -4,6 +4,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using SuperSocket.Server;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Middleware;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -94,7 +97,7 @@ namespace SuperSocket.WebSocket.Server
                     if (!_openHandshakePendingQueue.TryPeek(out session))
                         break;
 
-                    if (session.Handshaked || session.State == SessionState.Closed || (session is IAppSession appSession && appSession.Channel.IsClosed))
+                    if (session.Handshaked || session.State == SessionState.Closed || (session is IAppSession appSession && appSession.Connection.IsClosed))
                     {
                         //Handshaked or not connected
                         _openHandshakePendingQueue.TryDequeue(out session);
