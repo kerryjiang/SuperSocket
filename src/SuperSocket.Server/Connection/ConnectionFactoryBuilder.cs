@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using SuperSocket.ProtoBase;
 using SuperSocket.Connection;
 using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {

@@ -9,12 +9,12 @@ namespace SuperSocket.Server.Connection
 {
     public class GZipConnectionFactoryBuilder<TPackageInfo> : ConnectionFactoryBuilder<TPackageInfo>
     {
-        public ConnectionFactoryBuilder(SocketOptionsSetter socketOptionsSetter, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory)
+        public GZipConnectionFactoryBuilder(SocketOptionsSetter socketOptionsSetter, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory)
             : base(socketOptionsSetter, pipelineFilterFactory)    
         {
         }
 
-        public virtual IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions)
+        public override IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions)
         {
             return new GZipTcpConnectionFactory<TPackageInfo>(listenOptions, connectionOptions, SocketOptionsSetter, PipelineFilterFactory);
         }
