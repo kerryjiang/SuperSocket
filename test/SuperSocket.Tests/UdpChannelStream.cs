@@ -1,14 +1,14 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
 {
     public class UdpChannelStream : Stream
     {
-        public UdpPipeChannel<TextPackageInfo> Channel { get; }
+        public UdpPipeConnection<TextPackageInfo> Connection { get; }
 
         public override bool CanRead => true;
 
@@ -22,9 +22,9 @@ namespace SuperSocket.Tests
 
         public Socket Socket { get; }
 
-        public UdpChannelStream(UdpPipeChannel<TextPackageInfo> channel, Socket socket)
+        public UdpChannelStream(UdpPipeConnection<TextPackageInfo> connection, Socket socket)
         {
-            Channel = channel;
+            Connection = connection;
             Socket = socket;
         }
 
@@ -50,7 +50,7 @@ namespace SuperSocket.Tests
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            Channel
+            Connection
                 .SendAsync((new ArraySegment<byte>(buffer, offset, count)).AsMemory())
                 .GetAwaiter()
                 .GetResult();

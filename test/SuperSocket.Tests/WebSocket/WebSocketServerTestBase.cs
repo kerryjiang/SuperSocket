@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.WebSocket.Server;
 using SuperSocket.WebSocket;
+using SuperSocket.Server.Abstractions.Host;
 
 namespace SuperSocket.Tests.WebSocket
 {

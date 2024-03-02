@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using SuperSocket;
 using SuperSocket.Server;
+using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using SuperSocket.Tests.Command;

@@ -12,7 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 using SuperSocket;
 using System.Linq;
 using System.Reflection;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
+using SuperSocket.Server.Host;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 
@@ -89,7 +92,7 @@ namespace SuperSocket.Tests
 
                 session.Reset();
 
-                Assert.Null(session.Channel);
+                Assert.Null(session.Connection);
                 Assert.Null(session.DataContext);
                 Assert.Equal(SessionState.None, session.State);
                 Assert.Null(session[itemKey]);

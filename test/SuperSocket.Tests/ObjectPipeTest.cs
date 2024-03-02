@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 using System.Threading;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 
 namespace SuperSocket.Tests
 {

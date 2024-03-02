@@ -23,7 +23,8 @@ using Microsoft.Extensions.Logging.Console;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
+using SuperSocket.Server.Host;
 
 namespace SuperSocket.Tests
 {

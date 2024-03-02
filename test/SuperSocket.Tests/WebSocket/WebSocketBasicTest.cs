@@ -20,9 +20,13 @@ using SuperSocket.WebSocket.Server;
 using SuperSocket.ProtoBase;
 using SuperSocket.WebSocket;
 using SuperSocket.Server;
+using SuperSocket.Server.Host;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Tests.Command;
 using Xunit;
 using Xunit.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
 
 
 namespace SuperSocket.Tests.WebSocket

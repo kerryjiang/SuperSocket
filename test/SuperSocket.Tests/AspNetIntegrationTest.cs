@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using SuperSocket.Server;
+using SuperSocket.Server.Host;
 using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Tests

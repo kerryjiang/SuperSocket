@@ -18,6 +18,8 @@ using Xunit.Abstractions;
 using SuperSocket.Server;
 using System.Threading;
 using SuperSocket.Tests.Command;
+using SuperSocket.Server.Host;
+using SuperSocket.Server.Abstractions.Session;
 using Autofac.Extensions.DependencyInjection;
 using Autofac;
 using Microsoft.Extensions.Configuration;

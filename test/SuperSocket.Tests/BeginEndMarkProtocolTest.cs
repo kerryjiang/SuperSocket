@@ -8,7 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.ProtoBase;
-using SuperSocket.Server;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Host;
+using SuperSocket.Server.Host;
 using Xunit;
 using Xunit.Abstractions;
 
