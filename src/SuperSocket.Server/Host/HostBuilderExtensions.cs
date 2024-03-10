@@ -11,6 +11,8 @@ using SuperSocket.Connection;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Server.Abstractions.Session;
+using SuperSocket.Server.Connection;
+using System.IO.Compression;
 
 namespace SuperSocket.Server.Host
 {
@@ -134,6 +136,14 @@ namespace SuperSocket.Server.Host
         public static IMinimalApiHostBuilder AsMinimalApiHostBuilder(this ISuperSocketHostBuilder hostBuilder)
         {
             return hostBuilder;
+        }
+
+        public static ISuperSocketHostBuilder UseGZip(this ISuperSocketHostBuilder hostBuilder)
+        {
+            return hostBuilder.ConfigureServices((hostCtx, services) =>
+            {
+                services.AddSingleton<IConnectionStreamInitializersFactory>(new DefaultConnectionStreamInitializersFactory(CompressionLevel.Optimal));
+            }) as ISuperSocketHostBuilder;
         }
     }
 }

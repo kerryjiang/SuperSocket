@@ -108,7 +108,7 @@ namespace SuperSocket.Tests
                 {
                     Decoder = new UdpPackageDecoder()
                 },
-                new ConnectionOptions(), new IPEndPoint(IPAddress.Loopback, Listener.GetListenEndPoint().Port));
+                new ConnectionOptions(), new IPEndPoint(IPAddress.Loopback, Listener.ToEndPoint().Port));
 
             channel.Start();
 

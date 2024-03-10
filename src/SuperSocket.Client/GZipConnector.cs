@@ -13,13 +13,12 @@ namespace SuperSocket.Client
 {
     public class GZipConnector : ConnectorBase
     {
-        public GZipConnector(IConnector nextConnector)
-            : base(nextConnector)
-        {
-        }
-        public GZipConnector()
+        private CompressionLevel _compressionLevel;
+
+        public GZipConnector(CompressionLevel compressionLevel)
             : base()
         {
+            _compressionLevel = compressionLevel;
         }
 
         protected override ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)

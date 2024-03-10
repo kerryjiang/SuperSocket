@@ -33,13 +33,13 @@ namespace SuperSocket.Server.Connection
 
             return new TcpConnectionListener(
                 options,
-                CreateTcpConnectionFactory(options, connectionOptions),
+                CreateTcpConnectionFactory<TPackageInfo>(options, connectionOptions),
                 connectionListenerLogger);
         }
 
-        protected virtual IConnectionFactory CreateTcpConnectionFactory(ListenOptions options, ConnectionOptions connectionOptions)
+        protected virtual IConnectionFactory CreateTcpConnectionFactory<TPackageInfo>(ListenOptions options, ConnectionOptions connectionOptions)
         {
-            return ConnectionFactoryBuilder.Build(options, connectionOptions);
+            return ConnectionFactoryBuilder.Build<TPackageInfo>(options, connectionOptions);
         }
     }
 }

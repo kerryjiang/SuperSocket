@@ -112,7 +112,8 @@ namespace SuperSocket.Server.Connection
 
             try
             {
-                connection = await ConnectionFactory.CreateConnection(socket);
+                using var cts = new CancellationTokenSource(Options.ConnectionAcceptTimeOut);
+                connection = await ConnectionFactory.CreateConnection(socket, cts.Token);
             }
             catch (Exception e)
             {

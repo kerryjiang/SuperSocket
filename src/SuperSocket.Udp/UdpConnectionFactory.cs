@@ -1,5 +1,6 @@
 using System;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
@@ -15,7 +16,7 @@ namespace SuperSocket.Udp
             this.PipelineFilterFactory = pipelineFilterFactory;
         }
 
-        public Task<IConnection> CreateConnection(object connection)
+        public Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
         {
             var connectionInfo = (UdpConnectionInfo)connection;
 

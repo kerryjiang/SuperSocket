@@ -1,4 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.IO;
+using System.Linq;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Authentication;
@@ -24,56 +29,44 @@ namespace SuperSocket.Server.Connection
 
         protected ILogger Logger { get; }
 
-        public TcpConnectionFactory(ListenOptions listenOptions, ConnectionOptions connectionOptions, Action<Socket> socketOptionsSetter, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory)
+        private IEnumerable<IConnectionStreamInitializer> _connectionStreamInitializers;
+
+        public TcpConnectionFactory(
+            ListenOptions listenOptions,
+            ConnectionOptions connectionOptions,
+            Action<Socket> socketOptionsSetter,
+            IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory,
+            IConnectionStreamInitializersFactory connectionStreamInitializersFactory)
         {
             ListenOptions = listenOptions;
             ConnectionOptions = connectionOptions;
             SocketOptionsSetter = socketOptionsSetter;
             PipelineFilterFactory = pipelineFilterFactory;
             Logger = connectionOptions.Logger;
+
+            _connectionStreamInitializers = connectionStreamInitializersFactory.Create(listenOptions);
         }
 
-        public virtual async Task<IConnection> CreateConnection(object connection)
+        public virtual async Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
         {
             var socket = connection as Socket;
 
             ApplySocketOptions(socket);
 
-            if (ListenOptions.Security != SslProtocols.None)
+            if (_connectionStreamInitializers is IEnumerable<IConnectionStreamInitializer> connectionStreamInitializers
+                && connectionStreamInitializers.Any())
             {
-                return await CreateSecurePipeConnection(socket);
+                var stream = default(Stream);
+
+                foreach (var initializer in connectionStreamInitializers)
+                {
+                    stream = await initializer.InitializeAsync(socket, stream, cancellationToken);
+                }
+
+                return new StreamPipeConnection<TPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, PipelineFilterFactory.Create(socket), ConnectionOptions);
             }
-            else
-            {
-                return await CreatePipeConnection(socket);
-            }
-        }
 
-        protected virtual Task<IConnection> CreatePipeConnection(Socket socket)
-        {
-            return Task.FromResult<IConnection>(new TcpPipeConnection<TPackageInfo>(socket, PipelineFilterFactory.Create(socket), ConnectionOptions));
-        }
-
-        protected virtual async Task<IConnection> CreateSecurePipeConnection(Socket socket)
-        {
-            var stream = await GetAuthenticatedSslStream(socket);
-            return new SslStreamPipeConnection<TPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, PipelineFilterFactory.Create(socket), ConnectionOptions);
-        }
-
-        protected async Task<SslStream> GetAuthenticatedSslStream(Socket socket)
-        {
-            var authOptions = new SslServerAuthenticationOptions();
-
-            authOptions.EnabledSslProtocols = ListenOptions.Security;
-            authOptions.ServerCertificate = ListenOptions.CertificateOptions.Certificate;
-            authOptions.ClientCertificateRequired = ListenOptions.CertificateOptions.ClientCertificateRequired;
-
-            if (ListenOptions.CertificateOptions.RemoteCertificateValidationCallback != null)
-                authOptions.RemoteCertificateValidationCallback = ListenOptions.CertificateOptions.RemoteCertificateValidationCallback;
-
-            var stream = new SslStream(new NetworkStream(socket, true), false);
-            await stream.AuthenticateAsServerAsync(authOptions, CancellationToken.None);
-            return stream;
+            return new TcpPipeConnection<TPackageInfo>(socket, PipelineFilterFactory.Create(socket), ConnectionOptions);
         }
 
         protected virtual void ApplySocketOptions(Socket socket)

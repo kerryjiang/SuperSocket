@@ -121,7 +121,8 @@ namespace SuperSocket.Server.Host
             services.TryAdd(ServiceDescriptor.Singleton<ISessionFactory, DefaultSessionFactory>());
             services.TryAdd(ServiceDescriptor.Singleton<IConnectionListenerFactory, TcpConnectionListenerFactory>());
             services.TryAdd(ServiceDescriptor.Singleton<SocketOptionsSetter>(new SocketOptionsSetter(socket => {})));
-            services.TryAdd(ServiceDescriptor.Singleton<IConnectionFactoryBuilder, ConnectionFactoryBuilder<TReceivePackage>>());
+            services.TryAdd(ServiceDescriptor.Singleton<IConnectionFactoryBuilder, ConnectionFactoryBuilder>());
+            services.TryAdd(ServiceDescriptor.Singleton<IConnectionStreamInitializersFactory, DefaultConnectionStreamInitializersFactory>());
 
             // if no host service was defined, just use the default one
             if (!CheckIfExistHostedService(services))
@@ -289,10 +290,7 @@ namespace SuperSocket.Server.Host
 
         public ISuperSocketHostBuilder<TReceivePackage> UseGZip()
         {
-            return this.ConfigureServices((hostCtx, services) =>
-            {
-                services.AddSingleton<IConnectionFactoryBuilder, GZipConnectionFactoryBuilder<TReceivePackage>>();
-            });
+            return (this as ISuperSocketHostBuilder).UseGZip() as ISuperSocketHostBuilder<TReceivePackage>;
         }
     }
 

@@ -19,6 +19,8 @@ namespace SuperSocket.Server.Abstractions
         public SslProtocols Security { get; set; }
 
         public CertificateOptions CertificateOptions { get; set; }
+
+        public TimeSpan ConnectionAcceptTimeOut { get; set; } = TimeSpan.FromSeconds(5);
                 
         public IPEndPoint ToEndPoint()
         {

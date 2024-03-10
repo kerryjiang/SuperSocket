@@ -49,14 +49,18 @@ namespace SuperSocket.Tests
             protected override IConnector GetConnector()
             {
                 var authOptions = new SslClientAuthenticationOptions();
-                authOptions.EnabledSslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12;
+                authOptions.EnabledSslProtocols = SslProtocols.Tls12;
                 authOptions.TargetHost = IPAddress.Loopback.ToString();
                 authOptions.RemoteCertificateValidationCallback += (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
                 {
                     return true;
                 };
 
-                return new SocketConnector(new SslStreamConnector(authOptions));
+                return BuildConnectors(new IConnector[]
+                {
+                    new SocketConnector(),
+                    new SslStreamConnector(authOptions)
+                });
             }
         }
 

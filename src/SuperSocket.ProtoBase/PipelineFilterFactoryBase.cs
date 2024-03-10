@@ -2,7 +2,7 @@ using System;
 
 namespace SuperSocket.ProtoBase
 {
-    public abstract class PipelineFilterFactoryBase<TPackageInfo> : IPipelineFilterFactory<TPackageInfo>
+    public abstract class PipelineFilterFactoryBase<TPackageInfo> : IPipelineFilterFactory<TPackageInfo>, IPipelineFilterFactory
     {
         protected IPackageDecoder<TPackageInfo> PackageDecoder { get; private set; }
         
@@ -18,6 +18,11 @@ namespace SuperSocket.ProtoBase
             var filter = CreateCore(client);
             filter.Decoder = PackageDecoder;
             return filter;
+        }
+
+        IPipelineFilter IPipelineFilterFactory.Create(object client)
+        {
+            return this.Create(client) as IPipelineFilter;
         }
     }
 }

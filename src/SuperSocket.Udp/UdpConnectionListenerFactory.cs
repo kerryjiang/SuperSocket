@@ -33,7 +33,7 @@ namespace SuperSocket.Udp
             connectionOptions.Logger = loggerFactory.CreateLogger(nameof(IConnection));
             var connectionFactoryLogger = loggerFactory.CreateLogger(nameof(UdpConnectionFactory<TPackageInfo>));
 
-            var connectionFactory = _connectionFactoryBuilder.Build(options, connectionOptions);
+            var connectionFactory = _connectionFactoryBuilder.Build<TPackageInfo>(options, connectionOptions);
 
             return new UdpConnectionListener(options, connectionOptions, connectionFactory, connectionFactoryLogger, _udpSessionIdentifierProvider, _sessionContainer);
         }

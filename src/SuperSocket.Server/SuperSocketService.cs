@@ -178,7 +178,9 @@ namespace SuperSocket.Server
 
         async Task IConnectionRegister.RegisterConnection(object connectionSource)
         {
-            var connection = await _connectionListeners.FirstOrDefault().ConnectionFactory.CreateConnection(connectionSource);
+            var connectionListener = _connectionListeners.FirstOrDefault();
+            using var cts = new CancellationTokenSource(connectionListener.Options.ConnectionAcceptTimeOut);
+            var connection = await connectionListener.ConnectionFactory.CreateConnection(connectionSource, cts.Token);
             await AcceptNewConnection(connection);
         }
 

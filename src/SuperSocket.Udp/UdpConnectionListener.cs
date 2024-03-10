@@ -177,12 +177,13 @@ namespace SuperSocket.Udp
         {
             try
             {
+                using var cts = new CancellationTokenSource(Options.ConnectionAcceptTimeOut);
                 return await ConnectionFactory.CreateConnection(new UdpConnectionInfo
                 {
                     Socket = socket,
                     SessionIdentifier = sessionIdentifier,
                     RemoteEndPoint = remoteEndPoint
-                });
+                }, cts.Token);
             }
             catch (Exception e)
             {

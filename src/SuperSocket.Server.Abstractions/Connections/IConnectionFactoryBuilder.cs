@@ -5,6 +5,6 @@ namespace SuperSocket.Server.Abstractions.Connections
 {
     public interface IConnectionFactoryBuilder
     {
-        IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions);
+        IConnectionFactory Build<TPackageInfo>(ListenOptions listenOptions, ConnectionOptions connectionOptions);
     }
 }

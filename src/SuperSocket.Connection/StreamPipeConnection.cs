@@ -9,7 +9,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public class StreamPipeConnection<TPackageInfo> : PipeConnection<TPackageInfo>
+    public class StreamPipeConnection<TPackageInfo> : PipeConnection<TPackageInfo>, IStreamConnection
     {
         private Stream _stream;
 
@@ -70,6 +70,11 @@ namespace SuperSocket.Connection
             }
 
             return false;
+        }
+
+        Stream IStreamConnection.Stream
+        {
+            get { return _stream; }
         }
     }
 }

@@ -8,21 +8,24 @@ using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {
-    public class ConnectionFactoryBuilder<TPackageInfo> : IConnectionFactoryBuilder
+    public class ConnectionFactoryBuilder : IConnectionFactoryBuilder
     {
         public Action<Socket> SocketOptionsSetter { get; }
 
-        public IPipelineFilterFactory<TPackageInfo> PipelineFilterFactory { get; }
+        public IPipelineFilterFactory PipelineFilterFactory { get; }
 
-        public ConnectionFactoryBuilder(SocketOptionsSetter socketOptionsSetter, IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory)
+        public IConnectionStreamInitializersFactory ConnectionStreamInitializersFactory { get; }
+
+        public ConnectionFactoryBuilder(SocketOptionsSetter socketOptionsSetter, IPipelineFilterFactory pipelineFilterFactory, IConnectionStreamInitializersFactory connectionStreamInitializersFactory)
         {
             SocketOptionsSetter = socketOptionsSetter.Setter;
             PipelineFilterFactory = pipelineFilterFactory;
+            ConnectionStreamInitializersFactory = connectionStreamInitializersFactory;
         }
 
-        public virtual IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions)
+        public virtual IConnectionFactory Build<TPackageInfo>(ListenOptions listenOptions, ConnectionOptions connectionOptions)
         {
-            return new TcpConnectionFactory<TPackageInfo>(listenOptions, connectionOptions, SocketOptionsSetter, PipelineFilterFactory);
+            return new TcpConnectionFactory<TPackageInfo>(listenOptions, connectionOptions, SocketOptionsSetter, PipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>, ConnectionStreamInitializersFactory);
         }
     }
 }

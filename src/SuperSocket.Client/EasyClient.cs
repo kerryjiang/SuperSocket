@@ -10,6 +10,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
+using System.IO.Compression;
+using System.Linq;
 
 
 namespace SuperSocket.Client
@@ -67,6 +69,8 @@ namespace SuperSocket.Client
 
         public SecurityOptions Security { get; set; }
 
+        public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.NoCompression;
+
         protected EasyClient()
         {
 
@@ -104,15 +108,41 @@ namespace SuperSocket.Client
 
         protected virtual IConnector GetConnector()
         {
+            var connectors = new List<IConnector>();
+
+            connectors.Add(new SocketConnector(LocalEndPoint));
+
             var security = Security;
 
             if (security != null)
             {
                 if (security.EnabledSslProtocols != SslProtocols.None)
-                    return new SocketConnector(LocalEndPoint, new SslStreamConnector(security));
+                    connectors.Add(new SslStreamConnector(security));
+            }
+
+            if (CompressionLevel != CompressionLevel.NoCompression)
+            {
+                connectors.Add(new GZipConnector(CompressionLevel));
             }
             
-            return new SocketConnector(LocalEndPoint);
+            return BuildConnectors(connectors);
+        }
+
+        protected IConnector BuildConnectors(IEnumerable<IConnector> connectors)
+        {
+            var prevConnector = default(ConnectorBase);
+
+            foreach (var connector in connectors)
+            {
+                if (prevConnector != null)
+                {
+                    prevConnector.NextConnector = connector;
+                }
+
+                prevConnector = connector as ConnectorBase;
+            }
+            
+            return connectors.First();
         }
 
         ValueTask<bool> IEasyClient<TReceivePackage>.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)

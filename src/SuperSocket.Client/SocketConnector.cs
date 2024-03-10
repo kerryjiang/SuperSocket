@@ -16,20 +16,8 @@ namespace SuperSocket.Client
 
         }
 
-        public SocketConnector(IConnector nextConnector)
-            : base(nextConnector)
-        {
-
-        }
-
         public SocketConnector(IPEndPoint localEndPoint)
             : base()
-        {
-            LocalEndPoint = localEndPoint;
-        }
-
-        public SocketConnector(IPEndPoint localEndPoint, IConnector nextConnector)
-            : base(nextConnector)
         {
             LocalEndPoint = localEndPoint;
         }
