@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BenchmarkDotNet;
 using BenchmarkDotNet.Attributes;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Benchmarks
@@ -27,15 +27,15 @@ namespace SuperSocket.Benchmarks
             
             for (var i = 0; i < ConcurrentLevel; i++)
             {
-                tasks[i] = Send(pool, new ChannelOptions(), Iteration);
+                tasks[i] = Send(pool, new ConnectionOptions(), Iteration);
             }
 
             await Task.WhenAll(tasks);
         }
 
-        private async Task Send(ArrayPool<byte> pool, ChannelOptions options, int iteration)
+        private async Task Send(ArrayPool<byte> pool, ConnectionOptions options, int iteration)
         {
-            var channel = new TransparentPipeChannel<StringPackageInfo>(new CommandLinePipelineFilter(), options);
+            var channel = new TransparentPipeConnection<StringPackageInfo>(new CommandLinePipelineFilter(), options);
             channel.Start();
 
             for (var i = 0; i < iteration; i++)

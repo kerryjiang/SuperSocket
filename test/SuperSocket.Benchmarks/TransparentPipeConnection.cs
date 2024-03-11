@@ -2,17 +2,17 @@ using System;
 using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Benchmarks
 {
-    public class TransparentPipeChannel<TPackageInfo> : PipeChannel<TPackageInfo>
+    public class TransparentPipeConnection<TPackageInfo> : PipeConnection<TPackageInfo>
     {
         private TaskCompletionSource<int> _tcs;
         private Task<int> _channelTask;
 
-        public TransparentPipeChannel(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options)
+        public TransparentPipeConnection(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
             : base(pipelineFilter, options)
         {
             _tcs = new TaskCompletionSource<int>();
