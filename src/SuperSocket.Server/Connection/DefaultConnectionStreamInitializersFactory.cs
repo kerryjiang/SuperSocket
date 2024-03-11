@@ -48,6 +48,8 @@ namespace SuperSocket.Server.Connection
                 connectionStreamInitializers.Add(new GZipStreamInitializer());
             }
 
+            connectionStreamInitializers.ForEach(initializer => initializer.Setup(listenOptions));
+
             return connectionStreamInitializers;
         }
     }
