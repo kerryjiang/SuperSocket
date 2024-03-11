@@ -2,6 +2,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SuperSocket;
+using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 

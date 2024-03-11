@@ -6,7 +6,7 @@ using System.Linq;
 using SuperSocket;
 using SuperSocket.Server;
 using SuperSocket.WebSocket.Server;
-using SuperSocket.SessionContainer;
+using SuperSocket.Server.Abstractions.Session;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 
