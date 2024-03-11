@@ -100,9 +100,9 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData("Tls12", SslProtocols.Tls12, false)]
         [InlineData("Tls15", SslProtocols.None, true)]
-        [InlineData("Tls11, Tls12", SslProtocols.Tls11 | SslProtocols.Tls12, false)]
-        [InlineData("Tls11,Tls12", SslProtocols.Tls11 | SslProtocols.Tls12, false)]
-        [InlineData("Tls11|Tls12", SslProtocols.Tls11 | SslProtocols.Tls12, true)]        
+        [InlineData("Tls13, Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, false)]
+        [InlineData("Tls13,Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, false)]
+        [InlineData("Tls13|Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, true)]        
         public async Task TestSecurityOptions(string security, SslProtocols protocols, bool expectException) 
         {
             var hostConfigurator = new SecureHostConfigurator();
