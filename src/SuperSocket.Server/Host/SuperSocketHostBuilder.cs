@@ -192,6 +192,7 @@ namespace SuperSocket.Server.Host
             return this.ConfigureServices((ctx, services) =>
             {
                 services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
+                services.AddSingleton<IPipelineFilterFactory>(serviceProvider => serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackage>>() as IPipelineFilterFactory);
             });
         }
 
@@ -201,6 +202,7 @@ namespace SuperSocket.Server.Host
             return this.ConfigureServices((ctx, services) =>
             {
                 services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, TPipelineFilterFactory>();
+                services.AddSingleton<IPipelineFilterFactory>(serviceProvider => serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackage>>() as IPipelineFilterFactory);
             });
         }
 

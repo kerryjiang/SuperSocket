@@ -182,7 +182,8 @@ namespace SuperSocket.Udp
                 {
                     Socket = socket,
                     SessionIdentifier = sessionIdentifier,
-                    RemoteEndPoint = remoteEndPoint
+                    RemoteEndPoint = remoteEndPoint,
+                    ConnectionOptions = ConnectionOptions
                 }, cts.Token);
             }
             catch (Exception e)

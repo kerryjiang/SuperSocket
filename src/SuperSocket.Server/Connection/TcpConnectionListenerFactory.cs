@@ -21,7 +21,7 @@ namespace SuperSocket.Server.Connection
 
         public TcpConnectionListenerFactory(IConnectionFactoryBuilder connectionFactoryBuilder)
         {
-            ConnectionFactoryBuilder = ConnectionFactoryBuilder;
+            ConnectionFactoryBuilder = connectionFactoryBuilder;
         }
 
         public virtual IConnectionListener CreateConnectionListener<TPackageInfo>(ListenOptions options, ConnectionOptions connectionOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
