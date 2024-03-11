@@ -35,11 +35,6 @@ namespace SuperSocket.Server.Connection
 
             try
             {
-                if (options.Security != SslProtocols.None && options.CertificateOptions != null)
-                {
-                    options.CertificateOptions.EnsureCertificate();
-                }
-
                 var listenEndpoint = options.ToEndPoint();
                 var listenSocket = _listenSocket = new Socket(listenEndpoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 

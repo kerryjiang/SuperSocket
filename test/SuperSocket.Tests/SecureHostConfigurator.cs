@@ -60,12 +60,12 @@ namespace SuperSocket.Tests
 
         protected virtual SslProtocols GetServerEnabledSslProtocols()
         {
-            return SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11;
+            return SslProtocols.Tls13 | SslProtocols.Tls12;
         }
 
         protected virtual SslProtocols GetClientEnabledSslProtocols()
         {
-            return SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11;
+            return SslProtocols.Tls13 | SslProtocols.Tls12;
         }
 
         public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)

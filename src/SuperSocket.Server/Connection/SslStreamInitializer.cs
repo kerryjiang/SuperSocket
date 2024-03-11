@@ -1,6 +1,7 @@
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Server.Abstractions;
@@ -16,6 +17,12 @@ namespace SuperSocket.Server.Connection
             var authOptions = new SslServerAuthenticationOptions();
 
             authOptions.EnabledSslProtocols = listenOptions.Security;
+
+            if (listenOptions.CertificateOptions.Certificate == null)
+            {
+                listenOptions.CertificateOptions.EnsureCertificate();
+            }
+            
             authOptions.ServerCertificate = listenOptions.CertificateOptions.Certificate;
             authOptions.ClientCertificateRequired = listenOptions.CertificateOptions.ClientCertificateRequired;
 
