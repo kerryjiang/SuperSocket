@@ -22,7 +22,7 @@ namespace SuperSocket.Udp
 
             var filter = PipelineFilterFactory.Create(connectionInfo.Socket);
 
-            return Task.FromResult<IConnection>(new UdpPipeConnection<TPackageInfo>(connectionInfo.Socket, filter, connectionInfo.ConnectionOptions, connectionInfo.Socket.RemoteEndPoint as IPEndPoint, connectionInfo.SessionIdentifier));
+            return Task.FromResult<IConnection>(new UdpPipeConnection<TPackageInfo>(connectionInfo.Socket, filter, connectionInfo.ConnectionOptions, connectionInfo.RemoteEndPoint, connectionInfo.SessionIdentifier));
         }
     }
 }
