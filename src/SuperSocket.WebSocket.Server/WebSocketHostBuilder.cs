@@ -3,8 +3,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket.Server;
+using SuperSocket.Server.Connection;
 using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.WebSocket.Server
@@ -26,6 +28,10 @@ namespace SuperSocket.WebSocket.Server
         protected override void RegisterDefaultServices(HostBuilderContext builderContext, IServiceCollection servicesInHost, IServiceCollection services)
         {
             services.TryAddSingleton<ISessionFactory, GenericSessionFactory<WebSocketSession>>();
+            services.TryAddSingleton<IConnectionListenerFactory, TcpConnectionListenerFactory>();
+            services.TryAddSingleton<SocketOptionsSetter>(new SocketOptionsSetter(socket => { }));
+            services.TryAddSingleton<IConnectionFactoryBuilder, ConnectionFactoryBuilder>();
+            services.TryAddSingleton<IConnectionStreamInitializersFactory, DefaultConnectionStreamInitializersFactory>();
         }
     }
 
