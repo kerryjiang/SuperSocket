@@ -14,7 +14,7 @@ namespace SuperSocket.Server.Connection
 
         public Task<Stream> InitializeAsync(Socket socket, Stream stream, CancellationToken cancellationToken)
         {
-            return Task.FromResult<Stream>(new NetworkStream(socket));
+            return Task.FromResult<Stream>(new NetworkStream(socket, true));
         }
     }
 }
