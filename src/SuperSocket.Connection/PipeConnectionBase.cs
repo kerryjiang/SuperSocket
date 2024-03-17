@@ -67,6 +67,7 @@ namespace SuperSocket.Connection
         public override void Start()
         {
             _pipeTask = StartTask();
+            _started = true;
             WaitHandleClosing();
         }
 
