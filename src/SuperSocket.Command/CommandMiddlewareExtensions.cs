@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions.Host;
+using SuperSocket.Server.Abstractions.Middleware;
 
 namespace SuperSocket
 {

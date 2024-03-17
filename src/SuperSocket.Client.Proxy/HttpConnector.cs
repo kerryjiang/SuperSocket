@@ -3,7 +3,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client.Proxy
@@ -33,7 +33,7 @@ namespace SuperSocket.Client.Proxy
         {
             var encoding = Encoding.ASCII;
             var request = string.Empty;
-            var channel = state.CreateChannel<TextPackageInfo>(new LinePipelineFilter(encoding), new ChannelOptions { ReadAsDemand = true });
+            var channel = state.CreateConnection<TextPackageInfo>(new LinePipelineFilter(encoding), new ConnectionOptions { ReadAsDemand = true });
 
             channel.Start();
 

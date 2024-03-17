@@ -3,6 +3,7 @@ using System.IO.Pipelines;
 using System.Text;
 using Microsoft.Extensions.Options;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions;
 
 namespace SuperSocket
 {

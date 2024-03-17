@@ -7,6 +7,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using SuperSocket.Command;
 using SuperSocket.Server;
+using SuperSocket.Server.Host;
+using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.WebSocket.Server.Extensions;
 using SuperSocket.WebSocket.Server.Extensions.Compression;
 

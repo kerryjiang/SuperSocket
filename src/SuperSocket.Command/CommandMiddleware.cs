@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
+using SuperSocket.Server.Abstractions.Middleware;
 using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Command

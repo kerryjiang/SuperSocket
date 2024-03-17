@@ -2,7 +2,7 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading.Tasks;
-using SuperSocket.Channel;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Server
 {

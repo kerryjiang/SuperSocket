@@ -2,7 +2,12 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SuperSocket.SessionContainer;
+using SuperSocket.Connection;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
+using SuperSocket.Server.Abstractions.Host;
+using SuperSocket.Server.Abstractions.Middleware;
+using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Udp;
 
 
@@ -10,16 +15,12 @@ namespace SuperSocket
 {
     public static class UdpServerHostBuilderExtensions
     {
-        public static ISuperSocketHostBuilder<TReceivePackage> UseUdp<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
-        {
-            return (hostBuilder as ISuperSocketHostBuilder).UseUdp() as ISuperSocketHostBuilder<TReceivePackage>;
-        }
-
         public static ISuperSocketHostBuilder UseUdp(this ISuperSocketHostBuilder hostBuilder)
         {
             return (hostBuilder.ConfigureServices((context, services) =>
             {
-                services.AddSingleton<IChannelCreatorFactory, UdpChannelCreatorFactory>();                
+                services.AddSingleton<IConnectionListenerFactory, UdpConnectionListenerFactory>();
+                services.AddSingleton<IConnectionFactoryBuilder, UdpConnectionFactoryBuilder>();
             }) as ISuperSocketHostBuilder)
             .ConfigureSupplementServices((context, services) =>
             {
@@ -36,6 +37,11 @@ namespace SuperSocket
                     services.AddSingleton<IAsyncSessionContainer>((s) => s.GetRequiredService<ISessionContainer>().ToAsyncSessionContainer());
                 }
             });
+        }
+
+        public static ISuperSocketHostBuilder<TReceivePackage> UseUdp<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder)
+        {
+            return (hostBuilder as ISuperSocketHostBuilder).UseUdp() as ISuperSocketHostBuilder<TReceivePackage>;
         }
     }
 }

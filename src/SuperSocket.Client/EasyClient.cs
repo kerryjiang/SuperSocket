@@ -8,8 +8,10 @@ using System.Threading.Tasks;
 using System.Security.Authentication;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
+using System.IO.Compression;
+using System.Linq;
 
 
 namespace SuperSocket.Client
@@ -26,12 +28,12 @@ namespace SuperSocket.Client
         }
         
         public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ILogger logger = null)
-            : this(pipelineFilter, packageEncoder, new ChannelOptions { Logger = logger })
+            : this(pipelineFilter, packageEncoder, new ConnectionOptions { Logger = logger })
         {
 
         }
 
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ChannelOptions options)
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ConnectionOptions options)
             : base(pipelineFilter, options)
         {
             _packageEncoder = packageEncoder;
@@ -53,11 +55,11 @@ namespace SuperSocket.Client
     {
         private IPipelineFilter<TReceivePackage> _pipelineFilter;
 
-        protected IChannel<TReceivePackage> Channel { get; private set; }
+        protected IConnection<TReceivePackage> Connection { get; private set; }
 
         protected ILogger Logger { get; set; }
 
-        protected ChannelOptions Options { get; private set; }
+        protected ConnectionOptions Options { get; private set; }
 
         IAsyncEnumerator<TReceivePackage> _packageStream;
 
@@ -66,6 +68,8 @@ namespace SuperSocket.Client
         public IPEndPoint LocalEndPoint { get; set; }
 
         public SecurityOptions Security { get; set; }
+
+        public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.NoCompression;
 
         protected EasyClient()
         {
@@ -79,12 +83,12 @@ namespace SuperSocket.Client
         }
 
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
-            : this(pipelineFilter, new ChannelOptions { Logger = logger })
+            : this(pipelineFilter, new ConnectionOptions { Logger = logger })
         {
 
         }
 
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ChannelOptions options)
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ConnectionOptions options)
         {
             if (pipelineFilter == null)
                 throw new ArgumentNullException(nameof(pipelineFilter));
@@ -104,15 +108,41 @@ namespace SuperSocket.Client
 
         protected virtual IConnector GetConnector()
         {
+            var connectors = new List<IConnector>();
+
+            connectors.Add(new SocketConnector(LocalEndPoint));
+
             var security = Security;
 
             if (security != null)
             {
                 if (security.EnabledSslProtocols != SslProtocols.None)
-                    return new SocketConnector(LocalEndPoint, new SslStreamConnector(security));
+                    connectors.Add(new SslStreamConnector(security));
+            }
+
+            if (CompressionLevel != CompressionLevel.NoCompression)
+            {
+                connectors.Add(new GZipConnector(CompressionLevel));
             }
             
-            return new SocketConnector(LocalEndPoint);
+            return BuildConnectors(connectors);
+        }
+
+        protected IConnector BuildConnectors(IEnumerable<IConnector> connectors)
+        {
+            var prevConnector = default(ConnectorBase);
+
+            foreach (var connector in connectors)
+            {
+                if (prevConnector != null)
+                {
+                    prevConnector.NextConnector = connector;
+                }
+
+                prevConnector = connector as ConnectorBase;
+            }
+            
+            return connectors.First();
         }
 
         ValueTask<bool> IEasyClient<TReceivePackage>.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
@@ -142,8 +172,8 @@ namespace SuperSocket.Client
             if (socket == null)
                 throw new Exception("Socket is null.");
 
-            var channelOptions = Options;
-            SetupChannel(state.CreateChannel<TReceivePackage>(_pipelineFilter, channelOptions));
+            var connectionOptions = Options;
+            SetupConnection(state.CreateConnection<TReceivePackage>(_pipelineFilter, connectionOptions));
             return true;
         }
 
@@ -161,14 +191,14 @@ namespace SuperSocket.Client
             // bind the local endpoint
             socket.Bind(localEndPoint);
 
-            var channel = new UdpPipeChannel<TReceivePackage>(socket, _pipelineFilter, this.Options, remoteEndPoint);
+            var connection = new UdpPipeConnection<TReceivePackage>(socket, _pipelineFilter, this.Options, remoteEndPoint);
 
-            SetupChannel(channel);
+            SetupConnection(connection);
 
-            UdpReceive(socket, channel, bufferPool, bufferSize);
+            UdpReceive(socket, connection, bufferPool, bufferSize);
         }
 
-        private async void UdpReceive(Socket socket, UdpPipeChannel<TReceivePackage> channel, ArrayPool<byte> bufferPool, int bufferSize)
+        private async void UdpReceive(Socket socket, UdpPipeConnection<TReceivePackage> channel, ArrayPool<byte> bufferPool, int bufferSize)
         {
             if (bufferPool == null)
                 bufferPool = ArrayPool<byte>.Shared;
@@ -204,12 +234,12 @@ namespace SuperSocket.Client
             }
         }
 
-        protected virtual void SetupChannel(IChannel<TReceivePackage> channel)
+        protected virtual void SetupConnection(IConnection<TReceivePackage> connection)
         {
-            channel.Closed += OnChannelClosed;
-            channel.Start();
-            _packageStream = channel.GetPackageStream();
-            Channel = channel;
+            connection.Closed += OnConnectionClosed;
+            connection.Start();
+            _packageStream = connection.GetPackageStream();
+            Connection = connection;
         }
 
         ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()
@@ -228,7 +258,7 @@ namespace SuperSocket.Client
             if (p != null)
                 return p;
 
-            OnClosed(Channel, EventArgs.Empty);
+            OnClosed(Connection, EventArgs.Empty);
             return null;
         }
 
@@ -269,9 +299,9 @@ namespace SuperSocket.Client
             }
         }
 
-        private void OnChannelClosed(object sender, EventArgs e)
+        private void OnConnectionClosed(object sender, EventArgs e)
         {
-            Channel.Closed -= OnChannelClosed;
+            Connection.Closed -= OnConnectionClosed;
             OnClosed(this, e);
         }
 
@@ -305,7 +335,7 @@ namespace SuperSocket.Client
 
         protected virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
-            await Channel.SendAsync(data);
+            await Connection.SendAsync(data);
         }
 
         ValueTask IEasyClient<TReceivePackage>.SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
@@ -315,14 +345,14 @@ namespace SuperSocket.Client
 
         protected virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
         {
-            await Channel.SendAsync(packageEncoder, package);
+            await Connection.SendAsync(packageEncoder, package);
         }
 
         public event EventHandler Closed;
 
         public virtual async ValueTask CloseAsync()
         {
-            await Channel.CloseAsync(CloseReason.LocalClosing);
+            await Connection.CloseAsync(CloseReason.LocalClosing);
             OnClosed(this, EventArgs.Empty);
         }
     }

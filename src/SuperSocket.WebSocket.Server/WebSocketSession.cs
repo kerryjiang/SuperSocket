@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
-using ChannelCloseReason = SuperSocket.Channel.CloseReason;
+using SuperSocket.Server.Abstractions.Session;
+using ChannelCloseReason = SuperSocket.Connection.CloseReason;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -34,7 +35,7 @@ namespace SuperSocket.WebSocket.Server
 
         public virtual ValueTask SendAsync(WebSocketPackage message)
         {
-            return this.Channel.SendAsync(MessageEncoder, message);
+            return this.Connection.SendAsync(MessageEncoder, message);
         }
 
         public virtual ValueTask SendAsync(string message)

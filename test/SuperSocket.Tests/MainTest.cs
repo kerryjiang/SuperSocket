@@ -11,7 +11,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
+using SuperSocket.Connection;
 using SuperSocket.Server;
+using SuperSocket.Server.Host;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting.Internal;
@@ -96,9 +100,9 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData("Tls12", SslProtocols.Tls12, false)]
         [InlineData("Tls15", SslProtocols.None, true)]
-        [InlineData("Tls11, Tls12", SslProtocols.Tls11 | SslProtocols.Tls12, false)]
-        [InlineData("Tls11,Tls12", SslProtocols.Tls11 | SslProtocols.Tls12, false)]
-        [InlineData("Tls11|Tls12", SslProtocols.Tls11 | SslProtocols.Tls12, true)]        
+        [InlineData("Tls13, Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, false)]
+        [InlineData("Tls13,Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, false)]
+        [InlineData("Tls13|Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, true)]        
         public async Task TestSecurityOptions(string security, SslProtocols protocols, bool expectException) 
         {
             var hostConfigurator = new SecureHostConfigurator();
@@ -185,7 +189,7 @@ namespace SuperSocket.Tests
                 .UsePackageHandler(async (s, p) =>
                 {
                     if (p.Text == "CLOSE")
-                        await s.CloseAsync(Channel.CloseReason.LocalClosing);            
+                        await s.CloseAsync(CloseReason.LocalClosing);            
                 }).BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
@@ -373,7 +377,7 @@ namespace SuperSocket.Tests
                 .UsePackageHandler(async (IAppSession s, TextPackageInfo p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
-                    await s.CloseAsync(Channel.CloseReason.LocalClosing);
+                    await s.CloseAsync(CloseReason.LocalClosing);
                 }).BuildAsServer() as IServer)
             {            
                 Assert.True(await server.StartAsync());

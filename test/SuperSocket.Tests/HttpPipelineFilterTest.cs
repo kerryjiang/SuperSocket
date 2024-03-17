@@ -23,7 +23,8 @@ using Microsoft.Extensions.Logging.Console;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
+using SuperSocket.Server.Host;
 
 namespace SuperSocket.Tests
 {
@@ -48,14 +49,18 @@ namespace SuperSocket.Tests
             protected override IConnector GetConnector()
             {
                 var authOptions = new SslClientAuthenticationOptions();
-                authOptions.EnabledSslProtocols = SslProtocols.Tls11 | SslProtocols.Tls12;
+                authOptions.EnabledSslProtocols = SslProtocols.Tls12;
                 authOptions.TargetHost = IPAddress.Loopback.ToString();
                 authOptions.RemoteCertificateValidationCallback += (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) =>
                 {
                     return true;
                 };
 
-                return new SocketConnector(new SslStreamConnector(authOptions));
+                return BuildConnectors(new IConnector[]
+                {
+                    new SocketConnector(),
+                    new SslStreamConnector(authOptions)
+                });
             }
         }
 

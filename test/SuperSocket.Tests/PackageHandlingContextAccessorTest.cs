@@ -2,6 +2,9 @@
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
+using SuperSocket.Server.Host;
+using SuperSocket.Server.Abstractions.Host;
+using SuperSocket.Server.Abstractions.Session;
 using System;
 using System.Collections.Generic;
 using System.IO;

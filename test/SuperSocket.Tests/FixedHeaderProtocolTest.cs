@@ -6,7 +6,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.ProtoBase;
-using SuperSocket.Server;
+using SuperSocket.Server.Host;
+using SuperSocket.Server.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -4,4 +4,9 @@ namespace SuperSocket.ProtoBase
     {
         IPipelineFilter<TPackageInfo> Create(object client);
     }
+
+    public interface IPipelineFilterFactory
+    {
+        IPipelineFilter Create(object client);
+    }
 }

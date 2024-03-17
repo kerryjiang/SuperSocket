@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket;
 using SuperSocket.Server;
+using SuperSocket.Server.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 

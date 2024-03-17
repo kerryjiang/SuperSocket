@@ -16,7 +16,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using Xunit.Abstractions;
 using System.Threading;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
+using SuperSocket.Server.Host;
 
 namespace SuperSocket.Tests
 {

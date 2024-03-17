@@ -4,8 +4,7 @@
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\SuperSocket.WebSocket.Server\SuperSocket.WebSocket.Server.csproj" />
-    <ProjectReference Include="..\..\src\SuperSocket.SessionContainer\SuperSocket.SessionContainer.csproj" />    
+    <ProjectReference Include="..\..\src\SuperSocket.WebSocket.Server\SuperSocket.WebSocket.Server.csproj" />  
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json">

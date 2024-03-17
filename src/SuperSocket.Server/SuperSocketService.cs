@@ -8,12 +8,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using static SuperSocket.Extensions;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
+using SuperSocket.Server.Abstractions.Session;
+using SuperSocket.Server.Abstractions.Middleware;
+using SuperSocket.Server.Connection;
 
 namespace SuperSocket.Server
 {
-    public class SuperSocketService<TReceivePackageInfo> : IHostedService, IServer, IChannelRegister, ILoggerAccessor, ISessionEventHost
+    public class SuperSocketService<TReceivePackageInfo> : ISuperSocketHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
@@ -37,8 +42,8 @@ namespace SuperSocket.Server
         }
 
         private IPipelineFilterFactory<TReceivePackageInfo> _pipelineFilterFactory;
-        private IChannelCreatorFactory _channelCreatorFactory;
-        private List<IChannelCreator> _channelCreators;
+        private IConnectionListenerFactory _connectionListenerFactory;
+        private List<IConnectionListener> _connectionListeners;
         private IPackageHandlingScheduler<TReceivePackageInfo> _packageHandlingScheduler;
         private IPackageHandlingContextAccessor<TReceivePackageInfo> _packageHandlingContextAccessor;
 
@@ -82,7 +87,7 @@ namespace SuperSocket.Server
             _pipelineFilterFactory = GetPipelineFilterFactory();
             _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
             _logger = _loggerFactory.CreateLogger("SuperSocketService");
-            _channelCreatorFactory = serviceProvider.GetService<IChannelCreatorFactory>() ?? new TcpChannelCreatorFactory(serviceProvider);
+            _connectionListenerFactory = serviceProvider.GetService<IConnectionListenerFactory>();
             _sessionHandlers = serviceProvider.GetService<SessionHandlers>();
             _sessionFactory = serviceProvider.GetService<ISessionFactory>();
             _packageHandlingContextAccessor = serviceProvider.GetService<IPackageHandlingContextAccessor<TReceivePackageInfo>>();
@@ -98,7 +103,7 @@ namespace SuperSocket.Server
             else
             {
                 var errorHandler = serviceProvider.GetService<Func<IAppSession, PackageHandlingException<TReceivePackageInfo>, ValueTask<bool>>>()
-                ?? OnSessionErrorAsync;
+                    ?? OnSessionErrorAsync;
 
                 _packageHandlingScheduler = serviceProvider.GetService<IPackageHandlingScheduler<TReceivePackageInfo>>()
                     ?? new SerialPackageHandlingScheduler<TReceivePackageInfo>();
@@ -111,10 +116,10 @@ namespace SuperSocket.Server
             return _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
         }
 
-        private bool AddChannelCreator(ListenOptions listenOptions, ServerOptions serverOptions)
+        private bool AddConnectionListener(ListenOptions listenOptions, ServerOptions serverOptions)
         {
-            var listener = _channelCreatorFactory.CreateChannelCreator<TReceivePackageInfo>(listenOptions, serverOptions, _loggerFactory, _pipelineFilterFactory);
-            listener.NewClientAccepted += OnNewClientAccept;
+            var listener = _connectionListenerFactory.CreateConnectionListener<TReceivePackageInfo>(listenOptions, serverOptions, _loggerFactory, _pipelineFilterFactory);
+            listener.NewConnectionAccept += OnNewConnectionAccept;
 
             if (!listener.Start())
             {
@@ -123,13 +128,13 @@ namespace SuperSocket.Server
             }
 
             _logger.LogInformation($"The listener [{listener}] has been started.");
-            _channelCreators.Add(listener);
+            _connectionListeners.Add(listener);
             return true;
         }
 
         private Task<bool> StartListenAsync(CancellationToken cancellationToken)
         {
-            _channelCreators = new List<IChannelCreator>();
+            _connectionListeners = new List<IConnectionListener>();
 
             var serverOptions = Options;
 
@@ -140,7 +145,7 @@ namespace SuperSocket.Server
                     if (cancellationToken.IsCancellationRequested)
                         break;
 
-                    if (!AddChannelCreator(l, serverOptions))
+                    if (!AddConnectionListener(l, serverOptions))
                     {
                         continue;
                     }
@@ -150,31 +155,33 @@ namespace SuperSocket.Server
             {
                 _logger.LogWarning("No listener was defined, so this server only can accept connections from the ActiveConnect.");
 
-                if (!AddChannelCreator(null, serverOptions))
+                if (!AddConnectionListener(null, serverOptions))
                 {
                     _logger.LogError($"Failed to add the channel creator.");
                     return Task.FromResult(false);
                 }
             }
 
-            return Task.FromResult(_channelCreators.Any());
+            return Task.FromResult(_connectionListeners.Any());
         }
 
-        protected virtual ValueTask OnNewClientAccept(IChannelCreator listener, IChannel channel)
+        protected virtual ValueTask OnNewConnectionAccept(ListenOptions listenOptions, IConnection connection)
         {
-            return AcceptNewChannel(channel);
+            return AcceptNewConnection(connection);
         }
 
-        private ValueTask AcceptNewChannel(IChannel channel)
+        private ValueTask AcceptNewConnection(IConnection connection)
         {
             var session = _sessionFactory.Create() as AppSession;
-            return HandleSession(session, channel);
+            return HandleSession(session, connection);
         }
 
-        async Task IChannelRegister.RegisterChannel(object connection)
+        async Task IConnectionRegister.RegisterConnection(object connectionSource)
         {
-            var channel = await _channelCreators.FirstOrDefault().CreateChannel(connection);
-            await AcceptNewChannel(channel);
+            var connectionListener = _connectionListeners.FirstOrDefault();
+            using var cts = new CancellationTokenSource(connectionListener.Options.ConnectionAcceptTimeOut);
+            var connection = await connectionListener.ConnectionFactory.CreateConnection(connectionSource, cts.Token);
+            await AcceptNewConnection(connection);
         }
 
         protected virtual object CreatePipelineContext(IAppSession session)
@@ -259,13 +266,13 @@ namespace SuperSocket.Server
 
         #endregion
 
-        private async ValueTask<bool> InitializeSession(IAppSession session, IChannel channel)
+        private async ValueTask<bool> InitializeSession(IAppSession session, IConnection connection)
         {
-            session.Initialize(this, channel);
+            session.Initialize(this, connection);
 
-            if (channel is IPipeChannel pipeChannel)
+            if (connection is IPipeConnection pipeConnection)
             {
-                pipeChannel.PipelineFilter.Context = CreatePipelineContext(session);
+                pipeConnection.PipelineFilter.Context = CreatePipelineContext(session);
             }
 
             var middlewares = _middlewares;
@@ -281,7 +288,7 @@ namespace SuperSocket.Server
                 return false;
             }
 
-            channel.Closed += (s, e) => OnChannelClosed(session, e);
+            connection.Closed += (s, e) => OnChannelClosed(session, e);
             return true;
         }
 
@@ -363,31 +370,31 @@ namespace SuperSocket.Server
             }
         }
 
-        ValueTask ISessionEventHost.HandleSessionConnectedEvent(AppSession session)
+        ValueTask ISessionEventHost.HandleSessionConnectedEvent(IAppSession session)
         {
-            return FireSessionConnectedEvent(session);
+            return FireSessionConnectedEvent((AppSession)session);
         }
 
-        ValueTask ISessionEventHost.HandleSessionClosedEvent(AppSession session, CloseReason reason)
+        ValueTask ISessionEventHost.HandleSessionClosedEvent(IAppSession session, CloseReason reason)
         {
-            return FireSessionClosedEvent(session, reason);
+            return FireSessionClosedEvent((AppSession)session, reason);
         }
 
-        private async ValueTask HandleSession(AppSession session, IChannel channel)
+        private async ValueTask HandleSession(AppSession session, IConnection connection)
         {
-            if (!await InitializeSession(session, channel))
+            if (!await InitializeSession(session, connection))
                 return;
 
             try
             {
-                channel.Start();
+                connection.Start();
 
                 await FireSessionConnectedEvent(session);
 
-                var packageChannel = channel as IChannel<TReceivePackageInfo>;
+                var packageConnection = connection as IConnection<TReceivePackageInfo>;
                 var packageHandlingScheduler = _packageHandlingScheduler;
 
-                await foreach (var p in packageChannel.RunAsync())
+                await foreach (var p in packageConnection.RunAsync())
                 {
                     if(_packageHandlingContextAccessor != null)
                     {
@@ -456,7 +463,7 @@ namespace SuperSocket.Server
             #endif
         }
 
-        private async Task StopListener(IChannelCreator listener)
+        private async Task StopListener(IConnectionListener listener)
         {
             await listener.StopAsync().ConfigureAwait(false);
             _logger.LogInformation($"The listener [{listener}] has been stopped.");
@@ -473,7 +480,7 @@ namespace SuperSocket.Server
 
             _state = ServerState.Stopping;
 
-            var tasks = _channelCreators.Where(l => l.IsRunning).Select(l => StopListener(l))
+            var tasks = _connectionListeners.Where(l => l.IsRunning).Select(l => StopListener(l))
                 .Union(new Task[] { Task.Run(ShutdownMiddlewares) });
 
             await Task.WhenAll(tasks).ConfigureAwait(false);

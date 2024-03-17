@@ -19,12 +19,6 @@ namespace SuperSocket.Client
             Options = options;
         }
 
-        public SslStreamConnector(SslClientAuthenticationOptions options, IConnector nextConnector)
-            : base(nextConnector)
-        {
-            Options = options;
-        }
-
         protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var targetHost = Options.TargetHost;

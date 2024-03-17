@@ -4,6 +4,7 @@ on:
     push:
         branches:
             - master
+            - 2refactory
 
 jobs:
     build:

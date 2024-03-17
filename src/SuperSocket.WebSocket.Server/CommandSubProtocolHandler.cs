@@ -6,7 +6,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
-using SuperSocket.Server;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.WebSocket.Server
 {

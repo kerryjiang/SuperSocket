@@ -22,8 +22,10 @@ using Microsoft.Extensions.Logging.Console;
 using System.Net.Security;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
-using SuperSocket.Channel;
+using SuperSocket.Server.Host;
 using SuperSocket.Tests.Command;
+using SuperSocket.Connection;
+using SuperSocket.Server.Abstractions.Session;
 using System.Threading;
 using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket.WebSocket;
@@ -77,7 +79,7 @@ namespace SuperSocket.Tests
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");
 
-                var options = new ChannelOptions
+                var options = new ConnectionOptions
                 {
                     Logger = NullLogger.Instance,
                     ReadAsDemand = clientReadAsDemand
@@ -135,7 +137,7 @@ namespace SuperSocket.Tests
                     Decoder = new DefaultStringPackageDecoder()
                 };
 
-                var options = new ChannelOptions
+                var options = new ConnectionOptions
                 {
                     Logger = DefaultLoggerFactory.CreateLogger(nameof(TestBindLocalEndPoint))
                 };
@@ -184,7 +186,7 @@ namespace SuperSocket.Tests
                 Decoder = new DefaultStringPackageDecoder()
             };
 
-            var options = new ChannelOptions
+            var options = new ConnectionOptions
             {
                 Logger = DefaultLoggerFactory.CreateLogger(nameof(TestBindLocalEndPoint))
             };
@@ -230,7 +232,7 @@ namespace SuperSocket.Tests
                     Decoder = new DefaultStringPackageDecoder()
                 };
 
-                var options = new ChannelOptions
+                var options = new ConnectionOptions
                 {
                     Logger = DefaultLoggerFactory.CreateLogger(nameof(TestCommandLine))
                 };
@@ -289,7 +291,7 @@ namespace SuperSocket.Tests
                 await socket.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 var stream = await hostConfigurator.GetClientStream(socket);
 
-                var channel = new StreamPipeChannel<TextPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new LinePipelineFilter(), new ChannelOptions
+                var channel = new StreamPipeConnection<TextPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new LinePipelineFilter(), new ConnectionOptions
                 {
                     Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableChannel)),
                     ReadAsDemand = true

@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using SuperSocket.Server;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.WebSocket.Server
 {

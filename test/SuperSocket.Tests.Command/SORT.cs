@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Tests.Command
 {

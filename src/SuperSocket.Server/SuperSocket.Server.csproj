@@ -7,8 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
-    <ProjectReference Include="../SuperSocket.Channel/SuperSocket.Channel.csproj" />
+    <ProjectReference Include="../SuperSocket.Server.Abstractions/SuperSocket.Server.Abstractions.csproj" />
     <ProjectReference Include="../SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
   </ItemGroup>
   

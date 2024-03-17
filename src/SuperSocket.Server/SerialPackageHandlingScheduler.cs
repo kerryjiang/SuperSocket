@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using SuperSocket.Channel;
+using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Server
 {

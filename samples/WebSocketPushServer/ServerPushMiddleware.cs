@@ -5,8 +5,10 @@ using System.Threading.Tasks;
 using System.Linq;
 using SuperSocket;
 using SuperSocket.Server;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Session;
+using SuperSocket.Server.Abstractions.Middleware;
 using SuperSocket.WebSocket.Server;
-using SuperSocket.SessionContainer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 

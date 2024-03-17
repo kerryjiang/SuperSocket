@@ -10,7 +10,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
-using SuperSocket.Channel;
+using SuperSocket.Connection;
+using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
 
@@ -58,15 +60,16 @@ namespace SuperSocket.Tests
 
         protected virtual SslProtocols GetServerEnabledSslProtocols()
         {
-            return SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11;
+            return SslProtocols.Tls13 | SslProtocols.Tls12;
         }
 
         protected virtual SslProtocols GetClientEnabledSslProtocols()
         {
-            return SslProtocols.Tls13 | SslProtocols.Tls12 | SslProtocols.Tls11;
+            return SslProtocols.Tls13 | SslProtocols.Tls12;
         }
 
-        public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ChannelOptions options) where TPackageInfo : class
+        public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
+            where TPackageInfo : class
         {
             var client =  new EasyClient<TPackageInfo>(pipelineFilter, options);
             client.Security = new SecurityOptions
