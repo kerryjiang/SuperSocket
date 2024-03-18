@@ -12,8 +12,8 @@ namespace SuperSocket.Connection
     {
         static ConnectionOptions RebuildOptionsWithPipes(ConnectionOptions options, Pipe pipeIn, Pipe pipeOut)
         {
-            options.In = pipeIn;
-            options.Out = pipeOut;
+            options.Input = pipeIn;
+            options.Output = pipeOut;
             return options;
         }
 
@@ -25,13 +25,13 @@ namespace SuperSocket.Connection
 
         protected override void Close()
         {
-            In.Writer.Complete();
-            Out.Writer.Complete();
+            Input.Writer.Complete();
+            Output.Writer.Complete();
         }
 
         protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
         {
-            var writer = Out.Writer;
+            var writer = OutputWriter;
             var total = 0;
 
             foreach (var data in buffer)

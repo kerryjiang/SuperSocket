@@ -23,7 +23,7 @@ namespace SuperSocket.Connection
 
         public async ValueTask<FlushResult> WritePipeDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            return await In.Writer.WriteAsync(memory, cancellationToken).ConfigureAwait(false);
+            return await Input.Writer.WriteAsync(memory, cancellationToken).ConfigureAwait(false);
         }
     }
 }

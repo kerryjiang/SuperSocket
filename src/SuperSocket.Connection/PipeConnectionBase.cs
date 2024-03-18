@@ -20,18 +20,18 @@ namespace SuperSocket.Connection
 
         protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
-        protected Pipe Out { get; }
+        protected PipeWriter OutputWriter { get; }
 
-        Pipe IPipeConnection.Out
+        PipeWriter IPipeConnection.OutputWriter
         {
-            get { return Out; }
+            get { return OutputWriter; }
         }
 
-        protected Pipe In { get; }
+        protected PipeReader InputReader { get; }
 
-        Pipe IPipeConnection.In
+        PipeReader IPipeConnection.InputReader
         {
-            get { return In; }
+            get { return InputReader; }
         }
 
         IPipelineFilter IPipeConnection.PipelineFilter
@@ -39,7 +39,7 @@ namespace SuperSocket.Connection
             get { return _pipelineFilter; }
         }
 
-        private IObjectPipe<TPackageInfo> _packagePipe;
+        protected internal IObjectPipe<TPackageInfo> PackagePipe { get; }
 
         protected ILogger Logger { get; }
 
@@ -49,19 +49,19 @@ namespace SuperSocket.Connection
 
         private bool _isDetaching = false;
 
-        protected PipeConnectionBase(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
+        protected PipeConnectionBase(PipeReader inputReader, PipeWriter outputWriter, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
         {
             _pipelineFilter = pipelineFilter;
 
             if (!options.ReadAsDemand)
-                _packagePipe = new DefaultObjectPipe<TPackageInfo>();
+                PackagePipe = new DefaultObjectPipe<TPackageInfo>();
             else
-                _packagePipe = new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
+                PackagePipe = new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
 
             Options = options;
             Logger = options.Logger;
-            Out = options.Out ?? new Pipe();
-            In = options.In ?? new Pipe();
+            InputReader = inputReader;
+            OutputWriter = outputWriter;
         }
 
         public override void Start()
@@ -88,7 +88,7 @@ namespace SuperSocket.Connection
 
             while (!_cts.IsCancellationRequested)
             {
-                var package = await _packagePipe.ReadAsync().ConfigureAwait(false);
+                var package = await PackagePipe.ReadAsync().ConfigureAwait(false);
 
                 if (package == null)
                 {
@@ -146,90 +146,6 @@ namespace SuperSocket.Connection
             _cts.Cancel();
         }
 
-        protected virtual async Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
-        {
-            var options = Options;
-            var supplyController = _packagePipe as ISupplyController;
-
-            if (supplyController != null)
-            {
-                cancellationToken.Register(() =>
-                {
-                    supplyController.SupplyEnd();
-                });
-            }
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
-                {                    
-                    if (supplyController != null)
-                    {
-                        await supplyController.SupplyRequired().ConfigureAwait(false);
-
-                        if (cancellationToken.IsCancellationRequested)
-                            break;
-                    }
-
-                    var bufferSize = options.ReceiveBufferSize;
-                    var maxPackageLength = options.MaxPackageLength;
-
-                    if (bufferSize <= 0)
-                        bufferSize = 1024 * 4; //4k
-
-                    var memory = writer.GetMemory(bufferSize);
-
-                    var bytesRead = await FillPipeWithDataAsync(memory, cancellationToken).ConfigureAwait(false);       
-
-                    if (bytesRead == 0)
-                    {
-                        if (!CloseReason.HasValue)
-                            CloseReason = Connection.CloseReason.RemoteClosing;
-                        
-                        break;
-                    }
-
-                    LastActiveTime = DateTimeOffset.Now;
-                    
-                    // Tell the PipeWriter how much was read
-                    writer.Advance(bytesRead);
-                }
-                catch (Exception e)
-                {
-                    if (!IsIgnorableException(e))
-                    {
-                        if (!(e is OperationCanceledException))
-                            OnError("Exception happened in ReceiveAsync", e);
-
-                        if (!CloseReason.HasValue)
-                        {
-                            CloseReason = cancellationToken.IsCancellationRequested
-                                ? Connection.CloseReason.LocalClosing : Connection.CloseReason.SocketError; 
-                        }
-                    }
-                    else if (!CloseReason.HasValue)
-                    {
-                        CloseReason = Connection.CloseReason.RemoteClosing;
-                    }
-                    
-                    break;
-                }
-
-                // Make the data available to the PipeReader
-                var result = await writer.FlushAsync().ConfigureAwait(false);
-
-                if (result.IsCompleted)
-                {
-                    break;
-                }
-            }
-
-            // Signal to the reader that we're done writing
-            await writer.CompleteAsync().ConfigureAwait(false);
-            // And don't allow writing data to outgoing pipeline
-            await Out.Writer.CompleteAsync().ConfigureAwait(false);
-        }
-
         protected virtual bool IsIgnorableException(Exception e)
         {
             if (e is ObjectDisposedException || e is NullReferenceException)
@@ -241,16 +157,14 @@ namespace SuperSocket.Connection
             return false;
         }
 
-        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
-
         protected virtual async Task ProcessReads(CancellationToken cancellationToken)
         {
-            var pipe = In;
+            await StartInputPipeTask(cancellationToken);
+        }
 
-            Task writing = FillPipeAsync(pipe.Writer, cancellationToken);
-            Task reading = ReadPipeAsync(pipe.Reader, cancellationToken);
-
-            await Task.WhenAll(reading, writing).ConfigureAwait(false);
+        protected virtual Task StartInputPipeTask(CancellationToken cancellationToken)
+        {
+            return ReadPipeAsync(InputReader, cancellationToken);
         }
 
         private void CheckConnectionOpen()
@@ -266,9 +180,8 @@ namespace SuperSocket.Connection
             try
             {
                 await SendLock.WaitAsync().ConfigureAwait(false);
-                var writer = Out.Writer;
-                WriteBuffer(writer, buffer);
-                await writer.FlushAsync().ConfigureAwait(false);
+                WriteBuffer(OutputWriter, buffer);
+                await OutputWriter.FlushAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -287,9 +200,8 @@ namespace SuperSocket.Connection
             try
             {
                 await SendLock.WaitAsync().ConfigureAwait(false);
-                var writer = Out.Writer;
-                WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
-                await writer.FlushAsync().ConfigureAwait(false);
+                WritePackageWithEncoder<TPackage>(OutputWriter, packageEncoder, package);
+                await OutputWriter.FlushAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -302,9 +214,8 @@ namespace SuperSocket.Connection
             try
             {
                 await SendLock.WaitAsync().ConfigureAwait(false);
-                var writer = Out.Writer;
-                write(writer);
-                await writer.FlushAsync().ConfigureAwait(false);
+                write(OutputWriter);
+                await OutputWriter.FlushAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -394,7 +305,7 @@ namespace SuperSocket.Connection
 
         protected void WriteEOFPackage()
         {
-            _packagePipe.Write(default);
+            PackagePipe.Write(default);
         }
 
         private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
@@ -459,7 +370,7 @@ namespace SuperSocket.Connection
                 {
                     // reset the pipeline filter after we parse one full package
                     currentPipelineFilter.Reset();
-                    _packagePipe.Write(packageInfo);
+                    PackagePipe.Write(packageInfo);
                 }
 
                 if (seqReader.End) // no more data

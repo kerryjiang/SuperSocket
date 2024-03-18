@@ -7,9 +7,9 @@ namespace SuperSocket.Connection
 {
     public interface IPipeConnection
     {
-        Pipe In { get; }
+        PipeReader InputReader { get; }
 
-        Pipe Out { get; }
+        PipeWriter OutputWriter { get; }
 
         IPipelineFilter PipelineFilter { get; }
     }

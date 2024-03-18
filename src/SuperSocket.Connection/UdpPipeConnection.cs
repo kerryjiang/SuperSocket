@@ -114,10 +114,10 @@ namespace SuperSocket.Connection
             try
             {
                 await SendLock.WaitAsync();
-                var writer = Out.Writer;
+                var writer = OutputWriter;
                 WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
                 await writer.FlushAsync();
-                await ProcessOutputRead(Out.Reader);
+                await ProcessOutputRead(Output.Reader);
             }
             finally
             {

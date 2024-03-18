@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.Connection
 {
-    interface IObjectPipe<T>
+    public interface IObjectPipe<T>
     {
         /// <summary>
         /// Write an object into the pipe

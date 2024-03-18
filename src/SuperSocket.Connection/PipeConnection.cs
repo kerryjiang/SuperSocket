@@ -11,9 +11,30 @@ namespace SuperSocket.Connection
 {
     public abstract class PipeConnection<TPackageInfo> : PipeConnectionBase<TPackageInfo>
     {
+        protected Pipe Input { get; }
+
+        protected Pipe Output { get; }
+
         public PipeConnection(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : base(pipelineFilter, options)
+            : this(GetInputPipe(options), GetOutputPipe(options), pipelineFilter, options)
         {
+        }
+
+        public PipeConnection(Pipe input, Pipe output, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
+            : base(input.Reader, output.Writer, pipelineFilter, options)
+        {
+            Input = input;
+            Output = output;
+        }
+
+        private static Pipe GetInputPipe(ConnectionOptions connectionOptions)
+        {
+            return connectionOptions.Input ?? new Pipe();
+        }
+
+        private static Pipe GetOutputPipe(ConnectionOptions connectionOptions)
+        {
+            return connectionOptions.Output ?? new Pipe();
         }
 
         protected override Task StartTask()
@@ -22,9 +43,14 @@ namespace SuperSocket.Connection
             return Task.WhenAll(pipeTask, ProcessSends());
         }
 
+        protected override Task StartInputPipeTask(CancellationToken cancellationToken)
+        {
+            return Task.WhenAll(FillPipeAsync(Input.Writer, cancellationToken), base.StartInputPipeTask(cancellationToken));
+        }
+
         protected virtual async Task ProcessSends()
         {
-            var output = Out.Reader;
+            var output = Output.Reader;
 
             while (true)
             {
@@ -37,6 +63,92 @@ namespace SuperSocket.Connection
             }
 
             output.Complete();
+        }
+
+        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
+
+        protected virtual async Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
+        {
+            var options = Options;
+            var supplyController = PackagePipe as ISupplyController;
+
+            if (supplyController != null)
+            {
+                cancellationToken.Register(() =>
+                {
+                    supplyController.SupplyEnd();
+                });
+            }
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    if (supplyController != null)
+                    {
+                        await supplyController.SupplyRequired().ConfigureAwait(false);
+
+                        if (cancellationToken.IsCancellationRequested)
+                            break;
+                    }
+
+                    var bufferSize = options.ReceiveBufferSize;
+                    var maxPackageLength = options.MaxPackageLength;
+
+                    if (bufferSize <= 0)
+                        bufferSize = 1024 * 4; //4k
+
+                    var memory = writer.GetMemory(bufferSize);
+
+                    var bytesRead = await FillPipeWithDataAsync(memory, cancellationToken).ConfigureAwait(false);
+
+                    if (bytesRead == 0)
+                    {
+                        if (!CloseReason.HasValue)
+                            CloseReason = Connection.CloseReason.RemoteClosing;
+
+                        break;
+                    }
+
+                    LastActiveTime = DateTimeOffset.Now;
+
+                    // Tell the PipeWriter how much was read
+                    writer.Advance(bytesRead);
+                }
+                catch (Exception e)
+                {
+                    if (!IsIgnorableException(e))
+                    {
+                        if (!(e is OperationCanceledException))
+                            OnError("Exception happened in ReceiveAsync", e);
+
+                        if (!CloseReason.HasValue)
+                        {
+                            CloseReason = cancellationToken.IsCancellationRequested
+                                ? Connection.CloseReason.LocalClosing : Connection.CloseReason.SocketError;
+                        }
+                    }
+                    else if (!CloseReason.HasValue)
+                    {
+                        CloseReason = Connection.CloseReason.RemoteClosing;
+                    }
+
+                    break;
+                }
+
+                // Make the data available to the PipeReader
+                var result = await writer.FlushAsync().ConfigureAwait(false);
+
+                if (result.IsCompleted)
+                {
+                    break;
+                }
+            }
+
+            // Signal to the reader that we're done writing
+            await writer.CompleteAsync().ConfigureAwait(false);
+            // And don't allow writing data to outgoing pipeline
+            await Output.Writer.CompleteAsync().ConfigureAwait(false);
         }
 
         protected async ValueTask<bool> ProcessOutputRead(PipeReader reader)

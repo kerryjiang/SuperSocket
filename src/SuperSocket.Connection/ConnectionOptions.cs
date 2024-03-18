@@ -34,9 +34,9 @@ namespace SuperSocket.Connection
 
         public ILogger Logger { get; set; }
 
-        public Pipe In { get; set; }
+        public Pipe Input { get; set; }
 
-        public Pipe Out { get; set; }
+        public Pipe Output { get; set; }
 
         public Dictionary<string, string> Values { get; set; }
     }
