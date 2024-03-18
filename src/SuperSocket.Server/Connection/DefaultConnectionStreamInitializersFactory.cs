@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Net.Sockets;
 using System.Security.Authentication;
-using System.Threading;
-using System.Threading.Tasks;
 using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {

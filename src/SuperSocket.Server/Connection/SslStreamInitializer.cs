@@ -1,10 +1,10 @@
 using System.IO;
 using System.Net.Security;
 using System.Net.Sockets;
-using System.Runtime.Serialization.Formatters;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {

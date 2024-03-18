@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Connection;
 using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {
