@@ -14,23 +14,23 @@
     <dependencies>
       <group targetFramework=".NETStandard2.1">
         <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />        
+        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />    
       </group>
       <group targetFramework="net5.0">
         <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />        
+        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
       </group>
       <group targetFramework="net6.0">
         <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />        
+        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
       </group>
       <group targetFramework="net7.0">
         <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.SessionContainer" version="$version$" exclude="Build,Analyzers" />        
+        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
+      </group>
+      <group targetFramework="net8.0">
+        <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
       </group>
     </dependencies>
   </metadata>
