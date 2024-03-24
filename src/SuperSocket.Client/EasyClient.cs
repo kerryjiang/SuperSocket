@@ -55,7 +55,7 @@ namespace SuperSocket.Client
     {
         private IPipelineFilter<TReceivePackage> _pipelineFilter;
 
-        protected IConnection<TReceivePackage> Connection { get; private set; }
+        protected IConnection Connection { get; private set; }
 
         protected ILogger Logger { get; set; }
 
@@ -172,8 +172,7 @@ namespace SuperSocket.Client
             if (socket == null)
                 throw new Exception("Socket is null.");
 
-            var connectionOptions = Options;
-            SetupConnection(state.CreateConnection<TReceivePackage>(_pipelineFilter, connectionOptions));
+            SetupConnection(state.CreateConnection(Options));
             return true;
         }
 
@@ -191,14 +190,14 @@ namespace SuperSocket.Client
             // bind the local endpoint
             socket.Bind(localEndPoint);
 
-            var connection = new UdpPipeConnection<TReceivePackage>(socket, _pipelineFilter, this.Options, remoteEndPoint);
+            var connection = new UdpPipeConnection(socket, this.Options, remoteEndPoint);
 
             SetupConnection(connection);
 
             UdpReceive(socket, connection, bufferPool, bufferSize);
         }
 
-        private async void UdpReceive(Socket socket, UdpPipeConnection<TReceivePackage> channel, ArrayPool<byte> bufferPool, int bufferSize)
+        private async void UdpReceive(Socket socket, UdpPipeConnection connection, ArrayPool<byte> bufferPool, int bufferSize)
         {
             if (bufferPool == null)
                 bufferPool = ArrayPool<byte>.Shared;
@@ -210,10 +209,10 @@ namespace SuperSocket.Client
                 try
                 {
                     var result = await socket
-                        .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, channel.RemoteEndPoint)
+                        .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, connection.RemoteEndPoint)
                         .ConfigureAwait(false);
 
-                    await channel.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
+                    await connection.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
                 }
                 catch (NullReferenceException)
                 {
@@ -234,11 +233,10 @@ namespace SuperSocket.Client
             }
         }
 
-        protected virtual void SetupConnection(IConnection<TReceivePackage> connection)
+        protected virtual void SetupConnection(IConnection connection)
         {
             connection.Closed += OnConnectionClosed;
-            connection.Start();
-            _packageStream = connection.GetPackageStream();
+            _packageStream = connection.GetPackageStream(_pipelineFilter);
             Connection = connection;
         }
 

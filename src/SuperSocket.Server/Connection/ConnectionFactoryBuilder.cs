@@ -23,9 +23,9 @@ namespace SuperSocket.Server.Connection
             ConnectionStreamInitializersFactory = connectionStreamInitializersFactory;
         }
 
-        public virtual IConnectionFactory Build<TPackageInfo>(ListenOptions listenOptions, ConnectionOptions connectionOptions)
+        public virtual IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions)
         {
-            return new TcpConnectionFactory<TPackageInfo>(listenOptions, connectionOptions, SocketOptionsSetter, PipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>, ConnectionStreamInitializersFactory);
+            return new TcpConnectionFactory(listenOptions, connectionOptions, SocketOptionsSetter, ConnectionStreamInitializersFactory);
         }
     }
 }

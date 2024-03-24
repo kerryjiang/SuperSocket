@@ -9,8 +9,8 @@ namespace SuperSocket.Connection
 {
     public interface IConnection
     {
-        void Start();
-        
+        IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter);
+
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
 
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package);
@@ -32,10 +32,5 @@ namespace SuperSocket.Connection
         ValueTask DetachAsync();
 
         CloseReason? CloseReason { get; }
-    }
-
-    public interface IConnection<TPackageInfo> : IConnection
-    {
-        IAsyncEnumerable<TPackageInfo> RunAsync();
     }
 }

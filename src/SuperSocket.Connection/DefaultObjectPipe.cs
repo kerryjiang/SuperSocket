@@ -92,6 +92,11 @@ namespace SuperSocket.Connection
             }            
         }
 
+        public void WirteEOF()
+        {
+            Write(default);
+        }
+
         private bool TryRead(out T value)
         {
             var first = _first;

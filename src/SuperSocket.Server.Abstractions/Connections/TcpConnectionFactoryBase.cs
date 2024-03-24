@@ -15,15 +15,13 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server.Abstractions.Connections
 {
-    public abstract class TcpConnectionFactoryBase<TPackageInfo> : IConnectionFactory
+    public abstract class TcpConnectionFactoryBase : IConnectionFactory
     {
         protected ListenOptions ListenOptions { get; }
 
         protected ConnectionOptions ConnectionOptions { get; }
 
         protected Action<Socket> SocketOptionsSetter { get; }
-
-        protected IPipelineFilterFactory<TPackageInfo> PipelineFilterFactory;
 
         protected ILogger Logger { get; }
 
@@ -33,13 +31,11 @@ namespace SuperSocket.Server.Abstractions.Connections
             ListenOptions listenOptions,
             ConnectionOptions connectionOptions,
             Action<Socket> socketOptionsSetter,
-            IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory,
             IConnectionStreamInitializersFactory connectionStreamInitializersFactory)
         {
             ListenOptions = listenOptions;
             ConnectionOptions = connectionOptions;
             SocketOptionsSetter = socketOptionsSetter;
-            PipelineFilterFactory = pipelineFilterFactory;
             Logger = connectionOptions.Logger;
 
             ConnectionStreamInitializers = connectionStreamInitializersFactory.Create(listenOptions);

@@ -7,22 +7,13 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Udp
 {
-    public class UdpConnectionFactory<TPackageInfo> : IConnectionFactory
+    public class UdpConnectionFactory : IConnectionFactory
     {
-        protected IPipelineFilterFactory<TPackageInfo> PipelineFilterFactory;
-
-        public UdpConnectionFactory(IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory)
-        {
-            this.PipelineFilterFactory = pipelineFilterFactory;
-        }
-
         public Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
         {
             var connectionInfo = (UdpConnectionInfo)connection;
-
-            var filter = PipelineFilterFactory.Create(connectionInfo.Socket);
-
-            return Task.FromResult<IConnection>(new UdpPipeConnection<TPackageInfo>(connectionInfo.Socket, filter, connectionInfo.ConnectionOptions, connectionInfo.RemoteEndPoint, connectionInfo.SessionIdentifier));
+            
+            return Task.FromResult<IConnection>(new UdpPipeConnection(connectionInfo.Socket, connectionInfo.ConnectionOptions, connectionInfo.RemoteEndPoint, connectionInfo.SessionIdentifier));
         }
     }
 }

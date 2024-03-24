@@ -6,9 +6,9 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
 {
-    public class UdpChannelStream : Stream
+    public class UdpConnectionStream : Stream
     {
-        public UdpPipeConnection<TextPackageInfo> Connection { get; }
+        public UdpPipeConnection Connection { get; }
 
         public override bool CanRead => true;
 
@@ -22,7 +22,7 @@ namespace SuperSocket.Tests
 
         public Socket Socket { get; }
 
-        public UdpChannelStream(UdpPipeConnection<TextPackageInfo> connection, Socket socket)
+        public UdpConnectionStream(UdpPipeConnection connection, Socket socket)
         {
             Connection = connection;
             Socket = socket;

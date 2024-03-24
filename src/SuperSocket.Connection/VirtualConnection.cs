@@ -8,15 +8,15 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public abstract class VirtualConnection<TPackageInfo> : PipeConnection<TPackageInfo>, IVirtualConnection
+    public abstract class VirtualConnection : PipeConnection, IVirtualConnection
     {
-        public VirtualConnection(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : base(pipelineFilter, options)
+        public VirtualConnection(ConnectionOptions options)
+            : base(options)
         {
  
         }
 
-        protected override Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
+        internal override Task FillPipeAsync(PipeWriter writer, ISupplyController supplyController, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
         }

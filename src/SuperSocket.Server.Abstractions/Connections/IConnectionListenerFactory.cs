@@ -5,6 +5,6 @@ namespace SuperSocket.Server.Abstractions.Connections
 {
     public interface IConnectionListenerFactory
     {
-        IConnectionListener CreateConnectionListener<TPackageInfo>(ListenOptions options, ConnectionOptions connectionOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory);
+        IConnectionListener CreateConnectionListener(ListenOptions options, ConnectionOptions connectionOptions, ILoggerFactory loggerFactory);
     }
 }

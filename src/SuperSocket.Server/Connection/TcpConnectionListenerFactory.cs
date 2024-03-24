@@ -1,17 +1,8 @@
-using System;
-using System.Net.Security;
-using System.Net.Sockets;
-using System.Security.Authentication;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Connection;
-using System.Net;
-using Microsoft.Extensions.Options;
 
 namespace SuperSocket.Server.Connection
 {
@@ -24,22 +15,21 @@ namespace SuperSocket.Server.Connection
             ConnectionFactoryBuilder = connectionFactoryBuilder;
         }
 
-        public virtual IConnectionListener CreateConnectionListener<TPackageInfo>(ListenOptions options, ConnectionOptions connectionOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
+        public virtual IConnectionListener CreateConnectionListener(ListenOptions options, ConnectionOptions connectionOptions, ILoggerFactory loggerFactory)
         {
-            var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
             connectionOptions.Logger = loggerFactory.CreateLogger(nameof(IConnection));
 
             var connectionListenerLogger = loggerFactory.CreateLogger(nameof(TcpConnectionListener));
 
             return new TcpConnectionListener(
                 options,
-                CreateTcpConnectionFactory<TPackageInfo>(options, connectionOptions),
+                CreateTcpConnectionFactory(options, connectionOptions),
                 connectionListenerLogger);
         }
 
-        protected virtual IConnectionFactory CreateTcpConnectionFactory<TPackageInfo>(ListenOptions options, ConnectionOptions connectionOptions)
+        protected virtual IConnectionFactory CreateTcpConnectionFactory(ListenOptions options, ConnectionOptions connectionOptions)
         {
-            return ConnectionFactoryBuilder.Build<TPackageInfo>(options, connectionOptions);
+            return ConnectionFactoryBuilder.Build(options, connectionOptions);
         }
     }
 }

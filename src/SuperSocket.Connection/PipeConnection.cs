@@ -9,19 +9,19 @@ using System.IO.Pipelines;
 
 namespace SuperSocket.Connection
 {
-    public abstract class PipeConnection<TPackageInfo> : PipeConnectionBase<TPackageInfo>
+    public abstract class PipeConnection : PipeConnectionBase
     {
         protected Pipe Input { get; }
 
         protected Pipe Output { get; }
 
-        public PipeConnection(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : this(GetInputPipe(options), GetOutputPipe(options), pipelineFilter, options)
+        public PipeConnection(ConnectionOptions options)
+            : this(GetInputPipe(options), GetOutputPipe(options), options)
         {
         }
 
-        public PipeConnection(Pipe input, Pipe output, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : base(input.Reader, output.Writer, pipelineFilter, options)
+        public PipeConnection(Pipe input, Pipe output, ConnectionOptions options)
+            : base(input.Reader, output.Writer, options)
         {
             Input = input;
             Output = output;
@@ -37,15 +37,15 @@ namespace SuperSocket.Connection
             return connectionOptions.Output ?? new Pipe();
         }
 
-        protected override Task StartTask()
+        protected override Task StartTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe)
         {
-            var pipeTask = base.StartTask();
+            var pipeTask = base.StartTask<TPackageInfo>(packagePipe);
             return Task.WhenAll(pipeTask, ProcessSends());
         }
 
-        protected override Task StartInputPipeTask(CancellationToken cancellationToken)
+        protected override Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
         {
-            return Task.WhenAll(FillPipeAsync(Input.Writer, cancellationToken), base.StartInputPipeTask(cancellationToken));
+            return Task.WhenAll(FillPipeAsync(Input.Writer, packagePipe as ISupplyController, cancellationToken), base.StartInputPipeTask(packagePipe, cancellationToken));
         }
 
         protected virtual async Task ProcessSends()
@@ -67,10 +67,9 @@ namespace SuperSocket.Connection
 
         protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
 
-        protected virtual async Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
+        internal virtual async Task FillPipeAsync(PipeWriter writer, ISupplyController supplyController, CancellationToken cancellationToken)
         {
             var options = Options;
-            var supplyController = PackagePipe as ISupplyController;
 
             if (supplyController != null)
             {

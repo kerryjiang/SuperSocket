@@ -10,13 +10,13 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public abstract partial class PipeConnectionBase<TPackageInfo> : ConnectionBase<TPackageInfo>, IConnection<TPackageInfo>, IConnection, IPipeConnection
+    public abstract partial class PipeConnectionBase : ConnectionBase, IConnection, IPipeConnection
     {
-        private IPipelineFilter<TPackageInfo> _pipelineFilter;
-
-        private bool _started = false;
-
         private CancellationTokenSource _cts = new CancellationTokenSource();
+
+        private IPipelineFilter _pipelineFilter;
+
+        private IObjectPipe _packagePipe;
 
         protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
@@ -33,13 +33,11 @@ namespace SuperSocket.Connection
         {
             get { return InputReader; }
         }
-
+        
         IPipelineFilter IPipeConnection.PipelineFilter
         {
             get { return _pipelineFilter; }
         }
-
-        protected internal IObjectPipe<TPackageInfo> PackagePipe { get; }
 
         protected ILogger Logger { get; }
 
@@ -49,46 +47,35 @@ namespace SuperSocket.Connection
 
         private bool _isDetaching = false;
 
-        protected PipeConnectionBase(PipeReader inputReader, PipeWriter outputWriter, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
+        protected PipeConnectionBase(PipeReader inputReader, PipeWriter outputWriter, ConnectionOptions options)
         {
-            _pipelineFilter = pipelineFilter;
-
-            if (!options.ReadAsDemand)
-                PackagePipe = new DefaultObjectPipe<TPackageInfo>();
-            else
-                PackagePipe = new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
-
             Options = options;
             Logger = options.Logger;
             InputReader = inputReader;
             OutputWriter = outputWriter;
         }
 
-        public override void Start()
+        protected virtual Task StartTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe)
         {
-            _pipeTask = StartTask();
-            _started = true;
-            WaitHandleClosing();
+            return StartInputPipeTask(packagePipe, _cts.Token);
         }
 
-        protected virtual Task StartTask()
+        public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
         {
-            return ProcessReads(_cts.Token);
-        }
+            var packagePipe = !Options.ReadAsDemand
+                ? new DefaultObjectPipe<TPackageInfo>()
+                : new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
 
-        private async void WaitHandleClosing()
-        {
-            await HandleClosing().ConfigureAwait(false);
-        }
+            _packagePipe = packagePipe;
+            _pipelineFilter = pipelineFilter;
+            
+            _pipeTask = StartTask(packagePipe);
 
-        public async override IAsyncEnumerable<TPackageInfo> RunAsync()
-        { 
-            if (!_started)
-                throw new Exception("The connection has not been started yet.");
+            _ = HandleClosing();
 
             while (!_cts.IsCancellationRequested)
             {
-                var package = await PackagePipe.ReadAsync().ConfigureAwait(false);
+                var package = await packagePipe.ReadAsync().ConfigureAwait(false);
 
                 if (package == null)
                 {
@@ -97,7 +84,7 @@ namespace SuperSocket.Connection
 
                 yield return package;
             }
-            
+
             //How do empty a pipe?
         }
 
@@ -157,14 +144,9 @@ namespace SuperSocket.Connection
             return false;
         }
 
-        protected virtual async Task ProcessReads(CancellationToken cancellationToken)
+        protected virtual Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
         {
-            await StartInputPipeTask(cancellationToken);
-        }
-
-        protected virtual Task StartInputPipeTask(CancellationToken cancellationToken)
-        {
-            return ReadPipeAsync(InputReader, cancellationToken);
+            return ReadPipeAsync(InputReader, packagePipe, cancellationToken);
         }
 
         private void CheckConnectionOpen()
@@ -239,8 +221,10 @@ namespace SuperSocket.Connection
             return result;
         }
 
-        protected async Task ReadPipeAsync(PipeReader reader, CancellationToken cancellationToken)
+        protected async Task ReadPipeAsync<TPackageInfo>(PipeReader reader, IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
         {
+            var pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 ReadResult result;
@@ -273,7 +257,14 @@ namespace SuperSocket.Connection
                 {
                     if (buffer.Length > 0)
                     {
-                        if (!ReaderBuffer(ref buffer, out consumed, out examined))
+                        var needReadMore = ReaderBuffer(ref buffer, pipelineFilter, packagePipe, out consumed, out examined, out var nextPipelineFilter);
+
+                        if (nextPipelineFilter != null)
+                        {
+                             _pipelineFilter = pipelineFilter = nextPipelineFilter;
+                        }
+
+                        if (!needReadMore)
                         {
                             completed = true;
                             break;
@@ -305,10 +296,10 @@ namespace SuperSocket.Connection
 
         protected void WriteEOFPackage()
         {
-            PackagePipe.Write(default);
+            _packagePipe.WirteEOF();
         }
 
-        private bool ReaderBuffer(ref ReadOnlySequence<byte> buffer, out SequencePosition consumed, out SequencePosition examined)
+        private bool ReaderBuffer<TPackageInfo>(ref ReadOnlySequence<byte> buffer, IPipelineFilter<TPackageInfo> pipelineFilter, IObjectPipe<TPackageInfo> packagePipe, out SequencePosition consumed, out SequencePosition examined, out IPipelineFilter<TPackageInfo> nextPipelineFilter)
         {
             consumed = buffer.Start;
             examined = buffer.End;
@@ -321,17 +312,17 @@ namespace SuperSocket.Connection
 
             while (true)
             {
-                var currentPipelineFilter = _pipelineFilter;
+                var currentPipelineFilter = pipelineFilter;
                 var filterSwitched = false;
 
                 var packageInfo = currentPipelineFilter.Filter(ref seqReader);
 
-                var nextFilter = currentPipelineFilter.NextFilter;
+                nextPipelineFilter = currentPipelineFilter.NextFilter;
 
-                if (nextFilter != null)
+                if (nextPipelineFilter != null)
                 {
-                    nextFilter.Context = currentPipelineFilter.Context; // pass through the context
-                    _pipelineFilter = nextFilter;
+                    nextPipelineFilter.Context = currentPipelineFilter.Context; // pass through the context
+                    pipelineFilter = nextPipelineFilter;
                     filterSwitched = true;
                 }
 
@@ -370,7 +361,7 @@ namespace SuperSocket.Connection
                 {
                     // reset the pipeline filter after we parse one full package
                     currentPipelineFilter.Reset();
-                    PackagePipe.Write(packageInfo);
+                    packagePipe.Write(packageInfo);
                 }
 
                 if (seqReader.End) // no more data

@@ -30,19 +30,18 @@ namespace SuperSocket.Client
 
         public static readonly ConnectState CancelledState = new ConnectState(false);
 
-        public IConnection<TReceivePackage> CreateConnection<TReceivePackage>(IPipelineFilter<TReceivePackage> pipelineFilter, ConnectionOptions connectionOptions)
-            where TReceivePackage : class
+        public IConnection CreateConnection(ConnectionOptions connectionOptions)
         {
             var stream = this.Stream;
             var socket = this.Socket;
 
             if (stream != null)
             {
-                return new StreamPipeConnection<TReceivePackage>(stream , socket.RemoteEndPoint, socket.LocalEndPoint, pipelineFilter, connectionOptions);
+                return new StreamPipeConnection(stream , socket.RemoteEndPoint, socket.LocalEndPoint, connectionOptions);
             }
             else
             {
-                return new TcpPipeConnection<TReceivePackage>(socket, pipelineFilter, connectionOptions);
+                return new TcpPipeConnection(socket, connectionOptions);
             }
         }
     }

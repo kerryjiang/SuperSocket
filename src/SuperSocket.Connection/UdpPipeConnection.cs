@@ -9,20 +9,20 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public class UdpPipeConnection<TPackageInfo> : VirtualConnection<TPackageInfo>, IConnectionWithSessionIdentifier
+    public class UdpPipeConnection : VirtualConnection, IConnectionWithSessionIdentifier
     {
         private Socket _socket;
 
         private bool _enableSendingPipe;
 
-        public UdpPipeConnection(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options, IPEndPoint remoteEndPoint)
-            : this(socket, pipelineFilter, options, remoteEndPoint, $"{remoteEndPoint.Address}:{remoteEndPoint.Port}")
+        public UdpPipeConnection(Socket socket, ConnectionOptions options, IPEndPoint remoteEndPoint)
+            : this(socket, options, remoteEndPoint, $"{remoteEndPoint.Address}:{remoteEndPoint.Port}")
         {
 
         }
 
-        public UdpPipeConnection(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options, IPEndPoint remoteEndPoint, string sessionIdentifier)
-            : base(pipelineFilter, options)
+        public UdpPipeConnection(Socket socket, ConnectionOptions options, IPEndPoint remoteEndPoint, string sessionIdentifier)
+            : base(options)
         {
             _socket = socket;            
             _enableSendingPipe = "true".Equals(options.Values?["enableSendingPipe"], StringComparison.OrdinalIgnoreCase);

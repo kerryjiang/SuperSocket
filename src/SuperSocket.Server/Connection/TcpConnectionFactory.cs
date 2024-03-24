@@ -12,15 +12,14 @@ using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {
-    public class TcpConnectionFactory<TPackageInfo> : TcpConnectionFactoryBase<TPackageInfo>
+    public class TcpConnectionFactory : TcpConnectionFactoryBase
     {
         public TcpConnectionFactory(
             ListenOptions listenOptions,
             ConnectionOptions connectionOptions,
             Action<Socket> socketOptionsSetter,
-            IPipelineFilterFactory<TPackageInfo> pipelineFilterFactory,
             IConnectionStreamInitializersFactory connectionStreamInitializersFactory)
-            : base(listenOptions, connectionOptions, socketOptionsSetter, pipelineFilterFactory, connectionStreamInitializersFactory)
+            : base(listenOptions, connectionOptions, socketOptionsSetter, connectionStreamInitializersFactory)
         {
             
         }
@@ -41,10 +40,10 @@ namespace SuperSocket.Server.Connection
                     stream = await initializer.InitializeAsync(socket, stream, cancellationToken);
                 }
 
-                return new StreamPipeConnection<TPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, PipelineFilterFactory.Create(socket), ConnectionOptions);
+                return new StreamPipeConnection(stream, socket.RemoteEndPoint, socket.LocalEndPoint, ConnectionOptions);
             }
 
-            return new TcpPipeConnection<TPackageInfo>(socket, PipelineFilterFactory.Create(socket), ConnectionOptions);
+            return new TcpPipeConnection(socket, ConnectionOptions);
         }
     }
 }

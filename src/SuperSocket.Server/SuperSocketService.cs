@@ -118,7 +118,7 @@ namespace SuperSocket.Server
 
         private bool AddConnectionListener(ListenOptions listenOptions, ServerOptions serverOptions)
         {
-            var listener = _connectionListenerFactory.CreateConnectionListener<TReceivePackageInfo>(listenOptions, serverOptions, _loggerFactory, _pipelineFilterFactory);
+            var listener = _connectionListenerFactory.CreateConnectionListener(listenOptions, serverOptions, _loggerFactory);
             listener.NewConnectionAccept += OnNewConnectionAccept;
 
             if (!listener.Start())
@@ -270,11 +270,6 @@ namespace SuperSocket.Server
         {
             session.Initialize(this, connection);
 
-            if (connection is IPipeConnection pipeConnection)
-            {
-                pipeConnection.PipelineFilter.Context = CreatePipelineContext(session);
-            }
-
             var middlewares = _middlewares;
 
             try
@@ -387,14 +382,16 @@ namespace SuperSocket.Server
 
             try
             {
-                connection.Start();
+                var pipelineFilter = _pipelineFilterFactory.Create(connection);
+                pipelineFilter.Context = CreatePipelineContext(session);
+
+                var packageStream = connection.RunAsync<TReceivePackageInfo>(pipelineFilter);
 
                 await FireSessionConnectedEvent(session);
 
-                var packageConnection = connection as IConnection<TReceivePackageInfo>;
                 var packageHandlingScheduler = _packageHandlingScheduler;
 
-                await foreach (var p in packageConnection.RunAsync())
+                await foreach (var p in packageStream)
                 {
                     if(_packageHandlingContextAccessor != null)
                     {

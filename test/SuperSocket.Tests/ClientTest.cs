@@ -291,20 +291,20 @@ namespace SuperSocket.Tests
                 await socket.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 var stream = await hostConfigurator.GetClientStream(socket);
 
-                var channel = new StreamPipeConnection<TextPackageInfo>(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new LinePipelineFilter(), new ConnectionOptions
+                var connection = new StreamPipeConnection(stream, socket.RemoteEndPoint, socket.LocalEndPoint, new ConnectionOptions
                 {
                     Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableChannel)),
                     ReadAsDemand = true
-                });                
+                });
 
-                channel.Start();
+                var packagePipe = connection.RunAsync(new LinePipelineFilter());
 
                 var msg = Guid.NewGuid().ToString();
-                await channel.SendAsync(Utf8Encoding.GetBytes(msg + "\r\n"));
+                await connection.SendAsync(Utf8Encoding.GetBytes(msg + "\r\n"));
 
                 var round = 0;
 
-                await foreach (var package in channel.RunAsync())
+                await foreach (var package in packagePipe)
                 {
                     Assert.NotNull(package);
                     Assert.Equal("PRE-" + msg, package.Text);
@@ -314,13 +314,13 @@ namespace SuperSocket.Tests
                         break;
 
                     msg = Guid.NewGuid().ToString();
-                    await channel.SendAsync(Utf8Encoding.GetBytes(msg + "\r\n"));
+                    await connection.SendAsync(Utf8Encoding.GetBytes(msg + "\r\n"));
                 }
 
 
                 OutputHelper.WriteLine("Before DetachAsync");
 
-                await channel.DetachAsync();
+                await connection.DetachAsync();
                 
                 // the connection is still alive in the server
                 Assert.Equal(1, server.SessionCount);

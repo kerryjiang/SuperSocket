@@ -9,14 +9,14 @@ namespace SuperSocket.Tests
 {
     public class UdpTextReader : TextReader
     {
-        public UdpPipeConnection<TextPackageInfo> Connection { get; }
+        public UdpPipeConnection Connection { get; }
 
         private IAsyncEnumerator<TextPackageInfo> _packageEnumerator;
 
-        public UdpTextReader(UdpPipeConnection<TextPackageInfo> connection)
+        public UdpTextReader(UdpPipeConnection connection, IPipelineFilter<TextPackageInfo> pipelineFilter)
         {
             Connection = connection;
-            _packageEnumerator = connection.RunAsync().GetAsyncEnumerator();
+            _packageEnumerator = connection.RunAsync<TextPackageInfo>(pipelineFilter).GetAsyncEnumerator();
         }
 
         public override string ReadLine()

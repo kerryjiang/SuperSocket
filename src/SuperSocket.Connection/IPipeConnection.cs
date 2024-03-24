@@ -7,10 +7,10 @@ namespace SuperSocket.Connection
 {
     public interface IPipeConnection
     {
+        IPipelineFilter PipelineFilter { get; }
+
         PipeReader InputReader { get; }
 
         PipeWriter OutputWriter { get; }
-
-        IPipelineFilter PipelineFilter { get; }
     }
 }

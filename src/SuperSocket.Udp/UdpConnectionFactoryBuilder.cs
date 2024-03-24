@@ -9,16 +9,9 @@ namespace SuperSocket.Udp
 {
     public class UdpConnectionFactoryBuilder : IConnectionFactoryBuilder
     {
-        public IPipelineFilterFactory PipelineFilterFactory { get; }
-
-        public UdpConnectionFactoryBuilder(IPipelineFilterFactory pipelineFilterFactory)
+        public IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions)
         {
-            PipelineFilterFactory = pipelineFilterFactory;
-        }
-
-        public IConnectionFactory Build<TPackageInfo>(ListenOptions listenOptions, ConnectionOptions connectionOptions)
-        {
-            return new UdpConnectionFactory<TPackageInfo>(PipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>);
+            return new UdpConnectionFactory();
         }
     }
 }

@@ -8,11 +8,9 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public abstract class ConnectionBase<TPackageInfo> : IConnection<TPackageInfo>, IConnection
-    {
-        public abstract void Start();
-        
-        public abstract IAsyncEnumerable<TPackageInfo> RunAsync();
+    public abstract class ConnectionBase : IConnection
+    {        
+        public abstract IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter);
 
         public abstract ValueTask SendAsync(ReadOnlyMemory<byte> buffer);
 

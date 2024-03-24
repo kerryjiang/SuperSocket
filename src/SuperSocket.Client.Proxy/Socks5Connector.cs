@@ -39,11 +39,9 @@ namespace SuperSocket.Client.Proxy
 
         protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
-            var connection = state.CreateConnection<Socks5Pack>(new Socks5AuthPipelineFilter(), new ConnectionOptions { ReadAsDemand = true });
+            var connection = state.CreateConnection(new ConnectionOptions { ReadAsDemand = true });
 
-            connection.Start();
-
-            var packStream = connection.GetPackageStream();
+            var packStream = connection.GetPackageStream(new Socks5AuthPipelineFilter());
 
             await connection.SendAsync(_authenHandshakeRequest);
 

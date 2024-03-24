@@ -102,25 +102,32 @@ namespace SuperSocket.Tests
             }
         }
 
-        public ValueTask<Stream> GetClientStream(Socket socket)
+        public async ValueTask<Stream> GetClientStream(Socket socket)
         {
-            var channel = new UdpPipeConnection<TextPackageInfo>(socket, new TerminatorPipelineFilter<TextPackageInfo>(new[] { (byte)'\r', (byte)'\n'})
-                {
-                    Decoder = new UdpPackageDecoder()
-                },
+            await Task.Delay(0);
+
+            var connection = new UdpPipeConnection(socket,
                 new ConnectionOptions(), new IPEndPoint(IPAddress.Loopback, Listener.ToEndPoint().Port));
 
-            channel.Start();
+            _ = connection.RunAsync(GetPipelineFilter());
 
-            UdpReceive(socket, channel).DoNotAwait();
+            UdpReceive(socket, connection).DoNotAwait();
 
-            return new ValueTask<Stream>(new UdpChannelStream(channel, socket));
+            return new UdpConnectionStream(connection, socket);
         }
 
         public TextReader GetStreamReader(Stream stream, Encoding encoding)
         {
-            var connection = (stream as UdpChannelStream).Connection;
-            return new UdpTextReader(connection);
+            var connection = (stream as UdpConnectionStream).Connection;
+            return new UdpTextReader(connection, GetPipelineFilter());
+        }
+
+        private IPipelineFilter<TextPackageInfo> GetPipelineFilter()
+        {
+            return new TerminatorPipelineFilter<TextPackageInfo>(new[] { (byte)'\r', (byte)'\n' })
+            {
+                Decoder = new UdpPackageDecoder()
+            };
         }
 
         class UdpPackageDecoder : IPackageDecoder<TextPackageInfo>

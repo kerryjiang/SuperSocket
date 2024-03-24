@@ -9,18 +9,18 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public class StreamPipeConnection<TPackageInfo> : PipeConnection<TPackageInfo>, IStreamConnection
+    public class StreamPipeConnection : PipeConnection, IStreamConnection
     {
         private Stream _stream;
 
-        public StreamPipeConnection(Stream stream, EndPoint remoteEndPoint, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : this(stream, remoteEndPoint, null, pipelineFilter, options)
+        public StreamPipeConnection(Stream stream, EndPoint remoteEndPoint, ConnectionOptions options)
+            : this(stream, remoteEndPoint, null, options)
         {
             
         }
 
-        public StreamPipeConnection(Stream stream, EndPoint remoteEndPoint, EndPoint localEndPoint, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : base(pipelineFilter, options)
+        public StreamPipeConnection(Stream stream, EndPoint remoteEndPoint, EndPoint localEndPoint, ConnectionOptions options)
+            : base(options)
         {
             _stream = stream;
             RemoteEndPoint = remoteEndPoint;

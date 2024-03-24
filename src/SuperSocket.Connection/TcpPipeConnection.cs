@@ -8,15 +8,15 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public class TcpPipeConnection<TPackageInfo> : PipeConnection<TPackageInfo>
+    public class TcpPipeConnection : PipeConnection
     {
 
         private Socket _socket;
 
         private List<ArraySegment<byte>> _segmentsForSend;
         
-        public TcpPipeConnection(Socket socket, IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : base(pipelineFilter, options)
+        public TcpPipeConnection(Socket socket, ConnectionOptions options)
+            : base(options)
         {
             _socket = socket;
             RemoteEndPoint = socket.RemoteEndPoint;

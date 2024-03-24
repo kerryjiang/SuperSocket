@@ -7,8 +7,7 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Connection
 {
-    public class RelayPipeConnection<TPackageInfo> : PipeConnection<TPackageInfo>
-        where TPackageInfo : class
+    public class RelayPipeConnection : PipeConnection
     {
         static ConnectionOptions RebuildOptionsWithPipes(ConnectionOptions options, Pipe pipeIn, Pipe pipeOut)
         {
@@ -17,8 +16,8 @@ namespace SuperSocket.Connection
             return options;
         }
 
-        public RelayPipeConnection(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options, Pipe pipeIn, Pipe pipeOut)
-            : base(pipelineFilter, RebuildOptionsWithPipes(options, pipeIn, pipeOut))
+        public RelayPipeConnection(ConnectionOptions options, Pipe pipeIn, Pipe pipeOut)
+            : base(RebuildOptionsWithPipes(options, pipeIn, pipeOut))
         {
 
         }

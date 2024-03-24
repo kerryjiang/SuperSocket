@@ -27,13 +27,12 @@ namespace SuperSocket.Udp
             _sessionContainer = sessionContainer;
         }
         
-        public IConnectionListener CreateConnectionListener<TPackageInfo>(ListenOptions options, ConnectionOptions connectionOptions, ILoggerFactory loggerFactory, object pipelineFilterFactory)
+        public IConnectionListener CreateConnectionListener(ListenOptions options, ConnectionOptions connectionOptions, ILoggerFactory loggerFactory)
         {
-            var filterFactory = pipelineFilterFactory as IPipelineFilterFactory<TPackageInfo>;
             connectionOptions.Logger = loggerFactory.CreateLogger(nameof(IConnection));
-            var connectionFactoryLogger = loggerFactory.CreateLogger(nameof(UdpConnectionFactory<TPackageInfo>));
+            var connectionFactoryLogger = loggerFactory.CreateLogger(nameof(UdpConnectionFactory));
 
-            var connectionFactory = _connectionFactoryBuilder.Build<TPackageInfo>(options, connectionOptions);
+            var connectionFactory = _connectionFactoryBuilder.Build(options, connectionOptions);
 
             return new UdpConnectionListener(options, connectionOptions, connectionFactory, connectionFactoryLogger, _udpSessionIdentifierProvider, _sessionContainer);
         }
