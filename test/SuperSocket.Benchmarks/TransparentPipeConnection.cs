@@ -7,13 +7,13 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Benchmarks
 {
-    public class TransparentPipeConnection<TPackageInfo> : PipeConnection<TPackageInfo>
+    public class TransparentPipeConnection : PipeConnection
     {
         private TaskCompletionSource<int> _tcs;
         private Task<int> _channelTask;
 
-        public TransparentPipeConnection(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
-            : base(pipelineFilter, options)
+        public TransparentPipeConnection(ConnectionOptions options)
+            : base(options)
         {
             _tcs = new TaskCompletionSource<int>();
             _channelTask = _tcs.Task;
