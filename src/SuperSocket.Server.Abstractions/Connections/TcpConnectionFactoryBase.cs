@@ -38,7 +38,7 @@ namespace SuperSocket.Server.Abstractions.Connections
             SocketOptionsSetter = socketOptionsSetter;
             Logger = connectionOptions.Logger;
 
-            ConnectionStreamInitializers = connectionStreamInitializersFactory.Create(listenOptions);
+            ConnectionStreamInitializers = connectionStreamInitializersFactory?.Create(listenOptions);
         }
 
         public abstract Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken);

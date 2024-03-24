@@ -12,14 +12,11 @@ namespace SuperSocket.Server.Connection
     {
         public Action<Socket> SocketOptionsSetter { get; }
 
-        public IPipelineFilterFactory PipelineFilterFactory { get; }
-
         public IConnectionStreamInitializersFactory ConnectionStreamInitializersFactory { get; }
 
-        public ConnectionFactoryBuilder(SocketOptionsSetter socketOptionsSetter, IPipelineFilterFactory pipelineFilterFactory, IConnectionStreamInitializersFactory connectionStreamInitializersFactory)
+        public ConnectionFactoryBuilder(SocketOptionsSetter socketOptionsSetter, IConnectionStreamInitializersFactory connectionStreamInitializersFactory)
         {
             SocketOptionsSetter = socketOptionsSetter.Setter;
-            PipelineFilterFactory = pipelineFilterFactory;
             ConnectionStreamInitializersFactory = connectionStreamInitializersFactory;
         }
 
