@@ -32,6 +32,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(GzipSecureHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestNormalRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -65,6 +66,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(UdpHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestMiddleBreak(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -100,6 +102,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(UdpHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestFragmentRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -140,6 +143,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(UdpHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestBatchRequest(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -187,6 +191,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         //[InlineData(typeof(UdpHostConfigurator))]
         public virtual async Task TestBreakRequest(Type hostConfiguratorType)
         {

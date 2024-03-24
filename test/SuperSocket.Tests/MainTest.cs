@@ -22,6 +22,8 @@ using Microsoft.Extensions.Hosting.Internal;
 using System.Linq;
 using System.Collections.Generic;
 using System.Security.Authentication;
+using SuperSocket.Kestrel;
+using System.Threading;
 
 /// <summary>
 /// Run selected test case by command
@@ -170,6 +172,7 @@ namespace SuperSocket.Tests
 
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
         public async Task TestSessionHandlers(Type hostConfiguratorType) 
         {
@@ -337,8 +340,43 @@ namespace SuperSocket.Tests
         }
 
         [Theory]
+        [InlineData(typeof(RegularHostConfigurator), typeof(TcpPipeConnection))]
+        [InlineData(typeof(SecureHostConfigurator), typeof(StreamPipeConnection))]
+        //[InlineData(typeof(UdpHostConfigurator), typeof(UdpConnectionStream))]
+        [InlineData(typeof(KestralConnectionHostConfigurator), typeof(KestrelPipeConnection))]
+        public async Task TestConnectionType(Type hostConfiguratorType, Type connectionType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var connection = default(IConnection);
+            var resetEvent = new ManualResetEvent(false);
+            
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                .UseSessionHandler(onConnected: (session) =>
+                {
+                    connection = session.Connection;
+                    resetEvent.Set();
+                    return ValueTask.CompletedTask;
+                }).BuildAsServer() as IServer)
+            {
+                Assert.True(await server.StartAsync());
+                Assert.Equal(0, server.SessionCount);
+
+                using (var socket = CreateClient(hostConfigurator))
+                using (var socketStream = await hostConfigurator.GetClientStream(socket))
+                {
+                    resetEvent.WaitOne(5000);
+                }
+
+                await server.StopAsync();
+            }
+
+            Assert.IsType(connectionType, connection);
+        }
+
+        [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         public async Task TestConsoleProtocol(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -370,6 +408,7 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         public async Task TestCloseAfterSend(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
@@ -403,6 +442,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
         public async Task TestMultipleHostStartup(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
