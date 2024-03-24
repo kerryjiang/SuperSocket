@@ -37,6 +37,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Server.Abstract
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Connection", "src\SuperSocket.Connection\SuperSocket.Connection.csproj", "{FC2B529F-4AF4-4C39-BC4F-A3836CC7B37C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.Kestrel", "src\SuperSocket.Kestrel\SuperSocket.Kestrel.csproj", "{8C8507D6-903F-4786-8F18-ACA54257454B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -227,6 +229,18 @@ Global
 		{FC2B529F-4AF4-4C39-BC4F-A3836CC7B37C}.Release|x64.Build.0 = Release|Any CPU
 		{FC2B529F-4AF4-4C39-BC4F-A3836CC7B37C}.Release|x86.ActiveCfg = Release|Any CPU
 		{FC2B529F-4AF4-4C39-BC4F-A3836CC7B37C}.Release|x86.Build.0 = Release|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Debug|x64.Build.0 = Debug|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Debug|x86.Build.0 = Debug|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Release|x64.ActiveCfg = Release|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Release|x64.Build.0 = Release|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Release|x86.ActiveCfg = Release|Any CPU
+		{8C8507D6-903F-4786-8F18-ACA54257454B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -247,6 +261,7 @@ Global
 		{695AA5D6-62C6-4D7E-8023-967CF134E26C} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{8454E8D5-777D-46CB-B050-76C5119B624B} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 		{FC2B529F-4AF4-4C39-BC4F-A3836CC7B37C} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
+		{8C8507D6-903F-4786-8F18-ACA54257454B} = {DDA4741E-097F-40C3-A252-2E1E3476C1A7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {ADB30AA2-A848-4CB3-8A20-488C80F1BA9E}
