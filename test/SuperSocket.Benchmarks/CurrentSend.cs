@@ -35,18 +35,19 @@ namespace SuperSocket.Benchmarks
 
         private async Task Send(ArrayPool<byte> pool, ConnectionOptions options, int iteration)
         {
-            var channel = new TransparentPipeConnection<StringPackageInfo>(new CommandLinePipelineFilter(), options);
-            channel.Start();
+            var connection = new TransparentPipeConnection(options);
+            
+            _ = connection.RunAsync(new CommandLinePipelineFilter());
 
             for (var i = 0; i < iteration; i++)
             {
                 var text = Guid.NewGuid().ToString() + "\r\n";
                 var buffer = pool.Rent(Encoding.UTF8.GetMaxByteCount(text.Length));
-                await channel.SendAsync(new ReadOnlyMemory<byte>(buffer));
+                await connection.SendAsync(new ReadOnlyMemory<byte>(buffer));
                 pool.Return(buffer);
             }
 
-            await channel.CloseAsync(CloseReason.ServerShutdown);
+            await connection.CloseAsync(CloseReason.ServerShutdown);
         }
     }
 }
