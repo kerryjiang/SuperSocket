@@ -33,9 +33,9 @@ namespace SuperSocket.Client.Proxy
         {
             var encoding = Encoding.ASCII;
             var request = string.Empty;
-            var channel = state.CreateConnection<TextPackageInfo>(new LinePipelineFilter(encoding), new ConnectionOptions { ReadAsDemand = true });
+            var connection = state.CreateConnection(new ConnectionOptions { ReadAsDemand = true });
 
-            channel.Start();
+            var packStream = connection.GetPackageStream(new LinePipelineFilter(encoding));
 
             if (remoteEndPoint is DnsEndPoint dnsEndPoint)
             {
@@ -55,7 +55,7 @@ namespace SuperSocket.Client.Proxy
             }
 
             // send request
-            await channel.SendAsync((writer) =>
+            await connection.SendAsync((writer) =>
             {
                 writer.Write(request, encoding);
 
@@ -70,13 +70,12 @@ namespace SuperSocket.Client.Proxy
                     writer.Write("\r\n", encoding);
                 }
             });
-
-            var packStream = channel.GetPackageStream();
+            
             var p = await packStream.ReceiveAsync();
 
             if (!HandleResponse(p, out string errorMessage))
             {
-                await channel.CloseAsync(CloseReason.ProtocolError);
+                await connection.CloseAsync(CloseReason.ProtocolError);
 
                 return new ConnectState
                 {
@@ -85,7 +84,7 @@ namespace SuperSocket.Client.Proxy
                 };
             }
 
-            await channel.DetachAsync();
+            await connection.DetachAsync();
             return state;
         }
 
