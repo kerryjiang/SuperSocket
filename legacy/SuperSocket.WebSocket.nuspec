@@ -6,11 +6,12 @@
     <version>$version$</version>
     <authors>Kerry Jiang</authors>
     <owners>Kerry Jiang</owners>
-    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0</licenseUrl>
+    <license type="expression">APACHE-2.0</license>
     <projectUrl>http://www.supersocket.net/</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>WebSocket server implementation base on SuperSocket. It is just the same codebase with SuperWebSocket but has different assembly name and namespace.</description>
     <tags>SuperSocket, WebSocket, SuperWebSocket</tags>
+    <repository type="git" url="https://github.com/kerryjiang/SuperSocket.git" />
     <dependencies>
       <dependency id="log4net" version="2.0.3" />
 	  <dependency id="SuperSocket" version="$version$" />
