@@ -11,6 +11,7 @@
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>SuperSocket is a light weight, cross platform and extensible socket server application framework. You can use it to build a server side socket application (like game server, GPS server, industrial control system, data acquisition server etc) easily without thinking about how to use socket, how to maintain the socket connections and how socket works.</description>
     <tags>SuperSocket, Socket Server, .Net Socket Server Framework</tags>
+    <repository type="git" url="https://github.com/kerryjiang/SuperSocket.git" />
     <dependencies>
       <dependency id="log4net" version="2.0.3" />
 	  <dependency id="SuperSocket" version="$version$" />
