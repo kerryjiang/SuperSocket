@@ -18,6 +18,7 @@ using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Host;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace SuperSocket.Tests
 {
@@ -118,13 +119,19 @@ namespace SuperSocket.Tests
             return handler.GetInvocationList().Length;
         }
 
-        [Fact]
-        public async Task TestCloseReason() 
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
+        public async Task TestCloseReason(Type hostConfiguratorType)
         {
-            var hostConfigurator = new RegularHostConfigurator();
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
             IAppSession session = null;
 
             CloseReason closeReason = CloseReason.Unknown;
+
+            var connectEvent = new AutoResetEvent(false);
+            var closeEvent = new AutoResetEvent(false);
 
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .ConfigureAppConfiguration((HostBuilder, configBuilder) =>
@@ -134,18 +141,19 @@ namespace SuperSocket.Tests
                             { "serverOptions:maxPackageLength", "8" }
                         });
                     })
-                .UseSessionHandler((s) =>
-                {
-                    session = s;
-
-                    s.Closed += (xs, e) =>
-                    {
-                        closeReason = e.Reason;
-                        return ValueTask.CompletedTask;
-                    };
-
-                    return ValueTask.CompletedTask;
-                })
+                .UseSessionHandler(
+                    onConnected: (s) =>
+                        {
+                            session = s;
+                            connectEvent.Set();
+                            return ValueTask.CompletedTask;
+                        },
+                    onClosed: (s, e) =>
+                        {
+                            closeReason = e.Reason;
+                            closeEvent.Set();
+                            return ValueTask.CompletedTask;
+                        })
                 .BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
@@ -154,57 +162,55 @@ namespace SuperSocket.Tests
                 OutputHelper.WriteLine("Started.");
 
                 // RemoteClosing
+                using (var socket = CreateClient(hostConfigurator))
+                using (var socketStream = await hostConfigurator.GetClientStream(socket))
+                {
+                    OutputHelper.WriteLine("Connected.");
 
-                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
-                OutputHelper.WriteLine("Connected.");
+                    connectEvent.WaitOne(1000);
 
-                await Task.Delay(1000);
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
 
-                client.Shutdown(SocketShutdown.Both);
-                client.Close();
+                    closeEvent.WaitOne(1000);
 
-                await Task.Delay(1000);
+                    Assert.Equal(SessionState.Closed, session.State);
+                    Assert.Equal(CloseReason.RemoteClosing, closeReason);
+                }
 
-                Assert.Equal(SessionState.Closed, session.State);
-                Assert.Equal(CloseReason.RemoteClosing, closeReason);
+                using (var socket = CreateClient(hostConfigurator))
+                using (var socketStream = await hostConfigurator.GetClientStream(socket))
+                {
+                    connectEvent.WaitOne(1000);
 
+                    // LocalClosing
+                    closeReason = CloseReason.Unknown;
 
+                    await session.CloseAsync(CloseReason.LocalClosing);
 
-                // LocalClosing
-                closeReason = CloseReason.Unknown;
+                    closeEvent.WaitOne(1000);
 
-                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
-                OutputHelper.WriteLine("Connected.");
+                    Assert.Equal(SessionState.Closed, session.State);
+                    Assert.Equal(CloseReason.LocalClosing, closeReason);
+                }
 
-                await Task.Delay(1000);
+                using (var socket = CreateClient(hostConfigurator))
+                using (var socketStream = await hostConfigurator.GetClientStream(socket))
+                {
+                    connectEvent.WaitOne(1000);
 
-                await session.CloseAsync(CloseReason.LocalClosing);
-                await Task.Delay(1000);
-                Assert.Equal(SessionState.Closed, session.State);
-                Assert.Equal(CloseReason.LocalClosing, closeReason);
+                    // ProtocolError
+                    closeReason = CloseReason.Unknown;
 
+                    var buffer = Encoding.ASCII.GetBytes("123456789\r\n"); // package size exceeds maxPackageSize(8)
+                    socketStream.Write(buffer, 0, buffer.Length);
+                    socketStream.Flush();
 
-                // ProtocolError
-                closeReason = CloseReason.Unknown;
+                    closeEvent.WaitOne(1000);
 
-                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
-                OutputHelper.WriteLine("Connected.");
-
-                await Task.Delay(1000);
-
-                var outputStream = await hostConfigurator.GetClientStream(client);
-
-                var buffer = Encoding.ASCII.GetBytes("123456789\r\n"); // package size exceeds maxPackageSize(8)
-                outputStream.Write(buffer, 0, buffer.Length);
-                outputStream.Flush();
-
-                await Task.Delay(1000);
-
-                Assert.Equal(SessionState.Closed, session.State);
-                Assert.Equal(CloseReason.ProtocolError, closeReason);
+                    Assert.Equal(SessionState.Closed, session.State);
+                    Assert.Equal(CloseReason.ProtocolError, closeReason);
+                }
 
                 await server.StopAsync();
             }
