@@ -3,9 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Buffers;
-using System.Collections.Generic;
-using SuperSocket.ProtoBase;
 using System.IO.Pipelines;
+using System.Runtime.InteropServices;
 
 namespace SuperSocket.Connection
 {
@@ -109,7 +108,7 @@ namespace SuperSocket.Connection
                         break;
                     }
 
-                    LastActiveTime = DateTimeOffset.Now;
+                    UpdateLastActiveTime();
 
                     // Tell the PipeWriter how much was read
                     writer.Advance(bytesRead);
@@ -164,7 +163,7 @@ namespace SuperSocket.Connection
                 try
                 {
                     await SendOverIOAsync(buffer, CancellationToken.None).ConfigureAwait(false); ;
-                    LastActiveTime = DateTimeOffset.Now;
+                    UpdateLastActiveTime();
                 }
                 catch (Exception e)
                 {
@@ -184,6 +183,15 @@ namespace SuperSocket.Connection
 
         protected abstract ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken);
 
+        protected internal ArraySegment<T> GetArrayByMemory<T>(ReadOnlyMemory<T> memory)
+        {
+            if (!MemoryMarshal.TryGetArray(memory, out var result))
+            {
+                throw new InvalidOperationException("Buffer backed by array was expected");
+            }
+
+            return result;
+        }
         protected override bool IsIgnorableException(Exception e)
         {
             if (base.IsIgnorableException(e))

@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.IO.Pipelines;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using SuperSocket.ProtoBase;
 
@@ -58,6 +57,11 @@ namespace SuperSocket.Connection
         protected virtual Task StartTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe)
         {
             return StartInputPipeTask(packagePipe, _cts.Token);
+        }
+
+        protected void UpdateLastActiveTime()
+        {
+            LastActiveTime = DateTimeOffset.Now;
         }
 
         public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
@@ -211,14 +215,8 @@ namespace SuperSocket.Connection
             packageEncoder.Encode(writer, package);
         }
 
-        protected internal ArraySegment<T> GetArrayByMemory<T>(ReadOnlyMemory<T> memory)
+        protected virtual void OnInputPipeRead(ReadResult result)
         {
-            if (!MemoryMarshal.TryGetArray(memory, out var result))
-            {
-                throw new InvalidOperationException("Buffer backed by array was expected");
-            }
-
-            return result;
         }
 
         protected async Task ReadPipeAsync<TPackageInfo>(PipeReader reader, IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
@@ -232,6 +230,7 @@ namespace SuperSocket.Connection
                 try
                 {
                     result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
+                    OnInputPipeRead(result);
                 }
                 catch (Exception e)
                 {

@@ -3,8 +3,10 @@
 using System;
 using System.IO.Pipelines;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
 using SuperSocket.Connection;
+using SuperSocket.ProtoBase;
 
 public class KestrelPipeConnection : PipeConnectionBase
 {
@@ -38,5 +40,31 @@ public class KestrelPipeConnection : PipeConnectionBase
             CloseReason = Connection.CloseReason.RemoteClosing;
             
         base.OnClosed();
+    }
+
+    protected override void OnInputPipeRead(ReadResult result)
+    {
+        if (!result.IsCanceled && !result.IsCompleted)
+        {
+            UpdateLastActiveTime();
+        }
+    }
+
+    public override async ValueTask SendAsync(Action<PipeWriter> write)
+    {
+        await base.SendAsync(write);
+        UpdateLastActiveTime();
+    }
+
+    public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
+    {
+        await base.SendAsync(buffer);
+        UpdateLastActiveTime();
+    }
+
+    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+    {
+        await base.SendAsync(packageEncoder, package);
+        UpdateLastActiveTime();
     }
 }
