@@ -21,6 +21,11 @@ public class KestrelPipeConnection : PipeConnectionBase
         RemoteEndPoint = context.RemoteEndPoint;
     }
 
+    public override ValueTask DetachAsync()
+    {
+        throw new NotSupportedException($"Detach is not supported by {nameof(KestrelPipeConnection)}.");
+    }
+
     protected override async void Close()
     {
         var context = _context;
