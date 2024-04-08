@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Server.Abstractions.Middleware;
 
 namespace SuperSocket.Server.Abstractions.Session

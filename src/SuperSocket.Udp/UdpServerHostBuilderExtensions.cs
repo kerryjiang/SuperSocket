@@ -2,8 +2,6 @@ using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using SuperSocket.Connection;
-using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Server.Abstractions.Middleware;
@@ -11,7 +9,7 @@ using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Udp;
 
 
-namespace SuperSocket
+namespace SuperSocket.Server
 {
     public static class UdpServerHostBuilderExtensions
     {

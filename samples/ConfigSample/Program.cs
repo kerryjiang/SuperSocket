@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SuperSocket;
+using SuperSocket.Server;
 using SuperSocket.Server.Host;
 using SuperSocket.ProtoBase;
 

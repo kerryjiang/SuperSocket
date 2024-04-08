@@ -1,14 +1,8 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
-using SuperSocket;
-using SuperSocket.ProtoBase;
-using SuperSocket.Server;
 using System.Net;
 using System.Net.Sockets;
 using Microsoft.Extensions.Logging;
@@ -17,7 +11,7 @@ using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Host;
 
-namespace SuperSocket
+namespace SuperSocket.Server
 {
     public static class SuperSocketExtensions
     {

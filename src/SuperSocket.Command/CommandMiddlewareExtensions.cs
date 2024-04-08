@@ -7,7 +7,7 @@ using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Server.Abstractions.Middleware;
 
-namespace SuperSocket
+namespace SuperSocket.Server
 {
     public static class CommandMiddlewareExtensions
     {

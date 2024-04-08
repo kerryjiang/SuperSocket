@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using SuperSocket.Server.Abstractions.Host;
+using SuperSocket.Server.Abstractions.Session;
 
-namespace SuperSocket.Server.Abstractions.Session
+namespace SuperSocket.Server
 {
     public static class InProcSessionContainerMiddlewareExtensions
     {

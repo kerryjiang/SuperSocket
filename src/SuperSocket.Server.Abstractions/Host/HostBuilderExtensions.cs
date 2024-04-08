@@ -3,10 +3,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using SuperSocket.Server.Abstractions.Connections;
+using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Server.Abstractions.Middleware;
 
 
-namespace SuperSocket.Server.Abstractions.Host
+namespace SuperSocket.Server
 {
     public static class HostBuilderExtensions
     {

@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Connection;
-using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Session;

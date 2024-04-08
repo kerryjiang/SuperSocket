@@ -5,6 +5,5 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\SuperSocket.Server\SuperSocket.Server.csproj" />
-		<ProjectReference Include="..\..\src\SuperSocket.SessionContainer\SuperSocket.SessionContainer.csproj" />
 	</ItemGroup>
 </Project>
