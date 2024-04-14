@@ -2,14 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Abstractions.Middleware;
-using Microsoft.Extensions.Logging;
 
 namespace SuperSocket.Command
 {
@@ -195,31 +196,31 @@ namespace SuperSocket.Command
             return serviceProvider.GetService<IPackageMapper<TNetPackageInfo, TPackageInfo>>();
         }
 
-        protected virtual async ValueTask HandlePackage(IAppSession session, TPackageInfo package)
+        protected virtual async ValueTask HandlePackage(IAppSession session, TPackageInfo package, CancellationToken cancellationToken)
         {
             if (!_commands.TryGetValue(package.Key, out ICommandSet commandSet))
             {
                 return;
             }
 
-            await commandSet.ExecuteAsync(session, package);
+            await commandSet.ExecuteAsync(session, package, cancellationToken);
         }
 
-        protected virtual async Task OnPackageReceived(IAppSession session, TPackageInfo package)
+        protected virtual async Task OnPackageReceived(IAppSession session, TPackageInfo package, CancellationToken cancellationToken)
         {
-            await HandlePackage(session, package);
+            await HandlePackage(session, package, cancellationToken);
         }
 
-        ValueTask IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package)
+        ValueTask IPackageHandler<TNetPackageInfo>.Handle(IAppSession session, TNetPackageInfo package, CancellationToken cancellationToken)
         {
-            return HandlePackage(session, PackageMapper.Map(package));
+            return HandlePackage(session, PackageMapper.Map(package), cancellationToken);
         }
 
         interface ICommandSet
         {
             TKey Key { get; }
 
-            ValueTask ExecuteAsync(IAppSession session, TPackageInfo package);
+            ValueTask ExecuteAsync(IAppSession session, TPackageInfo package, CancellationToken cancellationToken);
         }
 
         class CommandTypeInfo
@@ -392,11 +393,11 @@ namespace SuperSocket.Command
                 Filters = filters;
             }
 
-            public async ValueTask ExecuteAsync(IAppSession session, TPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, TPackageInfo package, CancellationToken cancellationToken)
             {
                 if (Filters.Count > 0)
                 {
-                    await ExecuteAsyncWithFilter(session, package);
+                    await ExecuteAsyncWithFilter(session, package, cancellationToken);
                     return;
                 }
 
@@ -406,18 +407,19 @@ namespace SuperSocket.Command
 
                 if (asyncCommand != null)
                 {
-                    await asyncCommand.ExecuteAsync(appSession, package);
+                    await asyncCommand.ExecuteAsync(appSession, package, cancellationToken);
                     return;
                 }
 
                 Command.Execute(appSession, package);
             }
 
-            private async ValueTask ExecuteAsyncWithFilter(IAppSession session, TPackageInfo package)
+            private async ValueTask ExecuteAsyncWithFilter(IAppSession session, TPackageInfo package, CancellationToken cancellationToken)
             {
                 var context = new CommandExecutingContext();
                 context.Package = package;
                 context.Session = session;
+                context.CancellationToken = cancellationToken;
 
                 var command = AsyncCommand != null ? (AsyncCommand as ICommand) : (Command as ICommand);
 
@@ -457,7 +459,7 @@ namespace SuperSocket.Command
 
                     if (asyncCommand != null)
                     {
-                        await asyncCommand.ExecuteAsync(appSession, package);
+                        await asyncCommand.ExecuteAsync(appSession, package, cancellationToken);
                     }
                     else
                     {

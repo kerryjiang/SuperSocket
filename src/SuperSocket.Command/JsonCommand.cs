@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using System.Text.Json;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions.Session;
@@ -55,10 +56,10 @@ namespace SuperSocket.Command
             };
         }
 
-        public virtual async ValueTask ExecuteAsync(TAppSession session, IStringPackage package)
+        public virtual async ValueTask ExecuteAsync(TAppSession session, IStringPackage package, CancellationToken cancellationToken)
         {
             var content = package.Body;
-            await ExecuteJsonAsync(session, string.IsNullOrEmpty(content) ? default(TJsonObject) : Deserialize(content));
+            await ExecuteJsonAsync(session, string.IsNullOrEmpty(content) ? default(TJsonObject) : Deserialize(content), cancellationToken);
         }
 
         protected virtual TJsonObject Deserialize(string content)
@@ -66,6 +67,6 @@ namespace SuperSocket.Command
             return JsonSerializer.Deserialize<TJsonObject>(content, JsonSerializerOptions);
         }
 
-        protected abstract ValueTask ExecuteJsonAsync(TAppSession session, TJsonObject jsonObject);
+        protected abstract ValueTask ExecuteJsonAsync(TAppSession session, TJsonObject jsonObject, CancellationToken cancellationToken);
     }
 }

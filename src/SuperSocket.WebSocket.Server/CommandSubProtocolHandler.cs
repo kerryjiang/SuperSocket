@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using SuperSocket.Command;
@@ -20,9 +21,9 @@ namespace SuperSocket.WebSocket.Server
             _commandMiddleware = Activator.CreateInstance(commandMiddlewareType, serviceProvider, commandOptions, mapper) as IPackageHandler<WebSocketPackage>;
         }
 
-        public override async ValueTask Handle(IAppSession session, WebSocketPackage package)
+        public override async ValueTask Handle(IAppSession session, WebSocketPackage package, CancellationToken cancellationToken)
         {
-            await _commandMiddleware.Handle(session, package);
+            await _commandMiddleware.Handle(session, package, cancellationToken);
         }
     }
 }

@@ -6,6 +6,7 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -90,7 +91,7 @@ namespace SuperSocket.WebSocket.Server
             return closeStatus;
         }
 
-        public async ValueTask Handle(IAppSession session, WebSocketPackage package)
+        public async ValueTask Handle(IAppSession session, WebSocketPackage package, CancellationToken cancellationToken)
         {
             var websocketSession = session as WebSocketSession;
             
@@ -158,7 +159,7 @@ namespace SuperSocket.WebSocket.Server
 
             if (protocolHandler != null)
             {
-                await protocolHandler.Handle(session, package);
+                await protocolHandler.Handle(session, package, cancellationToken);
                 return;
             }
 
@@ -167,7 +168,7 @@ namespace SuperSocket.WebSocket.Server
 
             if (websocketCommandMiddleware != null)
             {
-                await websocketCommandMiddleware.Handle(session, package);
+                await websocketCommandMiddleware.Handle(session, package, cancellationToken);
                 return;
             }
 

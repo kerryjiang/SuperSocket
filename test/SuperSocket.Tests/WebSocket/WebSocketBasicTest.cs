@@ -1075,7 +1075,7 @@ namespace SuperSocket.Tests.WebSocket
 
         class ADD : IAsyncCommand<WebSocketSession, StringPackageInfo>
         {
-            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
@@ -1087,7 +1087,7 @@ namespace SuperSocket.Tests.WebSocket
 
         class MULT : IAsyncCommand<WebSocketSession, StringPackageInfo>
         {
-            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))
@@ -1099,7 +1099,7 @@ namespace SuperSocket.Tests.WebSocket
 
         class SUB : IAsyncCommand<WebSocketSession, StringPackageInfo>
         {
-            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(WebSocketSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
                 var result = package.Parameters
                     .Select(p => int.Parse(p))

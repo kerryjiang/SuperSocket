@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Server.Abstractions.Session;
@@ -55,9 +56,9 @@ namespace SuperSocket.Command
             InnerCommand = (TAsyncCommand)ActivatorUtilities.CreateInstance(serviceProvider, typeof(TAsyncCommand));
         }
 
-        public async ValueTask ExecuteAsync(TAppSession session, TPackageInfo package)
+        public async ValueTask ExecuteAsync(TAppSession session, TPackageInfo package, CancellationToken cancellationToken)
         {
-            await InnerCommand.ExecuteAsync(session, package);
+            await InnerCommand.ExecuteAsync(session, package, cancellationToken);
         }
 
         ICommand ICommandWrap.InnerCommand

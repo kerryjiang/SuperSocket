@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Server.Abstractions.Session;
 
@@ -28,6 +29,6 @@ namespace SuperSocket.Command
     public interface IAsyncCommand<TAppSession, TPackageInfo> : ICommand
         where TAppSession : IAppSession
     {
-        ValueTask ExecuteAsync(TAppSession session, TPackageInfo package);
+        ValueTask ExecuteAsync(TAppSession session, TPackageInfo package, CancellationToken cancellationToken);
     }
 }

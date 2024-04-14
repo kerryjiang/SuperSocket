@@ -8,6 +8,7 @@ using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using SuperSocket.Tests.Command;
+using System.Threading;
 
 
 namespace SuperSocket.Tests
@@ -19,7 +20,7 @@ namespace SuperSocket.Tests
     
     public class ADD : IAsyncCommand<StringPackageInfo>
     {
-        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
         {
             var result = package.Parameters
                 .Select(p => int.Parse(p))
@@ -31,7 +32,7 @@ namespace SuperSocket.Tests
 
     public class MULT : IAsyncCommand<StringPackageInfo>
     {
-        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
         {
             var result = package.Parameters
                 .Select(p => int.Parse(p))
@@ -50,7 +51,7 @@ namespace SuperSocket.Tests
             _encoder = encoder;
         }
 
-        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
         {
             var result = package.Parameters
                 .Select(p => int.Parse(p))
@@ -70,7 +71,7 @@ namespace SuperSocket.Tests
             _encoder = encoder;
         }
 
-        public async ValueTask ExecuteAsync(MySession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(MySession session, StringPackageInfo package, CancellationToken cancellationToken)
         {
             var values = package
                 .Parameters
@@ -93,7 +94,7 @@ namespace SuperSocket.Tests
 
     public class POW : JsonAsyncCommand<IAppSession, PowData>
     {
-        protected override async ValueTask ExecuteJsonAsync(IAppSession session, PowData data)
+        protected override async ValueTask ExecuteJsonAsync(IAppSession session, PowData data, CancellationToken cancellationToken)
         {
             await session.SendAsync(Encoding.UTF8.GetBytes($"{Math.Pow(data.X, data.Y)}\r\n"));
         }
@@ -106,7 +107,7 @@ namespace SuperSocket.Tests
 
     public class MAX : JsonAsyncCommand<IAppSession, MaxData>
     {
-        protected override async ValueTask ExecuteJsonAsync(IAppSession session, MaxData data)
+        protected override async ValueTask ExecuteJsonAsync(IAppSession session, MaxData data, CancellationToken cancellationToken)
         {
             var maxValue = data.Numbers.OrderByDescending(i => i).FirstOrDefault();
             await session.SendAsync(Encoding.UTF8.GetBytes($"{maxValue}\r\n"));

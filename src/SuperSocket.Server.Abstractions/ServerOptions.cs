@@ -15,5 +15,10 @@ namespace SuperSocket.Server.Abstractions
         public int ClearIdleSessionInterval { get; set; } = 120;
 
         public int IdleSessionTimeOut { get; set; } = 300;
+
+        /// <summary>
+        /// In seconds.
+        /// </summary>
+        public int PackageHandlingTimeOut { get; set; } = 30;
     }
 }

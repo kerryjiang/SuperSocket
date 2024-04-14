@@ -391,19 +391,38 @@ namespace SuperSocket.Server
 
                 var packageHandlingScheduler = _packageHandlingScheduler;
 
+#if NET6_0_OR_GREATER
+                using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(CancellationToken.None);
+#endif
+
                 await foreach (var p in packageStream)
                 {
                     if(_packageHandlingContextAccessor != null)
                     {
                         _packageHandlingContextAccessor.PackageHandlingContext = new PackageHandlingContext<IAppSession, TReceivePackageInfo>(session, p);
                     }
-                    await packageHandlingScheduler.HandlePackage(session, p);
+
+#if !NET6_0_OR_GREATER
+                    using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(CancellationToken.None);
+#endif
+                    await packageHandlingScheduler.HandlePackage(session, p, cancellationTokenSource.Token);
+
+#if NET6_0_OR_GREATER
+                    cancellationTokenSource.TryReset();
+#endif
                 }
             }
             catch (Exception e)
             {
                 _logger.LogError(e, $"Failed to handle the session {session.SessionID}.");
             }
+        }
+
+        protected virtual CancellationTokenSource GetPackageHandlingCancellationTokenSource(CancellationToken cancellationToken)
+        {
+            var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Options.PackageHandlingTimeOut));
+            return cancellationTokenSource;
         }
 
         protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession session, PackageHandlingException<TReceivePackageInfo> exception)

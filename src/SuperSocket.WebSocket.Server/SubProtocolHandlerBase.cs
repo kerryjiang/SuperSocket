@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -16,6 +17,6 @@ namespace SuperSocket.WebSocket.Server
             Name = name;
         }        
 
-        public abstract ValueTask Handle(IAppSession session, WebSocketPackage package);
+        public abstract ValueTask Handle(IAppSession session, WebSocketPackage package, CancellationToken cancellationToken);
     }
 }

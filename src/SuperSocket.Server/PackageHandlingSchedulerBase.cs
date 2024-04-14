@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Connection;
 using SuperSocket.Server.Abstractions;
@@ -14,7 +15,7 @@ namespace SuperSocket.Server
 
         public Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> ErrorHandler { get; private set; }
 
-        public abstract ValueTask HandlePackage(IAppSession session, TPackageInfo package);
+        public abstract ValueTask HandlePackage(IAppSession session, TPackageInfo package, CancellationToken cancellationToken);
 
         public virtual void Initialize(IPackageHandler<TPackageInfo> packageHandler, Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> errorHandler)
         {
@@ -22,7 +23,7 @@ namespace SuperSocket.Server
             ErrorHandler = errorHandler;
         }
 
-        protected async ValueTask HandlePackageInternal(IAppSession session, TPackageInfo package)
+        protected async ValueTask HandlePackageInternal(IAppSession session, TPackageInfo package, CancellationToken cancellationToken)
         {
             var packageHandler = PackageHandler;
             var errorHandler = ErrorHandler;
@@ -30,7 +31,7 @@ namespace SuperSocket.Server
             try
             {
                 if (packageHandler != null)
-                    await packageHandler.Handle(session, package);
+                    await packageHandler.Handle(session, package, cancellationToken);
             }
             catch (Exception e)
             {

@@ -14,6 +14,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using System.Threading;
 
 namespace SuperSocket.Tests
 {
@@ -82,7 +83,7 @@ namespace SuperSocket.Tests
             }
 
 
-            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
                 var packageHandlingContextAccessor = serviceProvider.GetService<IPackageHandlingContextAccessor<StringPackageInfo>>();
                 if (packageHandlingContextAccessor != null)
@@ -97,6 +98,4 @@ namespace SuperSocket.Tests
             }
         }
     }
-
-
 }

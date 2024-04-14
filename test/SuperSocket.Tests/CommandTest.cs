@@ -331,7 +331,7 @@ namespace SuperSocket.Tests
                 _encoder = encoder;
             }
 
-            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
                 await session.SendAsync(_encoder, "OK\r\n");
             }
@@ -347,7 +347,7 @@ namespace SuperSocket.Tests
                 _encoder = encoder;
             }
 
-            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
                 await session.SendAsync(_encoder, "OK\r\n");
             }

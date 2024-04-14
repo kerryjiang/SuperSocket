@@ -23,7 +23,7 @@ namespace SuperSocket.Tests
     {
         class SESS : IAsyncCommand<StringPackageInfo>
         {
-            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+            public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
                 await session.SendAsync(Encoding.UTF8.GetBytes(session.SessionID + "\r\n"));
             }

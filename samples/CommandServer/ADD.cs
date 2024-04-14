@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket;
 using SuperSocket.Server.Abstractions.Session;
@@ -11,7 +12,7 @@ namespace CommandServer
     [Command("add")]
     public class ADD : IAsyncCommand<StringPackageInfo>
     {
-        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
         {
             var result = package.Parameters
                 .Select(p => int.Parse(p))

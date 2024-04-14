@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Command
@@ -27,5 +28,7 @@ namespace SuperSocket.Command
         /// The exception.
         /// </value>
         public Exception Exception { get; set; }
+
+        public CancellationToken CancellationToken { get; set; }
     }
 }

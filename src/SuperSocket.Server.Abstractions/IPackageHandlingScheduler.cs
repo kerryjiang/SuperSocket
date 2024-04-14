@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.Connection;
 using SuperSocket.Server.Abstractions.Session;
@@ -11,6 +12,6 @@ namespace SuperSocket.Server.Abstractions
     {
         void Initialize(IPackageHandler<TPackageInfo> packageHandler, Func<IAppSession, PackageHandlingException<TPackageInfo>, ValueTask<bool>> errorHandler);
 
-        ValueTask HandlePackage(IAppSession session, TPackageInfo package);
+        ValueTask HandlePackage(IAppSession session, TPackageInfo package, CancellationToken cancellationToken);
     }
 }
