@@ -2,6 +2,7 @@ using System;
 using System.Buffers;
 using System.Collections.Specialized;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
@@ -33,30 +34,32 @@ namespace SuperSocket.WebSocket.Server
 
         internal IPackageEncoder<WebSocketPackage> MessageEncoder { get; set; }
 
-        public virtual ValueTask SendAsync(WebSocketPackage message)
+        public virtual ValueTask SendAsync(WebSocketPackage message, CancellationToken cancellationToken = default)
         {
-            return this.Connection.SendAsync(MessageEncoder, message);
+            return this.Connection.SendAsync(MessageEncoder, message, cancellationToken);
         }
 
-        public virtual ValueTask SendAsync(string message)
-        {
-            return SendAsync(new WebSocketPackage
-            {
-                OpCode = OpCode.Text,
-                Message = message,
-            });
-        }
-
-        public virtual ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        public virtual ValueTask SendAsync(string message, CancellationToken cancellationToken = default)
         {
             return SendAsync(new WebSocketPackage
-            {
-                OpCode = OpCode.Binary,
-                Data = new ReadOnlySequence<byte>(data),
-            });
+                {
+                    OpCode = OpCode.Text,
+                    Message = message,
+                },
+                cancellationToken);
         }
 
-        public ValueTask CloseAsync(CloseReason reason, string reasonText = null)
+        public virtual ValueTask SendAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+        {
+            return SendAsync(new WebSocketPackage
+                {
+                    OpCode = OpCode.Binary,
+                    Data = new ReadOnlySequence<byte>(data),
+                },
+                cancellationToken);
+        }
+
+        public ValueTask CloseAsync(CloseReason reason, string reasonText = null, CancellationToken cancellationToken = default)
         {
             var closeReasonCode = (short)reason;
 
@@ -90,10 +93,11 @@ namespace SuperSocket.WebSocket.Server
             OnCloseHandshakeStarted();
 
             return SendAsync(new WebSocketPackage
-            {
-                OpCode = OpCode.Close,
-                Data = new ReadOnlySequence<byte>(buffer, 0, length)
-            });
+                {
+                    OpCode = OpCode.Close,
+                    Data = new ReadOnlySequence<byte>(buffer, 0, length)
+                },
+                cancellationToken);
         }
 
         private void OnCloseHandshakeStarted()

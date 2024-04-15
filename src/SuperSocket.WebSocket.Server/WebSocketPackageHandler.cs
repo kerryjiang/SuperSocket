@@ -129,7 +129,7 @@ namespace SuperSocket.WebSocket.Server
 
                     try
                     {
-                        await websocketSession.SendAsync(package);
+                        await websocketSession.SendAsync(package, cancellationToken);
                     }
                     catch (InvalidOperationException)
                     {
@@ -146,7 +146,7 @@ namespace SuperSocket.WebSocket.Server
             else if (package.OpCode == OpCode.Ping)
             {
                 package.OpCode = OpCode.Pong;
-                await websocketSession.SendAsync(package);
+                await websocketSession.SendAsync(package, cancellationToken);
                 return;
             }
             else if (package.OpCode == OpCode.Pong)
