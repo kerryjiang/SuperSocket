@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Connection;
@@ -143,14 +144,14 @@ namespace SuperSocket.Server
             await connectedEventHandler.Invoke(this, EventArgs.Empty);
         }
 
-        ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data)
+        ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
         {
-            return _connection.SendAsync(data);
+            return _connection.SendAsync(data, cancellationToken);
         }
 
-        ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        ValueTask IAppSession.SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
         {
-            return _connection.SendAsync(packageEncoder, package);
+            return _connection.SendAsync(packageEncoder, package, cancellationToken);
         }
 
         void IAppSession.Reset()

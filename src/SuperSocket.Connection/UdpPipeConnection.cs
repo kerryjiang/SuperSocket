@@ -92,31 +92,31 @@ namespace SuperSocket.Connection
             }
         }
 
-        public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
+        public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
         {
             if (_enableSendingPipe)
             {
-                await base.SendAsync(buffer);
+                await base.SendAsync(buffer, cancellationToken);
                 return;
             }
 
-            await SendOverIOAsync(new ReadOnlySequence<byte>(buffer), CancellationToken.None);
+            await SendOverIOAsync(new ReadOnlySequence<byte>(buffer), cancellationToken);
         }
         
-        public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
         {
             if (_enableSendingPipe)
             {
-                await base.SendAsync(packageEncoder, package);
+                await base.SendAsync(packageEncoder, package, cancellationToken);
                 return;
             }
 
             try
             {
-                await SendLock.WaitAsync();
+                await SendLock.WaitAsync(cancellationToken);
                 var writer = OutputWriter;
                 WritePackageWithEncoder<TPackage>(writer, packageEncoder, package);
-                await writer.FlushAsync();
+                await writer.FlushAsync(cancellationToken);
                 await ProcessOutputRead(Output.Reader);
             }
             finally
@@ -125,11 +125,11 @@ namespace SuperSocket.Connection
             }
         }
 
-        public override async ValueTask SendAsync(Action<PipeWriter> write)
+        public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
         {
             if (_enableSendingPipe)
             {
-                await base.SendAsync(write);
+                await base.SendAsync(write, cancellationToken);
                 return;
             }
 

@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
+using System.Threading;
 using SuperSocket.Connection;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Tests
 {
@@ -51,7 +51,7 @@ namespace SuperSocket.Tests
         public override void Write(byte[] buffer, int offset, int count)
         {
             Connection
-                .SendAsync((new ArraySegment<byte>(buffer, offset, count)).AsMemory())
+                .SendAsync((new ArraySegment<byte>(buffer, offset, count)).AsMemory(), CancellationToken.None)
                 .GetAwaiter()
                 .GetResult();
         }

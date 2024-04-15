@@ -55,21 +55,21 @@ public class KestrelPipeConnection : PipeConnectionBase
         }
     }
 
-    public override async ValueTask SendAsync(Action<PipeWriter> write)
+    public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
     {
-        await base.SendAsync(write);
+        await base.SendAsync(write, cancellationToken);
         UpdateLastActiveTime();
     }
 
-    public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
+    public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
     {
-        await base.SendAsync(buffer);
+        await base.SendAsync(buffer, cancellationToken);
         UpdateLastActiveTime();
     }
 
-    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
     {
-        await base.SendAsync(packageEncoder, package);
+        await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();
     }
 }

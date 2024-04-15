@@ -161,13 +161,13 @@ namespace SuperSocket.Connection
             }
         }
 
-        public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer)
+        public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             try
             {
-                await SendLock.WaitAsync().ConfigureAwait(false);
+                await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
                 WriteBuffer(OutputWriter, buffer);
-                await OutputWriter.FlushAsync().ConfigureAwait(false);
+                await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -181,13 +181,13 @@ namespace SuperSocket.Connection
             writer.Write(buffer.Span);
         }
 
-        public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package)
+        public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken = default)
         {
             try
             {
-                await SendLock.WaitAsync().ConfigureAwait(false);
+                await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
                 WritePackageWithEncoder<TPackage>(OutputWriter, packageEncoder, package);
-                await OutputWriter.FlushAsync().ConfigureAwait(false);
+                await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
             {
@@ -195,13 +195,13 @@ namespace SuperSocket.Connection
             }
         }
 
-        public override async ValueTask SendAsync(Action<PipeWriter> write)
+        public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
         {
             try
             {
-                await SendLock.WaitAsync().ConfigureAwait(false);
+                await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
                 write(OutputWriter);
-                await OutputWriter.FlushAsync().ConfigureAwait(false);
+                await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
             {
