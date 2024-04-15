@@ -17,7 +17,7 @@ namespace SuperSocket.Tests.Command
             var result = package.Parameters
                 .Select(p => int.Parse(p)).OrderBy(x => x).FirstOrDefault();
 
-            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"), cancellationToken);
         }
     }
 }

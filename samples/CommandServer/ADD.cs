@@ -18,7 +18,7 @@ namespace CommandServer
                 .Select(p => int.Parse(p))
                 .Sum();
 
-            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"), cancellationToken);
         }
     }
 }

@@ -82,7 +82,7 @@ namespace SuperSocket.Tests
 
             var socketSession = session as IAppSession;
             // encode the text message by encoder
-            await socketSession.SendAsync(_encoder, result.ToString() + "\r\n");
+            await socketSession.SendAsync(_encoder, result.ToString() + "\r\n", cancellationToken);
         }
     }
 
@@ -96,7 +96,7 @@ namespace SuperSocket.Tests
     {
         protected override async ValueTask ExecuteJsonAsync(IAppSession session, PowData data, CancellationToken cancellationToken)
         {
-            await session.SendAsync(Encoding.UTF8.GetBytes($"{Math.Pow(data.X, data.Y)}\r\n"));
+            await session.SendAsync(Encoding.UTF8.GetBytes($"{Math.Pow(data.X, data.Y)}\r\n"), cancellationToken);
         }
     }
 
@@ -110,7 +110,7 @@ namespace SuperSocket.Tests
         protected override async ValueTask ExecuteJsonAsync(IAppSession session, MaxData data, CancellationToken cancellationToken)
         {
             var maxValue = data.Numbers.OrderByDescending(i => i).FirstOrDefault();
-            await session.SendAsync(Encoding.UTF8.GetBytes($"{maxValue}\r\n"));
+            await session.SendAsync(Encoding.UTF8.GetBytes($"{maxValue}\r\n"), cancellationToken);
         }
     }
 }
