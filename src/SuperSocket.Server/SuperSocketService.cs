@@ -179,7 +179,11 @@ namespace SuperSocket.Server
         async Task IConnectionRegister.RegisterConnection(object connectionSource)
         {
             var connectionListener = _connectionListeners.FirstOrDefault();
+#if NET6_0_OR_GREATER
+            using var cts = CancellationTokenSourcePool.Shared.Rent(connectionListener.Options.ConnectionAcceptTimeOut);
+#else
             using var cts = new CancellationTokenSource(connectionListener.Options.ConnectionAcceptTimeOut);
+#endif
             var connection = await connectionListener.ConnectionFactory.CreateConnection(connectionSource, cts.Token);
             await AcceptNewConnection(connection);
         }
@@ -420,9 +424,13 @@ namespace SuperSocket.Server
 
         protected virtual CancellationTokenSource GetPackageHandlingCancellationTokenSource(CancellationToken cancellationToken)
         {
+#if NET6_0_OR_GREATER
+            return CancellationTokenSourcePool.Shared.Rent(TimeSpan.FromSeconds(Options.PackageHandlingTimeOut));
+#else
             var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Options.PackageHandlingTimeOut));
             return cancellationTokenSource;
+#endif            
         }
 
         protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession session, PackageHandlingException<TReceivePackageInfo> exception)
