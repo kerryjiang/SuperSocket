@@ -31,7 +31,7 @@ namespace WebSocketPushServer
 
         protected override async ValueTask OnSessionConnectedAsync()
         {
-            await this.SendAsync(this.SessionID);
+            await this.SendAsync(this.SessionID, CancellationToken.None);
         }
 
         public void Ack()
@@ -39,9 +39,9 @@ namespace WebSocketPushServer
             Interlocked.Increment(ref _messageClientReceived);
         }
 
-        public override async ValueTask SendAsync(string message)
+        public override async ValueTask SendAsync(string message, CancellationToken cancellationToken)
         {
-            await base.SendAsync(message);
+            await base.SendAsync(message, cancellationToken);
             Interlocked.Increment(ref _messageSent);
         }
 

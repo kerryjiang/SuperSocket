@@ -59,7 +59,7 @@ namespace WebSocketPushServer
 
             foreach (var s in _sessionContainer.GetSessions<PushSession>())
             {
-                await s.SendAsync(line);
+                await s.SendAsync(line, CancellationToken.None);
                 count++;
 
                 if (_stopped)
