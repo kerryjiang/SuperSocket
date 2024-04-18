@@ -177,7 +177,11 @@ namespace SuperSocket.Udp
         {
             try
             {
+#if NET6_0_OR_GREATER
+                using var cts = CancellationTokenSourcePool.Shared.Rent(Options.ConnectionAcceptTimeOut);
+#else
                 using var cts = new CancellationTokenSource(Options.ConnectionAcceptTimeOut);
+#endif
                 return await ConnectionFactory.CreateConnection(new UdpConnectionInfo
                 {
                     Socket = socket,
