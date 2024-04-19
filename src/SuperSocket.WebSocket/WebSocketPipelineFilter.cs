@@ -30,8 +30,7 @@ namespace SuperSocket.WebSocket
 
             var method = Encoding.ASCII.GetString(methodSpan);
             var requestUri = Encoding.ASCII.GetString(pathSpan);
-            var version =
-                Encoding.ASCII.GetString(versionSpan.IsSingleSegment ? versionSpan.FirstSpan : versionSpan.ToArray());
+            var version = versionSpan.GetString(Encoding.ASCII);
 
             var items = new NameValueCollection();
 
@@ -52,18 +51,18 @@ namespace SuperSocket.WebSocket
                 items.Add(key, value);
             }
 
-            var httpHeader = HttpHeader.CreateForRequest(method, requestUri, version, items);
+            var header = HttpHeader.CreateForRequest(method, requestUri, version, items);
 
-            NextFilter = new WebSocketDataPipelineFilter(httpHeader);
+            NextFilter = new WebSocketDataPipelineFilter(header);
 
             return new WebSocketPackage
             {
-                HttpHeader = httpHeader,
+                HttpHeader = header,
                 OpCode = OpCode.Handshake
             };
         }
 
-        internal static void ParseHeader(in ReadOnlySequence<byte> headerLine, out ReadOnlySpan<byte> headerName,
+        private void ParseHeader(in ReadOnlySequence<byte> headerLine, out ReadOnlySpan<byte> headerName,
             out ReadOnlySpan<byte> headerValue)
         {
             if (headerLine.IsSingleSegment)
