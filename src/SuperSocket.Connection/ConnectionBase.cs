@@ -9,13 +9,13 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Connection
 {
     public abstract class ConnectionBase : IConnection
-    {        
+    {
         public abstract IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter);
 
         public abstract ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default);
 
         public abstract ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken = default);
-        
+
         public abstract ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken = default);
 
         public bool IsClosed { get; private set; }
@@ -27,6 +27,8 @@ namespace SuperSocket.Connection
         public CloseReason? CloseReason { get; protected set; }
 
         public DateTimeOffset LastActiveTime { get; protected set; } = DateTimeOffset.Now;
+
+        public CancellationToken ConnectionToken { get; protected set; }
 
         protected virtual void OnClosed()
         {

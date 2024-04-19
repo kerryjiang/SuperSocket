@@ -28,6 +28,8 @@ namespace SuperSocket.Connection
 
         EndPoint LocalEndPoint { get; }
 
+        CancellationToken ConnectionToken { get; }
+
         DateTimeOffset LastActiveTime { get; }
 
         ValueTask DetachAsync();

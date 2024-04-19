@@ -314,11 +314,11 @@ namespace SuperSocket.Server
             if (closedHandler != null)
                 return closedHandler.Invoke(session, e);
 
-            #if NETSTANDARD2_1
+#if NETSTANDARD2_1
                 return GetCompletedTask();
-            #else
-                return ValueTask.CompletedTask;
-            #endif
+#else
+            return ValueTask.CompletedTask;
+#endif
         }
 
         protected virtual async ValueTask FireSessionConnectedEvent(AppSession session)
@@ -350,7 +350,7 @@ namespace SuperSocket.Server
                 if (!handshakeSession.Handshaked)
                     return;
             }
-            
+
             await UnRegisterSessionFromMiddlewares(session);
 
             _logger.LogInformation($"The session disconnected: {session.SessionID} ({reason})");
@@ -396,18 +396,18 @@ namespace SuperSocket.Server
                 var packageHandlingScheduler = _packageHandlingScheduler;
 
 #if NET6_0_OR_GREATER
-                using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(CancellationToken.None);
+                using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(connection.ConnectionToken);
 #endif
 
                 await foreach (var p in packageStream)
                 {
-                    if(_packageHandlingContextAccessor != null)
+                    if (_packageHandlingContextAccessor != null)
                     {
                         _packageHandlingContextAccessor.PackageHandlingContext = new PackageHandlingContext<IAppSession, TReceivePackageInfo>(session, p);
                     }
 
 #if !NET6_0_OR_GREATER
-                    using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(CancellationToken.None);
+                    using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(connection.ConnectionToken);
 #endif
                     await packageHandlingScheduler.HandlePackage(session, p, cancellationTokenSource.Token);
 
@@ -424,13 +424,9 @@ namespace SuperSocket.Server
 
         protected virtual CancellationTokenSource GetPackageHandlingCancellationTokenSource(CancellationToken cancellationToken)
         {
-#if NET6_0_OR_GREATER
-            return CancellationTokenSourcePool.Shared.Rent(TimeSpan.FromSeconds(Options.PackageHandlingTimeOut));
-#else
             var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(Options.PackageHandlingTimeOut));
             return cancellationTokenSource;
-#endif            
         }
 
         protected virtual ValueTask<bool> OnSessionErrorAsync(IAppSession session, PackageHandlingException<TReceivePackageInfo> exception)
@@ -471,20 +467,20 @@ namespace SuperSocket.Server
 
         protected virtual ValueTask OnStartedAsync()
         {
-            #if NETSTANDARD2_1
+#if NETSTANDARD2_1
                 return GetCompletedTask();
-            #else
-                return ValueTask.CompletedTask;
-            #endif
+#else
+            return ValueTask.CompletedTask;
+#endif
         }
 
         protected virtual ValueTask OnStopAsync()
         {
-            #if NETSTANDARD2_1
+#if NETSTANDARD2_1
                 return GetCompletedTask();
-            #else
-                return ValueTask.CompletedTask;
-            #endif
+#else
+            return ValueTask.CompletedTask;
+#endif
         }
 
         private async Task StopListener(IConnectionListener listener)
