@@ -315,7 +315,7 @@ namespace SuperSocket.Server
                 return closedHandler.Invoke(session, e);
 
 #if NETSTANDARD2_1
-                return GetCompletedTask();
+            return GetCompletedTask();
 #else
             return ValueTask.CompletedTask;
 #endif
@@ -468,7 +468,7 @@ namespace SuperSocket.Server
         protected virtual ValueTask OnStartedAsync()
         {
 #if NETSTANDARD2_1
-                return GetCompletedTask();
+            return GetCompletedTask();
 #else
             return ValueTask.CompletedTask;
 #endif
@@ -477,7 +477,7 @@ namespace SuperSocket.Server
         protected virtual ValueTask OnStopAsync()
         {
 #if NETSTANDARD2_1
-                return GetCompletedTask();
+            return GetCompletedTask();
 #else
             return ValueTask.CompletedTask;
 #endif

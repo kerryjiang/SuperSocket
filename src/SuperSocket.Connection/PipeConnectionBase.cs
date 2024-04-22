@@ -196,7 +196,7 @@ namespace SuperSocket.Connection
             }
         }
 
-        public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
+        public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken = default)
         {
             try
             {
