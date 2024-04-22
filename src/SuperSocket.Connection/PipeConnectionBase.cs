@@ -32,7 +32,7 @@ namespace SuperSocket.Connection
         {
             get { return InputReader; }
         }
-        
+
         IPipelineFilter IPipeConnection.PipelineFilter
         {
             get { return _pipelineFilter; }
@@ -52,6 +52,7 @@ namespace SuperSocket.Connection
             Logger = options.Logger;
             InputReader = inputReader;
             OutputWriter = outputWriter;
+            ConnectionToken = _cts.Token;
         }
 
         protected virtual Task StartTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe)
@@ -72,7 +73,7 @@ namespace SuperSocket.Connection
 
             _packagePipe = packagePipe;
             _pipelineFilter = pipelineFilter;
-            
+
             _pipeTask = StartTask(packagePipe);
 
             _ = HandleClosing();
@@ -88,8 +89,6 @@ namespace SuperSocket.Connection
 
                 yield return package;
             }
-
-            //How do empty a pipe?
         }
 
         private async ValueTask HandleClosing()
@@ -118,7 +117,7 @@ namespace SuperSocket.Connection
                     {
                         if (!IsIgnorableException(exc))
                             OnError("Unhandled exception in the method PipeChannel.Close.", exc);
-                    }                    
+                    }
                 }
             }
         }
@@ -172,7 +171,7 @@ namespace SuperSocket.Connection
             finally
             {
                 SendLock.Release();
-            }            
+            }
         }
 
         private void WriteBuffer(PipeWriter writer, ReadOnlyMemory<byte> buffer)
@@ -236,7 +235,7 @@ namespace SuperSocket.Connection
                 {
                     if (!IsIgnorableException(e) && !(e is OperationCanceledException))
                         OnError("Failed to read from the pipe", e);
-                    
+
                     break;
                 }
 
@@ -267,7 +266,7 @@ namespace SuperSocket.Connection
                         {
                             completed = true;
                             break;
-                        }                        
+                        }
                     }
 
                     if (completed)
@@ -344,7 +343,7 @@ namespace SuperSocket.Connection
                     Close();
                     return false;
                 }
-                
+
                 if (packageInfo == null)
                 {
                     // the current pipeline filter needs more data to process
@@ -370,12 +369,12 @@ namespace SuperSocket.Connection
                     examined = consumed = buffer.End;
                     return true;
                 }
-                
+
                 if (bytesConsumed > 0)
                     seqReader = new SequenceReader<byte>(seqReader.Sequence.Slice(bytesConsumed));
             }
         }
-    
+
         public override async ValueTask DetachAsync()
         {
             _isDetaching = true;

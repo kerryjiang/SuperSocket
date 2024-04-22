@@ -43,8 +43,9 @@ public class KestrelPipeConnection : PipeConnectionBase
     {
         if (!CloseReason.HasValue)
             CloseReason = Connection.CloseReason.RemoteClosing;
-            
+
         base.OnClosed();
+        Cancel();
     }
 
     protected override void OnInputPipeRead(ReadResult result)
