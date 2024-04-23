@@ -27,6 +27,8 @@ namespace SuperSocket.Connection
         public CloseReason? CloseReason { get; protected set; }
 
         public DateTimeOffset LastActiveTime { get; protected set; } = DateTimeOffset.Now;
+        
+        public CancellationToken ConnectionToken { get; protected set; }
 
         protected virtual void OnClosed()
         {
