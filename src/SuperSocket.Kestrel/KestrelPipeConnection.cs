@@ -16,7 +16,7 @@ public class KestrelPipeConnection : PipeConnectionBase
         : base(context.Transport.Input, context.Transport.Output, options)
     {
         _context = context;
-        context.ConnectionClosed.Register(() => OnClosed());
+        context.ConnectionClosed.Register(() => OnConnectionClosed());
         LocalEndPoint = context.LocalEndPoint;
         RemoteEndPoint = context.RemoteEndPoint;
     }
@@ -72,5 +72,11 @@ public class KestrelPipeConnection : PipeConnectionBase
     {
         await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();
+    }
+
+    private void OnConnectionClosed()
+    {
+        OnClosed();
+        Cancel();
     }
 }
