@@ -33,5 +33,7 @@ namespace SuperSocket.Connection
         ValueTask DetachAsync();
 
         CloseReason? CloseReason { get; }
+
+        CancellationToken ConnectionToken { get; }
     }
 }
