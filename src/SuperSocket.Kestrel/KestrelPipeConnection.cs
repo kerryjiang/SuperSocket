@@ -75,7 +75,6 @@ public class KestrelPipeConnection : PipeConnectionBase
     
     private void OnConnectionClosed()
     {
-        OnClosed();
         Cancel();
     }
 }
