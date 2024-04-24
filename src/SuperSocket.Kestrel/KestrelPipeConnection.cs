@@ -16,9 +16,17 @@ public class KestrelPipeConnection : PipeConnectionBase
         : base(context.Transport.Input, context.Transport.Output, options)
     {
         _context = context;
-        context.ConnectionClosed.Register(() => OnClosed());
+        context.ConnectionClosed.Register(() => OnConnectionClosed());
         LocalEndPoint = context.LocalEndPoint;
         RemoteEndPoint = context.RemoteEndPoint;
+    }
+
+    protected override void OnClosed()
+    {
+        if (!CloseReason.HasValue)
+            CloseReason = Connection.CloseReason.RemoteClosing;
+
+        base.OnClosed();
     }
 
     public override ValueTask DetachAsync()
@@ -37,14 +45,6 @@ public class KestrelPipeConnection : PipeConnectionBase
         {
             await context.DisposeAsync();
         }
-    }
-
-    protected override void OnClosed()
-    {
-        if (!CloseReason.HasValue)
-            CloseReason = Connection.CloseReason.RemoteClosing;
-            
-        base.OnClosed();
     }
 
     protected override void OnInputPipeRead(ReadResult result)
@@ -71,5 +71,10 @@ public class KestrelPipeConnection : PipeConnectionBase
     {
         await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();
+    }
+
+    private void OnConnectionClosed()
+    {
+        Cancel();
     }
 }
