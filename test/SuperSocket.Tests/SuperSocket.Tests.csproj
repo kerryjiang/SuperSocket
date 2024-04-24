@@ -13,6 +13,7 @@
     <ProjectReference Include="../../src/SuperSocket.Http/SuperSocket.Http.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Kestrel/SuperSocket.Kestrel.csproj" />
     <ProjectReference Include="../SuperSocket.Tests.Command/SuperSocket.Tests.Command.csproj" />
+    <ProjectReference Include="..\..\src\SuperSocket.IOCP.ConnectionFactory\SuperSocket.IOCP.ConnectionFactory.csproj" />
   </ItemGroup>
   <ItemGroup>  
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />  

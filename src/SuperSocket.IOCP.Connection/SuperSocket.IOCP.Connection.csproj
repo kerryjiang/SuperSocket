@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+        <Description>SuperSocket iocp connection library</Description>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SuperSocket.Connection\SuperSocket.Connection.csproj" />
+    </ItemGroup>
+
+</Project>

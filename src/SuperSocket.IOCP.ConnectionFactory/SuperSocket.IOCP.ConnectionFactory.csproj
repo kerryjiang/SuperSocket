@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Description>SuperSocket iocp connectionFactory library</Description>
+        <TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\SuperSocket.IOCP.Connection\SuperSocket.IOCP.Connection.csproj" />
+      <ProjectReference Include="..\SuperSocket.Server.Abstractions\SuperSocket.Server.Abstractions.csproj" />
+    </ItemGroup>
+
+</Project>
