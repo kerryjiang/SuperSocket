@@ -98,8 +98,8 @@ namespace SuperSocket.Tests
         }
 
         [Theory]
-        // [InlineData(typeof(RegularHostConfigurator))]
-        // [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(GzipHostConfigurator))]
         [InlineData(typeof(QuicHostConfigurator))]
         [Trait("Category", "Client.TestBindLocalEndPoint")]
         public async Task TestBindLocalEndPoint(Type hostConfiguratorType)

@@ -13,7 +13,7 @@ namespace SuperSocket.Quic.Connection
     public class QuicPipeConnection : PipeConnection
     {
         private QuicStream _stream;
-        private ValueTask<QuicStream> _readStreamTask;
+        private QuicStream _readStreamTask;
         private readonly QuicConnection _quicConnection;
 
         public QuicPipeConnection(QuicConnection quicConnection, ConnectionOptions options) : base(options)
@@ -28,25 +28,25 @@ namespace SuperSocket.Quic.Connection
         {
             ArgumentNullException.ThrowIfNull(_readStreamTask);
 
-            _stream = await _readStreamTask.ConfigureAwait(false);
+            //_stream = await _readStreamTask.ConfigureAwait(false);
 
             await base.StartInputPipeTask(packagePipe, cancellationToken).ConfigureAwait(false);
         }
 
-        public void OpenOutboundStream(QuicStreamType quicStreamType, CancellationToken cancellationToken)
+        public async ValueTask OpenOutboundStream(QuicStreamType quicStreamType, CancellationToken cancellationToken)
         {
-            _readStreamTask = _quicConnection.OpenOutboundStreamAsync(quicStreamType, cancellationToken);
+            _readStreamTask = await _quicConnection.OpenOutboundStreamAsync(quicStreamType, cancellationToken);
         }
 
-        public void AcceptInboundStream(CancellationToken cancellationToken)
+        public async ValueTask AcceptInboundStream(CancellationToken cancellationToken)
         {
-            _readStreamTask = _quicConnection.AcceptInboundStreamAsync(cancellationToken);
+            _readStreamTask = await _quicConnection.AcceptInboundStreamAsync(cancellationToken);
         }
 
         protected override void Close()
         {
             ThrowIfStreamNull();
-            
+
             _stream.Close();
         }
 
@@ -60,7 +60,7 @@ namespace SuperSocket.Quic.Connection
             CancellationToken cancellationToken)
         {
             ThrowIfStreamNull();
-            
+
             return await _stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
         }
 
@@ -68,7 +68,7 @@ namespace SuperSocket.Quic.Connection
             CancellationToken cancellationToken)
         {
             ThrowIfStreamNull();
-            
+
             var total = 0;
 
             foreach (var data in buffer)
