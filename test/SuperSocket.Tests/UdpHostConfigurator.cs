@@ -1,7 +1,10 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Net.Quic;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -19,7 +22,7 @@ namespace SuperSocket.Tests
     public class UdpHostConfigurator : IHostConfigurator
     {
         private static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
-        
+
         public string WebSocketSchema => "ws";
 
         public bool IsSecure => false;
@@ -43,7 +46,8 @@ namespace SuperSocket.Tests
                 );
         }
 
-        public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)
+        public IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter,
+            ConnectionOptions options)
             where TPackageInfo : class
         {
             return new EasyClient<TPackageInfo>(pipelineFilter, options);
@@ -83,10 +87,12 @@ namespace SuperSocket.Tests
                 try
                 {
                     var result = await socket
-                        .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, remoteEndPoint)
+                        .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None,
+                            remoteEndPoint)
                         .ConfigureAwait(false);
 
-                    await connection.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
+                    await connection.WritePipeDataAsync(
+                        (new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
                 }
                 catch (NullReferenceException)
                 {
@@ -139,10 +145,10 @@ namespace SuperSocket.Tests
             }
         }
 
+
         public async ValueTask KeepSequence()
         {
             await Task.Delay(200);
         }
-
     }
 }

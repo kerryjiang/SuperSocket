@@ -37,6 +37,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(GzipHostConfigurator), false)]
         [InlineData(typeof(GzipSecureHostConfigurator), false)]
         [InlineData(typeof(RegularHostConfigurator), true)]
+        [InlineData(typeof(QuicHostConfigurator), false)]
         public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {
             var serverSessionEvent = new AutoResetEvent(false);
