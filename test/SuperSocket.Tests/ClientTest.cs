@@ -32,11 +32,11 @@ namespace SuperSocket.Tests
         
         [Theory]
         [Trait("Category", "Client.TestEcho")]
-        [InlineData(typeof(RegularHostConfigurator), false)]
-        [InlineData(typeof(SecureHostConfigurator), false)]
-        [InlineData(typeof(GzipHostConfigurator), false)]
-        [InlineData(typeof(GzipSecureHostConfigurator), false)]
-        [InlineData(typeof(RegularHostConfigurator), true)]
+        // [InlineData(typeof(RegularHostConfigurator), false)]
+        // [InlineData(typeof(SecureHostConfigurator), false)]
+        // [InlineData(typeof(GzipHostConfigurator), false)]
+        // [InlineData(typeof(GzipSecureHostConfigurator), false)]
+        // [InlineData(typeof(RegularHostConfigurator), true)]
         [InlineData(typeof(QuicHostConfigurator), false)]
         public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {

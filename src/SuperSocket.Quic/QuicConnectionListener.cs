@@ -38,6 +38,10 @@ namespace SuperSocket.Quic
             {
                 var listenEndpoint = options.ToEndPoint();
 
+                ArgumentNullException.ThrowIfNull(options.CertificateOptions);
+                
+                options.CertificateOptions.EnsureCertificate();
+                
                 var quicListenerOptions = new QuicListenerOptions
                 {
                     ListenBacklog = options.BackLog,
