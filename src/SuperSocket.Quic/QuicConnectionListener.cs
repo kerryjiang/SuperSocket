@@ -40,7 +40,8 @@ namespace SuperSocket.Quic
 
                 ArgumentNullException.ThrowIfNull(options.CertificateOptions);
                 
-                options.CertificateOptions.EnsureCertificate();
+                if (options.CertificateOptions.Certificate == null)
+                    options.CertificateOptions.EnsureCertificate();
                 
                 var quicListenerOptions = new QuicListenerOptions
                 {
