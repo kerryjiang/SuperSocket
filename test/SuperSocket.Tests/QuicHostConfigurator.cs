@@ -107,6 +107,7 @@ namespace SuperSocket.Tests
                         DefaultCloseErrorCode = 0,
                         DefaultStreamErrorCode = 0,
                         RemoteEndPoint = remoteEndPoint,
+                        LocalEndPoint = LocalEndPoint,
                         ClientAuthenticationOptions = new SslClientAuthenticationOptions
                         {
                             ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },

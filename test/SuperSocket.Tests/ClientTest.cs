@@ -32,11 +32,11 @@ namespace SuperSocket.Tests
         
         [Theory]
         [Trait("Category", "Client.TestEcho")]
-        // [InlineData(typeof(RegularHostConfigurator), false)]
-        // [InlineData(typeof(SecureHostConfigurator), false)]
-        // [InlineData(typeof(GzipHostConfigurator), false)]
-        // [InlineData(typeof(GzipSecureHostConfigurator), false)]
-        // [InlineData(typeof(RegularHostConfigurator), true)]
+        [InlineData(typeof(RegularHostConfigurator), false)]
+        [InlineData(typeof(SecureHostConfigurator), false)]
+        [InlineData(typeof(GzipHostConfigurator), false)]
+        [InlineData(typeof(GzipSecureHostConfigurator), false)]
+        [InlineData(typeof(RegularHostConfigurator), true)]
         [InlineData(typeof(QuicHostConfigurator), false)]
         public async Task TestEcho(Type hostConfiguratorType, bool clientReadAsDemand)
         {
@@ -98,8 +98,9 @@ namespace SuperSocket.Tests
         }
 
         [Theory]
-        [InlineData(typeof(RegularHostConfigurator))]
-        [InlineData(typeof(GzipHostConfigurator))]
+        // [InlineData(typeof(RegularHostConfigurator))]
+        // [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(QuicHostConfigurator))]
         [Trait("Category", "Client.TestBindLocalEndPoint")]
         public async Task TestBindLocalEndPoint(Type hostConfiguratorType)
         {
