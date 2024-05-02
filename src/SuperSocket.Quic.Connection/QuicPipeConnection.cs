@@ -86,13 +86,14 @@ namespace SuperSocket.Quic.Connection
             if (base.IsIgnorableException(e))
                 return true;
 
-            if (e is SocketException se)
+            switch (e)
             {
-                if (se.IsIgnorableSocketException())
+                case QuicException:
+                case SocketException se when se.IsIgnorableSocketException():
                     return true;
+                default:
+                    return false;
             }
-
-            return false;
         }
 
         private void ThrowIfStreamNull()
