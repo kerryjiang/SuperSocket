@@ -198,6 +198,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
+        [InlineData(typeof(QuicHostConfigurator))]
         public async Task TestCommandLine(Type hostConfiguratorType)
         {
             var packageEvent = new AutoResetEvent(false);
