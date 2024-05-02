@@ -125,7 +125,7 @@ namespace SuperSocket.Tests
 
                 var connection = new QuicPipeConnection(quicConnection, Options);
 
-                connection.OpenOutboundStream(cancellationToken);
+                connection.OpenOutboundStream(QuicStreamType.Bidirectional, cancellationToken);
 
                 SetupConnection(connection);
 
