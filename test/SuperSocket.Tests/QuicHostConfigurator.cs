@@ -18,6 +18,7 @@ using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
+using SuperSocket.Quic.Connection;
 
 namespace SuperSocket.Tests
 {
@@ -95,40 +96,41 @@ namespace SuperSocket.Tests
             {
             }
 
-            protected override IConnector GetConnector()
-            {
-                return new QuicConnector();
-            }
-        }
-
-        class QuicConnector : ConnectorBase
-        {
-            protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state,
+            protected override async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint,
                 CancellationToken cancellationToken)
             {
 #pragma warning disable CA2252
-                
-                var quicConnection = await QuicConnection.ConnectAsync(new QuicClientConnectionOptions
-                {
-                    DefaultCloseErrorCode = 0,
-                    DefaultStreamErrorCode = 0,
-                    RemoteEndPoint = remoteEndPoint,
-                    ClientAuthenticationOptions = new SslClientAuthenticationOptions
+                var quicConnection = await QuicConnection.ConnectAsync(
+                    cancellationToken: cancellationToken,
+                    options: new QuicClientConnectionOptions
                     {
-                        ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },
-                        RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => { return true; }
-                    }
-                });
+                        DefaultCloseErrorCode = 0,
+                        DefaultStreamErrorCode = 0,
+                        RemoteEndPoint = remoteEndPoint,
+                        ClientAuthenticationOptions = new SslClientAuthenticationOptions
+                        {
+                            ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },
+                            RemoteCertificateValidationCallback = (sender, certificate, chain, errors) =>
+                            {
+                                return true;
+                            }
+                        }
+                    });
 
-                var stream =
-                    await quicConnection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional, cancellationToken);
-
-                return new ConnectState
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    Stream = stream,
-                    Result = true,
-                };
-                
+                    OnError($"The connection to {remoteEndPoint} was cancelled.");
+                    return false;
+                }
+
+                var connection = new QuicPipeConnection(quicConnection, Options);
+
+                connection.OpenOutboundStream(cancellationToken);
+
+                SetupConnection(connection);
+
+                return true;
+
 #pragma warning restore CA2252
             }
         }

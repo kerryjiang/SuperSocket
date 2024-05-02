@@ -100,7 +100,6 @@ namespace SuperSocket.Quic
                 catch (Exception e)
                 {
                     _logger.LogError(e, $"Listener[{this.ToString()}] failed to do AcceptAsync");
-                    continue;
                 }
             }
 

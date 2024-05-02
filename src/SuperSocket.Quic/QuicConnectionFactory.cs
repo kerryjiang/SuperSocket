@@ -3,13 +3,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Connection;
+using SuperSocket.Quic.Connection;
 using SuperSocket.Server.Abstractions;
+
 #pragma warning disable CA2252
 namespace SuperSocket.Quic
 {
     internal class QuicConnectionFactory : IConnectionFactory
     {
-        private readonly ILogger _logger ;
+        private readonly ILogger _logger;
         private readonly ListenOptions _listenOptions;
         private readonly ConnectionOptions _connectionOptions;
 
@@ -26,9 +28,11 @@ namespace SuperSocket.Quic
         {
             var quicConnection = connection as QuicConnection;
 
-            var stream = await quicConnection.AcceptInboundStreamAsync(cancellationToken);
+            var pipcPipeConnection = new QuicPipeConnection(quicConnection, _connectionOptions);
 
-            return new StreamPipeConnection(stream, quicConnection.RemoteEndPoint, quicConnection.LocalEndPoint, _connectionOptions);
+            pipcPipeConnection.AcceptInboundStream(cancellationToken);
+
+            return pipcPipeConnection;
         }
     }
 }
