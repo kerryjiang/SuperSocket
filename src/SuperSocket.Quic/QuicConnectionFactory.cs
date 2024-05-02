@@ -24,7 +24,7 @@ namespace SuperSocket.Quic
             _logger = connectionOptions.Logger;
         }
 
-        public async Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
+        public Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
         {
             var quicConnection = connection as QuicConnection;
 
@@ -32,7 +32,7 @@ namespace SuperSocket.Quic
 
             pipcPipeConnection.AcceptInboundStream(cancellationToken);
 
-            return pipcPipeConnection;
+            return Task.FromResult<IConnection>(pipcPipeConnection);
         }
     }
 }
