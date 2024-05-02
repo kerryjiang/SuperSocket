@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <Description>SuperSocket quic library.</Description>
+        <TargetFramework>net7.0</TargetFramework>
+        <EnablePreviewFeatures>True</EnablePreviewFeatures>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\SuperSocket.Quic.Connection\SuperSocket.Quic.Connection.csproj" />
+        <ProjectReference Include="..\SuperSocket.Server.Abstractions\SuperSocket.Server.Abstractions.csproj" />
+    </ItemGroup>
+</Project>
