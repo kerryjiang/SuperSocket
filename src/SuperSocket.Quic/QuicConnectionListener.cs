@@ -157,4 +157,3 @@ namespace SuperSocket.Quic
         }
     }
 }
-#pragma warning restore CA2252

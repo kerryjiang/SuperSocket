@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Quic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +14,6 @@ namespace SuperSocket.Quic
 {
     internal class QuicConnectionFactory : IConnectionFactory
     {
-        private readonly ILogger _logger;
         private readonly ListenOptions _listenOptions;
         private readonly ConnectionOptions _connectionOptions;
         private readonly IEnumerable<IConnectionStreamInitializer> _connectionStreamInitializers;
@@ -27,7 +25,6 @@ namespace SuperSocket.Quic
         {
             _listenOptions = listenOptions;
             _connectionOptions = connectionOptions;
-            _logger = connectionOptions.Logger;
             _connectionStreamInitializers = connectionStreamInitializersFactory.Create(_listenOptions);
         }
 
@@ -48,4 +45,3 @@ namespace SuperSocket.Quic
         }
     }
 }
-#pragma warning restore CA2252

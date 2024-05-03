@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Net.Quic;
 using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Server.Abstractions.Connections;
@@ -13,8 +12,8 @@ namespace SuperSocket.Server
     {
         public static ISuperSocketHostBuilder UseQuic(this ISuperSocketHostBuilder hostBuilder)
         {
-            // if (!QuicListener.IsSupported)
-            //     throw new PlatformNotSupportedException("System.Net.Quic is not supported on this platform.");
+            if (!QuicListener.IsSupported)
+                throw new PlatformNotSupportedException("System.Net.Quic is not supported on this platform.");
             
             return hostBuilder.ConfigureServices((_, services) =>
             {
@@ -30,4 +29,3 @@ namespace SuperSocket.Server
         }
     }
 }
-#pragma warning disable CA2252
