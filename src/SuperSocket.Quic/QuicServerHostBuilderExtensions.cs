@@ -18,6 +18,7 @@ namespace SuperSocket.Server
             
             return hostBuilder.ConfigureServices((_, services) =>
             {
+                services.AddSingleton<IConnectionStreamInitializersFactory, QuicConnectionStreamInitializersFactory>();
                 services.AddSingleton<IConnectionListenerFactory, QuicConnectionListenerFactory>();
                 services.AddSingleton<IConnectionFactoryBuilder, QuicConnectionFactoryBuilder>();
             }) as ISuperSocketHostBuilder;

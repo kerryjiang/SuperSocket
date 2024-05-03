@@ -37,7 +37,7 @@ namespace SuperSocket.Server.Connection
 
                 foreach (var initializer in connectionStreamInitializers)
                 {
-                    stream = await initializer.InitializeAsync(socket, stream, cancellationToken);
+                    stream = await initializer.InitializeAsync(socket, cancellationToken);
                 }
 
                 return new StreamPipeConnection(stream, socket.RemoteEndPoint, socket.LocalEndPoint, ConnectionOptions);

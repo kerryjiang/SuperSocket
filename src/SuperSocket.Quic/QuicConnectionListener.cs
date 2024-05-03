@@ -16,7 +16,7 @@ namespace SuperSocket.Quic
     {
         private readonly ILogger _logger;
 
-        private QuicListener _listenSocket;
+        private QuicListener _listenQuic;
         private CancellationTokenSource _cancellationTokenSource;
         private TaskCompletionSource<bool> _stopTaskCompletionSource;
         public IConnectionFactory ConnectionFactory { get; }
@@ -70,11 +70,11 @@ namespace SuperSocket.Quic
                 var result = QuicListener.ListenAsync(quicListenerOptions);
 
                 if (result.IsCompleted)
-                    _listenSocket = result.Result;
+                    _listenQuic = result.Result;
                 else
-                    _listenSocket = result.GetAwaiter().GetResult();
+                    _listenQuic = result.GetAwaiter().GetResult();
 
-                var listenSocket = _listenSocket;
+                var listenSocket = _listenQuic;
 
                 IsRunning = true;
 
@@ -138,7 +138,7 @@ namespace SuperSocket.Quic
 
         public async Task StopAsync()
         {
-            var listenSocket = _listenSocket;
+            var listenSocket = _listenQuic;
 
             if (listenSocket == null)
                 return;
@@ -146,7 +146,7 @@ namespace SuperSocket.Quic
             _stopTaskCompletionSource = new TaskCompletionSource<bool>();
 
             _cancellationTokenSource.Cancel();
-            await _listenSocket.DisposeAsync();
+            await _listenQuic.DisposeAsync();
 
             await _stopTaskCompletionSource.Task;
         }

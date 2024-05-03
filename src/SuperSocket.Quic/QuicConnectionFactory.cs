@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Quic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -5,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using SuperSocket.Connection;
 using SuperSocket.Quic.Connection;
 using SuperSocket.Server.Abstractions;
+using SuperSocket.Server.Abstractions.Connections;
 
 #pragma warning disable CA2252
 namespace SuperSocket.Quic
@@ -14,26 +18,33 @@ namespace SuperSocket.Quic
         private readonly ILogger _logger;
         private readonly ListenOptions _listenOptions;
         private readonly ConnectionOptions _connectionOptions;
+        private readonly IEnumerable<IConnectionStreamInitializer> _connectionStreamInitializers;
 
         public QuicConnectionFactory(
+            IConnectionStreamInitializersFactory connectionStreamInitializersFactory,
             ListenOptions listenOptions,
             ConnectionOptions connectionOptions)
         {
             _listenOptions = listenOptions;
             _connectionOptions = connectionOptions;
             _logger = connectionOptions.Logger;
+            _connectionStreamInitializers = connectionStreamInitializersFactory.Create(_listenOptions);
         }
 
-        public Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
+        public async Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
         {
+            Stream stream = null;
             var quicConnection = connection as QuicConnection;
 
-            var quicStream = new QuicPipeStream(quicConnection, true);
+            foreach (var initializer in _connectionStreamInitializers)
+            {
+                stream = await initializer.InitializeAsync(quicConnection, cancellationToken);
+            }
 
-            var pipcPipeConnection = new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint,
+            var quicStream = (QuicPipeStream)stream;
+
+            return new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint,
                 quicConnection.LocalEndPoint, _connectionOptions);
-
-            return Task.FromResult<IConnection>(pipcPipeConnection);
         }
     }
 }

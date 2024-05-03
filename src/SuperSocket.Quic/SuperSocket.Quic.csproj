@@ -9,5 +9,6 @@
     <ItemGroup>
         <ProjectReference Include="..\SuperSocket.Quic.Connection\SuperSocket.Quic.Connection.csproj" />
         <ProjectReference Include="..\SuperSocket.Server.Abstractions\SuperSocket.Server.Abstractions.csproj" />
+        <ProjectReference Include="..\SuperSocket.Server\SuperSocket.Server.csproj" />
     </ItemGroup>
 </Project>

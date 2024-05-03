@@ -13,8 +13,10 @@ namespace SuperSocket.Server.Connection
     {
         public CompressionLevel CompressionLevel { get; private set; }
 
-        public Task<Stream> InitializeAsync(Socket socket, Stream stream, CancellationToken cancellationToken)
+        public Task<Stream> InitializeAsync(object connection, CancellationToken cancellationToken)
         {
+            var stream = (Stream)connection;
+            
             var connectionStream = new ReadWriteDelegateStream(
                 stream,
                 new GZipStream(stream, CompressionMode.Decompress),
