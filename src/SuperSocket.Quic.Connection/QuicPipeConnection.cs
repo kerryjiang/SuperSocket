@@ -50,5 +50,3 @@ namespace SuperSocket.Quic.Connection
         }
     }
 }
-
-#pragma warning disable CA2252
