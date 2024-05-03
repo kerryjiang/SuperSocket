@@ -100,7 +100,7 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
-        //[InlineData(typeof(QuicHostConfigurator))]
+        [InlineData(typeof(QuicHostConfigurator))]
         [Trait("Category", "Client.TestBindLocalEndPoint")]
         public async Task TestBindLocalEndPoint(Type hostConfiguratorType)
         {
@@ -199,7 +199,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
-        //[InlineData(typeof(QuicHostConfigurator))]
+        [InlineData(typeof(QuicHostConfigurator))]
         public async Task TestCommandLine(Type hostConfiguratorType)
         {
             var packageEvent = new AutoResetEvent(false);
