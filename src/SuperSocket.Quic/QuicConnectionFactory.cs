@@ -25,10 +25,7 @@ namespace SuperSocket.Quic
         {
             var quicConnection = connection as QuicConnection;
 
-            var quicStream = new QuicPipeStream(quicConnection, new QuicStreamOptions
-            {
-                ServerStream = true,
-            });
+            var quicStream = new QuicPipeStream(quicConnection);
 
             return new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint, quicConnection.LocalEndPoint, _connectionOptions);
         }

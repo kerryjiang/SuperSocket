@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Net;
 using System.Net.Quic;
 using System.Net.Sockets;
@@ -12,15 +13,15 @@ namespace SuperSocket.Quic.Connection
 {
     public class QuicPipeConnection : StreamPipeConnection
     {
-        private readonly QuicPipeStream _stream;
+        private readonly Stream _stream;
 
-        public QuicPipeConnection(QuicPipeStream stream, EndPoint remoteEndPoint, ConnectionOptions options)
+        public QuicPipeConnection(Stream stream, EndPoint remoteEndPoint, ConnectionOptions options)
             : this(stream, remoteEndPoint, null, options)
         {
             _stream = stream;
         }
 
-        public QuicPipeConnection(QuicPipeStream stream, EndPoint remoteEndPoint, EndPoint localEndPoint,
+        public QuicPipeConnection(Stream stream, EndPoint remoteEndPoint, EndPoint localEndPoint,
             ConnectionOptions options)
             : base(stream, remoteEndPoint, localEndPoint, options)
         {
@@ -30,7 +31,9 @@ namespace SuperSocket.Quic.Connection
         protected override async Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
             CancellationToken cancellationToken)
         {
-            await _stream.OpenStreamAsync(cancellationToken);
+            if (_stream is QuicPipeStream quicPipeStream)
+                await quicPipeStream.OpenStreamAsync(cancellationToken);
+           
             await base.StartInputPipeTask(packagePipe, cancellationToken);
         }
 

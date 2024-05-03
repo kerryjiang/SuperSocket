@@ -125,11 +125,8 @@ namespace SuperSocket.Tests
                     return false;
                 }
 
-                var quicStream = new QuicPipeStream(quicConnection, new QuicStreamOptions
-                {
-                    ServerStream = false,
-                    StreamType = QuicStreamType.Bidirectional,
-                });
+                var quicStream =
+                    await quicConnection.OpenOutboundStreamAsync(QuicStreamType.Bidirectional, cancellationToken);
 
                 var connection = new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint,
                     quicConnection.LocalEndPoint, Options);

@@ -12,13 +12,11 @@ public sealed class QuicPipeStream : Stream
 {
     private Stream _stream;
 
-    private readonly QuicStreamOptions _serverOptions;
     private readonly QuicConnection _connection;
 
-    public QuicPipeStream(QuicConnection connection, QuicStreamOptions streamOptions)
+    public QuicPipeStream(QuicConnection connection)
     {
         _connection = connection;
-        _serverOptions = streamOptions;
     }
 
     public override bool CanRead => _stream.CanRead;
@@ -34,14 +32,7 @@ public sealed class QuicPipeStream : Stream
 
     public async ValueTask OpenStreamAsync(CancellationToken cancellationToken)
     {
-        if (_serverOptions.ServerStream)
-        {
-            _stream = await _connection.AcceptInboundStreamAsync(cancellationToken);
-        }
-        else
-        {
-            _stream = await _connection.OpenOutboundStreamAsync(_serverOptions.StreamType, cancellationToken);
-        }
+        _stream = await _connection.AcceptInboundStreamAsync(cancellationToken);
     }
 
     public override void Flush() => _stream.Flush();
