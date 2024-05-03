@@ -3,7 +3,6 @@ using System.IO;
 using System.Net.Quic;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using SuperSocket.Connection;
 using SuperSocket.Quic.Connection;
 using SuperSocket.Server.Abstractions;
