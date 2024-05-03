@@ -9,6 +9,6 @@ namespace SuperSocket.Server.Abstractions.Connections
     {
         void Setup(ListenOptions listenOptions);
 
-        Task<Stream> InitializeAsync(Socket socket, Stream stream, CancellationToken cancellationToken);
+        Task<Stream> InitializeAsync(object connection, CancellationToken cancellationToken);
     }
 }

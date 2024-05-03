@@ -32,8 +32,10 @@ namespace SuperSocket.Server.Connection
             _authOptions = authOptions;
         }
 
-        public async Task<Stream> InitializeAsync(Socket socket, Stream stream, CancellationToken cancellationToken)
+        public async Task<Stream> InitializeAsync(object connection, CancellationToken cancellationToken)
         {
+            var stream = (Stream)connection;
+            
             var sslStream = new SslStream(stream, false);
             await sslStream.AuthenticateAsServerAsync(_authOptions, cancellationToken);
             return sslStream;
