@@ -21,10 +21,10 @@ using SuperSocket.ProtoBase;
 using SuperSocket.Quic;
 using SuperSocket.Quic.Connection;
 
+#pragma warning disable CA2252
+#if NET7_0_OR_GREATER
 namespace SuperSocket.Tests
 {
-#if NET7_0_OR_GREATER
-
     public class QuicHostConfigurator : IHostConfigurator
     {
         private static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
@@ -100,7 +100,6 @@ namespace SuperSocket.Tests
             protected override async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint,
                 CancellationToken cancellationToken)
             {
-#pragma warning disable CA2252
                 var quicConnection = await QuicConnection.ConnectAsync(
                     cancellationToken: cancellationToken,
                     options: new QuicClientConnectionOptions
@@ -147,6 +146,5 @@ namespace SuperSocket.Tests
             throw new NotImplementedException();
         }
     }
-
-#endif
 }
+#endif

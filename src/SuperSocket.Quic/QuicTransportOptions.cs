@@ -8,21 +8,20 @@ public sealed class QuicTransportOptions
     /// The maximum number of concurrent inbound uni-directional streams per connection.
     /// </summary>
     public int MaxUnidirectionalStreamCount { get; set; } = 10;
-
-    /// <summary>The maximum read size.</summary>
-    public long MaxReadBufferSize { get; set; } = 1048576L;
-
-    /// <summary>The maximum write size.</summary>
-    public long MaxWriteBufferSize { get; set; } = 65536L;
-
-    /// <summary>The maximum length of the pending connection queue.</summary>
-    public int Backlog { get; set; } = 512;
-
+    
     /// <summary>
     /// Error code used when the stream needs to abort the read or write side of the stream internally.
     /// </summary>
     public long DefaultStreamErrorCode { get; set; }
 
-    /// <summary>Error code used when an open connection is disposed.</summary>
+    /// <summary>
+    /// Error code used when an open connection is disposed
+    /// </summary>
     public long DefaultCloseErrorCode { get; set; }
+
+    /// <summary>Gets or sets the idle timeout for connections. The idle timeout is the time after which the connection will be closed.
+    /// Default <see cref="F:System.TimeSpan.Zero" /> means underlying implementation default idle timeout.</summary>
+    /// <returns>The idle timeout for connections. The default is <see cref="F:System.TimeSpan.Zero" />, which means that the default idle timeout of the underlying implementation is used.</returns>
+    public int? IdleTimeout { get; set; } 
+    
 }

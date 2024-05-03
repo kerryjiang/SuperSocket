@@ -15,6 +15,7 @@ namespace SuperSocket.Quic
     internal sealed class QuicConnectionListener : IConnectionListener
     {
         private readonly ILogger _logger;
+        private readonly QuicTransportOptions _quicTransportOptions;
 
         private QuicListener _listenQuic;
         private CancellationTokenSource _cancellationTokenSource;
@@ -23,11 +24,14 @@ namespace SuperSocket.Quic
         public ListenOptions Options { get; }
         public bool IsRunning { get; private set; }
 
-        public QuicConnectionListener(ListenOptions options, IConnectionFactory connectionFactory, ILogger logger)
+        public QuicConnectionListener(ListenOptions options,
+            QuicTransportOptions quicTransportOptions,
+            IConnectionFactory connectionFactory, ILogger logger)
         {
             Options = options;
             ConnectionFactory = connectionFactory;
             _logger = logger;
+            _quicTransportOptions = quicTransportOptions;
         }
 
         public bool Start()
@@ -38,24 +42,27 @@ namespace SuperSocket.Quic
             {
                 var listenEndpoint = options.ToEndPoint();
 
-                ArgumentNullException.ThrowIfNull(options.CertificateOptions);
+                if (options.CertificateOptions == null)
+                    throw new ArgumentNullException(nameof(options.CertificateOptions),"Quic requires an ssl certificate");
                 
                 if (options.CertificateOptions.Certificate == null)
                     options.CertificateOptions.EnsureCertificate();
-                
+
                 var quicListenerOptions = new QuicListenerOptions
                 {
                     ListenBacklog = options.BackLog,
                     ListenEndPoint = listenEndpoint,
                     ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },
                     ConnectionOptionsCallback = (connection, ssl, token) => ValueTask.FromResult(
-                        new QuicServerConnectionOptions()
+                        new QuicServerConnectionOptions
                         {
-                            DefaultStreamErrorCode = 0,
-                            DefaultCloseErrorCode = 0,
-                            IdleTimeout = TimeSpan.FromMicroseconds(10),
-                            //MaxInboundBidirectionalStreams = 0,
-                            //MaxInboundUnidirectionalStreams = 0,
+                            DefaultStreamErrorCode = _quicTransportOptions.DefaultStreamErrorCode,
+                            DefaultCloseErrorCode = _quicTransportOptions.DefaultCloseErrorCode,
+                            IdleTimeout = _quicTransportOptions.IdleTimeout.HasValue
+                                ? TimeSpan.FromMicroseconds(_quicTransportOptions.IdleTimeout.Value)
+                                : Timeout.InfiniteTimeSpan,
+                            MaxInboundBidirectionalStreams = _quicTransportOptions.MaxBidirectionalStreamCount,
+                            MaxInboundUnidirectionalStreams = _quicTransportOptions.MaxUnidirectionalStreamCount,
                             ServerAuthenticationOptions = new SslServerAuthenticationOptions()
                             {
                                 ApplicationProtocols =
@@ -67,14 +74,7 @@ namespace SuperSocket.Quic
                         })
                 };
 
-                var result = QuicListener.ListenAsync(quicListenerOptions);
-
-                if (result.IsCompleted)
-                    _listenQuic = result.Result;
-                else
-                    _listenQuic = result.GetAwaiter().GetResult();
-
-                var listenSocket = _listenQuic;
+                var listenSocket = QuicListener.ListenAsync(quicListenerOptions).GetAwaiter().GetResult();
 
                 IsRunning = true;
 
@@ -92,7 +92,6 @@ namespace SuperSocket.Quic
 
 
         private async Task KeepAcceptAsync(QuicListener listenSocket, CancellationToken cancellationToken)
-
         {
             while (!cancellationToken.IsCancellationRequested)
             {
