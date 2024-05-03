@@ -15,6 +15,7 @@ namespace SuperSocket.Quic
     {
         private readonly ListenOptions _listenOptions;
         private readonly ConnectionOptions _connectionOptions;
+
         public QuicConnectionFactory(ListenOptions listenOptions, ConnectionOptions connectionOptions)
         {
             _listenOptions = listenOptions;
@@ -25,12 +26,15 @@ namespace SuperSocket.Quic
         {
             var quicConnection = connection as QuicConnection;
 
-            var quicStream = new QuicPipeStream(quicConnection, new QuicStreamOptions
-            {
-                ServerStream = true,
-            });
+            var quicStream = await quicConnection.AcceptInboundStreamAsync(CancellationToken.None);
 
-            return new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint, quicConnection.LocalEndPoint, _connectionOptions);
+            // var quicStream = new QuicPipeStream(quicConnection, new QuicStreamOptions
+            // {
+            //     ServerStream = true,
+            // });
+
+            return new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint, quicConnection.LocalEndPoint,
+                _connectionOptions);
         }
     }
 }
