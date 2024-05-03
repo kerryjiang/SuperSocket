@@ -13,8 +13,10 @@ namespace SuperSocket.Server.Connection
         {
         }
 
-        public Task<Stream> InitializeAsync(Socket socket, Stream stream, CancellationToken cancellationToken)
+        public Task<Stream> InitializeAsync(object connection, CancellationToken cancellationToken)
         {
+            var socket = (Socket)connection;
+            
             return Task.FromResult<Stream>(new NetworkStream(socket, true));
         }
     }
