@@ -18,6 +18,7 @@ using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Client;
 using SuperSocket.ProtoBase;
+using SuperSocket.Quic;
 using SuperSocket.Quic.Connection;
 
 namespace SuperSocket.Tests
@@ -124,9 +125,10 @@ namespace SuperSocket.Tests
                     return false;
                 }
 
-                var connection = new QuicPipeConnection(quicConnection, Options);
+                var quicStream = new QuicPipeStream(quicConnection, false);
 
-                connection.OpenOutboundStream(QuicStreamType.Bidirectional, cancellationToken);
+                var connection = new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint,
+                    quicConnection.LocalEndPoint, Options);
 
                 SetupConnection(connection);
 

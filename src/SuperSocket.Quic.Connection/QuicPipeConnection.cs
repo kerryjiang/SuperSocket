@@ -1,5 +1,5 @@
 using System;
-using System.Buffers;
+using System.Net;
 using System.Net.Quic;
 using System.Net.Sockets;
 using System.Threading;
@@ -10,75 +10,28 @@ using SuperSocket.Connection;
 
 namespace SuperSocket.Quic.Connection
 {
-    public class QuicPipeConnection : PipeConnection
+    public class QuicPipeConnection : StreamPipeConnection
     {
-        private QuicStream _stream;
-        private ValueTask<QuicStream> _readStreamTask;
-        private readonly QuicConnection _quicConnection;
+        private readonly QuicPipeStream _stream;
 
-        public QuicPipeConnection(QuicConnection quicConnection, ConnectionOptions options) : base(options)
+        public QuicPipeConnection(QuicPipeStream stream, EndPoint remoteEndPoint, ConnectionOptions options)
+            : this(stream, remoteEndPoint, null, options)
         {
-            _quicConnection = quicConnection;
-            RemoteEndPoint = quicConnection.RemoteEndPoint;
-            LocalEndPoint = quicConnection.LocalEndPoint;
+            _stream = stream;
+        }
+
+        public QuicPipeConnection(QuicPipeStream stream, EndPoint remoteEndPoint, EndPoint localEndPoint,
+            ConnectionOptions options)
+            : base(stream, remoteEndPoint, localEndPoint, options)
+        {
+            _stream = stream;
         }
 
         protected override async Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
             CancellationToken cancellationToken)
         {
-            ArgumentNullException.ThrowIfNull(_readStreamTask);
-
-            _stream = await _readStreamTask.ConfigureAwait(false);
-
-            await base.StartInputPipeTask(packagePipe, cancellationToken).ConfigureAwait(false);
-        }
-
-        public void OpenOutboundStream(QuicStreamType quicStreamType, CancellationToken cancellationToken)
-        {
-            _readStreamTask = _quicConnection.OpenOutboundStreamAsync(quicStreamType, cancellationToken);
-        }
-
-        public void AcceptInboundStream(CancellationToken cancellationToken)
-        {
-            _readStreamTask = _quicConnection.AcceptInboundStreamAsync(cancellationToken);
-        }
-
-        protected override void Close()
-        {
-            ThrowIfStreamNull();
-            
-            _stream.Close();
-        }
-
-        protected override void OnClosed()
-        {
-            _stream = null;
-            base.OnClosed();
-        }
-
-        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory,
-            CancellationToken cancellationToken)
-        {
-            ThrowIfStreamNull();
-            
-            return await _stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
-        }
-
-        protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer,
-            CancellationToken cancellationToken)
-        {
-            ThrowIfStreamNull();
-            
-            var total = 0;
-
-            foreach (var data in buffer)
-            {
-                await _stream.WriteAsync(data, cancellationToken).ConfigureAwait(false);
-                total += data.Length;
-            }
-
-            await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-            return total;
+            await _stream.OpenStreamAsync(cancellationToken);
+            await base.StartInputPipeTask(packagePipe, cancellationToken);
         }
 
         protected override bool IsIgnorableException(Exception e)
@@ -94,11 +47,6 @@ namespace SuperSocket.Quic.Connection
                 default:
                     return false;
             }
-        }
-
-        private void ThrowIfStreamNull()
-        {
-            ArgumentNullException.ThrowIfNull(_stream);
         }
     }
 }

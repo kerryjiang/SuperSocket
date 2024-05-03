@@ -53,7 +53,7 @@ namespace SuperSocket.Quic
                         {
                             DefaultStreamErrorCode = 0,
                             DefaultCloseErrorCode = 0,
-                            //IdleTimeout = 0,
+                            IdleTimeout = TimeSpan.FromMicroseconds(10),
                             //MaxInboundBidirectionalStreams = 0,
                             //MaxInboundUnidirectionalStreams = 0,
                             ServerAuthenticationOptions = new SslServerAuthenticationOptions()

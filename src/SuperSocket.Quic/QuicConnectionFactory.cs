@@ -28,9 +28,10 @@ namespace SuperSocket.Quic
         {
             var quicConnection = connection as QuicConnection;
 
-            var pipcPipeConnection = new QuicPipeConnection(quicConnection, _connectionOptions);
+            var quicStream = new QuicPipeStream(quicConnection, true);
 
-            pipcPipeConnection.AcceptInboundStream(cancellationToken);
+            var pipcPipeConnection = new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint,
+                quicConnection.LocalEndPoint, _connectionOptions);
 
             return Task.FromResult<IConnection>(pipcPipeConnection);
         }
