@@ -61,7 +61,8 @@ namespace SuperSocket.Udp
                 
                 if (options.NoDelay)
                     listenSocket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.NoDelay, true);
-                
+
+                listenSocket.ExclusiveAddressUse = options.UdpExclusiveAddressUse;
                 listenSocket.Bind(listenEndpoint);
 
                 _acceptRemoteEndPoint = listenEndpoint.AddressFamily == AddressFamily.InterNetworkV6 ? new IPEndPoint(IPAddress.IPv6Any, 0) : new IPEndPoint(IPAddress.Any, 0);
