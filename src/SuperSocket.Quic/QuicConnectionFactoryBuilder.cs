@@ -2,13 +2,12 @@ using SuperSocket.Connection;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Connections;
 
-namespace SuperSocket.Quic
+namespace SuperSocket.Quic;
+
+internal class QuicConnectionFactoryBuilder : IConnectionFactoryBuilder
 {
-    internal class QuicConnectionFactoryBuilder : IConnectionFactoryBuilder
+    public IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions)
     {
-        public IConnectionFactory Build(ListenOptions listenOptions, ConnectionOptions connectionOptions)
-        {
-            return new QuicConnectionFactory(listenOptions, connectionOptions);
-        }
+        return new QuicConnectionFactory(connectionOptions);
     }
 }

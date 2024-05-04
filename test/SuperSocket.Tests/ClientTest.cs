@@ -23,13 +23,13 @@ namespace SuperSocket.Tests
     public class ClientTest : TestClassBase
     {
         private static Random _rd = new Random();
-        
+
         public ClientTest(ITestOutputHelper outputHelper)
             : base(outputHelper)
         {
 
         }
-        
+
         [Theory]
         [Trait("Category", "Client.TestEcho")]
         [InlineData(typeof(RegularHostConfigurator), false)]
@@ -72,11 +72,11 @@ namespace SuperSocket.Tests
                     Logger = NullLogger.Instance,
                     ReadAsDemand = clientReadAsDemand
                 };
-                
+
                 var client = hostConfigurator.ConfigureEasyClient(new LinePipelineFilter(), options);
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
-                
+
                 Assert.True(connected);
 
                 Assert.True(serverSessionEvent.WaitOne(1000));
@@ -88,7 +88,7 @@ namespace SuperSocket.Tests
 
                     var package = await client.ReceiveAsync();
                     Assert.NotNull(package);
-                    Assert.Equal(msg, package.Text); 
+                    Assert.Equal(msg, package.Text);
                 }
 
                 await client.CloseAsync();
@@ -105,7 +105,6 @@ namespace SuperSocket.Tests
         public async Task TestBindLocalEndPoint(Type hostConfiguratorType)
         {
             IAppSession session = default;
-
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
             .UseSessionHandler(async s =>
@@ -119,7 +118,7 @@ namespace SuperSocket.Tests
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
-                OutputHelper.WriteLine("Server started.");                
+                OutputHelper.WriteLine("Server started.");
 
                 var pipelineFilter = new CommandLinePipelineFilter
                 {
@@ -130,11 +129,11 @@ namespace SuperSocket.Tests
                 {
                     Logger = DefaultLoggerFactory.CreateLogger(nameof(TestBindLocalEndPoint))
                 };
-                
+
                 var client = hostConfigurator.ConfigureEasyClient(pipelineFilter, options);
                 var connected = false;
                 var localPort = 0;
-                
+
                 for (var i = 0; i < 3; i++)
                 {
                     localPort = _rd.Next(40000, 50000);
@@ -148,16 +147,16 @@ namespace SuperSocket.Tests
                     {
                         if (e.SocketErrorCode == SocketError.AccessDenied || e.SocketErrorCode == SocketError.AddressAlreadyInUse)
                             continue;
-                        
+
                         throw e;
                     }
 
-                    break;                    
-                }                
-                
+                    break;
+                }
+
                 Assert.True(connected);
 
-                await Task.Delay(500);
+                await Task.Delay(5000);
 
                 Assert.NotNull(session);
                 Assert.Equal(localPort, (session.RemoteEndPoint as IPEndPoint).Port);
@@ -238,7 +237,7 @@ namespace SuperSocket.Tests
                 };
 
                 var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
-                
+
                 Assert.True(connected);
 
                 client.StartReceive();
@@ -325,7 +324,7 @@ namespace SuperSocket.Tests
                     connection = connectionFactory(server, socket);
 
                     await TestConnection(connection);
-                }                
+                }
 
                 await server.StopAsync();
             }

@@ -108,6 +108,7 @@ namespace SuperSocket.Tests
                         DefaultStreamErrorCode = 0,
                         RemoteEndPoint = remoteEndPoint,
                         LocalEndPoint = LocalEndPoint,
+                        IdleTimeout = TimeSpan.Zero,
                         ClientAuthenticationOptions = new SslClientAuthenticationOptions
                         {
                             ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http3 },
