@@ -97,7 +97,8 @@ namespace SuperSocket.Connection
         {
             try
             {
-                await _pipeTask.ConfigureAwait(false);
+                if (_pipeTask != null)
+                    await _pipeTask.ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
