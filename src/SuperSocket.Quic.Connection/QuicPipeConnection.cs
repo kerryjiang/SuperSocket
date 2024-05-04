@@ -23,7 +23,7 @@ public class QuicPipeConnection : StreamPipeConnection
     public QuicPipeConnection(Stream stream, EndPoint remoteEndPoint, EndPoint localEndPoint, ConnectionOptions options)
         : base(stream, remoteEndPoint, localEndPoint, options)
     {
-        if (stream is not QuicStream or QuicPipeStream)
+        if (stream is not QuicStream && stream is not QuicPipeStream)
             throw new NotSupportedException("QuicPipeConnection only supports QuicStream or QuicPipeStream");
 
         _stream = stream;
