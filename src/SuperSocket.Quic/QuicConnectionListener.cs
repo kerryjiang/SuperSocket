@@ -99,7 +99,7 @@ internal sealed class QuicConnectionListener : IConnectionListener
             {
                 var quicConnection =
                     await listenSocket.AcceptConnectionAsync(cancellationToken).ConfigureAwait(false);
-                OnNewClientAccept(quicConnection, cancellationToken);
+                OnNewClientAccept(quicConnection);
             }
             catch (Exception e)
             {
@@ -112,7 +112,7 @@ internal sealed class QuicConnectionListener : IConnectionListener
 
     public event NewConnectionAcceptHandler NewConnectionAccept;
 
-    private async void OnNewClientAccept(QuicConnection quicConnection, CancellationToken cancellationToken)
+    private async void OnNewClientAccept(QuicConnection quicConnection)
     {
         var handler = NewConnectionAccept;
 
