@@ -82,7 +82,12 @@ namespace SuperSocket.Connection
             {
                 var package = await packagePipe.ReadAsync().ConfigureAwait(false);
 
-            e
+                if (package == null)
+                {
+                    yield break;
+                }
+
+                yield return package;
             }
 
             //How do empty a pipe?
