@@ -16,13 +16,14 @@ internal class QuicConnectionFactory : IConnectionFactory
         _connectionOptions = connectionOptions;
     }
 
-    public async Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
+    public Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
     {
         var quicConnection = (QuicConnection)connection;
 
-        var stream = await quicConnection.AcceptInboundStreamAsync(cancellationToken);
+        var quicStream = new QuicPipeStream(quicConnection);
 
-        return new QuicPipeConnection(stream, quicConnection.RemoteEndPoint,
-            quicConnection.LocalEndPoint, _connectionOptions);
+        var pipeConnection = new QuicPipeConnection(quicStream, quicConnection.RemoteEndPoint, quicConnection.LocalEndPoint, _connectionOptions);
+
+        return Task.FromResult<IConnection>(pipeConnection);
     }
 }

@@ -13,14 +13,29 @@ namespace SuperSocket.Quic.Connection;
 
 public class QuicPipeConnection : StreamPipeConnection
 {
-    public QuicPipeConnection(QuicStream stream, EndPoint remoteEndPoint, ConnectionOptions options)
+    private readonly Stream _stream;
+
+    public QuicPipeConnection(Stream stream, EndPoint remoteEndPoint, ConnectionOptions options)
         : this(stream, remoteEndPoint, null, options)
     {
     }
 
-    public QuicPipeConnection(QuicStream stream, EndPoint remoteEndPoint, EndPoint localEndPoint, ConnectionOptions options)
+    public QuicPipeConnection(Stream stream, EndPoint remoteEndPoint, EndPoint localEndPoint, ConnectionOptions options)
         : base(stream, remoteEndPoint, localEndPoint, options)
     {
+        if (stream is not QuicStream && stream is not QuicPipeStream)
+            throw new NotSupportedException("QuicPipeConnection only supports QuicStream or QuicPipeStream");
+
+        _stream = stream;
+    }
+
+    protected override async Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
+        CancellationToken cancellationToken)
+    {
+        if (_stream is QuicPipeStream quicPipeStream)
+            await quicPipeStream.OpenStreamAsync(cancellationToken);
+
+        await base.StartInputPipeTask(packagePipe, cancellationToken);
     }
 
     protected override bool IsIgnorableException(Exception e)
