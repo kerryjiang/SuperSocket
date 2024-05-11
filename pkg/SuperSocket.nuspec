@@ -6,7 +6,7 @@
     <version>$version$</version>
     <authors>Kerry Jiang</authors>
     <owners>Kerry Jiang and other contributors</owners>
-    <license type="expression">APACHE-2.0</license>
+    <license type="expression">Apache-2.0</license>
     <projectUrl>http://www.supersocket.net/</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>SuperSocket is a light weight, cross platform and extensible socket server application framework. You can use it to build a server side socket application (like game server, GPS server, industrial control system, data acquisition server etc) easily without thinking about how to use socket, how to maintain the socket connections and how socket works.</description>

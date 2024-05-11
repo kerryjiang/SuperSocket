@@ -6,7 +6,7 @@
     <version>$version$</version>
     <authors>Kerry Jiang</authors>
     <owners>Kerry Jiang</owners>
-    <license type="expression">APACHE-2.0</license>
+    <license type="expression">Apache-2.0</license>
     <projectUrl>http://www.supersocket.net/</projectUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <description>WebSocket server implementation base on SuperSocket. It is just the same codebase with SuperWebSocket but has different assembly name and namespace.</description>
