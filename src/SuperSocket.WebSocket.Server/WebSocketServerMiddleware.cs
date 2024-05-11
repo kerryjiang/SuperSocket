@@ -62,12 +62,18 @@ namespace SuperSocket.WebSocket.Server
 
         public override void Shutdown(IServer server)
         {
-            var checkTimer = _checkingTimer;
-            _checkingTimer = null;
-            checkTimer.Change(Timeout.Infinite, Timeout.Infinite);
-            checkTimer.Dispose();
-
             _sessionContainerMiddleware = null;
+
+            var checkTimer = _checkingTimer;
+
+            if (checkTimer == null)
+                return;
+
+            if (Interlocked.CompareExchange(ref _checkingTimer, null, checkTimer) == checkTimer)
+            {
+                checkTimer.Change(Timeout.Infinite, Timeout.Infinite);
+                checkTimer.Dispose();
+            }            
         }
 
         public override ValueTask<bool> RegisterSession(IAppSession session)
