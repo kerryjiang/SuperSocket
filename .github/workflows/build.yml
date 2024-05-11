@@ -20,6 +20,11 @@ jobs:
         runs-on: ${{matrix.os}}
         steps:
             - uses: actions/checkout@v1
+            - name: Install libmsquic
+              if: runner.os == 'ubuntu-latest'
+              run: |
+                sudo apt-get update
+                sudo apt-get -y install libmsquic
             - name: Setup .NET Core
               uses: actions/setup-dotnet@v3
               with:
@@ -38,6 +43,12 @@ jobs:
             - name: Build Samples
               run: dotnet build -c Release samples/samples.sln
             - name: Test
+              if: runner.os != 'macos-latest'
               run: |
                 cd test/SuperSocket.Tests
                 dotnet test
+            - name: Test
+              if: runner.os == 'macos-latest'
+              run: |
+                cd test/SuperSocket.Tests
+                dotnet test --filter Category!=QUIC
