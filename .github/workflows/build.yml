@@ -42,13 +42,13 @@ jobs:
               run: dotnet build -c Release
             - name: Build Samples
               run: dotnet build -c Release samples/samples.sln
-            - name: Test
+            - name: Test - Not macOS
               if: runner.os != 'macOS'
               run: |
                 cd test/SuperSocket.Tests
                 dotnet test
-            - name: Test
+            - name: Test - macOS
               if: runner.os == 'macOS'
               run: |
                 cd test/SuperSocket.Tests
-                dotnet test --filter Category!=QUIC
+                dotnet test --filter FullyQualifiedName!~QuicHostConfigurator
