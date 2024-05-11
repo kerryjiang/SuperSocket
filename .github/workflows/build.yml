@@ -21,7 +21,7 @@ jobs:
         steps:
             - uses: actions/checkout@v1
             - name: Install libmsquic
-              if: runner.os == 'ubuntu-latest'
+              if: runner.os == 'Linux'
               run: |
                 sudo apt-get update
                 sudo apt-get -y install libmsquic
@@ -43,12 +43,12 @@ jobs:
             - name: Build Samples
               run: dotnet build -c Release samples/samples.sln
             - name: Test
-              if: runner.os != 'macos-latest'
+              if: runner.os != 'macOS'
               run: |
                 cd test/SuperSocket.Tests
                 dotnet test
             - name: Test
-              if: runner.os == 'macos-latest'
+              if: runner.os == 'macOS'
               run: |
                 cd test/SuperSocket.Tests
                 dotnet test --filter Category!=QUIC
