@@ -1,7 +1,9 @@
 ﻿namespace SuperSocket.Kestrel;
 
 using System;
+using System.IO;
 using System.IO.Pipelines;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
@@ -71,6 +73,21 @@ public class KestrelPipeConnection : PipeConnectionBase
     {
         await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();
+    }
+
+    protected override bool IsIgnorableException(Exception e)
+    {
+        if (e is IOException ioe && ioe.InnerException != null)
+        {
+            return IsIgnorableException(ioe.InnerException);
+        }
+
+        if (e is SocketException se)
+        {
+            return se.IsIgnorableSocketException();
+        }
+
+        return base.IsIgnorableException(e);
     }
 
     private void OnConnectionClosed()
