@@ -29,14 +29,14 @@ public class QuicPipeConnection : StreamPipeConnection
         _stream = stream;
     }
 
-    protected override async Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
-        CancellationToken cancellationToken)
-    {
-        if (_stream is QuicPipeStream quicPipeStream)
-            await quicPipeStream.OpenStreamAsync(cancellationToken);
-
-        await base.StartInputPipeTask(packagePipe, cancellationToken);
-    }
+    // protected override async Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
+    //     CancellationToken cancellationToken)
+    // {
+    //     if (_stream is QuicPipeStream quicPipeStream)
+    //         await quicPipeStream.OpenStreamAsync(cancellationToken);
+    //
+    //     await base.StartInputPipeTask(packagePipe, cancellationToken);
+    // }
 
     protected override bool IsIgnorableException(Exception e)
     {
