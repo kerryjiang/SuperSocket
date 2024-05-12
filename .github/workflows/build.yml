@@ -51,4 +51,4 @@ jobs:
               if: runner.os != 'Linux'
               run: |
                 cd test/SuperSocket.Tests
-                dotnet test --filter FullyQualifiedName!~QuicHostConfigurator
+                dotnet test --filter FullyQualifiedName\!~QuicHostConfigurator
