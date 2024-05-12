@@ -23,7 +23,11 @@ public sealed class QuicPipeStream : Stream
     public override bool CanSeek => _stream.CanSeek;
     public override bool CanWrite => _stream.CanWrite;
     public override long Length => _stream.Length;
-
+    public override int ReadTimeout 
+    {
+        get => _stream.ReadTimeout;
+        set => _stream.ReadTimeout = value;
+    }
     public override long Position
     {
         get => _stream.Position;
