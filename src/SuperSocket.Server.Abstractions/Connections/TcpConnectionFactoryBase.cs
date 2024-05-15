@@ -1,17 +1,10 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.IO;
-using System.Linq;
-using System.Net.Security;
 using System.Net.Sockets;
-using System.Security.Authentication;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Connection;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Server.Abstractions.Connections
 {
