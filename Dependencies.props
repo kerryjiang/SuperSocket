@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>    
-    <CoreFxVersion>7.0.0</CoreFxVersion>
-    <PipelinesVersion>7.0.0</PipelinesVersion>
-    <MSExtensionsVersion>7.0.0</MSExtensionsVersion>
+    <CoreFxVersion>6.0.0</CoreFxVersion>
+    <PipelinesVersion>6.0.0</PipelinesVersion>
+    <MSExtensionsVersion>6.0.0</MSExtensionsVersion>
   </PropertyGroup>
 </Project>
