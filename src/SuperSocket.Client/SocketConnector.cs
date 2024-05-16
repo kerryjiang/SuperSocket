@@ -24,7 +24,12 @@ namespace SuperSocket.Client
 
         protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
-            var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            var addressFamily = remoteEndPoint.AddressFamily;
+
+            if (addressFamily == AddressFamily.Unspecified)
+                addressFamily = AddressFamily.InterNetworkV6;
+
+            var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
 
             try
             {
