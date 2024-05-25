@@ -303,7 +303,7 @@ namespace SuperSocket.Client
             OnClosed(this, e);
         }
 
-        private void OnClosed(object sender, EventArgs e)
+        protected virtual void OnClosed(object sender, EventArgs e)
         {
             var handler = Closed;
 
