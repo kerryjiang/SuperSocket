@@ -130,5 +130,10 @@ namespace SuperSocket.WebSocket.Server
 
             }
         }
+
+        public override async ValueTask CloseAsync()
+        {
+            await this.CloseAsync(CloseReason.NormalClosure);
+        }
     }
 }
