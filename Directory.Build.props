@@ -6,7 +6,7 @@
     <SamplesTargetFrameworks>net7.0</SamplesTargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
-    <MobileTargetFrameworks>net6.0-ios;net6.0-android;net6.0-macos;net6.0-tvos;net7.0-ios;net7.0-android;net7.0-macos;net7.0-tvos;net8.0-ios;net=8.0-android;net8.0-macos;net8.0-tvos</MobileTargetFrameworks>
+    <MobileTargetFrameworks>net7.0-ios;net7.0-android;net7.0-macos;net7.0-tvos;net8.0-ios;net8.0-android;net8.0-macos;net8.0-tvos</MobileTargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PackageProjectUrl>https://github.com/kerryjiang/supersocket</PackageProjectUrl>
