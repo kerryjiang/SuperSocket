@@ -7,7 +7,7 @@ on:
 
 jobs:
     push:
-        runs-on: macos-latest
+        runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
             - uses: actions/setup-java@v4
@@ -22,7 +22,7 @@ jobs:
               run: echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
             - name: Install required workloads
               run:  |
-                dotnet workload install android ios maccatalyst tvos macos maui wasm-tools wasm-tools-net6 --source https://aka.ms/dotnet8/nuget/index.json --source https://api.nuget.org/v3/index.json
+                dotnet workload install android ios maccatalyst tvos macos maui wasm-tools --source https://aka.ms/dotnet8/nuget/index.json --source https://api.nuget.org/v3/index.json
             - uses: dotnet/nbgv@master
               id: nbgv
             - name: Pack

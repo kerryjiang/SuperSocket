@@ -5,16 +5,23 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v1
-            - name: Setup .NET Core
+            - uses: actions/setup-java@v4
+              with:
+                distribution: 'microsoft'
+                java-version: '21'
+            - name: Setup .NET Core            
               uses: actions/setup-dotnet@v3
               with:
                 dotnet-version: '8.0.x'
             - name: Set env
               run: echo "DOTNET_CLI_TELEMETRY_OPTOUT=1" >> $GITHUB_ENV
+            - name: Install required workloads
+              run:  |
+                dotnet workload install android ios maccatalyst tvos macos maui wasm-tools --source https://aka.ms/dotnet8/nuget/index.json --source https://api.nuget.org/v3/index.json
             - uses: dotnet/nbgv@master
               id: nbgv
             - name: Pack
-              run: dotnet pack -c Release -p:PackageVersion=${{ steps.nbgv.outputs.NuGetPackageVersion }} -p:Version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }} -p:AssemblyVersion=${{ steps.nbgv.outputs.AssemblyVersion }} -p:AssemblyFileVersion=${{ steps.nbgv.outputs.AssemblyFileVersion }} -p:AssemblyInformationalVersion=${{ steps.nbgv.outputs.AssemblyInformationalVersion }} /p:NoPackageAnalysis=true
+              run: dotnet pack -c Release -p:IncludeMobileTargetFramework=true -p:PackageVersion=${{ steps.nbgv.outputs.NuGetPackageVersion }} -p:Version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }} -p:AssemblyVersion=${{ steps.nbgv.outputs.AssemblyVersion }} -p:AssemblyFileVersion=${{ steps.nbgv.outputs.AssemblyFileVersion }} -p:AssemblyInformationalVersion=${{ steps.nbgv.outputs.AssemblyInformationalVersion }} /p:NoPackageAnalysis=true
             - name: Pack all-in-one-packages
               run:  |
                 dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}" pkg/SuperSocket.csproj
