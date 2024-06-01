@@ -2,6 +2,9 @@
   <PropertyGroup>
     <Description>SuperSocket client proxy library</Description>
   </PropertyGroup>
+  <PropertyGroup Condition="$(IncludeMobileTargetFramework) == 'true'">
+    <TargetFrameworks>$(TargetFrameworks);$(MobileTargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SuperSocket.Client\SuperSocket.Client.csproj" />
   </ItemGroup>

@@ -2,4 +2,7 @@
   <PropertyGroup>
     <Description>SuperSocket protocol decoding library.</Description>
   </PropertyGroup>
+  <PropertyGroup Condition="$(IncludeMobileTargetFramework) == 'true'">
+    <TargetFrameworks>$(TargetFrameworks);$(MobileTargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
 </Project>

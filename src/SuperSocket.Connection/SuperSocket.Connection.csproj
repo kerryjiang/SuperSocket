@@ -2,6 +2,9 @@
   <PropertyGroup>
     <Description>SuperSocket library to abstract underlying communications as connection with pipeline.</Description>
   </PropertyGroup>
+  <PropertyGroup Condition="$(IncludeMobileTargetFramework) == 'true'">
+    <TargetFrameworks>$(TargetFrameworks);$(MobileTargetFrameworks)</TargetFrameworks>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="$(MSExtensionsVersion)" />
