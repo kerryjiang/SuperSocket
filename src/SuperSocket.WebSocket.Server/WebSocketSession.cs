@@ -59,6 +59,16 @@ namespace SuperSocket.WebSocket.Server
                 cancellationToken);
         }
 
+        public virtual ValueTask SendAsync(ReadOnlySequence<byte> data, CancellationToken cancellationToken = default)
+        {
+            return SendAsync(new WebSocketPackage
+                {
+                    OpCode = OpCode.Binary,
+                    Data = data,
+                },
+                cancellationToken);
+        }
+
         public ValueTask CloseAsync(CloseReason reason, string reasonText = null, CancellationToken cancellationToken = default)
         {
             var closeReasonCode = (short)reason;

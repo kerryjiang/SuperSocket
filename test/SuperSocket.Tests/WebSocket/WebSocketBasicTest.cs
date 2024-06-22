@@ -429,6 +429,56 @@ namespace SuperSocket.Tests.WebSocket
         }
 
         [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestSendReadOnlySequence(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            using (var server = CreateWebSocketServerBuilder(builder =>
+            {
+                return builder.UseWebSocketMessageHandler(async (session, message) =>
+                {
+                    await session.SendAsync(message.Data);
+                });
+            }, hostConfigurator).BuildAsServer())
+            {
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var websocket = new ClientWebSocket();
+
+                websocket.Options.RemoteCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
+
+                var startConnectTime = DateTime.Now;
+                await websocket.ConnectAsync(new Uri($"{hostConfigurator.WebSocketSchema}://localhost:{hostConfigurator.Listener.Port}"), CancellationToken.None);
+                OutputHelper.WriteLine($"Took {DateTime.Now.Subtract(startConnectTime)} to establish the connection from client side.");
+
+                Assert.Equal(WebSocketState.Open, websocket.State);
+
+                var receiveBuffer = new byte[256];
+
+                for (var i = 0; i < 100; i++)
+                {
+                    var message = Guid.NewGuid().ToString();
+                    var data = _encoding.GetBytes(message);
+                    var segment = new ArraySegment<byte>(data, 0, data.Length);
+
+                    await websocket.SendAsync(new ArraySegment<byte>(data, 0, data.Length), WebSocketMessageType.Binary, true, CancellationToken.None);
+                    var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer, WebSocketMessageType.Binary);
+
+                    Assert.Equal(message, receivedMessage);
+                }
+
+                await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+
+                Assert.Equal(WebSocketState.Closed, websocket.State);
+                
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
         [InlineData(typeof(RegularHostConfigurator), 10)]
         [InlineData(typeof(SecureHostConfigurator), 10)]
         public async Task TestBinaryMessageSendReceive(Type hostConfiguratorType, int connCount) 
