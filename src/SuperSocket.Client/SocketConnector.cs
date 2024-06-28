@@ -49,7 +49,7 @@ namespace SuperSocket.Client
                 var tcs = new TaskCompletionSource<bool>();
                 cancellationToken.Register(() => tcs.SetResult(false));
 
-                await Task.WhenAny(new[] { connectTask, tcs.Task });
+                await Task.WhenAny(new[] { connectTask, tcs.Task }).Unwrap();
 
                 if (!socket.Connected)
                 {
