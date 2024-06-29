@@ -15,6 +15,7 @@ using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Abstractions.Middleware;
 using SuperSocket.Server.Connection;
+using System.Diagnostics.Metrics;
 
 namespace SuperSocket.Server
 {
@@ -73,6 +74,12 @@ namespace SuperSocket.Server
 
         private SessionHandlers _sessionHandlers;
 
+#if NET7_0_OR_GREATER
+        private readonly Meter _meter;
+
+        private readonly UpDownCounter<long> _connectionCounter;
+#endif
+
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions)
         {
             if (serviceProvider == null)
@@ -83,6 +90,12 @@ namespace SuperSocket.Server
 
             Name = serverOptions.Value.Name;
             Options = serverOptions.Value;
+
+#if NET7_0_OR_GREATER
+            _meter = new Meter("SuperSocket", Name);
+            _connectionCounter = _meter.CreateUpDownCounter<long>("Connection Count");
+#endif
+
             _serviceProvider = serviceProvider;
             _pipelineFilterFactory = GetPipelineFilterFactory();
             _loggerFactory = serviceProvider.GetService<ILoggerFactory>();
@@ -334,6 +347,11 @@ namespace SuperSocket.Server
             try
             {
                 Interlocked.Increment(ref _sessionCount);
+
+#if NET7_0_OR_GREATER
+                _connectionCounter.Add(1);
+#endif
+
                 await session.FireSessionConnectedAsync();
                 await OnSessionConnectedAsync(session);
             }
@@ -358,6 +376,10 @@ namespace SuperSocket.Server
             try
             {
                 Interlocked.Decrement(ref _sessionCount);
+
+#if NET7_0_OR_GREATER
+                _connectionCounter.Add(-1);
+#endif
 
                 var closeEventArgs = new CloseEventArgs(reason);
                 await session.FireSessionClosedAsync(closeEventArgs);
