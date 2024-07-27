@@ -1,6 +1,6 @@
 version: '2.0'
 services:
   websocketserver:
-    image: kerryjiang/websocket_pushserver
+    image: kerryjiang/websocket_echoserver
     ports:
     - "4040:4040"
