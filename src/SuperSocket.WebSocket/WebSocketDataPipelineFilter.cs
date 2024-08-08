@@ -7,7 +7,9 @@ namespace SuperSocket.WebSocket
 {
     public class WebSocketDataPipelineFilter : PackagePartsPipelineFilter<WebSocketPackage>
     {
-        private HttpHeader _httpHeader;
+        private readonly HttpHeader _httpHeader;
+
+        private readonly bool _requireMask = true;
 
         /// <summary>
         /// -1: default value
@@ -16,9 +18,10 @@ namespace SuperSocket.WebSocket
         /// </summary>
         private long _consumed = -1;
         
-        public WebSocketDataPipelineFilter(HttpHeader httpHeader)
+        public WebSocketDataPipelineFilter(HttpHeader httpHeader, bool requireMask = true)
         {
             _httpHeader = httpHeader;
+            _requireMask = requireMask;
         }
 
         protected override WebSocketPackage CreatePackage()
@@ -72,6 +75,11 @@ namespace SuperSocket.WebSocket
         {
             if (currentPartReader is FixPartReader)
             {
+                if (_requireMask && !CurrentPackage.HasMask)
+                {
+                    throw new ProtocolException("Mask is required for this websocket package.");
+                }
+
                 // not final fragment or is the last fragment of multiple fragments message
                 // _consumed = 0 means we are ready to preserve the bytes
                 if (!CurrentPackage.FIN || CurrentPackage.Head != null)
