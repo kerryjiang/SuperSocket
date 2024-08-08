@@ -10,28 +10,74 @@ namespace SuperSocket.WebSocket
     public class WebSocketEncoder : IPackageEncoder<WebSocketPackage>
     {
         private static readonly Encoding _textEncoding = new UTF8Encoding(false);
+
         private const int _size0 = 126;
         private const int _size1 = 65536;
+
+        private readonly int[] _fragmentSizes;
+
+        private readonly ArrayPool<byte> _bufferPool;
+
+        protected ArrayPool<byte> BufferPool => _bufferPool;
+        
         public IReadOnlyList<IWebSocketExtension> Extensions { get; set; }
 
-        private int WriteHead(ref Span<byte> head, byte opCode, long length)
-        {
-            head[0] = opCode;
+        private static int[] _defaultFragmentSizes = new int []
+            {
+                1024,
+                1024 * 4,
+                1024 * 8,
+                1024 * 16,
+                1024 * 32,
+                1024 * 64
+            };
 
+        public WebSocketEncoder()
+            : this(ArrayPool<byte>.Shared, _defaultFragmentSizes)
+        {
+        }
+
+        public WebSocketEncoder(ArrayPool<byte> bufferPool, int[] fragmentSizes)
+        {
+            _bufferPool = bufferPool;
+            _fragmentSizes = fragmentSizes;
+        }
+
+        protected virtual int WriteHead(IBufferWriter<byte> writer, byte opCode, long length)
+        {
+            var head = WriteHead(writer, opCode, length, out var headLen);
+            head[0] = opCode;
+            writer.Advance(headLen);
+            return headLen;
+        }
+
+        private Span<byte> WriteHead(IBufferWriter<byte> writer, byte opCode, long length, out int headLen)
+        {
             if (length < _size0)
             {
+                headLen = 2;
+                var head = writer.GetSpan(headLen);
                 head[1] = (byte)length;
-                return 2;
+
+                return head;
             }
             else if (length < _size1)
             {
+                headLen = 4;
+
+                var head = writer.GetSpan(headLen);
+
                 head[1] = (byte)_size0;
                 head[2] = (byte)(length / 256);
                 head[3] = (byte)(length % 256);
-                return 4;
+                return head;
             }
             else
             {
+                headLen = 10;
+
+                var head = writer.GetSpan(headLen);
+
                 head[1] = (byte)127;
 
                 long left = length;
@@ -49,142 +95,165 @@ namespace SuperSocket.WebSocket
                     left = left / unit;
                 }
 
-                return 10;
+                return head;
             }
         }
 
-        private int EncodeEmptyFragment(IBufferWriter<byte> writer, byte opCode, int expectedHeadLength)
+        private int EncodeEmptyFragment(IBufferWriter<byte> writer, byte opCode)
         {
-            return EncodeSingleFragment(writer, opCode, expectedHeadLength, default);
+            return EncodeFinalFragment(writer, opCode, ReadOnlySpan<char>.Empty, null, out var _);
         }
 
-        private int EncodeFragment(IBufferWriter<byte> writer, byte opCode, int expectedHeadLength, int fragmentSize, ReadOnlySpan<char> text, Encoder encoder, out int charsUsed)
+        private int EncodeFragment(IBufferWriter<byte> writer, byte opCode, int fragmentSize, ReadOnlySpan<char> text, Encoder encoder, out int charsUsed)
         {
             charsUsed = 0;
 
-            var head = writer.GetSpan(expectedHeadLength);
+            var headLen = WriteHead(writer, opCode, fragmentSize);
 
-            writer.Advance(expectedHeadLength);
+            var encodingContext = CreateDataEncodingContext(writer);
 
-            var buffer = writer.GetSpan(fragmentSize).Slice(0, fragmentSize);
-            
-            encoder.Convert(text, buffer, false, out charsUsed, out int bytesUsed, out bool completed);
-            writer.Advance(bytesUsed);
+            OnHeadEncoded(writer, encodingContext);
 
-            var totalBytes = bytesUsed;
-            var isFinal = completed && text.Length == charsUsed;
+            var totalBytes = 0;
+            var dataSizeToWrite = fragmentSize;
 
-            if (isFinal)
-                opCode = (byte)(opCode | 0x80);
+            while (dataSizeToWrite > 0)
+            {
+                var buffer = writer.GetSpan(dataSizeToWrite);
+                var bufferToWrite = Math.Min(buffer.Length, dataSizeToWrite);
+                buffer = buffer[..bufferToWrite];
 
-            WriteHead(ref head, opCode, totalBytes);
+                encoder.Convert(text, buffer, false, out charsUsed, out var bytesUsed, out var completed);
 
-            return totalBytes + expectedHeadLength;
+                buffer = buffer[..bytesUsed];
+
+                OnDataEncoded(buffer, encodingContext, totalBytes);
+                writer.Advance(bytesUsed);
+
+                totalBytes += bytesUsed;
+
+                dataSizeToWrite -= charsUsed;
+
+                if (totalBytes > fragmentSize)
+                {
+                    throw new Exception("Size of the data from the decoding must be equal to the fragment size.");
+                }
+            }
+
+            return GetFragmentTotalLength(headLen, totalBytes);
         }
 
-        private int EncodeFragmentWithBuffer(IBufferWriter<byte> writer, byte opCode, int fragmentSize, ReadOnlySpan<char> text, Encoder encoder, out int charsUsed)
+        protected virtual object CreateDataEncodingContext(IBufferWriter<byte> writer)
+        {
+            return null;
+        }
+
+        protected virtual void OnHeadEncoded(IBufferWriter<byte> writer, object encodingContext)
+        {
+        }
+
+        protected virtual void OnDataEncoded(Span<byte> encodedData, object encodingContext, int previusEncodedDataSize)
+        {
+        }
+
+        protected virtual void CleanupEncodingContext(object encodingContext)
+        {
+        }
+
+        protected virtual int GetFragmentTotalLength(int headLen, int bodyLen)
+        {
+            return headLen + bodyLen;
+        }
+
+        private int EncodeFinalFragment(IBufferWriter<byte> writer, byte opCode, ReadOnlySpan<char> text, Encoder encoder, out int charsUsed)
         {
             charsUsed = 0;
 
-            var bufferPool = ArrayPool<byte>.Shared;
-            var buffer = bufferPool.Rent(fragmentSize);
+            byte[] buffer = default;
+
+            object encodingContext = default;
 
             try
             {
-                var bufferSpan = buffer.AsSpan().Slice(0, fragmentSize);
-                
-                encoder.Convert(text, bufferSpan, false, out charsUsed, out int bytesUsed, out bool completed);
+                // writer should not be touched for now, because head has not been written yet.
+                encodingContext = CreateDataEncodingContext(null);
 
-                var totalBytes = bytesUsed;
-                var isFinal = completed && text.Length == charsUsed;
+                var bytesUsed = 0;
+                Span<byte> bufferSpan = default;
 
-                if (isFinal)
+                if (text.Length > 0)
+                {
+                    var bufferSize = text.Length <= _size0 ? _size0 : _fragmentSizes[0];
+
+                    buffer = _bufferPool.Rent(bufferSize);
+
+                    bufferSpan = buffer.AsSpan();
+
+                    encoder.Convert(text, bufferSpan, false, out charsUsed, out bytesUsed, out bool completed);
+
+                    OnDataEncoded(bufferSpan[..bytesUsed], encodingContext, 0);
+
+                    var isFinal = completed && text.Length == charsUsed;
+
+                    if (isFinal)
+                        opCode = (byte)(opCode | 0x80);
+                }
+                else
+                {
                     opCode = (byte)(opCode | 0x80);
+                    bytesUsed = 0;
+                }
 
-                var headLen = bytesUsed < _size0 ? 2 : 4;
+                var headLen = WriteHead(writer, opCode, bytesUsed);
 
-                var head = writer.GetSpan(headLen);
+                OnHeadEncoded(writer, encodingContext);
 
-                WriteHead(ref head, opCode, totalBytes);
-                writer.Advance(headLen);
+                if (bytesUsed > 0)
+                {
+                    writer.Write(bufferSpan[..bytesUsed]);
+                }
 
-                var pipelineBuffer = writer.GetSpan(totalBytes).Slice(0, totalBytes);
-
-                bufferSpan.Slice(0, totalBytes).CopyTo(pipelineBuffer);
-                writer.Advance(totalBytes);
-
-                return totalBytes + headLen;
+                return GetFragmentTotalLength(headLen, bytesUsed);
             }
             finally
             {
-                bufferPool.Return(buffer);
+                if (buffer != null)
+                    _bufferPool.Return(buffer);
+                
+                CleanupEncodingContext(encodingContext);
             }
         }
 
-        private int EncodeSingleFragment(IBufferWriter<byte> writer, byte opCode, int expectedHeadLength, ReadOnlySpan<char> text)
+        protected virtual void EncodeDataMessageBody(IBufferWriter<byte> writer, WebSocketPackage pack)
         {
-            var head = writer.GetSpan(expectedHeadLength);
-
-            writer.Advance(expectedHeadLength);
-
-            var totalBytes = text.Length > 0 ? writer.Write(text, _textEncoding) : 0;
-
-            WriteHead(ref head, (byte)(opCode | 0x80), totalBytes);
-
-            return totalBytes + expectedHeadLength;
-        }
-
-        public int EncodeDataMessage(IBufferWriter<byte> writer, WebSocketPackage pack)
-        {
-            var head = writer.GetSpan(10);
-
-            var headLen = WriteHead(ref head, (byte)(pack.OpCodeByte | 0x80), pack.Data.Length);
-            
-            writer.Advance(headLen);
-
             foreach (var dataPiece in pack.Data)
             {
                 writer.Write(dataPiece.Span);
             }
+        }
+
+        public int EncodeDataMessage(IBufferWriter<byte> writer, WebSocketPackage pack)
+        {
+            var headLen = WriteHead(writer, (byte)(pack.OpCodeByte | 0x80), pack.Data.Length);
+
+            EncodeDataMessageBody(writer, pack);
 
             return (int)(pack.Data.Length + headLen);
         }
 
-        private (int headLen, int fragmentSize, bool bufferWrite) GetEstimateFragmentation(int msgSize)
+        private int GetFragmentSize(int msgSize)
         {
-            var minSize = msgSize;
-            var maxSize = _textEncoding.GetMaxByteCount(msgSize);
-
-            var fragmentSize = 0;
-            var headLen = 0;
-            var bufferWrite = false;
-
-            if (maxSize < _size0)
-                headLen =  2;
-            else if (minSize >= _size0 && maxSize < _size1)
-                headLen = 4;
-            else if (minSize >= _size1)
+            for (var i = _fragmentSizes.Length - 1; i >= 0; i--)
             {
-                headLen = 4;
-                fragmentSize = _size1 - 1;
-            }
-
-            if (headLen == 0)
-            {
-                if (minSize < _size0 && maxSize >= _size0)
+                var fragmentSize = _fragmentSizes[i];
+                
+                if (msgSize >= fragmentSize)
                 {
-                    headLen =  2;
-                    fragmentSize = _size0 - 1;
-                }
-                else
-                {
-                    headLen =  4;
-                    fragmentSize = _size1 - 1;
-                    bufferWrite = true;
+                    return fragmentSize;
                 }
             }
 
-            return (headLen, fragmentSize, bufferWrite);
+            return 0;
         }
         
         public int Encode(IBufferWriter<byte> writer, WebSocketPackage pack)
@@ -207,7 +276,7 @@ namespace SuperSocket.WebSocket
             var msgSize = !string.IsNullOrEmpty(pack.Message) ? pack.Message.Length : 0;
 
             if (msgSize == 0)
-                return EncodeEmptyFragment(writer, pack.OpCodeByte, 2);
+                return EncodeEmptyFragment(writer, pack.OpCodeByte);
 
             var total = 0;
             var text = pack.Message.AsSpan();
@@ -218,23 +287,21 @@ namespace SuperSocket.WebSocket
 
             while (true)
             {
-                (var headLen, var fragmentSize, var bufferWrite) = GetEstimateFragmentation(text.Length);
-
-                if (fragmentSize == 0)
-                {
-                    total += EncodeSingleFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, headLen, text);
-                    break;
-                }
+                var fragmentSize = GetFragmentSize(text.Length);
 
                 var charsUsed = 0;
 
-                if (!bufferWrite)
-                    total += EncodeFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, headLen, fragmentSize, text, encoder, out charsUsed);
+                if (fragmentSize > 0)
+                {
+                    total += EncodeFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, fragmentSize, text, encoder, out charsUsed);
+                }                    
                 else
-                    total += EncodeFragmentWithBuffer(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, fragmentSize, text, encoder, out charsUsed);
-
-                if (text.Length <= charsUsed)
-                    break;
+                {
+                    total += EncodeFinalFragment(writer, isContinuation ? (byte)OpCode.Continuation : pack.OpCodeByte, text, encoder, out charsUsed);
+                    
+                    if (text.Length <= charsUsed)
+                        break;
+                }
 
                 text = text.Slice(charsUsed);
                 
