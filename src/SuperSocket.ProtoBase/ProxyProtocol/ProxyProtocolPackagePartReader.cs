@@ -9,6 +9,7 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
         {
             ProxyProtocolSwitch = new ProxyProtocolSwitchPartReader<TPackageInfo>();
             ProxyProtocolV1Reader = new ProxyProtocolV1PartReader<TPackageInfo>();
+            ProxyProtocolV2Reader =  new ProxyProtocolV2PartReader<TPackageInfo>();
         }
 
         public abstract bool Process(TPackageInfo package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData);
