@@ -6,6 +6,7 @@ using System.IO.Pipelines;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using SuperSocket.ProtoBase;
+using SuperSocket.ProtoBase.ProxyProtocol;
 
 namespace SuperSocket.Connection
 {
@@ -322,6 +323,12 @@ namespace SuperSocket.Connection
 
                 if (nextFilter != null)
                 {
+                    // ProxyProtocolPipelineFilter always is the first filter and its next filter is the actual first filter.
+                    if (bytesConsumedTotal == 0 && pipelineFilter is IProxyProtocolPipelineFilter proxyProtocolPipelineFilter)
+                    {
+                        ProxyInfo = proxyProtocolPipelineFilter.ProxyInfo;
+                    }
+
                     nextFilter.Context = pipelineFilter.Context; // pass through the context
                     _pipelineFilter = pipelineFilter = nextFilter;
                     filterSwitched = true;

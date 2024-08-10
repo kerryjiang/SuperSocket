@@ -25,6 +25,16 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
 
         internal int AddressLength { get; set; }
 
+        public EndPoint SourceEndPoint { get; private set; }
+
+        public EndPoint DestinationEndPoint { get; private set; }
+
+        internal void Prepare()
+        {
+            SourceEndPoint = new IPEndPoint(SourceIPAddress, SourcePort);
+            DestinationEndPoint = new IPEndPoint(DestinationIPAddress, DestinationPort);
+        }
+
         public ProxyInfo()
         {
         }

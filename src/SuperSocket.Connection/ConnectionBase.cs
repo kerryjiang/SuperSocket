@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
+using SuperSocket.ProtoBase.ProxyProtocol;
 
 namespace SuperSocket.Connection
 {
@@ -29,6 +30,8 @@ namespace SuperSocket.Connection
         public DateTimeOffset LastActiveTime { get; protected set; } = DateTimeOffset.Now;
 
         public CancellationToken ConnectionToken { get; protected set; }
+
+        public ProxyInfo ProxyInfo { get; protected set; }
 
         protected virtual void OnClosed()
         {

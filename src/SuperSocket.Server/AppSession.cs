@@ -55,7 +55,15 @@ namespace SuperSocket.Server
 
         public EndPoint RemoteEndPoint
         {
-            get { return _connection?.RemoteEndPoint; }
+            get
+            {
+                var connection = _connection;
+
+                if (connection == null)
+                    return null;
+
+                return connection.ProxyInfo?.SourceEndPoint ?? connection.RemoteEndPoint;
+            }
         }
 
         public EndPoint LocalEndPoint

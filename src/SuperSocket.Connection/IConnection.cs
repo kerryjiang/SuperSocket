@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
+using SuperSocket.ProtoBase.ProxyProtocol;
 
 namespace SuperSocket.Connection
 {
@@ -35,5 +36,7 @@ namespace SuperSocket.Connection
         CloseReason? CloseReason { get; }
 
         CancellationToken ConnectionToken { get; }
+
+        ProxyInfo ProxyInfo { get; }
     }
 }

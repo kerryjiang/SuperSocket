@@ -3,7 +3,7 @@ using System.Buffers;
 
 namespace SuperSocket.ProtoBase.ProxyProtocol
 {
-    public class ProxyProtocolPipelineFilter<TPackageInfo> : PackagePartsPipelineFilter<TPackageInfo>
+    public class ProxyProtocolPipelineFilter<TPackageInfo> : PackagePartsPipelineFilter<TPackageInfo>, IProxyProtocolPipelineFilter
     {
         private readonly IPipelineFilter<TPackageInfo> _applicationPipelineFilter;
 
@@ -29,6 +29,7 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
         public override void Reset()
         {
             // This method will be called when the proxy package handling finishes
+            ProxyInfo.Prepare();
             NextFilter = _applicationPipelineFilter;
             base.Reset();
             Context = _originalFilterContext;
