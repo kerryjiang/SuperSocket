@@ -15,6 +15,7 @@ using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Abstractions.Middleware;
 using SuperSocket.Server.Connection;
+using SuperSocket.ProtoBase.ProxyProtocol;
 
 namespace SuperSocket.Server
 {
@@ -113,7 +114,12 @@ namespace SuperSocket.Server
 
         protected virtual IPipelineFilterFactory<TReceivePackageInfo> GetPipelineFilterFactory()
         {
-            return _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
+            var filterFactory = _serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackageInfo>>();
+
+            if (Options.EnableProxyProtocol)
+                filterFactory = new ProxyProtocolPipelineFilterFactory<TReceivePackageInfo>(filterFactory);
+
+            return filterFactory;
         }
 
         private bool AddConnectionListener(ListenOptions listenOptions, ServerOptions serverOptions)

@@ -3,7 +3,6 @@ using System.Buffers;
 namespace SuperSocket.ProtoBase
 {
     public abstract class PackagePartsPipelineFilter<TPackageInfo> : IPipelineFilter<TPackageInfo>
-        where TPackageInfo : class
     {
         private IPackagePartReader<TPackageInfo> _currentPartReader;
 
@@ -40,7 +39,7 @@ namespace SuperSocket.ProtoBase
                 }
 
                 if (needMoreData || reader.Remaining <= 0)
-                    return null;
+                    return default;
             }
         }
 
@@ -51,7 +50,7 @@ namespace SuperSocket.ProtoBase
 
         public virtual void Reset()
         {
-            CurrentPackage = null;
+            CurrentPackage = default;
             _currentPartReader = null;
         }
 
