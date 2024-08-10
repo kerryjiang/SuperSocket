@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.Server;
 using SuperSocket.Server.Abstractions;
@@ -24,6 +25,11 @@ namespace SuperSocket.Tests
 
         protected abstract IServer CreateServer(IHostConfigurator hostConfigurator);
 
+        protected virtual IHostConfigurator CreateHostConfigurator(Type hostConfiguratorType)
+        {
+            return CreateObject<IHostConfigurator>(hostConfiguratorType);
+        }
+
         protected abstract string CreateRequest(string sourceLine);
 
         [Theory]
@@ -35,7 +41,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestNormalRequest(Type hostConfiguratorType)
         {
-            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var hostConfigurator = CreateHostConfigurator(hostConfiguratorType);
 
             using (var server = CreateServer(hostConfigurator))
             {
@@ -69,7 +75,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestMiddleBreak(Type hostConfiguratorType)
         {
-            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var hostConfigurator = CreateHostConfigurator(hostConfiguratorType);
 
             using (var server = CreateServer(hostConfigurator))
             {
@@ -105,7 +111,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestFragmentRequest(Type hostConfiguratorType)
         {
-            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var hostConfigurator = CreateHostConfigurator(hostConfiguratorType);
 
             using (var server = CreateServer(hostConfigurator))
             {
@@ -146,7 +152,7 @@ namespace SuperSocket.Tests
         [InlineData(typeof(KestralConnectionHostConfigurator))]
         public virtual async Task TestBatchRequest(Type hostConfiguratorType)
         {
-            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var hostConfigurator = CreateHostConfigurator(hostConfiguratorType);
 
             using (var server = CreateServer(hostConfigurator))
             {
@@ -195,7 +201,7 @@ namespace SuperSocket.Tests
         //[InlineData(typeof(UdpHostConfigurator))]
         public virtual async Task TestBreakRequest(Type hostConfiguratorType)
         {
-            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            var hostConfigurator = CreateHostConfigurator(hostConfiguratorType);
 
             using (var server = CreateServer(hostConfigurator))
             {

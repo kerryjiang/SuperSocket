@@ -55,11 +55,14 @@ namespace SuperSocket.Tests
                 })
                 .ConfigureAppConfiguration((HostBuilder, configBuilder) =>
                 {
-                    configBuilder.AddInMemoryCollection(new Dictionary<string, string>
-                    {
-                        { "serverOptions:values:enableSendingPipe", "true" }
-                    });
+                    configBuilder.AddInMemoryCollection(LoadMemoryConfig(new Dictionary<string, string>()));
                 }).BuildAsServer() as IServer;
+        }
+
+        protected virtual Dictionary<string, string> LoadMemoryConfig(Dictionary<string, string> configSettings)
+        {
+            configSettings["serverOptions:values:enableSendingPipe"] = "true";
+            return configSettings;
         }
     }
 }
