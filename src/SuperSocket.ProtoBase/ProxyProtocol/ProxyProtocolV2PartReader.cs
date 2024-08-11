@@ -1,18 +1,16 @@
 using System;
 using System.Buffers;
-using System.Collections;
-using System.Collections.Generic;
+using System.Buffers.Binary;
 using System.Net;
-using System.Net.Http;
 using System.Net.Sockets;
-using System.Text;
-using Microsoft.VisualBasic;
 
 namespace SuperSocket.ProtoBase.ProxyProtocol
 {
     class ProxyProtocolV2PartReader<TPackageInfo> : ProxyProtocolPackagePartReader<TPackageInfo>
     {
-        private static readonly int FIXPART_LEN_AFTER_SIGNATURE = 4;
+        private const int FIXPART_LEN_AFTER_SIGNATURE = 4;
+
+        private const int IPV6_ADDRESS_LEN = 32;
 
         private static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
@@ -74,9 +72,17 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
             if (proxyInfo.AddressFamily == AddressFamily.InterNetwork)
             {
                 reader.TryReadBigEndian(out UInt32 sourceIpData);
+
+                if (BitConverter.IsLittleEndian)
+                    sourceIpData = BinaryPrimitives.ReverseEndianness(sourceIpData);
+
                 proxyInfo.SourceIPAddress = new IPAddress(sourceIpData);
 
                 reader.TryReadBigEndian(out UInt32 destinationIpData);
+
+                if (BitConverter.IsLittleEndian)
+                    destinationIpData = BinaryPrimitives.ReverseEndianness(destinationIpData);
+
                 proxyInfo.DestinationIPAddress = new IPAddress(destinationIpData);
 
                 reader.TryReadBigEndian(out UInt16 sourcePort);
@@ -87,19 +93,19 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
             }
             else if (proxyInfo.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                var addressBuffer = _bufferPool.Rent(32);
+                var addressBuffer = _bufferPool.Rent(IPV6_ADDRESS_LEN);
 
                 try
                 {
-                    var addressBufferSpan = addressBuffer.AsSpan()[..32];
+                    var addressBufferSpan = addressBuffer.AsSpan()[..IPV6_ADDRESS_LEN];
 
-                    reader.Sequence.Slice(0, 32).CopyTo(addressBufferSpan);
-                    reader.Advance(32);
+                    reader.Sequence.Slice(0, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
+                    reader.Advance(IPV6_ADDRESS_LEN);
 
                     proxyInfo.SourceIPAddress = new IPAddress(addressBufferSpan);
 
-                    reader.Sequence.Slice(0, 32).CopyTo(addressBufferSpan);
-                    reader.Advance(32);
+                    reader.Sequence.Slice(0, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
+                    reader.Advance(IPV6_ADDRESS_LEN);
 
                     proxyInfo.DestinationIPAddress = new IPAddress(addressBufferSpan);
                 }
