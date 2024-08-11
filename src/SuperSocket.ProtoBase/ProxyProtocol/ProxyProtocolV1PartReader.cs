@@ -1,10 +1,8 @@
 using System;
 using System.Buffers;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
-using Microsoft.VisualBasic;
 
 namespace SuperSocket.ProtoBase.ProxyProtocol
 {
@@ -35,9 +33,15 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
             var proxyLineReader = new SequenceReader<byte>(proxyLineSequence);
 
             var proxyLine = proxyLineReader.ReadString();
-            
-            LoadProxyInfo(filterContext as ProxyInfo, proxyLine, 12, 13);
-            
+
+            var proxyInfo = filterContext as ProxyInfo;
+
+            LoadProxyInfo(proxyInfo, proxyLine, 12, 13);
+
+            proxyInfo.Version = 1;
+            proxyInfo.Command = ProxyCommand.PROXY;
+            proxyInfo.ProtocolType = ProtocolType.Tcp;
+
             return true;
         }
 

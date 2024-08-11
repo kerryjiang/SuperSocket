@@ -1,4 +1,6 @@
+using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
@@ -54,7 +56,7 @@ namespace SuperSocket.Tests
         public async ValueTask<Stream> GetClientStream(Socket socket)
         {
             var stream = await _innerHostConfigurator.GetClientStream(socket);
-
+            
             await stream.WriteAsync(_proxyProtocolV2_IPV4_SampleData, 0, _proxyProtocolV2_IPV4_SampleData.Length);
             await stream.FlushAsync();
 
