@@ -10,7 +10,7 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
     {
         private const int FIXPART_LEN_AFTER_SIGNATURE = 4;
 
-        private const int IPV6_ADDRESS_LEN = 32;
+        private const int IPV6_ADDRESS_LEN = 16;
 
         private static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
@@ -97,17 +97,17 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
 
                 try
                 {
-                    var addressBufferSpan = addressBuffer.AsSpan()[..IPV6_ADDRESS_LEN];
+                    var addressBufferSpan = addressBuffer.AsSpan().Slice(0, IPV6_ADDRESS_LEN);
 
-                    reader.Sequence.Slice(0, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
-                    reader.Advance(IPV6_ADDRESS_LEN);
+                    var sequenceToRead = reader.UnreadSequence;
 
+                    sequenceToRead.Slice(0, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
                     proxyInfo.SourceIPAddress = new IPAddress(addressBufferSpan);
 
-                    reader.Sequence.Slice(0, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
-                    reader.Advance(IPV6_ADDRESS_LEN);
-
+                    sequenceToRead.Slice(IPV6_ADDRESS_LEN, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
                     proxyInfo.DestinationIPAddress = new IPAddress(addressBufferSpan);
+
+                    reader.Advance(IPV6_ADDRESS_LEN * 2);
                 }
                 finally
                 {

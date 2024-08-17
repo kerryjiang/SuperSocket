@@ -3,8 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions;
@@ -21,7 +19,7 @@ namespace SuperSocket.Tests
 
         }
 
-        class MyFixedHeaderPipelineFilter : FixedHeaderPipelineFilter<TextPackageInfo>
+        internal class MyFixedHeaderPipelineFilter : FixedHeaderPipelineFilter<TextPackageInfo>
         {
             public MyFixedHeaderPipelineFilter()
                 : base(4)

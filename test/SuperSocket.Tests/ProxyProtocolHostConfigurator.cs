@@ -1,4 +1,5 @@
 using System;
+using System.Buffers.Binary;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -9,6 +10,7 @@ using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Host;
+using Xunit;
 
 namespace SuperSocket.Tests
 {
@@ -16,20 +18,65 @@ namespace SuperSocket.Tests
     {
         private IHostConfigurator _innerHostConfigurator;
 
-        private static readonly byte[] _proxyProtocolV2_IPV4_SampleData = new byte[]
+        private static readonly byte[] _proxyProtocolV2_SIGNATURE = new byte[]
             {
+                // Signature
                 0x0D, 0x0A, 0x0D, 0x0A,
                 0x00, 0x0D, 0x0A, 0x51,
-                0x55, 0x49, 0x54, 0x0A,
-                0x21, 0x11, 0x00, 0x0c,
-                0xac, 0x13, 0x00, 0x01,
-                0xac, 0x13, 0x00, 0x03,
-                0xa6, 0x52, 0x00, 0x50
+                0x55, 0x49, 0x54, 0x0A
             };
 
-        public ProxyProtocolHostConfigurator(IHostConfigurator hostConfigurator)
+        private IPEndPoint _sourceIPEndPoint;
+        private IPEndPoint _destinationIPEndPoint;
+
+        private ReadOnlySpan<byte> CreateProxyProtocolData(IPEndPoint sourceIPEndPoint, IPEndPoint destinationIPEndPoint)
+        {
+            var isIpV4 = sourceIPEndPoint.Address.AddressFamily == AddressFamily.InterNetwork;
+            var ipAddressLength = isIpV4 ? 4 : 16;
+
+            var addressLength = isIpV4
+                ? (ipAddressLength * 2 + 4)
+                : (ipAddressLength * 2 + 4);
+
+            var data = new byte[4 + addressLength]; 
+
+            data[0] = 0x21;
+            data[1] = (byte)((_innerHostConfigurator is UdpHostConfigurator ? 0x02 : 0x01) | (isIpV4 ? 0x10 : 0x20));
+
+            var span = data.AsSpan();
+
+            BinaryPrimitives.WriteUInt16BigEndian(span.Slice(2, 2), (ushort)addressLength);
+
+            var spanToWrite = span.Slice(4);
+
+            var addressSpan = spanToWrite.Slice(0, ipAddressLength);
+
+            var written = 0;
+
+            sourceIPEndPoint.Address.TryWriteBytes(addressSpan, out written);
+
+            Assert.Equal(ipAddressLength, written);            
+
+            spanToWrite = spanToWrite.Slice(ipAddressLength);
+
+            addressSpan = spanToWrite.Slice(0, ipAddressLength);
+            destinationIPEndPoint.Address.TryWriteBytes(addressSpan, out written);
+
+            Assert.Equal(ipAddressLength, written);
+
+            spanToWrite = spanToWrite.Slice(ipAddressLength);
+
+            BinaryPrimitives.WriteUInt16BigEndian(spanToWrite.Slice(0, 2), (ushort)sourceIPEndPoint.Port);
+            BinaryPrimitives.WriteUInt16BigEndian(spanToWrite.Slice(2, 2), (ushort)destinationIPEndPoint.Port);
+  
+            return span;
+        }
+
+        public ProxyProtocolHostConfigurator(IHostConfigurator hostConfigurator, IPEndPoint sourceIPEndPoint, IPEndPoint destinationIPEndPoint)
         {
             _innerHostConfigurator = hostConfigurator;
+            _sourceIPEndPoint = sourceIPEndPoint;
+            _destinationIPEndPoint = destinationIPEndPoint;
         }
 
         public string WebSocketSchema => _innerHostConfigurator.WebSocketSchema;
@@ -56,8 +103,9 @@ namespace SuperSocket.Tests
         public async ValueTask<Stream> GetClientStream(Socket socket)
         {
             var stream = await _innerHostConfigurator.GetClientStream(socket);
-            
-            await stream.WriteAsync(_proxyProtocolV2_IPV4_SampleData, 0, _proxyProtocolV2_IPV4_SampleData.Length);
+
+            stream.Write(_proxyProtocolV2_SIGNATURE, 0, _proxyProtocolV2_SIGNATURE.Length);
+            stream.Write(CreateProxyProtocolData(_sourceIPEndPoint, _destinationIPEndPoint));
             await stream.FlushAsync();
 
             return stream;
