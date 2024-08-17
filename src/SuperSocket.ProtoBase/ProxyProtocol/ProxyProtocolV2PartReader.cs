@@ -12,6 +12,8 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
 
         private const int IPV6_ADDRESS_LEN = 16;
 
+        private const int IPV6_ADDRESS_ALL_LEN = 16 * 2;
+
         private static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
         public override bool Process(TPackageInfo package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData)
@@ -93,21 +95,18 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
             }
             else if (proxyInfo.AddressFamily == AddressFamily.InterNetworkV6)
             {
-                var addressBuffer = _bufferPool.Rent(IPV6_ADDRESS_LEN);
+                var addressBuffer = _bufferPool.Rent(IPV6_ADDRESS_ALL_LEN);
 
                 try
                 {
-                    var addressBufferSpan = addressBuffer.AsSpan().Slice(0, IPV6_ADDRESS_LEN);
+                    var addressBufferSpan = addressBuffer.AsSpan().Slice(0, IPV6_ADDRESS_ALL_LEN);
 
-                    var sequenceToRead = reader.UnreadSequence;
+                    reader.TryCopyTo(addressBufferSpan);
 
-                    sequenceToRead.Slice(0, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
-                    proxyInfo.SourceIPAddress = new IPAddress(addressBufferSpan);
+                    proxyInfo.SourceIPAddress = new IPAddress(addressBufferSpan.Slice(0, IPV6_ADDRESS_LEN));
+                    proxyInfo.DestinationIPAddress = new IPAddress(addressBufferSpan.Slice(IPV6_ADDRESS_LEN));
 
-                    sequenceToRead.Slice(IPV6_ADDRESS_LEN, IPV6_ADDRESS_LEN).CopyTo(addressBufferSpan);
-                    proxyInfo.DestinationIPAddress = new IPAddress(addressBufferSpan);
-
-                    reader.Advance(IPV6_ADDRESS_LEN * 2);
+                    reader.Advance(IPV6_ADDRESS_ALL_LEN);
                 }
                 finally
                 {
