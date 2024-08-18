@@ -111,7 +111,7 @@ namespace SuperSocket.Tests
                         writer.Write(CreateRequest(line));
                         writer.Flush();
 
-                        var session = await taskCompletionSource.Task as AppSession;
+                        var session = await taskCompletionSource.Task.WaitAsync(TimeSpan.FromMinutes(1));
 
                         Assert.NotNull(session.Connection.ProxyInfo);
 
