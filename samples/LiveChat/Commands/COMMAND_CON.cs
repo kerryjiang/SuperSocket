@@ -1,4 +1,4 @@
-
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SuperSocket;
@@ -17,7 +17,7 @@ namespace LiveChat
             _roomService = roomService;
         }
 
-        public async ValueTask ExecuteAsync(ChatSession session, StringPackageInfo package)
+        public async ValueTask ExecuteAsync(ChatSession session, StringPackageInfo package, CancellationToken cancellationToken)
         {
             session.Name = package.Body;
             await _roomService.EnterRoom(session);
