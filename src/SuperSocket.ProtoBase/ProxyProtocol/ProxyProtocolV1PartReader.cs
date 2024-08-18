@@ -36,7 +36,8 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
 
             var proxyInfo = filterContext as ProxyInfo;
 
-            LoadProxyInfo(proxyInfo, proxyLine, 12, 13);
+            // "PROXY TCP4 X", start look for next segment from X(@11)
+            LoadProxyInfo(proxyInfo, proxyLine, 11, 12);
 
             proxyInfo.Version = 1;
             proxyInfo.Command = ProxyCommand.PROXY;
@@ -54,13 +55,19 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
             {
                 var spacePos = line.IndexOf(' ', lookForOffet);
 
-                if (spacePos < 0)
-                    break;
-
-                startPos = spacePos + 1;
-                lookForOffet = startPos + 1;
-
-                var segment = span.Slice(startPos, spacePos - startPos);
+                ReadOnlySpan<char> segment;
+                 
+                if (spacePos >= 0)
+                {
+                    segment = span.Slice(startPos, spacePos - startPos);
+                    startPos = spacePos + 1;
+                    lookForOffet = startPos + 1;
+                }
+                else
+                {
+                    segment = span.Slice(startPos);
+                    lookForOffet = line.Length;
+                }
 
                 PROXY_SEGMENT_PARSERS[segmentIndex++].Process(segment, proxyInfo);
             }
@@ -99,7 +106,7 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
         {
             public void Process(ReadOnlySpan<char> segment, ProxyInfo proxyInfo)
             {
-                proxyInfo.SourcePort = int.Parse(segment);
+                proxyInfo.DestinationPort = int.Parse(segment);
             }
         }
     }
