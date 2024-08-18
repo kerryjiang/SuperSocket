@@ -47,8 +47,13 @@ jobs:
               run: |
                 cd test/SuperSocket.Tests
                 dotnet test
-            - name: Test - NoLinux
-              if: runner.os != 'Linux'
+            - name: Test - macOS
+              if: runner.os == 'macOS'
               run: |
                 cd test/SuperSocket.Tests
                 dotnet test --filter FullyQualifiedName\!~TestQuicSupport
+            - name: Test - Windows
+              if: runner.os == 'Windows'
+              run: |
+                cd test/SuperSocket.Tests
+                dotnet test --filter FullyQualifiedName!~TestQuicSupport
