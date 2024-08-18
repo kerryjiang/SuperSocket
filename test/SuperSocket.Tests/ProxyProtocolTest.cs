@@ -1,10 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.Text;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
-using SuperSocket;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions;
@@ -14,7 +11,6 @@ using System.Net;
 using System.Linq;
 using System.Threading.Tasks;
 using SuperSocket.Server.Abstractions.Session;
-using SuperSocket.Server;
 
 namespace SuperSocket.Tests
 {
@@ -64,7 +60,7 @@ namespace SuperSocket.Tests
             var sourceIPEndPoint = new IPEndPoint(addressPool[_rd.Next(0, addressPool.Length)], _rd.Next(100, 9999));
             var destinationIPEndPoint = new IPEndPoint(addressPool[_rd.Next(0, addressPool.Length)], _rd.Next(100, 9999));
 
-            return new ProxyProtocolHostConfigurator(base.CreateHostConfigurator(hostConfiguratorType), sourceIPEndPoint, destinationIPEndPoint);
+            return new ProxyProtocolV2HostConfigurator(base.CreateHostConfigurator(hostConfiguratorType), sourceIPEndPoint, destinationIPEndPoint);
         }
 
         protected override Dictionary<string, string> LoadMemoryConfig(Dictionary<string, string> configSettings)
@@ -75,16 +71,20 @@ namespace SuperSocket.Tests
         }
 
         [Theory]
-        [InlineData(typeof(RegularHostConfigurator), "123.193.169.24", 5444, "228.111.89.87", 199)]
-        [InlineData(typeof(RegularHostConfigurator), "529f:bc3e:2e56:8365:dc06:5772:87a5:e658", 5444, "48d4:c5d6:b3e8:9859:dc0f:a8d0:e085:3518", 199)]
-        public async Task TestProxyEndPoints(Type hostConfiguratorType, string sourceIP, int sourcePort, string destinationIP, int destinationPort)
+        [InlineData(typeof(RegularHostConfigurator), 1, "123.193.169.24", 5444, "228.111.89.87", 199)]
+        [InlineData(typeof(RegularHostConfigurator), 1, "529f:bc3e:2e56:8365:dc06:5772:87a5:e658", 5444, "48d4:c5d6:b3e8:9859:dc0f:a8d0:e085:3518", 199)]
+        [InlineData(typeof(RegularHostConfigurator), 2, "123.193.169.24", 5444, "228.111.89.87", 199)]
+        [InlineData(typeof(RegularHostConfigurator), 2, "529f:bc3e:2e56:8365:dc06:5772:87a5:e658", 5444, "48d4:c5d6:b3e8:9859:dc0f:a8d0:e085:3518", 199)]
+        public async Task TestProxyEndPoints(Type hostConfiguratorType, int proxyProtocolVersion, string sourceIP, int sourcePort, string destinationIP, int destinationPort)
         {
             var hostConfigurator = base.CreateHostConfigurator(hostConfiguratorType);
 
             var sourceIPAddress = IPAddress.Parse(sourceIP);
             var destinationIPAddress = IPAddress.Parse(destinationIP);
 
-            hostConfigurator = new ProxyProtocolHostConfigurator(hostConfigurator, new IPEndPoint(sourceIPAddress, sourcePort), new IPEndPoint(destinationIPAddress, destinationPort));
+            hostConfigurator = proxyProtocolVersion == 1
+                ? new ProxyProtocolV1HostConfigurator(hostConfigurator, new IPEndPoint(sourceIPAddress, sourcePort), new IPEndPoint(destinationIPAddress, destinationPort))
+                : new ProxyProtocolV2HostConfigurator(hostConfigurator, new IPEndPoint(sourceIPAddress, sourcePort), new IPEndPoint(destinationIPAddress, destinationPort));
 
             var taskCompletionSource = new TaskCompletionSource<IAppSession>();
 
