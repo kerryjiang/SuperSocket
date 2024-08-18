@@ -29,7 +29,7 @@ namespace SuperSocket.Tests
         private IPEndPoint _sourceIPEndPoint;
         private IPEndPoint _destinationIPEndPoint;
 
-        private ReadOnlySpan<byte> CreateProxyProtocolData(IPEndPoint sourceIPEndPoint, IPEndPoint destinationIPEndPoint)
+        private byte[] CreateProxyProtocolData(IPEndPoint sourceIPEndPoint, IPEndPoint destinationIPEndPoint)
         {
             var isIpV4 = sourceIPEndPoint.Address.AddressFamily == AddressFamily.InterNetwork;
             var ipAddressLength = isIpV4 ? 4 : 16;
@@ -38,12 +38,14 @@ namespace SuperSocket.Tests
                 ? (ipAddressLength * 2 + 4)
                 : (ipAddressLength * 2 + 4);
 
-            var data = new byte[4 + addressLength]; 
+            var data = new byte[_proxyProtocolV2_SIGNATURE.Length  + 4 + addressLength];
 
-            data[0] = 0x21;
-            data[1] = (byte)((_innerHostConfigurator is UdpHostConfigurator ? 0x02 : 0x01) | (isIpV4 ? 0x10 : 0x20));
+            _proxyProtocolV2_SIGNATURE.CopyTo(data, 0);
 
-            var span = data.AsSpan();
+            data[_proxyProtocolV2_SIGNATURE.Length] = 0x21;
+            data[_proxyProtocolV2_SIGNATURE.Length + 1] = (byte)((_innerHostConfigurator is UdpHostConfigurator ? 0x02 : 0x01) | (isIpV4 ? 0x10 : 0x20));
+
+            var span = data.AsSpan().Slice(_proxyProtocolV2_SIGNATURE.Length);
 
             BinaryPrimitives.WriteUInt16BigEndian(span.Slice(2, 2), (ushort)addressLength);
 
@@ -69,7 +71,7 @@ namespace SuperSocket.Tests
             BinaryPrimitives.WriteUInt16BigEndian(spanToWrite.Slice(0, 2), (ushort)sourceIPEndPoint.Port);
             BinaryPrimitives.WriteUInt16BigEndian(spanToWrite.Slice(2, 2), (ushort)destinationIPEndPoint.Port);
   
-            return span;
+            return data;
         }
 
         public ProxyProtocolHostConfigurator(IHostConfigurator hostConfigurator, IPEndPoint sourceIPEndPoint, IPEndPoint destinationIPEndPoint)
@@ -103,8 +105,7 @@ namespace SuperSocket.Tests
         public async ValueTask<Stream> GetClientStream(Socket socket)
         {
             var stream = await _innerHostConfigurator.GetClientStream(socket);
-
-            stream.Write(_proxyProtocolV2_SIGNATURE, 0, _proxyProtocolV2_SIGNATURE.Length);
+            
             stream.Write(CreateProxyProtocolData(_sourceIPEndPoint, _destinationIPEndPoint));
             await stream.FlushAsync();
 
