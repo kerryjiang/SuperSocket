@@ -42,7 +42,9 @@ namespace SuperSocket.WebSocket.Server
 
         private Dictionary<string, IEnumerable<IWebSocketExtensionFactory>> _extensionFactories;
 
-        private static readonly IPackageEncoder<WebSocketPackage> _defaultMessageEncoder = new WebSocketEncoder();
+        private readonly Func<WebSocketEncoder> _websocketEncoderFactory;
+
+        private readonly Lazy<WebSocketEncoder> _defaultMessageEncoder;
 
         public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IOptions<HandshakeOptions> handshakeOptions)
         {
@@ -62,6 +64,11 @@ namespace SuperSocket.WebSocket.Server
             _packageHandlerDelegate = serviceProvider.GetService<Func<WebSocketSession, WebSocketPackage, ValueTask>>();
             _logger = loggerFactory.CreateLogger<WebSocketPackageHandler>();
             _handshakeOptions = handshakeOptions.Value;
+
+            _websocketEncoderFactory = _serviceProvider.GetService<Func<WebSocketEncoder>>()
+                ?? (() => new WebSocketEncoder());
+
+            _defaultMessageEncoder = new Lazy<WebSocketEncoder>(_websocketEncoderFactory);
         }
 
         private CloseStatus GetCloseStatusFromPackage(WebSocketPackage package)
@@ -293,6 +300,18 @@ namespace SuperSocket.WebSocket.Server
             return sb.ToString();
         }
 
+        private WebSocketEncoder GetWebSocketEncoder(IReadOnlyList<IWebSocketExtension> extensions)
+        {
+            if (extensions == null || !extensions.Any())
+            {
+                return _defaultMessageEncoder.Value;
+            }
+
+            var encoder = _websocketEncoderFactory.Invoke();
+            encoder.Extensions = extensions;
+            return encoder;
+        }
+
         private async ValueTask<bool> HandleHandshake(IAppSession session, WebSocketPackage p)
         {
             const string requiredVersion = "13";
@@ -340,16 +359,9 @@ namespace SuperSocket.WebSocket.Server
                 {
                     Extensions = extensions
                 };
+            }
 
-                ws.MessageEncoder = new WebSocketEncoder
-                {
-                    Extensions = extensions
-                };
-            }
-            else
-            {
-                ws.MessageEncoder = _defaultMessageEncoder;
-            }
+            ws.MessageEncoder = GetWebSocketEncoder(extensions);
 
             string secKeyAccept = string.Empty;
 
