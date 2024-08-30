@@ -35,6 +35,10 @@ namespace SuperSocket.WebSocket.FramePartReader
             if (package.PayloadLength != 0)
                 return false;
 
+            // This fragment is empty doesn't mean the whole message is empty
+            if (package.Head != null)
+                return false;
+
             if (package.OpCode == OpCode.Text)
                 package.Message = string.Empty;
 
