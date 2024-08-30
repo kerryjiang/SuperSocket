@@ -238,11 +238,11 @@ namespace SuperSocket.WebSocket
             {
                 var totalWritten = 0;
 
+                // writer should not be touched for now, because head has not been written yet.
+                encodingContext = CreateDataEncodingContext(null);
+
                 if (encoder != null)
                 {
-                    // writer should not be touched for now, because head has not been written yet.
-                    encodingContext = CreateDataEncodingContext(null);
-
                     var fragementSize = (text.Length > 0 ? encoder.GetByteCount(text, true) : 0) + unwrittenBytes.Count;
 
                     if (fragementSize == 0)
