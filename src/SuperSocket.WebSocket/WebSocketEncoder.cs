@@ -69,6 +69,7 @@ namespace SuperSocket.WebSocket
             if (length < _size0)
             {
                 headLen = 2;
+                
                 var head = writer.GetSpan(headLen);
                 head[1] = (byte)length;
 
@@ -229,43 +230,45 @@ namespace SuperSocket.WebSocket
         private int EncodeFinalFragment(IBufferWriter<byte> writer, byte opCode, ReadOnlySpan<char> text, Encoder encoder, ArraySegment<byte> unwrittenBytes)
         {
             byte[] buffer = default;
+            Span<byte> bufferSpan = default;
 
             object encodingContext = default;
 
             try
             {
-                // writer should not be touched for now, because head has not been written yet.
-                encodingContext = CreateDataEncodingContext(null);
-                
                 var totalWritten = 0;
 
-                Span<byte> bufferSpan = default;
-
-                var fragementSize = (text.Length > 0 ? encoder.GetByteCount(text, true) : 0) + unwrittenBytes.Count;
-
-                if (fragementSize == 0)
-                    fragementSize = _minEncodeBufferSize;
-
-                buffer = _bufferPool.Rent(fragementSize);
-
-                bufferSpan = buffer.AsSpan();
-
-                if (unwrittenBytes.Count > 0)
+                if (encoder != null)
                 {
-                    unwrittenBytes.AsSpan().CopyTo(bufferSpan);
-                    totalWritten += unwrittenBytes.Count;
-                    OnDataEncoded(bufferSpan.Slice(0, unwrittenBytes.Count), encodingContext, 0);
-                }
+                    // writer should not be touched for now, because head has not been written yet.
+                    encodingContext = CreateDataEncodingContext(null);
 
-                encoder.Convert(text, totalWritten == 0 ? bufferSpan : bufferSpan.Slice(totalWritten), true, out var charsUsed, out var bytesUsed, out bool completed);
+                    var fragementSize = (text.Length > 0 ? encoder.GetByteCount(text, true) : 0) + unwrittenBytes.Count;
 
-                OnDataEncoded(bufferSpan.Slice(totalWritten, bytesUsed), encodingContext, totalWritten);
+                    if (fragementSize == 0)
+                        fragementSize = _minEncodeBufferSize;
 
-                totalWritten += bytesUsed;
+                    buffer = _bufferPool.Rent(fragementSize);
 
-                if (!completed || text.Length != charsUsed)
-                {
-                    throw new ProtocolException("Unexpected encoding behavior: the text encoding didn't complete with enough buffer.");
+                    bufferSpan = buffer.AsSpan();
+
+                    if (unwrittenBytes.Count > 0)
+                    {
+                        unwrittenBytes.AsSpan().CopyTo(bufferSpan);
+                        totalWritten += unwrittenBytes.Count;
+                        OnDataEncoded(bufferSpan.Slice(0, unwrittenBytes.Count), encodingContext, 0);
+                    }
+
+                    encoder.Convert(text, totalWritten == 0 ? bufferSpan : bufferSpan.Slice(totalWritten), true, out var charsUsed, out var bytesUsed, out bool completed);
+
+                    OnDataEncoded(bufferSpan.Slice(totalWritten, bytesUsed), encodingContext, totalWritten);
+
+                    totalWritten += bytesUsed;
+
+                    if (!completed || text.Length != charsUsed)
+                    {
+                        throw new ProtocolException("Unexpected encoding behavior: the text encoding didn't complete with enough buffer.");
+                    }
                 }
 
                 opCode = (byte)(opCode | 0x80);

@@ -42,13 +42,20 @@ namespace SuperSocket.WebSocket
         protected override Span<byte> WriteHead(IBufferWriter<byte> writer, long length, out int headLen)
         {
             var head = base.WriteHead(writer, length, out headLen);
-            head[1] = (byte)(head[1] | 0x80);
+            
+            // We don't mask data for empty package
+            if (length > 0)
+                head[1] = (byte)(head[1] | 0x80);
+
             return head;
         }
 
         protected override void OnHeadEncoded(IBufferWriter<byte> writer, object encodingContext)
         {
             var maskingContext = encodingContext as MaskingContext;
+
+            if (maskingContext == null)
+                return;
 
             // Means mask buffer was allocated from writter
             if (maskingContext.MaskBuffer == null)

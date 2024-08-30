@@ -84,6 +84,7 @@ namespace SuperSocket.Tests.WebSocket
         [InlineData(10, true, 8)]
         [InlineData(16, true, 8)]
         [InlineData(17, true, 8)]
+        [InlineData(0, false, 8)]
         public void TestWebSocketMaskEncoder(int messageLength, bool nonAsciiText, int fragmentSize)
         {
             var websocketEncoder = new WebSocketMaskedEncoder(ArrayPool<byte>.Shared, new int[] { fragmentSize });
