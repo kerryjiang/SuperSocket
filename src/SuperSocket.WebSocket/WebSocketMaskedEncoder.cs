@@ -12,6 +12,11 @@ namespace SuperSocket.WebSocket
 
         private const int MASK_OFFSET_RESET_THRESHOLD = 100000;
 
+        public WebSocketMaskedEncoder(ArrayPool<byte> bufferPool, int[] fragmentSizes)
+            : base(bufferPool, fragmentSizes)
+        {
+        }
+
         protected override object CreateDataEncodingContext(IBufferWriter<byte> writer)
         {
             var maskingContext = new MaskingContext();
@@ -32,6 +37,13 @@ namespace SuperSocket.WebSocket
             }
 
             return maskingContext;
+        }
+
+        protected override Span<byte> WriteHead(IBufferWriter<byte> writer, long length, out int headLen)
+        {
+            var head = base.WriteHead(writer, length, out headLen);
+            head[1] = (byte)(head[1] | 0x80);
+            return head;
         }
 
         protected override void OnHeadEncoded(IBufferWriter<byte> writer, object encodingContext)
@@ -107,7 +119,7 @@ namespace SuperSocket.WebSocket
         {
             for (var i = 0; i < dataLength; i++)
             {
-                data[i] = (byte)(data[i] ^ mask[i + maskOffset % MASK_LEN]);
+                data[i] = (byte)(data[i] ^ mask[(i + maskOffset) % MASK_LEN]);
             }
         }
 
