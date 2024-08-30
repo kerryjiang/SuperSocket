@@ -206,11 +206,6 @@ namespace SuperSocket.Server
             _middlewares = _serviceProvider.GetServices<IMiddleware>()
                 .OrderBy(m => m.Order)
                 .ToArray();
-
-            foreach (var m in _middlewares)
-            {
-                m.Start(this);
-            }
         }
 
         private void ShutdownMiddlewares()
@@ -451,6 +446,11 @@ namespace SuperSocket.Server
             }
 
             _state = ServerState.Starting;
+
+            foreach (var m in _middlewares)
+            {
+                m.Start(this);
+            }
 
             if (!await StartListenAsync(cancellationToken))
             {
