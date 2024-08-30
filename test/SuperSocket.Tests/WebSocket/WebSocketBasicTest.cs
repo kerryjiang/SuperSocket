@@ -14,7 +14,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using SuperSocket;
 using SuperSocket.Command;
 using SuperSocket.WebSocket.Server;
 using SuperSocket.ProtoBase;
@@ -40,6 +39,82 @@ namespace SuperSocket.Tests.WebSocket
             : base(outputHelper)
         {
 
+        }
+
+        private string GetTestMessage(int messageSize, bool nonAsciiText)
+        {
+            var sb = new StringBuilder();
+            
+            while (sb.Length < messageSize)
+            {
+                if (nonAsciiText)
+                    sb.Append("这是一段长文本这是一段长文本这是");
+                else
+                    sb.Append(Guid.NewGuid().ToString());
+            }
+
+            return sb.ToString(0, messageSize);
+        }
+
+        [Theory]
+        [InlineData(125, false, 128)]
+        [InlineData(125, true, 128)]
+        [InlineData(126, false, 128)]
+        [InlineData(126, true, 128)]
+        [InlineData(127, false, 128)]
+        [InlineData(127, true, 128)]
+        [InlineData(128, false, 128)]
+        [InlineData(128, true, 128)]
+        [InlineData(129, false, 128)]
+        [InlineData(129, true, 128)]
+        [InlineData(130, false, 128)]
+        [InlineData(130, true, 128)]
+        [InlineData(8192, false, 1024)]
+        [InlineData(8192, true, 1024)]
+        [InlineData(65535, false, 1024)]
+        [InlineData(65535, true, 1024)]
+        [InlineData(65536, false, 1024)]
+        [InlineData(65536, true, 1024)]
+        [InlineData(65537, false, 1024)]
+        [InlineData(65537, true, 1024)]
+        [InlineData(6, true, 8)]
+        [InlineData(7, true, 8)]
+        [InlineData(8, true, 8)]
+        [InlineData(9, true, 8)]
+        [InlineData(10, true, 8)]
+        [InlineData(16, true, 8)]
+        [InlineData(17, true, 8)]
+        public void TestWebSocketMaskEncoder(int messageLength, bool nonAsciiText, int fragmentSize)
+        {
+            var websocketEncoder = new WebSocketMaskedEncoder(ArrayPool<byte>.Shared, new int[] { fragmentSize });
+
+            var package = new WebSocketPackage();
+            package.OpCode = OpCode.Text;
+            package.Message = GetTestMessage(messageLength, nonAsciiText);
+
+            var writter = new ArrayBufferWriter<byte>();
+            websocketEncoder.Encode(writter, package);
+
+            var filter = new WebSocketDataPipelineFilter(null, true);
+
+            var reader = new SequenceReader<byte>(new ReadOnlySequence<byte>(writter.WrittenMemory));
+            
+            var cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+
+            var decodedPakcage = default(WebSocketPackage);
+
+            while (true)
+            {
+                Assert.False(cancellationTokenSource.IsCancellationRequested);
+
+                decodedPakcage = filter.Filter(ref reader);
+
+                if (decodedPakcage != null)
+                    break;
+            }
+
+            Assert.Equal(package.OpCode, decodedPakcage.OpCode);
+            Assert.Equal(package.Message, decodedPakcage.Message);
         }
 
         [Theory]
