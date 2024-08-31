@@ -51,7 +51,8 @@ namespace SuperSocket.Tests
 
                     // register all commands in one assembly
                     //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
-                }).BuildAsServer())
+                })
+                .BuildAsServer())
             {
 
                 Assert.Equal("TestServer", server.Name);
@@ -421,6 +422,111 @@ namespace SuperSocket.Tests
                 }
 
                 await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestCommandWithDependencyInjection(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+                .UseCommand(commandOptions =>
+                {
+                    commandOptions.AddCommand<DOUBLE>();
+                })
+                .ConfigureServices((context, services) =>
+                {
+                    services.AddSingleton<DataStore>();
+                })
+                .BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                var dataStore = server.ServiceProvider.GetService<DataStore>();
+
+                // Default value of data store
+                Assert.Equal(1, dataStore.Value);
+
+                var client = hostConfigurator.CreateClient();
+
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    dataStore.ResetTask();
+                    await streamWriter.WriteAsync("DOUBLE\r\n");
+                    await streamWriter.FlushAsync();
+
+                    var newValue = await dataStore.WaitNewValue();
+
+                    Assert.Equal(2, newValue);
+
+                    dataStore.ResetTask();
+                    await streamWriter.WriteAsync("DOUBLE\r\n");
+                    await streamWriter.FlushAsync();
+
+                    newValue = await dataStore.WaitNewValue();
+
+                    Assert.Equal(4, newValue);
+
+                    dataStore.ResetTask();
+                    await streamWriter.WriteAsync("DOUBLE\r\n");
+                    await streamWriter.FlushAsync();
+
+                    newValue = await dataStore.WaitNewValue();
+
+                    Assert.Equal(8, newValue);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        public class DataStore
+        {
+            private int _value = 1;
+
+            public int Value 
+            {
+                get { return _value; }
+                set
+                {
+                    _value = value;
+                    _newValueTaskSource?.SetResult(value);
+                }
+            }
+
+            private TaskCompletionSource<int> _newValueTaskSource;
+
+            public Task<int> WaitNewValue()
+            {
+                return _newValueTaskSource.Task;
+            }
+
+            public void ResetTask()
+            {
+                _newValueTaskSource = new TaskCompletionSource<int>();
+            }
+        }
+
+        public class DOUBLE : IAsyncCommand<StringPackageInfo>
+        {
+            private readonly DataStore _dataStore;
+
+            public DOUBLE(DataStore dataStore)
+            {
+                _dataStore = dataStore;
+            }
+
+            public ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
+            {
+                _dataStore.Value = _dataStore.Value * 2;
+                return ValueTask.CompletedTask;
             }
         }
     }
