@@ -514,7 +514,7 @@ namespace SuperSocket.Tests
             }
         }
 
-        public class DOUBLE : IAsyncCommand<StringPackageInfo>
+        class DOUBLE : IAsyncCommand<StringPackageInfo>
         {
             private readonly DataStore _dataStore;
 
