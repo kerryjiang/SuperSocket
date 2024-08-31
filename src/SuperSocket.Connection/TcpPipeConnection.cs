@@ -31,13 +31,14 @@ namespace SuperSocket.Connection
 
         protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            return await ReceiveAsync(_socket, memory, SocketFlags.None, cancellationToken);
+            return await ReceiveAsync(_socket, memory, SocketFlags.None, cancellationToken)
+                .ConfigureAwait(false);
         }
 
         private async ValueTask<int> ReceiveAsync(Socket socket, Memory<byte> memory, SocketFlags socketFlags, CancellationToken cancellationToken)
         {
             return await socket
-                .ReceiveAsync(GetArrayByMemory((ReadOnlyMemory<byte>)memory), socketFlags, cancellationToken)
+                .ReceiveAsync(GetArrayByMemory(memory), socketFlags, cancellationToken)
                 .ConfigureAwait(false);
         }
 
