@@ -57,6 +57,8 @@ namespace SuperSocket.Client
 
         protected IConnection Connection { get; private set; }
 
+        public IConnector Proxy { get; set; }
+
         protected ILogger Logger { get; set; }
 
         protected ConnectionOptions Options { get; private set; }
@@ -118,6 +120,11 @@ namespace SuperSocket.Client
             {
                 if (security.EnabledSslProtocols != SslProtocols.None)
                     connectors.Add(new SslStreamConnector(security));
+            }
+
+            if (Proxy is IConnector proxy)
+            {
+                connectors.Add(proxy);
             }
 
             if (CompressionLevel != CompressionLevel.NoCompression)

@@ -16,6 +16,8 @@ namespace SuperSocket.Client
     public interface IEasyClient<TReceivePackage>
         where TReceivePackage : class
     {
+        IConnector Proxy { get; set; }
+
         ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken = default);
 
         ValueTask<TReceivePackage> ReceiveAsync();
