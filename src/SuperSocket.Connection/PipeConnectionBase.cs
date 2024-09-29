@@ -166,15 +166,19 @@ namespace SuperSocket.Connection
 
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
+            var sendLockAcquired = false;
+
             try
             {
                 await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+                sendLockAcquired = true;
                 WriteBuffer(OutputWriter, buffer);
                 await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
             {
-                SendLock.Release();
+                if (sendLockAcquired)
+                    SendLock.Release();
             }
         }
 
@@ -186,29 +190,37 @@ namespace SuperSocket.Connection
 
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken = default)
         {
+            var sendLockAcquired = false;
+
             try
             {
                 await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+                sendLockAcquired = true;
                 WritePackageWithEncoder<TPackage>(OutputWriter, packageEncoder, package);
                 await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
             {
-                SendLock.Release();
+                if (sendLockAcquired)
+                    SendLock.Release();
             }
         }
 
         public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
         {
+            var sendLockAcquired = false;
+
             try
             {
                 await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+                sendLockAcquired = true;
                 write(OutputWriter);
                 await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
             {
-                SendLock.Release();
+                if (sendLockAcquired)
+                    SendLock.Release();
             }
         }
 
