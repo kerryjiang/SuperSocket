@@ -20,6 +20,8 @@ namespace SuperSocket.Tests
 {
     public class SecureHostConfigurator : TcpHostConfigurator
     {
+        private SslProtocols _currentSslProtocols;
+
         public SecureHostConfigurator()
         {
             WebSocketSchema = "wss";
@@ -34,12 +36,22 @@ namespace SuperSocket.Tests
                 {
                     var listener = options.Listeners[0];
 
-                    listener.AuthenticationOptions = new ServerAuthenticationOptions
+                    var authenticationOptions = listener.AuthenticationOptions;
+
+                    if (authenticationOptions == null)
                     {
-                        FilePath = "supersocket.pfx",
-                        Password = "supersocket",
-                        EnabledSslProtocols = GetServerEnabledSslProtocols()
-                    };
+                        authenticationOptions = listener.AuthenticationOptions = new ServerAuthenticationOptions();
+                    }
+
+                    authenticationOptions.FilePath = "supersocket.pfx";
+                    authenticationOptions.Password = "supersocket";
+
+                    if (authenticationOptions.EnabledSslProtocols == SslProtocols.None)
+                    {
+                        authenticationOptions.EnabledSslProtocols = GetServerEnabledSslProtocols();
+                    }
+
+                    _currentSslProtocols = authenticationOptions.EnabledSslProtocols;
                 });
             });
 
@@ -63,7 +75,7 @@ namespace SuperSocket.Tests
 
         protected virtual SslProtocols GetClientEnabledSslProtocols()
         {
-            return SslProtocols.Tls13 | SslProtocols.Tls12;
+            return _currentSslProtocols;
         }
 
         public override IEasyClient<TPackageInfo> ConfigureEasyClient<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, ConnectionOptions options)

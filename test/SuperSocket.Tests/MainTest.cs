@@ -101,6 +101,7 @@ namespace SuperSocket.Tests
 
         [Theory]
         [InlineData("Tls12", SslProtocols.Tls12, false)]
+        //[InlineData("Tls13", SslProtocols.Tls13, false)] We cannot test it because TLS 1.3 client is only available in Windows
         [InlineData("Tls15", SslProtocols.None, true)]
         [InlineData("Tls13, Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, false)]
         [InlineData("Tls13,Tls12", SslProtocols.Tls13 | SslProtocols.Tls12, false)]
