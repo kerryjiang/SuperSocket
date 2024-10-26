@@ -440,7 +440,7 @@ namespace SuperSocket.Server
         {
             var state = _state;
 
-            if (state != ServerState.None && state != ServerState.Stopped)
+            if (state != ServerState.None && state != ServerState.Stopped && state != ServerState.Failed)
             {
                 throw new InvalidOperationException($"The server cannot be started right now, because its state is {state}.");
             }
