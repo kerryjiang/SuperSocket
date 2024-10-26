@@ -167,7 +167,7 @@ namespace SuperSocket.Connection
                 }
                 catch (Exception e)
                 {
-                    // Cancel all the work in the channel if encounter an error during sending
+                    // Cancel all the work in the connection if encounter an error during sending
                     Cancel();
 
                     if (!IsIgnorableException(e))

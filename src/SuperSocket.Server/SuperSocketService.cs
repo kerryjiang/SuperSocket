@@ -163,7 +163,7 @@ namespace SuperSocket.Server
 
                 if (!AddConnectionListener(null, serverOptions))
                 {
-                    _logger.LogError($"Failed to add the channel creator.");
+                    _logger.LogError($"Failed to add the connection creator.");
                     return Task.FromResult(false);
                 }
             }
@@ -288,7 +288,7 @@ namespace SuperSocket.Server
                 return false;
             }
 
-            connection.Closed += (s, e) => OnChannelClosed(session, e);
+            connection.Closed += (s, e) => OnConnectionClosed(session, e);
             return true;
         }
 
@@ -303,7 +303,7 @@ namespace SuperSocket.Server
             return new ValueTask();
         }
 
-        private void OnChannelClosed(IAppSession session, CloseEventArgs e)
+        private void OnConnectionClosed(IAppSession session, CloseEventArgs e)
         {
             FireSessionClosedEvent(session as AppSession, e.Reason).DoNotAwait();
         }

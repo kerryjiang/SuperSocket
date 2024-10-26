@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server;
 using SuperSocket.Server.Abstractions.Session;
-using ChannelCloseReason = SuperSocket.Connection.CloseReason;
+using ConnectionCloseReason = SuperSocket.Connection.CloseReason;
 
 namespace SuperSocket.WebSocket.Server
 {
@@ -117,17 +117,17 @@ namespace SuperSocket.WebSocket.Server
 
         internal void CloseWithoutHandshake()
         {
-            base.CloseAsync(ChannelCloseReason.LocalClosing).DoNotAwait();
+            base.CloseAsync(ConnectionCloseReason.LocalClosing).DoNotAwait();
         }
 
-        public override async ValueTask CloseAsync(ChannelCloseReason closeReason)
+        public override async ValueTask CloseAsync(ConnectionCloseReason closeReason)
         {
             var closeStatus = CloseStatus;
 
             if (closeStatus != null)
             {
                 var clientInitiated = closeStatus.RemoteInitiated;
-                await base.CloseAsync(clientInitiated ? ChannelCloseReason.RemoteClosing : ChannelCloseReason.LocalClosing);
+                await base.CloseAsync(clientInitiated ? ConnectionCloseReason.RemoteClosing : ConnectionCloseReason.LocalClosing);
                 return;
             }
 

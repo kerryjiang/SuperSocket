@@ -106,7 +106,7 @@ namespace SuperSocket.Connection
             }
             catch (Exception e)
             {
-                OnError("Unhandled exception in the method PipeChannel.Run.", e);
+                OnError("Unhandled exception in the method PipeConnection.Run.", e);
             }
             finally
             {
@@ -120,7 +120,7 @@ namespace SuperSocket.Connection
                     catch (Exception exc)
                     {
                         if (!IsIgnorableException(exc))
-                            OnError("Unhandled exception in the method PipeChannel.Close.", exc);
+                            OnError("Unhandled exception in the method PipeConnection.Close.", exc);
                     }
                 }
             }
@@ -160,7 +160,7 @@ namespace SuperSocket.Connection
         {
             if (this.IsClosed)
             {
-                throw new Exception("Channel is closed now, send is not allowed.");
+                throw new Exception("Connection is closed now, send is not allowed.");
             }
         }
 

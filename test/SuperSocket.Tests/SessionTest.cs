@@ -216,6 +216,69 @@ namespace SuperSocket.Tests
             }
         }
 
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator), 198)]
+        [InlineData(typeof(RegularHostConfigurator), 255)]
+        public async Task TestCustomCloseReason(Type hostConfiguratorType, int closeReasonCode)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            IAppSession session = null;
+
+            CloseReason closeReason = CloseReason.Unknown;
+
+            var resetEvent = new AutoResetEvent(true);
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                .ConfigureAppConfiguration((HostBuilder, configBuilder) =>
+                    {
+                        configBuilder.AddInMemoryCollection(new Dictionary<string, string>
+                        {
+                            { "serverOptions:maxPackageLength", "8" }
+                        });
+                    })
+                .UseSessionHandler(
+                    onConnected: (s) =>
+                        {
+                            session = s;
+                            resetEvent.Set();
+                            return ValueTask.CompletedTask;
+                        },
+                    onClosed: (s, e) =>
+                        {
+                            closeReason = e.Reason;
+                            resetEvent.Set();
+                            return ValueTask.CompletedTask;
+                        })
+                .BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Started.");
+
+                using (var socket = CreateClient(hostConfigurator))
+                using (var socketStream = await hostConfigurator.GetClientStream(socket))
+                {
+                    resetEvent.WaitOne(1000);
+
+                    // LocalClosing
+                    closeReason = CloseReason.Unknown;
+
+                    var closeReasonRequested = (CloseReason)closeReasonCode;
+
+                    await session.CloseAsync(closeReasonRequested);
+
+                    resetEvent.WaitOne(1000);
+
+                    Assert.Equal(SessionState.Closed, session.State);
+                    Assert.Equal(closeReasonRequested, closeReason);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
         [Fact]
         public async Task TestConsoleProtocol() 
         {

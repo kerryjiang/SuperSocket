@@ -116,7 +116,7 @@ namespace SuperSocket.Server.Connection
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failed to create channel for {socket.RemoteEndPoint}.");
+                _logger.LogError(e, $"Failed to create connection for {socket.RemoteEndPoint}.");
                 return;
             }            
 

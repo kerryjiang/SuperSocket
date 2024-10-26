@@ -257,30 +257,30 @@ namespace SuperSocket.Tests
         }
 
         [Fact]
-        [Trait("Category", "TestDetachableChannel")]
-        public async Task TestDetachableChannel()
+        [Trait("Category", "TestDetachableConnection")]
+        public async Task TestDetachableConnection()
         {
             IHostConfigurator hostConfigurator = new RegularHostConfigurator();
 
-            await TestDetachableChannelInternal(hostConfigurator, (_, socket) =>
+            await TestDetachableConnectionInternal(hostConfigurator, (_, socket) =>
                 new StreamPipeConnection(
                     hostConfigurator.GetClientStream(socket).Result,
                     socket.RemoteEndPoint,
                     socket.LocalEndPoint,
                     new ConnectionOptions
                     {
-                        Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableChannel)),
+                        Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableConnection)),
                         ReadAsDemand = true
                     })
                 );
 
             /* KestrelPipeConnection doesn't support Detach right now.
-            await TestDetachableChannelInternal(new KestralConnectionHostConfigurator(), (server, socket) =>
+            await TestDetachableConnectionInternal(new KestralConnectionHostConfigurator(), (server, socket) =>
                 new KestrelPipeConnection(
                         server.ServiceProvider.GetService<SocketConnectionContextFactory>().Create(socket),
                         new ConnectionOptions
                         {
-                            Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableChannel)),
+                            Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableConnection)),
                             ReadAsDemand = false
                         }
                     )
@@ -288,7 +288,7 @@ namespace SuperSocket.Tests
                 */
         }
 
-        async Task TestDetachableChannelInternal(IHostConfigurator hostConfigurator, Func<IServer, Socket, IConnection> connectionFactory)
+        async Task TestDetachableConnectionInternal(IHostConfigurator hostConfigurator, Func<IServer, Socket, IConnection> connectionFactory)
         {
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .UsePackageHandler(async (s, p) =>

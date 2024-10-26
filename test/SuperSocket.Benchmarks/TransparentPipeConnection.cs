@@ -10,13 +10,13 @@ namespace SuperSocket.Benchmarks
     public class TransparentPipeConnection : PipeConnection
     {
         private TaskCompletionSource<int> _tcs;
-        private Task<int> _channelTask;
+        private Task<int> _connectionTask;
 
         public TransparentPipeConnection(ConnectionOptions options)
             : base(options)
         {
             _tcs = new TaskCompletionSource<int>();
-            _channelTask = _tcs.Task;
+            _connectionTask = _tcs.Task;
         }
 
         public override ValueTask CloseAsync(CloseReason closeReason)
@@ -32,7 +32,7 @@ namespace SuperSocket.Benchmarks
 
         protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
-            await _channelTask;
+            await _connectionTask;
             return 0;
         }
 

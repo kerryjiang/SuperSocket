@@ -354,8 +354,8 @@ namespace SuperSocket.WebSocket.Server
 
             if (selectedExtensionHeadItems != null && selectedExtensionHeadItems.Count > 0)
             {
-                var pipeChannel = session.Connection as IPipeConnection;                
-                pipeChannel.PipelineFilter.Context = new WebSocketPipelineFilterContext
+                var pipeConnection = session.Connection as IPipeConnection;
+                pipeConnection.PipelineFilter.Context = new WebSocketPipelineFilterContext
                 {
                     Extensions = extensions
                 };
