@@ -227,7 +227,7 @@ namespace SuperSocket.Tests
 
             CloseReason closeReason = CloseReason.Unknown;
 
-            var resetEvent = new AutoResetEvent(true);
+            var resetEvent = new AutoResetEvent(false);
 
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .ConfigureAppConfiguration((HostBuilder, configBuilder) =>
@@ -260,7 +260,7 @@ namespace SuperSocket.Tests
                 using (var socket = CreateClient(hostConfigurator))
                 using (var socketStream = await hostConfigurator.GetClientStream(socket))
                 {
-                    resetEvent.WaitOne(1000);
+                    Assert.True(resetEvent.WaitOne(1000));
 
                     // LocalClosing
                     closeReason = CloseReason.Unknown;
@@ -269,7 +269,7 @@ namespace SuperSocket.Tests
 
                     await session.CloseAsync(closeReasonRequested);
 
-                    resetEvent.WaitOne(1000);
+                    Assert.True(resetEvent.WaitOne(1000));
 
                     Assert.Equal(SessionState.Closed, session.State);
                     Assert.Equal(closeReasonRequested, closeReason);

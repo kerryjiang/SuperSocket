@@ -364,7 +364,7 @@ namespace SuperSocket.Tests
                 using (var socket = CreateClient(hostConfigurator))
                 using (var socketStream = await hostConfigurator.GetClientStream(socket))
                 {
-                    resetEvent.WaitOne(5000);
+                    Assert.True(resetEvent.WaitOne(5000));
                 }
 
                 await server.StopAsync();
