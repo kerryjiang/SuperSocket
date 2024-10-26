@@ -117,7 +117,7 @@ namespace SuperSocket.Tests
                     {
                         configBuilder.AddInMemoryCollection(new Dictionary<string, string>
                         {
-                            { "serverOptions:listeners:0:security", security }
+                            { "serverOptions:listeners:0:authenticationOptions:enabledSslProtocols", security }
                         });
                     })
                     .ConfigureSuperSocket(serverOptions =>
@@ -142,7 +142,7 @@ namespace SuperSocket.Tests
             }
             
             Assert.NotNull(listener);
-            Assert.Equal(protocols, listener.Security);
+            Assert.Equal(protocols, listener.AuthenticationOptions.EnabledSslProtocols);
 
             using (server)
             {

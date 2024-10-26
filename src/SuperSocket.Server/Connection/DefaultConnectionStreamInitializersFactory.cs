@@ -30,7 +30,7 @@ namespace SuperSocket.Server.Connection
         {
             var connectionStreamInitializers = new List<IConnectionStreamInitializer>();
 
-            if (listenOptions.Security != SslProtocols.None)
+            if (listenOptions.AuthenticationOptions != null && listenOptions.AuthenticationOptions.EnabledSslProtocols != SslProtocols.None)
             {
                 connectionStreamInitializers.Add(new NetworkStreamInitializer());
                 connectionStreamInitializers.Add(new SslStreamInitializer());

@@ -6,11 +6,8 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace SuperSocket
 {
-    public class CertificateOptions
+    public class ServerAuthenticationOptions : SslServerAuthenticationOptions
     {
-        public X509Certificate Certificate { get; set; }
-
-
         /// <summary>
         /// Gets the certificate file path (pfx).
         /// </summary>
@@ -45,25 +42,14 @@ namespace SuperSocket
 
 
         /// <summary>
-        /// Gets a value indicating whether [client certificate required].
-        /// </summary>
-        /// <value>
-        /// <c>true</c> if [client certificate required]; otherwise, <c>false</c>.
-        /// </value>
-        public bool ClientCertificateRequired { get; set; }
-
-        /// <summary>
         /// Gets a value that will be used to instantiate the X509Certificate2 object in the CertificateManager
         /// </summary>
         public X509KeyStorageFlags KeyStorageFlags { get; set; }
 
-
-        public RemoteCertificateValidationCallback RemoteCertificateValidationCallback { get; set; }
-
         public void EnsureCertificate()
         {
             // The certificate is there already
-            if (Certificate != null)
+            if (this.ServerCertificate != null)
                 return;            
 
             // load certificate from pfx file
@@ -76,7 +62,7 @@ namespace SuperSocket
                     filePath = Path.Combine(AppContext.BaseDirectory, filePath);
                 }
 
-                Certificate = new X509Certificate2(filePath, Password, KeyStorageFlags);
+                ServerCertificate = new X509Certificate2(filePath, Password, KeyStorageFlags);
             }
             else if (!string.IsNullOrEmpty(Thumbprint)) // load certificate from certificate store
             {
@@ -84,7 +70,7 @@ namespace SuperSocket
 
                 store.Open(OpenFlags.ReadOnly);
 
-                Certificate = store.Certificates.OfType<X509Certificate2>()
+                ServerCertificate = store.Certificates.OfType<X509Certificate2>()
                     .FirstOrDefault(c => c.Thumbprint.Equals(Thumbprint, StringComparison.OrdinalIgnoreCase));
 
                 store.Close();
@@ -93,6 +79,11 @@ namespace SuperSocket
             {
                 throw new Exception($"Either {FilePath} or {Thumbprint} is required to load the certificate.");
             }
+        }
+
+        public override string ToString()
+        {
+            return this.EnabledSslProtocols.ToString();
         }
     }
 }

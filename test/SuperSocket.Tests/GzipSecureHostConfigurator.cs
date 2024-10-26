@@ -36,13 +36,11 @@ namespace SuperSocket.Tests
                 {
                     var listener = options.Listeners[0];
 
-                    if (listener.Security == SslProtocols.None)
-                        listener.Security = GetServerEnabledSslProtocols();
-
-                    listener.CertificateOptions = new CertificateOptions
+                    listener.AuthenticationOptions = new ServerAuthenticationOptions
                     {
                         FilePath = "supersocket.pfx",
-                        Password = "supersocket"
+                        Password = "supersocket",
+                        EnabledSslProtocols = GetServerEnabledSslProtocols()
                     };
                 });
             });

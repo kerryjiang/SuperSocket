@@ -14,21 +14,13 @@ namespace SuperSocket.Server.Connection
 
         public void Setup(ListenOptions listenOptions)
         {
-            var authOptions = new SslServerAuthenticationOptions();
+            var authOptions = listenOptions.AuthenticationOptions;
 
-            authOptions.EnabledSslProtocols = listenOptions.Security;
-
-            if (listenOptions.CertificateOptions.Certificate == null)
+            if (authOptions.ServerCertificate == null)
             {
-                listenOptions.CertificateOptions.EnsureCertificate();
+                authOptions.EnsureCertificate();
             }
             
-            authOptions.ServerCertificate = listenOptions.CertificateOptions.Certificate;
-            authOptions.ClientCertificateRequired = listenOptions.CertificateOptions.ClientCertificateRequired;
-
-            if (listenOptions.CertificateOptions.RemoteCertificateValidationCallback != null)
-                authOptions.RemoteCertificateValidationCallback = listenOptions.CertificateOptions.RemoteCertificateValidationCallback;
-
             _authOptions = authOptions;
         }
 
