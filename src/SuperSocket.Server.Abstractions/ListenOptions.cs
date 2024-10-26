@@ -1,6 +1,5 @@
 using System;
 using System.Net;
-using System.Security.Authentication;
 
 namespace SuperSocket.Server.Abstractions
 {

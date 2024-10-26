@@ -1,12 +1,11 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
-namespace SuperSocket
+namespace SuperSocket.Server.Abstractions
 {
-    public class ServerAuthenticationOptions : SslServerAuthenticationOptions
+    public class CertificateOptions
     {
         /// <summary>
         /// Gets the certificate file path (pfx).
@@ -46,12 +45,8 @@ namespace SuperSocket
         /// </summary>
         public X509KeyStorageFlags KeyStorageFlags { get; set; }
 
-        public void EnsureCertificate()
+        public X509Certificate GetCertificate()
         {
-            // The certificate is there already
-            if (this.ServerCertificate != null)
-                return;            
-
             // load certificate from pfx file
             if (!string.IsNullOrEmpty(FilePath))
             {
@@ -62,28 +57,21 @@ namespace SuperSocket
                     filePath = Path.Combine(AppContext.BaseDirectory, filePath);
                 }
 
-                ServerCertificate = new X509Certificate2(filePath, Password, KeyStorageFlags);
+                return new X509Certificate2(filePath, Password, KeyStorageFlags);
             }
             else if (!string.IsNullOrEmpty(Thumbprint)) // load certificate from certificate store
             {
-                var store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), StoreName), StoreLocation);
+                using var store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), StoreName), StoreLocation);
 
                 store.Open(OpenFlags.ReadOnly);
 
-                ServerCertificate = store.Certificates.OfType<X509Certificate2>()
+                return store.Certificates.OfType<X509Certificate2>()
                     .FirstOrDefault(c => c.Thumbprint.Equals(Thumbprint, StringComparison.OrdinalIgnoreCase));
-
-                store.Close();
             }
             else
             {
                 throw new Exception($"Either {FilePath} or {Thumbprint} is required to load the certificate.");
             }
-        }
-
-        public override string ToString()
-        {
-            return this.EnabledSslProtocols.ToString();
         }
     }
 }

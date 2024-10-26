@@ -38,8 +38,11 @@ namespace SuperSocket.Tests
 
                     listener.AuthenticationOptions = new ServerAuthenticationOptions
                     {
-                        FilePath = "supersocket.pfx",
-                        Password = "supersocket",
+                        CertificateOptions = new CertificateOptions
+                            {
+                                FilePath = "supersocket.pfx",
+                                Password = "supersocket"
+                            },
                         EnabledSslProtocols = GetServerEnabledSslProtocols()
                     };
                 });
