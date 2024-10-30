@@ -92,6 +92,57 @@ namespace SuperSocket.Tests
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
+        public async Task TestUnknownCommands(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+            using (var server = CreateSocketServerBuilder<StringPackageInfo, CommandLinePipelineFilter>(hostConfigurator)
+                .UseCommand(commandOptions =>
+                {
+                    // register commands one by one
+                    commandOptions.AddCommand<ADD>();
+                    commandOptions.RegisterUnknownPackageHandler<StringPackageInfo>(async (session, package, cancellationToken) =>
+                    {
+                        await session.SendAsync(Encoding.UTF8.GetBytes("X\r\n"));
+                    });
+
+                    // register all commands in one assembly
+                    //commandOptions.AddCommandAssembly(typeof(SUB).GetTypeInfo().Assembly);
+                })
+                .BuildAsServer())
+            {
+
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                OutputHelper.WriteLine("Connected.");
+
+                using (var stream = await hostConfigurator.GetClientStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("ADD 1 2 3\r\n");
+                    await streamWriter.FlushAsync();
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal("6", line);
+
+                    await streamWriter.WriteAsync("MULT 2 5\r\n");
+                    await streamWriter.FlushAsync();
+                    line = await streamReader.ReadLineAsync();
+                    Assert.Equal("X", line);
+                }
+
+                await server.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
         public async Task TestCommandsFromAssembly(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);

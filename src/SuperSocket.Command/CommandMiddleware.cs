@@ -45,6 +45,8 @@ namespace SuperSocket.Command
     {
         private Dictionary<TKey, ICommandSet> _commands;
 
+        private Func<IAppSession, TPackageInfo, CancellationToken, ValueTask> _unknownPackageHandler;
+
         private ILogger _logger;
 
         protected IPackageMapper<TNetPackageInfo, TPackageInfo> PackageMapper { get; private set; }    
@@ -136,6 +138,18 @@ namespace SuperSocket.Command
             _commands = commandDict;
             
             PackageMapper = packageMapper != null ? packageMapper : CreatePackageMapper(serviceProvider);
+
+            var unknownPackageHandler = commandOptions.Value.UnknownPackageHandler;
+
+            if (unknownPackageHandler != null)
+            {
+                _unknownPackageHandler = unknownPackageHandler as Func<IAppSession, TPackageInfo, CancellationToken, ValueTask>;
+
+                if (_unknownPackageHandler == null)
+                {
+                    _logger.LogError($"{nameof(commandOptions.Value.UnknownPackageHandler)} was registered with incorrectly. The expected typew is {typeof(Func<IAppSession, TPackageInfo, ValueTask>).Name}.");
+                }
+            }            
         }
 
         private void RegisterCommandInterfaces(List<CommandTypeInfo> commandInterfaces, List<ICommandSetFactory> commandSetFactories, IServiceProvider serviceProvider, Type sessionType, Type packageType, bool wrapRequired = false)
@@ -200,6 +214,13 @@ namespace SuperSocket.Command
         {
             if (!_commands.TryGetValue(package.Key, out ICommandSet commandSet))
             {
+                var unknownPackageHandler = _unknownPackageHandler;
+
+                if (unknownPackageHandler != null)
+                {
+                    await unknownPackageHandler.Invoke(session, package, cancellationToken);
+                }
+
                 return;
             }
 

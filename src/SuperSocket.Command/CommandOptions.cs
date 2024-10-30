@@ -2,6 +2,10 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
+using SuperSocket.ProtoBase;
+using SuperSocket.Server.Abstractions.Session;
+using System.Threading;
 
 namespace SuperSocket.Command
 {
@@ -11,6 +15,13 @@ namespace SuperSocket.Command
         {
             CommandSources = new List<ICommandSource>();
             _globalCommandFilterTypes = new List<Type>();
+        }
+
+        internal object UnknownPackageHandler { get; private set; }
+
+        public void RegisterUnknownPackageHandler<TPackageInfo>(Func<IAppSession, TPackageInfo, CancellationToken, ValueTask> unknownPackageHandler)
+        {
+            UnknownPackageHandler = unknownPackageHandler;
         }
 
         public CommandAssemblyConfig[] Assemblies { get; set; }
