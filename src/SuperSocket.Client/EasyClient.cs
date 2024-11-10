@@ -112,7 +112,14 @@ namespace SuperSocket.Client
         {
             var connectors = new List<IConnector>();
 
-            connectors.Add(new SocketConnector(LocalEndPoint));
+            if (Proxy is IConnector proxy)
+            {
+                connectors.Add(proxy);
+            }
+            else
+            {
+                connectors.Add(new SocketConnector(LocalEndPoint));
+            }
 
             var security = Security;
 
@@ -120,11 +127,6 @@ namespace SuperSocket.Client
             {
                 if (security.EnabledSslProtocols != SslProtocols.None)
                     connectors.Add(new SslStreamConnector(security));
-            }
-
-            if (Proxy is IConnector proxy)
-            {
-                connectors.Add(proxy);
             }
 
             if (CompressionLevel != CompressionLevel.NoCompression)
