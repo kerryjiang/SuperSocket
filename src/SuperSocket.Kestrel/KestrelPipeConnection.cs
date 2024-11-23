@@ -75,6 +75,14 @@ public class KestrelPipeConnection : PipeConnectionBase
         UpdateLastActiveTime();
     }
 
+    protected override void OnReaderComplete(PipeReader reader, bool isDetaching)
+    {
+        if (isDetaching)
+            return;
+        
+        reader.Complete();
+    }
+
     protected override bool IsIgnorableException(Exception e)
     {
         if (e is IOException ioe && ioe.InnerException != null)
