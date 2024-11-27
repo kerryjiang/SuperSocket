@@ -31,4 +31,4 @@ jobs:
               run:  |
                 dotnet pack -c Release -p:NuspecProperties="version=${{ steps.nbgv.outputs.NuGetPackageVersion }}.${{ github.run_number }}" pkg/SuperSocket.csproj /p:NoPackageAnalysis=true
             - name: Push
-              run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.MYGET_API_KEY }} --source https://www.myget.org/F/supersocket/api/v3/index.json
+              run: dotnet nuget push **/*.nupkg --api-key ${{ secrets.MYGET_API_KEY }} --source https://www.myget.org/F/swatchsocket/api/v3/index.json
