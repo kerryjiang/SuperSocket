@@ -18,7 +18,7 @@ public class KestrelPipeConnection : PipeConnectionBase
         : base(context.Transport.Input, context.Transport.Output, options)
     {
         _context = context;
-        context.ConnectionClosed.Register(() => OnConnectionClosed());
+        context.ConnectionClosed.Register(OnConnectionClosed);
         LocalEndPoint = context.LocalEndPoint;
         RemoteEndPoint = context.RemoteEndPoint;
     }
@@ -58,19 +58,19 @@ public class KestrelPipeConnection : PipeConnectionBase
         await SupplyRequiredAsync();
     }
 
-    public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
+    public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken = default)
     {
         await base.SendAsync(write, cancellationToken);
         UpdateLastActiveTime();
     }
 
-    public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+    public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
         await base.SendAsync(buffer, cancellationToken);
         UpdateLastActiveTime();
     }
 
-    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
+    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken = default)
     {
         await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();

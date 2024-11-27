@@ -97,7 +97,7 @@ namespace SuperSocket.Connection
             }
         }
 
-        public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken)
+        public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             if (_enableSendingPipe)
             {
@@ -111,7 +111,7 @@ namespace SuperSocket.Connection
                 .ConfigureAwait(false);
         }
         
-        public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
+        public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken = default)
         {
             if (_enableSendingPipe)
             {
@@ -145,7 +145,7 @@ namespace SuperSocket.Connection
             }
         }
 
-        public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
+        public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken = default)
         {
             if (_enableSendingPipe)
             {
