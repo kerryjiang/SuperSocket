@@ -230,8 +230,9 @@ namespace SuperSocket.Connection
             packageEncoder.Encode(writer, package);
         }
 
-        protected virtual void OnInputPipeRead(ReadResult result)
+        protected virtual Task OnInputPipeReadAsync(ReadResult result)
         {
+            return Task.CompletedTask;
         }
 
         protected async Task ReadPipeAsync<TPackageInfo>(PipeReader reader, IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
@@ -245,7 +246,7 @@ namespace SuperSocket.Connection
                 try
                 {
                     result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-                    OnInputPipeRead(result);
+                    await OnInputPipeReadAsync(result);
                 }
                 catch (Exception e)
                 {

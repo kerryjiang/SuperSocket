@@ -13,6 +13,7 @@ using SuperSocket.ProtoBase;
 public class KestrelPipeConnection : PipeConnectionBase
 {
     private ConnectionContext _context;
+    private ISupplyController _supplyController;
 
     public KestrelPipeConnection(ConnectionContext context, ConnectionOptions options)
         : base(context.Transport.Input, context.Transport.Output, options)
@@ -31,11 +32,6 @@ public class KestrelPipeConnection : PipeConnectionBase
         base.OnClosed();
     }
 
-    public override ValueTask DetachAsync()
-    {
-        throw new NotSupportedException($"Detach is not supported by {nameof(KestrelPipeConnection)}.");
-    }
-
     protected override async void Close()
     {
         var context = _context;
@@ -49,12 +45,13 @@ public class KestrelPipeConnection : PipeConnectionBase
         }
     }
 
-    protected override void OnInputPipeRead(ReadResult result)
+    protected override async Task OnInputPipeReadAsync(ReadResult result)
     {
-        if (!result.IsCanceled && !result.IsCompleted)
-        {
+        if (result is { IsCanceled: false, IsCompleted: false })
             UpdateLastActiveTime();
-        }
+
+        if (_supplyController != null)
+            await _supplyController.SupplyRequired().ConfigureAwait(false);
     }
 
     public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
@@ -69,7 +66,8 @@ public class KestrelPipeConnection : PipeConnectionBase
         UpdateLastActiveTime();
     }
 
-    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
+    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package,
+        CancellationToken cancellationToken)
     {
         await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();
@@ -93,5 +91,16 @@ public class KestrelPipeConnection : PipeConnectionBase
     private void OnConnectionClosed()
     {
         Cancel();
+    }
+
+    protected override Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
+        CancellationToken cancellationToken)
+    {
+        _supplyController = packagePipe as ISupplyController;
+        
+        if (_supplyController != null)
+            cancellationToken.Register(() => _supplyController.SupplyEnd());
+
+        return base.StartInputPipeTask(packagePipe, cancellationToken);
     }
 }
