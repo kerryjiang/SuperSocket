@@ -20,7 +20,7 @@
     <Owners>Kerry Jiang</Owners>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup Condition="$(IsPackable) != False AND '$(OutputType)' != 'Exe'">
     <Compile Include="..\..\InternalsVisibleTo.cs" />
