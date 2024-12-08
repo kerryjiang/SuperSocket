@@ -7,6 +7,6 @@
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Command/SuperSocket.Command.csproj" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 </Project>

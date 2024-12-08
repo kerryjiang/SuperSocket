@@ -5,8 +5,8 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.13.1" />
-    <PackageReference Include="System.IO.Pipelines" Version="$(PipelinesVersion)" />
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="System.IO.Pipelines" />
     <ProjectReference Include="../../src/SuperSocket.ProtoBase/SuperSocket.ProtoBase.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Connection/SuperSocket.Connection.csproj" />
   </ItemGroup>

@@ -1,0 +1,29 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <MSExtensionsVersion>8.0.0</MSExtensionsVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="System.IO.Pipelines" Version="8.0.0" />
+    <PackageVersion Include="System.Text.Json" Version="8.0.5" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Binder" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
+    <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageVersion Include="xunit" Version="2.4.0" />    
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.5" />
+  </ItemGroup>
+</Project>

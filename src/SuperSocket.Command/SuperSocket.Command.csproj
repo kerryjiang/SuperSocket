@@ -3,11 +3,11 @@
     <Description>SuperSocket command pattern library which allow you to handle requests with commands.</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.Text.Json" Version="$(CoreFxVersion)" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="$(MSExtensionsVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="$(MSExtensionsVersion)" />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
   </ItemGroup>
   <ItemGroup>
    <ProjectReference Include="../SuperSocket.Primitives/SuperSocket.Primitives.csproj" />
