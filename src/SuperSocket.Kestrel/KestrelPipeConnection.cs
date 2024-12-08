@@ -13,6 +13,7 @@ using SuperSocket.ProtoBase;
 public class KestrelPipeConnection : PipeConnectionBase
 {
     private ConnectionContext _context;
+    private ISupplyController _supplyController;
 
     public KestrelPipeConnection(ConnectionContext context, ConnectionOptions options)
         : base(context.Transport.Input, context.Transport.Output, options)
@@ -49,7 +50,8 @@ public class KestrelPipeConnection : PipeConnectionBase
         if (result is { IsCanceled: false, IsCompleted: false })
             UpdateLastActiveTime();
 
-        await SupplyRequiredAsync();
+        if (_supplyController != null)
+            await _supplyController.SupplyRequired().ConfigureAwait(false);
     }
 
     public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
@@ -64,7 +66,8 @@ public class KestrelPipeConnection : PipeConnectionBase
         UpdateLastActiveTime();
     }
 
-    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
+    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package,
+        CancellationToken cancellationToken)
     {
         await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();
@@ -93,7 +96,11 @@ public class KestrelPipeConnection : PipeConnectionBase
     protected override Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
         CancellationToken cancellationToken)
     {
-        cancellationToken.Register(SupplyEnd);
+        _supplyController = packagePipe as ISupplyController;
+        
+        if (_supplyController != null)
+            cancellationToken.Register(() => _supplyController.SupplyEnd());
+
         return base.StartInputPipeTask(packagePipe, cancellationToken);
     }
 }

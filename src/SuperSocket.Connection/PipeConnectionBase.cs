@@ -47,8 +47,6 @@ namespace SuperSocket.Connection
 
         private bool _isDetaching = false;
 
-        private ISupplyController _supplyController;
-
         protected PipeConnectionBase(PipeReader inputReader, PipeWriter outputWriter, ConnectionOptions options)
         {
             Options = options;
@@ -70,17 +68,9 @@ namespace SuperSocket.Connection
 
         public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
         {
-            IObjectPipe<TPackageInfo> packagePipe;
-            if (Options.ReadAsDemand)
-            {
-                var defaultObjectPipe = new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
-                _supplyController = defaultObjectPipe;
-                packagePipe = defaultObjectPipe;
-            }
-            else
-            {
-                packagePipe = new DefaultObjectPipe<TPackageInfo>();
-            }
+            var packagePipe = !Options.ReadAsDemand
+                ? new DefaultObjectPipe<TPackageInfo>()
+                : new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
 
             _packagePipe = packagePipe;
             _pipelineFilter = pipelineFilter;
@@ -422,17 +412,6 @@ namespace SuperSocket.Connection
                 Logger?.LogError(e, message);
             else
                 Logger?.LogError(message);
-        }
-
-        protected void SupplyEnd()
-        {
-            _supplyController?.SupplyEnd();
-        }
-
-        protected async Task SupplyRequiredAsync()
-        {
-            if (_supplyController != null)
-                await _supplyController.SupplyRequired().ConfigureAwait(false);
         }
     }
 }
