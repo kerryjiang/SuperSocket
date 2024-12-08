@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <TargetFrameworks>$(DotNetTargetFrameworks)</TargetFrameworks>
     <Description>SuperSocket library allows users to take advantage of Kestrel's high performance socket pipeline.</Description>
   </PropertyGroup>
   <ItemGroup>
