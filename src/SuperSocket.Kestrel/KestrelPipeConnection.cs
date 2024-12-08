@@ -31,11 +31,6 @@ public class KestrelPipeConnection : PipeConnectionBase
         base.OnClosed();
     }
 
-    public override ValueTask DetachAsync()
-    {
-        throw new NotSupportedException($"Detach is not supported by {nameof(KestrelPipeConnection)}.");
-    }
-
     protected override async void Close()
     {
         var context = _context;
@@ -49,12 +44,12 @@ public class KestrelPipeConnection : PipeConnectionBase
         }
     }
 
-    protected override void OnInputPipeRead(ReadResult result)
+    protected override async Task OnInputPipeReadAsync(ReadResult result)
     {
-        if (!result.IsCanceled && !result.IsCompleted)
-        {
+        if (result is { IsCanceled: false, IsCompleted: false })
             UpdateLastActiveTime();
-        }
+
+        await SupplyRequiredAsync();
     }
 
     public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
@@ -93,5 +88,12 @@ public class KestrelPipeConnection : PipeConnectionBase
     private void OnConnectionClosed()
     {
         Cancel();
+    }
+
+    protected override Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
+        CancellationToken cancellationToken)
+    {
+        cancellationToken.Register(SupplyEnd);
+        return base.StartInputPipeTask(packagePipe, cancellationToken);
     }
 }
