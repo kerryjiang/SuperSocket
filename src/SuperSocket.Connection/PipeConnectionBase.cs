@@ -305,7 +305,7 @@ namespace SuperSocket.Connection
                 }
             }
 
-            reader.Complete();
+            OnReaderComplete(reader, _isDetaching);
             WriteEOFPackage();
         }
 
@@ -412,6 +412,11 @@ namespace SuperSocket.Connection
                 Logger?.LogError(e, message);
             else
                 Logger?.LogError(message);
+        }
+        
+        protected virtual void OnReaderComplete(PipeReader reader, bool isDetaching)
+        {
+            reader.Complete();
         }
     }
 }

@@ -103,4 +103,12 @@ public class KestrelPipeConnection : PipeConnectionBase
 
         return base.StartInputPipeTask(packagePipe, cancellationToken);
     }
+
+    protected override void OnReaderComplete(PipeReader reader, bool isDetaching)
+    {
+        if (isDetaching)
+            return;
+
+        reader.Complete();
+    }
 }
