@@ -66,11 +66,16 @@ namespace SuperSocket.Connection
             LastActiveTime = DateTimeOffset.Now;
         }
 
-        public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
+        protected virtual IObjectPipe<TPackageInfo> CreatePackagePipe<TPackageInfo>(bool readAsDemand)
         {
-            var packagePipe = !Options.ReadAsDemand
+            return !readAsDemand
                 ? new DefaultObjectPipe<TPackageInfo>()
                 : new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
+        }
+        
+        public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
+        {
+            var packagePipe = CreatePackagePipe<TPackageInfo>(Options.ReadAsDemand);
 
             _packagePipe = packagePipe;
             _pipelineFilter = pipelineFilter;
@@ -304,7 +309,7 @@ namespace SuperSocket.Connection
                 }
             }
 
-            reader.Complete();
+            CompleteReader(reader, _isDetaching);
             WriteEOFPackage();
         }
 
@@ -411,6 +416,11 @@ namespace SuperSocket.Connection
                 Logger?.LogError(e, message);
             else
                 Logger?.LogError(message);
+        }
+        
+        protected virtual void CompleteReader(PipeReader reader, bool isDetaching)
+        {
+            reader.Complete();
         }
     }
 }
