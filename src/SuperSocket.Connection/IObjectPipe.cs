@@ -20,7 +20,7 @@ namespace SuperSocket.Connection
         ValueTask<T> ReadAsync();
     }
 
-    public interface ISupplyController
+    interface ISupplyController
     {
         ValueTask SupplyRequired();
 

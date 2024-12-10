@@ -297,7 +297,7 @@ namespace SuperSocket.Tests
                        .UsePackageHandler(async (s, p) =>
                        {
                            await s.SendAsync(Utf8Encoding.GetBytes("PRE-" + p.Text + "\r\n"));
-                       }).BuildAsServer())
+                       }).UseKestrelPipeConnection().BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
 
@@ -312,7 +312,7 @@ namespace SuperSocket.Tests
                         new ConnectionOptions
                         {
                             Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableConnection)),
-                            ReadAsDemand = true
+                            ReadAsDemand = false
                         }
                     ), () => !context.ConnectionClosed.IsCancellationRequested);
                 }

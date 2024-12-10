@@ -1,4 +1,6 @@
-﻿namespace SuperSocket.Kestrel;
+﻿using Microsoft.Extensions.Logging;
+
+namespace SuperSocket.Kestrel;
 
 using System;
 using System.IO;
@@ -13,7 +15,6 @@ using SuperSocket.ProtoBase;
 public class KestrelPipeConnection : PipeConnectionBase
 {
     private ConnectionContext _context;
-    private ISupplyController _supplyController;
 
     public KestrelPipeConnection(ConnectionContext context, ConnectionOptions options)
         : base(context.Transport.Input, context.Transport.Output, options)
@@ -22,6 +23,19 @@ public class KestrelPipeConnection : PipeConnectionBase
         context.ConnectionClosed.Register(() => OnConnectionClosed());
         LocalEndPoint = context.LocalEndPoint;
         RemoteEndPoint = context.RemoteEndPoint;
+
+        if (options.ReadAsDemand)
+        {
+            Logger.LogWarning($"{nameof(KestrelPipeConnection)} doesn't support ReadAsDemand.");
+        }
+    }
+
+    protected override void CompleteReader(PipeReader reader, bool isDetaching)
+    {
+        if (!isDetaching)
+        {
+            reader.Complete();
+        }
     }
 
     protected override void OnClosed()
@@ -45,13 +59,10 @@ public class KestrelPipeConnection : PipeConnectionBase
         }
     }
 
-    protected override async Task OnInputPipeReadAsync(ReadResult result)
+    protected override void OnInputPipeRead(ReadResult result)
     {
         if (result is { IsCanceled: false, IsCompleted: false })
             UpdateLastActiveTime();
-
-        if (_supplyController != null)
-            await _supplyController.SupplyRequired().ConfigureAwait(false);
     }
 
     public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
@@ -91,24 +102,5 @@ public class KestrelPipeConnection : PipeConnectionBase
     private void OnConnectionClosed()
     {
         Cancel();
-    }
-
-    protected override Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe,
-        CancellationToken cancellationToken)
-    {
-        _supplyController = packagePipe as ISupplyController;
-        
-        if (_supplyController != null)
-            cancellationToken.Register(() => _supplyController.SupplyEnd());
-
-        return base.StartInputPipeTask(packagePipe, cancellationToken);
-    }
-
-    protected override void OnReaderComplete(PipeReader reader, bool isDetaching)
-    {
-        if (isDetaching)
-            return;
-
-        reader.Complete();
     }
 }

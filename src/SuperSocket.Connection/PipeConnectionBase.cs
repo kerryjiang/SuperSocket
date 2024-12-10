@@ -66,11 +66,16 @@ namespace SuperSocket.Connection
             LastActiveTime = DateTimeOffset.Now;
         }
 
-        public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
+        protected virtual IObjectPipe<TPackageInfo> CreatePackagePipe<TPackageInfo>(bool readAsDemand)
         {
-            var packagePipe = !Options.ReadAsDemand
+            return !readAsDemand
                 ? new DefaultObjectPipe<TPackageInfo>()
                 : new DefaultObjectPipeWithSupplyControl<TPackageInfo>();
+        }
+        
+        public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
+        {
+            var packagePipe = CreatePackagePipe<TPackageInfo>(Options.ReadAsDemand);
 
             _packagePipe = packagePipe;
             _pipelineFilter = pipelineFilter;
@@ -230,9 +235,8 @@ namespace SuperSocket.Connection
             packageEncoder.Encode(writer, package);
         }
 
-        protected virtual Task OnInputPipeReadAsync(ReadResult result)
+        protected virtual void OnInputPipeRead(ReadResult result)
         {
-            return Task.CompletedTask;
         }
 
         protected async Task ReadPipeAsync<TPackageInfo>(PipeReader reader, IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
@@ -246,7 +250,7 @@ namespace SuperSocket.Connection
                 try
                 {
                     result = await reader.ReadAsync(cancellationToken).ConfigureAwait(false);
-                    await OnInputPipeReadAsync(result);
+                    OnInputPipeRead(result);
                 }
                 catch (Exception e)
                 {
@@ -305,7 +309,7 @@ namespace SuperSocket.Connection
                 }
             }
 
-            OnReaderComplete(reader, _isDetaching);
+            CompleteReader(reader, _isDetaching);
             WriteEOFPackage();
         }
 
@@ -414,7 +418,7 @@ namespace SuperSocket.Connection
                 Logger?.LogError(message);
         }
         
-        protected virtual void OnReaderComplete(PipeReader reader, bool isDetaching)
+        protected virtual void CompleteReader(PipeReader reader, bool isDetaching)
         {
             reader.Complete();
         }
