@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Connections;
+using Microsoft.Extensions.Logging;
 using SuperSocket.Connection;
 using SuperSocket.ProtoBase;
 
@@ -21,6 +22,24 @@ public class KestrelPipeConnection : PipeConnectionBase
         context.ConnectionClosed.Register(() => OnConnectionClosed());
         LocalEndPoint = context.LocalEndPoint;
         RemoteEndPoint = context.RemoteEndPoint;
+        
+        if (options.ReadAsDemand)
+        {
+            Logger.LogWarning($"{nameof(KestrelPipeConnection)} doesn't support ReadAsDemand.");
+        }
+    }
+
+    protected override void CompleteReader(PipeReader reader, bool isDetaching)
+    {
+        if (!isDetaching)
+        {
+            reader.Complete();
+        }
+    }
+
+    protected override IObjectPipe<TPackageInfo> CreatePackagePipe<TPackageInfo>(bool readAsDemand)
+    {
+        return base.CreatePackagePipe<TPackageInfo>(false);
     }
 
     protected override void OnClosed()
@@ -29,11 +48,6 @@ public class KestrelPipeConnection : PipeConnectionBase
             CloseReason = Connection.CloseReason.RemoteClosing;
 
         base.OnClosed();
-    }
-
-    public override ValueTask DetachAsync()
-    {
-        throw new NotSupportedException($"Detach is not supported by {nameof(KestrelPipeConnection)}.");
     }
 
     protected override async void Close()
