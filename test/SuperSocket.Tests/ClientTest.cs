@@ -16,6 +16,9 @@ using SuperSocket.Server.Abstractions.Session;
 using System.Threading;
 using Microsoft.Extensions.Logging.Abstractions;
 using SuperSocket.WebSocket;
+using SuperSocket.Kestrel;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace SuperSocket.Tests
 {
@@ -262,6 +265,7 @@ namespace SuperSocket.Tests
         {
             IHostConfigurator hostConfigurator = new RegularHostConfigurator();
 
+            /*
             await TestDetachableConnectionInternal(hostConfigurator, (_, socket) =>
                 new StreamPipeConnection(
                     hostConfigurator.GetClientStream(socket).Result,
@@ -273,8 +277,8 @@ namespace SuperSocket.Tests
                         ReadAsDemand = true
                     })
                 );
+            */
 
-            /* KestrelPipeConnection doesn't support Detach right now.
             await TestDetachableConnectionInternal(new KestralConnectionHostConfigurator(), (server, socket) =>
                 new KestrelPipeConnection(
                         server.ServiceProvider.GetService<SocketConnectionContextFactory>().Create(socket),
@@ -285,7 +289,6 @@ namespace SuperSocket.Tests
                         }
                     )
                 );
-                */
         }
 
         async Task TestDetachableConnectionInternal(IHostConfigurator hostConfigurator, Func<IServer, Socket, IConnection> connectionFactory)
