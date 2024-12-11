@@ -14,7 +14,10 @@ using SuperSocket.Server;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Session;
 using System.Threading;
+using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Abstractions;
+using SuperSocket.Kestrel;
 using SuperSocket.WebSocket;
 
 namespace SuperSocket.Tests
@@ -256,78 +259,92 @@ namespace SuperSocket.Tests
             }
         }
 
-        [Fact]
+[Fact]
         [Trait("Category", "TestDetachableConnection")]
         public async Task TestDetachableConnection()
         {
             IHostConfigurator hostConfigurator = new RegularHostConfigurator();
 
-            await TestDetachableConnectionInternal(hostConfigurator, (_, socket) =>
-                new StreamPipeConnection(
-                    hostConfigurator.GetClientStream(socket).Result,
-                    socket.RemoteEndPoint,
-                    socket.LocalEndPoint,
-                    new ConnectionOptions
-                    {
-                        Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableConnection)),
-                        ReadAsDemand = true
-                    })
-                );
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                       .UsePackageHandler(async (s, p) =>
+                       {
+                           await s.SendAsync(Utf8Encoding.GetBytes("PRE-" + p.Text + "\r\n"));
+                       }).BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+            
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+            
+                using (var socket = hostConfigurator.CreateClient())
+                {
+                    await TestDetachableConnectionInternal(hostConfigurator, server, ser => new StreamPipeConnection(
+                        hostConfigurator.GetClientStream(socket).Result,
+                        socket.RemoteEndPoint,
+                        socket.LocalEndPoint,
+                        new ConnectionOptions
+                        {
+                            Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableConnection)),
+                            ReadAsDemand = true
+                        }), () => socket.Connected);
+                }
+            
+                await server.StopAsync();
+            }
 
-            /* KestrelPipeConnection doesn't support Detach right now.
-            await TestDetachableConnectionInternal(new KestralConnectionHostConfigurator(), (server, socket) =>
-                new KestrelPipeConnection(
-                        server.ServiceProvider.GetService<SocketConnectionContextFactory>().Create(socket),
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                       .ConfigureServices((ctx, services) => services.AddSocketConnectionFactory())
+                       .UsePackageHandler(async (s, p) =>
+                       {
+                           await s.SendAsync(Utf8Encoding.GetBytes("PRE-" + p.Text + "\r\n"));
+                       }).UseKestrelPipeConnection().BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+                var connectionFactory = server.ServiceProvider
+                    .GetRequiredService<Microsoft.AspNetCore.Connections.IConnectionFactory>();
+                await using (var context = await connectionFactory.ConnectAsync(hostConfigurator.GetServerEndPoint()))
+                {
+                    await TestDetachableConnectionInternal(hostConfigurator, server, ser => new KestrelPipeConnection(
+                        context,
                         new ConnectionOptions
                         {
                             Logger = DefaultLoggerFactory.CreateLogger(nameof(TestDetachableConnection)),
                             ReadAsDemand = false
                         }
-                    )
-                );
-                */
-        }
-
-        async Task TestDetachableConnectionInternal(IHostConfigurator hostConfigurator, Func<IServer, Socket, IConnection> connectionFactory)
-        {
-            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
-                .UsePackageHandler(async (s, p) =>
-                {
-                    await s.SendAsync(Utf8Encoding.GetBytes("PRE-" + p.Text + "\r\n"));
-                }).BuildAsServer())
-            {
-
-                Assert.Equal("TestServer", server.Name);
-
-                Assert.True(await server.StartAsync());
-                OutputHelper.WriteLine("Server started.");
-
-                using (var socket = hostConfigurator.CreateClient())
-                {
-                    var connection = connectionFactory(server, socket);
-
-                    await TestConnection(connection);
-
-                    OutputHelper.WriteLine("Before DetachAsync");
-
-                    await connection.DetachAsync();
-
-                    // the connection is still alive in the server
-                    Assert.Equal(1, server.SessionCount);
-
-                    // socket.Connected is is still connected
-                    Assert.True(socket.Connected);
-
-                    // Attach the socket with another connection
-                    connection = connectionFactory(server, socket);
-
-                    await TestConnection(connection);
-                }                
+                    ), () => !context.ConnectionClosed.IsCancellationRequested);
+                }
 
                 await server.StopAsync();
             }
         }
 
+        async Task TestDetachableConnectionInternal(IHostConfigurator hostConfigurator,
+            IServer server,
+            Func<IServer, IConnection> connectionFactory,
+            Func<bool> checkConnectionFactory)
+        {
+            var connection = connectionFactory(server);
+
+            await TestConnection(connection);
+
+            OutputHelper.WriteLine("Before DetachAsync");
+
+            await connection.DetachAsync();
+
+            // the connection is still alive in the server
+            Assert.Equal(1, server.SessionCount);
+
+            // socket.Connected is is still connected
+            Assert.True(checkConnectionFactory());
+
+            // Attach the socket with another connection
+            connection = connectionFactory(server);
+
+            await TestConnection(connection);
+        }
         async Task TestConnection(IConnection connection)
         {
             var packagePipe = connection.RunAsync(new LinePipelineFilter());

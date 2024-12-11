@@ -1,4 +1,6 @@
-﻿namespace SuperSocket.Kestrel;
+﻿using Microsoft.Extensions.Logging;
+
+namespace SuperSocket.Kestrel;
 
 using System;
 using System.IO;
@@ -21,6 +23,19 @@ public class KestrelPipeConnection : PipeConnectionBase
         context.ConnectionClosed.Register(() => OnConnectionClosed());
         LocalEndPoint = context.LocalEndPoint;
         RemoteEndPoint = context.RemoteEndPoint;
+
+        if (options.ReadAsDemand)
+        {
+            Logger.LogWarning($"{nameof(KestrelPipeConnection)} doesn't support ReadAsDemand.");
+        }
+    }
+
+    protected override void CompleteReader(PipeReader reader, bool isDetaching)
+    {
+        if (!isDetaching)
+        {
+            reader.Complete();
+        }
     }
 
     protected override void OnClosed()
@@ -29,11 +44,6 @@ public class KestrelPipeConnection : PipeConnectionBase
             CloseReason = Connection.CloseReason.RemoteClosing;
 
         base.OnClosed();
-    }
-
-    public override ValueTask DetachAsync()
-    {
-        throw new NotSupportedException($"Detach is not supported by {nameof(KestrelPipeConnection)}.");
     }
 
     protected override async void Close()
@@ -51,10 +61,8 @@ public class KestrelPipeConnection : PipeConnectionBase
 
     protected override void OnInputPipeRead(ReadResult result)
     {
-        if (!result.IsCanceled && !result.IsCompleted)
-        {
+        if (result is { IsCanceled: false, IsCompleted: false })
             UpdateLastActiveTime();
-        }
     }
 
     public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
@@ -69,7 +77,8 @@ public class KestrelPipeConnection : PipeConnectionBase
         UpdateLastActiveTime();
     }
 
-    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken)
+    public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package,
+        CancellationToken cancellationToken)
     {
         await base.SendAsync(packageEncoder, package, cancellationToken);
         UpdateLastActiveTime();
