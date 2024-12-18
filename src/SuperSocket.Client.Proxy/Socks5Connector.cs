@@ -22,12 +22,14 @@ namespace SuperSocket.Client.Proxy
 
         private string _password;
 
-        readonly static byte[] _authenHandshakeRequest = new byte[] { 0x05, 0x02, 0x00, 0x02 };
+        private readonly byte[] _authenHandshakeRequest;
+        private static readonly byte[] Handshake = new byte[] { 0x05, 0x01, 0x00 };
+        private static readonly byte[] AuthenHandshake = new byte[] { 0x05, 0x02, 0x00, 0x02 };
 
         public Socks5Connector(EndPoint proxyEndPoint)
             : base(proxyEndPoint)
         {
-
+            _authenHandshakeRequest = Handshake;
         }
 
         public Socks5Connector(EndPoint proxyEndPoint, string username, string password)
@@ -35,13 +37,25 @@ namespace SuperSocket.Client.Proxy
         {
             _username = username;
             _password = password;
+            _authenHandshakeRequest = AuthenHandshake;
         }
 
         protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var connection = state.CreateConnection(new ConnectionOptions { ReadAsDemand = true });
 
-            var packStream = connection.GetPackageStream(new Socks5AuthPipelineFilter());
+            var pipeLineFilter = new Socks5AuthPipelineFilter();
+
+            if (string.IsNullOrWhiteSpace(_username) || string.IsNullOrWhiteSpace(_password))
+            {
+                pipeLineFilter.AuthStep = 1;
+            }
+            else
+            {
+                pipeLineFilter.AuthStep = 0;
+            }
+
+            var packStream = connection.GetPackageStream(pipeLineFilter);
 
             await connection.SendAsync(_authenHandshakeRequest);
 
