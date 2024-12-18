@@ -247,7 +247,7 @@ namespace SuperSocket.Client.Proxy
 
                 port = endPoint.Port;
 
-                var maxLen = 7 + Encoding.ASCII.GetMaxByteCount(endPoint.Host.Length);
+                var maxLen = 6 + Encoding.ASCII.GetMaxByteCount(endPoint.Host.Length);
                 buffer = new byte[maxLen];
 
                 buffer[3] = 0x03;
