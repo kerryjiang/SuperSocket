@@ -44,6 +44,13 @@ namespace SuperSocket.Tests
             return socket;
         }
 
+        public async ValueTask<Socket> CreateConnectedClientAsync()
+        {
+            var serverAddress = this.GetServerEndPoint();
+            var client = new TcpClient();
+            await client.ConnectAsync(serverAddress);
+            return client.Client;
+        }
 
         public TextReader GetStreamReader(Stream stream, Encoding encoding)
         {

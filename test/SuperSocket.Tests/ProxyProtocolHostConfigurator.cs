@@ -75,5 +75,10 @@ namespace SuperSocket.Tests
         {
             return _innerHostConfigurator.KeepSequence();
         }
+
+        public ValueTask<Socket> CreateConnectedClientAsync()
+        {
+            return _innerHostConfigurator.CreateConnectedClientAsync();
+        }
     }
 }
