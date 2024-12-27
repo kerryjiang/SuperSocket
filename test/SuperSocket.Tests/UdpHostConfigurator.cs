@@ -144,5 +144,9 @@ namespace SuperSocket.Tests
             await Task.Delay(200);
         }
 
+        public ValueTask<Socket> CreateConnectedClientAsync()
+        {
+            throw new NotSupportedException();
+        }
     }
 }

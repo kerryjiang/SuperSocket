@@ -23,6 +23,8 @@ namespace SuperSocket.Tests
 
         Socket CreateClient();
 
+        ValueTask<Socket> CreateConnectedClientAsync();
+
         ValueTask<Stream> GetClientStream(Socket socket);
 
         TextReader GetStreamReader(Stream stream, Encoding encoding);

@@ -61,7 +61,7 @@ namespace SuperSocket.Tests
         {
             var round = 0;
 
-            using (var socket = hostConfigurator.CreateClient())
+            using (var socket = await hostConfigurator.CreateConnectedClientAsync())
             using (var clientStream = await hostConfigurator.GetClientStream(socket))
             using (var streamReader = new StreamReader(clientStream, Utf8Encoding, true))
             using (var streamWriter = new StreamWriter(clientStream, Utf8Encoding, 1024 * 1024 * 4))
