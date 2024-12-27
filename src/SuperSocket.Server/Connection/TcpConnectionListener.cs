@@ -82,6 +82,7 @@ namespace SuperSocket.Server.Connection
                         //The listen socket was closed
                         if (errorCode == 125 || errorCode == 89 || errorCode == 995 || errorCode == 10004 || errorCode == 10038)
                         {
+                            _logger.LogCritical(se, $"The listener[{this.ToString()}] was closed for the socket error: {errorCode}.");
                             break;
                         }
                     }
