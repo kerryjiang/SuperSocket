@@ -92,7 +92,7 @@ namespace SuperSocket.Server.Connection
                 }
             }
 
-            _stopTaskCompletionSource.TrySetResult(true);
+            _stopTaskCompletionSource?.TrySetResult(true);
         }
 
         public event NewConnectionAcceptHandler NewConnectionAccept;
