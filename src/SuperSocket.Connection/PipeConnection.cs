@@ -53,9 +53,9 @@ namespace SuperSocket.Connection
 
             while (true)
             {
-                var completed = await ProcessOutputRead(output).ConfigureAwait(false);
+                var completedOrCancelled = await ProcessOutputRead(output).ConfigureAwait(false);
 
-                if (completed)
+                if (completedOrCancelled)
                 {
                     break;
                 }
@@ -153,7 +153,7 @@ namespace SuperSocket.Connection
         {
             var result = await reader.ReadAsync(CancellationToken.None).ConfigureAwait(false);
 
-            var completed = result.IsCompleted;
+            var completedOrCancelled = result.IsCompleted || result.IsCanceled;
 
             var buffer = result.Buffer;
             var end = buffer.End;
@@ -178,7 +178,7 @@ namespace SuperSocket.Connection
             }
 
             reader.AdvanceTo(end);
-            return completed;
+            return completedOrCancelled;
         }
 
         protected abstract ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken);
