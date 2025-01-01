@@ -30,11 +30,19 @@ public class KestrelPipeConnection : PipeConnectionBase
         }
     }
 
-    protected override void CompleteReader(PipeReader reader, bool isDetaching)
+    protected override async ValueTask CompleteReaderAsync(PipeReader reader, bool isDetaching)
     {
         if (!isDetaching)
         {
-            reader.Complete();
+            await reader.CompleteAsync().ConfigureAwait(false);
+        }
+    }
+
+    protected override async ValueTask CompleteWriterAsync(PipeWriter writer, bool isDetaching)
+    {
+        if (!isDetaching)
+        {
+            await writer.CompleteAsync().ConfigureAwait(false);
         }
     }
 
@@ -101,6 +109,6 @@ public class KestrelPipeConnection : PipeConnectionBase
 
     private void OnConnectionClosed()
     {
-        Cancel();
+        CancelAsync().Wait();
     }
 }

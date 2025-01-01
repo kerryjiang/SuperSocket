@@ -56,9 +56,9 @@ namespace SuperSocket.Connection
             ConnectionToken = _cts.Token;
         }
 
-        protected virtual Task StartTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe)
+        protected virtual Task StartTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
         {
-            return StartInputPipeTask(packagePipe, _cts.Token);
+            return StartInputPipeTask(packagePipe, cancellationToken);
         }
 
         protected void UpdateLastActiveTime()
@@ -80,7 +80,7 @@ namespace SuperSocket.Connection
             _packagePipe = packagePipe;
             _pipelineFilter = pipelineFilter;
 
-            _pipeTask = StartTask(packagePipe);
+            _pipeTask = StartTask(packagePipe, _cts.Token);
 
             _ = HandleClosing();
 
@@ -136,13 +136,17 @@ namespace SuperSocket.Connection
         public override async ValueTask CloseAsync(CloseReason closeReason)
         {
             CloseReason = closeReason;
-            Cancel();
+            await CancelAsync().ConfigureAwait(false);
             await HandleClosing().ConfigureAwait(false);
         }
 
-        protected void Cancel()
+        protected async Task CancelAsync()
         {
+            if (_cts.IsCancellationRequested)
+                return;
+
             _cts.Cancel();
+            await CompleteWriterAsync(OutputWriter, _isDetaching).ConfigureAwait(false);
         }
 
         protected virtual bool IsIgnorableException(Exception e)
@@ -316,7 +320,7 @@ namespace SuperSocket.Connection
                 }
             }
 
-            CompleteReader(reader, _isDetaching);
+            await CompleteReaderAsync(reader, _isDetaching).ConfigureAwait(false);
             WriteEOFPackage();
         }
 
@@ -412,7 +416,7 @@ namespace SuperSocket.Connection
         public override async ValueTask DetachAsync()
         {
             _isDetaching = true;
-            Cancel();
+            await CancelAsync().ConfigureAwait(false);
             await HandleClosing().ConfigureAwait(false);
             _isDetaching = false;
         }
@@ -425,9 +429,14 @@ namespace SuperSocket.Connection
                 Logger?.LogError(message);
         }
         
-        protected virtual void CompleteReader(PipeReader reader, bool isDetaching)
+        protected virtual async ValueTask CompleteReaderAsync(PipeReader reader, bool isDetaching)
         {
-            reader.Complete();
+            await reader.CompleteAsync().ConfigureAwait(false);
+        }
+
+        protected virtual async ValueTask CompleteWriterAsync(PipeWriter writer, bool isDetaching)
+        {
+            await writer.CompleteAsync().ConfigureAwait(false);
         }
     }
 }
