@@ -147,6 +147,7 @@ namespace SuperSocket.Connection
 
             _cts.Cancel();
             await CompleteWriterAsync(OutputWriter, _isDetaching).ConfigureAwait(false);
+            CancelOutputPendingRead();
         }
 
         protected virtual bool IsIgnorableException(Exception e)
@@ -437,6 +438,10 @@ namespace SuperSocket.Connection
         protected virtual async ValueTask CompleteWriterAsync(PipeWriter writer, bool isDetaching)
         {
             await writer.CompleteAsync().ConfigureAwait(false);
+        }
+
+        protected virtual void CancelOutputPendingRead()
+        {
         }
     }
 }
