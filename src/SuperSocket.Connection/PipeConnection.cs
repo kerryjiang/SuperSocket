@@ -158,12 +158,20 @@ namespace SuperSocket.Connection
             var buffer = result.Buffer;
             var end = buffer.End;
 
-            if (!buffer.IsEmpty)
+            while (!buffer.IsEmpty)
             {
                 try
                 {
-                    await SendOverIOAsync(buffer, CancellationToken.None).ConfigureAwait(false); ;
+                    var bytesToSend = buffer.Length;
+                    var bytesSent = await SendOverIOAsync(buffer, CancellationToken.None).ConfigureAwait(false);
                     UpdateLastActiveTime();
+
+                    if (bytesSent == bytesToSend)
+                    {
+                        break;
+                    }
+
+                    buffer = buffer.Slice(bytesSent);
                 }
                 catch (Exception e)
                 {

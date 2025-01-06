@@ -2,7 +2,7 @@
   <PropertyGroup>
     <LangVersion>10.0</LangVersion>
     <DotNetTargetFrameworks>net6.0;net7.0;net8.0</DotNetTargetFrameworks>
-    <TargetFrameworks>netstandard2.1;$(DotNetTargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(DotNetTargetFrameworks)</TargetFrameworks>
     <SamplesTargetFrameworks>net8.0</SamplesTargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>

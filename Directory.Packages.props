@@ -18,6 +18,7 @@
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(MSExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="$(MSExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(MSExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.ObjectPool" Version="$(MSExtensionsVersion)" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.1" />
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="6.0.0" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />

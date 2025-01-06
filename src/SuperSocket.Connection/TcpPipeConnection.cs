@@ -3,24 +3,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Buffers;
-using System.Collections.Generic;
-using SuperSocket.ProtoBase;
+using Microsoft.Extensions.ObjectPool;
 
 namespace SuperSocket.Connection
 {
     public class TcpPipeConnection : PipeConnection
     {
-
         private Socket _socket;
 
-        private List<ArraySegment<byte>> _segmentsForSend;
-        
-        public TcpPipeConnection(Socket socket, ConnectionOptions options)
+        private readonly ObjectPool<SocketSender> _socketSenderPool;
+
+        public TcpPipeConnection(Socket socket, ConnectionOptions options, ObjectPool<SocketSender> socketSenderPool = null)
             : base(options)
         {
             _socket = socket;
             RemoteEndPoint = socket.RemoteEndPoint;
             LocalEndPoint = socket.LocalEndPoint;
+
+            _socketSenderPool = socketSenderPool;
         }
 
         protected override void OnClosed()
@@ -44,35 +44,26 @@ namespace SuperSocket.Connection
 
         protected override async ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
         {
-            if (buffer.IsSingleSegment)
-            {
-                return await _socket
-                    .SendAsync(GetArrayByMemory(buffer.First), SocketFlags.None, cancellationToken)
-                    .ConfigureAwait(false);
-            }
-            
-            if (_segmentsForSend == null)
-            {
-                _segmentsForSend = new List<ArraySegment<byte>>();
-            }
-            else
-            {
-                _segmentsForSend.Clear();
-            }
+            var socketSenderPool = _socketSenderPool;
 
-            var segments = _segmentsForSend;
+            var socketSender = socketSenderPool?.Get() ?? new SocketSender();
 
-            foreach (var piece in buffer)
+            try
             {
-                cancellationToken.ThrowIfCancellationRequested();
-                _segmentsForSend.Add(GetArrayByMemory(piece));
-            }
+                var sentBytes = await socketSender.SendAsync(_socket, buffer).ConfigureAwait(false);
 
-            cancellationToken.ThrowIfCancellationRequested();
-            
-            return await _socket
-                .SendAsync(_segmentsForSend, SocketFlags.None)
-                .ConfigureAwait(false);
+                if (socketSenderPool != null)
+                {
+                    socketSenderPool.Return(socketSender);
+                    socketSender = null;
+                }
+
+                return sentBytes;
+            }
+            finally
+            {
+                socketSender?.Dispose();
+            }
         }
 
         protected override void Close()
