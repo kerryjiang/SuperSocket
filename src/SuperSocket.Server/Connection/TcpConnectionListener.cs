@@ -79,10 +79,12 @@ namespace SuperSocket.Server.Connection
                     {
                         var errorCode = se.ErrorCode;
 
-                        //The listen socket was closed
-                        if (errorCode == 125 || errorCode == 89 || errorCode == 995 || errorCode == 10004 || errorCode == 10038)
+                        if (errorCode == 89 // System.Net.Sockets.SocketException (89): Operation canceled (MacOs)
+                            || errorCode == 125 // System.Net.Sockets.SocketException (125): Operation canceled
+                            || errorCode == 995  // System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request
+                            || errorCode == 10004) // System.Net.Sockets.SocketException (10004): A blocking Socket call was canceled.
                         {
-                            _logger.LogCritical(se, $"The listener[{this.ToString()}] was closed for the socket error: {errorCode}.");
+                            _logger.LogWarning(se, $"The listener[{this.ToString()}] was closed for the socket error: {errorCode}.");
                             break;
                         }
                     }
