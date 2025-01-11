@@ -133,6 +133,16 @@ namespace SuperSocket.Server.Host
             return new MultipleServerHostBuilder(hostBuilder);
         }
 
+        public static SuperSocketWebApplicationBuilder AsSuperSocketWebApplicationBuilder(this IHostApplicationBuilder hostApplicationBuilder, Action<MultipleServerHostBuilder> configureServerHostBuilder)
+        {
+            var applicationBuilder = new SuperSocketWebApplicationBuilder(hostApplicationBuilder);
+
+            var hostBuilder = new MultipleServerHostBuilder(applicationBuilder.Host);
+            configureServerHostBuilder(hostBuilder);
+            hostBuilder.AsMinimalApiHostBuilder().ConfigureHostBuilder();
+            return applicationBuilder;
+        }
+
         public static IMinimalApiHostBuilder AsMinimalApiHostBuilder(this ISuperSocketHostBuilder hostBuilder)
         {
             return hostBuilder;
