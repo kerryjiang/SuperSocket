@@ -16,6 +16,8 @@ namespace SuperSocket.Connection
 
         private static readonly Action<object?> _continuationCompleted = _ => { };
 
+        private List<ArraySegment<byte>> _bufferList;
+
         public SocketSender()
             : base(unsafeSuppressExecutionContextFlow: true)
         {
@@ -44,7 +46,12 @@ namespace SuperSocket.Connection
             }
             else
             {
-                var bufferList = new List<ArraySegment<byte>>();
+                var bufferList = _bufferList;
+
+                if (bufferList == null)
+                {
+                    _bufferList = bufferList = new List<ArraySegment<byte>>();
+                }
 
                 foreach (var piece in buffer)
                 {
@@ -70,6 +77,7 @@ namespace SuperSocket.Connection
 
         public int GetResult(short token)
         {
+            _continuation = null;
             return BytesTransferred;
         }
 
@@ -99,11 +107,10 @@ namespace SuperSocket.Connection
 
         public bool TryReset()
         {
-            _continuation = null;
-
             if (BufferList != null)
             {
                 BufferList = null;
+                _bufferList?.Clear();
             }
             else
             {
