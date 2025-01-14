@@ -6,21 +6,11 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client
 {
-    public interface IEasyClient<TReceivePackage, TSendPackage> : IEasyClient<TReceivePackage>
-        where TReceivePackage : class
-    {
-        ValueTask SendAsync(TSendPackage package);      
-    }
-
-    
-    public interface IEasyClient<TReceivePackage>
-        where TReceivePackage : class
+    public interface IEasyClient
     {
         IConnector Proxy { get; set; }
 
         ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken = default);
-
-        ValueTask<TReceivePackage> ReceiveAsync();
 
         IPEndPoint LocalEndPoint { get; set; }
 
@@ -34,8 +24,21 @@ namespace SuperSocket.Client
 
         event EventHandler Closed;
 
-        event PackageHandler<TReceivePackage> PackageHandler;
-
         ValueTask CloseAsync();
+    }
+
+
+    public interface IEasyClient<TReceivePackage> : IEasyClient
+        where TReceivePackage : class
+    {
+        ValueTask<TReceivePackage> ReceiveAsync();
+
+        event PackageHandler<TReceivePackage> PackageHandler;
+    }
+
+    public interface IEasyClient<TReceivePackage, TSendPackage> : IEasyClient<TReceivePackage>
+        where TReceivePackage : class
+    {
+        ValueTask SendAsync(TSendPackage package);
     }
 }

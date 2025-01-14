@@ -16,44 +16,8 @@ using System.Linq;
 
 namespace SuperSocket.Client
 {
-    public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>, IEasyClient<TPackage, TSendPackage>
-        where TPackage : class
+    public abstract class EasyClient : IEasyClient
     {
-        private IPackageEncoder<TSendPackage> _packageEncoder;
-
-        protected EasyClient(IPackageEncoder<TSendPackage> packageEncoder)
-            : base()
-        {
-            _packageEncoder = packageEncoder;
-        }
-        
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ILogger logger = null)
-            : this(pipelineFilter, packageEncoder, new ConnectionOptions { Logger = logger })
-        {
-
-        }
-
-        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ConnectionOptions options)
-            : base(pipelineFilter, options)
-        {
-            _packageEncoder = packageEncoder;
-        }
-
-        public virtual async ValueTask SendAsync(TSendPackage package)
-        {
-            await SendAsync(_packageEncoder, package);
-        }
-
-        public new IEasyClient<TPackage, TSendPackage> AsClient()
-        {
-            return this;
-        }
-    }
-
-    public class EasyClient<TReceivePackage> : IEasyClient<TReceivePackage>
-        where TReceivePackage : class
-    {
-        private IPipelineFilter<TReceivePackage> _pipelineFilter;
 
         protected IConnection Connection { get; private set; }
 
@@ -63,49 +27,34 @@ namespace SuperSocket.Client
 
         protected ConnectionOptions Options { get; private set; }
 
-        IAsyncEnumerator<TReceivePackage> _packageStream;
-
-        public event PackageHandler<TReceivePackage> PackageHandler;
-
         public IPEndPoint LocalEndPoint { get; set; }
 
         public SecurityOptions Security { get; set; }
 
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.NoCompression;
 
+        public static int? SocketSenderPoolSzie { get; set; }
+
+        internal static readonly int DefaultSocketSenderPoolSzie = 10;
+
         protected EasyClient()
-        {
-
-        }
-
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
-            : this(pipelineFilter, NullLogger.Instance)
+            : this(NullLogger.Instance)
         {
             
         }
 
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
-            : this(pipelineFilter, new ConnectionOptions { Logger = logger })
+        protected EasyClient(ILogger logger)
+            : this(new ConnectionOptions { Logger = logger })
         {
-
         }
 
-        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ConnectionOptions options)
+        public EasyClient(ConnectionOptions options)
         {
-            if (pipelineFilter == null)
-                throw new ArgumentNullException(nameof(pipelineFilter));
-
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            _pipelineFilter = pipelineFilter;
             Options = options;
             Logger = options.Logger;
-        }
-
-        public virtual IEasyClient<TReceivePackage> AsClient()
-        {
-            return this;
         }
 
         protected virtual IConnector GetConnector()
@@ -154,7 +103,7 @@ namespace SuperSocket.Client
             return connectors.First();
         }
 
-        ValueTask<bool> IEasyClient<TReceivePackage>.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
+        ValueTask<bool> IEasyClient.ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
         {
             return ConnectAsync(remoteEndPoint, cancellationToken);
         }
@@ -245,31 +194,10 @@ namespace SuperSocket.Client
         protected virtual void SetupConnection(IConnection connection)
         {
             connection.Closed += OnConnectionClosed;
-            _packageStream = connection.GetPackageStream(_pipelineFilter);
             Connection = connection;
         }
 
-        ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()
-        {
-            return ReceiveAsync();
-        }
-
-        /// <summary>
-        /// Try to receive one package
-        /// </summary>
-        /// <returns></returns>
-        protected virtual async ValueTask<TReceivePackage> ReceiveAsync()
-        {
-            var p = await _packageStream.ReceiveAsync();
-
-            if (p != null)
-                return p;
-
-            OnClosed(Connection, EventArgs.Empty);
-            return null;
-        }
-
-        void IEasyClient<TReceivePackage>.StartReceive()
+        void IEasyClient.StartReceive()
         {
             StartReceive();
         }
@@ -277,34 +205,27 @@ namespace SuperSocket.Client
         /// <summary>
         /// Start receive packages and handle the packages by event handler
         /// </summary>
-        protected virtual void StartReceive()
+        private void StartReceive()
         {
-            StartReceiveAsync();
+            StartReceiveAsync().ContinueWith((task, state) =>
+            {
+                var client = (EasyClient)state;
+
+                if (task.IsFaulted)
+                {
+                    client.OnError("Failed to start receive.", task.Exception);
+                    return;
+                }
+
+                if (task.IsCanceled)
+                {
+                    client.OnError("The receive task was cancelled.");
+                    return;
+                }
+            }, this, TaskContinuationOptions.OnlyOnFaulted);;
         }
 
-        private async void StartReceiveAsync()
-        {
-            var enumerator = _packageStream;
-
-            while (await enumerator.MoveNextAsync())
-            {
-                await OnPackageReceived(enumerator.Current);
-            }
-        }
-
-        protected virtual async ValueTask OnPackageReceived(TReceivePackage package)
-        {
-            var handler = PackageHandler;
-
-            try
-            {
-                await handler.Invoke(this, package);
-            }
-            catch (Exception e)
-            {
-                OnError("Unhandled exception happened in PackageHandler.", e);
-            }
-        }
+        protected abstract Task StartReceiveAsync();
 
         private void OnConnectionClosed(object sender, EventArgs e)
         {
@@ -335,7 +256,7 @@ namespace SuperSocket.Client
             Logger?.LogError(message);
         }
 
-        ValueTask IEasyClient<TReceivePackage>.SendAsync(ReadOnlyMemory<byte> data)
+        ValueTask IEasyClient.SendAsync(ReadOnlyMemory<byte> data)
         {
             return SendAsync(data);
         }
@@ -345,7 +266,7 @@ namespace SuperSocket.Client
             await Connection.SendAsync(data);
         }
 
-        ValueTask IEasyClient<TReceivePackage>.SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
+        ValueTask IEasyClient.SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
         {
             return SendAsync<TSendPackage>(packageEncoder, package);
         }
@@ -361,6 +282,120 @@ namespace SuperSocket.Client
         {
             await Connection.CloseAsync(CloseReason.LocalClosing);
             OnClosed(this, EventArgs.Empty);
+        }
+    }
+
+    public class EasyClient<TReceivePackage> : EasyClient, IEasyClient<TReceivePackage>
+        where TReceivePackage : class
+    {
+        private IPipelineFilter<TReceivePackage> _pipelineFilter;
+
+        IAsyncEnumerator<TReceivePackage> _packageStream;
+
+        public event PackageHandler<TReceivePackage> PackageHandler;
+
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
+            : this(pipelineFilter, NullLogger.Instance)
+        {
+
+        }
+
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
+            : this(pipelineFilter, new ConnectionOptions { Logger = logger })
+        {
+
+        }
+
+        public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ConnectionOptions options)
+            : base(options)
+        {
+            if (pipelineFilter == null)
+                throw new ArgumentNullException(nameof(pipelineFilter));
+
+            _pipelineFilter = pipelineFilter;
+        }
+
+        public virtual IEasyClient<TReceivePackage> AsClient()
+        {
+            return this;
+        }
+
+        protected override void SetupConnection(IConnection connection)
+        {
+            base.SetupConnection(connection);
+            _packageStream = connection.GetPackageStream(_pipelineFilter);
+        }
+
+        ValueTask<TReceivePackage> IEasyClient<TReceivePackage>.ReceiveAsync()
+        {
+            return ReceiveAsync();
+        }
+
+        /// <summary>
+        /// Try to receive one package
+        /// </summary>
+        /// <returns></returns>
+        protected virtual async ValueTask<TReceivePackage> ReceiveAsync()
+        {
+            var p = await _packageStream.ReceiveAsync();
+
+            if (p != null)
+                return p;
+
+            OnClosed(Connection, EventArgs.Empty);
+            return null;
+        }
+
+        protected override async Task StartReceiveAsync()
+        {
+            var enumerator = _packageStream;
+
+            while (await enumerator.MoveNextAsync())
+            {
+                await OnPackageReceived(enumerator.Current);
+            }
+        }
+
+        protected virtual async ValueTask OnPackageReceived(TReceivePackage package)
+        {
+            var handler = PackageHandler;
+
+            try
+            {
+                await handler.Invoke(this, package);
+            }
+            catch (Exception e)
+            {
+                OnError("Unhandled exception happened in PackageHandler.", e);
+            }
+        }
+    }
+
+    public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>, IEasyClient<TPackage, TSendPackage>
+        where TPackage : class
+    {
+        private IPackageEncoder<TSendPackage> _packageEncoder;
+
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ILogger logger = null)
+            : this(pipelineFilter, packageEncoder, new ConnectionOptions { Logger = logger })
+        {
+
+        }
+
+        public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ConnectionOptions options)
+            : base(pipelineFilter, options)
+        {
+            _packageEncoder = packageEncoder;
+        }
+
+        public virtual async ValueTask SendAsync(TSendPackage package)
+        {
+            await SendAsync(_packageEncoder, package);
+        }
+
+        public new IEasyClient<TPackage, TSendPackage> AsClient()
+        {
+            return this;
         }
     }
 }

@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Net.Sockets;
+using Microsoft.Extensions.ObjectPool;
 using SuperSocket.Connection;
-using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client
 {
@@ -30,6 +30,13 @@ namespace SuperSocket.Client
 
         public static readonly ConnectState CancelledState = new ConnectState(false);
 
+        private static Lazy<ObjectPool<SocketSender>> _socketSenderPool = new Lazy<ObjectPool<SocketSender>>(() =>
+        {
+            var policy = new DefaultPooledObjectPolicy<SocketSender>();
+            var pool = new DefaultObjectPool<SocketSender>(policy, EasyClient.SocketSenderPoolSzie ?? EasyClient.DefaultSocketSenderPoolSzie);
+            return pool;
+        });
+
         public IConnection CreateConnection(ConnectionOptions connectionOptions)
         {
             var stream = this.Stream;
@@ -41,7 +48,7 @@ namespace SuperSocket.Client
             }
             else
             {
-                return new TcpPipeConnection(socket, connectionOptions);
+                return new TcpPipeConnection(socket, connectionOptions, _socketSenderPool.Value);
             }
         }
     }
