@@ -46,14 +46,14 @@ jobs:
               if: runner.os == 'Linux'
               run: |
                 cd test/SuperSocket.Tests
-                dotnet test
+                dotnet test --logger "console;verbosity=detailed"
             - name: Test - macOS
               if: runner.os == 'macOS'
               run: |
                 cd test/SuperSocket.Tests
-                dotnet test --filter FullyQualifiedName\!~TestQuicSupport
+                dotnet test --filter FullyQualifiedName\!~TestQuicSupport --logger "console;verbosity=detailed"
             - name: Test - Windows
               if: runner.os == 'Windows'
               run: |
                 cd test/SuperSocket.Tests
-                dotnet test --filter FullyQualifiedName!~TestQuicSupport
+                dotnet test --filter FullyQualifiedName!~TestQuicSupport --logger "console;verbosity=detailed"
