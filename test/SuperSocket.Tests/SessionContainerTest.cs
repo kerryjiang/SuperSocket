@@ -9,7 +9,6 @@ using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
-using Xunit.Abstractions;
 using System.Threading;
 using SuperSocket.Connection;
 using SuperSocket.Server;

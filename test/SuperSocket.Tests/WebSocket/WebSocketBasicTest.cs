@@ -24,7 +24,6 @@ using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Tests.Command;
 using Xunit;
-using Xunit.Abstractions;
 using SuperSocket.Server.Abstractions.Session;
 
 

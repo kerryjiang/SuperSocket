@@ -16,7 +16,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Xunit;
-using Xunit.Abstractions;
 using SuperSocket.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;

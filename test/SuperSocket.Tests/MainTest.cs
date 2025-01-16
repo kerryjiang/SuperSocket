@@ -22,7 +22,6 @@ using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Host;
 using Xunit;
-using Xunit.Abstractions;
 
 /// <summary>
 /// Run selected test case by command

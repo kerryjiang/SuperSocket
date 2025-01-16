@@ -14,7 +14,6 @@ using SuperSocket.Server;
 using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions.Host;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace SuperSocket.Tests
 {

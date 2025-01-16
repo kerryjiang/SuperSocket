@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading.Tasks;
 using SuperSocket.ProtoBase;
 using Xunit;
-using Xunit.Abstractions;
 using Microsoft.Extensions.Hosting;
 using SuperSocket;
 using SuperSocket.WebSocket.Server;

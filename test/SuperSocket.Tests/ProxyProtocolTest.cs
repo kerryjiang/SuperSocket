@@ -6,7 +6,6 @@ using SuperSocket.ProtoBase;
 using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions;
 using Xunit;
-using Xunit.Abstractions;
 using System.Net;
 using System.Linq;
 using System.Threading.Tasks;

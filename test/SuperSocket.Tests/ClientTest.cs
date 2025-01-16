@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using Xunit;
-using Xunit.Abstractions;
 using SuperSocket.Client;
 using SuperSocket.Server.Host;
 using SuperSocket.Tests.Command;

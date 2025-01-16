@@ -8,7 +8,6 @@ using SuperSocket.Server;
 using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace SuperSocket.Tests
 {

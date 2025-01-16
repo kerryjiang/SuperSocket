@@ -13,7 +13,6 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
-using Xunit.Abstractions;
 using System.Threading;
 
 namespace SuperSocket.Tests
