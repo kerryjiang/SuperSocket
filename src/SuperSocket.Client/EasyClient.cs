@@ -33,9 +33,9 @@ namespace SuperSocket.Client
 
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.NoCompression;
 
-        public static int? SocketSenderPoolSzie { get; set; }
+        public static int? SocketSenderPoolSize { get; set; }
 
-        internal static readonly int DefaultSocketSenderPoolSzie = 10;
+        internal static readonly int DefaultSocketSenderPoolSize = 10;
 
         protected EasyClient()
             : this(NullLogger.Instance)

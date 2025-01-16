@@ -33,7 +33,7 @@ namespace SuperSocket.Client
         private static Lazy<ObjectPool<SocketSender>> _socketSenderPool = new Lazy<ObjectPool<SocketSender>>(() =>
         {
             var policy = new DefaultPooledObjectPolicy<SocketSender>();
-            var pool = new DefaultObjectPool<SocketSender>(policy, EasyClient.SocketSenderPoolSzie ?? EasyClient.DefaultSocketSenderPoolSzie);
+            var pool = new DefaultObjectPool<SocketSender>(policy, EasyClient.SocketSenderPoolSize ?? EasyClient.DefaultSocketSenderPoolSize);
             return pool;
         });
 
