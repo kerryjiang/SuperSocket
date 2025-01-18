@@ -31,7 +31,7 @@ namespace SuperSocket.Tests
 
         protected abstract string CreateRequest(string sourceLine);
 
-        [Theory]
+        [Theory(Timeout = 60000)]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
@@ -65,7 +65,7 @@ namespace SuperSocket.Tests
             }
         }
 
-        [Theory]
+        [Theory(Timeout = 60000)]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
@@ -101,7 +101,7 @@ namespace SuperSocket.Tests
             }
         }
 
-        [Theory]
+        [Theory(Timeout = 60000)]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
@@ -142,7 +142,7 @@ namespace SuperSocket.Tests
             }
         }
 
-        [Theory]
+        [Theory(Timeout = 60000)]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(UdpHostConfigurator))]
@@ -191,7 +191,7 @@ namespace SuperSocket.Tests
             }
         }
 
-        [Theory]
+        [Theory(Timeout = 60000)]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
