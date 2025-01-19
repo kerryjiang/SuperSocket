@@ -263,7 +263,7 @@ namespace SuperSocket.Tests
             return Task.CompletedTask;
         }
 
-        [Theory]
+        [Theory(Timeout = 60000)]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(SecureHostConfigurator))]
         [InlineData(typeof(GzipSecureHostConfigurator))]
