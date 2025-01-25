@@ -84,7 +84,7 @@ namespace SuperSocket.Server.Connection
                             || errorCode == 995  // System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request
                             || errorCode == 10004) // System.Net.Sockets.SocketException (10004): A blocking Socket call was canceled.
                         {
-                            _logger.LogWarning(se, $"The listener[{this.ToString()}] was closed for the socket error: {errorCode}.");
+                            _logger.LogDebug($"The listener[{this.ToString()}] was closed for the socket error: {errorCode}. {se.Message}");
                             break;
                         }
                     }
