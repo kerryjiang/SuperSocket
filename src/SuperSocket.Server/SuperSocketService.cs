@@ -436,7 +436,7 @@ namespace SuperSocket.Server
             return new ValueTask<bool>(true);
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public async Task<bool> StartAsync(CancellationToken cancellationToken)
         {
             var state = _state;
 
@@ -456,7 +456,7 @@ namespace SuperSocket.Server
             {
                 _state = ServerState.Failed;
                 _logger.LogError("Failed to start any listener.");
-                return;
+                return false;
             }
 
             _state = ServerState.Started;
@@ -469,6 +469,8 @@ namespace SuperSocket.Server
             {
                 _logger.LogError(e, "There is one exception thrown from the method OnStartedAsync().");
             }
+
+            return true;
         }
 
         protected virtual ValueTask OnStartedAsync()
@@ -523,15 +525,12 @@ namespace SuperSocket.Server
             _state = ServerState.Stopped;
         }
 
-        async Task<bool> IServer.StartAsync()
+        async Task IHostedService.StartAsync(CancellationToken cancellationToken)
         {
-            await StartAsync(CancellationToken.None);
-            return true;
-        }
-
-        async Task IServer.StopAsync()
-        {
-            await StopAsync(CancellationToken.None);
+            if (!await StartAsync(cancellationToken))
+            {
+                throw new Exception("Failed to start the server.");
+            }
         }
 
         #region IDisposable Support
