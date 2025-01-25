@@ -16,6 +16,7 @@
   </ItemGroup>
   <ItemGroup>  
     <PackageReference Include="Autofac.Extensions.DependencyInjection" />  
+    <PackageReference Include="Meziantou.Extensions.Logging.Xunit.v3" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" />

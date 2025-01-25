@@ -14,6 +14,7 @@ using SuperSocket.Server;
 using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions.Host;
 using Xunit;
+using Meziantou.Extensions.Logging.Xunit.v3;
 
 namespace SuperSocket.Tests
 {
@@ -91,7 +92,7 @@ namespace SuperSocket.Tests
                 })
                 .ConfigureLogging((hostCtx, loggingBuilder) =>
                 {
-                    loggingBuilder.AddConsole();
+                    loggingBuilder.Services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(OutputHelper, appendScope: false));
                     loggingBuilder.SetMinimumLevel(LogLevel.Debug);
                     loggingBuilder.AddDebug();
                 })
