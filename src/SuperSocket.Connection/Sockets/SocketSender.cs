@@ -66,10 +66,12 @@ namespace SuperSocket.Connection
         {
             var continuation = _continuation;
 
-            if (continuation != null && Interlocked.CompareExchange(ref _continuation, _continuationCompleted, continuation) == continuation)
+            if (continuation != null || Interlocked.CompareExchange(ref _continuation, _continuationCompleted, null) != null)
             {
                 var state = UserToken;
                 UserToken = null;
+
+                _continuation = _continuationCompleted;
 
                 ThreadPool.UnsafeQueueUserWorkItem(continuation, state, false);
             }
