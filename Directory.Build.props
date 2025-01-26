@@ -1,12 +1,12 @@
 <Project>
   <PropertyGroup>
-    <LangVersion>10.0</LangVersion>
+    <LangVersion>12.0</LangVersion>
     <DotNetTargetFrameworks>net6.0;net7.0;net8.0;net9.0</DotNetTargetFrameworks>
     <TargetFrameworks>$(DotNetTargetFrameworks)</TargetFrameworks>
     <SamplesTargetFrameworks>net8.0</SamplesTargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
-    <MobileTargetFrameworks>net7.0-ios;net7.0-android;net7.0-macos;net7.0-tvos;net8.0-ios;net8.0-android;net8.0-macos;net8.0-tvos</MobileTargetFrameworks>
+    <MobileTargetFrameworks>net8.0-ios;net8.0-android;net8.0-macos;net8.0-tvos;net9.0-ios;net9.0-android;net9.0-macos;net9.0-tvos</MobileTargetFrameworks>
   </PropertyGroup>
   <PropertyGroup>
     <PackageProjectUrl>https://github.com/kerryjiang/supersocket</PackageProjectUrl>
