@@ -131,7 +131,7 @@ namespace SuperSocket.Server.Connection
             var listenSocket = _listenSocket;
 
             if (listenSocket == null)
-                return Task.Delay(0);
+                return Task.CompletedTask;
 
             _stopTaskCompletionSource = new TaskCompletionSource<bool>();
 
@@ -144,6 +144,16 @@ namespace SuperSocket.Server.Connection
         public override string ToString()
         {
             return Options?.ToString();
+        }
+
+        public void Dispose()
+        {
+            var listenSocket = _listenSocket;
+
+            if (listenSocket != null && Interlocked.CompareExchange(ref _listenSocket, null, listenSocket) == listenSocket)
+            {
+                listenSocket.Dispose();
+            }
         }
     }
 }

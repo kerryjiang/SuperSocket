@@ -555,6 +555,14 @@ namespace SuperSocket.Server
                     {
                         _logger.LogError(e, "Failed to stop the server");
                     }
+
+                    if (_connectionListeners.Any())
+                    {
+                        foreach (var listener in _connectionListeners)
+                        {
+                            listener.Dispose();
+                        }
+                    }
                 }
 
                 disposedValue = true;
