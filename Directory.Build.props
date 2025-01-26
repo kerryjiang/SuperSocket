@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <LangVersion>10.0</LangVersion>
-    <DotNetTargetFrameworks>net6.0;net7.0;net8.0</DotNetTargetFrameworks>
+    <DotNetTargetFrameworks>net6.0;net7.0;net8.0;net9.0</DotNetTargetFrameworks>
     <TargetFrameworks>$(DotNetTargetFrameworks)</TargetFrameworks>
     <SamplesTargetFrameworks>net8.0</SamplesTargetFrameworks>
   </PropertyGroup>
