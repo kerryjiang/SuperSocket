@@ -36,17 +36,12 @@ namespace SuperSocket.Connection
             return connectionOptions.Output ?? new Pipe();
         }
 
-        protected override Task StartTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
+        protected override async Task GetConnectionTask(Task readTask, CancellationToken cancellationToken)
         {
-            var pipeTask = base.StartTask<TPackageInfo>(packagePipe, cancellationToken);
-            return Task.WhenAll(pipeTask, ProcessSends());
+            await Task.WhenAll(FillPipeAsync(Input.Writer, cancellationToken), ProcessSends()).ConfigureAwait(false);
+            await base.GetConnectionTask(readTask, cancellationToken).ConfigureAwait(false);
         }
-
-        protected override Task StartInputPipeTask<TPackageInfo>(IObjectPipe<TPackageInfo> packagePipe, CancellationToken cancellationToken)
-        {
-            return Task.WhenAll(FillPipeAsync(Input.Writer, packagePipe as ISupplyController, cancellationToken), base.StartInputPipeTask(packagePipe, cancellationToken));
-        }
-
+        
         protected virtual async Task ProcessSends()
         {
             var output = Output.Reader;
@@ -66,30 +61,14 @@ namespace SuperSocket.Connection
 
         protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
 
-        internal virtual async Task FillPipeAsync(PipeWriter writer, ISupplyController supplyController, CancellationToken cancellationToken)
+        internal virtual async Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
         {
             var options = Options;
-
-            if (supplyController != null)
-            {
-                cancellationToken.Register(() =>
-                {
-                    supplyController.SupplyEnd();
-                });
-            }
 
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    if (supplyController != null)
-                    {
-                        await supplyController.SupplyRequired().ConfigureAwait(false);
-
-                        if (cancellationToken.IsCancellationRequested)
-                            break;
-                    }
-
                     var bufferSize = options.ReceiveBufferSize;
                     var maxPackageLength = options.MaxPackageLength;
 
@@ -152,6 +131,11 @@ namespace SuperSocket.Connection
         protected async ValueTask<bool> ProcessOutputRead(PipeReader reader)
         {
             var result = await reader.ReadAsync(CancellationToken.None).ConfigureAwait(false);
+
+            if (result.IsCanceled)
+            {
+                return true;
+            }
 
             var completedOrCancelled = result.IsCompleted || result.IsCanceled;
 
