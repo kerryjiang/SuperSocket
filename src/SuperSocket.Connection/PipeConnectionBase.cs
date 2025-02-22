@@ -152,11 +152,6 @@ namespace SuperSocket.Connection
             return false;
         }
 
-        protected virtual IAsyncEnumerable<TPackageInfo> StartInputPipeTask<TPackageInfo>(CancellationToken cancellationToken)
-        {
-            return ReadPipeAsync<TPackageInfo>(InputReader, cancellationToken);
-        }
-
         private void CheckConnectionSendAllowed()
         {
             if (this.IsClosed)
