@@ -399,6 +399,7 @@ namespace SuperSocket.Server
 #if NET6_0_OR_GREATER
                 using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(connection.ConnectionToken);
 #endif
+                ValueTask prevPackageHandlingTask = ValueTask.CompletedTask;
 
                 await foreach (var p in packageStream)
                 {
@@ -410,7 +411,12 @@ namespace SuperSocket.Server
 #if !NET6_0_OR_GREATER
                     using var cancellationTokenSource = GetPackageHandlingCancellationTokenSource(connection.ConnectionToken);
 #endif
-                    await packageHandlingScheduler.HandlePackage(session, p, cancellationTokenSource.Token);
+                    if (prevPackageHandlingTask != ValueTask.CompletedTask)
+                    {
+                        await prevPackageHandlingTask;
+                    }
+
+                    prevPackageHandlingTask = packageHandlingScheduler.HandlePackage(session, p, cancellationTokenSource.Token);
 
 #if NET6_0_OR_GREATER
                     cancellationTokenSource.TryReset();
