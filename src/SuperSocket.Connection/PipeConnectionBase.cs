@@ -103,6 +103,7 @@ namespace SuperSocket.Connection
             }
 
             readTaskCompletionSource.SetResult();
+            yield break;
         }
 
         private void FireClose()
@@ -282,21 +283,14 @@ namespace SuperSocket.Connection
                             OnError("Protocol error", bufferFilterResult.Exception);
                             CloseReason = Connection.CloseReason.ProtocolError;
                             Close();
-                            yield break;
+                            completedOrCancelled = true;
+                            break;
                         }
                     }
 
                     pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
 
-                    if (lastFilterResult.Exception != null)
-                    {
-                        OnError("Protocol error", lastFilterResult.Exception);
-                        // close the connection if get a protocol error
-                        CloseReason = Connection.CloseReason.ProtocolError;
-                        Close();
-                        completedOrCancelled = true;
-                    }
-                    else
+                    if (lastFilterResult.Exception == null)
                     {
                         consumed = lastFilterResult.Consumed;
                     }
@@ -311,6 +305,7 @@ namespace SuperSocket.Connection
             }
 
             await CompleteReaderAsync(reader, _isDetaching).ConfigureAwait(false);
+            yield break;
         }
 
         private IEnumerable<BufferFilterResult<TPackageInfo>> ReadBuffer<TPackageInfo>(ReadOnlySequence<byte> buffer, IPipelineFilter<TPackageInfo> pipelineFilter)
