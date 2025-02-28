@@ -290,13 +290,16 @@ namespace SuperSocket.Connection
 
                     pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
 
-                    if (lastFilterResult.Exception == null)
+                    if (lastFilterResult.Consumed > 0)
                     {
-                        consumed = lastFilterResult.Consumed;
+                        consumed = buffer.GetPosition(lastFilterResult.Consumed);
+                        reader.AdvanceTo(consumed);
                     }
-                }
-
-                reader.AdvanceTo(consumed);
+                    else
+                    {
+                        reader.AdvanceTo(buffer.Start);
+                    }
+                }                
 
                 if (completedOrCancelled)
                 {
@@ -310,11 +313,7 @@ namespace SuperSocket.Connection
 
         private IEnumerable<BufferFilterResult<TPackageInfo>> ReadBuffer<TPackageInfo>(ReadOnlySequence<byte> buffer, IPipelineFilter<TPackageInfo> pipelineFilter)
         {
-            var consumed = buffer.Start;
-            var examined = buffer.End;
-
             var bytesConsumedTotal = 0L;
-
             var maxPackageLength = Options.MaxPackageLength;
 
             while (true)
@@ -382,18 +381,22 @@ namespace SuperSocket.Connection
                     prevPipelineFilter.Reset();
                 }
 
-                if (readerEnd) // no more data
-                {
-                    examined = consumed = buffer.End;
-                    yield return new BufferFilterResult<TPackageInfo>(packageInfo, consumed, examined);
-                    yield break;
-                }
+                var needReadMore = readerEnd // has consumed all the data in the buffer
+                    || (packageInfo == null // not parsed a full package yet
+                        && !filterSwitched);// and not switch to another filter
 
-                if (readerConsumed > 0)
+                if (!readerEnd && readerConsumed > 0)
                     buffer = buffer.Slice(readerConsumed);
 
-                if (packageInfo != null)
-                    yield return new BufferFilterResult<TPackageInfo>(packageInfo);
+                if (packageInfo != null || needReadMore)
+                {
+                    yield return new BufferFilterResult<TPackageInfo>(packageInfo, bytesConsumedTotal);
+
+                    if (needReadMore)
+                    {
+                        yield break;
+                    }
+                }
             }
         }
 
@@ -433,12 +436,10 @@ namespace SuperSocket.Connection
 
             public TPackageInfo Package { get; set; }
 
-            public SequencePosition Consumed { get; set; }
-
-            public SequencePosition Examined { get; set; }
+            public long Consumed { get; set; }
 
             public BufferFilterResult(TPackageInfo packageInfo)
-                : this(packageInfo, default, default)
+                : this(packageInfo, default)
             {
             }
 
@@ -447,11 +448,10 @@ namespace SuperSocket.Connection
                 Exception = exception;
             }
 
-            public BufferFilterResult(TPackageInfo packageInfo, SequencePosition consumed, SequencePosition examined)
+            public BufferFilterResult(TPackageInfo packageInfo, long consumed)
             {
                 Package = packageInfo;
                 Consumed = consumed;
-                Examined = examined;
             }
         }
     }
