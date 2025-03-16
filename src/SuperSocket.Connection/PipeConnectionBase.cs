@@ -293,11 +293,11 @@ namespace SuperSocket.Connection
                     if (lastFilterResult.Consumed > 0)
                     {
                         consumed = buffer.GetPosition(lastFilterResult.Consumed);
-                        reader.AdvanceTo(consumed);
+                        reader.AdvanceTo(consumed, buffer.End);
                     }
                     else
                     {
-                        reader.AdvanceTo(buffer.Start);
+                        reader.AdvanceTo(buffer.Start, buffer.End);
                     }
                 }                
 
