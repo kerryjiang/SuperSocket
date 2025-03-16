@@ -129,7 +129,9 @@ namespace SuperSocket.Connection
         {
             CloseReason = closeReason;
             await CancelAsync().ConfigureAwait(false);
-            await _connectionTask.ConfigureAwait(false);
+
+            if (_connectionTask is Task connectionTask)
+                await connectionTask.ConfigureAwait(false);
         }
 
         protected async Task CancelAsync()
