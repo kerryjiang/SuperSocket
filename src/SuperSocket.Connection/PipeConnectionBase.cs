@@ -71,6 +71,12 @@ namespace SuperSocket.Connection
             _pipelineFilter = pipelineFilter;
 
             var readTaskCompletionSource = new TaskCompletionSource();
+
+            _cts.Token.Register(() =>
+            {
+                readTaskCompletionSource.SetResult();
+            });
+
             _connectionTask = GetConnectionTask(readTaskCompletionSource.Task, _cts.Token);
 
             var packagePipeEnumerator = ReadPipeAsync<TPackageInfo>(InputReader, _cts.Token).GetAsyncEnumerator(_cts.Token);
@@ -102,7 +108,6 @@ namespace SuperSocket.Connection
                 break;
             }
 
-            readTaskCompletionSource.SetResult();
             yield break;
         }
 

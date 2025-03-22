@@ -35,14 +35,19 @@ namespace SuperSocket.Tests
             return new IPEndPoint(IPAddress.Loopback, AlternativeServerPort);
         }
 
-        protected static ILoggerFactory DefaultLoggerFactory { get; } = LoggerFactory.Create(builder =>
-                {
-                    builder.AddConsole();
-                });
+        protected ILoggerFactory DefaultLoggerFactory { get; }
 
         protected TestClassBase(ITestOutputHelper outputHelper)
         {
             OutputHelper = outputHelper;
+
+            DefaultLoggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+                builder.Services.AddSingleton<ILoggerProvider>(new XUnitLoggerProvider(outputHelper, appendScope: false));
+                builder.SetMinimumLevel(LogLevel.Debug);
+                builder.AddDebug();
+            });
         }
 
         protected virtual void ConfigureServices(HostBuilderContext context, IServiceCollection services)
