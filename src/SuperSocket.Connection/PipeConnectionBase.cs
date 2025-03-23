@@ -74,7 +74,7 @@ namespace SuperSocket.Connection
 
             _cts.Token.Register(() =>
             {
-                readTaskCompletionSource.SetResult();
+                readTaskCompletionSource.TrySetResult();
             });
 
             _connectionTask = GetConnectionTask(readTaskCompletionSource.Task, _cts.Token);
@@ -107,6 +107,8 @@ namespace SuperSocket.Connection
 
                 break;
             }
+
+            readTaskCompletionSource.TrySetResult();
 
             yield break;
         }
