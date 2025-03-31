@@ -189,10 +189,5 @@ namespace SuperSocket.Connection
 
             return false;
         }
-
-        protected override void CancelOutputPendingRead()
-        {
-            this.Output.Reader.CancelPendingRead();
-        }
     }
 }
