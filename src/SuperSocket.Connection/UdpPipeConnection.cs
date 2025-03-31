@@ -34,7 +34,7 @@ namespace SuperSocket.Connection
 
         protected override void Close()
         {
-            WriteEOFPackage();
+            Input.Writer.Complete();
         }
 
         protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
