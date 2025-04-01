@@ -14,6 +14,8 @@ namespace SuperSocket.Connection
 
         protected Pipe Output { get; }
 
+        private readonly TimeSpan sendTimeout = TimeSpan.FromSeconds(30);
+
         public PipeConnection(ConnectionOptions options)
             : this(GetInputPipe(options), GetOutputPipe(options), options)
         {
@@ -24,6 +26,11 @@ namespace SuperSocket.Connection
         {
             Input = input;
             Output = output;
+            
+            if (options.SendTimeout > 0)
+            {
+                sendTimeout = TimeSpan.FromMilliseconds(options.SendTimeout);
+            }
         }
 
         private static Pipe GetInputPipe(ConnectionOptions connectionOptions)
@@ -146,7 +153,17 @@ namespace SuperSocket.Connection
             {
                 try
                 {
-                    await SendOverIOAsync(buffer, CancellationToken.None).ConfigureAwait(false);
+                    var sendTask = SendOverIOAsync(buffer, CancellationToken.None);
+
+                    if (sendTask.IsCompleted)
+                    {
+                        await sendTask.ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await sendTask.AsTask().WaitAsync(sendTimeout).ConfigureAwait(false);
+                    }
+
                     UpdateLastActiveTime();
                 }
                 catch (Exception e)
