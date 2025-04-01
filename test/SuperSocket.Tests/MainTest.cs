@@ -109,6 +109,8 @@ namespace SuperSocket.Tests
             var hostConfigurator = new SecureHostConfigurator();
             var listener = default(ListenOptions);
 
+            var autoResetEvent = new AutoResetEvent(false);
+
             var createServer = new Func<IServer>(() =>
             {
                 return CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
@@ -123,6 +125,16 @@ namespace SuperSocket.Tests
                     {
                         listener = serverOptions.Listeners.FirstOrDefault();
                     })
+                    .UseSessionHandler(onConnected: (session) =>
+                        {
+                            autoResetEvent.Set();
+                            return ValueTask.CompletedTask;
+                        },
+                        onClosed: (session, reason) =>
+                        {
+                            autoResetEvent.Set();
+                            return ValueTask.CompletedTask;
+                        })
                     .BuildAsServer();
             });
 
@@ -147,7 +159,7 @@ namespace SuperSocket.Tests
             {
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Started.");
 
                 Assert.Equal(0, server.SessionCount);
@@ -156,16 +168,16 @@ namespace SuperSocket.Tests
                 using (var socket = CreateClient(hostConfigurator))
                 {
                     var socketStream = await hostConfigurator.GetClientStream(socket);
-                    await Task.Delay(500);
+                    autoResetEvent.WaitOne(1000);
                     Assert.Equal(1, server.SessionCount);
                     OutputHelper.WriteLine("SessionCount:" + server.SessionCount);              
                 }
 
-                await Task.Delay(500);
+                autoResetEvent.WaitOne(1000);
                 Assert.Equal(0, server.SessionCount);
                 OutputHelper.WriteLine("SessionCount:" + server.SessionCount);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }            
         }
 
@@ -178,14 +190,18 @@ namespace SuperSocket.Tests
             var connected = false;
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
+            var autoResetEvent = new AutoResetEvent(false);
+
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
                 .UseSessionHandler((s) =>
                 {
                     connected = true;
+                    autoResetEvent.Set();
                     return new ValueTask();
                 }, (s, e) =>
                 {
                     connected = false;
+                    autoResetEvent.Set();
                     return new ValueTask();
                 })
                 .UsePackageHandler(async (s, p) =>
@@ -196,7 +212,7 @@ namespace SuperSocket.Tests
             {
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Started.");
 
                 var client = hostConfigurator.CreateClient();
@@ -212,7 +228,7 @@ namespace SuperSocket.Tests
 
                 OutputHelper.WriteLine("Connected.");
 
-                await Task.Delay(1000);
+                autoResetEvent.WaitOne(1000);
 
                 Assert.True(connected);
 
@@ -228,7 +244,7 @@ namespace SuperSocket.Tests
                     client.Close();
                 }                
 
-                await Task.Delay(1000);
+                autoResetEvent.WaitOne(1000);
 
                 if (outputStream != null)
                 {
@@ -237,7 +253,7 @@ namespace SuperSocket.Tests
 
                 Assert.False(connected);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
