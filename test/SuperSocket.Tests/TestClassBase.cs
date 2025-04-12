@@ -15,6 +15,7 @@ using SuperSocket.Server.Host;
 using SuperSocket.Server.Abstractions.Host;
 using Xunit;
 using Meziantou.Extensions.Logging.Xunit.v3;
+using System.Threading;
 
 namespace SuperSocket.Tests
 {
@@ -24,6 +25,8 @@ namespace SuperSocket.Tests
         protected static readonly Encoding Utf8Encoding = new UTF8Encoding();
         protected readonly static int DefaultServerPort = 4040;
         protected readonly static int AlternativeServerPort = 4041;
+
+        protected CancellationToken CancellationToken => TestContext.Current.CancellationToken;
 
         protected IPEndPoint GetDefaultServerEndPoint()
         {
