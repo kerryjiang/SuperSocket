@@ -7,10 +7,19 @@ using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions.Host;
 using SuperSocket.Server.Abstractions.Middleware;
 
+/// <summary>
+/// Provides extension methods for configuring and using command middleware in a SuperSocket application.
+/// </summary>
 namespace SuperSocket.Server
 {
     public static class CommandMiddlewareExtensions
     {
+        /// <summary>
+        /// Gets the key type from the specified package type.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package.</typeparam>
+        /// <returns>The key type of the package.</returns>
+        /// <exception cref="Exception">Thrown if the package type does not implement <see cref="IKeyedPackageInfo{TKey}"/>.</exception>
         public static Type GetKeyType<TPackageInfo>()
         {
             var interfaces = typeof(TPackageInfo).GetInterfaces();
@@ -23,6 +32,11 @@ namespace SuperSocket.Server
             return keyInterface.GetGenericArguments().FirstOrDefault();
         }
 
+        /// <summary>
+        /// Configures command options for the SuperSocket host builder.
+        /// </summary>
+        /// <param name="builder">The SuperSocket host builder.</param>
+        /// <returns>The configured host builder.</returns>
         private static ISuperSocketHostBuilder ConfigureCommand(this ISuperSocketHostBuilder builder)
         {
             return builder.ConfigureServices((hostCxt, services) =>
@@ -31,6 +45,12 @@ namespace SuperSocket.Server
                 }) as ISuperSocketHostBuilder;
         }
 
+        /// <summary>
+        /// Adds command middleware to the SuperSocket host builder.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package.</typeparam>
+        /// <param name="builder">The SuperSocket host builder.</param>
+        /// <returns>The configured host builder.</returns>
         public static ISuperSocketHostBuilder<TPackageInfo> UseCommand<TPackageInfo>(this ISuperSocketHostBuilder<TPackageInfo> builder)
             where TPackageInfo : class
         {
@@ -43,6 +63,13 @@ namespace SuperSocket.Server
             return hostBuilder.ConfigureCommand() as ISuperSocketHostBuilder<TPackageInfo>;
         }
 
+        /// <summary>
+        /// Adds command middleware to the SuperSocket host builder with a configurator.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package.</typeparam>
+        /// <param name="builder">The SuperSocket host builder.</param>
+        /// <param name="configurator">The configurator for command options.</param>
+        /// <returns>The configured host builder.</returns>
         public static ISuperSocketHostBuilder<TPackageInfo> UseCommand<TPackageInfo>(this ISuperSocketHostBuilder<TPackageInfo> builder, Action<CommandOptions> configurator)
             where TPackageInfo : class
         {
@@ -53,6 +80,15 @@ namespace SuperSocket.Server
                 }) as ISuperSocketHostBuilder<TPackageInfo>;
         }
 
+        /// <summary>
+        /// Adds command middleware to the SuperSocket host builder with a configurator and a key comparer.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the command key.</typeparam>
+        /// <typeparam name="TPackageInfo">The type of the package.</typeparam>
+        /// <param name="builder">The SuperSocket host builder.</param>
+        /// <param name="configurator">The configurator for command options.</param>
+        /// <param name="comparer">The comparer for command keys.</param>
+        /// <returns>The configured host builder.</returns>
         public static ISuperSocketHostBuilder<TPackageInfo> UseCommand<TKey, TPackageInfo>(this ISuperSocketHostBuilder<TPackageInfo> builder, Action<CommandOptions> configurator, IEqualityComparer<TKey> comparer)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
         {
@@ -63,6 +99,13 @@ namespace SuperSocket.Server
                 }) as ISuperSocketHostBuilder<TPackageInfo>;
         }
 
+        /// <summary>
+        /// Adds command middleware to the SuperSocket host builder with a specific key type.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the command key.</typeparam>
+        /// <typeparam name="TPackageInfo">The type of the package.</typeparam>
+        /// <param name="builder">The SuperSocket host builder.</param>
+        /// <returns>The configured host builder.</returns>
         public static ISuperSocketHostBuilder<TPackageInfo> UseCommand<TKey, TPackageInfo>(this ISuperSocketHostBuilder builder)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
         {
@@ -70,6 +113,14 @@ namespace SuperSocket.Server
                 .ConfigureCommand() as ISuperSocketHostBuilder<TPackageInfo>;
         }
 
+        /// <summary>
+        /// Adds command middleware to the SuperSocket host builder with a specific key type and a configurator.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the command key.</typeparam>
+        /// <typeparam name="TPackageInfo">The type of the package.</typeparam>
+        /// <param name="builder">The SuperSocket host builder.</param>
+        /// <param name="configurator">The configurator for command options.</param>
+        /// <returns>The configured host builder.</returns>
         public static ISuperSocketHostBuilder<TPackageInfo> UseCommand<TKey, TPackageInfo>(this ISuperSocketHostBuilder builder, Action<CommandOptions> configurator)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
         {
@@ -80,6 +131,15 @@ namespace SuperSocket.Server
                 }) as ISuperSocketHostBuilder<TPackageInfo>;
         }
 
+        /// <summary>
+        /// Adds command middleware to the SuperSocket host builder with a specific key type, a configurator, and a key comparer.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the command key.</typeparam>
+        /// <typeparam name="TPackageInfo">The type of the package.</typeparam>
+        /// <param name="builder">The SuperSocket host builder.</param>
+        /// <param name="configurator">The configurator for command options.</param>
+        /// <param name="comparer">The comparer for command keys.</param>
+        /// <returns>The configured host builder.</returns>
         public static ISuperSocketHostBuilder<TPackageInfo> UseCommand<TKey, TPackageInfo>(this ISuperSocketHostBuilder builder, Action<CommandOptions> configurator, IEqualityComparer<TKey> comparer)
             where TPackageInfo : class, IKeyedPackageInfo<TKey>
         {

@@ -14,28 +14,45 @@ using SuperSocket.Server.Abstractions.Middleware;
 
 namespace SuperSocket.Command
 {
-
+    /// <summary>
+    /// Represents a middleware for handling commands in a SuperSocket application.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the command key.</typeparam>
+    /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
     public class CommandMiddleware<TKey, TPackageInfo> : CommandMiddleware<TKey, TPackageInfo, TPackageInfo>
         where TPackageInfo : class, IKeyedPackageInfo<TKey>
     {
-
-        class TransparentMapper : IPackageMapper<TPackageInfo, TPackageInfo>
+        /// <summary>
+        /// Initializes a new instance of the <see cref="CommandMiddleware{TKey, TPackageInfo}"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider for dependency injection.</param>
+        /// <param name="commandOptions">The options for configuring commands.</param>
+        public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
+            : base(serviceProvider, commandOptions)
         {
+        }
+
+        /// <summary>
+        /// Creates a package mapper for mapping packages to commands.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider for dependency injection.</param>
+        /// <returns>An instance of <see cref="IPackageMapper{TPackageInfo, TPackageInfo}"/>.</returns>
+        protected override IPackageMapper<TPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
+        {
+            return new TransparentMapper();
+        }
+
+        private class TransparentMapper : IPackageMapper<TPackageInfo, TPackageInfo>
+        {
+            /// <summary>
+            /// Maps a package to itself.
+            /// </summary>
+            /// <param name="package">The package to map.</param>
+            /// <returns>The same package.</returns>
             public TPackageInfo Map(TPackageInfo package)
             {
                 return package;
             }
-        }
-
-        public CommandMiddleware(IServiceProvider serviceProvider, IOptions<CommandOptions> commandOptions)
-            : base(serviceProvider, commandOptions)
-        {
-
-        }
-
-        protected override IPackageMapper<TPackageInfo, TPackageInfo> CreatePackageMapper(IServiceProvider serviceProvider)
-        {
-            return new TransparentMapper();
         }
     }
 

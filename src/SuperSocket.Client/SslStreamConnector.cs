@@ -9,16 +9,33 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.Client
 {
+    /// <summary>
+    /// Represents a connector that establishes SSL/TLS connections using <see cref="SslStream"/>.
+    /// </summary>
     public class SslStreamConnector : ConnectorBase
     {
+        /// <summary>
+        /// Gets the SSL/TLS client authentication options.
+        /// </summary>
         public SslClientAuthenticationOptions Options { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SslStreamConnector"/> class with the specified authentication options.
+        /// </summary>
+        /// <param name="options">The SSL/TLS client authentication options.</param>
         public SslStreamConnector(SslClientAuthenticationOptions options)
             : base()
         {
             Options = options;
         }
 
+        /// <summary>
+        /// Asynchronously connects to a remote endpoint using SSL/TLS.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote endpoint to connect to.</param>
+        /// <param name="state">The connection state object.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous connection operation.</returns>
         protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var targetHost = Options.TargetHost;

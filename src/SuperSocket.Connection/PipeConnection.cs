@@ -8,19 +8,38 @@ using System.Runtime.InteropServices;
 
 namespace SuperSocket.Connection
 {
+    /// <summary>
+    /// Represents a pipe-based connection with input and output capabilities.
+    /// </summary>
     public abstract class PipeConnection : PipeConnectionBase
     {
+        /// <summary>
+        /// Gets the input pipe for the connection.
+        /// </summary>
         protected Pipe Input { get; }
 
+        /// <summary>
+        /// Gets the output pipe for the connection.
+        /// </summary>
         protected Pipe Output { get; }
 
         private readonly TimeSpan sendTimeout = TimeSpan.FromSeconds(30);
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PipeConnection"/> class with the specified connection options.
+        /// </summary>
+        /// <param name="options">The connection options.</param>
         public PipeConnection(ConnectionOptions options)
             : this(GetInputPipe(options), GetOutputPipe(options), options)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PipeConnection"/> class with the specified input and output pipes and connection options.
+        /// </summary>
+        /// <param name="input">The input pipe.</param>
+        /// <param name="output">The output pipe.</param>
+        /// <param name="options">The connection options.</param>
         public PipeConnection(Pipe input, Pipe output, ConnectionOptions options)
             : base(input.Reader, output.Writer, options)
         {
@@ -48,7 +67,11 @@ namespace SuperSocket.Connection
             await Task.WhenAll(FillPipeAsync(Input.Writer, cancellationToken), ProcessSends()).ConfigureAwait(false);
             await base.GetConnectionTask(readTask, cancellationToken).ConfigureAwait(false);
         }
-        
+
+        /// <summary>
+        /// Processes send operations for the connection.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         protected virtual async Task ProcessSends()
         {
             var output = Output.Reader;
@@ -66,8 +89,12 @@ namespace SuperSocket.Connection
             output.Complete();
         }
 
-        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
-
+        /// <summary>
+        /// Fills the pipe with data asynchronously.
+        /// </summary>
+        /// <param name="writer">The pipe writer to write data to.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         internal virtual async Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
         {
             var options = Options;
@@ -135,6 +162,11 @@ namespace SuperSocket.Connection
             await Output.Writer.CompleteAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Processes output data read from the pipe.
+        /// </summary>
+        /// <param name="reader">The pipe reader to read data from.</param>
+        /// <returns>A value task that represents the asynchronous operation. The result indicates whether the operation is completed or cancelled.</returns>
         protected async ValueTask<bool> ProcessOutputRead(PipeReader reader)
         {
             var result = await reader.ReadAsync(CancellationToken.None).ConfigureAwait(false);
@@ -182,8 +214,20 @@ namespace SuperSocket.Connection
             return completedOrCancelled;
         }
 
+        /// <summary>
+        /// Sends data over the connection asynchronously using the specified buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer containing the data to send.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>The total number of bytes sent.</returns>
         protected abstract ValueTask<int> SendOverIOAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Gets an array segment from the specified memory buffer.
+        /// </summary>
+        /// <param name="memory">The memory buffer to extract the array segment from.</param>
+        /// <returns>The array segment representing the memory buffer.</returns>
+        /// <exception cref="InvalidOperationException">Thrown if the memory buffer is not backed by an array.</exception>
         protected internal ArraySegment<byte> GetArrayByMemory(ReadOnlyMemory<byte> memory)
         {
             if (!MemoryMarshal.TryGetArray<byte>(memory, out var result))
@@ -193,6 +237,12 @@ namespace SuperSocket.Connection
 
             return result;
         }
+
+        /// <summary>
+        /// Determines whether the specified exception is ignorable.
+        /// </summary>
+        /// <param name="e">The exception to check.</param>
+        /// <returns><c>true</c> if the exception is ignorable; otherwise, <c>false</c>.</returns>
         protected override bool IsIgnorableException(Exception e)
         {
             if (base.IsIgnorableException(e))
@@ -206,5 +256,13 @@ namespace SuperSocket.Connection
 
             return false;
         }
+
+        /// <summary>
+        /// Fills the pipe with data asynchronously.
+        /// </summary>
+        /// <param name="memory">The memory buffer to fill.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>The total number of bytes read.</returns>
+        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
     }
 }

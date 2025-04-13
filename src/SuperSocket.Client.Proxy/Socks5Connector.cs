@@ -13,9 +13,11 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.Client.Proxy
 {
     /// <summary>
-    /// https://tools.ietf.org/html/rfc1928
-    /// https://en.wikipedia.org/wiki/SOCKS
+    /// Represents a connector for SOCKS5 proxy connections.
     /// </summary>
+    /// <remarks>
+    /// Implements the SOCKS5 protocol as defined in RFC 1928.
+    /// </remarks>
     public class Socks5Connector : ProxyConnectorBase
     {
         private string _username;
@@ -26,12 +28,22 @@ namespace SuperSocket.Client.Proxy
         private static readonly byte[] Handshake = new byte[] { 0x05, 0x01, 0x00 };
         private static readonly byte[] AuthenHandshake = new byte[] { 0x05, 0x02, 0x00, 0x02 };
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Socks5Connector"/> class with the specified proxy endpoint.
+        /// </summary>
+        /// <param name="proxyEndPoint">The endpoint of the SOCKS5 proxy server.</param>
         public Socks5Connector(EndPoint proxyEndPoint)
             : base(proxyEndPoint)
         {
             _authenHandshakeRequest = Handshake;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Socks5Connector"/> class with the specified proxy endpoint, username, and password.
+        /// </summary>
+        /// <param name="proxyEndPoint">The endpoint of the SOCKS5 proxy server.</param>
+        /// <param name="username">The username for authentication.</param>
+        /// <param name="password">The password for authentication.</param>
         public Socks5Connector(EndPoint proxyEndPoint, string username, string password)
             : this(proxyEndPoint)
         {

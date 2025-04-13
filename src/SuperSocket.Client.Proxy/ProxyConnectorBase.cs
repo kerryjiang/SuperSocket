@@ -11,16 +11,29 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client.Proxy
 {
-
+    /// <summary>
+    /// Provides a base class for proxy connectors.
+    /// </summary>
     public abstract class ProxyConnectorBase : ConnectorBase
     {
         private EndPoint _proxyEndPoint;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProxyConnectorBase"/> class with the specified proxy endpoint.
+        /// </summary>
+        /// <param name="proxyEndPoint">The endpoint of the proxy server.</param>
         public ProxyConnectorBase(EndPoint proxyEndPoint)
         {
             _proxyEndPoint = proxyEndPoint;
         }
 
+        /// <summary>
+        /// Connects to the specified remote endpoint through the proxy.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote endpoint to connect to.</param>
+        /// <param name="state">The connection state.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous connection operation.</returns>
         protected abstract ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken);
 
         protected override async ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)

@@ -8,6 +8,9 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Client.Proxy
 {
+    /// <summary>
+    /// Represents a connector for HTTP proxy connections.
+    /// </summary>
     public class HttpConnector : ProxyConnectorBase
     {
         private const string _requestTemplate = "CONNECT {0}:{1} HTTP/1.1\r\nHost: {0}:{1}\r\nProxy-Connection: Keep-Alive\r\n";
@@ -16,12 +19,21 @@ namespace SuperSocket.Client.Proxy
         private string _username;
         private string _password;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpConnector"/> class with the specified proxy endpoint.
+        /// </summary>
+        /// <param name="proxyEndPoint">The endpoint of the HTTP proxy server.</param>
         public HttpConnector(EndPoint proxyEndPoint)
             : base(proxyEndPoint)
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HttpConnector"/> class with the specified proxy endpoint, username, and password.
+        /// </summary>
+        /// <param name="proxyEndPoint">The endpoint of the HTTP proxy server.</param>
+        /// <param name="username">The username for authentication.</param>
+        /// <param name="password">The password for authentication.</param>
         public HttpConnector(EndPoint proxyEndPoint, string username, string password)
             : this(proxyEndPoint)
         {

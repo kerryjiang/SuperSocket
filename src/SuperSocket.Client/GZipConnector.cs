@@ -11,16 +11,30 @@ using SuperSocket.Connection;
 
 namespace SuperSocket.Client
 {
+    /// <summary>
+    /// Represents a connector that establishes connections with GZip compression.
+    /// </summary>
     public class GZipConnector : ConnectorBase
     {
         private CompressionLevel _compressionLevel;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GZipConnector"/> class with the specified compression level.
+        /// </summary>
+        /// <param name="compressionLevel">The compression level to use for GZip compression.</param>
         public GZipConnector(CompressionLevel compressionLevel)
             : base()
         {
             _compressionLevel = compressionLevel;
         }
 
+        /// <summary>
+        /// Asynchronously connects to a remote endpoint and wraps the stream with GZip compression.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote endpoint to connect to.</param>
+        /// <param name="state">The connection state object.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous connection operation.</returns>
         protected override ValueTask<ConnectState> ConnectAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var stream = state.Stream;

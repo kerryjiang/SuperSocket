@@ -13,24 +13,46 @@ using SuperSocket.ProtoBase;
 using System.IO.Compression;
 using System.Linq;
 
-
 namespace SuperSocket.Client
 {
+    /// <summary>
+    /// Provides functionality for managing client connections and data transmission.
+    /// </summary>
     public abstract class EasyClient : IEasyClient
     {
-
+        /// <summary>
+        /// Gets the current connection associated with the client.
+        /// </summary>
         protected IConnection Connection { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the proxy connector for the client.
+        /// </summary>
         public IConnector Proxy { get; set; }
 
+        /// <summary>
+        /// Gets or sets the logger for the client.
+        /// </summary>
         protected ILogger Logger { get; set; }
 
+        /// <summary>
+        /// Gets the connection options for the client.
+        /// </summary>
         protected ConnectionOptions Options { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the local endpoint for the client.
+        /// </summary>
         public IPEndPoint LocalEndPoint { get; set; }
 
+        /// <summary>
+        /// Gets or sets the security options for the client.
+        /// </summary>
         public SecurityOptions Security { get; set; }
 
+        /// <summary>
+        /// Gets or sets the compression level for the client.
+        /// </summary>
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.NoCompression;
 
         public static int? SocketSenderPoolSize { get; set; }
@@ -39,17 +61,27 @@ namespace SuperSocket.Client
 
         private bool _continuousReceivingStarted = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient"/> class with default settings.
+        /// </summary>
         protected EasyClient()
             : this(NullLogger.Instance)
         {
-            
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient"/> class with the specified logger.
+        /// </summary>
+        /// <param name="logger">The logger to use for the client.</param>
         protected EasyClient(ILogger logger)
             : this(new ConnectionOptions { Logger = logger })
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient"/> class with the specified connection options.
+        /// </summary>
+        /// <param name="options">The connection options to use for the client.</param>
         public EasyClient(ConnectionOptions options)
         {
             if (options == null)
@@ -59,6 +91,10 @@ namespace SuperSocket.Client
             Logger = options.Logger;
         }
 
+        /// <summary>
+        /// Gets the connector for the client.
+        /// </summary>
+        /// <returns>The connector to use for the client.</returns>
         protected virtual IConnector GetConnector()
         {
             var connectors = new List<IConnector>();
@@ -84,10 +120,15 @@ namespace SuperSocket.Client
             {
                 connectors.Add(new GZipConnector(CompressionLevel));
             }
-            
+
             return BuildConnectors(connectors);
         }
 
+        /// <summary>
+        /// Builds a chain of connectors from the specified collection.
+        /// </summary>
+        /// <param name="connectors">The collection of connectors to chain together.</param>
+        /// <returns>The first connector in the chain.</returns>
         protected IConnector BuildConnectors(IEnumerable<IConnector> connectors)
         {
             var prevConnector = default(ConnectorBase);
@@ -101,7 +142,7 @@ namespace SuperSocket.Client
 
                 prevConnector = connector as ConnectorBase;
             }
-            
+
             return connectors.First();
         }
 
@@ -110,6 +151,12 @@ namespace SuperSocket.Client
             return ConnectAsync(remoteEndPoint, cancellationToken);
         }
 
+        /// <summary>
+        /// Asynchronously connects to a remote endpoint.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote endpoint to connect to.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous connection operation.</returns>
         protected virtual async ValueTask<bool> ConnectAsync(EndPoint remoteEndPoint, CancellationToken cancellationToken)
         {
             var connector = GetConnector();
@@ -119,7 +166,7 @@ namespace SuperSocket.Client
             {
                 OnError($"The connection to {remoteEndPoint} was cancelled.", state.Exception);
                 return false;
-            }                
+            }
 
             if (!state.Result)
             {
@@ -136,8 +183,14 @@ namespace SuperSocket.Client
             return true;
         }
 
+        /// <summary>
+        /// Configures the client to use UDP for communication.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote endpoint to communicate with.</param>
+        /// <param name="bufferPool">The buffer pool to use for receiving data.</param>
+        /// <param name="bufferSize">The size of the buffer to use for receiving data.</param>
         public void AsUdp(IPEndPoint remoteEndPoint, ArrayPool<byte> bufferPool = null, int bufferSize = 4096)
-        { 
+        {
             var localEndPoint = LocalEndPoint;
 
             if (localEndPoint == null)
@@ -146,7 +199,7 @@ namespace SuperSocket.Client
             }
 
             var socket = new Socket(remoteEndPoint.AddressFamily, SocketType.Dgram, ProtocolType.Udp);
-            
+
             // bind the local endpoint
             socket.Bind(localEndPoint);
 
@@ -193,6 +246,10 @@ namespace SuperSocket.Client
             }
         }
 
+        /// <summary>
+        /// Sets up the connection for the client.
+        /// </summary>
+        /// <param name="connection">The connection to set up.</param>
         protected virtual void SetupConnection(IConnection connection)
         {
             connection.Closed += OnConnectionClosed;
@@ -205,7 +262,7 @@ namespace SuperSocket.Client
         }
 
         /// <summary>
-        /// Start receive packages and handle the packages by event handler
+        /// Starts receiving data from the server.
         /// </summary>
         private void StartReceive()
         {
@@ -229,6 +286,10 @@ namespace SuperSocket.Client
             _continuousReceivingStarted = true;
         }
 
+        /// <summary>
+        /// Starts receiving data asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous receive operation.</returns>
         protected abstract Task StartReceiveAsync();
 
         private void OnConnectionClosed(object sender, EventArgs e)
@@ -237,6 +298,11 @@ namespace SuperSocket.Client
             OnClosed(this, e);
         }
 
+        /// <summary>
+        /// Handles the event when the client is closed.
+        /// </summary>
+        /// <param name="sender">The sender of the event.</param>
+        /// <param name="e">The event arguments.</param>
         protected virtual void OnClosed(object sender, EventArgs e)
         {
             var handler = Closed;
@@ -250,11 +316,20 @@ namespace SuperSocket.Client
             }
         }
 
+        /// <summary>
+        /// Handles errors that occur during client operations.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="exception">The exception that occurred.</param>
         protected virtual void OnError(string message, Exception exception)
         {
             Logger?.LogError(exception, message);
         }
 
+        /// <summary>
+        /// Handles errors that occur during client operations.
+        /// </summary>
+        /// <param name="message">The error message.</param>
         protected virtual void OnError(string message)
         {
             Logger?.LogError(message);
@@ -265,6 +340,11 @@ namespace SuperSocket.Client
             return SendAsync(data);
         }
 
+        /// <summary>
+        /// Asynchronously sends data to the server.
+        /// </summary>
+        /// <param name="data">The data to send.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
         protected virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
         {
             await Connection.SendAsync(data);
@@ -275,13 +355,27 @@ namespace SuperSocket.Client
             return SendAsync<TSendPackage>(packageEncoder, package);
         }
 
+        /// <summary>
+        /// Asynchronously sends a package to the server.
+        /// </summary>
+        /// <typeparam name="TSendPackage">The type of the package to send.</typeparam>
+        /// <param name="packageEncoder">The encoder to use for sending the package.</param>
+        /// <param name="package">The package to send.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
         protected virtual async ValueTask SendAsync<TSendPackage>(IPackageEncoder<TSendPackage> packageEncoder, TSendPackage package)
         {
             await Connection.SendAsync(packageEncoder, package);
         }
 
+        /// <summary>
+        /// Occurs when the client is closed.
+        /// </summary>
         public event EventHandler Closed;
 
+        /// <summary>
+        /// Asynchronously closes the client connection.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous close operation.</returns>
         public virtual async ValueTask CloseAsync()
         {
             var closeTask = Connection.CloseAsync(CloseReason.LocalClosing);
@@ -294,11 +388,15 @@ namespace SuperSocket.Client
             {
                 await Task.WhenAll(closeTask.AsTask(), StartReceiveAsync());
             }
-            
+
             OnClosed(this, EventArgs.Empty);
         }
     }
 
+    /// <summary>
+    /// Provides functionality for managing client connections and data transmission with a specific receive package type.
+    /// </summary>
+    /// <typeparam name="TReceivePackage">The type of the received package.</typeparam>
     public class EasyClient<TReceivePackage> : EasyClient, IEasyClient<TReceivePackage>
         where TReceivePackage : class
     {
@@ -306,20 +404,35 @@ namespace SuperSocket.Client
 
         IAsyncEnumerator<TReceivePackage> _packageStream;
 
+        /// <summary>
+        /// Occurs when a package is received from the server.
+        /// </summary>
         public event PackageHandler<TReceivePackage> PackageHandler;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient{TReceivePackage}"/> class with the specified pipeline filter.
+        /// </summary>
+        /// <param name="pipelineFilter">The pipeline filter to use for processing received packages.</param>
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter)
             : this(pipelineFilter, NullLogger.Instance)
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient{TReceivePackage}"/> class with the specified pipeline filter and logger.
+        /// </summary>
+        /// <param name="pipelineFilter">The pipeline filter to use for processing received packages.</param>
+        /// <param name="logger">The logger to use for the client.</param>
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ILogger logger)
             : this(pipelineFilter, new ConnectionOptions { Logger = logger })
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient{TReceivePackage}"/> class with the specified pipeline filter and connection options.
+        /// </summary>
+        /// <param name="pipelineFilter">The pipeline filter to use for processing received packages.</param>
+        /// <param name="options">The connection options to use for the client.</param>
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ConnectionOptions options)
             : base(options)
         {
@@ -329,11 +442,19 @@ namespace SuperSocket.Client
             _pipelineFilter = pipelineFilter;
         }
 
+        /// <summary>
+        /// Returns the current client instance as an <see cref="IEasyClient{TReceivePackage}"/>.
+        /// </summary>
+        /// <returns>The current client instance.</returns>
         public virtual IEasyClient<TReceivePackage> AsClient()
         {
             return this;
         }
 
+        /// <summary>
+        /// Sets up the connection for the client.
+        /// </summary>
+        /// <param name="connection">The connection to set up.</param>
         protected override void SetupConnection(IConnection connection)
         {
             base.SetupConnection(connection);
@@ -346,9 +467,9 @@ namespace SuperSocket.Client
         }
 
         /// <summary>
-        /// Try to receive one package
+        /// Asynchronously receives a package from the server.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>A task that represents the asynchronous receive operation.</returns>
         protected virtual async ValueTask<TReceivePackage> ReceiveAsync()
         {
             var p = await _packageStream.ReceiveAsync();
@@ -360,6 +481,10 @@ namespace SuperSocket.Client
             return null;
         }
 
+        /// <summary>
+        /// Starts receiving data asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous receive operation.</returns>
         protected override async Task StartReceiveAsync()
         {
             var enumerator = _packageStream;
@@ -370,6 +495,11 @@ namespace SuperSocket.Client
             }
         }
 
+        /// <summary>
+        /// Handles the event when a package is received from the server.
+        /// </summary>
+        /// <param name="package">The received package.</param>
+        /// <returns>A task that represents the asynchronous handling operation.</returns>
         protected virtual async ValueTask OnPackageReceived(TReceivePackage package)
         {
             var handler = PackageHandler;
@@ -385,28 +515,53 @@ namespace SuperSocket.Client
         }
     }
 
+    /// <summary>
+    /// Provides functionality for managing client connections and data transmission with specific receive and send package types.
+    /// </summary>
+    /// <typeparam name="TPackage">The type of the received package.</typeparam>
+    /// <typeparam name="TSendPackage">The type of the package to send.</typeparam>
     public class EasyClient<TPackage, TSendPackage> : EasyClient<TPackage>, IEasyClient<TPackage, TSendPackage>
         where TPackage : class
     {
         private IPackageEncoder<TSendPackage> _packageEncoder;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient{TPackage, TSendPackage}"/> class with the specified pipeline filter and package encoder.
+        /// </summary>
+        /// <param name="pipelineFilter">The pipeline filter to use for processing received packages.</param>
+        /// <param name="packageEncoder">The encoder to use for sending packages.</param>
+        /// <param name="logger">The logger to use for the client.</param>
         public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ILogger logger = null)
             : this(pipelineFilter, packageEncoder, new ConnectionOptions { Logger = logger })
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="EasyClient{TPackage, TSendPackage}"/> class with the specified pipeline filter, package encoder, and connection options.
+        /// </summary>
+        /// <param name="pipelineFilter">The pipeline filter to use for processing received packages.</param>
+        /// <param name="packageEncoder">The encoder to use for sending packages.</param>
+        /// <param name="options">The connection options to use for the client.</param>
         public EasyClient(IPipelineFilter<TPackage> pipelineFilter, IPackageEncoder<TSendPackage> packageEncoder, ConnectionOptions options)
             : base(pipelineFilter, options)
         {
             _packageEncoder = packageEncoder;
         }
 
+        /// <summary>
+        /// Asynchronously sends a package to the server.
+        /// </summary>
+        /// <param name="package">The package to send.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
         public virtual async ValueTask SendAsync(TSendPackage package)
         {
             await SendAsync(_packageEncoder, package);
         }
 
+        /// <summary>
+        /// Returns the current client instance as an <see cref="IEasyClient{TPackage, TSendPackage}"/>.
+        /// </summary>
+        /// <returns>The current client instance.</returns>
         public new IEasyClient<TPackage, TSendPackage> AsClient()
         {
             return this;

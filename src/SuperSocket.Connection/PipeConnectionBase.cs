@@ -11,14 +11,23 @@ using System.Runtime.CompilerServices;
 
 namespace SuperSocket.Connection
 {
+    /// <summary>
+    /// Provides a base class for pipe-based connections, implementing common connection functionality.
+    /// </summary>
     public abstract partial class PipeConnectionBase : ConnectionBase, IConnection, IPipeConnection
     {
         private CancellationTokenSource _cts = new CancellationTokenSource();
 
         private IPipelineFilter _pipelineFilter;
 
+        /// <summary>
+        /// Gets the semaphore used to synchronize send operations.
+        /// </summary>
         protected SemaphoreSlim SendLock { get; } = new SemaphoreSlim(1, 1);
 
+        /// <summary>
+        /// Gets the pipe writer for output data.
+        /// </summary>
         protected PipeWriter OutputWriter { get; }
 
         PipeWriter IPipeConnection.OutputWriter
@@ -26,6 +35,9 @@ namespace SuperSocket.Connection
             get { return OutputWriter; }
         }
 
+        /// <summary>
+        /// Gets the pipe reader for input data.
+        /// </summary>
         protected PipeReader InputReader { get; }
 
         PipeReader IPipeConnection.InputReader
@@ -38,14 +50,26 @@ namespace SuperSocket.Connection
             get { return _pipelineFilter; }
         }
 
+        /// <summary>
+        /// Gets the logger used for logging connection events.
+        /// </summary>
         protected ILogger Logger { get; }
 
+        /// <summary>
+        /// Gets the connection options.
+        /// </summary>
         protected ConnectionOptions Options { get; }
 
         private Task _connectionTask;
 
         private bool _isDetaching = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PipeConnectionBase"/> class with the specified input and output pipes and connection options.
+        /// </summary>
+        /// <param name="inputReader">The pipe reader for input data.</param>
+        /// <param name="outputWriter">The pipe writer for output data.</param>
+        /// <param name="options">The connection options.</param>
         protected PipeConnectionBase(PipeReader inputReader, PipeWriter outputWriter, ConnectionOptions options)
         {
             Options = options;
@@ -55,6 +79,9 @@ namespace SuperSocket.Connection
             ConnectionToken = _cts.Token;
         }
 
+        /// <summary>
+        /// Updates the last active time of the connection to the current time.
+        /// </summary>
         protected void UpdateLastActiveTime()
         {
             LastActiveTime = DateTimeOffset.Now;
@@ -66,6 +93,12 @@ namespace SuperSocket.Connection
             FireClose();
         }
         
+        /// <summary>
+        /// Runs the connection asynchronously with the specified pipeline filter.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
+        /// <param name="pipelineFilter">The pipeline filter to use for processing data.</param>
+        /// <returns>An asynchronous enumerable of package information.</returns>
         public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
         {
             _pipelineFilter = pipelineFilter;
@@ -130,8 +163,16 @@ namespace SuperSocket.Connection
             }
         }
 
+        /// <summary>
+        /// Closes the connection and releases associated resources.
+        /// </summary>
         protected abstract void Close();
 
+        /// <summary>
+        /// Closes the connection asynchronously with the specified reason.
+        /// </summary>
+        /// <param name="closeReason">The reason for closing the connection.</param>
+        /// <returns>A task that represents the asynchronous close operation.</returns>
         public override async ValueTask CloseAsync(CloseReason closeReason)
         {
             CloseReason = closeReason;
@@ -174,6 +215,12 @@ namespace SuperSocket.Connection
             }
         }
 
+        /// <summary>
+        /// Sends data over the connection asynchronously using the specified buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer containing the data to send.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
         public override async ValueTask SendAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
         {
             var sendLockAcquired = false;
@@ -198,6 +245,14 @@ namespace SuperSocket.Connection
             writer.Write(buffer.Span);
         }
 
+        /// <summary>
+        /// Sends a package over the connection asynchronously using the specified encoder and package.
+        /// </summary>
+        /// <typeparam name="TPackage">The type of the package to send.</typeparam>
+        /// <param name="packageEncoder">The encoder to use for the package.</param>
+        /// <param name="package">The package to send.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
         public override async ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken = default)
         {
             var sendLockAcquired = false;
@@ -216,6 +271,12 @@ namespace SuperSocket.Connection
             }
         }
 
+        /// <summary>
+        /// Sends data over the connection asynchronously using a custom write action.
+        /// </summary>
+        /// <param name="write">The action to write data to the pipe writer.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
         public override async ValueTask SendAsync(Action<PipeWriter> write, CancellationToken cancellationToken)
         {
             CheckConnectionSendAllowed();
@@ -408,6 +469,10 @@ namespace SuperSocket.Connection
             }
         }
 
+        /// <summary>
+        /// Detaches the connection asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous detach operation.</returns>
         public override async ValueTask DetachAsync()
         {
             _isDetaching = true;
@@ -416,6 +481,11 @@ namespace SuperSocket.Connection
             _isDetaching = false;
         }
 
+        /// <summary>
+        /// Handles errors that occur during connection operations.
+        /// </summary>
+        /// <param name="message">The error message.</param>
+        /// <param name="e">The exception that occurred, if any.</param>
         protected void OnError(string message, Exception e = null)
         {
             if (e != null)
