@@ -19,15 +19,25 @@ using SuperSocket.ProtoBase.ProxyProtocol;
 
 namespace SuperSocket.Server
 {
+    /// <summary>
+    /// Represents a SuperSocket service that handles connections and sessions.
+    /// </summary>
+    /// <typeparam name="TReceivePackageInfo">The type of the package information received.</typeparam>
     public class SuperSocketService<TReceivePackageInfo> : ISuperSocketHostedService
     {
         private readonly IServiceProvider _serviceProvider;
 
+        /// <summary>
+        /// Gets the service provider for dependency injection.
+        /// </summary>
         public IServiceProvider ServiceProvider
         {
             get { return _serviceProvider; }
         }
 
+        /// <summary>
+        /// Gets the server options for configuration.
+        /// </summary>
         public ServerOptions Options { get; }
         private readonly ILoggerFactory _loggerFactory;
         private readonly ILogger _logger;
@@ -48,10 +58,16 @@ namespace SuperSocket.Server
         private IPackageHandlingScheduler<TReceivePackageInfo> _packageHandlingScheduler;
         private IPackageHandlingContextAccessor<TReceivePackageInfo> _packageHandlingContextAccessor;
 
+        /// <summary>
+        /// Gets the name of the server.
+        /// </summary>
         public string Name { get; }
 
         private int _sessionCount;
 
+        /// <summary>
+        /// Gets the current session count.
+        /// </summary>
         public int SessionCount => _sessionCount;
 
         private ISessionFactory _sessionFactory;
@@ -74,6 +90,11 @@ namespace SuperSocket.Server
 
         private SessionHandlers _sessionHandlers;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SuperSocketService{TReceivePackageInfo}"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider for dependency injection.</param>
+        /// <param name="serverOptions">The server options for configuration.</param>
         public SuperSocketService(IServiceProvider serviceProvider, IOptions<ServerOptions> serverOptions)
         {
             if (serviceProvider == null)
@@ -442,6 +463,11 @@ namespace SuperSocket.Server
             return new ValueTask<bool>(true);
         }
 
+        /// <summary>
+        /// Starts the SuperSocket service asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task<bool> StartAsync(CancellationToken cancellationToken)
         {
             var state = _state;
@@ -503,6 +529,11 @@ namespace SuperSocket.Server
             _logger.LogInformation($"The listener [{listener}] has been stopped.");
         }
 
+        /// <summary>
+        /// Stops the SuperSocket service asynchronously.
+        /// </summary>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             var state = _state;

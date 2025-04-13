@@ -9,8 +9,17 @@ using Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// Provides extension methods for configuring SuperSocket to use Kestrel's pipe-based connection factory.
+/// </summary>
 public static class KestrelPipeConnectionExtensions
 {
+    /// <summary>
+    /// Configures the SuperSocket host to use Kestrel's pipe-based connection factory.
+    /// </summary>
+    /// <param name="hostBuilder">The SuperSocket host builder.</param>
+    /// <param name="options">The options for the socket connection factory. If <c>null</c>, default options are used.</param>
+    /// <returns>The updated SuperSocket host builder.</returns>
     public static ISuperSocketHostBuilder UseKestrelPipeConnection(this ISuperSocketHostBuilder hostBuilder, SocketConnectionFactoryOptions options = null)
     {
         hostBuilder.ConfigureServices((ctx, services) =>

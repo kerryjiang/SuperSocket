@@ -5,8 +5,20 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket.FramePartReader
 {
+    /// <summary>
+    /// Represents a reader for processing the payload data of a WebSocket package.
+    /// </summary>
     class PayloadDataReader : PackagePartReader
     {
+        /// <summary>
+        /// Processes the payload data of a WebSocket package.
+        /// </summary>
+        /// <param name="package">The WebSocket package being processed.</param>
+        /// <param name="filterContext">The context of the pipeline filter.</param>
+        /// <param name="reader">The sequence reader for the payload data.</param>
+        /// <param name="nextPartReader">The next part reader to process subsequent fragments.</param>
+        /// <param name="needMoreData">Indicates whether more data is needed to complete processing.</param>
+        /// <returns>True if the payload data is fully processed; otherwise, false.</returns>
         public override bool Process(WebSocketPackage package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<WebSocketPackage> nextPartReader, out bool needMoreData)
         {
             nextPartReader = null;
@@ -89,6 +101,11 @@ namespace SuperSocket.WebSocket.FramePartReader
             }
         }
 
+        /// <summary>
+        /// Decodes the masked payload data of a WebSocket package.
+        /// </summary>
+        /// <param name="sequence">The sequence of bytes to decode.</param>
+        /// <param name="mask">The masking key used for decoding.</param>
         internal unsafe void DecodeMask(ref ReadOnlySequence<byte> sequence, byte[] mask)
         {
             var index = 0;

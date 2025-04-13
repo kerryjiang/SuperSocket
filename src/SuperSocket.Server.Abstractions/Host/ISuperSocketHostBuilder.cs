@@ -8,8 +8,15 @@ using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Server.Abstractions.Host
 {
+    /// <summary>
+    /// Represents a builder for configuring and creating a SuperSocket host.
+    /// </summary>
     public interface ISuperSocketHostBuilder : IHostBuilder, IMinimalApiHostBuilder
     {
+        /// <summary>
+        /// Configures additional services for the host.
+        /// </summary>
+        /// <param name="configureDelegate">The delegate to configure services.</param>
         ISuperSocketHostBuilder ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate);
     }
 

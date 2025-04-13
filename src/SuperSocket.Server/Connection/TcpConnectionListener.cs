@@ -10,16 +10,34 @@ using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {
+    /// <summary>
+    /// Represents a TCP connection listener that accepts and manages incoming connections.
+    /// </summary>
     public class TcpConnectionListener : IConnectionListener
     {
         private Socket _listenSocket;
 
         private CancellationTokenSource _cancellationTokenSource;
         private TaskCompletionSource<bool> _stopTaskCompletionSource;
+
+        /// <summary>
+        /// Gets the connection factory used to create connections.
+        /// </summary>
         public IConnectionFactory ConnectionFactory { get; }
+
+        /// <summary>
+        /// Gets the options for the listener.
+        /// </summary>
         public ListenOptions Options { get; }
+
         private ILogger _logger;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TcpConnectionListener"/> class.
+        /// </summary>
+        /// <param name="options">The options for the listener.</param>
+        /// <param name="connectionFactory">The factory for creating connections.</param>
+        /// <param name="logger">The logger for logging events.</param>
         public TcpConnectionListener(ListenOptions options, IConnectionFactory connectionFactory, ILogger logger)
         {
             Options = options;
@@ -27,8 +45,15 @@ namespace SuperSocket.Server.Connection
             _logger = logger;
         }
 
+        /// <summary>
+        /// Gets a value indicating whether the listener is running.
+        /// </summary>
         public bool IsRunning { get; private set; }
 
+        /// <summary>
+        /// Starts the TCP connection listener.
+        /// </summary>
+        /// <returns>True if the listener started successfully; otherwise, false.</returns>
         public bool Start()
         {
             var options = Options;
@@ -97,6 +122,9 @@ namespace SuperSocket.Server.Connection
             _stopTaskCompletionSource?.TrySetResult(true);
         }
 
+        /// <summary>
+        /// Occurs when a new connection is accepted.
+        /// </summary>
         public event NewConnectionAcceptHandler NewConnectionAccept;
 
         private async void OnNewClientAccept(Socket socket)
@@ -126,6 +154,10 @@ namespace SuperSocket.Server.Connection
             await handler.Invoke(this.Options, connection);
         }
 
+        /// <summary>
+        /// Stops the TCP connection listener asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous stop operation.</returns>
         public Task StopAsync()
         {
             var listenSocket = _listenSocket;
@@ -141,11 +173,9 @@ namespace SuperSocket.Server.Connection
             return _stopTaskCompletionSource.Task;
         }
 
-        public override string ToString()
-        {
-            return Options?.ToString();
-        }
-
+        /// <summary>
+        /// Releases the resources used by the listener.
+        /// </summary>
         public void Dispose()
         {
             var listenSocket = _listenSocket;
@@ -154,6 +184,11 @@ namespace SuperSocket.Server.Connection
             {
                 listenSocket.Dispose();
             }
+        }
+
+        public override string ToString()
+        {
+            return Options?.ToString();
         }
     }
 }

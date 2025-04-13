@@ -19,6 +19,9 @@ namespace SuperSocket.WebSocket.Server
         int CloseHandshakePendingQueueLength { get; }
     }
 
+    /// <summary>
+    /// Represents middleware for managing WebSocket server sessions.
+    /// </summary>
     class WebSocketServerMiddleware : MiddlewareBase, IWebSocketServerMiddleware
     {
         private ConcurrentQueue<WebSocketSession> _openHandshakePendingQueue = new ConcurrentQueue<WebSocketSession>();
@@ -43,6 +46,10 @@ namespace SuperSocket.WebSocket.Server
             get { return _closeHandshakePendingQueue.Count;  }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebSocketServerMiddleware"/> class.
+        /// </summary>
+        /// <param name="handshakeOptions">The handshake options.</param>
         public WebSocketServerMiddleware(IOptions<HandshakeOptions> handshakeOptions)
         {
             var options = handshakeOptions.Value;
@@ -53,6 +60,10 @@ namespace SuperSocket.WebSocket.Server
             _options = options;        
         }
 
+        /// <summary>
+        /// Starts the middleware with the specified server.
+        /// </summary>
+        /// <param name="server">The server instance.</param>
         public override void Start(IServer server)
         {
             _sessionContainerMiddleware = server.GetSessionContainer() as IMiddleware;
@@ -60,6 +71,10 @@ namespace SuperSocket.WebSocket.Server
             _checkingTimer = new Timer(HandshakePendingQueueCheckingCallback, null, _options.CheckingInterval * 1000, _options.CheckingInterval * 1000); // hardcode to 1 minute for now
         }
 
+        /// <summary>
+        /// Shuts down the middleware with the specified server.
+        /// </summary>
+        /// <param name="server">The server instance.</param>
         public override void Shutdown(IServer server)
         {
             _sessionContainerMiddleware = null;
@@ -76,6 +91,11 @@ namespace SuperSocket.WebSocket.Server
             }            
         }
 
+        /// <summary>
+        /// Registers a session with the middleware asynchronously.
+        /// </summary>
+        /// <param name="session">The session to register.</param>
+        /// <returns>A task that represents the asynchronous registration operation.</returns>
         public override ValueTask<bool> RegisterSession(IAppSession session)
         {
             var websocketSession = session as WebSocketSession;
@@ -150,6 +170,11 @@ namespace SuperSocket.WebSocket.Server
             _checkingTimer?.Change(_options.CheckingInterval * 1000, _options.CheckingInterval * 1000);
         }
 
+        /// <summary>
+        /// Handles the completion of a session handshake.
+        /// </summary>
+        /// <param name="session">The WebSocket session.</param>
+        /// <returns>A task that represents the asynchronous operation.</returns>
         public ValueTask HandleSessionHandshakeCompleted(WebSocketSession session)
         {
             session.CloseHandshakeStarted += OnCloseHandshakeStarted;

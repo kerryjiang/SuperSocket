@@ -14,8 +14,16 @@ using SuperSocket.WebSocket.Server.Extensions.Compression;
 
 namespace SuperSocket.WebSocket.Server
 {
+    /// <summary>
+    /// Provides extension methods for configuring WebSocket host builders.
+    /// </summary>
     public static class WebSocketServerExtensions
     {
+        /// <summary>
+        /// Configures the WebSocket middleware for the host builder.
+        /// </summary>
+        /// <param name="builder">The WebSocket host builder.</param>
+        /// <returns>The configured WebSocket host builder.</returns>
         internal static ISuperSocketHostBuilder<WebSocketPackage> UseWebSocketMiddleware(this ISuperSocketHostBuilder<WebSocketPackage> builder)
         {
             return builder
@@ -27,6 +35,12 @@ namespace SuperSocket.WebSocket.Server
                 as ISuperSocketHostBuilder<WebSocketPackage>;
         }
 
+        /// <summary>
+        /// Configures a WebSocket message handler for the host builder.
+        /// </summary>
+        /// <param name="builder">The WebSocket host builder.</param>
+        /// <param name="handler">The message handler function.</param>
+        /// <returns>The configured WebSocket host builder.</returns>
         public static ISuperSocketHostBuilder<WebSocketPackage> UseWebSocketMessageHandler(this ISuperSocketHostBuilder<WebSocketPackage> builder, Func<WebSocketSession, WebSocketPackage, ValueTask> handler)
         {
             return builder.ConfigureServices((ctx, services) => 
@@ -35,6 +49,13 @@ namespace SuperSocket.WebSocket.Server
             }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }
 
+        /// <summary>
+        /// Configures a WebSocket message handler for a specific protocol.
+        /// </summary>
+        /// <param name="builder">The WebSocket host builder.</param>
+        /// <param name="protocol">The protocol name.</param>
+        /// <param name="handler">The message handler function.</param>
+        /// <returns>The configured WebSocket host builder.</returns>
         public static ISuperSocketHostBuilder<WebSocketPackage> UseWebSocketMessageHandler(this ISuperSocketHostBuilder<WebSocketPackage> builder, string protocol, Func<WebSocketSession, WebSocketPackage, ValueTask> handler)
         {
             return builder.ConfigureServices((ctx, services) => 
@@ -43,6 +64,13 @@ namespace SuperSocket.WebSocket.Server
             }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }
 
+        /// <summary>
+        /// Configures command handling for the WebSocket host builder.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
+        /// <typeparam name="TPackageMapper">The type of the package mapper.</typeparam>
+        /// <param name="builder">The WebSocket host builder.</param>
+        /// <returns>The configured WebSocket host builder.</returns>
         public static ISuperSocketHostBuilder<WebSocketPackage> UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder)
             where TPackageInfo : class
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>
@@ -91,6 +119,11 @@ namespace SuperSocket.WebSocket.Server
             }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }
 
+        /// <summary>
+        /// Configures per-message compression for the WebSocket host builder.
+        /// </summary>
+        /// <param name="builder">The WebSocket host builder.</param>
+        /// <returns>The configured WebSocket host builder.</returns>
         public static ISuperSocketHostBuilder<WebSocketPackage> UsePerMessageCompression(this ISuperSocketHostBuilder<WebSocketPackage> builder)
         {
              return builder.ConfigureServices((ctx, services) =>

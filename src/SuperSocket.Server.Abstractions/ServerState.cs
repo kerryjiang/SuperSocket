@@ -3,24 +3,39 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.Server.Abstractions
 {
+    /// <summary>
+    /// Represents the state of a server.
+    /// </summary>
     public enum ServerState
     {
-        // Initial state.
+        /// <summary>
+        /// The initial state of the server.
+        /// </summary>
         None = 0,
 
-        // In starting.
+        /// <summary>
+        /// The server is starting.
+        /// </summary>
         Starting = 1,
 
-        // Started.
+        /// <summary>
+        /// The server has started.
+        /// </summary>
         Started = 2,
 
-        // In stopping
+        /// <summary>
+        /// The server is stopping.
+        /// </summary>
         Stopping = 3,
 
-        // Stopped.
+        /// <summary>
+        /// The server has stopped.
+        /// </summary>
         Stopped = 4,
 
-        // Failed to start.
+        /// <summary>
+        /// The server failed to start.
+        /// </summary>
         Failed = 5
     }
 }

@@ -12,6 +12,9 @@ using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Udp
 {
+    /// <summary>
+    /// Represents a listener for UDP connections.
+    /// </summary>
     class UdpConnectionListener : IConnectionListener
     {
         private ILogger _logger;
@@ -20,14 +23,29 @@ namespace SuperSocket.Udp
 
         private IPEndPoint _acceptRemoteEndPoint;
 
+        /// <summary>
+        /// Gets the factory for creating connections.
+        /// </summary>
         public IConnectionFactory ConnectionFactory { get; }
         
+        /// <summary>
+        /// Gets the options for the listener.
+        /// </summary>
         public ListenOptions Options { get;  }
 
+        /// <summary>
+        /// Gets the options for the connection.
+        /// </summary>
         public ConnectionOptions ConnectionOptions { get; }
 
+        /// <summary>
+        /// Gets a value indicating whether the listener is running.
+        /// </summary>
         public bool IsRunning { get; private set; }
 
+        /// <summary>
+        /// Occurs when a new connection is accepted.
+        /// </summary>
         public event NewConnectionAcceptHandler NewConnectionAccept;
 
         private static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
@@ -40,6 +58,15 @@ namespace SuperSocket.Udp
 
         private IAsyncSessionContainer _sessionContainer;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UdpConnectionListener"/> class.
+        /// </summary>
+        /// <param name="options">The options for the listener.</param>
+        /// <param name="connectionOptions">The options for the connection.</param>
+        /// <param name="connectionFactory">The factory for creating connections.</param>
+        /// <param name="logger">The logger instance.</param>
+        /// <param name="udpSessionIdentifierProvider">The provider for UDP session identifiers.</param>
+        /// <param name="sessionContainer">The container for managing sessions.</param>
         public UdpConnectionListener(ListenOptions options, ConnectionOptions connectionOptions, IConnectionFactory connectionFactory, ILogger logger, IUdpSessionIdentifierProvider udpSessionIdentifierProvider, IAsyncSessionContainer sessionContainer)
         {
             Options = options;
@@ -50,6 +77,10 @@ namespace SuperSocket.Udp
             _sessionContainer = sessionContainer;
         }
 
+        /// <summary>
+        /// Starts the UDP connection listener.
+        /// </summary>
+        /// <returns><c>true</c> if the listener started successfully; otherwise, <c>false</c>.</returns>
         public bool Start()
         {
             var options = Options;
@@ -198,6 +229,11 @@ namespace SuperSocket.Udp
             }   
         }
 
+        /// <summary>
+        /// Creates a connection using the specified socket.
+        /// </summary>
+        /// <param name="connection">The socket representing the connection.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the created connection.</returns>
         public async Task<IConnection> CreateConnection(object connection)
         {
             var socket = (Socket)connection;
@@ -205,6 +241,10 @@ namespace SuperSocket.Udp
             return await CreateConnection(socket, remoteEndPoint, _udpSessionIdentifierProvider.GetSessionIdentifier(remoteEndPoint, null));
         }
 
+        /// <summary>
+        /// Stops the UDP connection listener asynchronously.
+        /// </summary>
+        /// <returns>A task that represents the asynchronous stop operation.</returns>
         public Task StopAsync()
         {
             var listenSocket = _listenSocket;
@@ -225,6 +265,9 @@ namespace SuperSocket.Udp
             return Options?.ToString();
         }
 
+        /// <summary>
+        /// Disposes the resources used by the UDP connection listener.
+        /// </summary>
         public void Dispose()
         {
             var listenSocket = _listenSocket;

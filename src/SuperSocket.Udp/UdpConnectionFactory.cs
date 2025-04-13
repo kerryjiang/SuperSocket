@@ -7,8 +7,17 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.Udp
 {
+    /// <summary>
+    /// Provides a factory for creating UDP connections.
+    /// </summary>
     public class UdpConnectionFactory : IConnectionFactory
     {
+        /// <summary>
+        /// Creates a UDP connection based on the specified connection information.
+        /// </summary>
+        /// <param name="connection">The connection information.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous creation operation.</returns>
         public Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
         {
             var connectionInfo = (UdpConnectionInfo)connection;

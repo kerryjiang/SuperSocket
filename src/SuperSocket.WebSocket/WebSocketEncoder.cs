@@ -8,6 +8,9 @@ using SuperSocket.WebSocket.Extensions;
 
 namespace SuperSocket.WebSocket
 {
+    /// <summary>
+    /// Provides functionality to encode WebSocket packages.
+    /// </summary>
     public class WebSocketEncoder : IPackageEncoder<WebSocketPackage>
     {
         private static readonly Encoding _textEncoding = new UTF8Encoding(false);
@@ -35,16 +38,27 @@ namespace SuperSocket.WebSocket
                 1024 * 64
             };
 
+        /// <summary>
+        /// Initializes static members of the <see cref="WebSocketEncoder"/> class.
+        /// </summary>
         static WebSocketEncoder()
         {
             _minEncodeBufferSize = _textEncoding.GetMaxByteCount(1);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebSocketEncoder"/> class with default settings.
+        /// </summary>
         public WebSocketEncoder()
             : this(ArrayPool<byte>.Shared, _defaultFragmentSizes)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebSocketEncoder"/> class with the specified buffer pool and fragment sizes.
+        /// </summary>
+        /// <param name="bufferPool">The buffer pool to use for encoding.</param>
+        /// <param name="fragmentSizes">The sizes of data fragments for encoding.</param>
         public WebSocketEncoder(ArrayPool<byte> bufferPool, int[] fragmentSizes)
         {
             _bufferPool = bufferPool;
@@ -205,23 +219,49 @@ namespace SuperSocket.WebSocket
             return GetFragmentTotalLength(headLen, totalBytes);
         }
 
+        /// <summary>
+        /// Creates a context for encoding data.
+        /// </summary>
+        /// <param name="writer">The buffer writer used for encoding.</param>
+        /// <returns>An object representing the encoding context.</returns>
         protected virtual object CreateDataEncodingContext(IBufferWriter<byte> writer)
         {
             return null;
         }
 
+        /// <summary>
+        /// Handles the event when the head of the WebSocket frame is encoded.
+        /// </summary>
+        /// <param name="writer">The buffer writer used for encoding.</param>
+        /// <param name="encodingContext">The encoding context.</param>
         protected virtual void OnHeadEncoded(IBufferWriter<byte> writer, object encodingContext)
         {
         }
 
+        /// <summary>
+        /// Handles the event when data is encoded.
+        /// </summary>
+        /// <param name="encodedData">The encoded data.</param>
+        /// <param name="encodingContext">The encoding context.</param>
+        /// <param name="previusEncodedDataSize">The size of previously encoded data.</param>
         protected virtual void OnDataEncoded(Span<byte> encodedData, object encodingContext, int previusEncodedDataSize)
         {
         }
 
+        /// <summary>
+        /// Cleans up the encoding context after encoding is complete.
+        /// </summary>
+        /// <param name="encodingContext">The encoding context to clean up.</param>
         protected virtual void CleanupEncodingContext(object encodingContext)
         {
         }
 
+        /// <summary>
+        /// Gets the total length of a WebSocket frame fragment, including the head and body.
+        /// </summary>
+        /// <param name="headLen">The length of the frame head.</param>
+        /// <param name="bodyLen">The length of the frame body.</param>
+        /// <returns>The total length of the frame fragment.</returns>
         protected virtual int GetFragmentTotalLength(int headLen, int bodyLen)
         {
             return headLen + bodyLen;
@@ -293,6 +333,11 @@ namespace SuperSocket.WebSocket
             }
         }
 
+        /// <summary>
+        /// Encodes the body of a data message for a WebSocket package.
+        /// </summary>
+        /// <param name="writer">The buffer writer to write the encoded data to.</param>
+        /// <param name="pack">The WebSocket package containing the data message.</param>
         protected virtual void EncodeDataMessageBody(IBufferWriter<byte> writer, WebSocketPackage pack)
         {
             foreach (var dataPiece in pack.Data)
@@ -301,6 +346,12 @@ namespace SuperSocket.WebSocket
             }
         }
 
+        /// <summary>
+        /// Encodes the data message of a WebSocket package.
+        /// </summary>
+        /// <param name="writer">The buffer writer to write the encoded data to.</param>
+        /// <param name="pack">The WebSocket package containing the data message.</param>
+        /// <returns>The total number of bytes written.</returns>
         public int EncodeDataMessage(IBufferWriter<byte> writer, WebSocketPackage pack)
         {
             var headLen = WriteHead(writer, (byte)(pack.OpCodeByte | 0x80), pack.Data.Length);
@@ -325,6 +376,12 @@ namespace SuperSocket.WebSocket
             return 0;
         }
         
+        /// <summary>
+        /// Encodes a WebSocket package into the specified buffer writer.
+        /// </summary>
+        /// <param name="writer">The buffer writer to write the encoded data to.</param>
+        /// <param name="pack">The WebSocket package to encode.</param>
+        /// <returns>The total number of bytes written.</returns>
         public int Encode(IBufferWriter<byte> writer, WebSocketPackage pack)
         {
             pack.SaveOpCodeByte();

@@ -10,6 +10,10 @@ using SuperSocket.Server.Abstractions.Host;
 
 namespace SuperSocket.Server.Host
 {
+    /// <summary>
+    /// Represents a server host builder adapter for SuperSocket.
+    /// </summary>
+    /// <typeparam name="TReceivePackage">The type of the received package.</typeparam>
     public class ServerHostBuilderAdapter<TReceivePackage> : SuperSocketHostBuilder<TReceivePackage>, IServerHostBuilderAdapter
     {
         private IHostBuilder _hostBuilder;
@@ -24,17 +28,31 @@ namespace SuperSocket.Server.Host
 
         private List<IConfigureContainerAdapter> _configureContainerActions = new List<IConfigureContainerAdapter>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ServerHostBuilderAdapter{TReceivePackage}"/> class.
+        /// </summary>
+        /// <param name="hostBuilder">The host builder to adapt.</param>
         public ServerHostBuilderAdapter(IHostBuilder hostBuilder)
             : base(hostBuilder)
         {
             _hostBuilder = hostBuilder;
         }
 
+        /// <summary>
+        /// Configures the server with the specified host builder context and service collection.
+        /// </summary>
+        /// <param name="context">The host builder context.</param>
+        /// <param name="hostServices">The service collection for the host.</param>
         void IServerHostBuilderAdapter.ConfigureServer(HostBuilderContext context, IServiceCollection hostServices)
         {
             ConfigureServer(context, hostServices);
         }
 
+        /// <summary>
+        /// Configures the server with the specified host builder context and service collection.
+        /// </summary>
+        /// <param name="context">The host builder context.</param>
+        /// <param name="hostServices">The service collection for the host.</param>
         protected void ConfigureServer(HostBuilderContext context, IServiceCollection hostServices)
         {
             var services = _currentServices;
@@ -68,12 +86,22 @@ namespace SuperSocket.Server.Host
             }
         }
 
+        /// <summary>
+        /// Configures the container builder with the specified context and container builder.
+        /// </summary>
+        /// <param name="context">The host builder context.</param>
+        /// <param name="containerBuilder">The container builder to configure.</param>
         private void ConfigureContainerBuilder(HostBuilderContext context, object containerBuilder)
         {
             foreach (IConfigureContainerAdapter containerAction in _configureContainerActions)
                 containerAction.ConfigureContainer(context, containerBuilder);
         }
 
+        /// <summary>
+        /// Copies global services from the host services to the specified service collection.
+        /// </summary>
+        /// <param name="hostServices">The host services.</param>
+        /// <param name="services">The target service collection.</param>
         private void CopyGlobalServices(IServiceCollection hostServices, IServiceCollection services)
         {
             foreach (var sd in hostServices)
@@ -85,6 +113,12 @@ namespace SuperSocket.Server.Host
             }
         }
 
+        /// <summary>
+        /// Copies a global service descriptor from the host services to the specified service collection.
+        /// </summary>
+        /// <param name="hostServices">The host services.</param>
+        /// <param name="services">The target service collection.</param>
+        /// <param name="sd">The service descriptor to copy.</param>
         private void CopyGlobalServiceDescriptor(IServiceCollection hostServices, IServiceCollection services, ServiceDescriptor sd)
         {
             if (sd.ImplementationInstance != null)
@@ -104,16 +138,29 @@ namespace SuperSocket.Server.Host
             }
         }
 
+        /// <summary>
+        /// Gets a service from the host using the specified factory.
+        /// </summary>
+        /// <param name="factory">The factory to create the service.</param>
+        /// <returns>The created service.</returns>
         private object GetServiceFromHost(Func<IServiceProvider, object> factory)
         {
             return factory(_hostServiceProvider);
         }
 
+        /// <summary>
+        /// Configures the service provider with the specified host service provider.
+        /// </summary>
+        /// <param name="hostServiceProvider">The host service provider.</param>
         void IServerHostBuilderAdapter.ConfigureServiceProvider(IServiceProvider hostServiceProvider)
         {
             _hostServiceProvider = hostServiceProvider;
         }
    
+        /// <summary>
+        /// Registers a hosted service of the specified type.
+        /// </summary>
+        /// <typeparam name="THostedService">The type of the hosted service.</typeparam>
         protected void RegisterHostedService<THostedService>()
             where THostedService : class, IHostedService
         {
@@ -123,6 +170,11 @@ namespace SuperSocket.Server.Host
             });
         }
 
+        /// <summary>
+        /// Registers a hosted service of the specified type in the provided service collection.
+        /// </summary>
+        /// <typeparam name="THostedService">The type of the hosted service.</typeparam>
+        /// <param name="servicesInHost">The service collection to register the hosted service in.</param>
         protected override void RegisterHostedService<THostedService>(IServiceCollection servicesInHost)
         {
             _currentServices.AddSingleton<IHostedService, THostedService>();
@@ -130,33 +182,68 @@ namespace SuperSocket.Server.Host
             servicesInHost.AddHostedService<THostedService>(s => GetHostedService<THostedService>());
         }
 
+/// <summary>
+        /// Registers the default hosted service in the provided service collection.
+        /// </summary>
+        /// <param name="servicesInHost">The service collection to register the default hosted service in.</param>
+        /// <summary>
+/// Registers the default hosted service in the provided servi/// <summary>
+        /// Registers the default hosted service in the provided service collection.
+        /// </summary>
+        /// <param name="servicesInHost">The service collection to register the default hosted service in.</param>
         protected override void RegisterDefaultHostedService(IServiceCollection servicesInHost)
         {
             RegisterHostedService<SuperSocketService<TReceivePackage>>(servicesInHost);
         }
 
+        /// <summary>
+        /// Gets the hosted service of the specified type.
+        /// </summary>
+        /// <typeparam name="THostedService">The type of the hosted service.</typeparam>
+        /// <returns>The hosted service.</returns>
         private THostedService GetHostedService<THostedService>()
         {
             return (THostedService)_serviceProvider.GetService<IHostedService>();
         }
 
+        /// <summary>
+        /// Configures the host builder to use a hosted service of the specified type.
+        /// </summary>
+        /// <typeparam name="THostedService">The type of the hosted service.</typeparam>
+        /// <returns>The current instance of <see cref="ISuperSocketHostBuilder{TReceivePackage}"/>.</returns>
         public override ISuperSocketHostBuilder<TReceivePackage> UseHostedService<THostedService>()
         {
             RegisterHostedService<THostedService>();
             return this;
         }
 
+        /// <summary>
+        /// Builds the host. This method is not supported.
+        /// </summary>
+        /// <returns>Throws a <see cref="NotSupportedException"/>.</returns>
         public override IHost Build()
         {
             throw new NotSupportedException();
         }
 
+        /// <summary>
+        /// Configures the container with the specified delegate.
+        /// </summary>
+        /// <typeparam name="TContainerBuilder">The type of the container builder.</typeparam>
+        /// <param name="configureDelegate">The delegate to configure the container.</param>
+        /// <returns>The current instance of <see cref="SuperSocketHostBuilder{TReceivePackage}"/>.</returns>
         public override SuperSocketHostBuilder<TReceivePackage> ConfigureContainer<TContainerBuilder>(Action<HostBuilderContext, TContainerBuilder> configureDelegate)
         {
             _configureContainerActions.Add(new ConfigureContainerAdapter<TContainerBuilder>(configureDelegate));
             return this;
         }
 
+        /// <summary>
+        /// Configures the host builder to use the specified service provider factory.
+        /// </summary>
+        /// <typeparam name="TContainerBuilder">The type of the container builder.</typeparam>
+        /// <param name="factory">The service provider factory to use.</param>
+        /// <returns>The current instance of <see cref="SuperSocketHostBuilder{TReceivePackage}"/>.</returns>
         public override SuperSocketHostBuilder<TReceivePackage> UseServiceProviderFactory<TContainerBuilder>(IServiceProviderFactory<TContainerBuilder> factory)
         {
             _serviceProviderBuilder = (context, services) =>
@@ -168,6 +255,12 @@ namespace SuperSocket.Server.Host
             return this;
         }
 
+        /// <summary>
+        /// Configures the host builder to use the specified service provider factory.
+        /// </summary>
+        /// <typeparam name="TContainerBuilder">The type of the container builder.</typeparam>
+        /// <param name="factory">The factory function to create the service provider factory.</param>
+        /// <returns>The current instance of <see cref="SuperSocketHostBuilder{TReceivePackage}"/>.</returns>
         public override SuperSocketHostBuilder<TReceivePackage> UseServiceProviderFactory<TContainerBuilder>(Func<HostBuilderContext, IServiceProviderFactory<TContainerBuilder>> factory)
         {
             _serviceProviderBuilder = (context, services) =>

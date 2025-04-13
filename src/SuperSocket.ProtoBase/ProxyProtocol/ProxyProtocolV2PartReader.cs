@@ -6,16 +6,41 @@ using System.Net.Sockets;
 
 namespace SuperSocket.ProtoBase.ProxyProtocol
 {
+    /// <summary>
+    /// A part reader for processing proxy protocol version 2 headers.
+    /// </summary>
+    /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
     class ProxyProtocolV2PartReader<TPackageInfo> : ProxyProtocolPackagePartReader<TPackageInfo>
     {
+        /// <summary>
+        /// The fixed length of the part after the signature.
+        /// </summary>
         private const int FIXPART_LEN_AFTER_SIGNATURE = 4;
 
+        /// <summary>
+        /// The length of an IPv6 address.
+        /// </summary>
         private const int IPV6_ADDRESS_LEN = 16;
 
+        /// <summary>
+        /// The total length of source and destination IPv6 addresses.
+        /// </summary>
         private const int IPV6_ADDRESS_ALL_LEN = 16 * 2;
 
+        /// <summary>
+        /// A shared pool for renting and returning byte arrays.
+        /// </summary>
         private static readonly ArrayPool<byte> _bufferPool = ArrayPool<byte>.Shared;
 
+        /// <summary>
+        /// Processes the proxy protocol version 2 header and extracts connection information.
+        /// </summary>
+        /// <param name="package">The package being processed.</param>
+        /// <param name="filterContext">The context for the filter.</param>
+        /// <param name="reader">The sequence reader containing the data.</param>
+        /// <param name="nextPartReader">The next part reader to use.</param>
+        /// <param name="needMoreData">Indicates whether more data is needed to complete processing.</param>
+        /// <returns><c>true</c> if processing was successful; otherwise, <c>false</c>.</returns>
         public override bool Process(TPackageInfo package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData)
         {
             nextPartReader = null;

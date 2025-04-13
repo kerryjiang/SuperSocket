@@ -6,6 +6,10 @@ using System.Text;
 
 namespace SuperSocket.ProtoBase.ProxyProtocol
 {
+    /// <summary>
+    /// Processes proxy protocol version 1 headers.
+    /// </summary>
+    /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
     class ProxyProtocolV1PartReader<TPackageInfo> : ProxyProtocolPackagePartReader<TPackageInfo>
     {
         private static readonly byte[] PROXY_DELIMITER = Encoding.ASCII.GetBytes("\r\n");
@@ -18,6 +22,15 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
                 new DestinationPortProcessor()
             };
 
+        /// <summary>
+        /// Processes the proxy protocol version 1 header and extracts connection information.
+        /// </summary>
+        /// <param name="package">The package being processed.</param>
+        /// <param name="filterContext">The context for the filter.</param>
+        /// <param name="reader">The sequence reader containing the data.</param>
+        /// <param name="nextPartReader">The next part reader to use.</param>
+        /// <param name="needMoreData">Indicates whether more data is needed to complete processing.</param>
+        /// <returns><c>true</c> if processing was successful; otherwise, <c>false</c>.</returns>
         public override bool Process(TPackageInfo package, object filterContext, ref SequenceReader<byte> reader, out IPackagePartReader<TPackageInfo> nextPartReader, out bool needMoreData)
         {
             if (!reader.TryReadTo(out ReadOnlySequence<byte> proxyLineSequence, PROXY_DELIMITER, true))
@@ -46,6 +59,13 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
             return true;
         }
 
+        /// <summary>
+        /// Loads proxy information from the proxy line.
+        /// </summary>
+        /// <param name="proxyInfo">The proxy information object to update.</param>
+        /// <param name="line">The proxy line containing connection details.</param>
+        /// <param name="startPos">The starting position for parsing.</param>
+        /// <param name="lookForOffet">The offset for looking for the next segment.</param>
         private void LoadProxyInfo(ProxyInfo proxyInfo, string line, int startPos, int lookForOffet)
         {
             var span = line.AsSpan();
@@ -56,7 +76,7 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
                 var spacePos = line.IndexOf(' ', lookForOffet);
 
                 ReadOnlySpan<char> segment;
-                 
+
                 if (spacePos >= 0)
                 {
                     segment = span.Slice(startPos, spacePos - startPos);
@@ -73,8 +93,16 @@ namespace SuperSocket.ProtoBase.ProxyProtocol
             }
         }
 
+        /// <summary>
+        /// Defines a processor for handling segments of the proxy line.
+        /// </summary>
         interface IProxySgementProcessor
         {
+            /// <summary>
+            /// Processes a segment of the proxy line.
+            /// </summary>
+            /// <param name="segment">The segment to process.</param>
+            /// <param name="proxyInfo">The proxy information object to update.</param>
             void Process(ReadOnlySpan<char> segment, ProxyInfo proxyInfo);
         }
 

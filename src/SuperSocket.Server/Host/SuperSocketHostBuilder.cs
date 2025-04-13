@@ -15,30 +15,48 @@ using SuperSocket.Server.Abstractions.Middleware;
 
 namespace SuperSocket.Server.Host
 {
+    /// <summary>
+    /// Provides a builder for configuring and building a SuperSocket host.
+    /// </summary>
+    /// <typeparam name="TReceivePackage">The type of the package received by the host.</typeparam>
     public class SuperSocketHostBuilder<TReceivePackage> : HostBuilderAdapter<SuperSocketHostBuilder<TReceivePackage>>, ISuperSocketHostBuilder<TReceivePackage>, IHostBuilder
     {
         private Func<HostBuilderContext, IConfiguration, IConfiguration> _serverOptionsReader;
 
+        /// <summary>
+        /// Gets the list of actions to configure services.
+        /// </summary>
         protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureServicesActions { get; private set; } = new List<Action<HostBuilderContext, IServiceCollection>>();
 
+        /// <summary>
+        /// Gets the list of actions to configure supplemental services.
+        /// </summary>
         protected List<Action<HostBuilderContext, IServiceCollection>> ConfigureSupplementServicesActions = new List<Action<HostBuilderContext, IServiceCollection>>();
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SuperSocketHostBuilder{TReceivePackage}"/> class with the specified host builder.
+        /// </summary>
+        /// <param name="hostBuilder">The host builder to adapt.</param>
         public SuperSocketHostBuilder(IHostBuilder hostBuilder)
             : base(hostBuilder)
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SuperSocketHostBuilder{TReceivePackage}"/> class with default settings.
+        /// </summary>
         public SuperSocketHostBuilder()
             : this(args: null)
         {
-
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SuperSocketHostBuilder{TReceivePackage}"/> class with the specified arguments.
+        /// </summary>
+        /// <param name="args">The command-line arguments for the host builder.</param>
         public SuperSocketHostBuilder(string[] args)
             : base(args)
         {
-
         }
 
         private void ConfigureHostBuilder()
@@ -68,12 +86,21 @@ namespace SuperSocket.Server.Host
             ConfigureHostBuilder();
         }
 
+        /// <summary>
+        /// Builds the host for the SuperSocket application.
+        /// </summary>
+        /// <returns>The built host.</returns>
         public override IHost Build()
         {
             ConfigureHostBuilder();
             return HostBuilder.Build();
         }
 
+        /// <summary>
+        /// Configures supplemental services for the host builder.
+        /// </summary>
+        /// <param name="configureDelegate">The action to configure supplemental services.</param>
+        /// <returns>The updated host builder.</returns>
         public ISuperSocketHostBuilder<TReceivePackage> ConfigureSupplementServices(Action<HostBuilderContext, IServiceCollection> configureDelegate)
         {
             ConfigureSupplementServicesActions.Add(configureDelegate);
@@ -165,6 +192,11 @@ namespace SuperSocket.Server.Host
             servicesInHost.AddHostedService<THostedService>(s => s.GetService<THostedService>());
         }
 
+        /// <summary>
+        /// Configures server options for the host builder.
+        /// </summary>
+        /// <param name="serverOptionsReader">The function to read and configure server options.</param>
+        /// <returns>The updated host builder.</returns>
         public ISuperSocketHostBuilder<TReceivePackage> ConfigureServerOptions(Func<HostBuilderContext, IConfiguration, IConfiguration> serverOptionsReader)
         {
             _serverOptionsReader = serverOptionsReader;
@@ -233,7 +265,6 @@ namespace SuperSocket.Server.Host
             });
         }
 
-
         public virtual ISuperSocketHostBuilder<TReceivePackage> UsePackageDecoder<TPackageDecoder>()
             where TPackageDecoder : class, IPackageDecoder<TReceivePackage>
         {
@@ -255,7 +286,7 @@ namespace SuperSocket.Server.Host
                 }
             );
         }
-        
+
         public virtual ISuperSocketHostBuilder<TReceivePackage> UseMiddleware<TMiddleware>()
             where TMiddleware : class, IMiddleware
         {

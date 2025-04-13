@@ -53,6 +53,11 @@ namespace SuperSocket.WebSocket
             builder.Append(m_CrCf);
         }
 
+        /// <summary>
+        /// Creates a copy of the given ReadOnlySequence.
+        /// </summary>
+        /// <param name="seq">The sequence to copy.</param>
+        /// <returns>A new ReadOnlySequence that is a copy of the input sequence.</returns>
         internal static ReadOnlySequence<byte> CopySequence(ref this ReadOnlySequence<byte> seq)
         {
             SequenceSegment head = null;
@@ -71,6 +76,11 @@ namespace SuperSocket.WebSocket
             return new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
+        /// <summary>
+        /// Destructs the given ReadOnlySequence into its head and tail segments.
+        /// </summary>
+        /// <param name="first">The sequence to destruct.</param>
+        /// <returns>A tuple containing the head and tail segments of the sequence.</returns>
         internal static (SequenceSegment, SequenceSegment) DestructSequence(ref this ReadOnlySequence<byte> first)
         {
             SequenceSegment head = first.Start.GetObject() as SequenceSegment;
@@ -90,6 +100,12 @@ namespace SuperSocket.WebSocket
             return (head, tail);
         }
 
+        /// <summary>
+        /// Concatenates two ReadOnlySequences into a single sequence.
+        /// </summary>
+        /// <param name="first">The first sequence.</param>
+        /// <param name="second">The second sequence.</param>
+        /// <returns>A new ReadOnlySequence that is the concatenation of the two input sequences.</returns>
         internal static ReadOnlySequence<byte> ConcatSequence(ref this ReadOnlySequence<byte> first, ref ReadOnlySequence<byte> second)
         {
             var (head, tail) = first.DestructSequence();
@@ -105,6 +121,12 @@ namespace SuperSocket.WebSocket
             return new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
+        /// <summary>
+        /// Concatenates a ReadOnlySequence with a single SequenceSegment.
+        /// </summary>
+        /// <param name="first">The sequence to concatenate.</param>
+        /// <param name="segment">The segment to append to the sequence.</param>
+        /// <returns>A new ReadOnlySequence that includes the appended segment.</returns>
         internal static ReadOnlySequence<byte> ConcatSequence(ref this ReadOnlySequence<byte> first, SequenceSegment segment)
         {
             var (head, tail) = first.DestructSequence();

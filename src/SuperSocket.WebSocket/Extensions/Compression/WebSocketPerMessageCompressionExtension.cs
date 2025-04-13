@@ -8,13 +8,18 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.WebSocket.Extensions.Compression
 {
     /// <summary>
-    /// WebSocket Per-Message Compression Extension
-    /// https://tools.ietf.org/html/rfc7692
+    /// Implements the WebSocket Per-Message Compression Extension as defined in RFC 7692.
     /// </summary>
     public class WebSocketPerMessageCompressionExtension : IWebSocketExtension
     {
+        /// <summary>
+        /// Gets the name of the WebSocket Per-Message Compression Extension.
+        /// </summary>
         public string Name => PMCE;
 
+        /// <summary>
+        /// The name of the Per-Message Compression Extension.
+        /// </summary>
         public const string PMCE = "permessage-deflate";
 
         private const int _deflateBufferSize = 1024 * 1024 * 4;
@@ -24,6 +29,10 @@ namespace SuperSocket.WebSocket.Extensions.Compression
         private static readonly byte[] LAST_FOUR_OCTETS = new byte[] { 0x00, 0x00, 0xFF, 0xFF };
         private static readonly ArrayPool<byte> _arrayPool = ArrayPool<byte>.Shared;
 
+        /// <summary>
+        /// Decodes a WebSocket package by decompressing its data.
+        /// </summary>
+        /// <param name="package">The WebSocket package to decode.</param>
         public void Decode(WebSocketPackage package)
         {
             if (!package.RSV1)
@@ -58,6 +67,10 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             package.Data = new ReadOnlySequence<byte>(head, 0, tail, tail.Memory.Length);
         }
 
+        /// <summary>
+        /// Encodes a WebSocket package by compressing its data.
+        /// </summary>
+        /// <param name="package">The WebSocket package to encode.</param>
         public void Encode(WebSocketPackage package)
         {
             package.RSV1 = true;
@@ -68,6 +81,10 @@ namespace SuperSocket.WebSocket.Extensions.Compression
                 EncodeDataMessage(package);            
         }
 
+        /// <summary>
+        /// Encodes a text message in a WebSocket package using compression.
+        /// </summary>
+        /// <param name="package">The WebSocket package containing the text message.</param>
         private void EncodeTextMessage(WebSocketPackage package)
         {
             var encoder = _encoding.GetEncoder();
@@ -100,6 +117,10 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             package.Data = data;
         }
 
+        /// <summary>
+        /// Removes the last four octets from the compressed data sequence.
+        /// </summary>
+        /// <param name="data">The compressed data sequence.</param>
         private void RemoveLastFourOctets(ref ReadOnlySequence<byte> data)
         {
             var octetsLen = LAST_FOUR_OCTETS.Length;
@@ -122,6 +143,10 @@ namespace SuperSocket.WebSocket.Extensions.Compression
             data = data.Slice(0, data.Length - octetsLen);
         }
 
+        /// <summary>
+        /// Encodes a data message in a WebSocket package using compression.
+        /// </summary>
+        /// <param name="package">The WebSocket package containing the data message.</param>
         private void EncodeDataMessage(WebSocketPackage package)
         {
             var data = package.Data;

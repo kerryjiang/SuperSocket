@@ -12,10 +12,20 @@ using SuperSocket.Server.Abstractions.Connections;
 
 namespace SuperSocket.Server.Connection
 {
+    /// <summary>
+    /// Factory for creating TCP connections with optional stream initializers and socket options.
+    /// </summary>
     public class TcpConnectionFactory : TcpConnectionFactoryBase
     {
         private readonly ObjectPool<SocketSender> _socketSenderPool;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TcpConnectionFactory"/> class.
+        /// </summary>
+        /// <param name="listenOptions">The options for the listener.</param>
+        /// <param name="connectionOptions">The options for the connection.</param>
+        /// <param name="socketOptionsSetter">An action to configure socket options.</param>
+        /// <param name="connectionStreamInitializersFactory">The factory for creating connection stream initializers.</param>
         public TcpConnectionFactory(
             ListenOptions listenOptions,
             ConnectionOptions connectionOptions,
@@ -31,6 +41,12 @@ namespace SuperSocket.Server.Connection
             _socketSenderPool = new DefaultObjectPool<SocketSender>(new DefaultPooledObjectPolicy<SocketSender>(), socketSenderPoolSizeValue);
         }
 
+        /// <summary>
+        /// Creates a new connection asynchronously.
+        /// </summary>
+        /// <param name="connection">The connection object, typically a socket.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous operation. The task result contains the created connection.</returns>
         public override async Task<IConnection> CreateConnection(object connection, CancellationToken cancellationToken)
         {
             var socket = connection as Socket;

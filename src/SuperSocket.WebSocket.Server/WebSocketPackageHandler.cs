@@ -20,6 +20,9 @@ using SuperSocket.WebSocket.Server.Extensions;
 
 namespace SuperSocket.WebSocket.Server
 {
+    /// <summary>
+    /// Handles WebSocket packages, including handshake and protocol management.
+    /// </summary>
     public class WebSocketPackageHandler : IPackageHandler<WebSocketPackage>
     {
         private const string _magic = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
@@ -46,6 +49,12 @@ namespace SuperSocket.WebSocket.Server
 
         private readonly Lazy<WebSocketEncoder> _defaultMessageEncoder;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="WebSocketPackageHandler"/> class.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
+        /// <param name="handshakeOptions">The handshake options.</param>
         public WebSocketPackageHandler(IServiceProvider serviceProvider, ILoggerFactory loggerFactory, IOptions<HandshakeOptions> handshakeOptions)
         {
             _serviceProvider = serviceProvider;
@@ -98,6 +107,13 @@ namespace SuperSocket.WebSocket.Server
             return closeStatus;
         }
 
+        /// <summary>
+        /// Handles a WebSocket package asynchronously.
+        /// </summary>
+        /// <param name="session">The session associated with the package.</param>
+        /// <param name="package">The WebSocket package.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous handling operation.</returns>
         public async ValueTask Handle(IAppSession session, WebSocketPackage package, CancellationToken cancellationToken)
         {
             var websocketSession = session as WebSocketSession;
