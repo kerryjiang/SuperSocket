@@ -4,6 +4,7 @@
     <DotNetTargetFrameworks>net6.0;net7.0;net8.0;net9.0</DotNetTargetFrameworks>
     <TargetFrameworks>$(DotNetTargetFrameworks)</TargetFrameworks>
     <SamplesTargetFrameworks>net8.0</SamplesTargetFrameworks>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <MobileTargetFrameworks>net8.0-ios;net8.0-android;net8.0-macos;net8.0-tvos;net9.0-ios;net9.0-android;net9.0-macos;net9.0-tvos</MobileTargetFrameworks>
