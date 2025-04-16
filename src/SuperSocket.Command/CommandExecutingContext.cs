@@ -4,6 +4,9 @@ using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.Command
 {
+    /// <summary>
+    /// Represents the context for executing a command.
+    /// </summary>
     public struct CommandExecutingContext
     {
         /// <summary>

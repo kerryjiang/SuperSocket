@@ -62,6 +62,7 @@ namespace SuperSocket.Connection
             return connectionOptions.Output ?? new Pipe();
         }
 
+        /// <inheritdoc/>
         protected override async Task GetConnectionTask(Task readTask, CancellationToken cancellationToken)
         {
             await Task.WhenAll(FillPipeAsync(Input.Writer, cancellationToken), ProcessSends()).ConfigureAwait(false);

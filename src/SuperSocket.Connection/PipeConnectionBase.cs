@@ -87,6 +87,11 @@ namespace SuperSocket.Connection
             LastActiveTime = DateTimeOffset.Now;
         }
 
+        /// <summary>
+        /// Gets a task which represents the connection.
+        /// </summary>
+        /// <param name="readTask">The read task.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         protected virtual async Task GetConnectionTask(Task readTask, CancellationToken cancellationToken)
         {
             await readTask.ConfigureAwait(false);
@@ -182,6 +187,9 @@ namespace SuperSocket.Connection
                 await connectionTask.ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Cancels all the operations on the connection.
+        /// </summary>
         protected async Task CancelAsync()
         {
             if (_cts.IsCancellationRequested)
@@ -191,6 +199,10 @@ namespace SuperSocket.Connection
             await CompleteWriterAsync(OutputWriter, _isDetaching).ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Checks if the specified exception is ignorable.
+        /// </summary>
+        /// <param name="e">The exception.</param>
         protected virtual bool IsIgnorableException(Exception e)
         {
             if (e is ObjectDisposedException || e is NullReferenceException)
@@ -297,16 +309,33 @@ namespace SuperSocket.Connection
             }
         }
 
+        /// <summary>
+        /// Writes a package to the output writer using the specified encoder.
+        /// </summary>
+        /// <typeparam name="TPackage">The package type.</typeparam>
+        /// <param name="writer">The buffer writer.</param>
+        /// <param name="packageEncoder">The package encoder.</param>
+        /// <param name="package">The package.</param>
         protected void WritePackageWithEncoder<TPackage>(IBufferWriter<byte> writer, IPackageEncoder<TPackage> packageEncoder, TPackage package)
         {
             CheckConnectionSendAllowed();
             packageEncoder.Encode(writer, package);
         }
 
+        /// <summary>
+        /// Invoked when data is read from the input pipe.
+        /// </summary>
+        /// <param name="result">The read result.</param>
         protected virtual void OnInputPipeRead(ReadResult result)
         {
         }
 
+        /// <summary>
+        /// Reads data from the input pipe asynchronously and processes it using the specified pipeline filter.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The package type.</typeparam>
+        /// <param name="reader">The pipe reader.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
         protected async IAsyncEnumerable<TPackageInfo> ReadPipeAsync<TPackageInfo>(PipeReader reader, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             var pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
@@ -494,11 +523,21 @@ namespace SuperSocket.Connection
                 Logger?.LogError(message);
         }
         
+        /// <summary>
+        /// Completes the reader asynchronously.
+        /// </summary>
+        /// <param name="reader">The pipe reader.</param>
+        /// <param name="isDetaching">Indicates if this operation is a part of detaching action.</param>
         protected virtual async ValueTask CompleteReaderAsync(PipeReader reader, bool isDetaching)
         {
             await reader.CompleteAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Completes the writer asynchronously.
+        /// </summary>
+        /// <param name="writer">The pipe writer.</param>
+        /// <param name="isDetaching">Indicates if this operation is a part of detaching action.</param>
         protected virtual async ValueTask CompleteWriterAsync(PipeWriter writer, bool isDetaching)
         {
             await writer.CompleteAsync().ConfigureAwait(false);
