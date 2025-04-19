@@ -32,6 +32,9 @@ namespace SuperSocket.Command
         /// </value>
         public Exception Exception { get; set; }
 
+        /// <summary>
+        /// Gets the cancellation token.
+        /// </summary>
         public CancellationToken CancellationToken { get; set; }
     }
 }

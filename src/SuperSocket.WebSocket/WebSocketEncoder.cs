@@ -23,9 +23,15 @@ namespace SuperSocket.WebSocket
         private readonly int[] _fragmentSizes;
 
         private readonly ArrayPool<byte> _bufferPool;
-
+        
+        /// <summary>
+        /// Gets the buffer pool used for encoding.
+        /// </summary>
         protected ArrayPool<byte> BufferPool => _bufferPool;
         
+        /// <summary>
+        /// Gets or sets the websocket extensions.
+        /// </summary>
         public IReadOnlyList<IWebSocketExtension> Extensions { get; set; }
 
         private static int[] _defaultFragmentSizes = new int []
@@ -78,6 +84,9 @@ namespace SuperSocket.WebSocket
             return headLen;
         }
 
+        /// <summary>
+        /// Writes the head of a WebSocket frame to the specified buffer writer.
+        /// </summary>
         protected virtual Span<byte> WriteHead(IBufferWriter<byte> writer, long length, out int headLen)
         {
             if (length < _size0)
