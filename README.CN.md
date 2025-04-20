@@ -7,56 +7,56 @@
 [![Badge](https://img.shields.io/badge/link-996.icu-red.svg)](https://996.icu/#/en_US)
 
 
-**SuperSocket** is a high-performance, extensible socket server application framework for .NET. It provides a robust architecture for building custom network communication applications with support for multiple protocols including TCP, UDP, and WebSocket.
+**SuperSocket** 是一个用于 .NET 的高性能、可扩展的套接字服务器应用程序框架。它为构建自定义网络通信应用程序提供了强大的架构，支持包括 TCP、UDP 和 WebSocket 在内的多种协议。
 
-- **Project homepage**:		[https://www.supersocket.net/](https://www.supersocket.net/)
-- **Documentation**:		[https://docs.supersocket.net/](https://docs.supersocket.net/)
+- **项目主页**:		[https://www.supersocket.net/](https://www.supersocket.net/)
+- **文档**:		[https://docs.supersocket.net/](https://docs.supersocket.net/)
 - **License**: 				[https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0)
 
-***Key features of SuperSocket include:***
-1. **Flexible Pipeline Architecture:**
-    SuperSocket implements a pipeline-based processing model that allows for efficient handling of incoming data with customizable filters.
+***SuperSocket 的主要特点包括：***
+1. **灵活的管道架构：**
+    SuperSocket 实现了基于管道的处理模型，通过可自定义的过滤器高效处理传入数据。
 
-2. **Protocol Abstraction:**
-    The framework abstracts away low-level socket operations and provides a clean interface for implementing various protocols through pipeline filters. It has built-in support for TCP, UDP, WebSocket, and even custom protocols.
+2. **协议抽象：**
+    该框架抽象了底层套接字操作，并为实现各种协议提供了简洁的接口。它内置支持 TCP、UDP、WebSocket 以及自定义协议。
 
-3. **Middleware Support:**
-    Extensible middleware system allowing for custom processing of connections and packages.
+3. **中间件支持：**
+    可扩展的中间件系统，允许对连接和数据包进行自定义处理。
 
-4. **Session Management:**
-    SuperSocket provides comprehensive session handling capabilities, managing connection lifecycles from establishment to termination.
+4. **会话管理：**
+    SuperSocket 提供全面的会话处理功能，管理从建立到终止的连接生命周期。
 
-5. **Command Handling System:**
-    Command-based processing model to handle client requests efficiently.
+5. **命令处理系统：**
+    基于命令的处理模型，高效处理客户端请求。
 
-6. **WebSocket Support:**
-    Full implementation of the WebSocket protocol with extensions like compression.
+6. **WebSocket 支持：**
+    完整实现 WebSocket 协议，包括压缩等扩展功能。
 
-7. **Modern .NET Integration:**
-    SuperSocket is built for modern .NET and integrates seamlessly with the dependency injection, configuration, and logging facilities in the .NET ecosystem.
+7. **现代 .NET 集成：**
+    SuperSocket 专为现代 .NET 构建，与 .NET 生态系统中的依赖注入、配置和日志记录功能无缝集成。
 
-8. **Cross-Platform:**
-    As a .NET library, SuperSocket works across platforms supported by .NET.
+8. **跨平台：**
+    作为 .NET 库，SuperSocket 可在 .NET 支持的所有平台上运行。
 
-8. **Client Support:**
-    The framework includes client components for establishing connections to socket servers, including proxy capabilities.
+8. **客户端支持：**
+    该框架包含用于建立与套接字服务器连接的客户端组件，包括代理功能。
 
-9. **High Performance:**
-    SuperSocket is designed for high throughput and low latency with efficient memory usage through buffer pooling and minimal allocations
+9. **高性能：**
+    SuperSocket 通过缓冲池和最小化内存分配，设计用于高吞吐量和低延迟场景，内存使用高效。
 
 
-***SuperSocket is suitable for a wide range of applications including:***
-* Real-time communication systems
-* IoT device connectivity
-* Game servers
-* Chat applications
-* and any scenario requiring custom network protocols
+***SuperSocket 适用于广泛的应用场景：***
+* 包括实时通信系统
+* IoT 设备连接
+* 游戏服务器
+* 聊天应用程序
+* 以及任何需要自定义网络协议的场景
 
 ---
 
-##### Nuget Packages
+##### Nuget Package
 
-| Package | MyGet Beta Release | NuGet Stable Release |
+| Package | MyGet 测试版发布 | NuGet 稳定版发布 |
 | :------|:------------:|:------------:|
 | **SuperSocket.ProtoBase** | [![MyGet Version](https://img.shields.io/myget/supersocket/vpre/SuperSocket.ProtoBase)](https://www.myget.org/feed/supersocket/package/nuget/SuperSocket.ProtoBase) | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.ProtoBase.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.ProtoBase/)|
 | **SuperSocket.Primitives** | [![MyGet Version](https://img.shields.io/myget/supersocket/vpre/SuperSocket.Primitives)](https://www.myget.org/feed/supersocket/package/nuget/SuperSocket.Primitives) | [![NuGet Version](https://img.shields.io/nuget/vpre/SuperSocket.Primitives.svg?style=flat)](https://www.nuget.org/packages/SuperSocket.Primitives/)|
@@ -77,7 +77,7 @@ Nightly build packages:  https://www.myget.org/F/supersocket/api/v3/index.json
 
 ---
 
-## SuperSocket 2.0 Roadmap:
+## SuperSocket 2.0 路线图：
 
 - 2025:
     - More documents
