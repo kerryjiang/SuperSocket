@@ -13,14 +13,6 @@
     <tags>SuperSocket, Socket Server, .Net Socket Server Framework</tags>
     <repository type="git" url="https://github.com/kerryjiang/SuperSocket.git" />
     <dependencies>
-      <group targetFramework=".NETStandard2.1">
-        <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />    
-      </group>
-      <group targetFramework="net5.0">
-        <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
-        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
-      </group>
       <group targetFramework="net6.0">
         <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
         <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
@@ -30,6 +22,10 @@
         <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
       </group>
       <group targetFramework="net8.0">
+        <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
+        <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
+      </group>
+      <group targetFramework="net9.0">
         <dependency id="SuperSocket.Server" version="$version$" exclude="Build,Analyzers" />
         <dependency id="SuperSocket.Command" version="$version$" exclude="Build,Analyzers" />      
       </group>
