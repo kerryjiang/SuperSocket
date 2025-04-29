@@ -99,6 +99,19 @@ namespace SuperSocket.Tests
         }
 
         [Theory]
+        [InlineData("https://www.supersocket.net")]
+        public async Task TestExternalConnection(string hostName)
+        {
+            var client = new EasyClient<StringPackageInfo>(new CommandLinePipelineFilter
+            {
+                Decoder = new DefaultStringPackageDecoder()
+            }) as IEasyClient;
+
+            Assert.True(await client.ConnectAsync(new DnsEndPoint(hostName,443), CancellationToken.None));
+            await client.CloseAsync();
+        }
+
+        [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
         [InlineData(typeof(GzipHostConfigurator))]
         [Trait("Category", "Client.TestBindLocalEndPoint")]
