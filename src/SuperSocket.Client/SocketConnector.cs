@@ -46,7 +46,7 @@ namespace SuperSocket.Client
             var addressFamily = remoteEndPoint.AddressFamily;
 
             if (addressFamily == AddressFamily.Unspecified)
-                addressFamily = AddressFamily.InterNetworkV6;
+                addressFamily = AddressFamily.InterNetwork;
 
             var socket = new Socket(addressFamily, SocketType.Stream, ProtocolType.Tcp);
 
