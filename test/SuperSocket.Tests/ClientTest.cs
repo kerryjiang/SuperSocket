@@ -107,7 +107,7 @@ namespace SuperSocket.Tests
                 Decoder = new DefaultStringPackageDecoder()
             }) as IEasyClient;
 
-            Assert.True(await client.ConnectAsync(new DnsEndPoint(hostName,443), CancellationToken.None));
+            Assert.True(await client.ConnectAsync(new DnsEndPoint(hostName, 443), CancellationToken.None));
             await client.CloseAsync();
         }
 

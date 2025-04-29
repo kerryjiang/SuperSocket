@@ -750,5 +750,106 @@ namespace SuperSocket.Tests
                 await host.StopAsync();
             }
         }
+
+        [Fact]
+        public async Task TestMultipleServerHostWithConfigureServerOptions()
+        {
+            var serverName1 = "TestServer1";
+            var serverName2 = "TestServer2";
+
+            var server1 = default(IServer);
+            var server2 = default(IServer);
+
+            IHostEnvironment actualHostEvn = null;
+
+            var hostBuilder = MultipleServerHostBuilder.Create()                
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseSessionHandler(async (s) =>
+                    {
+                        server1 = s.Server as IServer;
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    })
+                    .UseInProcSessionContainer()
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.AddSingleton<MyLocalTestService>();
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Name = serverName1;
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4040,
+                                    Ip = "Any"
+                                }
+                            };
+
+                        });
+                    });
+                })
+                .AddServer<SuperSocketServiceB, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseSessionHandler(async (s) =>
+                    {
+                        server2 = s.Server as IServer;
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    })
+                    .UseInProcSessionContainer()
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.AddSingleton<MyLocalTestService>();
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Name = serverName2;
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4041,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                })
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using (var host = hostBuilder.Build())
+            {
+                await host.StartAsync();
+
+                var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(GetDefaultServerEndPoint());
+
+                using (var stream = new NetworkStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal(serverName1, line);
+                }
+
+                client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client.ConnectAsync(GetAlternativeServerEndPoint());
+
+                using (var stream = new NetworkStream(client))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    var line = await streamReader.ReadLineAsync();
+                    Assert.Equal(serverName2, line);
+                }
+
+                await host.StopAsync();
+            }
+        }
     }
 }
