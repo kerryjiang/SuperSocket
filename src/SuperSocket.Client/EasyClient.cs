@@ -264,7 +264,7 @@ namespace SuperSocket.Client
         /// <summary>
         /// Starts receiving data from the server.
         /// </summary>
-        private void StartReceive()
+        protected void StartReceive()
         {
             StartReceiveAsync().ContinueWith((task, state) =>
             {
