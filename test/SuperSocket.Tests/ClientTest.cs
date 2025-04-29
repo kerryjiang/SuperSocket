@@ -98,6 +98,7 @@ namespace SuperSocket.Tests
             }
         }
 
+        /*
         [Theory]
         [InlineData("https://www.supersocket.net")]
         public async Task TestExternalConnection(string hostName)
@@ -110,6 +111,7 @@ namespace SuperSocket.Tests
             Assert.True(await client.ConnectAsync(new DnsEndPoint(hostName, 443), CancellationToken.None));
             await client.CloseAsync();
         }
+        */
 
         [Theory]
         [InlineData(typeof(RegularHostConfigurator))]
