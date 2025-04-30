@@ -18,6 +18,9 @@ using SuperSocket.Server.Host;
 using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Threading;
+using System.Buffers;
+using Microsoft.Extensions.Logging.Abstractions;
+using static SuperSocket.Tests.FixedHeaderProtocolTest;
 
 namespace SuperSocket.Tests
 {
@@ -28,6 +31,24 @@ namespace SuperSocket.Tests
             : base(outputHelper)
         {
             
+        }
+
+        internal class CustomSegment : ReadOnlySequenceSegment<byte>
+        {
+            public CustomSegment(ReadOnlyMemory<byte> memory)
+            {
+                Memory = memory;
+            }
+
+            public CustomSegment Add(ReadOnlyMemory<byte> mem)
+            {
+                var segment = new CustomSegment(mem)
+                {
+                    RunningIndex = RunningIndex + Memory.Length
+                };
+                Next = segment;
+                return segment;
+            }
         }
 
         [Fact]
@@ -324,5 +345,147 @@ namespace SuperSocket.Tests
                 await server.StopAsync();
             }
         }
+
+        [Fact]
+        public async Task TestSendAsyncReadOnlySequence_SingleSegment()
+        {
+            var hostConfigurator = new RegularHostConfigurator();
+            var connected = false;
+            IAppSession session = null;
+            TextPackageInfo serverReceiverPackage = null;
+            TextPackageInfo clientReceiverPackage = null;
+
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>(hostConfigurator)
+                .UseSessionHandler((s) =>
+                {
+                    connected = true;
+                    session = s;
+                    return new ValueTask();
+                })
+                .UsePackageHandler(async (s, p) =>
+                {
+                    serverReceiverPackage = p;
+                    var len = (short)Encoding.UTF8.GetBytes("ServerResponse1ServerResponse2ServerResponse3").Length;
+                    byte[] buffer = new byte[4 + len];
+                    Encoding.UTF8.GetBytes(len.ToString().PadLeft(4, '0')).CopyTo(buffer, 0);
+                    Encoding.UTF8.GetBytes("ServerResponse1ServerResponse2ServerResponse3").CopyTo(buffer, 4);
+                    var first = new CustomSegment(buffer);
+                    var sequence = new ReadOnlySequence<byte>(first, 0, first, first.Memory.Length);
+                    await s.SendAsync(sequence);
+                })
+                .BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Started.");
+
+                //var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                //await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                var options = new ConnectionOptions
+                {
+                    Logger = NullLogger.Instance,
+                    ReadAsDemand = true
+                };
+
+                var client = hostConfigurator.ConfigureEasyClient(new MyFixedHeaderPipelineFilter(), options);
+
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+
+                OutputHelper.WriteLine("Connected.");
+
+
+                var len = Encoding.UTF8.GetBytes("ClientRequest1ClientRequest2ClientRequest3").Length;
+                byte[] buffer = new byte[4 + len];
+                Encoding.UTF8.GetBytes(len.ToString().PadLeft(4, '0')).CopyTo(buffer, 0);
+                Encoding.UTF8.GetBytes("ClientRequest1ClientRequest2ClientRequest3").CopyTo(buffer, 4);
+                var first = new CustomSegment(buffer);
+                var sequence = new ReadOnlySequence<byte>(first, 0, first, first.Memory.Length);
+                await client.SendAsync(sequence);
+                await client.SendAsync(sequence);
+                clientReceiverPackage = await client.ReceiveAsync();
+                var clientReceiverPackage2 = await client.ReceiveAsync();
+
+                Assert.True(connected);
+                Assert.NotNull(serverReceiverPackage);
+                Assert.NotNull(clientReceiverPackage);
+                Assert.NotNull(clientReceiverPackage2);
+                Assert.Equal("ClientRequest1ClientRequest2ClientRequest3", serverReceiverPackage.Text);
+                Assert.Equal("ServerResponse1ServerResponse2ServerResponse3", clientReceiverPackage.Text);
+                await server.StopAsync();
+            }
+        }
+
+        [Fact]
+        public async Task TestSendAsyncReadOnlySequence_MultiSegment()
+        {
+            var hostConfigurator = new RegularHostConfigurator();
+            var connected = false;
+            IAppSession session = null;
+            TextPackageInfo serverReceiverPackage = null;
+            TextPackageInfo clientReceiverPackage = null;
+
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>(hostConfigurator)
+                .UseSessionHandler((s) =>
+                {
+                    connected = true;
+                    session = s;
+                    return new ValueTask();
+                })
+                .UsePackageHandler(async (s, p) =>
+                {
+                    serverReceiverPackage = p;
+                    var len = (short)Encoding.UTF8.GetBytes("ServerResponse1ServerResponse2ServerResponse3").Length;
+                    byte[] buffer = new byte[4];
+                    Encoding.UTF8.GetBytes(len.ToString().PadLeft(4, '0')).CopyTo(buffer, 0);
+                    var first = new CustomSegment(buffer);
+                    var last = first.Add(Encoding.UTF8.GetBytes("ServerResponse1"))
+                                .Add(Encoding.UTF8.GetBytes("ServerResponse2"))
+                                .Add(Encoding.UTF8.GetBytes("ServerResponse3"));
+                    var sequence = new ReadOnlySequence<byte>(first, 0, last, last.Memory.Length);
+                    await s.SendAsync(sequence);
+                })
+                .BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Started.");
+                var options = new ConnectionOptions
+                {
+                    Logger = NullLogger.Instance,
+                    ReadAsDemand = true
+                };
+
+                var client = hostConfigurator.ConfigureEasyClient(new MyFixedHeaderPipelineFilter(), options);
+
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                OutputHelper.WriteLine("Connected.");
+                byte[] buffer = new byte[4];
+
+                var len = Encoding.UTF8.GetBytes("ClientRequest1ClientRequest2ClientRequest3").Length;
+                Encoding.UTF8.GetBytes(len.ToString().PadLeft(4, '0')).CopyTo(buffer, 0);
+                var first = new CustomSegment(buffer);
+                var last = first.Add(Encoding.UTF8.GetBytes("ClientRequest1"))
+                                .Add(Encoding.UTF8.GetBytes("ClientRequest2"))
+                                .Add(Encoding.UTF8.GetBytes("ClientRequest3"));
+                var sequence = new ReadOnlySequence<byte>(first, 0, last, last.Memory.Length);
+                await client.SendAsync(sequence);
+                await client.SendAsync(sequence);
+                clientReceiverPackage = await client.ReceiveAsync();
+                var clientReceiverPackage2 = await client.ReceiveAsync();
+
+                Assert.True(connected);
+                Assert.NotNull(serverReceiverPackage);
+                Assert.NotNull(clientReceiverPackage);
+                Assert.NotNull(clientReceiverPackage2);
+                Assert.Equal("ClientRequest1ClientRequest2ClientRequest3", serverReceiverPackage.Text);
+                Assert.Equal("ServerResponse1ServerResponse2ServerResponse3", clientReceiverPackage.Text);
+                await server.StopAsync();
+            }
+        }
+
     }
 }

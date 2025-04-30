@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,6 +46,13 @@ namespace SuperSocket.Client
         /// <param name="data">The data to send.</param>
         /// <returns>A task that represents the asynchronous send operation.</returns>
         ValueTask SendAsync(ReadOnlyMemory<byte> data);
+
+        /// <summary>
+        /// Asynchronously sends data to the server.
+        /// </summary>
+        /// <param name="data">The data to send.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
+        ValueTask SendAsync(ReadOnlySequence<byte> data);
 
         /// <summary>
         /// Asynchronously sends a package to the server using the specified encoder.
