@@ -214,14 +214,26 @@ namespace SuperSocket.Server.Host
         }
 
         /// <summary>
-        /// Converts an <see cref="IHostApplicationBuilder"/> to a <see cref="SuperSocketWebApplicationBuilder"/>.
+        /// Converts an <see cref="IHostApplicationBuilder"/> to a <see cref="SuperSocketApplicationBuilder"/>.
         /// </summary>
         /// <param name="hostApplicationBuilder">The host application builder to convert.</param>
         /// <param name="configureServerHostBuilder">The action to configure the server host builder.</param>
-        /// <returns>An instance of <see cref="SuperSocketWebApplicationBuilder"/>.</returns>
-        public static SuperSocketWebApplicationBuilder AsSuperSocketWebApplicationBuilder(this IHostApplicationBuilder hostApplicationBuilder, Action<MultipleServerHostBuilder> configureServerHostBuilder)
+        /// <returns>An instance of <see cref="SuperSocketApplicationBuilder"/>.</returns>
+        [Obsolete("Use AsSuperSocketApplicationBuilder instead.")]
+        public static SuperSocketApplicationBuilder AsSuperSocketWebApplicationBuilder(this IHostApplicationBuilder hostApplicationBuilder, Action<MultipleServerHostBuilder> configureServerHostBuilder)
         {
-            var applicationBuilder = new SuperSocketWebApplicationBuilder(hostApplicationBuilder);
+            return hostApplicationBuilder.AsSuperSocketApplicationBuilder(configureServerHostBuilder);
+        }
+
+        /// <summary>
+        /// Converts an <see cref="IHostApplicationBuilder"/> to a <see cref="SuperSocketApplicationBuilder"/>.
+        /// </summary>
+        /// <param name="hostApplicationBuilder">The host application builder to convert.</param>
+        /// <param name="configureServerHostBuilder">The action to configure the server host builder.</param>
+        /// <returns>An instance of <see cref="SuperSocketApplicationBuilder"/>.</returns>
+        public static SuperSocketApplicationBuilder AsSuperSocketApplicationBuilder(this IHostApplicationBuilder hostApplicationBuilder, Action<MultipleServerHostBuilder> configureServerHostBuilder)
+        {
+            var applicationBuilder = new SuperSocketApplicationBuilder(hostApplicationBuilder);
 
             var hostBuilder = new MultipleServerHostBuilder(applicationBuilder.Host);
             configureServerHostBuilder(hostBuilder);
