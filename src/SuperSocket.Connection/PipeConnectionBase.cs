@@ -251,10 +251,52 @@ namespace SuperSocket.Connection
             }
         }
 
+        /// <summary>
+        /// Sends data over the connection asynchronously using the specified buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer containing the data to send.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
+        public override async ValueTask SendAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            var sendLockAcquired = false;
+
+            try
+            {
+                await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
+                sendLockAcquired = true;
+                WriteBuffer(OutputWriter, buffer);
+                await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (sendLockAcquired)
+                    SendLock.Release();
+            }
+        }
+
         private void WriteBuffer(PipeWriter writer, ReadOnlyMemory<byte> buffer)
         {
             CheckConnectionSendAllowed();
             writer.Write(buffer.Span);
+        }
+
+        private void WriteBuffer(PipeWriter writer, ReadOnlySequence<byte> buffer)
+        {
+            CheckConnectionSendAllowed();
+            //writer.Write(buffer.Span);
+            if (buffer.IsSingleSegment)
+            {
+                writer.Write(buffer.First.Span);
+            }
+            else
+            {
+                foreach (var memory in buffer)
+                {
+                    writer.Write(memory.Span);
+                }
+            }
+
         }
 
         /// <summary>
