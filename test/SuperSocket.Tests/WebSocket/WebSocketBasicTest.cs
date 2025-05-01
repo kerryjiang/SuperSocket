@@ -245,7 +245,7 @@ namespace SuperSocket.Tests.WebSocket
                 .UseInProcSessionContainer()
                 .BuildAsServer())
             {
-                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
+                Assert.True(await server.StartAsync(CancellationToken.None));
                 OutputHelper.WriteLine("Server started.");
 
                 var sessionContainer = server.GetSessionContainer();
@@ -273,12 +273,12 @@ namespace SuperSocket.Tests.WebSocket
                 Assert.Equal(0, server.SessionCount);
                 Assert.Equal(0, sessionContainer.GetSessionCount());
 
-                await Task.Delay(1000, TestContext.Current.CancellationToken);
+                await Task.Delay(1000, CancellationToken.None);
 
                 Assert.Equal(0, websocketMiddleware.OpenHandshakePendingQueueLength);
                 Assert.Equal(0, websocketMiddleware.CloseHandshakePendingQueueLength);
 
-                await server.StopAsync(TestContext.Current.CancellationToken);
+                await server.StopAsync(CancellationToken.None);
             }
         }
 
