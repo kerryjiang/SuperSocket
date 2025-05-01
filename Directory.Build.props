@@ -20,6 +20,12 @@
     <Authors>Kerry Jiang and other contributors</Authors>
     <Owners>Kerry Jiang</Owners>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(IncludeReleaseNotes)' == 'true'">
+    <PackageReadmeFile>v$(PackageVersion).md</PackageReadmeFile>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(IncludeReleaseNotes)' == 'true'">
+    <None Include="../../releaseNotes/v$(PackageVersion).md" Pack="true" PackagePath="/" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All" />
   </ItemGroup>
