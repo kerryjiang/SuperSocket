@@ -500,7 +500,47 @@ namespace SuperSocket.Tests
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
 
             var hostBuilder = WebApplication.CreateBuilder()
-                .AsSuperSocketWebApplicationBuilder(serverHostBuilder =>
+                .AsSuperSocketApplicationBuilder(serverHostBuilder =>
+                    serverHostBuilder
+                        .ConfigureAppConfiguration((hostingContext, config) =>
+                        {
+                            config.Sources.Clear();
+                            config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
+                        })
+                        .AddServer<TextPackageInfo, LinePipelineFilter>(builder =>
+                        {
+                            hostConfigurator.Configure(builder);
+
+                            builder
+                                .ConfigureServerOptions((ctx, config) =>
+                                {
+                                    return config.GetSection("TestServer1");
+                                })
+                                .UsePackageHandler(async (IAppSession s, TextPackageInfo p) =>
+                                {
+                                    await s.SendAsync(Utf8Encoding.GetBytes("Hello World\r\n"));
+                                });
+                        })
+                );
+
+            using (var host = hostBuilder.Build())
+            {
+                await host.StartAsync();
+                await host.StopAsync();
+            }
+        }
+
+        [Theory]
+        [InlineData(typeof(RegularHostConfigurator))]
+        [InlineData(typeof(SecureHostConfigurator))]
+        [InlineData(typeof(UdpHostConfigurator))]
+        [InlineData(typeof(KestralConnectionHostConfigurator))]
+        public async Task TestHostApplicationBuilderStartup(Type hostConfiguratorType)
+        {
+            var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
+
+            var hostBuilder = Host.CreateApplicationBuilder()
+                .AsSuperSocketApplicationBuilder(serverHostBuilder =>
                     serverHostBuilder
                         .ConfigureAppConfiguration((hostingContext, config) =>
                         {

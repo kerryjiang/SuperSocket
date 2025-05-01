@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.Metrics;
@@ -11,7 +12,7 @@ namespace SuperSocket.Server.Host
     /// <summary>
     /// Provides a builder for configuring and building a SuperSocket web application.
     /// </summary>
-    public class SuperSocketWebApplicationBuilder : IHostApplicationBuilder
+    public class SuperSocketApplicationBuilder : IHostApplicationBuilder
     {
         private readonly IHostApplicationBuilder _hostApplicationBuilder;
 
@@ -46,10 +47,10 @@ namespace SuperSocket.Server.Host
         public IServiceCollection Services => _hostApplicationBuilder.Services;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="SuperSocketWebApplicationBuilder"/> class.
+        /// Initializes a new instance of the <see cref="SuperSocketApplicationBuilder"/> class.
         /// </summary>
         /// <param name="hostApplicationBuilder">The underlying host application builder.</param>
-        internal SuperSocketWebApplicationBuilder(IHostApplicationBuilder hostApplicationBuilder)
+        internal SuperSocketApplicationBuilder(IHostApplicationBuilder hostApplicationBuilder)
         {
             _hostApplicationBuilder = hostApplicationBuilder;
         }
@@ -61,9 +62,22 @@ namespace SuperSocket.Server.Host
         {
             get
             {
-                return _hostApplicationBuilder.GetType()
-                    .GetProperty("Host", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance)
-                    .GetValue(_hostApplicationBuilder) as IHostBuilder;
+                var hostProperty = _hostApplicationBuilder.GetType()
+                    .GetProperty("Host", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+
+                if (hostProperty != null)
+                {
+                    return hostProperty.GetValue(_hostApplicationBuilder) as IHostBuilder;
+                }
+
+                var asHostBuilderMethod = _hostApplicationBuilder.GetType().GetMethod("AsHostBuilder", BindingFlags.NonPublic | BindingFlags.Instance);
+
+                if (asHostBuilderMethod != null)
+                {
+                    return asHostBuilderMethod.Invoke(_hostApplicationBuilder, Array.Empty<object>()) as IHostBuilder;
+                }
+
+                throw new InvalidOperationException("Unable to retrieve the host builder from the application builder.");
             }
         }
 
