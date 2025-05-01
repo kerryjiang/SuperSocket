@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <Description>SuperSocket configuration sample demonstrating different ways to configure a SuperSocket server through appsettings.json files.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />

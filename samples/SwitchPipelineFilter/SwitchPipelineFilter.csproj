@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <Description>SuperSocket Switch Pipeline Filter sample demonstrating how to dynamically change protocol filters at runtime to handle different protocol formats.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SuperSocket.ProtoBase\SuperSocket.ProtoBase.csproj" />

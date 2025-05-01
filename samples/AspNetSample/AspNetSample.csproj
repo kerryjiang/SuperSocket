@@ -2,6 +2,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
 		<LangVersion>10</LangVersion>
+		<Description>SuperSocket ASP.NET integration sample demonstrating how to use SuperSocket alongside ASP.NET Core in a web application.</Description>
 	</PropertyGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\..\src\SuperSocket.Server\SuperSocket.Server.csproj" />

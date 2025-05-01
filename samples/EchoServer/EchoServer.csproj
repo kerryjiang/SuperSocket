@@ -3,6 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <Description>SuperSocket Echo Server sample demonstrating basic socket server implementation that echoes back received messages.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />

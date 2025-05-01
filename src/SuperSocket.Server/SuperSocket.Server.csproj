@@ -3,7 +3,7 @@
     <DebugType>portable</DebugType>
     <AssemblyName>SuperSocket.Server</AssemblyName>
     <PackageId>SuperSocket.Server</PackageId>
-    <Description>SuperSocket server hosting library.</Description>
+    <Description>SuperSocket server hosting library providing the core server implementation with session management, connection handling, and integration with the .NET dependency injection system and configuration framework.</Description>
   </PropertyGroup>
 
   <ItemGroup>

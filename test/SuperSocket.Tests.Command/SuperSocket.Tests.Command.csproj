@@ -2,6 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <Description>SuperSocket Command test project for validating the command handling and processing capabilities of the framework.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Command/SuperSocket.Command.csproj" />

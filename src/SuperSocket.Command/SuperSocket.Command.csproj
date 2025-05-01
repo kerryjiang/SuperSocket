@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>SuperSocket command pattern library which allow you to handle requests with commands.</Description>
+    <Description>SuperSocket command pattern library providing a structured request processing framework with command discovery, dependency injection support, and flexible command dispatching based on message keys.</Description>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Text.Json" />

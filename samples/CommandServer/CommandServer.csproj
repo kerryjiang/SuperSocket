@@ -3,6 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <Description>SuperSocket Command Server sample demonstrating how to implement a command-based socket server for processing structured commands like ADD, SUB, and MULT.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />

@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>SuperSocket WebSocket server.</Description>
+    <Description>SuperSocket WebSocket server implementation enabling real-time bidirectional communication with WebSocket protocol support.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.WebSocket/SuperSocket.WebSocket.csproj" />

@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <Description>SuperSocket Custom Protocol sample demonstrating how to implement custom packet protocols and pipeline filters for specialized data formats.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SuperSocket.Server\SuperSocket.Server.csproj" />

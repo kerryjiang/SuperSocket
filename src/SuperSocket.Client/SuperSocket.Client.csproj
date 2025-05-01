@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>SuperSocket client library</Description>
+    <Description>SuperSocket client library implementing high-performance socket client functionality with protocol extensibility, pipeline processing, and comprehensive connection management.</Description>
   </PropertyGroup>
   <PropertyGroup Condition="$(IncludeMobileTargetFramework) == 'true'">
     <TargetFrameworks>$(TargetFrameworks);$(MobileTargetFrameworks)</TargetFrameworks>

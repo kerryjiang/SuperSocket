@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>SuperSocket library to abstract underlying communications as connection with pipeline.</Description>
+    <Description>SuperSocket connection abstraction library that provides high-performance networking through System.IO.Pipelines, ensuring efficient data transfer with minimal allocations and buffer management.</Description>
   </PropertyGroup>
   <PropertyGroup Condition="$(IncludeMobileTargetFramework) == 'true'">
     <TargetFrameworks>$(TargetFrameworks);$(MobileTargetFrameworks)</TargetFrameworks>

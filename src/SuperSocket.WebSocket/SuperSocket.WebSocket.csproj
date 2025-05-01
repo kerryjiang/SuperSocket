@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>SuperSocket WebSocket protocol implementation.</Description>
+    <Description>SuperSocket WebSocket protocol implementation providing frame parsing, message handling, and standards-compliant WebSocket protocol support (RFC 6455) for real-time bidirectional communication.</Description>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>

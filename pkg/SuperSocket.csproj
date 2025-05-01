@@ -5,5 +5,6 @@
     <NuspecFile>SuperSocket.nuspec</NuspecFile>
     <IncludeSymbols>false</IncludeSymbols>
     <IncludeSource>false</IncludeSource>
+    <Description>SuperSocket meta-package containing all essential components for building high-performance socket servers and applications.</Description>
   </PropertyGroup>
 </Project>

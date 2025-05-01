@@ -2,6 +2,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <Description>SuperSocket WebSocket Push Server sample demonstrating server-initiated message broadcasting to connected WebSocket clients.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\SuperSocket.WebSocket.Server\SuperSocket.WebSocket.Server.csproj" />  

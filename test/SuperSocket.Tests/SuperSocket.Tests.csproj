@@ -4,6 +4,7 @@
     <OutputType>Exe</OutputType>
     <DebugType>portable</DebugType>
     <IsPackable>false</IsPackable>
+    <Description>SuperSocket test project containing integration and unit tests for core SuperSocket functionalities and components.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.Server/SuperSocket.Server.csproj" />

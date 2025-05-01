@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>$(DotNetTargetFrameworks)</TargetFrameworks>
-    <Description>SuperSocket library allows users to take advantage of Kestrel's high performance socket pipeline.</Description>
+    <Description>SuperSocket integration with ASP.NET Core Kestrel server, enabling SuperSocket to leverage Kestrel's high-performance networking stack with TLS support and HTTP/2 protocol capabilities.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../SuperSocket.Connection/SuperSocket.Connection.csproj" />

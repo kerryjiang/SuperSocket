@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>SuperSocket protocol decoding library.</Description>
+    <Description>SuperSocket protocol decoding library providing the foundation for protocol implementation with pipeline processing, binary parsing, and customizable protocol filters.</Description>
   </PropertyGroup>
   <PropertyGroup Condition="$(IncludeMobileTargetFramework) == 'true'">
     <TargetFrameworks>$(TargetFrameworks);$(MobileTargetFrameworks)</TargetFrameworks>

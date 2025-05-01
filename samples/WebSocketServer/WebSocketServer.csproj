@@ -3,6 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <Description>SuperSocket WebSocket Server sample demonstrating how to implement a WebSocket server with real-time communication capabilities.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/SuperSocket.WebSocket.Server/SuperSocket.WebSocket.Server.csproj" />
