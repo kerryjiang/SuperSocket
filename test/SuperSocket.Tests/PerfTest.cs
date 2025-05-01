@@ -48,9 +48,9 @@ namespace SuperSocket.Tests
 
                 cancellationTokenSource.CancelAfter(runTime);
 
-                await Task.Delay(runTime, TestContext.Current.CancellationToken);
+                await Task.Delay(runTime, CancellationToken.None);
 
-                var rounds = await Task.WhenAll(tasks).WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
+                var rounds = await Task.WhenAll(tasks).WaitAsync(TimeSpan.FromSeconds(10), CancellationToken.None);
 
                 OutputHelper.WriteLine($"Total rounds: {rounds.Sum()}.");
             }
@@ -69,10 +69,10 @@ namespace SuperSocket.Tests
                 {
                     var text = Guid.NewGuid().ToString();
 
-                    await streamWriter.WriteAsync($"{text}\r\n".AsMemory(), cancellationToken);
-                    await streamWriter.FlushAsync(cancellationToken);
+                    await streamWriter.WriteAsync($"{text}\r\n".AsMemory(), CancellationToken.None);
+                    await streamWriter.FlushAsync(CancellationToken.None);
 
-                    var line = await streamReader.ReadLineAsync(cancellationToken);
+                    var line = await streamReader.ReadLineAsync(CancellationToken.None);
                     Assert.Equal(text, line);
 
                     round++;
