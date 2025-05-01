@@ -355,7 +355,6 @@ namespace SuperSocket.Tests
             TextPackageInfo serverReceiverPackage = null;
             TextPackageInfo clientReceiverPackage = null;
 
-
             using (var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>(hostConfigurator)
                 .UseSessionHandler((s) =>
                 {
@@ -379,10 +378,9 @@ namespace SuperSocket.Tests
                 Assert.Equal("TestServer", server.Name);
 
                 Assert.True(await server.StartAsync());
+
                 OutputHelper.WriteLine("Started.");
 
-                //var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                //await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
                 var options = new ConnectionOptions
                 {
                     Logger = NullLogger.Instance,
@@ -426,7 +424,6 @@ namespace SuperSocket.Tests
             TextPackageInfo serverReceiverPackage = null;
             TextPackageInfo clientReceiverPackage = null;
 
-
             using (var server = CreateSocketServerBuilder<TextPackageInfo, MyFixedHeaderPipelineFilter>(hostConfigurator)
                 .UseSessionHandler((s) =>
                 {
@@ -453,6 +450,7 @@ namespace SuperSocket.Tests
 
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Started.");
+
                 var options = new ConnectionOptions
                 {
                     Logger = NullLogger.Instance,
@@ -467,10 +465,12 @@ namespace SuperSocket.Tests
 
                 var len = Encoding.UTF8.GetBytes("ClientRequest1ClientRequest2ClientRequest3").Length;
                 Encoding.UTF8.GetBytes(len.ToString().PadLeft(4, '0')).CopyTo(buffer, 0);
+
                 var first = new CustomSegment(buffer);
                 var last = first.Add(Encoding.UTF8.GetBytes("ClientRequest1"))
                                 .Add(Encoding.UTF8.GetBytes("ClientRequest2"))
                                 .Add(Encoding.UTF8.GetBytes("ClientRequest3"));
+
                 var sequence = new ReadOnlySequence<byte>(first, 0, last, last.Memory.Length);
                 await client.SendAsync(sequence);
                 await client.SendAsync(sequence);
@@ -483,6 +483,7 @@ namespace SuperSocket.Tests
                 Assert.NotNull(clientReceiverPackage2);
                 Assert.Equal("ClientRequest1ClientRequest2ClientRequest3", serverReceiverPackage.Text);
                 Assert.Equal("ServerResponse1ServerResponse2ServerResponse3", clientReceiverPackage.Text);
+                
                 await server.StopAsync();
             }
         }
