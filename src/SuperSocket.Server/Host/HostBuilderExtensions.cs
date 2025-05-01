@@ -14,11 +14,11 @@ using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Connection;
 using System.IO.Compression;
 
-/// <summary>
-/// Provides extension methods for configuring and building SuperSocket hosts.
-/// </summary>
 namespace SuperSocket.Server.Host
 {
+    /// <summary>
+    /// Provides extension methods for configuring and building SuperSocket hosts.
+    /// </summary>
     public static class HostBuilderExtensions
     {
         /// <summary>

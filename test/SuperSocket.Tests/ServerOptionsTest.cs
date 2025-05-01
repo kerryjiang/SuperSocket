@@ -49,12 +49,12 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -67,16 +67,16 @@ namespace SuperSocket.Tests
                     }
 
                     await streamWriter.WriteAsync("\r\n");
-                    await streamWriter.FlushAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
 
                     Thread.Sleep(1000);
 
-                    var line = await streamReader.ReadLineAsync();
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
 
                     Assert.Null(line);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

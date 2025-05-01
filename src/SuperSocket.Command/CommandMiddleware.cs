@@ -143,13 +143,13 @@ namespace SuperSocket.Command
             {
                 if (commandDict.ContainsKey(cmd.Key))
                 {
+                    _logger.LogError("Duplicated command with Key {Key} is found: {Cmd}", cmd.Key, cmd);
                     var error = $"Duplicated command with Key {cmd.Key} is found: {cmd.ToString()}";
-                    _logger.LogError(error);
                     throw new Exception(error);
                 }
 
                 commandDict.Add(cmd.Key, cmd);
-                _logger.LogDebug($"The command with key {cmd.Key} is registered: {cmd.ToString()}");
+                _logger.LogDebug("The command with key {Key} is registered: {Cmd}", cmd.Key, cmd);
             }
 
             _commands = commandDict;
@@ -164,7 +164,7 @@ namespace SuperSocket.Command
 
                 if (_unknownPackageHandler == null)
                 {
-                    _logger.LogError($"{nameof(commandOptions.Value.UnknownPackageHandler)} was registered with incorrectly. The expected typew is {typeof(Func<IAppSession, TPackageInfo, ValueTask>).Name}.");
+                    _logger.LogError("{HandlerName} was registered with incorrectly. The expected type is {ExpectedType}.", nameof(commandOptions.Value.UnknownPackageHandler), typeof(Func<IAppSession, TPackageInfo, ValueTask>).Name);
                 }
             }            
         }
@@ -348,7 +348,7 @@ namespace SuperSocket.Command
 
             private CommandMetadata GetCommandMetadata(Type commandType)
             {
-                var cmdAtt = commandType.GetCustomAttribute(typeof(CommandAttribute)) as CommandAttribute;
+                var cmdAtt = commandType.GetCustomAttribute<CommandAttribute>();
                 var cmdMeta = default(CommandMetadata);
 
                 if (cmdAtt == null)

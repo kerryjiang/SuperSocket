@@ -123,7 +123,7 @@ namespace SuperSocket.Udp
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"The listener[{this.ToString()}] failed to start.");
+                _logger.LogError(e, "The listener[{Listener}] failed to start.", this);
                 return false;
             }
         }
@@ -184,7 +184,7 @@ namespace SuperSocket.Udp
                         }
                     }
                     
-                    _logger.LogError(e, $"Listener[{this.ToString()}] failed to receive udp data");
+                    _logger.LogError(e, "Listener[{Listener}] failed to receive udp data", this);
                 }
                 finally
                 {
@@ -202,7 +202,7 @@ namespace SuperSocket.Udp
             if (handler == null)
                 return;
 
-            handler.Invoke(Options, connection);
+            var valueTask = handler.Invoke(Options, connection);
         }
 
         private async ValueTask<IConnection> CreateConnection(Socket socket, IPEndPoint remoteEndPoint, string sessionIdentifier)
@@ -224,7 +224,7 @@ namespace SuperSocket.Udp
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failed to create connection for {socket.RemoteEndPoint}.");
+                _logger.LogError(e, "Failed to create connection for {RemoteEndPoint}.", socket.RemoteEndPoint);
                 return null;
             }   
         }

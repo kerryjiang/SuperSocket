@@ -98,7 +98,7 @@ namespace SuperSocket.Tests
                     configBuilder.AddInMemoryCollection(LoadMemoryConfig(new Dictionary<string, string>()));
                 }).BuildAsServer() as IServer)
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
@@ -110,7 +110,7 @@ namespace SuperSocket.Tests
                         writer.Write(CreateRequest(line));
                         writer.Flush();
 
-                        var session = await taskCompletionSource.Task.WaitAsync(TimeSpan.FromMinutes(1));
+                        var session = await taskCompletionSource.Task.WaitAsync(TimeSpan.FromMinutes(1), TestContext.Current.CancellationToken);
 
                         Assert.NotNull(session.Connection.ProxyInfo);
 
@@ -122,7 +122,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

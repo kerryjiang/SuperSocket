@@ -55,6 +55,9 @@ namespace SuperSocket.Client
         /// </summary>
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.NoCompression;
 
+        /// <summary>
+        /// Gets or sets the maximum number of objects to retain in the send pool.
+        /// </summary>
         public static int? SocketSenderPoolSize { get; set; }
 
         internal static readonly int DefaultSocketSenderPoolSize = 10;
@@ -84,8 +87,7 @@ namespace SuperSocket.Client
         /// <param name="options">The connection options to use for the client.</param>
         public EasyClient(ConnectionOptions options)
         {
-            if (options == null)
-                throw new ArgumentNullException(nameof(options));
+            ArgumentNullException.ThrowIfNull(options);
 
             Options = options;
             Logger = options.Logger;
@@ -164,13 +166,13 @@ namespace SuperSocket.Client
 
             if (state.Cancelled || cancellationToken.IsCancellationRequested)
             {
-                OnError($"The connection to {remoteEndPoint} was cancelled.", state.Exception);
+                OnError(state.Exception, "The connection to {RemoteEndPoint} was cancelled.", remoteEndPoint);
                 return false;
             }
 
             if (!state.Result)
             {
-                OnError($"Failed to connect to {remoteEndPoint}", state.Exception);
+                OnError(state.Exception, "Failed to connect to {RemoteEndPoint}", remoteEndPoint);
                 return false;
             }
 
@@ -237,7 +239,7 @@ namespace SuperSocket.Client
                 }
                 catch (Exception e)
                 {
-                    OnError($"Failed to receive UDP data.", e);
+                    OnError(e, "Failed to receive UDP data.");
                 }
                 finally
                 {
@@ -272,7 +274,7 @@ namespace SuperSocket.Client
 
                 if (task.IsFaulted)
                 {
-                    client.OnError("Failed to start receive.", task.Exception);
+                    client.OnError(task.Exception, "Failed to start receive.");
                     return;
                 }
 
@@ -319,20 +321,26 @@ namespace SuperSocket.Client
         /// <summary>
         /// Handles errors that occur during client operations.
         /// </summary>
-        /// <param name="message">The error message.</param>
         /// <param name="exception">The exception that occurred.</param>
-        protected virtual void OnError(string message, Exception exception)
+        /// <param name="message">The error message.</param>
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+        protected virtual void OnError(Exception exception, string message, params object?[] args)
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         {
-            Logger?.LogError(exception, message);
+            Logger?.LogError(exception, message, args);
         }
 
         /// <summary>
         /// Handles errors that occur during client operations.
         /// </summary>
         /// <param name="message">The error message.</param>
-        protected virtual void OnError(string message)
+        /// <param name="args">An object array that contains zero or more objects to format.</param>
+#pragma warning disable CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
+        protected virtual void OnError(string message, params object?[] args)
+#pragma warning restore CS8632 // The annotation for nullable reference types should only be used in code within a '#nullable' annotations context.
         {
-            Logger?.LogError(message);
+            Logger?.LogError(message, args);
         }
 
         ValueTask IEasyClient.SendAsync(ReadOnlyMemory<byte> data)
@@ -452,8 +460,7 @@ namespace SuperSocket.Client
         public EasyClient(IPipelineFilter<TReceivePackage> pipelineFilter, ConnectionOptions options)
             : base(options)
         {
-            if (pipelineFilter == null)
-                throw new ArgumentNullException(nameof(pipelineFilter));
+            ArgumentNullException.ThrowIfNull(pipelineFilter);
 
             _pipelineFilter = pipelineFilter;
         }
@@ -526,7 +533,7 @@ namespace SuperSocket.Client
             }
             catch (Exception e)
             {
-                OnError("Unhandled exception happened in PackageHandler.", e);
+                OnError(e, "Unhandled exception happened in PackageHandler.");
             }
         }
     }

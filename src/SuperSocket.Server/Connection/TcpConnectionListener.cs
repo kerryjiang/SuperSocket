@@ -81,7 +81,7 @@ namespace SuperSocket.Server.Connection
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"The listener[{this.ToString()}] failed to start.");
+                _logger.LogError(e, "The listener[{Listener}] failed to start.", this);
                 return false;
             }
         }
@@ -109,12 +109,12 @@ namespace SuperSocket.Server.Connection
                             || errorCode == 995  // System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request
                             || errorCode == 10004) // System.Net.Sockets.SocketException (10004): A blocking Socket call was canceled.
                         {
-                            _logger.LogDebug($"The listener[{this.ToString()}] was closed for the socket error: {errorCode}. {se.Message}");
+                            _logger.LogDebug("The listener[{Listener}] was closed for the socket error: {ErrorCode}. {Message}", this, errorCode, se.Message);
                             break;
                         }
                     }
                     
-                    _logger.LogError(e, $"Listener[{this.ToString()}] failed to do AcceptAsync");
+                    _logger.LogError(e, "Listener[{Listener}] failed to do AcceptAsync", this);
                     continue;
                 }
             }
@@ -147,7 +147,7 @@ namespace SuperSocket.Server.Connection
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Failed to create connection for {socket.RemoteEndPoint}.");
+                _logger.LogError(e, "Failed to create connection for {RemoteEndPoint}.", socket.RemoteEndPoint);
                 return;
             }            
 

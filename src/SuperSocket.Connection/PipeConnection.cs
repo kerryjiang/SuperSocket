@@ -149,7 +149,7 @@ namespace SuperSocket.Connection
                 }
 
                 // Make the data available to the PipeReader
-                var result = await writer.FlushAsync().ConfigureAwait(false);
+                var result = await writer.FlushAsync(cancellationToken).ConfigureAwait(false);
 
                 if (result.IsCompleted)
                 {

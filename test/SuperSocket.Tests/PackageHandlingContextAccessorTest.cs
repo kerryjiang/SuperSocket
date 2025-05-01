@@ -40,35 +40,35 @@ namespace SuperSocket.Tests
                 Assert.NotNull(packageHandlingContextAccessor);
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(GetDefaultServerEndPoint());
+                await client.ConnectAsync(GetDefaultServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
-                await Task.Delay(1000);
+                await Task.Delay(1000, TestContext.Current.CancellationToken);
 
                 using (var stream = new NetworkStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("TestCommand Package 1\r\n");
-                    await streamWriter.FlushAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
                     OutputHelper.WriteLine("send 'Package 1'.");
-                    var line = await streamReader.ReadLineAsync();
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("Package 1", line);
 
                     await streamWriter.WriteAsync("TestCommand Package 2\r\n");
-                    await streamWriter.FlushAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
                     OutputHelper.WriteLine("send 'Package 2'.");
-                    line = await streamReader.ReadLineAsync();
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("Package 2", line);
 
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -92,7 +92,7 @@ namespace SuperSocket.Tests
 
                     Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.AppSession, session);
                     Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.PackageInfo, package);
-                    await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"));
+                    await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"), cancellationToken);
                 }
             }
         }

@@ -87,7 +87,7 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");                
 
                 IEasyClient<HttpRequest> client;
@@ -109,7 +109,7 @@ namespace SuperSocket.Tests
                 else
                     client = new EasyClient<HttpRequest>(new HttpPipelineFilter(), logger).AsClient();
 
-                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port), TestContext.Current.CancellationToken);
                 
                 Assert.True(connected);
 
@@ -122,7 +122,7 @@ namespace SuperSocket.Tests
                 Assert.Equal("Hello World!", response.Body);
 
                 await client.CloseAsync();
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

@@ -24,7 +24,7 @@ namespace SuperSocket.Tests
         {
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
-                await session.SendAsync(Encoding.UTF8.GetBytes(session.SessionID + "\r\n"));
+                await session.SendAsync(Encoding.UTF8.GetBytes(session.SessionID + "\r\n"), cancellationToken);
             }
         }
 
@@ -107,11 +107,11 @@ namespace SuperSocket.Tests
                 Assert.Same(sessionContainerDependentService.SessionContainer, asyncSessionContainer.SessionContainer);
                 Assert.Same(sessionContainer, sessionContainerDependentService.SessionContainer);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 Assert.True(sessionStateEvent.WaitOne(1000));
@@ -125,8 +125,8 @@ namespace SuperSocket.Tests
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("SESS\r\n");
-                    await streamWriter.FlushAsync();
-                    sessionID = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    sessionID = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
 
                     Assert.False(string.IsNullOrEmpty(sessionID));
                     
@@ -142,7 +142,7 @@ namespace SuperSocket.Tests
                     Assert.Null(sessionContainer.GetSessionByID(sessionID));
                 }
                 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

@@ -8,6 +8,7 @@ using SuperSocket.Connection;
 using SuperSocket.Server.Abstractions;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Abstractions.Middleware;
+using System.Threading.Tasks;
 
 namespace SuperSocket.Server
 {
@@ -65,12 +66,16 @@ namespace SuperSocket.Server
                     {
                         try
                         {
-                            s.Connection.CloseAsync(CloseReason.TimeOut);
-                            _logger.LogWarning($"Close the idle session {s.SessionID}, it's LastActiveTime is {s.LastActiveTime}.");
+                            var t = s.Connection.CloseAsync(CloseReason.TimeOut);
+                            Task.Run(async() =>
+                            {
+                                await t;
+                            });
+                            _logger.LogWarning("Close the idle session {SessionID}, it's LastActiveTime is {LastActiveTime}.", s.SessionID, s.LastActiveTime);
                         }
                         catch (Exception exc)
                         {
-                            _logger.LogError(exc, $"Error happened when close the session {s.SessionID} for inactive for a while.");
+                            _logger.LogError(exc, "Error happened when close the session {SessionID} for inactive for a while.", s.SessionID);
                         }                        
                     }
                 }

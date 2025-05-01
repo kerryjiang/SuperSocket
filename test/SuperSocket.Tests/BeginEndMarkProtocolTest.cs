@@ -142,7 +142,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
@@ -161,7 +161,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -171,7 +171,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
 
                 for (var i = 0; i < 100; i++)
                 {
@@ -187,7 +187,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -197,7 +197,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
@@ -213,7 +213,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -223,7 +223,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
@@ -254,7 +254,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -274,7 +274,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
@@ -302,7 +302,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

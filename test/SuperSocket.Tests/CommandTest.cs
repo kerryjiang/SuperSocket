@@ -56,12 +56,12 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -69,22 +69,22 @@ namespace SuperSocket.Tests
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("ADD 1 2 3\r\n");
-                    await streamWriter.FlushAsync();
-                    var line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("6", line);
 
                     await streamWriter.WriteAsync("MULT 2 5\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("10", line);
 
                     await streamWriter.WriteAsync("SUB 8 2\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("6", line);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -101,7 +101,7 @@ namespace SuperSocket.Tests
                     commandOptions.AddCommand<ADD>();
                     commandOptions.RegisterUnknownPackageHandler<StringPackageInfo>(async (session, package, cancellationToken) =>
                     {
-                        await session.SendAsync(Encoding.UTF8.GetBytes("X\r\n"));
+                        await session.SendAsync(Encoding.UTF8.GetBytes("X\r\n"), cancellationToken);
                     });
 
                     // register all commands in one assembly
@@ -112,12 +112,12 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -125,17 +125,17 @@ namespace SuperSocket.Tests
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("ADD 1 2 3\r\n");
-                    await streamWriter.FlushAsync();
-                    var line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("6", line);
 
                     await streamWriter.WriteAsync("MULT 2 5\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("X", line);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -155,11 +155,11 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -167,12 +167,12 @@ namespace SuperSocket.Tests
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("MIN 8 6 3\r\n");
-                    await streamWriter.FlushAsync();
-                    var line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("3", line);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -192,11 +192,11 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -204,12 +204,12 @@ namespace SuperSocket.Tests
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("MIN 8 6 3\r\n");
-                    await streamWriter.FlushAsync();
-                    var line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("3", line);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -232,12 +232,12 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -245,17 +245,17 @@ namespace SuperSocket.Tests
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("POW { \"x\": 2, \"y\": 2 }\r\n");
-                    await streamWriter.FlushAsync();
-                    var line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("4", line);
 
                     await streamWriter.WriteAsync("MAX { \"numbers\": [ 45, 77, 6, 88, 46 ] }\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("88", line);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -284,12 +284,12 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -297,27 +297,27 @@ namespace SuperSocket.Tests
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
                     await streamWriter.WriteAsync("ADD 1 2 3\r\n");
-                    await streamWriter.FlushAsync();
-                    var line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("6", line);
 
                     await streamWriter.WriteAsync("MULT 2 5\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("10", line);
 
                     await streamWriter.WriteAsync("SUB 8 2\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("6", line);
 
                     await streamWriter.WriteAsync("DIV 8 2\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("4", line);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -384,7 +384,7 @@ namespace SuperSocket.Tests
 
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
-                await session.SendAsync(_encoder, "OK\r\n");
+                await session.SendAsync(_encoder, "OK\r\n", cancellationToken);
             }
         }
 
@@ -400,7 +400,7 @@ namespace SuperSocket.Tests
 
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
-                await session.SendAsync(_encoder, "OK\r\n");
+                await session.SendAsync(_encoder, "OK\r\n", cancellationToken);
             }
         }
 
@@ -434,12 +434,12 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                await client.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken);
                 OutputHelper.WriteLine("Connected.");
 
                 using (var stream = await hostConfigurator.GetClientStream(client))
@@ -451,8 +451,8 @@ namespace SuperSocket.Tests
                     for (var i = 1; i <= 100; i++)
                     {
                         await streamWriter.WriteAsync("COUNT\r\n");
-                        await streamWriter.FlushAsync();
-                        var line = await streamReader.ReadLineAsync();
+                        await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                        var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
 
                         Assert.Equal(i, sessionState.ExecutionCount);
                     }
@@ -462,8 +462,8 @@ namespace SuperSocket.Tests
                     for (var i = 99; i >= 0; i--)
                     {
                         await streamWriter.WriteAsync("COUNTDOWN\r\n");
-                        await streamWriter.FlushAsync();
-                        var line = await streamReader.ReadLineAsync();
+                        await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                        var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
 
                         Assert.Equal(i, sessionState.ExecutionCount);
                     }
@@ -471,7 +471,7 @@ namespace SuperSocket.Tests
                     Assert.Equal(currentTotal + 200, HitCountCommandFilterAttribute.Total);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -495,7 +495,7 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var dataStore = server.ServiceProvider.GetService<DataStore>();
@@ -510,7 +510,7 @@ namespace SuperSocket.Tests
                 {
                     dataStore.ResetTask();
                     await streamWriter.WriteAsync("DOUBLE\r\n");
-                    await streamWriter.FlushAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
 
                     var newValue = await dataStore.WaitNewValue();
 
@@ -518,7 +518,7 @@ namespace SuperSocket.Tests
 
                     dataStore.ResetTask();
                     await streamWriter.WriteAsync("DOUBLE\r\n");
-                    await streamWriter.FlushAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
 
                     newValue = await dataStore.WaitNewValue();
 
@@ -526,14 +526,14 @@ namespace SuperSocket.Tests
 
                     dataStore.ResetTask();
                     await streamWriter.WriteAsync("DOUBLE\r\n");
-                    await streamWriter.FlushAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
 
                     newValue = await dataStore.WaitNewValue();
 
                     Assert.Equal(8, newValue);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 

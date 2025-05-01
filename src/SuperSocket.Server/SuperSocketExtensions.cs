@@ -11,11 +11,11 @@ using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Host;
 
-/// <summary>
-/// Provides extension methods for SuperSocket components.
-/// </summary>
 namespace SuperSocket.Server
 {
+    /// <summary>
+    /// Provides extension methods for SuperSocket components.
+    /// </summary>
     public static class SuperSocketExtensions
     {
         /// <summary>
@@ -39,7 +39,7 @@ namespace SuperSocket.Server
                 var loggerFactory = server.ServiceProvider.GetService<ILoggerFactory>();
 
                 if (loggerFactory != null)
-                    loggerFactory.CreateLogger(nameof(ActiveConnect)).LogError(e, $"Failed to connect to {remoteEndpoint}");
+                    loggerFactory.CreateLogger(nameof(ActiveConnect)).LogError(e, "Failed to connect to {RemoteEndpoint}", remoteEndpoint);
 
                 return false;
             }

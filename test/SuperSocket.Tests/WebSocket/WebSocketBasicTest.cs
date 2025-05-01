@@ -32,7 +32,7 @@ namespace SuperSocket.Tests.WebSocket
     [Trait("Category", "WebSocketBasic")]
     public class WebSocketBasicTest : WebSocketServerTestBase
     {
-        private Encoding _encoding = new UTF8Encoding(false);
+        private UTF8Encoding _encoding = new UTF8Encoding(false);
 
         public WebSocketBasicTest(ITestOutputHelper outputHelper)
             : base(outputHelper)
@@ -143,7 +143,7 @@ namespace SuperSocket.Tests.WebSocket
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var websocket = new ClientWebSocket();
@@ -152,17 +152,17 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                await Task.Delay(1 * 1000);
+                await Task.Delay(1 * 1000, TestContext.Current.CancellationToken);
 
                 Assert.IsType<MyWebSocketSession>(session);
                 Assert.IsType<TestService>((session as MyWebSocketSession).TestService);
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                await Task.Delay(1 * 1000);
+                await Task.Delay(1 * 1000, TestContext.Current.CancellationToken);
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -195,7 +195,7 @@ namespace SuperSocket.Tests.WebSocket
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var path = "/app/talk";
@@ -208,18 +208,18 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                await Task.Delay(1 * 1000);
+                await Task.Delay(1 * 1000, TestContext.Current.CancellationToken);
                 // test path
                 Assert.Equal(path, serverSessionPath);
                 Assert.True(connected);
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                await Task.Delay(1 * 1000);
+                await Task.Delay(1 * 1000, TestContext.Current.CancellationToken);
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
                 Assert.False(connected);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -245,7 +245,7 @@ namespace SuperSocket.Tests.WebSocket
                 .UseInProcSessionContainer()
                 .BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var sessionContainer = server.GetSessionContainer();
@@ -273,12 +273,12 @@ namespace SuperSocket.Tests.WebSocket
                 Assert.Equal(0, server.SessionCount);
                 Assert.Equal(0, sessionContainer.GetSessionCount());
 
-                await Task.Delay(1000);
+                await Task.Delay(1000, TestContext.Current.CancellationToken);
 
                 Assert.Equal(0, websocketMiddleware.OpenHandshakePendingQueueLength);
                 Assert.Equal(0, websocketMiddleware.CloseHandshakePendingQueueLength);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -299,7 +299,7 @@ namespace SuperSocket.Tests.WebSocket
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var websocket = new ClientWebSocket();
@@ -310,7 +310,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                var data = new byte[0];
+                var data = Array.Empty<byte>();
                 var segment = new ArraySegment<byte>(data, 0, data.Length);
 
                 await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -325,7 +325,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -355,7 +355,7 @@ namespace SuperSocket.Tests.WebSocket
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var path = "/app/talk";
@@ -389,11 +389,11 @@ namespace SuperSocket.Tests.WebSocket
                 }
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
-                await Task.Delay(1 * 1000);
+                await Task.Delay(1 * 1000, TestContext.Current.CancellationToken);
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -418,13 +418,13 @@ namespace SuperSocket.Tests.WebSocket
                 return builder;
             }, hostConfigurator).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 socket.NoDelay = true;
                 var endPoint = hostConfigurator.GetServerEndPoint();
-                await socket.ConnectAsync(endPoint);
+                await socket.ConnectAsync(endPoint, TestContext.Current.CancellationToken);
                 Assert.True(socket.Connected);
                 Assert.False(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
 
@@ -434,11 +434,11 @@ namespace SuperSocket.Tests.WebSocket
                 socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.TcpKeepAliveRetryCount, 1);
                 */
 
-                await Task.Delay(1000 * 5);
+                await Task.Delay(1000 * 5, TestContext.Current.CancellationToken);
                 //Assert.False(socket.Connected);
                 Assert.True(socket.Poll(1, SelectMode.SelectRead) && socket.Available == 0);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -458,7 +458,7 @@ namespace SuperSocket.Tests.WebSocket
                 });
             }, hostConfigurator).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var tasks = Enumerable.Range(0, connCount).Select((x, y) => 
@@ -499,7 +499,7 @@ namespace SuperSocket.Tests.WebSocket
                 });
 
                 await Task.WhenAll(tasks.ToArray());
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -518,7 +518,7 @@ namespace SuperSocket.Tests.WebSocket
                 });
             }, hostConfigurator).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var websocket = new ClientWebSocket();
@@ -549,7 +549,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
                 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -569,7 +569,7 @@ namespace SuperSocket.Tests.WebSocket
                 });
             }, hostConfigurator).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var tasks = Enumerable.Range(0, connCount).Select((x, y) => 
@@ -636,7 +636,7 @@ namespace SuperSocket.Tests.WebSocket
                     Assert.True(r.Result, r.Message);
                 }
                 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -655,7 +655,7 @@ namespace SuperSocket.Tests.WebSocket
                 });
             }, hostConfigurator).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var tasks = Enumerable.Range(0, connCount).Select((x, y) => 
@@ -722,7 +722,7 @@ namespace SuperSocket.Tests.WebSocket
                     Assert.True(r.Result, r.Message);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -754,7 +754,7 @@ namespace SuperSocket.Tests.WebSocket
                 var loggerFactory = server.ServiceProvider.GetService<ILoggerFactory>();
                 var logger = loggerFactory.CreateLogger("Test");
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 logger.LogInformation("Server started.");
 
                 var tasks = Enumerable.Range(0, connCount).Select((x, y) => 
@@ -803,7 +803,7 @@ namespace SuperSocket.Tests.WebSocket
                 });
 
                 await Task.WhenAll(tasks.ToArray());
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -843,7 +843,7 @@ namespace SuperSocket.Tests.WebSocket
             }, hostConfigurator: hostConfigurator)
                 .BuildAsServer())
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
                 OutputHelper.WriteLine("Server started.");
 
                 var websocket = new ClientWebSocket();
@@ -870,7 +870,7 @@ namespace SuperSocket.Tests.WebSocket
                         var endOfMessage = rest == 0;
 
                         await websocket.SendAsync(segment, WebSocketMessageType.Text, endOfMessage, CancellationToken.None);
-                        await Task.Delay(500);
+                        await Task.Delay(500, TestContext.Current.CancellationToken);
                     }
                     
                     var receivedMessage = await GetWebSocketReply(websocket, receiveBuffer);
@@ -878,8 +878,8 @@ namespace SuperSocket.Tests.WebSocket
                 }
 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);                
-                await Task.Delay(TimeSpan.FromSeconds(1));
-                await server.StopAsync();
+                await Task.Delay(TimeSpan.FromSeconds(1), TestContext.Current.CancellationToken);
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -910,7 +910,7 @@ namespace SuperSocket.Tests.WebSocket
                 return hostBuilder;
             }, hostConfigurator).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var websocket = new ClientWebSocket();
@@ -931,7 +931,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -977,7 +977,7 @@ namespace SuperSocket.Tests.WebSocket
                     });
             }, hostConfigurator).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var websocket = new ClientWebSocket();
@@ -1022,7 +1022,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -1091,26 +1091,26 @@ namespace SuperSocket.Tests.WebSocket
 
             using(var host = hostBuilder.Build())
             {
-                await host.StartAsync();
+                await host.StartAsync(TestContext.Current.CancellationToken);
 
                 var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, DefaultServerPort));
+                await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, DefaultServerPort), TestContext.Current.CancellationToken);
                 
                 using (var stream = new NetworkStream(client))
                 using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
                 using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
                 {
-                    var line = await streamReader.ReadLineAsync();
+                    var line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal(serverName1, line);
 
                     await streamWriter.WriteAsync("MIN 8 6 3\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("3", line);
 
                     await streamWriter.WriteAsync("SORT 8 6 3\r\n");
-                    await streamWriter.FlushAsync();
-                    line = await streamReader.ReadLineAsync();
+                    await streamWriter.FlushAsync(TestContext.Current.CancellationToken);
+                    line = await streamReader.ReadLineAsync(TestContext.Current.CancellationToken);
                     Assert.Equal("SORT 3 6 8", line);
                 }
                 
@@ -1128,7 +1128,7 @@ namespace SuperSocket.Tests.WebSocket
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
-                await host.StopAsync();
+                await host.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -1146,7 +1146,7 @@ namespace SuperSocket.Tests.WebSocket
 
             using(var host = hostBuilder.Build())
             {
-                await host.StartAsync();
+                await host.StartAsync(TestContext.Current.CancellationToken);
                
                 var websocket = new ClientWebSocket();
 
@@ -1154,12 +1154,12 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                await Task.Delay(1000 * 5);
+                await Task.Delay(1000 * 5, TestContext.Current.CancellationToken);
                 
                 await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);                
                 Assert.Equal(WebSocketState.Closed, websocket.State);
 
-                await host.StopAsync();
+                await host.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -1206,7 +1206,7 @@ namespace SuperSocket.Tests.WebSocket
                     .Select(p => int.Parse(p))
                     .Sum();
 
-                await session.SendAsync(result.ToString());
+                await session.SendAsync(result.ToString(), cancellationToken);
             }
         }
 
@@ -1218,7 +1218,7 @@ namespace SuperSocket.Tests.WebSocket
                     .Select(p => int.Parse(p))
                     .Aggregate((x, y) => x * y);
 
-                await session.SendAsync(result.ToString());
+                await session.SendAsync(result.ToString(), cancellationToken);
             }
         }
 
@@ -1230,7 +1230,7 @@ namespace SuperSocket.Tests.WebSocket
                     .Select(p => int.Parse(p))
                     .Aggregate((x, y) => x - y);
 
-                await session.SendAsync(result.ToString());
+                await session.SendAsync(result.ToString(), cancellationToken);
             }
         }
 

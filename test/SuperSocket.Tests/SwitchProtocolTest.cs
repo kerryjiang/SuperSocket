@@ -127,7 +127,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                await server.StartAsync();
+                await server.StartAsync(TestContext.Current.CancellationToken);;
 
                 using (var socket = CreateClient(hostConfigurator))
                 {
@@ -139,12 +139,12 @@ namespace SuperSocket.Tests
                         writer.Write(CreateRequest(line));
                         writer.Flush();
 
-                        var receivedLine = await reader.ReadLineAsync();
+                        var receivedLine = await reader.ReadLineAsync(TestContext.Current.CancellationToken);
                         Assert.Equal(line, receivedLine);
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }
