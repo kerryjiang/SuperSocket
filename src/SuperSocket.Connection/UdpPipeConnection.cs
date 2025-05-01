@@ -160,6 +160,26 @@ namespace SuperSocket.Connection
         }
 
         /// <summary>
+        /// Sends data asynchronously using the specified buffer.
+        /// </summary>
+        /// <param name="buffer">The buffer containing the data to send.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public override async ValueTask SendAsync(ReadOnlySequence<byte> buffer, CancellationToken cancellationToken)
+        {
+            if (_enableSendingPipe)
+            {
+                await base
+                    .SendAsync(buffer, cancellationToken)
+                    .ConfigureAwait(false);
+                return;
+            }
+
+            await SendOverIOAsync(buffer, cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Sends a package asynchronously using the specified encoder and package.
         /// </summary>
         /// <typeparam name="TPackage">The type of the package.</typeparam>

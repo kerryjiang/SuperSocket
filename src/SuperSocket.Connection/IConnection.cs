@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Net;
@@ -29,6 +30,14 @@ namespace SuperSocket.Connection
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous send operation.</returns>
         ValueTask SendAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// Sends data over the connection asynchronously.
+        /// </summary>
+        /// <param name="data">The data to send.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
+        ValueTask SendAsync(ReadOnlySequence<byte> data, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Sends a package over the connection asynchronously using the specified encoder.

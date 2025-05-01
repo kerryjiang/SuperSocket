@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -200,6 +201,11 @@ namespace SuperSocket.Server
         }
 
         ValueTask IAppSession.SendAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken)
+        {
+            return _connection.SendAsync(data, cancellationToken);
+        }
+
+        ValueTask IAppSession.SendAsync(ReadOnlySequence<byte> data, CancellationToken cancellationToken)
         {
             return _connection.SendAsync(data, cancellationToken);
         }

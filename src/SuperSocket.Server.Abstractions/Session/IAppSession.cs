@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading;
@@ -23,6 +24,8 @@ namespace SuperSocket.Server.Abstractions.Session
         EndPoint LocalEndPoint { get; }
 
         ValueTask SendAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default);
+
+        ValueTask SendAsync(ReadOnlySequence<byte> data, CancellationToken cancellationToken = default);
 
         ValueTask SendAsync<TPackage>(IPackageEncoder<TPackage> packageEncoder, TPackage package, CancellationToken cancellationToken = default);
 

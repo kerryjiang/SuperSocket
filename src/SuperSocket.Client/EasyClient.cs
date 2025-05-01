@@ -340,12 +340,28 @@ namespace SuperSocket.Client
             return SendAsync(data);
         }
 
+        ValueTask IEasyClient.SendAsync(ReadOnlySequence<byte> data)
+        {
+            return SendAsync(data);
+        }
+
         /// <summary>
         /// Asynchronously sends data to the server.
         /// </summary>
         /// <param name="data">The data to send.</param>
         /// <returns>A task that represents the asynchronous send operation.</returns>
         protected virtual async ValueTask SendAsync(ReadOnlyMemory<byte> data)
+        {
+            await Connection.SendAsync(data);
+        }
+
+
+        /// <summary>
+        /// Asynchronously sends data to the server.
+        /// </summary>
+        /// <param name="data">The data to send.</param>
+        /// <returns>A task that represents the asynchronous send operation.</returns>
+        protected virtual async ValueTask SendAsync(ReadOnlySequence<byte> data)
         {
             await Connection.SendAsync(data);
         }
