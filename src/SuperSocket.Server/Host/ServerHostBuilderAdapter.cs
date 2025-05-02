@@ -182,12 +182,7 @@ namespace SuperSocket.Server.Host
             servicesInHost.AddHostedService<THostedService>(s => GetHostedService<THostedService>());
         }
 
-/// <summary>
-        /// Registers the default hosted service in the provided service collection.
-        /// </summary>
-        /// <param name="servicesInHost">The service collection to register the default hosted service in.</param>
         /// <summary>
-/// Registers the default hosted service in the provided servi/// <summary>
         /// Registers the default hosted service in the provided service collection.
         /// </summary>
         /// <param name="servicesInHost">The service collection to register the default hosted service in.</param>

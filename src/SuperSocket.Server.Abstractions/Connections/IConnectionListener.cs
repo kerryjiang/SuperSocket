@@ -6,6 +6,12 @@ using System.Threading.Tasks;
 
 namespace SuperSocket.Server.Abstractions.Connections
 {
+    /// <summary>
+    /// Represents a delegate that handles new connection accept events.
+    /// </summary>
+    /// <param name="listenOptions">The options for the listener that accepted the connection.</param>
+    /// <param name="connection">The newly accepted connection.</param>
+    /// <returns>A task that represents the asynchronous handling operation.</returns>
     public delegate ValueTask NewConnectionAcceptHandler(ListenOptions listenOptions, IConnection connection);
 
     /// <summary>

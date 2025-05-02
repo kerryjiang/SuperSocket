@@ -186,6 +186,10 @@ namespace SuperSocket.Server.Connection
             }
         }
 
+        /// <summary>
+        /// Returns a string that represents the current listener.
+        /// </summary>
+        /// <returns>A string representation of the listener's options.</returns>
         public override string ToString()
         {
             return Options?.ToString();

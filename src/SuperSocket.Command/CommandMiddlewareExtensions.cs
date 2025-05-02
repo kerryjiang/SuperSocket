@@ -5,13 +5,12 @@ using Microsoft.Extensions.DependencyInjection;
 using SuperSocket.Command;
 using SuperSocket.ProtoBase;
 using SuperSocket.Server.Abstractions.Host;
-using SuperSocket.Server.Abstractions.Middleware;
 
-/// <summary>
-/// Provides extension methods for configuring and using command middleware in a SuperSocket application.
-/// </summary>
 namespace SuperSocket.Server
 {
+    /// <summary>
+    /// Provides extension methods for configuring and using command middleware in a SuperSocket application.
+    /// </summary>
     public static class CommandMiddlewareExtensions
     {
         /// <summary>
