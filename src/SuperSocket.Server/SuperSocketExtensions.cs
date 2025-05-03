@@ -11,11 +11,11 @@ using SuperSocket.Server.Abstractions.Connections;
 using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Host;
 
-/// <summary>
-/// Provides extension methods for SuperSocket components.
-/// </summary>
 namespace SuperSocket.Server
 {
+    /// <summary>
+    /// Provides extension methods for SuperSocket components.
+    /// </summary>
     public static class SuperSocketExtensions
     {
         /// <summary>

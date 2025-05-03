@@ -88,6 +88,14 @@ namespace SuperSocket.WebSocket.Server
             }) as ISuperSocketHostBuilder<WebSocketPackage>;
         } 
 
+        /// <summary>
+        /// Configures command handling for the WebSocket host builder with options.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
+        /// <typeparam name="TPackageMapper">The type of the package mapper.</typeparam>
+        /// <param name="builder">The WebSocket host builder.</param>
+        /// <param name="configurator">The action to configure command options.</param>
+        /// <returns>The configured WebSocket host builder.</returns>
         public static ISuperSocketHostBuilder<WebSocketPackage> UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder, Action<CommandOptions> configurator)
             where TPackageInfo : class
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>, new()
@@ -99,6 +107,15 @@ namespace SuperSocket.WebSocket.Server
                 }) as ISuperSocketHostBuilder<WebSocketPackage>;
         }
 
+        /// <summary>
+        /// Configures command handling for the WebSocket host builder with a specific protocol.
+        /// </summary>
+        /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
+        /// <typeparam name="TPackageMapper">The type of the package mapper.</typeparam>
+        /// <param name="builder">The WebSocket host builder.</param>
+        /// <param name="protocol">The WebSocket sub-protocol to handle.</param>
+        /// <param name="commandOptionsAction">Optional action to configure command options.</param>
+        /// <returns>The configured WebSocket host builder.</returns>
         public static ISuperSocketHostBuilder<WebSocketPackage> UseCommand<TPackageInfo, TPackageMapper>(this ISuperSocketHostBuilder<WebSocketPackage> builder, string protocol, Action<CommandOptions> commandOptionsAction = null)
             where TPackageInfo : class
             where TPackageMapper : class, IPackageMapper<WebSocketPackage, TPackageInfo>
@@ -132,11 +149,24 @@ namespace SuperSocket.WebSocket.Server
              });
         }
 
+        /// <summary>
+        /// Adds a WebSocket server to the multiple server host builder.
+        /// </summary>
+        /// <param name="hostBuilder">The multiple server host builder.</param>
+        /// <param name="hostBuilderDelegate">The delegate to configure the WebSocket host builder.</param>
+        /// <returns>The multiple server host builder.</returns>
         public static MultipleServerHostBuilder AddWebSocketServer(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
         {
             return hostBuilder.AddWebSocketServer<SuperSocketService<WebSocketPackage>>(hostBuilderDelegate);
         }
 
+        /// <summary>
+        /// Adds a WebSocket server to the multiple server host builder with a specific service type.
+        /// </summary>
+        /// <typeparam name="TWebSocketService">The type of the WebSocket service.</typeparam>
+        /// <param name="hostBuilder">The multiple server host builder.</param>
+        /// <param name="hostBuilderDelegate">The delegate to configure the WebSocket host builder.</param>
+        /// <returns>The multiple server host builder.</returns>
         public static MultipleServerHostBuilder AddWebSocketServer<TWebSocketService>(this MultipleServerHostBuilder hostBuilder, Action<ISuperSocketHostBuilder<WebSocketPackage>> hostBuilderDelegate)
             where TWebSocketService : SuperSocketService<WebSocketPackage>
         {
@@ -151,6 +181,11 @@ namespace SuperSocket.WebSocket.Server
             return hostBuilder;
         }
 
+        /// <summary>
+        /// Converts an IHostBuilder to a WebSocketHostBuilder.
+        /// </summary>
+        /// <param name="hostBuilder">The host builder.</param>
+        /// <returns>The WebSocket host builder.</returns>
         public static WebSocketHostBuilder AsWebSocketHostBuilder(this IHostBuilder hostBuilder)
         {
             return WebSocketHostBuilder.Create(hostBuilder);

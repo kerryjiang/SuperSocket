@@ -5,6 +5,9 @@ using SuperSocket.ProtoBase;
 
 namespace SuperSocket.WebSocket
 {
+    /// <summary>
+    /// Extension methods for WebSocket implementation.
+    /// </summary>
     public static partial class ExtensionMethods
     {
         private readonly static char[] m_CrCf = new char[] { '\r', '\n' };
