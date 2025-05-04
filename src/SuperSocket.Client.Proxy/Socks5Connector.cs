@@ -52,6 +52,12 @@ namespace SuperSocket.Client.Proxy
             _authenHandshakeRequest = AuthenHandshake;
         }
 
+        /// <summary>
+        /// Connects to the specified remote endpoint through the SOCKS5 proxy.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote endpoint to connect to.</param>
+        /// <param name="state">The connection state from the previous connector.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var connection = state.CreateConnection(new ConnectionOptions { ReadAsDemand = true });
@@ -288,36 +294,76 @@ namespace SuperSocket.Client.Proxy
             AuthEndPoint,
         }
 
+        /// <summary>
+        /// Represents the address type used in SOCKS5 protocol.
+        /// </summary>
         public class Socks5Address
         {
+            /// <summary>
+            /// Gets or sets the IP address.
+            /// </summary>
             public IPAddress IPAddress { get; set; }
 
+            /// <summary>
+            /// Gets or sets the domain name.
+            /// </summary>
             public string DomainName { get; set; }
         }
 
+        /// <summary>
+        /// Represents a SOCKS5 packet.
+        /// </summary>
         public class Socks5Pack
         {
+            /// <summary>
+            /// Gets or sets the version of the SOCKS5 protocol.
+            /// </summary>
             public byte Version { get; set; }
 
+            /// <summary>
+            /// Gets or sets the status of the SOCKS5 connection.
+            /// </summary>
             public byte Status { get; set; }
 
+            /// <summary>
+            /// Gets or sets the reserved byte.
+            /// </summary>
             public byte Reserve { get; set; }
 
+            /// <summary>
+            /// Gets or sets the destination address.
+            /// </summary>
             public Socks5Address DestAddr { get; set; }
 
+            /// <summary>
+            /// Gets or sets the destination port.
+            /// </summary>
             public short DestPort { get; set; }
         }
 
+        /// <summary>
+        /// Represents a pipeline filter for SOCKS5 authentication.
+        /// </summary>
         public class Socks5AuthPipelineFilter : FixedSizePipelineFilter<Socks5Pack>
         {
+            /// <summary>
+            /// Gets or sets the authentication step.
+            /// </summary>
             public int AuthStep { get; set; }
 
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Socks5AuthPipelineFilter"/> class.
+            /// </summary>
             public Socks5AuthPipelineFilter()
                 : base(2)
             {
 
             }
 
+            /// <summary>
+            /// Gets the body length from the header.
+            /// </summary>
+            /// <param name="buffer">The buffer containing the header.</param>
             protected override Socks5Pack DecodePackage(ref ReadOnlySequence<byte> buffer)
             {
                 var reader = new SequenceReader<byte>(buffer);
@@ -337,14 +383,24 @@ namespace SuperSocket.Client.Proxy
             }
         }
 
+        /// <summary>
+        /// Represents a pipeline filter for SOCKS5 address.
+        /// </summary>
         public class Socks5AddressPipelineFilter : FixedHeaderPipelineFilter<Socks5Pack>
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="Socks5AddressPipelineFilter"/> class.
+            /// </summary>
             public Socks5AddressPipelineFilter()
                 : base(5)
             {
 
             }
 
+            /// <summary>
+            /// Gets the body length from the header.
+            /// </summary>
+            /// <param name="buffer">The buffer containing the header.</param>
             protected override int GetBodyLengthFromHeader(ref ReadOnlySequence<byte> buffer)
             {
                 var reader = new SequenceReader<byte>(buffer);
@@ -366,6 +422,10 @@ namespace SuperSocket.Client.Proxy
                 throw new Exception($"Unsupported addressType: {addressType}");
             }
 
+            /// <summary>
+            /// Decodes the package from the buffer.
+            /// </summary>
+            /// <param name="buffer">The buffer containing the package data.</param>
             protected override Socks5Pack DecodePackage(ref ReadOnlySequence<byte> buffer)
             {
                 var reader = new SequenceReader<byte>(buffer);
