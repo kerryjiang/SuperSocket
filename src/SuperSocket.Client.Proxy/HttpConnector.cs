@@ -41,6 +41,17 @@ namespace SuperSocket.Client.Proxy
             _password = password;
         }
 
+        /// <summary>
+        /// Connects to the specified remote endpoint through the HTTP proxy.
+        /// </summary>
+        /// <param name="remoteEndPoint">The remote endpoint to connect to.</param>
+        /// <param name="state">The connection state from the previous connector.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task representing the asynchronous connection operation. The result contains information about the connection status.</returns>
+        /// <remarks>
+        /// This method establishes a connection to the remote endpoint through the HTTP proxy using the CONNECT method.
+        /// It supports both DNS and IP endpoint types and handles proxy authentication if credentials are provided.
+        /// </remarks>
         protected override async ValueTask<ConnectState> ConnectProxyAsync(EndPoint remoteEndPoint, ConnectState state, CancellationToken cancellationToken)
         {
             var encoding = Encoding.ASCII;
@@ -100,6 +111,16 @@ namespace SuperSocket.Client.Proxy
             return state;
         }
 
+        /// <summary>
+        /// Processes the HTTP response from the proxy server.
+        /// </summary>
+        /// <param name="p">The text package containing the HTTP response.</param>
+        /// <param name="message">When this method returns, contains an error message if the response is invalid; otherwise, an empty string.</param>
+        /// <returns><c>true</c> if the response indicates a successful connection; otherwise, <c>false</c>.</returns>
+        /// <remarks>
+        /// A successful response should have a status code in the 2xx range (200-299).
+        /// This method validates the format of the HTTP response and extracts the status code.
+        /// </remarks>
         private bool HandleResponse(TextPackageInfo p, out string message)
         {
             message = string.Empty;

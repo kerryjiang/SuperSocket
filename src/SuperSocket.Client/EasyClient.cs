@@ -55,8 +55,14 @@ namespace SuperSocket.Client
         /// </summary>
         public CompressionLevel CompressionLevel { get; set; } = CompressionLevel.NoCompression;
 
+        /// <summary>
+        /// Gets or sets the size of the socket sender pool.
+        /// </summary>
         public static int? SocketSenderPoolSize { get; set; }
 
+        /// <summary>
+        /// The default size of the socket sender pool.
+        /// </summary>
         internal static readonly int DefaultSocketSenderPoolSize = 10;
 
         private bool _continuousReceivingStarted = false;
