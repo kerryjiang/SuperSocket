@@ -61,7 +61,7 @@ namespace SuperSocket.Server.Abstractions
             }
             else if (!string.IsNullOrEmpty(Thumbprint)) // Load certificate from certificate store
             {
-                using var store = new X509Store((StoreName)Enum.Parse(typeof(StoreName), StoreName), StoreLocation);
+                using var store = new X509Store(Enum.Parse<StoreName>(StoreName), StoreLocation);
 
                 store.Open(OpenFlags.ReadOnly);
 
