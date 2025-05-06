@@ -265,7 +265,7 @@ namespace SuperSocket.Connection
             {
                 await SendLock.WaitAsync(cancellationToken).ConfigureAwait(false);
                 sendLockAcquired = true;
-                await WriteBufferAsync(OutputWriter, buffer);
+                await WriteBufferAsync(OutputWriter, buffer).ConfigureAwait(false);
                 await OutputWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             finally
@@ -286,14 +286,14 @@ namespace SuperSocket.Connection
             CheckConnectionSendAllowed();
             if (buffer.IsSingleSegment)
             {
-                await writer.WriteAsync(buffer.First);
+                await writer.WriteAsync(buffer.First).ConfigureAwait(false);
             }
             else
             {
                 foreach (var memory in buffer)
                 {
-                    await writer.WriteAsync(memory);
-                    await writer.FlushAsync();
+                    await writer.WriteAsync(memory).ConfigureAwait(false);
+                    await writer.FlushAsync().ConfigureAwait(false);
                 }
             }
         }

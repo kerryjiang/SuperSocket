@@ -80,17 +80,17 @@ namespace SuperSocket.Connection
         /// <param name="e">The <see cref="SocketAsyncEventArgs"/> instance containing event data.</param>
         protected override void OnCompleted(SocketAsyncEventArgs e)
         {
-            var continuation = _continuation;
+            var continuation = Interlocked.CompareExchange(ref _continuation, _continuationCompleted, null);
 
-            if (continuation != null || Interlocked.CompareExchange(ref _continuation, _continuationCompleted, null) != null)
+            // Trigger continuation action if it is set.
+            if (continuation != null)
             {
                 var state = UserToken;
-                UserToken = null;
-
                 _continuation = _continuationCompleted;
-
                 ThreadPool.UnsafeQueueUserWorkItem(continuation, state, false);
             }
+
+            UserToken = null;
         }
 
         /// <summary>
