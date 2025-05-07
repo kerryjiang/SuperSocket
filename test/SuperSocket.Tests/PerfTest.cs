@@ -36,7 +36,7 @@ namespace SuperSocket.Tests
             {
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Started.");
 
                 using var cancellationTokenSource = new CancellationTokenSource();
@@ -48,9 +48,9 @@ namespace SuperSocket.Tests
 
                 cancellationTokenSource.CancelAfter(runTime);
 
-                await Task.Delay(runTime);
+                await Task.Delay(runTime, CancellationToken.None);
 
-                var rounds = await Task.WhenAll(tasks).WaitAsync(TimeSpan.FromSeconds(10));
+                var rounds = await Task.WhenAll(tasks).WaitAsync(TimeSpan.FromSeconds(10), CancellationToken.None);
 
                 OutputHelper.WriteLine($"Total rounds: {rounds.Sum()}.");
             }
