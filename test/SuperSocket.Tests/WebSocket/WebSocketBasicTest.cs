@@ -270,16 +270,12 @@ namespace SuperSocket.Tests.WebSocket
                     Assert.Equal(WebSocketState.Closed, websocket.State);
                 });
 
-                Assert.True(0 == server.SessionCount, $"server.SessionCount: {server.SessionCount}");
                 Assert.Equal(0, server.SessionCount);
-                Assert.True(0 == sessionContainer.GetSessionCount(), $"sessionContainer.GetSessionCount(): {sessionContainer.GetSessionCount()}");
                 Assert.Equal(0, sessionContainer.GetSessionCount());
 
                 await Task.Delay(1000, CancellationToken.None);
 
-                Assert.True(0 == websocketMiddleware.OpenHandshakePendingQueueLength, $"websocketMiddleware.OpenHandshakePendingQueueLength: {websocketMiddleware.OpenHandshakePendingQueueLength}");
                 Assert.Equal(0, websocketMiddleware.OpenHandshakePendingQueueLength);
-                Assert.True(0 == websocketMiddleware.CloseHandshakePendingQueueLength, $"websocketMiddleware.CloseHandshakePendingQueueLength: {websocketMiddleware.CloseHandshakePendingQueueLength}");
                 Assert.Equal(0, websocketMiddleware.CloseHandshakePendingQueueLength);
 
                 await server.StopAsync(TestContext.Current.CancellationToken);
