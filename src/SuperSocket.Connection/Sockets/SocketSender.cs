@@ -82,15 +82,23 @@ namespace SuperSocket.Connection
         {
             var continuation = Interlocked.CompareExchange(ref _continuation, _continuationCompleted, null);
 
-            // Trigger continuation action if it is set.
-            if (continuation != null)
+            if (continuation == null)
             {
-                var state = UserToken;
-                _continuation = _continuationCompleted;
-                ThreadPool.UnsafeQueueUserWorkItem(continuation, state, false);
+                // If the continuation is null, it means no continuation action to invoke
+                // and the user token should be cleared if it was set.
+                UserToken = null;
+                return;
             }
 
+
+            var state = UserToken;
+
+            // Clear the UserToken to avoid being used twice
             UserToken = null;
+            // Set the continuation to completed before queueing the work item
+            _continuation = _continuationCompleted;
+            // Use preferLocal=true for consistency with OnCompleted method
+            ThreadPool.UnsafeQueueUserWorkItem(continuation, state, preferLocal: true);
         }
 
         /// <summary>
@@ -100,7 +108,9 @@ namespace SuperSocket.Connection
         /// <returns>The number of bytes transferred.</returns>
         public int GetResult(short token)
         {
+            // Clear both continuation and state
             _continuation = null;
+            UserToken = null;
             return BytesTransferred;
         }
 
@@ -128,14 +138,19 @@ namespace SuperSocket.Connection
         /// <param name="flags">Flags that control the behavior of the continuation.</param>
         public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
         {
+            // Store the state first
             UserToken = state;
-
+            
+            // Try to set the continuation
             var prevContinuation = Interlocked.CompareExchange(ref _continuation, continuation, null);
 
-            // The task has already completed, so trigger continuation immediately
+            // If the operation has already completed, the continuation would be _continuationCompleted
             if (ReferenceEquals(prevContinuation, _continuationCompleted))
             {
+                // Clear the state since we'll invoke the continuation directly
                 UserToken = null;
+                
+                // Queue the continuation with preferLocal=true for better performance
                 ThreadPool.UnsafeQueueUserWorkItem(continuation, state, preferLocal: true);
             }
         }
