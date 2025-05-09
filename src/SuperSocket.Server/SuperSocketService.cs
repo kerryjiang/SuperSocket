@@ -569,7 +569,7 @@ namespace SuperSocket.Server
 
             try
             {
-                var pipelineFilter = _pipelineFilterFactory.Create(connection);
+                var pipelineFilter = _pipelineFilterFactory.Create();
                 pipelineFilter.Context = CreatePipelineContext(session);
 
                 var packageStream = connection.RunAsync<TReceivePackageInfo>(pipelineFilter);

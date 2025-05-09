@@ -9,9 +9,8 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Creates a pipeline filter for the specified client.
         /// </summary>
-        /// <param name="client">The client for which the pipeline filter is created.</param>
         /// <returns>The created pipeline filter.</returns>
-        IPipelineFilter<TPackageInfo> Create(object client);
+        IPipelineFilter<TPackageInfo> Create();
     }
 
     /// <summary>
@@ -22,8 +21,7 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Creates a pipeline filter for the specified client.
         /// </summary>
-        /// <param name="client">The client for which the pipeline filter is created.</param>
         /// <returns>The created pipeline filter.</returns>
-        IPipelineFilter Create(object client);
+        IPipelineFilter Create();
     }
 }

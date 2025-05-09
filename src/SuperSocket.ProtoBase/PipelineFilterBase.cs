@@ -12,7 +12,7 @@ namespace SuperSocket.ProtoBase
         /// <summary>
         /// Gets or sets the next pipeline filter in the chain.
         /// </summary>
-        public IPipelineFilter<TPackageInfo> NextFilter { get; protected set; }
+        public IPipelineFilter<TPackageInfo> NextFilter { get; set; }
 
         /// <summary>
         /// Gets or sets the package decoder used by the pipeline filter.
