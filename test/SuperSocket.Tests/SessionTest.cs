@@ -21,6 +21,7 @@ using System.Threading;
 using System.Buffers;
 using Microsoft.Extensions.Logging.Abstractions;
 using static SuperSocket.Tests.FixedHeaderProtocolTest;
+using SuperSocket.Server.Abstractions.Middleware;
 
 namespace SuperSocket.Tests
 {
@@ -49,7 +50,7 @@ namespace SuperSocket.Tests
                 Next = segment;
                 return segment;
             }
-        }
+        }        
 
         [Fact]
         public async Task TestSessionEvents() 
@@ -488,5 +489,150 @@ namespace SuperSocket.Tests
             }
         }
 
+        /// <summary>
+        /// A middleware that can reject sessions during registration
+        /// </summary>
+        private class RejectingMiddleware : IMiddleware
+        {
+            private readonly Func<IAppSession, bool> _rejectPredicate;
+
+            public RejectingMiddleware(Func<IAppSession, bool> rejectPredicate)
+            {
+                _rejectPredicate = rejectPredicate;
+            }
+
+            public int Order => 0;
+
+            public ValueTask<bool> RegisterSession(IAppSession session)
+            {
+                // Reject the session if the predicate returns true
+                return new ValueTask<bool>(!_rejectPredicate(session));
+            }
+
+            public ValueTask<bool> UnRegisterSession(IAppSession session)
+            {
+                return new ValueTask<bool>(true);
+            }
+
+            public void Shutdown(IServer server)
+            {
+                // Nothing to do
+            }
+
+            public void Start(IServer server)
+            {
+                // Nothing to do
+            }
+        }
+
+        [Fact]
+        public async Task TestSessionRejectedByMiddleware()
+        {
+            var hostConfigurator = new RegularHostConfigurator();
+            var connectionCounter = 0;
+            var rejectionCounter = 0;
+            CloseReason lastCloseReason = CloseReason.Unknown;
+            var connectionEvent = new AutoResetEvent(false);
+            var closedEvent = new AutoResetEvent(false);
+
+            // Create a predicate that rejects every other session
+            Func<IAppSession, bool> rejectPredicate = (session) => 
+            {
+                return connectionCounter % 2 == 1; // Reject odd-numbered connections
+            };
+
+            using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
+                .ConfigureServices((ctx, services) =>
+                {
+                    // Register our middleware that will reject certain sessions
+                    services.AddSingleton<IMiddleware>(new RejectingMiddleware(rejectPredicate));
+                })
+                .UseSessionHandler(
+                    onConnected: (s) =>
+                    {
+                        Interlocked.Increment(ref connectionCounter);
+                        connectionEvent.Set();
+                        return ValueTask.CompletedTask;
+                    },
+                    onClosed: (s, e) =>
+                    {
+                        lastCloseReason = e.Reason;
+                        if (e.Reason == CloseReason.Rejected)
+                        {
+                            Interlocked.Increment(ref rejectionCounter);
+                        }
+                        closedEvent.Set();
+                        return ValueTask.CompletedTask;
+                    })
+                .BuildAsServer())
+            {
+                Assert.Equal("TestServer", server.Name);
+                Assert.True(await server.StartAsync());
+                OutputHelper.WriteLine("Server started.");
+
+                // First connection (should be accepted)
+                using (var socket1 = hostConfigurator.CreateClient())
+                {
+                    await socket1.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                    OutputHelper.WriteLine("First client connected.");
+                    
+                    // Wait for connection event
+                    Assert.True(connectionEvent.WaitOne(1000));
+                    Assert.Equal(1, connectionCounter);
+                    Assert.Equal(0, rejectionCounter);
+
+                    // Close the connection
+                    socket1.Shutdown(SocketShutdown.Both);
+                    socket1.Close();
+                    
+                    // Wait for closed event
+                    Assert.True(closedEvent.WaitOne(1000));
+                }
+
+                // Second connection (should be rejected)
+                using (var socket2 = hostConfigurator.CreateClient())
+                {
+                    await socket2.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                    OutputHelper.WriteLine("Second client connected (should be rejected).");
+                    
+                    // Wait for closed event (no connection event should happen)
+                    Assert.True(closedEvent.WaitOne(1000));
+                    
+                    // Verify rejection happened
+                    Assert.Equal(1, connectionCounter); // Should still be 1 because the second connection was rejected
+                    Assert.Equal(1, rejectionCounter);
+                    Assert.Equal(CloseReason.Rejected, lastCloseReason);
+
+                    // Close the connection
+                    socket2.Shutdown(SocketShutdown.Both);
+                    socket2.Close();
+                }
+
+                // Third connection (should be accepted)
+                using (var socket3 = hostConfigurator.CreateClient())
+                {
+                    await socket3.ConnectAsync(hostConfigurator.GetServerEndPoint());
+                    OutputHelper.WriteLine("Third client connected.");
+                    
+                    // Reset events
+                    connectionEvent.Reset();
+                    closedEvent.Reset();
+                    
+                    // Wait for connection event
+                    Assert.True(connectionEvent.WaitOne(1000));
+                    Assert.Equal(2, connectionCounter);
+                    Assert.Equal(1, rejectionCounter);
+                    
+                    // Close the connection
+                    socket3.Shutdown(SocketShutdown.Both);
+                    socket3.Close();
+                    
+                    // Wait for closed event
+                    Assert.True(closedEvent.WaitOne(1000));
+                }
+
+                await server.StopAsync();
+            }
+        }
     }
 }
