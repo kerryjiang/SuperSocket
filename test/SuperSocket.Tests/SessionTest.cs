@@ -573,7 +573,6 @@ namespace SuperSocket.Tests
                 // First connection (should be accepted)
                 using (var socket1 = hostConfigurator.CreateClient())
                 {
-                    await socket1.ConnectAsync(hostConfigurator.GetServerEndPoint());
                     OutputHelper.WriteLine("First client connected.");
                     
                     // Wait for connection event
@@ -592,7 +591,6 @@ namespace SuperSocket.Tests
                 // Second connection (should be rejected)
                 using (var socket2 = hostConfigurator.CreateClient())
                 {
-                    await socket2.ConnectAsync(hostConfigurator.GetServerEndPoint());
                     OutputHelper.WriteLine("Second client connected (should be rejected).");
                     
                     // Wait for closed event (no connection event should happen)
@@ -611,7 +609,6 @@ namespace SuperSocket.Tests
                 // Third connection (should be accepted)
                 using (var socket3 = hostConfigurator.CreateClient())
                 {
-                    await socket3.ConnectAsync(hostConfigurator.GetServerEndPoint());
                     OutputHelper.WriteLine("Third client connected.");
                     
                     // Reset events
