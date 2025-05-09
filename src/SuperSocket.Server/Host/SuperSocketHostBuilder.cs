@@ -256,20 +256,20 @@ namespace SuperSocket.Server.Host
             var hasDefaultConstructor = typeof(TPipelineFilter).GetConstructor(Type.EmptyTypes) != null;
 
             return this.ConfigureServices((ctx, services) =>
-            {
-                if (hasDefaultConstructor)
                 {
-                    services.AddSingleton(
-                        serviceType: typeof(IPipelineFilter<TReceivePackage>),
-                        implementationType: typeof(DefaultConstructorPipelineFilterFactory<,>).MakeGenericType(typeof(TReceivePackage), typeof(TPipelineFilter)));
-                }
-                else
-                {
-                    services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
-                }
+                    if (hasDefaultConstructor)
+                    {
+                        services.AddSingleton(
+                            serviceType: typeof(IPipelineFilterFactory<TReceivePackage>),
+                            implementationType: typeof(DefaultConstructorPipelineFilterFactory<,>).MakeGenericType(typeof(TReceivePackage), typeof(TPipelineFilter)));
+                    }
+                    else
+                    {
+                        services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
+                    }
 
-                services.AddSingleton<IPipelineFilterFactory>(serviceProvider => serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackage>>() as IPipelineFilterFactory);
-            });
+                    services.AddSingleton<IPipelineFilterFactory>(serviceProvider => serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackage>>() as IPipelineFilterFactory);
+                });
         }
 
         /// <summary>
