@@ -253,11 +253,23 @@ namespace SuperSocket.Server.Host
         public virtual ISuperSocketHostBuilder<TReceivePackage> UsePipelineFilter<TPipelineFilter>()
             where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
         {
+            var hasDefaultConstructor = typeof(TPipelineFilter).GetConstructor(Type.EmptyTypes) != null;
+
             return this.ConfigureServices((ctx, services) =>
-            {
-                services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
-                services.AddSingleton<IPipelineFilterFactory>(serviceProvider => serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackage>>() as IPipelineFilterFactory);
-            });
+                {
+                    if (hasDefaultConstructor)
+                    {
+                        services.AddSingleton(
+                            serviceType: typeof(IPipelineFilterFactory<TReceivePackage>),
+                            implementationType: typeof(DefaultConstructorPipelineFilterFactory<,>).MakeGenericType(typeof(TReceivePackage), typeof(TPipelineFilter)));
+                    }
+                    else
+                    {
+                        services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
+                    }
+
+                    services.AddSingleton<IPipelineFilterFactory>(serviceProvider => serviceProvider.GetRequiredService<IPipelineFilterFactory<TReceivePackage>>() as IPipelineFilterFactory);
+                });
         }
 
         /// <summary>

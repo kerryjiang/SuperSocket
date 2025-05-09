@@ -25,7 +25,7 @@ namespace SuperSocket.Tests
 
         protected override IServer CreateServer(IHostConfigurator hostConfigurator)
         {
-            var server = CreateSocketServerBuilder<TextPackageInfo>((x) => new TerminatorTextPipelineFilter(new[] { (byte)'#', (byte)'#' }), hostConfigurator)
+            var server = CreateSocketServerBuilder<TextPackageInfo>(() => new TerminatorTextPipelineFilter(new[] { (byte)'#', (byte)'#' }), hostConfigurator)
                 .UsePackageHandler(async (s, p) =>
                 {
                     await s.SendAsync(Utf8Encoding.GetBytes(p.Text + "\r\n"));
