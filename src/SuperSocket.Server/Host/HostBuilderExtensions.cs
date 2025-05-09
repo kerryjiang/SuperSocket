@@ -63,12 +63,12 @@ namespace SuperSocket.Server.Host
         /// <param name="hostBuilder">The host builder to configure.</param>
         /// <param name="filterFactory">The factory function to create pipeline filters.</param>
         /// <returns>The configured host builder.</returns>
-        public static ISuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<object, IPipelineFilter<TReceivePackage>> filterFactory)
+        public static ISuperSocketHostBuilder<TReceivePackage> UsePipelineFilterFactory<TReceivePackage>(this ISuperSocketHostBuilder<TReceivePackage> hostBuilder, Func<IPipelineFilter<TReceivePackage>> filterFactory)
         {
             hostBuilder.ConfigureServices(
                 (hostCtx, services) =>
                 {
-                    services.AddSingleton<Func<object, IPipelineFilter<TReceivePackage>>>(filterFactory);
+                    services.AddSingleton<Func<IPipelineFilter<TReceivePackage>>>(filterFactory);
                 }
             );
 
