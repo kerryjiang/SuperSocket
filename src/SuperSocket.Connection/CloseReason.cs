@@ -51,6 +51,11 @@ namespace SuperSocket.Connection
         /// The connection is closed due to an internal error in SuperSocket.
         /// </summary>
         InternalError = 8,
+
+        /// <summary>
+        /// The connection is closed because it was rejected.
+        /// </summary>
+        Rejected = 9
     }
 
     /// <summary>

@@ -419,7 +419,10 @@ namespace SuperSocket.Server
             try
             {
                 if (!await RegisterSessionInMiddlewares(session))
+                {
+                    session.CloseAsync(CloseReason.Rejected).DoNotAwait();
                     return false;
+                }
             }
             catch (Exception e)
             {
