@@ -38,6 +38,7 @@ namespace SuperSocket.Connection
         public SocketSender(PipeScheduler pipeScheduler)
             : base(unsafeSuppressExecutionContextFlow: true)
         {
+            _pipeScheduler = pipeScheduler;
         }
 
         /// <summary>
