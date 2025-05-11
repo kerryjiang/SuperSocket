@@ -185,6 +185,8 @@ namespace SuperSocket.Connection
 
             if (_connectionTask is Task connectionTask)
                 await connectionTask.ConfigureAwait(false);
+            else // the communication over this connection has not been started yet, so fire the close event directly.
+                FireClose();
         }
 
         /// <summary>
