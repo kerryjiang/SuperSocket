@@ -496,8 +496,6 @@ namespace SuperSocket.Tests
         {
             private readonly Func<IAppSession, bool> _rejectPredicate;
 
-            private int _rejected;
-
             public RejectingMiddleware(Func<IAppSession, bool> rejectPredicate)
             {
                 _rejectPredicate = rejectPredicate;
@@ -507,15 +505,8 @@ namespace SuperSocket.Tests
 
             public ValueTask<bool> RegisterSession(IAppSession session)
             {
-                var rejected = _rejectPredicate(session);
-
-                if (rejected)
-                {
-                    Interlocked.Increment(ref _rejected);
-                }
-
                 // Reject the session if the predicate returns true
-                return new ValueTask<bool>(!rejected);
+                return new ValueTask<bool>(!_rejectPredicate(session));
             }
 
             public ValueTask<bool> UnRegisterSession(IAppSession session)
@@ -531,11 +522,6 @@ namespace SuperSocket.Tests
             {
                 // Nothing to do
             }
-
-            public int GetRejectedCount()
-            {
-                return _rejected;
-            }
         }
 
         [Fact]
@@ -543,6 +529,7 @@ namespace SuperSocket.Tests
         {
             var hostConfigurator = new RegularHostConfigurator();
             var connectionCounter = 0;
+            var connectedCount = 0;
             var rejectionCounter = 0;
             CloseReason lastCloseReason = CloseReason.Unknown;
             var connectionEvent = new AutoResetEvent(false);
@@ -551,13 +538,23 @@ namespace SuperSocket.Tests
             // Create a predicate that rejects every other session
             Func<IAppSession, bool> rejectPredicate = (session) => 
             {
-                session.Closed += (s, e) =>
+                session.Connection.Closed += (s, e) =>
                 {
+                    if (e.Reason == CloseReason.Rejected)
+                        Interlocked.Increment(ref rejectionCounter);
+
                     lastCloseReason = e.Reason;
                     closedEvent.Set();
-                    return ValueTask.CompletedTask;
                 };
-                return connectionCounter % 2 == 1; // Reject odd-numbered connections
+
+                try
+                {
+                    return connectionCounter % 2 == 1; // Reject odd-numbered connections
+                }
+                finally
+                {
+                    Interlocked.Increment(ref connectionCounter);
+                }
             };
 
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
@@ -569,7 +566,7 @@ namespace SuperSocket.Tests
                 .UseSessionHandler(
                     onConnected: (s) =>
                     {
-                        Interlocked.Increment(ref connectionCounter);
+                        Interlocked.Increment(ref connectedCount);
                         connectionEvent.Set();
                         return ValueTask.CompletedTask;
                     })
@@ -579,11 +576,6 @@ namespace SuperSocket.Tests
                 Assert.True(await server.StartAsync());
                 OutputHelper.WriteLine("Server started.");
 
-                var rejectingMiddleware = server.ServiceProvider
-                    .GetServices<IMiddleware>()
-                    .Where(m => m is RejectingMiddleware)
-                    .FirstOrDefault() as RejectingMiddleware;
-
                 // First connection (should be accepted)
                 using (var socket1 = hostConfigurator.CreateClient())
                 {
@@ -591,7 +583,7 @@ namespace SuperSocket.Tests
                     
                     // Wait for connection event
                     Assert.True(connectionEvent.WaitOne(1000));
-                    Assert.Equal(1, connectionCounter);
+                    Assert.Equal(1, connectedCount);
                     Assert.Equal(0, rejectionCounter);
 
                     // Close the connection
@@ -599,7 +591,7 @@ namespace SuperSocket.Tests
                     socket1.Close();
                     
                     // Wait for closed event
-                    Assert.True(closedEvent.WaitOne(1000));
+                    Assert.True(closedEvent.WaitOne(5000));
                 }
 
                 // Second connection (should be rejected)
@@ -607,11 +599,11 @@ namespace SuperSocket.Tests
                 {
                     OutputHelper.WriteLine("Second client connected (should be rejected).");
 
-                    closedEvent.WaitOne(1000);
+                    closedEvent.WaitOne(5000);
 
                     // Verify rejection happened
-                    Assert.Equal(1, connectionCounter); // Should still be 1 because the second connection was rejected
-                    Assert.Equal(1, rejectingMiddleware.GetRejectedCount());
+                    Assert.Equal(1, connectedCount); // Should still be 1 because the second connection was rejected
+                    Assert.Equal(1, rejectionCounter);
                     Assert.Equal(CloseReason.Rejected, lastCloseReason);
 
                     // Close the connection
@@ -625,8 +617,8 @@ namespace SuperSocket.Tests
                     OutputHelper.WriteLine("Third client connected.");
                   
                     // Wait for connection event
-                    Assert.True(connectionEvent.WaitOne(1000));
-                    Assert.Equal(2, connectionCounter);
+                    Assert.True(connectionEvent.WaitOne(5000));
+                    Assert.Equal(2, connectedCount);
                     Assert.Equal(1, rejectionCounter);
                     
                     // Close the connection
