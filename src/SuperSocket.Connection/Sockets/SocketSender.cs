@@ -1,6 +1,7 @@
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -15,6 +16,8 @@ namespace SuperSocket.Connection
     /// </summary>
     public class SocketSender : SocketAsyncEventArgs, IValueTaskSource<int>, IResettable
     {
+        private readonly PipeScheduler _pipeScheduler;
+
         private Action<object> _continuation;
 
         private static readonly Action<object> _continuationCompleted = _ => { };
@@ -25,8 +28,17 @@ namespace SuperSocket.Connection
         /// Initializes a new instance of the <see cref="SocketSender"/> class.
         /// </summary>
         public SocketSender()
+            : this(PipeScheduler.Inline)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SocketSender"/> class.
+        /// </summary>
+        public SocketSender(PipeScheduler pipeScheduler)
             : base(unsafeSuppressExecutionContextFlow: true)
         {
+            _pipeScheduler = pipeScheduler;
         }
 
         /// <summary>
@@ -90,15 +102,14 @@ namespace SuperSocket.Connection
                 return;
             }
 
-
             var state = UserToken;
 
             // Clear the UserToken to avoid being used twice
             UserToken = null;
             // Set the continuation to completed before queueing the work item
             _continuation = _continuationCompleted;
-            // Use preferLocal=true for consistency with OnCompleted method
-            ThreadPool.UnsafeQueueUserWorkItem(continuation, state, preferLocal: true);
+
+            _pipeScheduler.Schedule(continuation, state);
         }
 
         /// <summary>
