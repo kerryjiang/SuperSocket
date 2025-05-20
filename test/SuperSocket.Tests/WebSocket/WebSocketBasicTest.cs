@@ -310,7 +310,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 Assert.Equal(WebSocketState.Open, websocket.State);
 
-                var data = new byte[0];
+                var data = Array.Empty<byte>();
                 var segment = new ArraySegment<byte>(data, 0, data.Length);
 
                 await websocket.SendAsync(segment, WebSocketMessageType.Text, true, CancellationToken.None);
@@ -1206,7 +1206,7 @@ namespace SuperSocket.Tests.WebSocket
                     .Select(p => int.Parse(p))
                     .Sum();
 
-                await session.SendAsync(result.ToString());
+                await session.SendAsync(result.ToString(), cancellationToken);
             }
         }
 
@@ -1218,7 +1218,7 @@ namespace SuperSocket.Tests.WebSocket
                     .Select(p => int.Parse(p))
                     .Aggregate((x, y) => x * y);
 
-                await session.SendAsync(result.ToString());
+                await session.SendAsync(result.ToString(), cancellationToken);
             }
         }
 
@@ -1230,7 +1230,7 @@ namespace SuperSocket.Tests.WebSocket
                     .Select(p => int.Parse(p))
                     .Aggregate((x, y) => x - y);
 
-                await session.SendAsync(result.ToString());
+                await session.SendAsync(result.ToString(), cancellationToken);
             }
         }
 
