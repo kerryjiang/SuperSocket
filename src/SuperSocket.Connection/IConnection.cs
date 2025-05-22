@@ -20,8 +20,9 @@ namespace SuperSocket.Connection
         /// </summary>
         /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
         /// <param name="pipelineFilter">The pipeline filter to use for processing data.</param>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>An asynchronous enumerable of package information.</returns>
-        IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter);
+        IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Sends data over the connection asynchronously.

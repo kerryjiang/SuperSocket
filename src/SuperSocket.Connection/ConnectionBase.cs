@@ -15,13 +15,8 @@ namespace SuperSocket.Connection
     /// </summary>
     public abstract class ConnectionBase : IConnection
     {
-        /// <summary>
-        /// Runs the connection asynchronously with the specified pipeline filter.
-        /// </summary>
-        /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
-        /// <param name="pipelineFilter">The pipeline filter to use for processing data.</param>
-        /// <returns>An asynchronous enumerable of package information.</returns>
-        public abstract IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter);
+        /// <inheritdoc/>
+        public abstract IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, CancellationToken cancellationToken);
 
         /// <summary>
         /// Sends data over the connection asynchronously using the specified buffer.

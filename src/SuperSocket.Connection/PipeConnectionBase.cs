@@ -98,13 +98,8 @@ namespace SuperSocket.Connection
             FireClose();
         }
         
-        /// <summary>
-        /// Runs the connection asynchronously with the specified pipeline filter.
-        /// </summary>
-        /// <typeparam name="TPackageInfo">The type of the package information.</typeparam>
-        /// <param name="pipelineFilter">The pipeline filter to use for processing data.</param>
-        /// <returns>An asynchronous enumerable of package information.</returns>
-        public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter)
+        /// <inheritdoc/>
+        public async override IAsyncEnumerable<TPackageInfo> RunAsync<TPackageInfo>(IPipelineFilter<TPackageInfo> pipelineFilter, [EnumeratorCancellation] CancellationToken cancellationToken)
         {
             _pipelineFilter = pipelineFilter;
 
@@ -117,33 +112,11 @@ namespace SuperSocket.Connection
 
             _connectionTask = GetConnectionTask(readTaskCompletionSource.Task, _cts.Token);
 
-            var packagePipeEnumerator = ReadPipeAsync<TPackageInfo>(InputReader, _cts.Token).GetAsyncEnumerator(_cts.Token);
+            using var readCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cts.Token);
 
-            while (true)
+            await foreach (var package in ReadPipeAsync<TPackageInfo>(InputReader, readCancellationTokenSource.Token))
             {
-                var read = false;
-
-                try
-                {
-                    read = await packagePipeEnumerator.MoveNextAsync().ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception e)
-                {
-                    OnError("Unhandled exception in the method PipeConnection.Run.", e);
-                    break;
-                }
-
-                if (read)
-                {
-                    yield return packagePipeEnumerator.Current;
-                    continue;
-                }
-
-                break;
+                yield return package;
             }
 
             readTaskCompletionSource.TrySetResult();
