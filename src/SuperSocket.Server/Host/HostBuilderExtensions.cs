@@ -45,7 +45,7 @@ namespace SuperSocket.Server.Host
         /// <param name="hostBuilder">The host builder to convert.</param>
         /// <returns>An instance of <see cref="ISuperSocketHostBuilder{TReceivePackage}"/>.</returns>
         public static ISuperSocketHostBuilder<TReceivePackage> AsSuperSocketHostBuilder<TReceivePackage, TPipelineFilter>(this IHostBuilder hostBuilder)
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new()
+            where TPipelineFilter : IPipelineFilter<TReceivePackage>
         {
             if (hostBuilder is ISuperSocketHostBuilder<TReceivePackage> ssHostBuilder)
             {

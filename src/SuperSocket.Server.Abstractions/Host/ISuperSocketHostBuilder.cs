@@ -61,7 +61,7 @@ namespace SuperSocket.Server.Abstractions.Host
         /// <typeparam name="TPipelineFilter">The type of the pipeline filter to use.</typeparam>
         /// <returns>The host builder instance for chaining.</returns>
         ISuperSocketHostBuilder<TReceivePackage> UsePipelineFilter<TPipelineFilter>()
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>, new();
+            where TPipelineFilter : IPipelineFilter<TReceivePackage>;
 
         /// <summary>
         /// Sets the pipeline filter factory to use for creating pipeline filters.
