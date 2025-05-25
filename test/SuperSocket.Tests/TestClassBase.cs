@@ -58,6 +58,12 @@ namespace SuperSocket.Tests
 
         }
 
+        protected SuperSocketHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo>(IHostConfigurator configurator = null)
+            where TPackageInfo : class
+        {
+            var hostBuilder = SuperSocketHostBuilder.Create<TPackageInfo>();
+            return Configure(hostBuilder, configurator) as SuperSocketHostBuilder<TPackageInfo>;
+        }
 
         protected SuperSocketHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo>(Func<IPipelineFilter<TPackageInfo>> filterFactory, IHostConfigurator configurator = null)
             where TPackageInfo : class
