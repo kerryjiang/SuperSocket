@@ -69,7 +69,7 @@ namespace SuperSocket.Tests
 
         protected SuperSocketHostBuilder<TPackageInfo> CreateSocketServerBuilder<TPackageInfo, TPipelineFilter>(IHostConfigurator configurator = null)
             where TPackageInfo : class
-            where TPipelineFilter : IPipelineFilter<TPackageInfo>, new()
+            where TPipelineFilter : class, IPipelineFilter<TPackageInfo>
         {
             var hostBuilder = SuperSocketHostBuilder.Create<TPackageInfo>();
             hostBuilder.UsePipelineFilter<TPipelineFilter>();

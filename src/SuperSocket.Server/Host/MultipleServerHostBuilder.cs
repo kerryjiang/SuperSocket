@@ -137,7 +137,7 @@ namespace SuperSocket.Server.Host
         /// <returns>The updated host builder.</returns>
         public MultipleServerHostBuilder AddServer<TReceivePackage, TPipelineFilter>(Action<ISuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
             where TReceivePackage : class
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>
+            where TPipelineFilter : class, IPipelineFilter<TReceivePackage>
         {            
             var hostBuilder = CreateServerHostBuilder<TReceivePackage>(hostBuilderDelegate);
             _hostBuilderAdapters.Add(hostBuilder);
@@ -166,7 +166,7 @@ namespace SuperSocket.Server.Host
         /// <returns>The updated host builder.</returns>
         public MultipleServerHostBuilder AddServer<TSuperSocketService, TReceivePackage, TPipelineFilter>(Action<SuperSocketHostBuilder<TReceivePackage>> hostBuilderDelegate)
             where TReceivePackage : class
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>
+            where TPipelineFilter : class, IPipelineFilter<TReceivePackage>
             where TSuperSocketService : SuperSocketService<TReceivePackage>
         {
             var hostBuilder = CreateServerHostBuilder<TReceivePackage>(hostBuilderDelegate);

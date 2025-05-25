@@ -251,7 +251,7 @@ namespace SuperSocket.Server.Host
         /// <typeparam name="TPipelineFilter">The type of the pipeline filter to use.</typeparam>
         /// <returns>The configured host builder.</returns>
         public virtual ISuperSocketHostBuilder<TReceivePackage> UsePipelineFilter<TPipelineFilter>()
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>
+            where TPipelineFilter : class, IPipelineFilter<TReceivePackage>
         {
             var hasDefaultConstructor = typeof(TPipelineFilter).GetConstructor(Type.EmptyTypes) != null;
 
@@ -265,6 +265,7 @@ namespace SuperSocket.Server.Host
                     }
                     else
                     {
+                        services.AddTransient<TPipelineFilter>();
                         services.AddSingleton<IPipelineFilterFactory<TReceivePackage>, DefaultPipelineFilterFactory<TReceivePackage, TPipelineFilter>>();
                     }
 
@@ -453,7 +454,7 @@ namespace SuperSocket.Server.Host
         /// <typeparam name="TPipelineFilter">The type of pipeline filter to use.</typeparam>
         /// <returns>A new ISuperSocketHostBuilder with the specified pipeline filter.</returns>
         public static ISuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>()
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>
+            where TPipelineFilter : class, IPipelineFilter<TReceivePackage>
         {
             return Create<TReceivePackage, TPipelineFilter>(args: null);
         }
@@ -466,7 +467,7 @@ namespace SuperSocket.Server.Host
         /// <param name="args">Command line arguments.</param>
         /// <returns>A new ISuperSocketHostBuilder with the specified pipeline filter.</returns>
         public static ISuperSocketHostBuilder<TReceivePackage> Create<TReceivePackage, TPipelineFilter>(string[] args)
-            where TPipelineFilter : IPipelineFilter<TReceivePackage>
+            where TPipelineFilter : class, IPipelineFilter<TReceivePackage>
         {
             return new SuperSocketHostBuilder<TReceivePackage>(args)
                 .UsePipelineFilter<TPipelineFilter>();
