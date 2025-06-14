@@ -13,7 +13,7 @@ namespace SuperSocket.Connection
     /// <summary>
     /// Represents a connection with methods for sending data, managing state, and handling events.
     /// </summary>
-    public interface IConnection
+    public interface IConnection : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Runs the connection asynchronously with the specified pipeline filter.

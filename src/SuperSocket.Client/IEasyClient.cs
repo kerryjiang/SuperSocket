@@ -10,7 +10,7 @@ namespace SuperSocket.Client
     /// <summary>
     /// Defines methods and properties for managing client connections and data transmission.
     /// </summary>
-    public interface IEasyClient
+    public interface IEasyClient : IDisposable, IAsyncDisposable
     {
         /// <summary>
         /// Gets or sets the proxy connector for the client.

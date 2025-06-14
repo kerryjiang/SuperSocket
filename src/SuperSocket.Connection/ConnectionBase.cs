@@ -129,5 +129,17 @@ namespace SuperSocket.Connection
         /// </summary>
         /// <returns>A task that represents the asynchronous detach operation.</returns>
         public abstract ValueTask DetachAsync();
+
+        public void Dispose()
+        {
+            DisposeAsync()
+                .AsTask()
+                .Wait();
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return CloseAsync(Connection.CloseReason.LocalClosing);
+        }
     }
 }

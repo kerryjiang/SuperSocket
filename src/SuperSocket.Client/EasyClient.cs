@@ -413,6 +413,18 @@ namespace SuperSocket.Client
 
             OnClosed(this, EventArgs.Empty);
         }
+
+        public void Dispose()
+        {
+            DisposeAsync()
+                .AsTask()
+                .Wait();
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            return CloseAsync();
+        }
     }
 
     /// <summary>
