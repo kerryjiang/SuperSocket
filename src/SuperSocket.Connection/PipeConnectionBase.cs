@@ -119,6 +119,8 @@ namespace SuperSocket.Connection
 
             var packagePipeEnumerator = ReadPipeAsync<TPackageInfo>(InputReader, _cts.Token).GetAsyncEnumerator(_cts.Token);
 
+            Exception exception = null;
+
             while (true)
             {
                 var read = false;
@@ -133,6 +135,7 @@ namespace SuperSocket.Connection
                 }
                 catch (Exception e)
                 {
+                    exception = e;
                     OnError("Unhandled exception in the method PipeConnection.Run.", e);
                     break;
                 }
@@ -147,6 +150,11 @@ namespace SuperSocket.Connection
             }
 
             readTaskCompletionSource.TrySetResult();
+
+            if (exception != null)
+            {
+                throw exception;
+            }
 
             yield break;
         }
@@ -383,6 +391,8 @@ namespace SuperSocket.Connection
         {
             var pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
 
+            Exception exception = null;
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 ReadResult result;
@@ -421,6 +431,7 @@ namespace SuperSocket.Connection
 
                         if (bufferFilterResult.Exception != null)
                         {
+                            exception = bufferFilterResult.Exception;
                             OnError("Protocol error", bufferFilterResult.Exception);
                             CloseReason = Connection.CloseReason.ProtocolError;
                             Close();
@@ -440,7 +451,7 @@ namespace SuperSocket.Connection
                     {
                         reader.AdvanceTo(buffer.Start, buffer.End);
                     }
-                }                
+                }
 
                 if (completedOrCancelled)
                 {
@@ -449,6 +460,12 @@ namespace SuperSocket.Connection
             }
 
             await CompleteReaderAsync(reader, _isDetaching).ConfigureAwait(false);
+
+            if (exception != null)
+            {
+                throw exception;
+            }
+
             yield break;
         }
 
