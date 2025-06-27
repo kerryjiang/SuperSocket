@@ -72,6 +72,7 @@ namespace SuperSocket.Tests
 
             using var connection = new TestVirtualConnection();
             var filter = new CommandLinePipelineFilter();
+            filter.Decoder = new DefaultStringPackageDecoder();
             var packages = new List<StringPackageInfo>();
 
             // Act
@@ -96,6 +97,7 @@ namespace SuperSocket.Tests
             // Arrange
             using var connection = new TestVirtualConnection();
             var filter = new CommandLinePipelineFilter();
+            filter.Decoder = new DefaultStringPackageDecoder();
             var packages = new List<StringPackageInfo>();
 
             // Act - Write partial data first
@@ -117,6 +119,7 @@ namespace SuperSocket.Tests
 
             Assert.Empty(packages); // Should not have received any complete packages yet
             await connection.WriteInputPipeDataAsync(Encoding.UTF8.GetBytes("\r\n"), CancellationToken);
+            await connection.CompleteInput();
 
             // Wait for the task to complete or timeout
             try
@@ -141,6 +144,7 @@ namespace SuperSocket.Tests
 
             using var connection = new TestVirtualConnection();
             var filter = new CommandLinePipelineFilter();
+            filter.Decoder = new DefaultStringPackageDecoder();
             var packages = new List<StringPackageInfo>();
 
             // Act
@@ -165,6 +169,7 @@ namespace SuperSocket.Tests
             // Arrange
             using var connection = new TestVirtualConnection();
             var filter = new CommandLinePipelineFilter();
+            filter.Decoder = new DefaultStringPackageDecoder();
             var packages = new List<StringPackageInfo>();
 
             // Act
@@ -185,6 +190,7 @@ namespace SuperSocket.Tests
             // Arrange
             using var connection = new TestVirtualConnection();
             var filter = new CommandLinePipelineFilter();
+            filter.Decoder = new DefaultStringPackageDecoder();
             var packages = new List<StringPackageInfo>();
 
             // Act
@@ -234,6 +240,7 @@ namespace SuperSocket.Tests
             using var connection = new TestVirtualConnection();
             var packages = new List<StringPackageInfo>();
             var filter = new ExceptionThrowingPipelineFilter();
+            filter.Decoder = new DefaultStringPackageDecoder();
 
             // Act & Assert
             await connection.WriteInputPipeDataAsync(testData, CancellationToken);
