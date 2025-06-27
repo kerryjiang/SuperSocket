@@ -70,14 +70,8 @@ namespace SuperSocket.Connection
             return total;
         }
 
-        /// <summary>
-        /// Fills the pipe with data asynchronously. This method is not supported.
-        /// </summary>
-        /// <param name="memory">The memory buffer to fill with data.</param>
-        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
-        /// <returns>A value task that represents the asynchronous operation.</returns>
-        /// <exception cref="NotSupportedException">Always thrown.</exception>
-        protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
+        /// <inheritdoc/>
+        protected override ValueTask<int> FillInputPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
         }

@@ -47,7 +47,7 @@ namespace SuperSocket.Connection
         /// <param name="memory">The memory buffer to fill with data.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>The total number of bytes read.</returns>
-        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
+        protected override async ValueTask<int> FillInputPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
             return await ReceiveAsync(_socket, memory, SocketFlags.None, cancellationToken)
                 .ConfigureAwait(false);

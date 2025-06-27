@@ -60,12 +60,12 @@ namespace SuperSocket.Connection
         }
 
         /// <summary>
-        /// Reads data from the stream into the specified memory buffer.
+        /// Reads data from the input stream into the specified memory buffer.
         /// </summary>
         /// <param name="memory">The memory buffer to fill with data.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>The number of bytes read from the stream.</returns>
-        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
+        protected override async ValueTask<int> FillInputPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
             return await _stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
         }
