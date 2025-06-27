@@ -166,7 +166,7 @@ namespace SuperSocket.Udp
                         OnNewConnectionAccept(connection);
                     }
 
-                    await connection.WritePipeDataAsync(packageData.AsMemory(), _cancellationTokenSource.Token);
+                    await connection.WriteInputPipeDataAsync(packageData.AsMemory(), _cancellationTokenSource.Token);
                 }
                 catch (Exception e)
                 {
