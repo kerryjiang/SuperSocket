@@ -30,7 +30,7 @@ namespace SuperSocket.Benchmarks
 
         }
 
-        protected override async ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
+        protected override async ValueTask<int> FillInputPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
             await _connectionTask;
             return 0;

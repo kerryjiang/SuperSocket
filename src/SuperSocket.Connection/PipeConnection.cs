@@ -65,7 +65,7 @@ namespace SuperSocket.Connection
         /// <inheritdoc/>
         protected override async Task GetConnectionTask(Task readTask, CancellationToken cancellationToken)
         {
-            await Task.WhenAll(FillPipeAsync(Input.Writer, cancellationToken), ProcessSends()).ConfigureAwait(false);
+            await Task.WhenAll(FillInputPipeAsync(Input.Writer, cancellationToken), ProcessSends()).ConfigureAwait(false);
             await base.GetConnectionTask(readTask, cancellationToken).ConfigureAwait(false);
         }
 
@@ -91,12 +91,12 @@ namespace SuperSocket.Connection
         }
 
         /// <summary>
-        /// Fills the pipe with data asynchronously.
+        /// Fills the input pipe with data received from the connection asynchronously.
         /// </summary>
-        /// <param name="writer">The pipe writer to write data to.</param>
+        /// <param name="writer">The input pipe writer for incoming data.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
-        internal virtual async Task FillPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
+        internal virtual async Task FillInputPipeAsync(PipeWriter writer, CancellationToken cancellationToken)
         {
             var options = Options;
 
@@ -112,7 +112,7 @@ namespace SuperSocket.Connection
 
                     var memory = writer.GetMemory(bufferSize);
 
-                    var bytesRead = await FillPipeWithDataAsync(memory, cancellationToken).ConfigureAwait(false);
+                    var bytesRead = await FillInputPipeWithDataAsync(memory, cancellationToken).ConfigureAwait(false);
 
                     if (bytesRead == 0)
                     {
@@ -259,11 +259,11 @@ namespace SuperSocket.Connection
         }
 
         /// <summary>
-        /// Fills the pipe with data asynchronously.
+        /// Fills the input pipe with data received from the connection asynchronously.
         /// </summary>
         /// <param name="memory">The memory buffer to fill.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>The total number of bytes read.</returns>
-        protected abstract ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
+        protected abstract ValueTask<int> FillInputPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken);
     }
 }

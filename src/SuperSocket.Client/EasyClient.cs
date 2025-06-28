@@ -231,7 +231,7 @@ namespace SuperSocket.Client
                         .ReceiveFromAsync(new ArraySegment<byte>(buffer, 0, buffer.Length), SocketFlags.None, connection.RemoteEndPoint)
                         .ConfigureAwait(false);
 
-                    await connection.WritePipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
+                    await connection.WriteInputPipeDataAsync((new ArraySegment<byte>(buffer, 0, result.ReceivedBytes)).AsMemory(), CancellationToken.None);
                 }
                 catch (NullReferenceException)
                 {
