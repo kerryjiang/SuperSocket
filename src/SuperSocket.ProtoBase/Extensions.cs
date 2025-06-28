@@ -64,7 +64,7 @@ namespace SuperSocket.ProtoBase
             if (!reader.TryRead(out byte l))
                 return false;
 
-            value = (ushort)(h * 256 + l);
+            value = (ushort)((h << 8) | l);
             return true;
         }
 
@@ -81,19 +81,19 @@ namespace SuperSocket.ProtoBase
             if (reader.Remaining < 4)
                 return false;
 
-            var v = 0;
-            var unit = (int)Math.Pow(256, 3);
+            if (!reader.TryRead(out byte b0))
+                return false;
 
-            for (var i = 0; i < 4; i++)
-            {
-                if (!reader.TryRead(out byte b))
-                    return false;
+            if (!reader.TryRead(out byte b1))
+                return false;
 
-                v += unit * b;
-                unit = unit / 256;
-            }
+            if (!reader.TryRead(out byte b2))
+                return false;
 
-            value = (uint)v;
+            if (!reader.TryRead(out byte b3))
+                return false;
+
+            value = (uint)((b0 << 24) | (b1 << 16) | (b2 << 8) | b3);
             return true;
         }
 
@@ -110,19 +110,126 @@ namespace SuperSocket.ProtoBase
             if (reader.Remaining < 8)
                 return false;
 
-            var v = 0L;
-            var unit = (long)Math.Pow(256, 7);
+            if (!reader.TryRead(out byte b0))
+                return false;
 
-            for (var i = 0; i < 8; i++)
-            {
-                if (!reader.TryRead(out byte b))
-                    return false;
+            if (!reader.TryRead(out byte b1))
+                return false;
 
-                v += unit * b;
-                unit = unit / 256;
-            }
+            if (!reader.TryRead(out byte b2))
+                return false;
 
-            value = (ulong)v;
+            if (!reader.TryRead(out byte b3))
+                return false;
+
+            if (!reader.TryRead(out byte b4))
+                return false;
+
+            if (!reader.TryRead(out byte b5))
+                return false;
+
+            if (!reader.TryRead(out byte b6))
+                return false;
+
+            if (!reader.TryRead(out byte b7))
+                return false;
+
+            value = ((ulong)b0 << 56) | ((ulong)b1 << 48) | ((ulong)b2 << 40) | ((ulong)b3 << 32) |
+                    ((ulong)b4 << 24) | ((ulong)b5 << 16) | ((ulong)b6 << 8) | b7;
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to read a 16-bit unsigned integer in little-endian format from the sequence reader.
+        /// </summary>
+        /// <param name="reader">The sequence reader.</param>
+        /// <param name="value">The read value.</param>
+        /// <returns><c>true</c> if the value was successfully read; otherwise, <c>false</c>.</returns>
+        public static bool TryReadLittleEndian(ref this SequenceReader<byte> reader, out ushort value)
+        {
+            value = 0;
+
+            if (reader.Remaining < 2)
+                return false;
+
+            if (!reader.TryRead(out byte l))
+                return false;
+
+            if (!reader.TryRead(out byte h))
+                return false;
+
+            value = (ushort)((h << 8) | l);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to read a 32-bit unsigned integer in little-endian format from the sequence reader.
+        /// </summary>
+        /// <param name="reader">The sequence reader.</param>
+        /// <param name="value">The read value.</param>
+        /// <returns><c>true</c> if the value was successfully read; otherwise, <c>false</c>.</returns>
+        public static bool TryReadLittleEndian(ref this SequenceReader<byte> reader, out uint value)
+        {
+            value = 0;
+
+            if (reader.Remaining < 4)
+                return false;
+
+            if (!reader.TryRead(out byte b0))
+                return false;
+
+            if (!reader.TryRead(out byte b1))
+                return false;
+
+            if (!reader.TryRead(out byte b2))
+                return false;
+
+            if (!reader.TryRead(out byte b3))
+                return false;
+
+            value = (uint)((b3 << 24) | (b2 << 16) | (b1 << 8) | b0);
+            return true;
+        }
+
+        /// <summary>
+        /// Attempts to read a 64-bit unsigned integer in little-endian format from the sequence reader.
+        /// </summary>
+        /// <param name="reader">The sequence reader.</param>
+        /// <param name="value">The read value.</param>
+        /// <returns><c>true</c> if the value was successfully read; otherwise, <c>false</c>.</returns>
+        public static bool TryReadLittleEndian(ref this SequenceReader<byte> reader, out ulong value)
+        {
+            value = 0;
+
+            if (reader.Remaining < 8)
+                return false;
+
+            if (!reader.TryRead(out byte b0))
+                return false;
+
+            if (!reader.TryRead(out byte b1))
+                return false;
+
+            if (!reader.TryRead(out byte b2))
+                return false;
+
+            if (!reader.TryRead(out byte b3))
+                return false;
+
+            if (!reader.TryRead(out byte b4))
+                return false;
+
+            if (!reader.TryRead(out byte b5))
+                return false;
+
+            if (!reader.TryRead(out byte b6))
+                return false;
+
+            if (!reader.TryRead(out byte b7))
+                return false;
+
+            value = ((ulong)b7 << 56) | ((ulong)b6 << 48) | ((ulong)b5 << 40) | ((ulong)b4 << 32) |
+                    ((ulong)b3 << 24) | ((ulong)b2 << 16) | ((ulong)b1 << 8) | b0;
             return true;
         }
 
