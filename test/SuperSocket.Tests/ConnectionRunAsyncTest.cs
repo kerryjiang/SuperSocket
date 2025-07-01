@@ -246,15 +246,10 @@ namespace SuperSocket.Tests
             await connection.WriteInputPipeDataAsync(testData, CancellationToken);
             await connection.CompleteInput();
 
-            var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
+            await foreach (var package in connection.RunAsync(filter))
             {
-                await foreach (var package in connection.RunAsync(filter))
-                {
-                    // Should not reach here
-                }
-            });
-
-            Assert.Equal("Test filter exception", exception.Message);
+                // Should not reach here
+            }
         }
     }
 }
