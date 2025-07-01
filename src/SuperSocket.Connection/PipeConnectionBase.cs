@@ -117,43 +117,16 @@ namespace SuperSocket.Connection
 
             _connectionTask = GetConnectionTask(readTaskCompletionSource.Task, _cts.Token);
 
-            var packagePipeEnumerator = ReadPipeAsync<TPackageInfo>(InputReader, _cts.Token).GetAsyncEnumerator(_cts.Token);
-
-            Exception exception = null;
-
-            while (true)
+            try
             {
-                var read = false;
-
-                try
+                await foreach (var packageInfo in ReadPipeAsync<TPackageInfo>(InputReader, _cts.Token))
                 {
-                    read = await packagePipeEnumerator.MoveNextAsync().ConfigureAwait(false);
+                    yield return packageInfo;
                 }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception e)
-                {
-                    exception = e;
-                    OnError("Unhandled exception in the method PipeConnection.Run.", e);
-                    break;
-                }
-
-                if (read)
-                {
-                    yield return packagePipeEnumerator.Current;
-                    continue;
-                }
-
-                break;
             }
-
-            readTaskCompletionSource.TrySetResult();
-
-            if (exception != null)
+            finally
             {
-                throw exception;
+                readTaskCompletionSource.TrySetResult();
             }
 
             yield break;
@@ -391,8 +364,6 @@ namespace SuperSocket.Connection
         {
             var pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
 
-            Exception exception = null;
-
             while (!cancellationToken.IsCancellationRequested)
             {
                 ReadResult result;
@@ -431,7 +402,6 @@ namespace SuperSocket.Connection
 
                         if (bufferFilterResult.Exception != null)
                         {
-                            exception = bufferFilterResult.Exception;
                             OnError("Protocol error", bufferFilterResult.Exception);
                             CloseReason = Connection.CloseReason.ProtocolError;
                             Close();
@@ -460,12 +430,6 @@ namespace SuperSocket.Connection
             }
 
             await CompleteReaderAsync(reader, _isDetaching).ConfigureAwait(false);
-
-            if (exception != null)
-            {
-                throw exception;
-            }
-
             yield break;
         }
 
