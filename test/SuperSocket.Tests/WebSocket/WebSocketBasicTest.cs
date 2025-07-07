@@ -253,7 +253,10 @@ namespace SuperSocket.Tests.WebSocket
                 Assert.NotNull(sessionContainer);
 
                 var websocketMiddleware = server.ServiceProvider.GetRequiredService<IWebSocketServerMiddleware>();
-                
+
+                var testConnections = 100;
+                var websocketStates = new WebSocketState[testConnections];
+
                 await Parallel.ForEachAsync(Enumerable.Range(0, 100), async (index, ct) =>
                 {
                     var websocket = new ClientWebSocket();
@@ -267,14 +270,16 @@ namespace SuperSocket.Tests.WebSocket
                     {
                     }
 
-                    Assert.Equal(WebSocketState.Closed, websocket.State);
+                    websocketStates[index] = websocket.State;
                 });
+
+
+                Assert.All(websocketStates, s => Assert.Equal(WebSocketState.Closed, s));
+
+                await Task.Delay(1000, TestContext.Current.CancellationToken);
 
                 Assert.Equal(0, server.SessionCount);
                 Assert.Equal(0, sessionContainer.GetSessionCount());
-
-                await Task.Delay(1000, CancellationToken.None);
-
                 Assert.Equal(0, websocketMiddleware.OpenHandshakePendingQueueLength);
                 Assert.Equal(0, websocketMiddleware.CloseHandshakePendingQueueLength);
 
