@@ -112,10 +112,13 @@ namespace SuperSocket.Tests
             using (var server = CreateSocketServerBuilder<HttpRequest, HttpPipelineFilter>(hostConfigurator)
                 .UsePackageHandler(async (s, p) =>
                 {
+                    // Create response using HttpResponse class
                     var response = new HttpResponse(200, "OK");
                     response.SetContentType("application/json");
                     response.Body = "{\"message\": \"Hello World\"}";
-                    
+                    response.KeepAlive = false; // Ensure connection closes
+
+                    // Convert to bytes and send
                     await s.SendAsync(response.ToBytes());
                 }).BuildAsServer())
             {
@@ -124,6 +127,11 @@ namespace SuperSocket.Tests
 
                 var services = new ServiceCollection();
                 services.AddLogging();
+                services.Configure<ILoggingBuilder>((loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                });
+
                 var sp = services.BuildServiceProvider();
                 var loggerFactory = sp.GetService<ILoggerFactory>();
                 var logger = loggerFactory.CreateLogger("Client");
