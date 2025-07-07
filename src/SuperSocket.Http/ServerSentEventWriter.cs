@@ -12,15 +12,18 @@ namespace SuperSocket.Http
     public class ServerSentEventWriter
     {
         private readonly IConnection _connection;
+        private readonly ServerSentEventsOptions _options;
         private long _eventId = 0;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ServerSentEventWriter"/> class.
         /// </summary>
         /// <param name="connection">The connection to write SSE data to.</param>
-        public ServerSentEventWriter(IConnection connection)
+        /// <param name="options">Optional configuration options for SSE behavior.</param>
+        public ServerSentEventWriter(IConnection connection, ServerSentEventsOptions options = null)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
+            _options = options ?? new ServerSentEventsOptions();
         }
 
         /// <summary>
@@ -33,6 +36,13 @@ namespace SuperSocket.Http
             var response = new HttpResponse();
             response.SetupForServerSentEvents();
             
+            // Apply CORS settings from options
+            if (_options.EnableCors)
+            {
+                response.Headers["Access-Control-Allow-Origin"] = _options.CorsOrigin;
+                response.Headers["Access-Control-Allow-Headers"] = _options.CorsAllowedHeaders;
+            }
+
             var responseBytes = response.ToBytes();
             await _connection.SendAsync(responseBytes, cancellationToken);
         }
@@ -43,7 +53,7 @@ namespace SuperSocket.Http
         /// <param name="data">The event data to send.</param>
         /// <param name="eventType">The type of the event (optional).</param>
         /// <param name="eventId">The ID of the event (optional, auto-generated if not provided).</param>
-        /// <param name="retry">The retry interval in milliseconds (optional).</param>
+        /// <param name="retry">The retry interval in milliseconds (optional, uses default from options if not provided).</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task that represents the asynchronous operation.</returns>
         public async ValueTask SendEventAsync(
@@ -76,9 +86,10 @@ namespace SuperSocket.Http
             }
 
             // Retry interval
-            if (retry.HasValue)
+            var retryValue = retry ?? _options.DefaultRetryIntervalMs;
+            if (retryValue > 0)
             {
-                eventBuilder.AppendLine($"retry: {retry.Value}");
+                eventBuilder.AppendLine($"retry: {retryValue}");
             }
 
             // Data (can be multi-line)
@@ -133,6 +144,36 @@ namespace SuperSocket.Http
         public async ValueTask SendCloseEventAsync(CancellationToken cancellationToken = default)
         {
             await SendEventAsync("close", "close", null, null, cancellationToken);
+        }
+
+        /// <summary>
+        /// Starts a background heartbeat task that sends periodic heartbeat events.
+        /// </summary>
+        /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+        /// <returns>A task that represents the heartbeat operation.</returns>
+        public async Task StartHeartbeatAsync(CancellationToken cancellationToken = default)
+        {
+            if (_options.HeartbeatIntervalSeconds <= 0)
+                return;
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(_options.HeartbeatIntervalSeconds), cancellationToken);
+                    await SendHeartbeatAsync(cancellationToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    // Expected when cancellation is requested
+                    break;
+                }
+                catch (Exception)
+                {
+                    // Connection may be closed, stop heartbeat
+                    break;
+                }
+            }
         }
     }
 }
