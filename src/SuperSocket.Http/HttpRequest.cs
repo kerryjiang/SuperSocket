@@ -34,6 +34,23 @@ namespace SuperSocket.Http
         public string Body { get; set; }
 
         /// <summary>
+        /// Gets a value indicating whether the client requests a keep-alive connection.
+        /// </summary>
+        public bool KeepAlive => GetKeepAliveFromHeaders();
+
+        /// <summary>
+        /// Gets a value indicating whether this request supports Server-Sent Events.
+        /// </summary>
+        public bool AcceptsEventStream => 
+            Items?["Accept"]?.Contains("text/event-stream") == true ||
+            Items?["Accept"]?.Contains("*/*") == true;
+
+        /// <summary>
+        /// Gets the value of the Last-Event-ID header for SSE reconnection.
+        /// </summary>
+        public string LastEventId => Items?["Last-Event-ID"];
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="HttpRequest"/> class with the specified method, path, version, and items.
         /// </summary>
         /// <param name="method">The HTTP method of the request.</param>
@@ -46,6 +63,18 @@ namespace SuperSocket.Http
             Path = path;
             HttpVersion = httpVersion;
             Items = items;
+        }
+
+        private bool GetKeepAliveFromHeaders()
+        {
+            var connection = Items?["Connection"];
+            if (string.IsNullOrEmpty(connection))
+            {
+                // HTTP/1.1 defaults to keep-alive, HTTP/1.0 defaults to close
+                return HttpVersion?.Contains("1.1") == true;
+            }
+
+            return connection.ToLowerInvariant().Contains("keep-alive");
         }
     }
 }
