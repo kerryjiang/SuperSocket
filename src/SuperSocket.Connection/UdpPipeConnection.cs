@@ -64,7 +64,7 @@ namespace SuperSocket.Connection
         /// <param name="memory">The memory buffer to fill with data.</param>
         /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        protected override ValueTask<int> FillPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
+        protected override ValueTask<int> FillInputPipeWithDataAsync(Memory<byte> memory, CancellationToken cancellationToken)
         {
             throw new NotSupportedException();
         }
