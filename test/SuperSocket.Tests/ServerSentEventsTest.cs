@@ -168,8 +168,27 @@ namespace SuperSocket.Tests
                     await stream.WriteAsync(requestBytes, 0, requestBytes.Length);
 
                     var buffer = new byte[4096];
-                    var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                    var response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                    var totalReceived = new StringBuilder();
+                    
+                    // Read in chunks to get the full SSE response
+                    for (int i = 0; i < 10; i++) // Limit iterations to avoid infinite loop
+                    {
+                        var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                        if (bytesRead > 0)
+                        {
+                            var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                            totalReceived.Append(chunk);
+                            
+                            // Check if we have received both the heartbeat and test event
+                            if (totalReceived.ToString().Contains(": heartbeat") && 
+                                totalReceived.ToString().Contains("event: test"))
+                                break;
+                        }
+                        
+                        await Task.Delay(50); // Small delay between reads
+                    }
+
+                    var response = totalReceived.ToString();
 
                     OutputHelper.WriteLine($"Heartbeat Response: {response}");
 
