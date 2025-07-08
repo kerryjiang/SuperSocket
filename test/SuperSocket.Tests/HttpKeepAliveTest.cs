@@ -122,23 +122,23 @@ namespace SuperSocket.Tests
             using (var server = CreateSocketServerBuilder<HttpRequest, HttpPipelineFilter>(hostConfigurator)
                 .UsePackageHandler(async (s, p) =>
                 {
-                    // Create response using HttpResponse class
-                    var response = new HttpResponse(200, "OK");
-                    response.SetContentType("application/json");
-                    response.Body = "{\"message\": \"Hello World\"}";
-                    response.KeepAlive = false; // Ensure connection closes
+                    // Create raw HTTP response (compatible with HttpPipelineFilter)
+                    var body = "{\"message\": \"Hello World\"}";
+                    var response = "HTTP/1.1 200 OK\r\n" +
+                                   $"Date: {DateTime.UtcNow:r}\r\n" +
+                                   "Server: SuperSocket\r\n" +
+                                   "Content-Type: application/json\r\n" +
+                                   $"Content-Length: {Encoding.UTF8.GetBytes(body).Length}\r\n" +
+                                   "Connection: close\r\n\r\n" +
+                                   body;
 
-                    // Convert to bytes and send
-                    await s.SendAsync(response.ToBytes());
+                    await s.SendAsync(Encoding.UTF8.GetBytes(response));
                     
                     // Add small delay to ensure data is sent before closing
                     await Task.Delay(50, timeoutToken);
                     
-                    // Close the session when KeepAlive is false
-                    if (!response.KeepAlive)
-                    {
-                        await s.CloseAsync(CloseReason.LocalClosing);
-                    }
+                    // Close the session after sending response
+                    await s.CloseAsync(CloseReason.LocalClosing);
                 }).BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
@@ -164,7 +164,7 @@ namespace SuperSocket.Tests
                     await client.SendAsync(Encoding.ASCII.GetBytes(request));
 
                     // Use timeout for receiving response
-                    var response = await client.ReceiveAsync().WaitAsync(timeoutToken);
+                    var response = await client.ReceiveAsync().AsTask().WaitAsync(timeoutToken);
                     Assert.NotNull(response);
                     Assert.Equal("{\"message\": \"Hello World\"}", response.Body);
 
