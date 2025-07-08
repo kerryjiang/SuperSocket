@@ -53,6 +53,12 @@ namespace SuperSocket.Tests
                     response.KeepAlive = p.KeepAlive;
                     
                     await s.SendAsync(response.ToBytes());
+                    
+                    // Close the session when KeepAlive is false
+                    if (!response.KeepAlive)
+                    {
+                        await s.CloseAsync(CloseReason.LocalClosing);
+                    }
                 }).BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
@@ -120,6 +126,12 @@ namespace SuperSocket.Tests
 
                     // Convert to bytes and send
                     await s.SendAsync(response.ToBytes());
+                    
+                    // Close the session when KeepAlive is false
+                    if (!response.KeepAlive)
+                    {
+                        await s.CloseAsync(CloseReason.LocalClosing);
+                    }
                 }).BuildAsServer())
             {
                 Assert.True(await server.StartAsync());
