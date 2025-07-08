@@ -115,6 +115,10 @@ namespace SuperSocket.Tests
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             
+            // Create cancellation token with 10-second timeout
+            using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            var timeoutToken = timeoutCts.Token;
+            
             using (var server = CreateSocketServerBuilder<HttpRequest, HttpPipelineFilter>(hostConfigurator)
                 .UsePackageHandler(async (s, p) =>
                 {
@@ -126,6 +130,9 @@ namespace SuperSocket.Tests
 
                     // Convert to bytes and send
                     await s.SendAsync(response.ToBytes());
+                    
+                    // Add small delay to ensure data is sent before closing
+                    await Task.Delay(50, timeoutToken);
                     
                     // Close the session when KeepAlive is false
                     if (!response.KeepAlive)
@@ -153,10 +160,11 @@ namespace SuperSocket.Tests
                     var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
                     Assert.True(connected);
 
-                    var request = "GET /api/test HTTP/1.1\r\nHost: localhost\r\n\r\n";
+                    var request = "GET /api/test HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
                     await client.SendAsync(Encoding.ASCII.GetBytes(request));
 
-                    var response = await client.ReceiveAsync();
+                    // Use timeout for receiving response
+                    var response = await client.ReceiveAsync().WaitAsync(timeoutToken);
                     Assert.NotNull(response);
                     Assert.Equal("{\"message\": \"Hello World\"}", response.Body);
 
