@@ -4,7 +4,7 @@ using System.Text;
 using SuperSocket.Http;
 using Xunit;
 
-namespace SuperSocket.Tests
+namespace SuperSocket.Tests.Http
 {
     [Trait("Category", "HttpResponseEncoder")]
     public class HttpResponseEncoderTest

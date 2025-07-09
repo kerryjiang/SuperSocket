@@ -26,7 +26,7 @@ using SuperSocket.Connection;
 using SuperSocket.Server.Host;
 using System.Threading;
 
-namespace SuperSocket.Tests
+namespace SuperSocket.Tests.Http
 {
     [Trait("Category", "HttpKeepAlive")]
     public class HttpKeepAliveTest : TestClassBase

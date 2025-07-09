@@ -25,7 +25,7 @@ using System.Security.Cryptography.X509Certificates;
 using SuperSocket.Connection;
 using SuperSocket.Server.Host;
 
-namespace SuperSocket.Tests
+namespace SuperSocket.Tests.Http
 {
     [Trait("Category", "Http")]
     public class HttpPipelineFilterTest : TestClassBase
