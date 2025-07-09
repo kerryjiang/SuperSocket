@@ -61,7 +61,7 @@ namespace SuperSocket.Tests
                     {
                         var response = new HttpResponse(404, "Not Found");
                         response.Body = "Not Found";
-                        await s.SendAsync(response.ToBytes());
+                        await s.SendAsync(HttpResponseEncoder.Instance, response);
                     }
                 }).BuildAsServer())
             {

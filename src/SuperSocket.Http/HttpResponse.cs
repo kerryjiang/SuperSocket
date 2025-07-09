@@ -56,52 +56,7 @@ namespace SuperSocket.Http
             StatusCode = statusCode;
             StatusMessage = statusMessage ?? GetDefaultStatusMessage(statusCode);
         }
-
-        /// <summary>
-        /// Converts the HTTP response to its byte representation.
-        /// </summary>
-        /// <returns>The HTTP response as a byte array.</returns>
-        public byte[] ToBytes()
-        {
-            var response = new StringBuilder();
-            
-            // Status line
-            response.AppendLine($"{HttpVersion} {StatusCode} {StatusMessage}");
-            
-            // Headers
-            if (!string.IsNullOrEmpty(Body))
-            {
-                var bodyBytes = Encoding.UTF8.GetBytes(Body);
-                Headers["Content-Length"] = bodyBytes.Length.ToString();
-            }
-
-            // Set Connection header based on KeepAlive
-            Headers["Connection"] = KeepAlive ? "keep-alive" : "close";
-
-            // Add default headers if not present
-            if (string.IsNullOrEmpty(Headers["Date"]))
-                Headers["Date"] = DateTime.UtcNow.ToString("r");
-
-            if (string.IsNullOrEmpty(Headers["Server"]))
-                Headers["Server"] = "SuperSocket";
-
-            foreach (string key in Headers.AllKeys)
-            {
-                response.AppendLine($"{key}: {Headers[key]}");
-            }
-
-            // Empty line
-            response.AppendLine();
-
-            // Body
-            if (!string.IsNullOrEmpty(Body))
-            {
-                response.Append(Body);
-            }
-
-            return Encoding.UTF8.GetBytes(response.ToString());
-        }
-
+        
         /// <summary>
         /// Sets the content type header.
         /// </summary>

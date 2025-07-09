@@ -42,9 +42,8 @@ namespace SuperSocket.Http
                 response.Headers["Access-Control-Allow-Origin"] = _options.CorsOrigin;
                 response.Headers["Access-Control-Allow-Headers"] = _options.CorsAllowedHeaders;
             }
-
-            var responseBytes = response.ToBytes();
-            await _connection.SendAsync(responseBytes, cancellationToken);
+            
+            await _connection.SendAsync(HttpResponseEncoder.Instance, response, cancellationToken);
         }
 
         /// <summary>

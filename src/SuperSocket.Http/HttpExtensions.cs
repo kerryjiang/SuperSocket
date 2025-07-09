@@ -23,7 +23,7 @@ namespace SuperSocket.Http
             HttpResponse response, 
             CancellationToken cancellationToken = default)
         {
-            await session.SendAsync(response.ToBytes(), cancellationToken);
+            await session.SendAsync(HttpResponseEncoder.Instance, response, cancellationToken);
         }
 
         /// <summary>

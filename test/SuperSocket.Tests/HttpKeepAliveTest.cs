@@ -36,24 +36,26 @@ namespace SuperSocket.Tests
         {
         }
 
-        [Theory]
+        [Theory(Timeout = 10000)]
         [InlineData(typeof(RegularHostConfigurator))]
         public async Task TestKeepAliveConnection(Type hostConfiguratorType)
         {
             var hostConfigurator = CreateObject<IHostConfigurator>(hostConfiguratorType);
             var requestCount = 0;
-            
+
+            var httpResponseEncoder = HttpResponseEncoder.Instance;
+
             using (var server = CreateSocketServerBuilder<HttpRequest, HttpKeepAliveFilter>(hostConfigurator)
                 .UsePackageHandler(async (s, p) =>
                 {
                     requestCount++;
-                    
+
                     var response = new HttpResponse();
                     response.Body = $"Response {requestCount}: {p.Path}";
                     response.KeepAlive = p.KeepAlive;
-                    
-                    await s.SendAsync(response.ToBytes());
-                    
+
+                    await s.SendAsync(httpResponseEncoder, response);
+
                     // Close the session when KeepAlive is false
                     if (!response.KeepAlive)
                     {
@@ -61,7 +63,7 @@ namespace SuperSocket.Tests
                     }
                 }).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var services = new ServiceCollection();
@@ -77,7 +79,7 @@ namespace SuperSocket.Tests
 
                 using (var client = new EasyClient<HttpRequest>(new HttpKeepAliveFilter(), logger).AsClient())
                 {
-                    var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                    var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port), CancellationToken);
                     Assert.True(connected);
 
                     // Send multiple requests over the same connection
@@ -86,7 +88,7 @@ namespace SuperSocket.Tests
                         var request = $"GET /test{i} HTTP/1.1\r\nHost: localhost\r\nConnection: keep-alive\r\n\r\n";
                         await client.SendAsync(Encoding.ASCII.GetBytes(request));
 
-                        var response = await client.ReceiveAsync();
+                        var response = await client.ReceiveAsync().AsTask().WaitAsync(CancellationToken);
                         Assert.NotNull(response);
                         Assert.Contains($"Response {i}: /test{i}", response.Body);
                         Assert.True(response.KeepAlive);
@@ -96,7 +98,7 @@ namespace SuperSocket.Tests
                     var closeRequest = "GET /close HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
                     await client.SendAsync(Encoding.ASCII.GetBytes(closeRequest));
 
-                    var closeResponse = await client.ReceiveAsync();
+                    var closeResponse = await client.ReceiveAsync().AsTask().WaitAsync(CancellationToken);
                     Assert.NotNull(closeResponse);
                     Assert.Contains("Response 4: /close", closeResponse.Body);
                     Assert.False(closeResponse.KeepAlive);
@@ -105,7 +107,7 @@ namespace SuperSocket.Tests
                 }
 
                 Assert.Equal(4, requestCount);
-                await server.StopAsync();
+                await server.StopAsync(CancellationToken);
             }
         }
 
