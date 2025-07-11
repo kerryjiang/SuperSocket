@@ -25,7 +25,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.WebSocket.Serve
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Client.Proxy", "src\SuperSocket.Client.Proxy\SuperSocket.Client.Proxy.csproj", "{62BC2056-F454-4E7A-86E5-1C2E866145AB}"
 EndProject
-Project("{A68F2204-5021-4657-AACC-971FEBA385EB}") = "SuperSocket.Tests.Command", "test\SuperSocket.Tests.Command\SuperSocket.Tests.Command.csproj", "{A68F2204-5021-4657-AACC-971FEBA385EB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SuperSocket.Tests.Command", "test\SuperSocket.Tests.Command\SuperSocket.Tests.Command.csproj", "{A68F2204-5021-4657-AACC-971FEBA385EB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SuperSocket.MCP.Tests", "test\SuperSocket.MCP.Tests\SuperSocket.MCP.Tests.csproj", "{E2B5D8F7-3A4C-4E6D-8F9E-1A2B3C4D5E6F}"
 EndProject
