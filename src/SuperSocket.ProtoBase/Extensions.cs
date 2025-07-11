@@ -10,6 +10,8 @@ namespace SuperSocket.ProtoBase
     /// </summary>
     public static class Extensions
     {
+        private static readonly ReadOnlyMemory<byte> CRLF = Encoding.ASCII.GetBytes("\r\n").AsMemory();
+
         /// <summary>
         /// Reads a string from the sequence reader using UTF-8 encoding.
         /// </summary>
@@ -300,6 +302,17 @@ namespace SuperSocket.ProtoBase
             }
 
             return totalBytes;
+        }
+
+        /// <summary>
+        /// Writes a CRLF (Carriage Return + Line Feed) sequence to the buffer writer.
+        /// </summary>
+        /// <param name="writer">The buffer writer.</param>
+        /// <returns>The total number of bytes written to the buffer writer.</returns>
+        public static int WriteCrLf(this IBufferWriter<byte> writer)
+        {
+            writer.Write(CRLF.Span);
+            return CRLF.Length;
         }
     }
 }
