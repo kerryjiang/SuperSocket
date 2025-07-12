@@ -139,3 +139,105 @@ public class McpToolResult
     /// </summary>
     public bool IsError { get; set; }
 }
+
+/// <summary>
+/// Response for tools/list request
+/// </summary>
+public class McpToolsListResponse
+{
+    /// <summary>
+    /// List of available tools
+    /// </summary>
+    [JsonPropertyName("tools")]
+    public List<McpTool> Tools { get; set; } = new();
+
+    /// <summary>
+    /// Cursor for next page (if applicable)
+    /// </summary>
+    [JsonPropertyName("nextCursor")]
+    public string? NextCursor { get; set; }
+}
+
+/// <summary>
+/// Request for tools/call
+/// </summary>
+public class McpToolsCallRequest
+{
+    /// <summary>
+    /// Name of the tool to call
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Arguments for the tool call
+    /// </summary>
+    [JsonPropertyName("arguments")]
+    public Dictionary<string, object> Arguments { get; set; } = new();
+}
+
+/// <summary>
+/// Response for resources/list request
+/// </summary>
+public class McpResourcesListResponse
+{
+    /// <summary>
+    /// List of available resources
+    /// </summary>
+    [JsonPropertyName("resources")]
+    public List<McpResource> Resources { get; set; } = new();
+
+    /// <summary>
+    /// Cursor for next page (if applicable)
+    /// </summary>
+    [JsonPropertyName("nextCursor")]
+    public string? NextCursor { get; set; }
+}
+
+/// <summary>
+/// Request for resources/read
+/// </summary>
+public class McpResourcesReadRequest
+{
+    /// <summary>
+    /// URI of the resource to read
+    /// </summary>
+    [JsonPropertyName("uri")]
+    public string Uri { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Response for prompts/list request
+/// </summary>
+public class McpPromptsListResponse
+{
+    /// <summary>
+    /// List of available prompts
+    /// </summary>
+    [JsonPropertyName("prompts")]
+    public List<McpPrompt> Prompts { get; set; } = new();
+
+    /// <summary>
+    /// Cursor for next page (if applicable)
+    /// </summary>
+    [JsonPropertyName("nextCursor")]
+    public string? NextCursor { get; set; }
+}
+
+/// <summary>
+/// Request for prompts/get
+/// </summary>
+public class McpPromptsGetRequest
+{
+    /// <summary>
+    /// Name of the prompt to get
+    /// </summary>
+    [JsonPropertyName("name")]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Arguments for the prompt
+    /// </summary>
+    [JsonPropertyName("arguments")]
+    public Dictionary<string, object>? Arguments { get; set; }
+}

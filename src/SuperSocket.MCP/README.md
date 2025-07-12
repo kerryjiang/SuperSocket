@@ -5,9 +5,11 @@ This package provides comprehensive support for the Model Context Protocol (MCP)
 ## Features
 
 - **Complete MCP Protocol Support**: Full JSON-RPC 2.0 implementation following MCP specification version 2024-11-05
+- **Dual Transport Support**: Both TCP (Content-Length headers) and HTTP (POST/SSE) transports
 - **Tool Integration**: Easy registration and execution of MCP tools with JSON Schema validation
 - **Resource Management**: Support for MCP resources with subscription capabilities
 - **Prompt Handling**: MCP prompt management and templating
+- **Server-Sent Events**: Real-time notifications via SSE for HTTP transport
 - **SuperSocket Integration**: Leverages SuperSocket's robust pipeline architecture
 - **Extensibility**: Clean interfaces for implementing custom handlers
 - **Error Handling**: Proper MCP error responses with standard error codes
@@ -15,6 +17,8 @@ This package provides comprehensive support for the Model Context Protocol (MCP)
 - **Concurrent Operations**: Thread-safe handler management
 
 ## Quick Start
+
+### TCP Transport (Original)
 
 ### 1. Create a Simple MCP Server
 
@@ -70,6 +74,71 @@ var host = SuperSocketHostBuilder.Create<McpMessage, McpPipelineFilter>(args)
     .Build();
 
 await host.RunAsync();
+```
+
+### HTTP Transport (New)
+
+### 1. Create an HTTP MCP Server
+
+```csharp
+using SuperSocket.MCP;
+using SuperSocket.Server.Host;
+
+var host = SuperSocketHostBuilder.Create<McpHttpRequest, McpHttpPipelineFilter>(args)
+    .UsePackageHandler(async (session, request) =>
+    {
+        var logger = session.Server.ServiceProvider.GetService(typeof(ILogger<McpHttpServer>)) as ILogger<McpHttpServer>;
+        var serverInfo = new McpServerInfo
+        {
+            Name = "My HTTP MCP Server",
+            Version = "1.0.0",
+            ProtocolVersion = "2024-11-05"
+        };
+        
+        var mcpServer = new McpHttpServer(logger!, serverInfo);
+        
+        // Register your tools
+        mcpServer.RegisterTool("echo", new EchoToolHandler());
+        
+        // Handle HTTP request
+        await mcpServer.HandleHttpRequestAsync(request, session);
+    })
+    .ConfigureSuperSocket(options =>
+    {
+        options.Name = "McpHttpServer";
+        options.AddListener(new ListenOptions { Ip = "Any", Port = 8080 });
+    })
+    .Build();
+
+await host.RunAsync();
+```
+
+### 2. HTTP API Endpoints
+
+- **POST /mcp**: Send MCP JSON-RPC requests
+- **GET /mcp/events**: Connect to Server-Sent Events for notifications
+- **GET /mcp/capabilities**: Get server capabilities
+
+### 3. Example HTTP Usage
+
+```bash
+# Send a tool call via HTTP POST
+curl -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "tools/call",
+    "params": {
+      "name": "echo",
+      "arguments": {
+        "message": "Hello from HTTP!"
+      }
+    }
+  }'
+
+# Connect to SSE for real-time notifications
+curl -N -H "Accept: text/event-stream" http://localhost:8080/mcp/events
 ```
 
 ### 2. Implement a Tool Handler
@@ -180,6 +249,8 @@ public interface IMcpPromptHandler
 
 The package provides convenient extension methods for session handling:
 
+### TCP Transport Extensions
+
 ```csharp
 // Send MCP messages
 await session.SendMcpMessageAsync(message);
@@ -191,6 +262,20 @@ await session.SendMcpNotificationAsync(method, parameters);
 var response = McpExtensions.CreateMcpResponse(id, result);
 var error = McpExtensions.CreateMcpError(id, code, message);
 var notification = McpExtensions.CreateMcpNotification(method, parameters);
+```
+
+### HTTP Transport Extensions
+
+```csharp
+// Send HTTP responses with MCP content
+await session.SendHttpMcpResponseAsync(message);
+await session.SendHttpMcpErrorAsync(id, code, message);
+await session.SendHttpMcpResultAsync(id, result);
+
+// Server-Sent Events support
+var writer = await session.StartMcpServerSentEventsAsync();
+await writer.SendMcpEventAsync(message);
+await writer.SendMcpNotificationEventAsync(method, parameters);
 ```
 
 ## Testing
@@ -210,18 +295,38 @@ dotnet test test/SuperSocket.MCP.Tests/
 
 ## Examples
 
-See the `samples/McpServer/` directory for complete examples including:
+See the sample directories for complete examples:
 
+- **samples/McpServer/**: TCP-based MCP server with echo and math tools
+- **samples/McpHttpServer/**: HTTP-based MCP server with REST API and SSE support
+
+Both examples include:
 - Echo tool: Simple message echoing
 - Math tool: Basic arithmetic operations with error handling
-- Server setup: Complete MCP server configuration
+- Complete server setup and configuration
+
+## Transport Comparison
+
+| Feature | TCP (Content-Length) | HTTP (POST/SSE) |
+|---------|---------------------|-----------------|
+| Protocol | Content-Length + JSON | HTTP + JSON |
+| Default Port | 3000 | 8080 |
+| Streaming | Bidirectional | SSE for notifications |
+| Web Compatible | No | Yes |
+| Firewall Friendly | No | Yes |
+| Load Balancer Support | Limited | Full |
+| Browser Support | No | Yes |
+
+Both transports support the same MCP features and can be used simultaneously.
 
 ## Compatibility
 
 - Compatible with MCP specification version 2024-11-05
 - Requires .NET 6.0 or later
 - Works with SuperSocket's existing infrastructure
-- Supports both HTTP and TCP transports
+- Supports both TCP and HTTP transports
+- TCP transport uses Content-Length headers (like Language Server Protocol)
+- HTTP transport uses standard HTTP methods with JSON-RPC 2.0 bodies
 
 ## Error Handling
 
