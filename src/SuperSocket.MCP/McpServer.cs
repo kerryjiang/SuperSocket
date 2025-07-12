@@ -351,7 +351,7 @@ public class McpServer
                 JsonSerializer.Deserialize<Dictionary<string, object>>(
                     JsonSerializer.Serialize(promptParams["arguments"])) : null;
 
-            var promptResult = await handler.GetPromptAsync(args);
+            var promptResult = await handler.GetAsync(name, args);
 
             return new McpMessage
             {

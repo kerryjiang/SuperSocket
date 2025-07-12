@@ -125,10 +125,10 @@ public class McpHttpServer
                 // Handle capability inquiry
                 var capabilities = new McpServerCapabilities
                 {
-                    Tools = new McpToolsCapability { ListChanged = true },
-                    Resources = new McpResourcesCapability { Subscribe = true, ListChanged = true },
-                    Prompts = new McpPromptsCapability { ListChanged = true },
-                    Logging = new McpLoggingCapability()
+                    Tools = new McpToolsCapabilities { ListChanged = true },
+                    Resources = new McpResourcesCapabilities { Subscribe = true, ListChanged = true },
+                    Prompts = new McpPromptsCapabilities { ListChanged = true },
+                    Logging = new McpLoggingCapabilities()
                 };
 
                 var response = new HttpResponse();
@@ -211,6 +211,8 @@ public class McpHttpServer
     /// <returns>Task</returns>
     private async Task HandleMcpNotificationAsync(McpMessage notification, IAppSession session)
     {
+        await Task.Yield(); // Simulate async operation
+        
         _logger.LogInformation("Received notification: {Method}", notification.Method);
         
         // Handle notification based on method
@@ -263,19 +265,21 @@ public class McpHttpServer
     
     private async Task<McpMessage> HandleInitializeAsync(McpMessage request)
     {
-        var initializeRequest = System.Text.Json.JsonSerializer.Deserialize<McpInitializeRequest>(
+        await Task.Yield(); // Simulate async operation
+
+        var initializeRequest = System.Text.Json.JsonSerializer.Deserialize<McpInitializeParams>(
             System.Text.Json.JsonSerializer.Serialize(request.Params));
 
-        var response = new McpInitializeResponse
+        var response = new McpInitializeResult
         {
             ProtocolVersion = _serverInfo.ProtocolVersion,
             ServerInfo = _serverInfo,
             Capabilities = new McpServerCapabilities
             {
-                Tools = new McpToolsCapability { ListChanged = true },
-                Resources = new McpResourcesCapability { Subscribe = true, ListChanged = true },
-                Prompts = new McpPromptsCapability { ListChanged = true },
-                Logging = new McpLoggingCapability()
+                Tools = new McpToolsCapabilities { ListChanged = true },
+                Resources = new McpResourcesCapabilities { Subscribe = true, ListChanged = true },
+                Prompts = new McpPromptsCapabilities { ListChanged = true },
+                Logging = new McpLoggingCapabilities()
             }
         };
 
