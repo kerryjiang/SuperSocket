@@ -9,7 +9,7 @@ using SuperSocket.MCP.Models;
 using SuperSocket.ProtoBase;
 using Xunit;
 
-namespace SuperSocket.MCP.Tests
+namespace SuperSocket.Tests.Mcp
 {
     public class McpHttpTests
     {

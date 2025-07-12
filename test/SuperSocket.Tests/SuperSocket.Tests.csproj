@@ -14,6 +14,7 @@
     <ProjectReference Include="../../src/SuperSocket.Udp/SuperSocket.Udp.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Http/SuperSocket.Http.csproj" />
     <ProjectReference Include="../../src/SuperSocket.Kestrel/SuperSocket.Kestrel.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.MCP/SuperSocket.MCP.csproj" />
     <ProjectReference Include="../SuperSocket.Tests.Command/SuperSocket.Tests.Command.csproj" />
   </ItemGroup>
   <ItemGroup>  
