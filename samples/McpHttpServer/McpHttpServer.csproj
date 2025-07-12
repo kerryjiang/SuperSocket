@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../src/SuperSocket.MCP/SuperSocket.MCP.csproj" />
+    <ProjectReference Include="../../src/SuperSocket.Server.Host/SuperSocket.Server.Host.csproj" />
+  </ItemGroup>
+
+</Project>
