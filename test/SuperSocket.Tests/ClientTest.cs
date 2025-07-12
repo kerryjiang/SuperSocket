@@ -164,7 +164,7 @@ namespace SuperSocket.Tests
                         if (e.SocketErrorCode == SocketError.AccessDenied || e.SocketErrorCode == SocketError.AddressAlreadyInUse)
                             continue;
                         
-                        throw e;
+                        throw;
                     }
 
                     break;                    
