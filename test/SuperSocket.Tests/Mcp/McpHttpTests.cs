@@ -35,7 +35,7 @@ namespace SuperSocket.Tests.Mcp
             // Assert
             Assert.NotNull(mcpHttpRequest.McpMessage);
             Assert.Equal("2.0", mcpHttpRequest.McpMessage.JsonRpc);
-            Assert.Equal(1, mcpHttpRequest.McpMessage.Id);
+            Assert.Equal("1", mcpHttpRequest.McpMessage.Id?.ToString());
             Assert.Equal("tools/call", mcpHttpRequest.McpMessage.Method);
             Assert.True(mcpHttpRequest.McpMessage.IsRequest);
         }
