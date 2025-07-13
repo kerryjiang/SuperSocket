@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -13,14 +14,13 @@ namespace SuperSocket.MCP;
 
 /// <summary>
 /// HTTP-based MCP server that handles MCP messages over HTTP
+/// [Obsolete] Consider using McpCommandServer for new implementations
 /// </summary>
 public class McpHttpServer
 {
     private readonly ILogger<McpHttpServer> _logger;
     private readonly McpServerInfo _serverInfo;
-    private readonly Dictionary<string, IMcpToolHandler> _toolHandlers;
-    private readonly Dictionary<string, IMcpResourceHandler> _resourceHandlers;
-    private readonly Dictionary<string, IMcpPromptHandler> _promptHandlers;
+    private readonly IMcpHandlerRegistry _handlerRegistry;
     private readonly Dictionary<string, ServerSentEventWriter> _sseClients;
 
     /// <summary>
@@ -28,13 +28,12 @@ public class McpHttpServer
     /// </summary>
     /// <param name="logger">Logger instance</param>
     /// <param name="serverInfo">Server information</param>
-    public McpHttpServer(ILogger<McpHttpServer> logger, McpServerInfo serverInfo)
+    /// <param name="handlerRegistry">Handler registry (optional, will create new if not provided)</param>
+    public McpHttpServer(ILogger<McpHttpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serverInfo = serverInfo ?? throw new ArgumentNullException(nameof(serverInfo));
-        _toolHandlers = new Dictionary<string, IMcpToolHandler>();
-        _resourceHandlers = new Dictionary<string, IMcpResourceHandler>();
-        _promptHandlers = new Dictionary<string, IMcpPromptHandler>();
+        _handlerRegistry = handlerRegistry ?? new McpHandlerRegistry(Microsoft.Extensions.Logging.Abstractions.NullLogger<McpHandlerRegistry>.Instance);
         _sseClients = new Dictionary<string, ServerSentEventWriter>();
     }
 
@@ -45,7 +44,7 @@ public class McpHttpServer
     /// <param name="handler">Tool handler</param>
     public void RegisterTool(string name, IMcpToolHandler handler)
     {
-        _toolHandlers[name] = handler;
+        _handlerRegistry.RegisterTool(name, handler);
     }
 
     /// <summary>
@@ -55,7 +54,7 @@ public class McpHttpServer
     /// <param name="handler">Resource handler</param>
     public void RegisterResource(string name, IMcpResourceHandler handler)
     {
-        _resourceHandlers[name] = handler;
+        _handlerRegistry.RegisterResource(name, handler);
     }
 
     /// <summary>
@@ -65,7 +64,7 @@ public class McpHttpServer
     /// <param name="handler">Prompt handler</param>
     public void RegisterPrompt(string name, IMcpPromptHandler handler)
     {
-        _promptHandlers[name] = handler;
+        _handlerRegistry.RegisterPrompt(name, handler);
     }
 
     /// <summary>
@@ -123,11 +122,15 @@ public class McpHttpServer
             else if (path == "/mcp/capabilities" && httpRequest.HttpRequest.Method == "GET")
             {
                 // Handle capability inquiry
+                var toolHandlers = _handlerRegistry.GetToolHandlers();
+                var resourceHandlers = _handlerRegistry.GetResourceHandlers();
+                var promptHandlers = _handlerRegistry.GetPromptHandlers();
+                
                 var capabilities = new McpServerCapabilities
                 {
-                    Tools = new McpToolsCapabilities { ListChanged = true },
-                    Resources = new McpResourcesCapabilities { Subscribe = true, ListChanged = true },
-                    Prompts = new McpPromptsCapabilities { ListChanged = true },
+                    Tools = toolHandlers.Any() ? new McpToolsCapabilities { ListChanged = true } : null,
+                    Resources = resourceHandlers.Any() ? new McpResourcesCapabilities { Subscribe = true, ListChanged = true } : null,
+                    Prompts = promptHandlers.Any() ? new McpPromptsCapabilities { ListChanged = true } : null,
                     Logging = new McpLoggingCapabilities()
                 };
 
@@ -270,15 +273,19 @@ public class McpHttpServer
         var initializeRequest = System.Text.Json.JsonSerializer.Deserialize<McpInitializeParams>(
             System.Text.Json.JsonSerializer.Serialize(request.Params));
 
+        var toolHandlers = _handlerRegistry.GetToolHandlers();
+        var resourceHandlers = _handlerRegistry.GetResourceHandlers();
+        var promptHandlers = _handlerRegistry.GetPromptHandlers();
+
         var response = new McpInitializeResult
         {
             ProtocolVersion = _serverInfo.ProtocolVersion,
             ServerInfo = _serverInfo,
             Capabilities = new McpServerCapabilities
             {
-                Tools = new McpToolsCapabilities { ListChanged = true },
-                Resources = new McpResourcesCapabilities { Subscribe = true, ListChanged = true },
-                Prompts = new McpPromptsCapabilities { ListChanged = true },
+                Tools = toolHandlers.Any() ? new McpToolsCapabilities { ListChanged = true } : null,
+                Resources = resourceHandlers.Any() ? new McpResourcesCapabilities { Subscribe = true, ListChanged = true } : null,
+                Prompts = promptHandlers.Any() ? new McpPromptsCapabilities { ListChanged = true } : null,
                 Logging = new McpLoggingCapabilities()
             }
         };
@@ -289,8 +296,9 @@ public class McpHttpServer
     private async Task<McpMessage> HandleToolsListAsync(McpMessage request)
     {
         var tools = new List<McpTool>();
+        var toolHandlers = _handlerRegistry.GetToolHandlers();
         
-        foreach (var kvp in _toolHandlers)
+        foreach (var kvp in toolHandlers)
         {
             var tool = await kvp.Value.GetToolDefinitionAsync();
             tools.Add(tool);
@@ -305,7 +313,8 @@ public class McpHttpServer
         var callRequest = System.Text.Json.JsonSerializer.Deserialize<McpToolsCallRequest>(
             System.Text.Json.JsonSerializer.Serialize(request.Params));
 
-        if (!_toolHandlers.TryGetValue(callRequest.Name, out var handler))
+        var handler = _handlerRegistry.GetToolHandler(callRequest.Name);
+        if (handler == null)
         {
             return McpExtensions.CreateMcpError(request.Id, McpErrorCodes.MethodNotFound, 
                 $"Tool '{callRequest.Name}' not found");
@@ -318,8 +327,9 @@ public class McpHttpServer
     private async Task<McpMessage> HandleResourcesListAsync(McpMessage request)
     {
         var resources = new List<McpResource>();
+        var resourceHandlers = _handlerRegistry.GetResourceHandlers();
         
-        foreach (var kvp in _resourceHandlers)
+        foreach (var kvp in resourceHandlers)
         {
             var resource = await kvp.Value.GetResourceDefinitionAsync();
             resources.Add(resource);
@@ -334,7 +344,8 @@ public class McpHttpServer
         var readRequest = System.Text.Json.JsonSerializer.Deserialize<McpResourcesReadRequest>(
             System.Text.Json.JsonSerializer.Serialize(request.Params));
 
-        if (!_resourceHandlers.TryGetValue(readRequest.Uri, out var handler))
+        var handler = _handlerRegistry.GetResourceHandler(readRequest.Uri);
+        if (handler == null)
         {
             return McpExtensions.CreateMcpError(request.Id, McpErrorCodes.MethodNotFound, 
                 $"Resource '{readRequest.Uri}' not found");
@@ -347,8 +358,9 @@ public class McpHttpServer
     private async Task<McpMessage> HandlePromptsListAsync(McpMessage request)
     {
         var prompts = new List<McpPrompt>();
+        var promptHandlers = _handlerRegistry.GetPromptHandlers();
         
-        foreach (var kvp in _promptHandlers)
+        foreach (var kvp in promptHandlers)
         {
             var prompt = await kvp.Value.GetPromptDefinitionAsync();
             prompts.Add(prompt);
@@ -363,7 +375,8 @@ public class McpHttpServer
         var getRequest = System.Text.Json.JsonSerializer.Deserialize<McpPromptsGetRequest>(
             System.Text.Json.JsonSerializer.Serialize(request.Params));
 
-        if (!_promptHandlers.TryGetValue(getRequest.Name, out var handler))
+        var handler = _handlerRegistry.GetPromptHandler(getRequest.Name);
+        if (handler == null)
         {
             return McpExtensions.CreateMcpError(request.Id, McpErrorCodes.MethodNotFound, 
                 $"Prompt '{getRequest.Name}' not found");

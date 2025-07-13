@@ -13,22 +13,28 @@ namespace SuperSocket.MCP;
 
 /// <summary>
 /// MCP server implementation handling the Model Context Protocol
+/// [Obsolete] Consider using McpCommandServer for new implementations
 /// </summary>
 public class McpServer
 {
     private readonly ILogger<McpServer> _logger;
     private readonly McpServerInfo _serverInfo;
-    private readonly ConcurrentDictionary<string, IMcpToolHandler> _toolHandlers = new();
-    private readonly ConcurrentDictionary<string, IMcpResourceHandler> _resourceHandlers = new();
-    private readonly ConcurrentDictionary<string, IMcpPromptHandler> _promptHandlers = new();
+    private readonly IMcpHandlerRegistry _handlerRegistry;
 
     private bool _initialized = false;
     private McpClientInfo? _clientInfo;
 
-    public McpServer(ILogger<McpServer> logger, McpServerInfo serverInfo)
+    /// <summary>
+    /// Initializes a new instance of the McpServer class
+    /// </summary>
+    /// <param name="logger">Logger instance</param>
+    /// <param name="serverInfo">Server information</param>
+    /// <param name="handlerRegistry">Handler registry (optional, will create new if not provided)</param>
+    public McpServer(ILogger<McpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serverInfo = serverInfo ?? throw new ArgumentNullException(nameof(serverInfo));
+        _handlerRegistry = handlerRegistry ?? new McpHandlerRegistry(Microsoft.Extensions.Logging.Abstractions.NullLogger<McpHandlerRegistry>.Instance);
     }
 
     /// <summary>
@@ -38,8 +44,7 @@ public class McpServer
     /// <param name="handler">Tool handler</param>
     public void RegisterTool(string name, IMcpToolHandler handler)
     {
-        _toolHandlers.TryAdd(name, handler);
-        _logger.LogInformation("Registered tool: {ToolName}", name);
+        _handlerRegistry.RegisterTool(name, handler);
     }
 
     /// <summary>
@@ -49,8 +54,7 @@ public class McpServer
     /// <param name="handler">Resource handler</param>
     public void RegisterResource(string uri, IMcpResourceHandler handler)
     {
-        _resourceHandlers.TryAdd(uri, handler);
-        _logger.LogInformation("Registered resource: {ResourceUri}", uri);
+        _handlerRegistry.RegisterResource(uri, handler);
     }
 
     /// <summary>
@@ -60,8 +64,7 @@ public class McpServer
     /// <param name="handler">Prompt handler</param>
     public void RegisterPrompt(string name, IMcpPromptHandler handler)
     {
-        _promptHandlers.TryAdd(name, handler);
-        _logger.LogInformation("Registered prompt: {PromptName}", name);
+        _handlerRegistry.RegisterPrompt(name, handler);
     }
 
     /// <summary>
@@ -142,15 +145,20 @@ public class McpServer
 
             _clientInfo = initParams.ClientInfo;
             
+            // Create server capabilities based on registered handlers
+            var toolHandlers = _handlerRegistry.GetToolHandlers();
+            var resourceHandlers = _handlerRegistry.GetResourceHandlers();
+            var promptHandlers = _handlerRegistry.GetPromptHandlers();
+            
             var result = new McpInitializeResult
             {
                 ProtocolVersion = _serverInfo.ProtocolVersion,
                 ServerInfo = _serverInfo,
                 Capabilities = new McpServerCapabilities
                 {
-                    Tools = _toolHandlers.Any() ? new McpToolsCapabilities { ListChanged = true } : null,
-                    Resources = _resourceHandlers.Any() ? new McpResourcesCapabilities { ListChanged = true, Subscribe = true } : null,
-                    Prompts = _promptHandlers.Any() ? new McpPromptsCapabilities { ListChanged = true } : null,
+                    Tools = toolHandlers.Any() ? new McpToolsCapabilities { ListChanged = true } : null,
+                    Resources = resourceHandlers.Any() ? new McpResourcesCapabilities { ListChanged = true, Subscribe = true } : null,
+                    Prompts = promptHandlers.Any() ? new McpPromptsCapabilities { ListChanged = true } : null,
                     Logging = new McpLoggingCapabilities()
                 }
             };
@@ -181,8 +189,9 @@ public class McpServer
     private async Task<McpMessage> HandleListToolsAsync(McpMessage message)
     {
         var tools = new List<McpTool>();
+        var toolHandlers = _handlerRegistry.GetToolHandlers();
         
-        foreach (var handler in _toolHandlers.Values)
+        foreach (var handler in toolHandlers.Values)
         {
             try
             {
@@ -220,7 +229,7 @@ public class McpServer
                 return CreateErrorResponse(message.Id, McpErrorCodes.InvalidParams, "Invalid tool call parameters");
             }
 
-            if (!_toolHandlers.TryGetValue(callParams.Name, out var handler))
+            if (!_handlerRegistry.GetToolHandlers().TryGetValue(callParams.Name, out var handler))
             {
                 return CreateErrorResponse(message.Id, McpErrorCodes.MethodNotFound, $"Tool '{callParams.Name}' not found");
             }
@@ -249,8 +258,9 @@ public class McpServer
     private async Task<McpMessage> HandleListResourcesAsync(McpMessage message)
     {
         var resources = new List<McpResource>();
+        var resourceHandlers = _handlerRegistry.GetResourceHandlers();
         
-        foreach (var handler in _resourceHandlers.Values)
+        foreach (var handler in resourceHandlers.Values)
         {
             try
             {
@@ -284,7 +294,7 @@ public class McpServer
             }
 
             var uri = uriObj?.ToString();
-            if (string.IsNullOrEmpty(uri) || !_resourceHandlers.TryGetValue(uri, out var handler))
+            if (string.IsNullOrEmpty(uri) || !_handlerRegistry.GetResourceHandlers().TryGetValue(uri, out var handler))
             {
                 return CreateErrorResponse(message.Id, McpErrorCodes.MethodNotFound, $"Resource '{uri}' not found");
             }
@@ -307,8 +317,9 @@ public class McpServer
     private async Task<McpMessage> HandleListPromptsAsync(McpMessage message)
     {
         var prompts = new List<McpPrompt>();
+        var promptHandlers = _handlerRegistry.GetPromptHandlers();
         
-        foreach (var handler in _promptHandlers.Values)
+        foreach (var handler in promptHandlers.Values)
         {
             try
             {
@@ -342,7 +353,7 @@ public class McpServer
             }
 
             var name = nameObj?.ToString();
-            if (string.IsNullOrEmpty(name) || !_promptHandlers.TryGetValue(name, out var handler))
+            if (string.IsNullOrEmpty(name) || !_handlerRegistry.GetPromptHandlers().TryGetValue(name, out var handler))
             {
                 return CreateErrorResponse(message.Id, McpErrorCodes.MethodNotFound, $"Prompt '{name}' not found");
             }
