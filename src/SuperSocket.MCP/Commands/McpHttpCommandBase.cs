@@ -4,46 +4,54 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Command;
 using SuperSocket.MCP.Abstractions;
+using SuperSocket.MCP.Extensions;
 using SuperSocket.MCP.Models;
 using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.MCP.Commands
 {
     /// <summary>
-    /// Base class for MCP commands that handle McpMessage packets
+    /// Base class for MCP commands that handle HTTP requests containing MCP messages
     /// </summary>
-    public abstract class McpCommandBase : IAsyncCommand<McpMessage>
+    public abstract class McpHttpCommandBase : IAsyncCommand<McpHttpRequest>
     {
         protected readonly ILogger _logger;
         protected readonly IMcpHandlerRegistry _handlerRegistry;
 
         /// <summary>
-        /// Initializes a new instance of the McpCommandBase class
+        /// Initializes a new instance of the McpHttpCommandBase class
         /// </summary>
         /// <param name="logger">Logger instance</param>
         /// <param name="handlerRegistry">Handler registry for accessing registered handlers</param>
-        protected McpCommandBase(ILogger logger, IMcpHandlerRegistry handlerRegistry)
+        protected McpHttpCommandBase(ILogger logger, IMcpHandlerRegistry handlerRegistry)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _handlerRegistry = handlerRegistry ?? throw new ArgumentNullException(nameof(handlerRegistry));
         }
 
         /// <inheritdoc />
-        public async ValueTask ExecuteAsync(IAppSession session, McpMessage package, CancellationToken cancellationToken)
+        public async ValueTask ExecuteAsync(IAppSession session, McpHttpRequest package, CancellationToken cancellationToken)
         {
             try
             {
-                var response = await HandleAsync(session, package, cancellationToken);
+                // Extract MCP message from HTTP request
+                if (package.McpMessage == null)
+                {
+                    await session.SendHttpMcpErrorAsync(null, McpErrorCodes.InvalidRequest, "No MCP message found in HTTP request", cancellationToken: cancellationToken);
+                    return;
+                }
+
+                var response = await HandleAsync(session, package.McpMessage, cancellationToken);
                 if (response != null)
                 {
-                    await SendResponseAsync(session, response, cancellationToken);
+                    await session.SendHttpMcpResponseAsync(response, cancellationToken);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error executing MCP command");
-                var errorResponse = CreateErrorResponse(package.Id, McpErrorCodes.InternalError, "Internal server error");
-                await SendResponseAsync(session, errorResponse, cancellationToken);
+                _logger.LogError(ex, "Error executing MCP HTTP command");
+                var errorResponse = CreateErrorResponse(package.McpMessage?.Id, McpErrorCodes.InternalError, "Internal server error");
+                await session.SendHttpMcpResponseAsync(errorResponse, cancellationToken);
             }
         }
 
@@ -55,34 +63,6 @@ namespace SuperSocket.MCP.Commands
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Response message, or null if no response should be sent</returns>
         protected abstract Task<McpMessage?> HandleAsync(IAppSession session, McpMessage message, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Handles the MCP command logic and returns the response message (public for dispatcher)
-        /// </summary>
-        /// <param name="session">Application session</param>
-        /// <param name="message">Incoming MCP message</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>Response message, or null if no response should be sent</returns>
-        public Task<McpMessage?> HandleMessageAsync(IAppSession session, McpMessage message, CancellationToken cancellationToken)
-        {
-            return HandleAsync(session, message, cancellationToken);
-        }
-
-        /// <summary>
-        /// Sends a response message back to the client
-        /// </summary>
-        /// <param name="session">Application session</param>
-        /// <param name="response">Response message to send</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>Task representing the async operation</returns>
-        protected virtual async Task SendResponseAsync(IAppSession session, McpMessage response, CancellationToken cancellationToken)
-        {
-            // Default implementation - serialize to JSON and send as bytes
-            // This will be overridden by transport-specific implementations
-            var json = System.Text.Json.JsonSerializer.Serialize(response);
-            var bytes = System.Text.Encoding.UTF8.GetBytes(json);
-            await session.SendAsync(bytes, cancellationToken);
-        }
 
         /// <summary>
         /// Creates a success response message

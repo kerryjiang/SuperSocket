@@ -28,6 +28,9 @@ namespace SuperSocket.MCP.Extensions
             // Register the handler registry
             services.AddSingleton<IMcpHandlerRegistry, McpHandlerRegistry>();
 
+            // Register the command dispatcher
+            services.AddSingleton<McpCommandDispatcher>();
+
             // Register MCP commands
             services.AddScoped<InitializeCommand>();
             services.AddScoped<ListToolsCommand>();

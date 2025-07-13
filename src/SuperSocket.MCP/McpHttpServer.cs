@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Http;
 using SuperSocket.MCP.Abstractions;
+using SuperSocket.MCP.Commands;
 using SuperSocket.MCP.Extensions;
 using SuperSocket.MCP.Models;
 using SuperSocket.Server.Abstractions.Session;
@@ -21,6 +23,7 @@ public class McpHttpServer
     private readonly ILogger<McpHttpServer> _logger;
     private readonly McpServerInfo _serverInfo;
     private readonly IMcpHandlerRegistry _handlerRegistry;
+    private readonly McpCommandDispatcher _commandDispatcher;
     private readonly Dictionary<string, ServerSentEventWriter> _sseClients;
 
     /// <summary>
@@ -29,11 +32,34 @@ public class McpHttpServer
     /// <param name="logger">Logger instance</param>
     /// <param name="serverInfo">Server information</param>
     /// <param name="handlerRegistry">Handler registry (optional, will create new if not provided)</param>
-    public McpHttpServer(ILogger<McpHttpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null)
+    /// <param name="commandDispatcher">Command dispatcher (optional, will create new if not provided)</param>
+    public McpHttpServer(ILogger<McpHttpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null, McpCommandDispatcher? commandDispatcher = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serverInfo = serverInfo ?? throw new ArgumentNullException(nameof(serverInfo));
         _handlerRegistry = handlerRegistry ?? new McpHandlerRegistry(Microsoft.Extensions.Logging.Abstractions.NullLogger<McpHandlerRegistry>.Instance);
+        
+        if (commandDispatcher == null)
+        {
+            // Create a simple service provider for fallback
+            var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+            services.AddSingleton(serverInfo);
+            services.AddSingleton<IMcpHandlerRegistry>(_handlerRegistry);
+            services.AddScoped<InitializeCommand>();
+            services.AddScoped<ListToolsCommand>();
+            services.AddScoped<CallToolCommand>();
+            services.AddScoped<ListResourcesCommand>();
+            services.AddScoped<ReadResourceCommand>();
+            services.AddScoped<ListPromptsCommand>();
+            services.AddScoped<GetPromptCommand>();
+            var serviceProvider = services.BuildServiceProvider();
+            _commandDispatcher = new McpCommandDispatcher(serviceProvider, Microsoft.Extensions.Logging.Abstractions.NullLogger<McpCommandDispatcher>.Instance);
+        }
+        else
+        {
+            _commandDispatcher = commandDispatcher;
+        }
+        
         _sseClients = new Dictionary<string, ServerSentEventWriter>();
     }
 
@@ -155,82 +181,14 @@ public class McpHttpServer
     }
 
     /// <summary>
-    /// Handles MCP messages using the existing logic from McpServer
+    /// Handles MCP messages using the command dispatcher
     /// </summary>
     /// <param name="message">MCP message</param>
     /// <param name="session">Session</param>
     /// <returns>Response message</returns>
-    private async Task<McpMessage> HandleMcpMessageAsync(McpMessage message, IAppSession session)
+    private async Task<McpMessage?> HandleMcpMessageAsync(McpMessage message, IAppSession session)
     {
-        if (message.IsRequest)
-        {
-            return await HandleMcpRequestAsync(message, session);
-        }
-        else if (message.IsNotification)
-        {
-            await HandleMcpNotificationAsync(message, session);
-            return null; // No response for notifications
-        }
-        else
-        {
-            return McpExtensions.CreateMcpError(message.Id, McpErrorCodes.InvalidRequest, "Invalid message type");
-        }
-    }
-
-    /// <summary>
-    /// Handles MCP requests
-    /// </summary>
-    /// <param name="request">Request message</param>
-    /// <param name="session">Session</param>
-    /// <returns>Response message</returns>
-    private async Task<McpMessage> HandleMcpRequestAsync(McpMessage request, IAppSession session)
-    {
-        try
-        {
-            return request.Method switch
-            {
-                "initialize" => await HandleInitializeAsync(request),
-                "tools/list" => await HandleToolsListAsync(request),
-                "tools/call" => await HandleToolsCallAsync(request),
-                "resources/list" => await HandleResourcesListAsync(request),
-                "resources/read" => await HandleResourcesReadAsync(request),
-                "prompts/list" => await HandlePromptsListAsync(request),
-                "prompts/get" => await HandlePromptsGetAsync(request),
-                _ => McpExtensions.CreateMcpError(request.Id, McpErrorCodes.MethodNotFound, $"Method '{request.Method}' not found")
-            };
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error handling MCP request: {Method}", request.Method);
-            return McpExtensions.CreateMcpError(request.Id, McpErrorCodes.InternalError, ex.Message);
-        }
-    }
-
-    /// <summary>
-    /// Handles MCP notifications
-    /// </summary>
-    /// <param name="notification">Notification message</param>
-    /// <param name="session">Session</param>
-    /// <returns>Task</returns>
-    private async Task HandleMcpNotificationAsync(McpMessage notification, IAppSession session)
-    {
-        await Task.Yield(); // Simulate async operation
-        
-        _logger.LogInformation("Received notification: {Method}", notification.Method);
-        
-        // Handle notification based on method
-        switch (notification.Method)
-        {
-            case "initialized":
-                _logger.LogInformation("Client initialized");
-                break;
-            case "notifications/cancelled":
-                _logger.LogInformation("Operation cancelled");
-                break;
-            default:
-                _logger.LogWarning("Unknown notification method: {Method}", notification.Method);
-                break;
-        }
+        return await _commandDispatcher.DispatchAsync(session, message);
     }
 
     /// <summary>
@@ -262,127 +220,5 @@ public class McpHttpServer
         {
             _sseClients.Remove(clientId);
         }
-    }
-
-    // Implementation of existing MCP methods (copied from McpServer)
-    
-    private async Task<McpMessage> HandleInitializeAsync(McpMessage request)
-    {
-        await Task.Yield(); // Simulate async operation
-
-        var initializeRequest = System.Text.Json.JsonSerializer.Deserialize<McpInitializeParams>(
-            System.Text.Json.JsonSerializer.Serialize(request.Params));
-
-        var toolHandlers = _handlerRegistry.GetToolHandlers();
-        var resourceHandlers = _handlerRegistry.GetResourceHandlers();
-        var promptHandlers = _handlerRegistry.GetPromptHandlers();
-
-        var response = new McpInitializeResult
-        {
-            ProtocolVersion = _serverInfo.ProtocolVersion,
-            ServerInfo = _serverInfo,
-            Capabilities = new McpServerCapabilities
-            {
-                Tools = toolHandlers.Any() ? new McpToolsCapabilities { ListChanged = true } : null,
-                Resources = resourceHandlers.Any() ? new McpResourcesCapabilities { Subscribe = true, ListChanged = true } : null,
-                Prompts = promptHandlers.Any() ? new McpPromptsCapabilities { ListChanged = true } : null,
-                Logging = new McpLoggingCapabilities()
-            }
-        };
-
-        return McpExtensions.CreateMcpResponse(request.Id, response);
-    }
-
-    private async Task<McpMessage> HandleToolsListAsync(McpMessage request)
-    {
-        var tools = new List<McpTool>();
-        var toolHandlers = _handlerRegistry.GetToolHandlers();
-        
-        foreach (var kvp in toolHandlers)
-        {
-            var tool = await kvp.Value.GetToolDefinitionAsync();
-            tools.Add(tool);
-        }
-
-        var response = new McpToolsListResponse { Tools = tools };
-        return McpExtensions.CreateMcpResponse(request.Id, response);
-    }
-
-    private async Task<McpMessage> HandleToolsCallAsync(McpMessage request)
-    {
-        var callRequest = System.Text.Json.JsonSerializer.Deserialize<McpToolsCallRequest>(
-            System.Text.Json.JsonSerializer.Serialize(request.Params));
-
-        var handler = _handlerRegistry.GetToolHandler(callRequest.Name);
-        if (handler == null)
-        {
-            return McpExtensions.CreateMcpError(request.Id, McpErrorCodes.MethodNotFound, 
-                $"Tool '{callRequest.Name}' not found");
-        }
-
-        var result = await handler.ExecuteAsync(callRequest.Arguments);
-        return McpExtensions.CreateMcpResponse(request.Id, result);
-    }
-
-    private async Task<McpMessage> HandleResourcesListAsync(McpMessage request)
-    {
-        var resources = new List<McpResource>();
-        var resourceHandlers = _handlerRegistry.GetResourceHandlers();
-        
-        foreach (var kvp in resourceHandlers)
-        {
-            var resource = await kvp.Value.GetResourceDefinitionAsync();
-            resources.Add(resource);
-        }
-
-        var response = new McpResourcesListResponse { Resources = resources };
-        return McpExtensions.CreateMcpResponse(request.Id, response);
-    }
-
-    private async Task<McpMessage> HandleResourcesReadAsync(McpMessage request)
-    {
-        var readRequest = System.Text.Json.JsonSerializer.Deserialize<McpResourcesReadRequest>(
-            System.Text.Json.JsonSerializer.Serialize(request.Params));
-
-        var handler = _handlerRegistry.GetResourceHandler(readRequest.Uri);
-        if (handler == null)
-        {
-            return McpExtensions.CreateMcpError(request.Id, McpErrorCodes.MethodNotFound, 
-                $"Resource '{readRequest.Uri}' not found");
-        }
-
-        var result = await handler.ReadAsync(readRequest.Uri);
-        return McpExtensions.CreateMcpResponse(request.Id, result);
-    }
-
-    private async Task<McpMessage> HandlePromptsListAsync(McpMessage request)
-    {
-        var prompts = new List<McpPrompt>();
-        var promptHandlers = _handlerRegistry.GetPromptHandlers();
-        
-        foreach (var kvp in promptHandlers)
-        {
-            var prompt = await kvp.Value.GetPromptDefinitionAsync();
-            prompts.Add(prompt);
-        }
-
-        var response = new McpPromptsListResponse { Prompts = prompts };
-        return McpExtensions.CreateMcpResponse(request.Id, response);
-    }
-
-    private async Task<McpMessage> HandlePromptsGetAsync(McpMessage request)
-    {
-        var getRequest = System.Text.Json.JsonSerializer.Deserialize<McpPromptsGetRequest>(
-            System.Text.Json.JsonSerializer.Serialize(request.Params));
-
-        var handler = _handlerRegistry.GetPromptHandler(getRequest.Name);
-        if (handler == null)
-        {
-            return McpExtensions.CreateMcpError(request.Id, McpErrorCodes.MethodNotFound, 
-                $"Prompt '{getRequest.Name}' not found");
-        }
-
-        var result = await handler.GetAsync(getRequest.Name, getRequest.Arguments);
-        return McpExtensions.CreateMcpResponse(request.Id, result);
     }
 }
