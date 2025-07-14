@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SuperSocket.MCP.Abstractions;
-using SuperSocket.MCP.Commands;
 using SuperSocket.MCP.Models;
 using SuperSocket.Server.Abstractions.Session;
 
@@ -15,14 +13,13 @@ namespace SuperSocket.MCP;
 
 /// <summary>
 /// MCP server implementation handling the Model Context Protocol
-/// [Obsolete] Consider using McpCommandServer for new implementations
+/// [Obsolete] Consider using SuperSocket host builder with UseCommand for new implementations
 /// </summary>
 public class McpServer
 {
     private readonly ILogger<McpServer> _logger;
     private readonly McpServerInfo _serverInfo;
     private readonly IMcpHandlerRegistry _handlerRegistry;
-    private readonly McpCommandDispatcher _commandDispatcher;
 
     private bool _initialized = false;
     private McpClientInfo? _clientInfo;
@@ -33,33 +30,11 @@ public class McpServer
     /// <param name="logger">Logger instance</param>
     /// <param name="serverInfo">Server information</param>
     /// <param name="handlerRegistry">Handler registry (optional, will create new if not provided)</param>
-    /// <param name="commandDispatcher">Command dispatcher (optional, will create new if not provided)</param>
-    public McpServer(ILogger<McpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null, McpCommandDispatcher? commandDispatcher = null)
+    public McpServer(ILogger<McpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serverInfo = serverInfo ?? throw new ArgumentNullException(nameof(serverInfo));
         _handlerRegistry = handlerRegistry ?? new McpHandlerRegistry(Microsoft.Extensions.Logging.Abstractions.NullLogger<McpHandlerRegistry>.Instance);
-        
-        if (commandDispatcher == null)
-        {
-            // Create a simple service provider for fallback
-            var services = new ServiceCollection();
-            services.AddSingleton(serverInfo);
-            services.AddSingleton<IMcpHandlerRegistry>(_handlerRegistry);
-            services.AddScoped<InitializeCommand>();
-            services.AddScoped<ListToolsCommand>();
-            services.AddScoped<CallToolCommand>();
-            services.AddScoped<ListResourcesCommand>();
-            services.AddScoped<ReadResourceCommand>();
-            services.AddScoped<ListPromptsCommand>();
-            services.AddScoped<GetPromptCommand>();
-            var serviceProvider = services.BuildServiceProvider();
-            _commandDispatcher = new McpCommandDispatcher(serviceProvider, Microsoft.Extensions.Logging.Abstractions.NullLogger<McpCommandDispatcher>.Instance);
-        }
-        else
-        {
-            _commandDispatcher = commandDispatcher;
-        }
     }
 
     /// <summary>
@@ -94,19 +69,21 @@ public class McpServer
 
     /// <summary>
     /// Handles an MCP message and returns the appropriate response
+    /// [Obsolete] Use SuperSocket host builder with UseCommand for proper command handling
     /// </summary>
     /// <param name="message">Incoming MCP message</param>
     /// <param name="session">Session context</param>
     /// <returns>Response message if applicable</returns>
+    [Obsolete("Use SuperSocket host builder with UseCommand for proper command handling")]
     public async Task<McpMessage?> HandleMessageAsync(McpMessage message, IAppSession session)
     {
         try
         {
-            // Use the command dispatcher to handle the message
-            var response = await _commandDispatcher.DispatchAsync(session, message);
+            // This is a legacy method - new implementations should use SuperSocket's command system
+            _logger.LogWarning("Using obsolete HandleMessageAsync method. Consider using SuperSocket host builder with UseCommand.");
             
             // Track initialization state for initialize/initialized messages
-            if (message.Method == "initialize" && response != null && response.Error == null)
+            if (message.Method == "initialize" && message.IsRequest)
             {
                 // Extract client info from initialize parameters
                 var initParams = JsonSerializer.Deserialize<McpInitializeParams>(
@@ -119,13 +96,14 @@ public class McpServer
                         _clientInfo.Name, _clientInfo.Version);
                 }
             }
-            else if (message.Method == "initialized")
+            else if (message.Method == "initialized" && message.IsNotification)
             {
                 _initialized = true;
                 _logger.LogInformation("MCP server initialization completed");
             }
             
-            return response;
+            // For legacy support, return null as commands should be handled by SuperSocket's command system
+            return null;
         }
         catch (Exception ex)
         {

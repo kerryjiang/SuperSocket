@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using SuperSocket.Http;
 using SuperSocket.MCP.Abstractions;
 using SuperSocket.MCP.Commands;
-using SuperSocket.MCP.Extensions;
 using SuperSocket.MCP.Models;
 using SuperSocket.Server.Abstractions.Session;
 
@@ -16,14 +14,13 @@ namespace SuperSocket.MCP;
 
 /// <summary>
 /// HTTP-based MCP server that handles MCP messages over HTTP
-/// [Obsolete] Consider using McpCommandServer for new implementations
+/// [Obsolete] Use SuperSocket host builder with UseCommand for new implementations
 /// </summary>
 public class McpHttpServer
 {
     private readonly ILogger<McpHttpServer> _logger;
     private readonly McpServerInfo _serverInfo;
     private readonly IMcpHandlerRegistry _handlerRegistry;
-    private readonly McpCommandDispatcher _commandDispatcher;
     private readonly Dictionary<string, ServerSentEventWriter> _sseClients;
 
     /// <summary>
@@ -32,34 +29,11 @@ public class McpHttpServer
     /// <param name="logger">Logger instance</param>
     /// <param name="serverInfo">Server information</param>
     /// <param name="handlerRegistry">Handler registry (optional, will create new if not provided)</param>
-    /// <param name="commandDispatcher">Command dispatcher (optional, will create new if not provided)</param>
-    public McpHttpServer(ILogger<McpHttpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null, McpCommandDispatcher? commandDispatcher = null)
+    public McpHttpServer(ILogger<McpHttpServer> logger, McpServerInfo serverInfo, IMcpHandlerRegistry? handlerRegistry = null)
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _serverInfo = serverInfo ?? throw new ArgumentNullException(nameof(serverInfo));
         _handlerRegistry = handlerRegistry ?? new McpHandlerRegistry(Microsoft.Extensions.Logging.Abstractions.NullLogger<McpHandlerRegistry>.Instance);
-        
-        if (commandDispatcher == null)
-        {
-            // Create a simple service provider for fallback
-            var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
-            services.AddSingleton(serverInfo);
-            services.AddSingleton<IMcpHandlerRegistry>(_handlerRegistry);
-            services.AddScoped<InitializeCommand>();
-            services.AddScoped<ListToolsCommand>();
-            services.AddScoped<CallToolCommand>();
-            services.AddScoped<ListResourcesCommand>();
-            services.AddScoped<ReadResourceCommand>();
-            services.AddScoped<ListPromptsCommand>();
-            services.AddScoped<GetPromptCommand>();
-            var serviceProvider = services.BuildServiceProvider();
-            _commandDispatcher = new McpCommandDispatcher(serviceProvider, Microsoft.Extensions.Logging.Abstractions.NullLogger<McpCommandDispatcher>.Instance);
-        }
-        else
-        {
-            _commandDispatcher = commandDispatcher;
-        }
-        
         _sseClients = new Dictionary<string, ServerSentEventWriter>();
     }
 
@@ -181,14 +155,21 @@ public class McpHttpServer
     }
 
     /// <summary>
-    /// Handles MCP messages using the command dispatcher
+    /// Handles MCP messages using SuperSocket's native command system
+    /// [Obsolete] Use SuperSocket host builder with UseCommand for proper command handling
     /// </summary>
     /// <param name="message">MCP message</param>
     /// <param name="session">Session</param>
     /// <returns>Response message</returns>
+    [Obsolete("Use SuperSocket host builder with UseCommand for proper command handling")]
     private async Task<McpMessage?> HandleMcpMessageAsync(McpMessage message, IAppSession session)
     {
-        return await _commandDispatcher.DispatchAsync(session, message);
+        // This is a legacy method - new implementations should use SuperSocket's command system
+        _logger.LogWarning("Using obsolete HandleMcpMessageAsync method. Consider using SuperSocket host builder with UseCommand.");
+        
+        // For legacy support, return null as commands should be handled by SuperSocket's command system
+        await Task.Yield();
+        return null;
     }
 
     /// <summary>

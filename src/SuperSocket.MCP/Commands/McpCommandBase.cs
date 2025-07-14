@@ -33,6 +33,13 @@ namespace SuperSocket.MCP.Commands
         {
             try
             {
+                // Handle notifications separately - they don't need responses
+                if (package.IsNotification)
+                {
+                    await McpNotificationHandler.HandleNotificationAsync(session, package, _logger, cancellationToken);
+                    return;
+                }
+
                 var response = await HandleAsync(session, package, cancellationToken);
                 if (response != null)
                 {
@@ -55,18 +62,6 @@ namespace SuperSocket.MCP.Commands
         /// <param name="cancellationToken">Cancellation token</param>
         /// <returns>Response message, or null if no response should be sent</returns>
         protected abstract Task<McpMessage?> HandleAsync(IAppSession session, McpMessage message, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Handles the MCP command logic and returns the response message (public for dispatcher)
-        /// </summary>
-        /// <param name="session">Application session</param>
-        /// <param name="message">Incoming MCP message</param>
-        /// <param name="cancellationToken">Cancellation token</param>
-        /// <returns>Response message, or null if no response should be sent</returns>
-        public Task<McpMessage?> HandleMessageAsync(IAppSession session, McpMessage message, CancellationToken cancellationToken)
-        {
-            return HandleAsync(session, message, cancellationToken);
-        }
 
         /// <summary>
         /// Sends a response message back to the client
