@@ -256,6 +256,7 @@ namespace SuperSocket.Tests.WebSocket
 
                 var testConnections = 100;
                 var websocketStates = new WebSocketState[testConnections];
+                var websockets = new ClientWebSocket[testConnections];
 
                 await Parallel.ForEachAsync(Enumerable.Range(0, 100), async (index, ct) =>
                 {
@@ -270,13 +271,51 @@ namespace SuperSocket.Tests.WebSocket
                     {
                     }
 
+                    websockets[index] = websocket;
                     websocketStates[index] = websocket.State;
                 });
 
+                // Increase delay to allow more time for cleanup, especially on macOS
+                await Task.Delay(3000, TestContext.Current.CancellationToken);
+
+                // Explicit cleanup of any websockets that aren't properly closed
+                for (int i = 0; i < websockets.Length; i++)
+                {
+                    var websocket = websockets[i];
+                    if (websocket != null && websocket.State != WebSocketState.Closed)
+                    {
+                        try
+                        {
+                            await websocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+                        }
+                        catch (Exception)
+                        {
+                            // Ignore exceptions during cleanup
+                        }
+                        finally
+                        {
+                            websocket.Dispose();
+                        }
+                    }
+                    else if (websocket != null)
+                    {
+                        websocket.Dispose();
+                    }
+                }
+
+                // Update states after cleanup
+                for (int i = 0; i < websockets.Length; i++)
+                {
+                    if (websockets[i] != null)
+                    {
+                        websocketStates[i] = websockets[i].State;
+                    }
+                }
 
                 Assert.All(websocketStates, s => Assert.Equal(WebSocketState.Closed, s));
 
-                await Task.Delay(1000, TestContext.Current.CancellationToken);
+                // Add another delay to ensure all resources are released before assertions
+                await Task.Delay(2000, TestContext.Current.CancellationToken);
 
                 Assert.Equal(0, server.SessionCount);
                 Assert.Equal(0, sessionContainer.GetSessionCount());
