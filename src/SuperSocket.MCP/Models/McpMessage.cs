@@ -1,11 +1,12 @@
 using System.Text.Json.Serialization;
+using SuperSocket.ProtoBase;
 
 namespace SuperSocket.MCP.Models;
 
 /// <summary>
 /// Represents the base JSON-RPC 2.0 message structure for MCP protocol
 /// </summary>
-public class McpMessage
+public class McpMessage : IKeyedPackageInfo<string>
 {
     /// <summary>
     /// JSON-RPC version (must be "2.0")
@@ -60,6 +61,12 @@ public class McpMessage
     /// </summary>
     [JsonIgnore]
     public bool IsNotification => !string.IsNullOrEmpty(Method) && Id == null;
+
+    /// <summary>
+    /// Gets the key for SuperSocket's command dispatch system
+    /// </summary>
+    [JsonIgnore]
+    public string Key => Method ?? string.Empty;
 }
 
 /// <summary>
