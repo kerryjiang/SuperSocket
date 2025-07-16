@@ -8,6 +8,7 @@ using SuperSocket.Http;
 using SuperSocket.MCP.Abstractions;
 using SuperSocket.MCP.Commands;
 using SuperSocket.MCP.Models;
+using SuperSocket.MCP.Extensions;
 using SuperSocket.Server.Abstractions.Session;
 
 namespace SuperSocket.MCP;

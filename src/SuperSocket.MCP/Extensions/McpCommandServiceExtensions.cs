@@ -4,6 +4,7 @@ using SuperSocket.Command;
 using SuperSocket.MCP.Abstractions;
 using SuperSocket.MCP.Commands;
 using SuperSocket.MCP.Models;
+using SuperSocket.Server;
 using SuperSocket.Server.Abstractions.Host;
 
 namespace SuperSocket.MCP.Extensions

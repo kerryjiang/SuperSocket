@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using SuperSocket.MCP.Abstractions;
+using SuperSocket.MCP.Extensions;
 using SuperSocket.MCP.Models;
 using SuperSocket.Server.Abstractions.Session;
 
