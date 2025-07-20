@@ -101,7 +101,7 @@ namespace SuperSocket.Tests
                     commandOptions.AddCommand<ADD>();
                     commandOptions.RegisterUnknownPackageHandler<StringPackageInfo>(async (session, package, cancellationToken) =>
                     {
-                        await session.SendAsync(Encoding.UTF8.GetBytes("X\r\n"));
+                        await session.SendAsync(Encoding.UTF8.GetBytes("X\r\n"), cancellationToken);
                     });
 
                     // register all commands in one assembly
@@ -384,7 +384,7 @@ namespace SuperSocket.Tests
 
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
-                await session.SendAsync(_encoder, "OK\r\n");
+                await session.SendAsync(_encoder, "OK\r\n", cancellationToken);
             }
         }
 
@@ -400,7 +400,7 @@ namespace SuperSocket.Tests
 
             public async ValueTask ExecuteAsync(IAppSession session, StringPackageInfo package, CancellationToken cancellationToken)
             {
-                await session.SendAsync(_encoder, "OK\r\n");
+                await session.SendAsync(_encoder, "OK\r\n", cancellationToken);
             }
         }
 
