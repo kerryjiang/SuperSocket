@@ -15,5 +15,6 @@
     <ProjectReference Include="../SuperSocket.Server.Abstractions/SuperSocket.Server.Abstractions.csproj" />
     <ProjectReference Include="../SuperSocket.Http/SuperSocket.Http.csproj" />
     <ProjectReference Include="../SuperSocket.Command/SuperSocket.Command.csproj" />
+    <ProjectReference Include="../SuperSocket.WebSocket.Server/SuperSocket.WebSocket.Server.csproj" />
   </ItemGroup>
 </Project>
