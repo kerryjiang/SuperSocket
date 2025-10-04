@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <TargetFramework>$(SamplesTargetFramework)</TargetFramework>
     <IsPackable>false</IsPackable>
     <Description>SuperSocket Basic Client sample demonstrating how to create a socket client that communicates with a socket server using custom protocols.</Description>
   </PropertyGroup>

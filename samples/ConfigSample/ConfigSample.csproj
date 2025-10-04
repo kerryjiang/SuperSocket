@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <TargetFramework>$(SamplesTargetFramework)</TargetFramework>
     <Description>SuperSocket configuration sample demonstrating different ways to configure a SuperSocket server through appsettings.json files.</Description>
   </PropertyGroup>
   <ItemGroup>

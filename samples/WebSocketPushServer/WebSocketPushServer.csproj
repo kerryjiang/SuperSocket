@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <TargetFramework>$(SamplesTargetFramework)</TargetFramework>
     <Description>SuperSocket WebSocket Push Server sample demonstrating server-initiated message broadcasting to connected WebSocket clients.</Description>
   </PropertyGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <TargetFramework>$(SamplesTargetFramework)</TargetFramework>
     <IsPackable>false</IsPackable>
     <Description>SuperSocket Command Server sample demonstrating how to implement a command-based socket server for processing structured commands like ADD, SUB, and MULT.</Description>
   </PropertyGroup>

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <TargetFramework>$(SamplesTargetFramework)</TargetFramework>
     <IsPackable>false</IsPackable>
     <Description>SuperSocket Echo Server sample demonstrating basic socket server implementation that echoes back received messages.</Description>
   </PropertyGroup>

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFrameworks>$(SamplesTargetFrameworks)</TargetFrameworks>
+    <TargetFramework>$(SamplesTargetFramework)</TargetFramework>
     <Description>SuperSocket Custom Protocol sample demonstrating how to implement custom packet protocols and pipeline filters for specialized data formats.</Description>
   </PropertyGroup>
   <ItemGroup>
