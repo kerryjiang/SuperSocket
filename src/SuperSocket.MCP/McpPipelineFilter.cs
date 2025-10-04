@@ -8,108 +8,55 @@ using SuperSocket.ProtoBase;
 namespace SuperSocket.MCP;
 
 /// <summary>
-/// Pipeline filter for MCP protocol using Content-Length header format
+/// Pipeline filter for MCP protocol over stdio using line-based JSON-RPC format
+/// Optimized for console/stdio communication where each message is a complete JSON line
 /// </summary>
-public class McpPipelineFilter : PipelineFilterBase<McpMessage>
+public class McpPipelineFilter : TerminatorPipelineFilter<McpMessage>
 {
-    private const string ContentLengthHeader = "Content-Length: ";
-    private const string ContentTypeHeader = "Content-Type: ";
-    private const string Separator = "\r\n";
-    private const string HeaderEnd = "\r\n\r\n";
-
-    private int _expectedContentLength = -1;
-    private bool _headerParsed = false;
-
-    public override McpMessage Filter(ref SequenceReader<byte> reader)
+    /// <summary>
+    /// Initializes a new instance of McpPipelineFilter with line terminator for stdio
+    /// </summary>
+    public McpPipelineFilter() : base(Encoding.UTF8.GetBytes("\n"))
     {
-        if (!_headerParsed)
-        {
-            if (!TryParseHeaders(ref reader, out var contentLength))
-            {
-                return null!; // Need more data
-            }
+        // MCP over stdio uses newline-delimited JSON messages
+    }
 
-            _expectedContentLength = contentLength;
-            _headerParsed = true;
-        }
-
-        // Check if we have enough data for the content
-        if (reader.Remaining < _expectedContentLength)
-        {
-            return null!; // Need more data
-        }
-
-        // Extract the JSON content
-        var jsonBuffer = reader.Sequence.Slice(reader.Position, _expectedContentLength);
-        var jsonBytes = jsonBuffer.ToArray();
-        var jsonString = Encoding.UTF8.GetString(jsonBytes);
-
+    /// <summary>
+    /// Decodes a complete JSON line into an MCP message
+    /// </summary>
+    /// <param name="buffer">The buffer containing the JSON line</param>
+    /// <returns>Decoded MCP message</returns>
+    protected override McpMessage DecodePackage(ref ReadOnlySequence<byte> buffer)
+    {
         try
         {
+            // Convert buffer to string
+            var jsonString = buffer.GetString(Encoding.UTF8).Trim();
+            
+            // Skip empty lines (common in stdio communication)
+            if (string.IsNullOrWhiteSpace(jsonString))
+            {
+                return null!;
+            }
+
+            // Parse JSON-RPC message
             var message = JsonSerializer.Deserialize<McpMessage>(jsonString, new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                AllowTrailingCommas = true,
+                ReadCommentHandling = JsonCommentHandling.Skip
             });
-
-            // Advance the reader
-            reader.Advance(_expectedContentLength);
-
-            // Reset for next message
-            ResetState();
 
             return message ?? throw new InvalidOperationException("Failed to deserialize MCP message");
         }
         catch (JsonException ex)
         {
-            ResetState();
-            throw new ProtocolException($"Failed to parse JSON: {ex.Message}", ex);
+            throw new ProtocolException($"Failed to parse MCP JSON message: {ex.Message}", ex);
         }
-    }
-
-    private bool TryParseHeaders(ref SequenceReader<byte> reader, out int contentLength)
-    {
-        contentLength = 0;
-
-        // Look for header end marker
-        var headerEndBytes = Encoding.UTF8.GetBytes(HeaderEnd);
-        if (!reader.TryReadTo(out ReadOnlySequence<byte> headerBuffer, headerEndBytes, advancePastDelimiter: false))
+        catch (Exception ex)
         {
-            return false; // Headers not complete
+            throw new ProtocolException($"Unexpected error parsing MCP message: {ex.Message}", ex);
         }
-
-        // Extract headers
-        var headerBytes = headerBuffer.ToArray();
-        var headerString = Encoding.UTF8.GetString(headerBytes);
-
-        // Parse Content-Length header
-        var lines = headerString.Split(new[] { Separator }, StringSplitOptions.RemoveEmptyEntries);
-        foreach (var line in lines)
-        {
-            if (line.StartsWith(ContentLengthHeader, StringComparison.OrdinalIgnoreCase))
-            {
-                var lengthStr = line.Substring(ContentLengthHeader.Length).Trim();
-                if (int.TryParse(lengthStr, out contentLength))
-                {
-                    // Advance reader past headers
-                    reader.Advance(headerBuffer.Length + headerEndBytes.Length);
-                    return true;
-                }
-            }
-        }
-
-        throw new ProtocolException("Content-Length header not found or invalid");
-    }
-
-    private void ResetState()
-    {
-        _expectedContentLength = -1;
-        _headerParsed = false;
-    }
-
-    public override void Reset()
-    {
-        base.Reset();
-        ResetState();
     }
 }
 
