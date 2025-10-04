@@ -5,7 +5,7 @@ This package provides comprehensive support for the Model Context Protocol (MCP)
 ## Features
 
 - **Complete MCP Protocol Support**: Full JSON-RPC 2.0 implementation following MCP specification version 2024-11-05
-- **Dual Transport Support**: Both TCP (Content-Length headers) and HTTP (POST/SSE) transports
+- **Multiple Transport Support**: Stdio, HTTP (POST/SSE), and WebSocket transports
 - **Tool Integration**: Easy registration and execution of MCP tools with JSON Schema validation
 - **Resource Management**: Support for MCP resources with subscription capabilities
 - **Prompt Handling**: MCP prompt management and templating
@@ -16,11 +16,11 @@ This package provides comprehensive support for the Model Context Protocol (MCP)
 - **Logging**: Comprehensive logging integration
 - **Concurrent Operations**: Thread-safe handler management
 
-## Quick Start
+## Transport Options
 
-### TCP Transport (Original)
+### 1. Stdio Transport (Recommended)
 
-### 1. Create a Simple MCP Server
+The stdio transport is the most common way to use MCP, especially for integration with AI assistants and command-line tools. It uses standard input/output for communication.
 
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
@@ -30,55 +30,70 @@ using SuperSocket.MCP;
 using SuperSocket.MCP.Abstractions;
 using SuperSocket.MCP.Extensions;
 using SuperSocket.MCP.Models;
-using SuperSocket.Server;
-using SuperSocket.Server.Abstractions;
-using SuperSocket.Server.Abstractions.Session;
-using SuperSocket.Server.Host;
 
-var host = SuperSocketHostBuilder.Create<McpMessage, McpPipelineFilter>(args)
-    .UsePackageHandler(async (IAppSession session, McpMessage message) =>
+var host = Host.CreateDefaultBuilder(args)
+    .ConfigureMcp(mcpBuilder =>
     {
-        var logger = session.Server.ServiceProvider.GetService(typeof(ILogger<McpServer>)) as ILogger<McpServer>;
-        var serverInfo = new McpServerInfo
-        {
-            Name = "My MCP Server",
-            Version = "1.0.0",
-            ProtocolVersion = "2024-11-05"
-        };
-        
-        var mcpServer = new McpServer(logger!, serverInfo);
-        
-        // Register your tools
-        mcpServer.RegisterTool("echo", new EchoToolHandler());
-        
-        // Handle the message
-        var response = await mcpServer.HandleMessageAsync(message, session);
-        if (response != null)
-        {
-            await session.SendMcpMessageAsync(response);
-        }
-    })
-    .ConfigureSuperSocket(options =>
-    {
-        options.Name = "McpServer";
-        options.AddListener(new ListenOptions
-        {
-            Ip = "Any",
-            Port = 3000
-        });
-    })
-    .ConfigureLogging((hostCtx, loggingBuilder) =>
-    {
-        loggingBuilder.AddConsole();
+        mcpBuilder
+            .ConfigureServer(serverInfo =>
+            {
+                serverInfo.Name = "My MCP Server";
+                serverInfo.Version = "1.0.0";
+                serverInfo.ProtocolVersion = "2024-11-05";
+            })
+            .AddTool<EchoToolHandler>()
+            .AddTool<MathToolHandler>();
     })
     .Build();
 
 await host.RunAsync();
 ```
 
-### HTTP Transport (New)
+### 2. WebSocket Transport
 
-### 1. Create an HTTP MCP Server
+WebSocket transport allows web browsers and WebSocket clients to connect directly to MCP servers, enabling web-based integrations and real-time communication.
+
+```csharp
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using SuperSocket.MCP;
+using SuperSocket.MCP.Abstractions;
+using SuperSocket.MCP.Extensions;
+using SuperSocket.MCP.Models;
+using SuperSocket.WebSocket.Server;
+
+var host = WebSocketHostBuilder.Create(args)
+    .ConfigureServices((hostCtx, services) =>
+    {
+        // Register MCP services
+        services.AddSingleton<IMcpHandlerRegistry, McpHandlerRegistry>();
+        services.AddSingleton<McpServerInfo>(new McpServerInfo
+        {
+            Name = "SuperSocket MCP WebSocket Server",
+            Version = "1.0.0",
+            ProtocolVersion = "2024-11-05"
+        });
+        
+        // Register sample tools
+        services.AddSingleton<IMcpToolHandler, EchoToolHandler>();
+        services.AddSingleton<IMcpToolHandler, MathToolHandler>();
+        services.AddSingleton<IMcpToolHandler, TimeToolHandler>();
+    })
+    .UseMcp("mcp") // Use MCP with "mcp" sub-protocol
+    .ConfigureLogging((hostCtx, loggingBuilder) =>
+    {
+        loggingBuilder.AddConsole();
+        loggingBuilder.SetMinimumLevel(LogLevel.Information);
+    })
+    .Build();
+
+await host.RunAsync();
+```
+
+### 3. HTTP Transport
+
+HTTP transport provides REST API endpoints and Server-Sent Events for web-compatible MCP communication.
 
 ```csharp
 using SuperSocket.MCP;
@@ -113,13 +128,88 @@ var host = SuperSocketHostBuilder.Create<McpHttpRequest, McpHttpPipelineFilter>(
 await host.RunAsync();
 ```
 
-### 2. HTTP API Endpoints
+```csharp
+using SuperSocket.MCP;
+using SuperSocket.Server.Host;
+
+var host = SuperSocketHostBuilder.Create<McpHttpRequest, McpHttpPipelineFilter>(args)
+    .UsePackageHandler(async (session, request) =>
+    {
+        var logger = session.Server.ServiceProvider.GetService(typeof(ILogger<McpHttpServer>)) as ILogger<McpHttpServer>;
+        var serverInfo = new McpServerInfo
+        {
+            Name = "My HTTP MCP Server",
+            Version = "1.0.0",
+            ProtocolVersion = "2024-11-05"
+        };
+        
+        var mcpServer = new McpHttpServer(logger!, serverInfo);
+        
+        // Register your tools
+        mcpServer.RegisterTool("echo", new EchoToolHandler());
+        
+        // Handle HTTP request
+        await mcpServer.HandleHttpRequestAsync(request, session);
+    })
+    .ConfigureSuperSocket(options =>
+    {
+        options.Name = "McpHttpServer";
+        options.AddListener(new ListenOptions { Ip = "Any", Port = 8080 });
+    })
+    .Build();
+
+await host.RunAsync();
+```
+
+## Usage Examples
+
+### Stdio Transport
+
+Run a stdio MCP server:
+
+```bash
+# Start the server
+dotnet run --project samples/McpStdioServer/
+
+# Connect with your MCP client
+# The server reads from stdin and writes to stdout
+```
+
+### WebSocket Transport
+
+Connect to WebSocket MCP server from browser:
+
+```javascript
+// Connect with WebSocket sub-protocol "mcp"
+const ws = new WebSocket('ws://localhost:8080', ['mcp']);
+
+ws.onopen = () => {
+    // Send initialize message
+    ws.send(JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "initialize",
+        params: {
+            protocolVersion: "2024-11-05",
+            capabilities: {},
+            clientInfo: { name: "Browser Client", version: "1.0.0" }
+        }
+    }));
+};
+
+ws.onmessage = (event) => {
+    const response = JSON.parse(event.data);
+    console.log('MCP Response:', response);
+};
+```
+
+### HTTP Transport API Endpoints
 
 - **POST /mcp**: Send MCP JSON-RPC requests
 - **GET /mcp/events**: Connect to Server-Sent Events for notifications
 - **GET /mcp/capabilities**: Get server capabilities
 
-### 3. Example HTTP Usage
+Example HTTP usage:
 
 ```bash
 # Send a tool call via HTTP POST
@@ -141,7 +231,9 @@ curl -X POST http://localhost:8080/mcp \
 curl -N -H "Accept: text/event-stream" http://localhost:8080/mcp/events
 ```
 
-### 2. Implement a Tool Handler
+## Tool Handler Implementation
+
+### Implement a Tool Handler
 
 ```csharp
 public class EchoToolHandler : IMcpToolHandler
@@ -180,11 +272,22 @@ public class EchoToolHandler : IMcpToolHandler
 
 ### 3. Run the Server
 
+For stdio transport:
 ```bash
-dotnet run --project samples/McpServer/McpServer.csproj
+dotnet run --project samples/McpStdioServer/McpStdioServer.csproj
 ```
 
-The server will start listening on port 3000 and be ready to handle MCP connections.
+For WebSocket transport:
+```bash
+dotnet run --project samples/McpWebSocketServer/McpWebSocketServer.csproj
+```
+
+For HTTP transport:
+```bash
+dotnet run --project samples/McpHttpServer/McpHttpServer.csproj
+```
+
+The servers will be ready to handle MCP connections via their respective transports.
 
 ## Architecture
 
@@ -245,23 +348,25 @@ public interface IMcpPromptHandler
 }
 ```
 
-## Extension Methods
+### Extensions for Different Transports
 
 The package provides convenient extension methods for session handling:
 
-### TCP Transport Extensions
+### Stdio Transport Extensions
 
 ```csharp
-// Send MCP messages
-await session.SendMcpMessageAsync(message);
-await session.SendMcpResponseAsync(id, result);
-await session.SendMcpErrorAsync(id, code, message);
-await session.SendMcpNotificationAsync(method, parameters);
+// For stdio transport, use standard console I/O
+// Messages are automatically handled through the console pipeline
+```
 
-// Create MCP messages
-var response = McpExtensions.CreateMcpResponse(id, result);
-var error = McpExtensions.CreateMcpError(id, code, message);
-var notification = McpExtensions.CreateMcpNotification(method, parameters);
+### WebSocket Transport Extensions
+
+```csharp
+// Send MCP messages over WebSocket
+await session.SendMcpMessageAsync(message);
+
+// WebSocket-specific helpers
+await session.SendAsync(jsonMessage); // Send raw JSON string
 ```
 
 ### HTTP Transport Extensions
@@ -297,35 +402,39 @@ dotnet test test/SuperSocket.MCP.Tests/
 
 See the sample directories for complete examples:
 
-- **samples/McpServer/**: TCP-based MCP server with echo and math tools
+- **samples/McpStdioServer/**: Stdio-based MCP server (recommended for most use cases)
+- **samples/McpWebSocketServer/**: WebSocket-based MCP server with browser support
 - **samples/McpHttpServer/**: HTTP-based MCP server with REST API and SSE support
 
-Both examples include:
+All examples include:
 - Echo tool: Simple message echoing
 - Math tool: Basic arithmetic operations with error handling
 - Complete server setup and configuration
 
 ## Transport Comparison
 
-| Feature | TCP (Content-Length) | HTTP (POST/SSE) |
-|---------|---------------------|-----------------|
-| Protocol | Content-Length + JSON | HTTP + JSON |
-| Default Port | 3000 | 8080 |
-| Streaming | Bidirectional | SSE for notifications |
-| Web Compatible | No | Yes |
-| Firewall Friendly | No | Yes |
-| Load Balancer Support | Limited | Full |
-| Browser Support | No | Yes |
+| Feature | Stdio | WebSocket | HTTP (POST/SSE) |
+|---------|-------|-----------|-----------------|
+| Protocol | JSON-RPC over stdio | JSON-RPC over WebSocket | HTTP + JSON-RPC |
+| Use Case | CLI tools, AI assistants | Web apps, real-time apps | REST APIs, web services |
+| Bidirectional | Yes | Yes | SSE for notifications |
+| Web Compatible | No | Yes | Yes |
+| Firewall Friendly | N/A | Yes | Yes |
+| Load Balancer Support | N/A | Full | Full |
+| Browser Support | No | Yes | Yes |
+| Default Port | N/A | 8080 | 8080 |
+| Best For | Command line integration | Interactive web apps | HTTP-based integrations |
 
-Both transports support the same MCP features and can be used simultaneously.
+All transports support the same MCP features and can be used based on your specific requirements.
 
 ## Compatibility
 
 - Compatible with MCP specification version 2024-11-05
 - Requires .NET 6.0 or later
 - Works with SuperSocket's existing infrastructure
-- Supports both TCP and HTTP transports
-- TCP transport uses Content-Length headers (like Language Server Protocol)
+- Supports stdio, WebSocket, and HTTP transports
+- Stdio transport is the recommended approach for most MCP integrations
+- WebSocket transport enables browser-based MCP clients
 - HTTP transport uses standard HTTP methods with JSON-RPC 2.0 bodies
 
 ## Error Handling
