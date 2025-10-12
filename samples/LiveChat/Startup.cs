@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace LiveChat
 {
@@ -21,11 +23,6 @@ namespace LiveChat
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
-            // In production, the Angular files will be served from this directory
-            services.AddSpaStaticFiles(configuration =>
-            {
-                configuration.RootPath = "ClientApp/dist";
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,9 +41,16 @@ namespace LiveChat
 
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
-            if (!env.IsDevelopment())
+
+            // Serve Angular static files from ClientApp/dist
+            var angularPath = Path.Combine(env.ContentRootPath, "ClientApp", "dist");
+            if (Directory.Exists(angularPath))
             {
-                app.UseSpaStaticFiles();
+                app.UseStaticFiles(new StaticFileOptions
+                {
+                    FileProvider = new PhysicalFileProvider(angularPath),
+                    RequestPath = ""
+                });
             }
 
             app.UseRouting();
@@ -56,19 +60,22 @@ namespace LiveChat
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");
-            });
 
-            app.UseSpa(spa =>
-            {
-                // To learn more about options for serving an Angular SPA from ASP.NET Core,
-                // see https://go.microsoft.com/fwlink/?linkid=864501
-
-                spa.Options.SourcePath = "ClientApp";
-
-                if (env.IsDevelopment())
+                // Fallback for Angular SPA routing
+                endpoints.MapFallback(async context =>
                 {
-                    spa.UseProxyToSpaDevelopmentServer("http://localhost:4200");
-                }
+                    var indexPath = Path.Combine(angularPath, "index.html");
+                    if (File.Exists(indexPath))
+                    {
+                        context.Response.ContentType = "text/html";
+                        var indexContent = await File.ReadAllBytesAsync(indexPath);
+                        await context.Response.Body.WriteAsync(indexContent);
+                    }
+                    else
+                    {
+                        context.Response.StatusCode = 404;
+                    }
+                });
             });
         }
     }
