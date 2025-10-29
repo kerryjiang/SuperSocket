@@ -26,7 +26,7 @@ namespace SuperSocket.Tests
                 .Select(p => int.Parse(p))
                 .Sum();
 
-            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"), cancellationToken);
         }
     }
 
@@ -38,7 +38,7 @@ namespace SuperSocket.Tests
                 .Select(p => int.Parse(p))
                 .Aggregate((x, y) => x * y);
 
-            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"));
+            await session.SendAsync(Encoding.UTF8.GetBytes(result.ToString() + "\r\n"), cancellationToken);
         }
     }
 
@@ -58,7 +58,7 @@ namespace SuperSocket.Tests
                 .Aggregate((x, y) => x - y);
             
             // encode the text message by encoder
-            await session.SendAsync(_encoder, result.ToString() + "\r\n");
+            await session.SendAsync(_encoder, result.ToString() + "\r\n", cancellationToken);
         }
     }
 

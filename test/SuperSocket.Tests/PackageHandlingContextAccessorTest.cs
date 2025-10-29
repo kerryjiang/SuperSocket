@@ -92,7 +92,7 @@ namespace SuperSocket.Tests
 
                     Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.AppSession, session);
                     Assert.Equal(packageHandlingContextAccessor.PackageHandlingContext.PackageInfo, package);
-                    await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"));
+                    await session.SendAsync(Encoding.UTF8.GetBytes(package.Body + "\r\n"), cancellationToken);
                 }
             }
         }

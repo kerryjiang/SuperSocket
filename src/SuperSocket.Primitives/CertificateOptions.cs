@@ -57,7 +57,12 @@ namespace SuperSocket.Server.Abstractions
                     filePath = Path.Combine(AppContext.BaseDirectory, filePath);
                 }
 
+#if NET9_0_OR_GREATER
+                return X509CertificateLoader.LoadPkcs12FromFile(filePath, Password, KeyStorageFlags);
+#else
                 return new X509Certificate2(filePath, Password, KeyStorageFlags);
+#endif
+
             }
             else if (!string.IsNullOrEmpty(Thumbprint)) // Load certificate from certificate store
             {

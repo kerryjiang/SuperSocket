@@ -23,13 +23,12 @@ using SuperSocket.Server.Abstractions.Session;
 using SuperSocket.Server.Host;
 using Xunit;
 
-/// <summary>
-/// Run selected test case by command
-/// dotnet test --filter 'FullyQualifiedName=SuperSocket.Tests.SessionTest.TestCloseReason'
-/// </summary>
-
 namespace SuperSocket.Tests
 {
+    /// <summary>
+    /// Run selected test case by command
+    /// dotnet test --filter 'FullyQualifiedName=SuperSocket.Tests.SessionTest.TestCloseReason'
+    /// </summary>
     [Trait("Category", "Basic")]
     public class MainTest : TestClassBase
     {
@@ -799,8 +798,6 @@ namespace SuperSocket.Tests
 
             var server1 = default(IServer);
             var server2 = default(IServer);
-
-            IHostEnvironment actualHostEvn = null;
 
             var hostBuilder = MultipleServerHostBuilder.Create()                
                 .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
