@@ -347,5 +347,375 @@ namespace SuperSocket.Tests
                 Server = server;
             }
         }
+
+        [Fact]
+        public async Task TestMultipleServerInstancesWithSameType()
+        {
+            var serverName1 = "Server1";
+            var serverName2 = "Server2";
+
+            var server1 = default(IServer);
+            var server2 = default(IServer);
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseSessionHandler(async (s) =>
+                    {
+                        server1 = s.Server as IServer;
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    })
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Name = serverName1;
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4040,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                }, serverName: serverName1)
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseSessionHandler(async (s) =>
+                    {
+                        server2 = s.Server as IServer;
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    })
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Name = serverName2;
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4041,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                }, serverName: serverName2)
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using (var host = hostBuilder.Build())
+            {
+                await host.StartAsync(this.CancellationToken);
+
+                var servers = host.Services.GetServices<SuperSocketServiceA>();
+                var hostedServices = host.Services.GetServices<IHostedService>();
+
+                Assert.Equal(2, servers.Count());
+                Assert.Equal(2, hostedServices.Count());
+
+                foreach (var server in servers)
+                {
+                    Assert.Equal(ServerState.Started, server.State);
+                }
+
+                // Test first server instance
+                var client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client1.ConnectAsync(GetDefaultServerEndPoint(), this.CancellationToken);
+
+                using (var stream = new NetworkStream(client1))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                {
+                    var line = await streamReader.ReadLineAsync(this.CancellationToken);
+                    Assert.Equal(serverName1, line);
+                }
+
+                Assert.NotNull(server1);
+                Assert.Equal(serverName1, server1.Name);
+
+                // Test second server instance
+                var client2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client2.ConnectAsync(GetAlternativeServerEndPoint(), this.CancellationToken);
+
+                using (var stream = new NetworkStream(client2))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                {
+                    var line = await streamReader.ReadLineAsync(this.CancellationToken);
+                    Assert.Equal(serverName2, line);
+                }
+
+                Assert.NotNull(server2);
+                Assert.Equal(serverName2, server2.Name);
+
+                // Verify both are same type but different instances
+                Assert.IsType<SuperSocketServiceA>(server1);
+                Assert.IsType<SuperSocketServiceA>(server2);
+                Assert.NotSame(server1, server2);
+
+                await host.StopAsync(this.CancellationToken);
+            }
+        }
+
+        [Fact]
+        public async Task TestMultipleServerInstancesWithKeyedServices()
+        {
+            var serverName1 = "KeyedServer1";
+            var serverName2 = "KeyedServer2";
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4040,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                }, serverName: serverName1)
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4041,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                }, serverName: serverName2)
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using (var host = hostBuilder.Build())
+            {
+                await host.StartAsync(this.CancellationToken);
+
+                // Retrieve servers by their keyed names
+                var server1 = host.Services.GetKeyedService<SuperSocketServiceA>(serverName1);
+                Assert.NotNull(server1);
+                Assert.Equal(serverName1, server1.Name);
+
+                var server2 = host.Services.GetKeyedService<SuperSocketServiceA>(serverName2);
+                Assert.NotNull(server2);
+                Assert.Equal(serverName2, server2.Name);
+
+                // Verify they are different instances
+                Assert.NotSame(server1, server2);
+
+                // Retrieve as IServerInfo
+                var serverInfo1 = host.Services.GetKeyedService<IServerInfo>(serverName1);
+                Assert.NotNull(serverInfo1);
+                Assert.Same(server1, serverInfo1);
+
+                var serverInfo2 = host.Services.GetKeyedService<IServerInfo>(serverName2);
+                Assert.NotNull(serverInfo2);
+                Assert.Same(server2, serverInfo2);
+
+                await host.StopAsync(this.CancellationToken);
+            }
+        }
+
+        [Fact]
+        public async Task TestMultipleServerInstancesWithIndependentConfigurations()
+        {
+            var serverName1 = "ConfigServer1";
+            var serverName2 = "ConfigServer2";
+
+            var receivedMessages1 = new List<string>();
+            var receivedMessages2 = new List<string>();
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UsePackageHandler(async (s, p) =>
+                    {
+                        receivedMessages1.Add(p.Text);
+                        await s.SendAsync(Utf8Encoding.GetBytes($"Echo1: {p.Text}\r\n"));
+                    })
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4040,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                }, serverName: serverName1)
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UsePackageHandler(async (s, p) =>
+                    {
+                        receivedMessages2.Add(p.Text);
+                        await s.SendAsync(Utf8Encoding.GetBytes($"Echo2: {p.Text}\r\n"));
+                    })
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4041,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                }, serverName: serverName2)
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using (var host = hostBuilder.Build())
+            {
+                await host.StartAsync(this.CancellationToken);
+
+                // Test first server
+                var client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client1.ConnectAsync(GetDefaultServerEndPoint(), this.CancellationToken);
+
+                using (var stream = new NetworkStream(client1))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("Hello1\r\n");
+                    await streamWriter.FlushAsync(this.CancellationToken);
+                    var response = await streamReader.ReadLineAsync(this.CancellationToken);
+                    Assert.Equal("Echo1: Hello1", response);
+                }
+
+                // Test second server
+                var client2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client2.ConnectAsync(GetAlternativeServerEndPoint(), this.CancellationToken);
+
+                using (var stream = new NetworkStream(client2))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                using (var streamWriter = new StreamWriter(stream, Utf8Encoding, 1024 * 1024 * 4))
+                {
+                    await streamWriter.WriteAsync("Hello2\r\n");
+                    await streamWriter.FlushAsync(this.CancellationToken);
+                    var response = await streamReader.ReadLineAsync(this.CancellationToken);
+                    Assert.Equal("Echo2: Hello2", response);
+                }
+
+                // Verify each server received its own messages
+                Assert.Single(receivedMessages1);
+                Assert.Equal("Hello1", receivedMessages1[0]);
+
+                Assert.Single(receivedMessages2);
+                Assert.Equal("Hello2", receivedMessages2[0]);
+
+                await host.StopAsync(this.CancellationToken);
+            }
+        }
+
+        [Fact]
+        public async Task TestMultipleServerInstancesMixedWithAndWithoutServerName()
+        {
+            var namedServerName = "NamedServer";
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Name = "UnnamedServer";
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4080,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                })
+                .AddServer<SuperSocketServiceB, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .ConfigureServices((ctx, services) =>
+                    {
+                        services.Configure<ServerOptions>(options =>
+                        {
+                            options.Listeners = new List<ListenOptions>
+                            {
+                                new ListenOptions
+                                {
+                                    Port = 4081,
+                                    Ip = "Any"
+                                }
+                            };
+                        });
+                    });
+                }, serverName: namedServerName)
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using (var host = hostBuilder.Build())
+            {
+                await host.StartAsync(this.CancellationToken);
+
+                // Unnamed server should be retrievable by type
+                var unnamedServer = host.Services.GetServices<IHostedService>().OfType<SuperSocketServiceA>().FirstOrDefault();
+                Assert.NotNull(unnamedServer);
+
+                // Named server should be retrievable by keyed service
+                var namedServer = host.Services.GetKeyedService<SuperSocketServiceB>(namedServerName);
+                Assert.NotNull(namedServer);
+                Assert.Equal(namedServerName, namedServer.Name);
+
+                // Named server should also be retrievable as IServerInfo
+                var namedServerInfo = host.Services.GetKeyedService<IServerInfo>(namedServerName);
+                Assert.NotNull(namedServerInfo);
+                Assert.Same(namedServer, namedServerInfo);
+
+                await host.StopAsync(this.CancellationToken);
+            }
+        }
     }
 }
