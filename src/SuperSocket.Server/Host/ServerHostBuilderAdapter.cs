@@ -62,6 +62,20 @@ namespace SuperSocket.Server.Host
         {
             var services = _currentServices;
 
+            // If a server name is provided, configure server options and register the server name
+            if (!string.IsNullOrEmpty(_serverName))
+            {
+                this.ConfigureServerOptions((ctx, options) =>
+                {
+                    return options.GetSection(_serverName);
+                });
+
+                services.PostConfigure<ServerOptions>(options =>
+                {
+                    options.Name = _serverName;
+                });
+            }
+
             CopyGlobalServices(hostServices, services);
 
             RegisterBasicServices(context, hostServices, services);
@@ -74,15 +88,6 @@ namespace SuperSocket.Server.Host
             foreach (var configureServicesAction in ConfigureSupplementServicesActions)
             {
                 configureServicesAction(context, services);
-            }
-
-            // If serverName is specified, configure it as the server's Name (runs after user configuration)
-            if (!string.IsNullOrEmpty(_serverName))
-            {
-                services.PostConfigure<ServerOptions>(options =>
-                {
-                    options.Name = _serverName;
-                });
             }
 
             RegisterDefaultServices(context, hostServices, services);

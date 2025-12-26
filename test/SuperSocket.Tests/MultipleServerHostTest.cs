@@ -717,5 +717,89 @@ namespace SuperSocket.Tests
                 await host.StopAsync(this.CancellationToken);
             }
         }
+
+        [Fact]
+        public async Task TestAutomaticConfigurationLoadingByServerName()
+        {
+            var serverName1 = "TestServer1";
+            var serverName2 = "TestServer2";
+
+            var server1 = default(IServer);
+            var server2 = default(IServer);
+
+            var hostBuilder = MultipleServerHostBuilder.Create()
+                .ConfigureAppConfiguration((hostingContext, config) =>
+                {
+                    config.Sources.Clear();
+                    config.AddJsonFile("Config/multiple_server.json", optional: false, reloadOnChange: true);
+                })
+                .AddServer<SuperSocketServiceA, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseSessionHandler(async (s) =>
+                    {
+                        server1 = s.Server as IServer;
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    });
+                }, serverName: serverName1)
+                .AddServer<SuperSocketServiceB, TextPackageInfo, LinePipelineFilter>(builder =>
+                {
+                    builder
+                    .UseSessionHandler(async (s) =>
+                    {
+                        server2 = s.Server as IServer;
+                        await s.SendAsync(Utf8Encoding.GetBytes($"{s.Server.Name}\r\n"));
+                    });
+                }, serverName: serverName2)
+                .ConfigureLogging((hostCtx, loggingBuilder) =>
+                {
+                    loggingBuilder.AddConsole();
+                    loggingBuilder.AddDebug();
+                });
+
+            using (var host = hostBuilder.Build())
+            {
+                await host.StartAsync(this.CancellationToken);
+
+                // Verify server1 loaded configuration automatically and Name is set correctly
+                var client1 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client1.ConnectAsync(GetDefaultServerEndPoint(), this.CancellationToken);
+
+                using (var stream = new NetworkStream(client1))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                {
+                    var line = await streamReader.ReadLineAsync(this.CancellationToken);
+                    Assert.Equal(serverName1, line);
+                }
+
+                Assert.NotNull(server1);
+                Assert.Equal(serverName1, server1.Name);
+
+                // Verify server2 loaded configuration automatically and Name is set correctly
+                var client2 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                await client2.ConnectAsync(GetAlternativeServerEndPoint(), this.CancellationToken);
+
+                using (var stream = new NetworkStream(client2))
+                using (var streamReader = new StreamReader(stream, Utf8Encoding, true))
+                {
+                    var line = await streamReader.ReadLineAsync(this.CancellationToken);
+                    Assert.Equal(serverName2, line);
+                }
+
+                Assert.NotNull(server2);
+                Assert.Equal(serverName2, server2.Name);
+
+                // Verify servers are retrievable by their keyed names
+                var keyedServer1 = host.Services.GetKeyedService<SuperSocketServiceA>(serverName1);
+                Assert.NotNull(keyedServer1);
+                Assert.Same(server1, keyedServer1);
+
+                var keyedServer2 = host.Services.GetKeyedService<SuperSocketServiceB>(serverName2);
+                Assert.NotNull(keyedServer2);
+                Assert.Same(server2, keyedServer2);
+
+                await host.StopAsync(this.CancellationToken);
+            }
+        }
     }
 }
