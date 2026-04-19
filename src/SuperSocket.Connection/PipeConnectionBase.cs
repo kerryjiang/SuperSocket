@@ -117,36 +117,17 @@ namespace SuperSocket.Connection
 
             _connectionTask = GetConnectionTask(readTaskCompletionSource.Task, _cts.Token);
 
-            var packagePipeEnumerator = ReadPipeAsync<TPackageInfo>(InputReader, _cts.Token).GetAsyncEnumerator(_cts.Token);
-
-            while (true)
+            try
             {
-                var read = false;
-
-                try
+                await foreach (var packageInfo in ReadPipeAsync<TPackageInfo>(InputReader, _cts.Token))
                 {
-                    read = await packagePipeEnumerator.MoveNextAsync().ConfigureAwait(false);
+                    yield return packageInfo;
                 }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
-                catch (Exception e)
-                {
-                    OnError("Unhandled exception in the method PipeConnection.Run.", e);
-                    break;
-                }
-
-                if (read)
-                {
-                    yield return packagePipeEnumerator.Current;
-                    continue;
-                }
-
-                break;
             }
-
-            readTaskCompletionSource.TrySetResult();
+            finally
+            {
+                readTaskCompletionSource.TrySetResult();
+            }
 
             yield break;
         }
@@ -440,7 +421,7 @@ namespace SuperSocket.Connection
                     {
                         reader.AdvanceTo(buffer.Start, buffer.End);
                     }
-                }                
+                }
 
                 if (completedOrCancelled)
                 {
