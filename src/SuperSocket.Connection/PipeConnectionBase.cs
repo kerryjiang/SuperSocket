@@ -409,6 +409,13 @@ namespace SuperSocket.Connection
                 if (buffer.Length > 0)
                 {
                     BufferFilterResult<TPackageInfo> lastFilterResult = default;
+                    var advanced = false;
+
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        reader.AdvanceTo(buffer.Start, buffer.Start);
+                        break;
+                    }
 
                     foreach (var bufferFilterResult in ReadBuffer(buffer, pipelineFilter))
                     {
@@ -416,7 +423,25 @@ namespace SuperSocket.Connection
 
                         if (bufferFilterResult.Package != null)
                         {
+                            if (bufferFilterResult.Consumed > 0)
+                            {
+                                consumed = buffer.GetPosition(bufferFilterResult.Consumed);
+                                reader.AdvanceTo(consumed, consumed);
+                            }
+                            else
+                            {
+                                reader.AdvanceTo(buffer.Start, buffer.End);
+                            }
+
+                            advanced = true;
                             yield return bufferFilterResult.Package;
+
+                            if (cancellationToken.IsCancellationRequested)
+                            {
+                                completedOrCancelled = true;
+                            }
+
+                            break;
                         }
 
                         if (bufferFilterResult.Exception != null)
@@ -431,12 +456,12 @@ namespace SuperSocket.Connection
 
                     pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
 
-                    if (lastFilterResult.Consumed > 0)
+                    if (!advanced && lastFilterResult.Consumed > 0)
                     {
                         consumed = buffer.GetPosition(lastFilterResult.Consumed);
                         reader.AdvanceTo(consumed, buffer.End);
                     }
-                    else
+                    else if (!advanced)
                     {
                         reader.AdvanceTo(buffer.Start, buffer.End);
                     }
