@@ -23,6 +23,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiveChat", "LiveChat\LiveCh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomProtocol", "CustomProtocol\CustomProtocol.csproj", "{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KestrelHttp2DetachDemo", "KestrelHttp2DetachDemo\KestrelHttp2DetachDemo.csproj", "{36B17720-B79F-48C3-93C2-96FCA0635FEE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -31,9 +33,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B63528FF-96DA-4529-A598-F648C3FB63CB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -156,5 +155,20 @@ Global
 		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|x64.Build.0 = Release|Any CPU
 		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|x86.ActiveCfg = Release|Any CPU
 		{9EF45BFC-7479-4658-BA67-06D6C5DF85F4}.Release|x86.Build.0 = Release|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Debug|x64.Build.0 = Debug|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Debug|x86.Build.0 = Debug|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Release|x64.ActiveCfg = Release|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Release|x64.Build.0 = Release|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Release|x86.ActiveCfg = Release|Any CPU
+		{36B17720-B79F-48C3-93C2-96FCA0635FEE}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 EndGlobal
