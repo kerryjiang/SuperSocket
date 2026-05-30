@@ -426,29 +426,12 @@ namespace SuperSocket.Connection
 
                         if (bufferFilterResult.Package != null)
                         {
-                            // Consumed > 0: the filter ate Consumed bytes for this package, so
-                            // advance both consumed and examined to that position — anything
-                            // after it is unread data to be preserved for the next iteration
-                            // or the next pipeline owner (detach handoff).
-                            // Consumed == 0: the filter produced a package without reporting
-                            // consumption (e.g. it kept its own state); mark the whole buffer
-                            // as examined but only Start as consumed so no bytes are dropped.
-                            if (bufferFilterResult.Consumed > 0)
-                            {
-                                consumed = buffer.GetPosition(bufferFilterResult.Consumed);
-                                reader.AdvanceTo(consumed, consumed);
-                            }
-                            else
-                            {
-                                reader.AdvanceTo(buffer.Start, buffer.End);
-                            }
-
                             advanced = true;
                             yield return bufferFilterResult.Package;
 
                             // Consumer may cancel between yields; treat that the same as a
                             // pipe-level cancellation so the outer loop exits while keeping
-                            // the AdvanceTo we just performed for the delivered package.
+                            // the AdvanceTo performed below for the delivered package.
                             if (cancellationToken.IsCancellationRequested)
                             {
                                 completedOrCancelled = true;
@@ -469,12 +452,19 @@ namespace SuperSocket.Connection
 
                     pipelineFilter = _pipelineFilter as IPipelineFilter<TPackageInfo>;
 
-                    if (!advanced && lastFilterResult.Consumed > 0)
+                    // Single advance point for every exit of the loop above.
+                    // Consumed > 0: the filter parsed up to Consumed bytes. When a package was
+                    // delivered (advanced), keep examined at the consumed position so any bytes
+                    // after it are re-read on the next iteration or preserved for the next
+                    // pipeline owner (detach handoff). When no package was delivered, the whole
+                    // buffer has been examined, so examine to End to wait for more data.
+                    // Consumed == 0: nothing consumed; examine the whole buffer, consume nothing.
+                    if (lastFilterResult.Consumed > 0)
                     {
                         consumed = buffer.GetPosition(lastFilterResult.Consumed);
-                        reader.AdvanceTo(consumed, buffer.End);
+                        reader.AdvanceTo(consumed, advanced ? consumed : buffer.End);
                     }
-                    else if (!advanced)
+                    else
                     {
                         reader.AdvanceTo(buffer.Start, buffer.End);
                     }
