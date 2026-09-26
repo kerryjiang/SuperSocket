@@ -127,8 +127,7 @@ namespace SuperSocket.Client
 
             if (security != null)
             {
-                if (security.EnabledSslProtocols != SslProtocols.None)
-                    connectors.Add(new SslStreamConnector(security));
+                connectors.Add(new SslStreamConnector(security));
             }
 
             if (CompressionLevel != CompressionLevel.NoCompression)
