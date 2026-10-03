@@ -48,7 +48,7 @@ namespace SuperSocket.Server.Connection
         {
             var connectionStreamInitializers = new List<IConnectionStreamInitializer>();
 
-            if (listenOptions.AuthenticationOptions != null && listenOptions.AuthenticationOptions.EnabledSslProtocols != SslProtocols.None)
+            if (listenOptions.AuthenticationOptions != null)
             {
                 connectionStreamInitializers.Add(new NetworkStreamInitializer());
                 connectionStreamInitializers.Add(new SslStreamInitializer());
