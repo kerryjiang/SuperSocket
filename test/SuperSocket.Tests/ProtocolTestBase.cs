@@ -44,7 +44,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
 
                 OutputHelper.WriteLine("The server has been started.");
 
@@ -63,7 +63,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -80,7 +80,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
 
                 OutputHelper.WriteLine("The server has been started.");
 
@@ -101,7 +101,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -118,7 +118,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
 
                 OutputHelper.WriteLine("The server has been started.");
 
@@ -144,7 +144,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -161,7 +161,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
 
                 OutputHelper.WriteLine("The server has been started.");
 
@@ -195,7 +195,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -212,7 +212,7 @@ namespace SuperSocket.Tests
 
             using (var server = CreateServer(hostConfigurator))
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
 
                 OutputHelper.WriteLine("The server has been started.");
 
@@ -273,7 +273,7 @@ namespace SuperSocket.Tests
                     }
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

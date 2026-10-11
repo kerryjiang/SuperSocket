@@ -63,7 +63,7 @@ namespace SuperSocket.Tests.Http
                     }
                 }).BuildAsServer())
             {
-                Assert.True(await server.StartAsync(CancellationToken));
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var services = new ServiceCollection();
@@ -143,7 +143,7 @@ namespace SuperSocket.Tests.Http
                     await s.CloseAsync(CloseReason.LocalClosing);
                 }).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var services = new ServiceCollection();
@@ -159,7 +159,7 @@ namespace SuperSocket.Tests.Http
 
                 using (var client = new EasyClient<HttpRequest>(new HttpPipelineFilter(), logger).AsClient())
                 {
-                    var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                    var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port), TestContext.Current.CancellationToken);
                     Assert.True(connected);
 
                     var request = "GET /api/test HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n";
@@ -173,7 +173,7 @@ namespace SuperSocket.Tests.Http
                     await client.CloseAsync();
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

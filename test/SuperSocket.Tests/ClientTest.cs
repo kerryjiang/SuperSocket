@@ -65,7 +65,7 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var options = new ConnectionOptions
@@ -76,7 +76,7 @@ namespace SuperSocket.Tests
                 
                 var client = hostConfigurator.ConfigureEasyClient(new LinePipelineFilter(), options);
 
-                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port), TestContext.Current.CancellationToken);
                 
                 Assert.True(connected);
 
@@ -94,7 +94,7 @@ namespace SuperSocket.Tests
 
                 await client.CloseAsync();
                 Assert.True(serverSessionEvent.WaitOne(1000));
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -133,7 +133,7 @@ namespace SuperSocket.Tests
 
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");                
 
                 var pipelineFilter = new CommandLinePipelineFilter
@@ -157,7 +157,7 @@ namespace SuperSocket.Tests
 
                     try
                     {
-                        connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                        connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port), TestContext.Current.CancellationToken);
                     }
                     catch (SocketException e)
                     {
@@ -172,13 +172,13 @@ namespace SuperSocket.Tests
                 
                 Assert.True(connected);
 
-                await Task.Delay(500);
+                await Task.Delay(500, TestContext.Current.CancellationToken);
 
                 Assert.NotNull(session);
                 Assert.Equal(localPort, (session.RemoteEndPoint as IPEndPoint).Port);
 
                 await client.CloseAsync();
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -228,7 +228,7 @@ namespace SuperSocket.Tests
             {
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 var pipelineFilter = new CommandLinePipelineFilter
@@ -251,7 +251,7 @@ namespace SuperSocket.Tests
                     await Task.CompletedTask;
                 };
 
-                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port));
+                var connected = await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, hostConfigurator.Listener.Port), TestContext.Current.CancellationToken);
                 
                 Assert.True(connected);
 
@@ -269,7 +269,7 @@ namespace SuperSocket.Tests
                 }
 
                 await client.CloseAsync();
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -287,7 +287,7 @@ namespace SuperSocket.Tests
             {
                 Assert.Equal("TestServer", server.Name);
             
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
             
                 using (var socket = hostConfigurator.CreateClient())
@@ -303,7 +303,7 @@ namespace SuperSocket.Tests
                         }), () => socket.Connected);
                 }
             
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
 
             using (var server = CreateSocketServerBuilder<TextPackageInfo, LinePipelineFilter>(hostConfigurator)
@@ -315,11 +315,11 @@ namespace SuperSocket.Tests
             {
                 Assert.Equal("TestServer", server.Name);
 
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
                 var connectionFactory = server.ServiceProvider
                     .GetRequiredService<Microsoft.AspNetCore.Connections.IConnectionFactory>();
-                await using (var context = await connectionFactory.ConnectAsync(hostConfigurator.GetServerEndPoint()))
+                await using (var context = await connectionFactory.ConnectAsync(hostConfigurator.GetServerEndPoint(), TestContext.Current.CancellationToken))
                 {
                     await TestDetachableConnectionInternal(hostConfigurator, server, ser => new KestrelPipeConnection(
                         context,
@@ -331,7 +331,7 @@ namespace SuperSocket.Tests
                     ), () => !context.ConnectionClosed.IsCancellationRequested);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 

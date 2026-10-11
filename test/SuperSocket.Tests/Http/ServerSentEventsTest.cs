@@ -65,13 +65,13 @@ namespace SuperSocket.Tests.Http
                     }
                 }).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 // Use raw TCP client to test SSE since HttpRequest doesn't parse SSE responses
                 using (var tcpClient = new TcpClient())
                 {
-                    await tcpClient.ConnectAsync(IPAddress.Loopback, hostConfigurator.Listener.Port);
+                    await tcpClient.ConnectAsync(IPAddress.Loopback, hostConfigurator.Listener.Port, TestContext.Current.CancellationToken);
                     var stream = tcpClient.GetStream();
 
                     // Send SSE request
@@ -81,7 +81,7 @@ namespace SuperSocket.Tests.Http
                                  "Connection: keep-alive\r\n" +
                                  "\r\n";
                     var requestBytes = Encoding.UTF8.GetBytes(request);
-                    await stream.WriteAsync(requestBytes, 0, requestBytes.Length);
+                    await stream.WriteAsync(requestBytes, 0, requestBytes.Length, TestContext.Current.CancellationToken);
 
                     // Read response
                     var buffer = new byte[8192];
@@ -90,7 +90,7 @@ namespace SuperSocket.Tests.Http
                     // Read in chunks to get the full SSE response
                     for (int i = 0; i < 10; i++) // Limit iterations to avoid infinite loop
                     {
-                        var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                        var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, TestContext.Current.CancellationToken);
                         if (bytesRead > 0)
                         {
                             var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -101,7 +101,7 @@ namespace SuperSocket.Tests.Http
                                 break;
                         }
                         
-                        await Task.Delay(50); // Small delay between reads
+                        await Task.Delay(50, TestContext.Current.CancellationToken); // Small delay between reads
                     }
 
                     var response = totalReceived.ToString();
@@ -128,7 +128,7 @@ namespace SuperSocket.Tests.Http
                     Assert.Contains("data: close", response);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -152,12 +152,12 @@ namespace SuperSocket.Tests.Http
                     }
                 }).BuildAsServer())
             {
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 using (var tcpClient = new TcpClient())
                 {
-                    await tcpClient.ConnectAsync(IPAddress.Loopback, hostConfigurator.Listener.Port);
+                    await tcpClient.ConnectAsync(IPAddress.Loopback, hostConfigurator.Listener.Port, TestContext.Current.CancellationToken);
                     var stream = tcpClient.GetStream();
 
                     var request = "GET /heartbeat HTTP/1.1\r\n" +
@@ -165,7 +165,7 @@ namespace SuperSocket.Tests.Http
                                  "Accept: text/event-stream\r\n" +
                                  "\r\n";
                     var requestBytes = Encoding.UTF8.GetBytes(request);
-                    await stream.WriteAsync(requestBytes, 0, requestBytes.Length);
+                    await stream.WriteAsync(requestBytes, 0, requestBytes.Length, TestContext.Current.CancellationToken);
 
                     var buffer = new byte[4096];
                     var totalReceived = new StringBuilder();
@@ -173,7 +173,7 @@ namespace SuperSocket.Tests.Http
                     // Read in chunks to get the full SSE response
                     for (int i = 0; i < 10; i++) // Limit iterations to avoid infinite loop
                     {
-                        var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                        var bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, TestContext.Current.CancellationToken);
                         if (bytesRead > 0)
                         {
                             var chunk = Encoding.UTF8.GetString(buffer, 0, bytesRead);
@@ -185,7 +185,7 @@ namespace SuperSocket.Tests.Http
                                 break;
                         }
                         
-                        await Task.Delay(50); // Small delay between reads
+                        await Task.Delay(50, TestContext.Current.CancellationToken); // Small delay between reads
                     }
 
                     var response = totalReceived.ToString();
@@ -198,7 +198,7 @@ namespace SuperSocket.Tests.Http
                     Assert.Contains("data: After heartbeat", response);
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

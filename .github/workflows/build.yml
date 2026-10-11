@@ -44,16 +44,10 @@ jobs:
               run: dotnet build -c Release samples/samples.sln
             - name: Test - Linux
               if: runner.os == 'Linux'
-              run: |
-                cd test/SuperSocket.Tests
-                dotnet test --logger "console;verbosity=detailed"
+              run: dotnet test --project test/SuperSocket.Tests/SuperSocket.Tests.csproj --output Detailed
             - name: Test - macOS
               if: runner.os == 'macOS'
-              run: |
-                cd test/SuperSocket.Tests
-                dotnet test --filter FullyQualifiedName\!~TestQuicSupport --logger "console;verbosity=detailed"
+              run: dotnet test --project test/SuperSocket.Tests/SuperSocket.Tests.csproj --filter-not-method "*.TestQuicSupport" --output Detailed
             - name: Test - Windows
               if: runner.os == 'Windows'
-              run: |
-                cd test/SuperSocket.Tests
-                dotnet test --filter FullyQualifiedName!~TestQuicSupport --logger "console;verbosity=detailed"
+              run: dotnet test --project test/SuperSocket.Tests/SuperSocket.Tests.csproj --filter-not-method "*.TestQuicSupport" --output Detailed

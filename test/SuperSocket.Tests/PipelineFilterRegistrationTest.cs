@@ -123,12 +123,12 @@ namespace SuperSocket.Tests
                 .BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 using (var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                 {
-                    await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, DefaultServerPort));
+                    await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, DefaultServerPort), TestContext.Current.CancellationToken);
                     Assert.True(serverSessionEvent.WaitOne(1000));
 
                     // Send test message
@@ -149,7 +149,7 @@ namespace SuperSocket.Tests
                     Assert.True(serverSessionEvent.WaitOne(1000));
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -178,12 +178,12 @@ namespace SuperSocket.Tests
                 .BuildAsServer())
             {
                 Assert.Equal("TestServer", server.Name);
-                Assert.True(await server.StartAsync());
+                Assert.True(await server.StartAsync(TestContext.Current.CancellationToken));
                 OutputHelper.WriteLine("Server started.");
 
                 using (var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                 {
-                    await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, DefaultServerPort));
+                    await client.ConnectAsync(new IPEndPoint(IPAddress.Loopback, DefaultServerPort), TestContext.Current.CancellationToken);
                     Assert.True(serverSessionEvent.WaitOne(1000));
 
                     // Send test message
@@ -204,7 +204,7 @@ namespace SuperSocket.Tests
                     Assert.True(serverSessionEvent.WaitOne(1000));
                 }
 
-                await server.StopAsync();
+                await server.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }

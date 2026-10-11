@@ -395,7 +395,7 @@ The package includes comprehensive tests covering:
 Run tests with:
 
 ```bash
-dotnet test test/SuperSocket.MCP.Tests/
+dotnet test --project test/SuperSocket.Tests/SuperSocket.Tests.csproj --filter-namespace "SuperSocket.Tests.Mcp"
 ```
 
 ## Examples

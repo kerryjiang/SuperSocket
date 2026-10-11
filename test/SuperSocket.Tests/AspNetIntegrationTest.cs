@@ -93,7 +93,7 @@ namespace SuperSocket.Tests
 
             using (var host = builder.Build())
             { 
-                await host.StartAsync();
+                await host.StartAsync(TestContext.Current.CancellationToken);
                 var server = host.AsServer();
 
                 Assert.IsType<TestService>(server.ServiceProvider.GetService<ITestService>());
@@ -103,7 +103,7 @@ namespace SuperSocket.Tests
                     Assert.IsType<ScopedTestService>(scope.ServiceProvider.GetService<IScopedTestService>());
                 }
                 
-                await host.StopAsync();
+                await host.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -137,7 +137,7 @@ namespace SuperSocket.Tests
 
             using (var host = builder.Build())
             { 
-                await host.StartAsync();
+                await host.StartAsync(TestContext.Current.CancellationToken);
                 var server = host.AsServer();
 
                 Assert.IsType<TestService>(server.ServiceProvider.GetService<ITestService>());
@@ -147,7 +147,7 @@ namespace SuperSocket.Tests
                     Assert.IsType<ScopedTestService>(scope.ServiceProvider.GetService<IScopedTestService>());
                 }
 
-                await host.StopAsync();
+                await host.StopAsync(TestContext.Current.CancellationToken);
             }
         }
 
@@ -209,14 +209,14 @@ namespace SuperSocket.Tests
 
             using (var host = builder.Build())
             { 
-                await host.StartAsync();
+                await host.StartAsync(TestContext.Current.CancellationToken);
 
                 var server = host.AsServer();
                 
                 using(var client = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp))
                 {
-                    await client.ConnectAsync(GetDefaultServerEndPoint());
-                    await Task.Delay(1000);
+                    await client.ConnectAsync(GetDefaultServerEndPoint(), TestContext.Current.CancellationToken);
+                    await Task.Delay(1000, TestContext.Current.CancellationToken);
 
                     Assert.NotNull(session);
                     Assert.NotNull(session.TestService as TestService);
@@ -225,7 +225,7 @@ namespace SuperSocket.Tests
                     client.Close();
                 }
 
-                await host.StopAsync();
+                await host.StopAsync(TestContext.Current.CancellationToken);
             }
         }
     }
